@@ -1,0 +1,44 @@
+{
+  "pack_base_date": "2025-03-12T15:51:47.4022599-05:00",
+  "description": "Automático",
+  "details": [
+    {
+      "model": "account_journal",
+      "total_files": 4,
+      "files": [
+        {
+          "name": "10.zip",
+          "hash": "70bee104abb60391fb72a4c1990c12b63af387f431a85b70c4c4b745f4201992",
+          "create_date": "2025-03-12T15:51:47.2364976-05:00",
+          "year": 2024,
+          "month": 12,
+          "day": 10
+        },
+        {
+          "name": "19.zip",
+          "hash": "1483edba804dde6679aae03c17fe42c93c254ac47c39646e68d11bd1ac354324",
+          "create_date": "2025-03-12T15:51:47.2953319-05:00",
+          "year": 2024,
+          "month": 12,
+          "day": 19
+        },
+        {
+          "name": "4.zip",
+          "hash": "ee3b15469c294ba5e02d40f408c040a9d6358ac935bf5ec49cc237343a17a000",
+          "create_date": "2025-03-12T15:51:47.34601-05:00",
+          "year": 2024,
+          "month": 3,
+          "day": 4
+        },
+        {
+          "name": "9.zip",
+          "hash": "97c0143d735db1dd1e6aa5eb905f47b944757557ae610fee4824a4df86413e49",
+          "create_date": "2025-03-12T15:51:47.3837665-05:00",
+          "year": 2024,
+          "month": 12,
+          "day": 9
+        }
+      ]
+    }
+  ]
+}

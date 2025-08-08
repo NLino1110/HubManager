@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<mct:Popup
+	x:Class="DMOrdersUI.Controls.PopupLoadingTask"
+	xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+	xmlns:mct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit" 
+    Color="Transparent"
+    VerticalOptions="Center">
+	<StackLayout Style="{StaticResource PopupLayout}" BackgroundColor="Transparent" Padding="0">        
+		<StackLayout.Resources>
+			<ResourceDictionary>
+				<Style x:Key="Title" TargetType="Label">
+					<Setter Property="FontSize" Value="16" />
+					<Setter Property="FontAttributes" Value="Bold" />
+					<Setter Property="TextColor" Value="DimGray" />
+					<Setter Property="VerticalTextAlignment" Value="Center" />
+					<Setter Property="HorizontalTextAlignment" Value="Center" />
+				</Style>
+				<Style x:Key="Divider" TargetType="BoxView">
+					<Setter Property="HeightRequest" Value="1" />
+					<Setter Property="Margin" Value="10, 10" />
+					<Setter Property="Color" Value="#c3c3c3" />
+				</Style>
+				<Style x:Key="Content" TargetType="Label">
+                    <Setter Property="FontSize" Value="11" />
+                    <Setter Property="TextColor" Value="#959599" />
+					<Setter Property="HorizontalTextAlignment" Value="Start" />
+					<Setter Property="VerticalTextAlignment" Value="Center" />
+				</Style>
+                <Style x:Key="ContentNotify" TargetType="Label">
+                    <Setter Property="FontSize" Value="11" />
+                    <Setter Property="TextColor" Value="#7B7B81" />
+                    <Setter Property="FontAttributes" Value="Bold" />
+                    <Setter Property="HorizontalTextAlignment" Value="Start" />
+                    <Setter Property="VerticalTextAlignment" Value="Center" />
+                </Style>
+                <Style x:Key="PopupLayout" TargetType="StackLayout">
+					<Setter Property="Padding" Value="{OnPlatform Android=0, WinUI=0, iOS=0, MacCatalyst=0, Tizen=0}" />
+				</Style>
+			</ResourceDictionary>
+		</StackLayout.Resources>
+        <Frame Padding="0" 
+                Margin="0"
+                VerticalOptions="FillAndExpand" 
+                HorizontalOptions="FillAndExpand" 
+               BorderColor="Gray">
+            <StackLayout Margin="0" Padding="5" VerticalOptions="Center">
+                <StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+					<ActivityIndicator IsRunning="True" Color="DeepPink"></ActivityIndicator>
+                    <Label x:Name="PopupTitle" Style="{StaticResource Title}" Text="Procesando..." Margin="5,0,0,0" IsVisible="False"/>
+                </StackLayout>
+				<BoxView Style="{StaticResource Divider}" />
+                <Label Style="{StaticResource Content}" Text="Por favor espere un momento." HorizontalOptions="Center"/>
+                <Label x:Name="lblNotify" Style="{StaticResource ContentNotify}" Text="..." Margin="5,0,0,0" IsVisible="False"/>
+            </StackLayout>
+        </Frame>
+	</StackLayout>
+</mct:Popup>

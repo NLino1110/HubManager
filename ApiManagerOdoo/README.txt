@@ -1,0 +1,1 @@
+﻿#Esta librería tiene como objetivo servir de intermediaria entre la aplicación y los apis publicados para las aplicaciones móviles.

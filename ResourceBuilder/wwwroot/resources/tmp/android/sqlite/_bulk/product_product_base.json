@@ -1,0 +1,52 @@
+{
+  "pack_base_date": "2025-06-03T12:52:18.8933006-05:00",
+  "description": "Automático",
+  "details": [
+    {
+      "model": "product_product",
+      "total_files": 5,
+      "files": [
+        {
+          "name": "9.zip",
+          "hash": "e4bd72bea06cab767d295c5904e1c34e942260dad20006f7a50f1a95b20954c3",
+          "create_date": "2025-06-03T12:50:23.6567649-05:00",
+          "year": 2024,
+          "month": 12,
+          "day": 9
+        },
+        {
+          "name": "27.zip",
+          "hash": "ee1dda6df927ffa17483dedd29ebf3c6847e3c7893ef4cb3b9c7271ebceeb6db",
+          "create_date": "2025-06-03T12:50:25.1434878-05:00",
+          "year": 2025,
+          "month": 5,
+          "day": 27
+        },
+        {
+          "name": "6.zip",
+          "hash": "56e95bb2aaede4c000027c30fd1245777038be72af373e8a6e62339fae6cfd3b",
+          "create_date": "2025-06-03T12:50:26.4787913-05:00",
+          "year": 2024,
+          "month": 9,
+          "day": 6
+        },
+        {
+          "name": "4.zip",
+          "hash": "a5c60562835dc845001d0357f49be8e11ec8eba430285c7ba4abb3a0dfa0694a",
+          "create_date": "2025-06-03T12:50:27.5018236-05:00",
+          "year": 2024,
+          "month": 3,
+          "day": 4
+        },
+        {
+          "name": "13.zip",
+          "hash": "1c8bcd857f5dc0dc35b2956d87e4b9d24d7f3db817ec202d59caeb61a952acc6",
+          "create_date": "2025-06-03T12:52:18.7772322-05:00",
+          "year": 2024,
+          "month": 9,
+          "day": 13
+        }
+      ]
+    }
+  ]
+}

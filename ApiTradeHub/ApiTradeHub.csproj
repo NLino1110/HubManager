@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>False</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Controllers\Especiales\NotaCreditoDetController.cs" />
+    <Compile Remove="Services\Sales\Models\ArticuloDTO.cs" />
+    <Compile Remove="Services\Sales\Models\Inventory.cs" />
+    <Compile Remove="Services\Sales\Models\RequestPrices.cs" />
+    <Compile Remove="Services\Sales\Models\ResponseSkuBulk.cs" />
+    <Compile Remove="Services\Sales\Models\StockResult.cs" />
+    <Compile Remove="Services\Sales\Models\StockResult_excluded.cs" />
+    <Compile Remove="Services\Sales\Models\Warehouse.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\data\query\invoice_details.sql" />
+    <Content Remove="wwwroot\data\query\invoice_header.sql" />
+    <Content Remove="wwwroot\data\query\invoice_payments.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.2.7" />
+    <PackageReference Include="Microsoft.AspNetCore.OData.NewtonsoftJson" Version="8.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.8" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="RestSharp" Version="112.1.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\Odoo\Cobranzas\" />
+    <Folder Include="Services\Sales\Models\" />
+    <Folder Include="wwwroot\data\sqlite\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\data\query\invoice_details.sql" />
+    <None Include="wwwroot\data\query\invoice_header.sql" />
+    <None Include="wwwroot\data\query\invoice_payments.sql" />
+  </ItemGroup>
+
+</Project>

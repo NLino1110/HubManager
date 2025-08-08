@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:BeebTech.Maui.Controls;assembly=BeebTech.Maui.Controls"
+             x:Class="DMOrdersUI.Pages.Fragments.Customers.Filters"
+             x:Name="mainpage"
+             xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui">    
+    <StackLayout Padding="3">
+        <uranium:ExpanderView IsExpanded="True">
+            <uranium:ExpanderView.Header>
+                <Label BackgroundColor="WhiteSmoke" 
+                       Text="Filtros"
+                       FontSize="12"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center"
+                       Padding="3"/>
+            </uranium:ExpanderView.Header>
+            <StackLayout>
+                <Grid ColumnDefinitions="*" RowSpacing="0" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                    <material:TextField
+                        Grid.Row="0"
+                        FontSize="11"
+                        x:Name="entryCode"
+                        Title="Cod. Cliente"
+                        BorderThickness="0.4"
+                        Keyboard="Numeric"                
+                        Margin="0"
+                        Padding="0"                
+                        />
+
+                    <material:TextField
+                            Grid.Row="1"
+                        FontSize="11"
+                            x:Name="entryId"
+                            Title="Identificación"
+                            BorderThickness="0.4"                    
+                        />
+
+                    <material:TextField
+                            Grid.Row="2"
+                        FontSize="11"
+                            x:Name="entryName"
+                            Title="Nombre"
+                            BorderThickness="0.4"                    
+                    />
+
+                    <material:DropdownField x:Name="ddfDays"
+                                            FontSize="11"
+                                Title="Día Visita" 
+                                AllowClear="False" 
+                                StyleClass="ControlPreview"
+                                            BorderThickness="0.4"                                    
+                                            Grid.Row="3">
+                        <!--<material:DropdownField.ItemsSource>
+                                <x:Array Type="{x:Type x:String}">
+                                    <x:String>Option 1</x:String>
+                                    <x:String>Option 2</x:String>
+                                    <x:String>Option 3</x:String>
+                                </x:Array>
+                            </material:DropdownField.ItemsSource>-->
+                    </material:DropdownField>
+
+                    <material:DropdownField x:Name="ddfStatus"
+                            Title="Estado" 
+                                            FontSize="11"
+                            AllowClear="False" 
+                            StyleClass="ControlPreview"
+                                            BorderThickness="0.4"
+                            Grid.Row="4">
+                        <!--<material:DropdownField.ItemsSource>
+                    <x:Array Type="{x:Type x:String}">
+                        <x:String>Option 1</x:String>
+                        <x:String>Option 2</x:String>
+                        <x:String>Option 3</x:String>
+                    </x:Array>
+                </material:DropdownField.ItemsSource>-->
+                    </material:DropdownField>
+
+                </Grid>
+
+                <HorizontalStackLayout 
+                    Spacing="10" 
+                    Margin="5,2,5,0"
+                    AbsoluteLayout.LayoutFlags="PositionProportional"
+                                        AbsoluteLayout.LayoutBounds="0.5, 0.9, 1, 0.1">
+                    <Button x:Name="btnClear" Text="Limpiar" FontSize="10" BackgroundColor="Gray" TextColor="White" Clicked="btnClear_Clicked">
+                        <Button.ImageSource>
+                            <FontImageSource 
+                                Size="18"
+                                FontFamily="MaterialSharp"
+                                Glyph="{x:Static uranium:MaterialSharp.Remove_done}" />
+                        </Button.ImageSource>
+                    </Button>
+
+                    <Button x:Name="btnSearch" Text="Buscar" FontSize="10" BackgroundColor="IndianRed"  TextColor="White" Clicked="Button_Clicked">
+                        <Button.ImageSource>
+                            <FontImageSource 
+                                Size="18"
+                                FontFamily="MaterialSharp"
+                                Glyph="{x:Static uranium:MaterialSharp.Search}" />
+                        </Button.ImageSource>
+                    </Button>
+                </HorizontalStackLayout>
+            </StackLayout>
+        </uranium:ExpanderView>
+    </StackLayout>
+</ContentView>

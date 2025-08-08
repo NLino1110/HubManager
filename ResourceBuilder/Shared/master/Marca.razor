@@ -1,0 +1,167 @@
+﻿@using System;
+@using System.ComponentModel;
+@using BlazorDateRangePicker;
+@using BlazorTable;
+
+@using Models.DMSA.Mbw.Inventario;
+
+<h3>Marca</h3>
+
+<div class="content px-0 m-2">
+    <div class="row">
+        <div class="col-md-auto">
+            <input @bind-value="input_search_param_var" type="text" class="form-control form-control-sm" id="input_search_param" placeholder="Texto de Búsqueda" />
+        </div>
+        <div class="col-md-auto">
+        @if (empresas == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <select @onchange="@OnUpdated" class="form-control form-control-sm">
+                <option value="0">(System)</option>
+                @foreach (var item in empresas)
+                {
+                    <option value="@item.CodEmpresa">@item.CodEmpresa - @item.RucEmpresa - @item.Nombre</option>
+                }
+            </select>
+        }
+        </div>
+        
+        <div class="col-md-auto">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-sm btn-primary"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="Agregar" @onclick=@(async () =>
+                        {
+                        await FillData();
+                        })>
+                    <i class="fas fa-plus"></i>
+                    Buscar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<BlazorTable.Table TableItem="GenMarca" Items="dataSource" PageSize="20" @ref="Table" ColumnReorder="true" @onchange="OnChangeTable">
+    <BlazorTable.Column TableItem="GenMarca" Title="Codigo" Field="@(x => x.CodMarca)" Sortable="true" Filterable="true" Width="5%">
+        <Template>
+            @context.CodMarca
+        </Template>
+    </BlazorTable.Column>
+                
+    <BlazorTable.Column TableItem="GenMarca" Title="Descripcion" Field="@(x => x.Descripcion)" Sortable="true" Filterable="true" Width="5%">
+        <Template>
+            @context.Descripcion
+        </Template>
+    </BlazorTable.Column>
+
+    <BlazorTable.Column TableItem="GenMarca" Title="Empresa Cod." Field="@(x => x.CodEmpresaMarca)" Sortable="true" Filterable="true" Width="5%">
+        <Template>
+            @context.CodEmpresaMarca
+        </Template>
+    </BlazorTable.Column>
+
+    <BlazorTable.Column TableItem="GenMarca" Title="Empresa Nombre" Field="@(x => x.Empresa.Nombre)" Sortable="false" Filterable="false" Width="5%">
+        <Template>
+            @context.Empresa.Nombre
+            @* @appDbContext.GENEMPRESAS.Where(Data => Data.CodEmpresa == context.CodEmpresaMarca)?.FirstOrDefault()?.Nombre *@
+        </Template>
+    </BlazorTable.Column>
+
+    <BlazorTable.Column TableItem="GenMarca" Title="Fecha Crea." Field="@(x => x.Fecha)" Sortable="true" Filterable="true" Width="5%">
+        <Template>
+            @context.Fecha
+        </Template>
+    </BlazorTable.Column>
+    
+    <BlazorTable.Column TableItem="GenMarca" Title="-" Width="5%">
+        <Template>
+            @* @switch (context.statusPaymentWarning)
+            {
+                case 0:
+                    <button type="button" class="btn btn-sm btn-warning"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Evaluar estado de aviso" @onclick=@(async () => {
+                    await EvalWarning(context);
+                    })>
+                        <i class="fas fa-dollar-sign"></i> Aviso
+                    </button>
+                    break;
+                case 1:
+                    <button type="button" class="btn btn-sm btn-success"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Quitar aviso de pago" @onclick=@(async () => {
+                    await RemoveWarningPayment(context);
+                    })>
+                        <i class="fas fa-exclamation-circle"></i> Quitar
+                    </button>
+                    break;
+                case 2:                                        
+                    <button type="button" class="btn btn-sm btn-warning"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Colocar aviso de pago" @onclick=@(async () => {
+                    await AddWarningPayment(context);
+                    })>
+                        <i class="fas fa-exclamation-circle"></i> Mostrar
+                    </button>
+                    break;
+            } *@
+        </Template>
+    </BlazorTable.Column>
+    <BlazorTable.Column TableItem="GenMarca" Title="-" Width="5%">
+        <Template>
+            <button type="button" class="btn btn-sm btn-primary"
+                    @onclick="_=>LaunchEdition(context)"
+                    @attributes="AdditionalAttributes"
+                    data-toggle="tooltip" data-placement="top" title="Modificar">
+                <i class="fas fa-pencil-alt"></i>
+            </button>
+        </Template>
+    </BlazorTable.Column>
+    <Pager ShowPageNumber="true" ShowTotalCount="true" ShowPageSizes="true" />
+</BlazorTable.Table>
+
+<BlazorTable.Table TableItem="GenMarca" Items="data" DataLoader="_loader" PageSize="20" @ref="Table" ColumnReorder="true" @onchange="OnChangeTable" ShowSearchBar="true">
+    <BlazorTable.Column TableItem="GenMarca" Title="Codigo" Field="@(x => x.CodMarca)" Sortable="true" Filterable="true" Width="5%">
+        <Template>
+            @context.CodMarca
+        </Template>
+    </BlazorTable.Column>
+
+    <BlazorTable.Column TableItem="GenMarca" Title="Descripcion" Field="@(x => x.Descripcion)" Sortable="true" Filterable="true" Width="5%">
+        <Template>
+            @context.Descripcion
+        </Template>
+    </BlazorTable.Column>
+
+    <BlazorTable.Column TableItem="GenMarca" Title="Empresa Cod." Field="@(x => x.CodEmpresaMarca)" Sortable="true" Filterable="true" Width="5%">
+        <Template>
+            @context.CodEmpresaMarca
+        </Template>
+    </BlazorTable.Column>   
+
+    <BlazorTable.Column TableItem="GenMarca" Title="Fecha Crea." Field="@(x => x.Fecha)" Sortable="true" Filterable="true" Width="5%">
+        <Template>
+            @context.Fecha
+        </Template>
+    </BlazorTable.Column>
+    
+    <BlazorTable.Column TableItem="GenMarca" Title="-" Width="5%">
+        <Template>
+            <button type="button" class="btn btn-sm btn-primary"
+                    @onclick="_=>LaunchEdition(context)"
+                    @attributes="AdditionalAttributes"
+                    data-toggle="tooltip" data-placement="top" title="Modificar">
+                <i class="fas fa-pencil-alt"></i>
+            </button>
+        </Template>
+    </BlazorTable.Column>
+    <Pager ShowPageNumber="true" ShowTotalCount="true" ShowPageSizes="true" />    
+</BlazorTable.Table>

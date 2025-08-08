@@ -1,0 +1,54 @@
+﻿@using BlazorXTabs
+@using BlazorMonaco.Editor
+@using Append.Blazor.Clipboard
+@inject IClipboardService ClipboardService
+
+<div class="modal fade show d-block" tabindex="-1" role="dialog">
+    <div class="modal-backdrop fade show" @onclick="Cancel"></div>
+    <div class="modal-dialog modal-xl" style="z-index: 1050">
+        <!-- Pop it above the backdrop -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@BlazoredModal.Title</h5>
+                <button type="button" class="btn btn-sm close" aria-label="Close" @onclick="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <XTabs @ref="_xtabs">
+                <XTab Title="Editor">
+                    @* <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                        <button type="button" class="btn btn-secondary"><i class="fas fa-file"></i> Nuevo</button>
+                        <button type="button" class="btn btn-secondary"><i class="fas fa-file"></i> Clonar</button>
+                        
+                        <div class="btn-group" role="group">
+                            <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Dropdown
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                <a class="dropdown-item" href="#">Dropdown link</a>
+                                <a class="dropdown-item" href="#">Dropdown link</a>
+                            </div>
+                        </div>
+                    </div> *@
+                    <StandaloneCodeEditor @ref="_editor"
+                                          Id="editor"
+                                          ConstructionOptions="EditorConstructionOptions"
+                                          OnDidInit="EditorOnDidInit"
+                                          OnContextMenu="OnContextMenu" />
+                </XTab>                
+            </XTabs>
+            <div class="modal-footer">                
+               @*  <button type="button" class="btn btn-primary" @onclick=@(async () => {
+                        
+                        })>
+                    Crear Pdf
+                </button> *@
+                <button type="button" @onclick="CopyContent" class="btn btn-success"><i class="fas fa-copy"></i> Copiar</button>
+                <button type="button" @onclick="Cancel" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+
+}

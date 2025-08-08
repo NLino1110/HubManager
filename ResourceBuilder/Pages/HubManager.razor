@@ -1,0 +1,89 @@
+﻿@page "/hubmanager"
+@inject NavigationManager Navigation
+
+<h3>HubManager</h3>
+
+<div>
+    Servidor en ejecución: @Servidor/chatHub
+</div>
+
+
+<button type="button" class="btn btn-sm btn-info"
+        @onclick="() => LaunchCacheBuilderOdoo(null)"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Verificar estado">
+    <i class="fa fa-sm fa-wifi"></i>
+    Cargar clientes
+</button>
+
+<button type="button" class="btn btn-sm btn-info"
+        @onclick="() => ClearDevices()"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Verificar estado">
+    <i class="fa fa-sm fa-wifi"></i>
+    Limpiar
+</button>
+
+@if (devices == null)
+{
+    
+}
+else
+{
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>App Nombre</th>
+                <th>Disp. Nombre</th>
+            <th>Plataforma</th>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Version</th>
+            <th>-</th>
+        </tr>
+    </thead>
+    <tbody>
+            @foreach (var item in devices)
+        {
+            <tr>
+                    <td class="col-sm">@item.Id</td>
+                    <td>@item.AppName</td>
+                    <td>@item.DeviceName</td>
+                    <td>@item.Platform</td>
+                    <td>@item.Manufacturer</td>
+                    <td>@item.Model</td>
+                    <td>@item.VersionString</td>
+@*                 <td>@forecast.Date.ToShortDateString()</td>
+                <td>@forecast.TemperatureC</td>
+                <td>@forecast.TemperatureF</td>
+                <td>@forecast.Summary</td> *@
+                    <td>
+                        <button type="button" class="btn btn-sm btn-info"
+                                @onclick="() => RequireInfoDevice(item)"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="Enviar">
+                            <i class="fa fa-sm fa-wifi"></i>
+                            Enviar
+                        </button>                    
+                        <button type="button" class="btn btn-sm btn-info"
+                                @onclick="() => SendMessageDevice(item)"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="Enviar">
+                            <i class="fas fa-comments"></i>                            
+                        </button>
+                    </td>
+            </tr>
+        }
+    </tbody>
+</table>
+}
+
+@code {
+
+}

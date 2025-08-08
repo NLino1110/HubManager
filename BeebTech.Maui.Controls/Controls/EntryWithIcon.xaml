@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BeebTech.Maui.Controls.EntryWithIcon"
+             x:Name="root">
+    <ContentView.Content>
+        <Grid BindingContext="{x:Reference root}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="36"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="36"/>
+            </Grid.ColumnDefinitions>
+            <Image WidthRequest="20">
+                <Image.Source>
+                    <FontImageSource FontFamily="{Binding FontFamily}"
+                                                 Color="{Binding IconColor}"
+                                                 Size="20"                                 
+                                 FontAutoScalingEnabled="True"
+                                                 Glyph="{Binding Glyph}" />
+                </Image.Source>
+            </Image>
+
+            <Entry x:Name="EntryControl"
+                Placeholder="{Binding Placeholder}"
+                   Text="{Binding Text}"
+                   IsPassword="{Binding HidePassword}"
+                   Grid.Column="1"
+                   TextColor="{Binding TextColor}" IsReadOnly="{Binding IsReadOnly}"                   
+                   />
+        </Grid>
+    </ContentView.Content>
+</ContentView>

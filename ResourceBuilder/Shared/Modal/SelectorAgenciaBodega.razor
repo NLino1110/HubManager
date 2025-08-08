@@ -1,0 +1,62 @@
+﻿@using System;
+@using System.ComponentModel;
+@using Blazored.Modal;
+@using BlazorDateRangePicker;
+@using Microsoft.AspNetCore.Components;
+@using Models.DMSA.Mbw.Inventario;
+@using Models.DMSA.Mbw.Sales;
+@using Microsoft.AspNetCore.Components.QuickGrid;
+
+<div class="modal fade show d-block" tabindex="-1" role="dialog">
+    <div class="modal-backdrop fade show" @onclick="Cancel"></div>
+    <div class="modal-dialog modal-xl" style="z-index: 1050">
+        <!-- Pop it above the backdrop -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@BlazoredModal.Title</h5>
+                <button type="button" class="close" aria-label="Close" @onclick="Cancel">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="m-3">
+                @* <p style="word-break: break-all;">@Message</p> *@
+                <div class="grid">
+                    <QuickGrid Items="dataSource" Pagination="@pagination">
+                        <TemplateColumn>
+                            <input type="checkbox" @bind-value="context.selected" checked="@(context.selected?"checked":null)" />
+                        </TemplateColumn>
+                        <PropertyColumn Property="@(p => p.CodBodegaAgencia)" Title="CodBodAge." Sortable="true" Align="Align.Center" />
+                        <PropertyColumn Property="@(p => p.CodAgencia)" Sortable="true" Align="Align.Center" />
+                        <PropertyColumn Property="@(p => p.CodBodega)" Sortable="true" Align="Align.Center" />
+                        <PropertyColumn Property="@(p => p.Observaciones)" Sortable="true" Class="country-name" />
+                        <PropertyColumn Property="@(p => p.CodEstado)" Sortable="true" Align="Align.Center" />
+                        <PropertyColumn Property="@(p => p.UsuarioCambioEstado)" Title="Usuario Camb." Sortable="true" />
+                        @* <PropertyColumn Property="@(p => p.FechaCambioEstado)" Sortable="true" />
+                        <PropertyColumn Property="@(p => p.EsDevolucion)" Sortable="true" />
+                        <PropertyColumn Property="@(p => p.ProcesaWMS)" Title="ProcesaWMS" Sortable="true" />
+                        <PropertyColumn Property="@(p => p.CorreoContacto)" Title="CorreoCont." Sortable="true" />
+                        <PropertyColumn Property="@(p => p.Principal)" Sortable="true" /> *@
+
+                        <TemplateColumn Title="Actions">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-success"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="Descuentos" @onclick="@(() => SelectItem(context, true, false))">
+                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </TemplateColumn>
+
+                    </QuickGrid>
+                </div>
+                <Paginator State="@pagination" />
+            </div>
+            <div class="modal-footer">
+                <button @onclick="SubmitForm" class="btn btn-primary">Aceptar</button>
+                <button @onclick="Cancel" class="btn btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+

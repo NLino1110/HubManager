@@ -1,0 +1,60 @@
+﻿<div class="modal fade show d-block" tabindex="-1" role="dialog">
+    <div class="modal-backdrop fade show" @onclick="Cancel"></div>
+    <div class="modal-dialog" style="z-index: 1050"> <!-- Pop it above the backdrop -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@BlazoredModal.Title</h5>
+                <button type="button" class="close" aria-label="Close" @onclick="Cancel">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Desea iniciar la prueba del SMTP configurado?
+                </p>
+                <div class="row">
+                    <div class="col-12">
+                        <input @bind-value=@emailToTest type="text" class="form-control" placeholder="email">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-2">
+                        @if (!RunningTest)
+                        {
+                            <button type="button" class="btn-warning" @onclick="InitTest" @attributes="AdditionalAttributes">
+                                <i class="fas fa-phone-volume"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <i class="fas fa-circle-notch fa-spin"></i>
+                        }
+                    </div>
+                </div>
+                @if (DoneTest)
+                {
+                    @if (SucessTest)
+                    {
+                        <div class="row">
+                            <div class="col-12">
+                                <i class="far fa-check-circle"></i>Prueba correcta
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row">
+                            <div class="col-12">
+                                <i class="fas fa-exclamation-triangle"></i>Error en la prueba
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+            <div class="modal-footer">
+                @*<button @onclick="SubmitForm" class="btn btn-primary">Aceptar</button>*@
+                <button @onclick="Cancel" class="btn btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>

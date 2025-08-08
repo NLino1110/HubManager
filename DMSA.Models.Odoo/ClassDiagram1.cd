@@ -1,0 +1,284 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="DMSA.Models.Security.AppSession">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACIIAgAAAAMAggAAAAAAAACEAAECAAAABEAA=</HashCode>
+      <FileName>Security\Cobranzas\AppSession.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.CobCarteraCab">
+    <Position X="4" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAAAAAIAAAAIAABBCAAAAAIAQAAQAABAAAA=</HashCode>
+      <FileName>CobCarteraCab.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.CobCarteraDet">
+    <Position X="5.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIADAAAAJAABAAAAABAIAAJAAAAgQAAAQEAAAAAAAAA=</HashCode>
+      <FileName>CobCarteraDet.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.CobCierre">
+    <Position X="7.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAAAAAAAAAAECAAQAAAAAAAQAAAAAAEAAA=</HashCode>
+      <FileName>CobCierre.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.CobReciboCab">
+    <Position X="4" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAIAAAAwAAAAAAIABABAQAQgAQAQTgQAAAIQAA=</HashCode>
+      <FileName>CobReciboCab.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.CobReciboDet">
+    <Position X="5.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AiCgEAMAAAAEERAABAAAgAAAQgACBAAAAAEAAAAFABA=</HashCode>
+      <FileName>CobReciboDet.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.CobUsuarios">
+    <Position X="9.25" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQAEAAAAAAQAAAAAQAAAAAAIAAAAAAABAAAQEAIAA=</HashCode>
+      <FileName>CobUsuarios.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.detallesDocumentos">
+    <Position X="11" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIADAAAAJgABAAAAABAIAANAAAAgQAAAQEAAAAAAAAA=</HashCode>
+      <FileName>detallesDocumentos.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.detallesDocumentos_forSend">
+    <Position X="4" Y="9.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIABAAAAAgAAAAAAABAAAAMAAAAgAAAAAEAAAAAAAAA=</HashCode>
+      <FileName>detallesDocumentos.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.DownloadResponse">
+    <Position X="5.75" Y="10" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAAAAAAAAAAAAAAAAAAAAAEACAAAAAAAAAAAAA=</HashCode>
+      <FileName>DownloadResponse.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.Empresa">
+    <Position X="7.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAQAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Empresa.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.FacNotaCreditoCab">
+    <Position X="9.25" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAACIgAAAEQAIAQIAABAAAAEwAgAUAAQAgAAFgA=</HashCode>
+      <FileName>FacNotaCreditoCab.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.FacNotaCreditoDet">
+    <Position X="2.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAASAgAgAAQEAAkAAAFABIAEgAAAAAgAQgAAAAg=</HashCode>
+      <FileName>FacNotaCreditoDet.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.FacNotaCreditoDetAuxiliar">
+    <Position X="2.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAACAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAQAAAAAAA=</HashCode>
+      <FileName>FacNotaCreditoDet.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.GenModulosNC">
+    <Position X="11" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAA=</HashCode>
+      <FileName>GenModulosNC.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.GenTiposNotaCredito">
+    <Position X="4" Y="12.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAg=</HashCode>
+      <FileName>GenTiposNotaCredito.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.Parametros">
+    <Position X="5.75" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAAQAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Parametros.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.PlatformInfo">
+    <Position X="7.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>PlatformInfo.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.SolicitudesNC">
+    <Position X="7.5" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAAgAAAAAgIAAABAwAAgEQAQTgQAAAAAAA=</HashCode>
+      <FileName>SolicitudesNC.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DMSA.Models.CobCierreDetalle">
+    <Position X="9.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAQAAAAAAA=</HashCode>
+      <FileName>CobCierreDetalle.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DMSA.Models.CobCierreDetalle_data">
+    <Position X="11" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAgAAAAAAABAAcAAAAAAAAAAA=</HashCode>
+      <FileName>CobCierreDetalle.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DMSA.Models.CobrosEstados">
+    <Position X="7.5" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAABAAAAABAAAAAAIAAAAAA=</HashCode>
+      <FileName>CobrosEstados.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.Origin.CobCarteraCabOrigin">
+    <Position X="12.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAA=</HashCode>
+      <FileName>Origin\CobCarteraCabOrigin.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.Origin.CobCarteraDetOrigin">
+    <Position X="14.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Origin\CobCarteraDetOrigin.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.Origin.FacNotaCreditoCabOrigin">
+    <Position X="12.75" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAA=</HashCode>
+      <FileName>Origin\FacNotaCreditoCabOrigin.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.Origin.FacNotaCreditoDetOrigin">
+    <Position X="14.5" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Origin\FacNotaCreditoDetOrigin.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DMSA.Models.MovilCobranzas.Api.st_bancos">
+    <Position X="12.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MovilCobranzas\Api\st_bancos.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DMSA.Models.MovilCobranzas.Api.st_cuentas">
+    <Position X="14.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAQAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MovilCobranzas\Api\st_cuentas.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DMSA.Models.MovilCobranzas.Api.st_formaspago">
+    <Position X="16.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABBAAAAAAAAAAAAAEAAAAAAAAAIAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MovilCobranzas\Api\st_formaspago.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DMSA.Models.MovilCobranzas.Api.st_modulosnc">
+    <Position X="12.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MovilCobranzas\Api\st_modulosnc.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DMSA.Models.MovilCobranzas.Api.st_tarjetas">
+    <Position X="14.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MovilCobranzas\Api\st_tarjetas.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DMSA.Models.MovilCobranzas.Api.st_tiposnc">
+    <Position X="16.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAg=</HashCode>
+      <FileName>MovilCobranzas\Api\st_tiponc.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.General.Core.Agencia">
+    <Position X="16.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAABAA=</HashCode>
+      <FileName>General\Core\Agencia.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CobranzasDMSA.Models.General.Core.Empresa">
+    <Position X="18" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAQAAAAAAAAQAAAACAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>General\Core\Empresa.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DMSA.Models.General.Core.TipoIde">
+    <Position X="16.25" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAgA=</HashCode>
+      <FileName>General\Core\TipoIde.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DMSA.Models.General.Responses.ApiResponse_GUARDAR_COBRO_CXC">
+    <Position X="18" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAABAAAAAAAAAAAAIAAEAAAAAAACA=</HashCode>
+      <FileName>General\Responses\ApiResponse_GUARDAR_COBRO_CXC.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DMSA.Models.General.Responses.ApiResponse_GUARDAR_NOTACREDITO">
+    <Position X="19.75" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAIAAAAAAAAAAAAAAAIAAEAAAAAAACA=</HashCode>
+      <FileName>General\Responses\ApiResponse_GUARDAR_NOTACREDITO.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DMSA.Models.General.Responses.ApiResponse_OBTENER_FAC_NOTACREDITO_CAB">
+    <Position X="18" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAAAAAAAAAAAAAAAAEAAAAAAIAAEAQAAAAAAA=</HashCode>
+      <FileName>General\Responses\ApiResponse_OBTENER_FAC_NOTACREDITO_CAB.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DMSA.Models.General.Responses.ApiResponse_OBTENER_FAC_NOTACREDITO_DET">
+    <Position X="18" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAAAAAAAAAAAAAAAAEAAAAAAIAAEAQAAAAAAA=</HashCode>
+      <FileName>General\Responses\ApiResponse_OBTENER_FAC_NOTACREDITO_DET.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DMSA.Models.General.Responses.ApiResponse_VALIDASINCRONIZACION">
+    <Position X="19.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAQAAAAAAAAAAAAAAEAAAAAAAAEAAAAAAAAA=</HashCode>
+      <FileName>General\Responses\ApiResponse_VALIDASINCRONIZACION.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

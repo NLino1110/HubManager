@@ -1,0 +1,4 @@
+﻿# En esta carpeta se encuentran las clases que permiten leer la información de los JSON que se descargan
+#   del repositorio personalizado.
+# Estas estructuras pueden cambiar según la necesidad, pero tambien deben cambiarse del lado del 
+#   del resource builder (la aplicación que crea los ZIP de cache)

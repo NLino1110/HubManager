@@ -1,0 +1,20 @@
+{
+  "pack_base_date": "2025-06-16T08:38:13.7242768-05:00",
+  "description": "Automático",
+  "details": [
+    {
+      "model": "product_template",
+      "total_files": 1,
+      "files": [
+        {
+          "name": "27.zip",
+          "hash": "a27093c1b1885f9e391d135d9e4ef5a57206ac5c63dea508233806e82ce34dda",
+          "create_date": "2025-06-16T08:38:13.6653859-05:00",
+          "year": 2025,
+          "month": 5,
+          "day": 27
+        }
+      ]
+    }
+  ]
+}

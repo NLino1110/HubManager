@@ -1,0 +1,102 @@
+﻿@page "/zipbuilder"
+@using ResourceBuilder.Data
+
+<PageTitle>Data Builder</PageTitle>
+
+<AuthorizeView Policy="">
+    <Authorized>
+        <h1>Hello, @context.User.Identity.Name!</h1>
+
+        @* <p><label>/resources/tmp/android/sqlite/COBCARTERACAB.zip</label></p> *@
+        @* 
+        <button type="button" class="btn btn-sm btn-info"
+        @onclick="() => LaunchCacheBuilder(null)"
+                data-toggle="tooltip"
+                data-placement="top"
+                title="Verificar estado (EN PROCESO)" @attributes=AdditionalAttributesBusy>
+            <i class="fa fa-sm fa-wifi"></i>
+            Procesar
+        </button>
+
+        <button type="button" class="btn btn-sm btn-info"
+        @onclick="() => LaunchCacheBuilderV2(null)"
+                data-toggle="tooltip"
+                data-placement="top"
+                title="Verificar estado (EN PROCESO)" @attributes=AdditionalAttributesBusy>
+            <i class="fa fa-sm fa-wifi"></i>
+            Procesar V2
+        </button>
+
+        <button type="button" class="btn btn-sm btn-info"
+        @onclick="() => Test(null)"
+                data-toggle="tooltip"
+                data-placement="top"
+                title="Verificar estado (EN PROCESO)">
+            <i class="fa fa-sm fa-wifi"></i>
+            Prueba 2
+        </button> *@
+
+        @* <button type="button" class="btn btn-sm btn-info"
+        @onclick="() => LaunchCacheBuilderOdoo(null)"
+                data-toggle="tooltip"
+                data-placement="top"
+                title="Verificar estado">
+            <i class="fa fa-sm fa-wifi"></i>
+            Run Odoo Builder
+        </button> *@
+
+        <button type="button" class="btn btn-sm btn-info"
+                @onclick="() => LaunchCacheBuilderOdooChucks(null)"
+                data-toggle="tooltip"
+                data-placement="top"
+                title="Verificar estado" @attributes=AdditionalAttributesBusy>
+            <i class="fa fa-sm fa-wifi"></i>
+            Odoo Builder Chucks
+        </button>
+
+        <button type="button" class="btn btn-sm btn-info"
+                @onclick="() => TryData()"
+                data-toggle="tooltip"
+                data-placement="top"
+                title="Try Get Data">
+            <i class="fa fa-sm fa-wifi"></i>
+            Try Get Data
+        </button>
+
+        <button type="button" class="btn btn-sm btn-warning"
+                @onclick="() => CleanData()"
+                data-toggle="tooltip"
+                data-placement="top"
+                title="Try Get Data">
+            <i class="fa fa-sm fa-wifi"></i>
+            Clean Data
+        </button>
+
+       @*<div class="progress" role="progressbar" aria-label="Info example" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+            <div @ref=progressBarElement class="progress-bar progress-bar-striped" style="width: 0%" @attributes="AdditionalAttributes"><span style="color: white;font-weight: 600 !important;">@progressValue%</span></div>
+        </div>*@
+
+        <div class="progress" role="progressbar" aria-label="Info example" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+            <div @ref=progressBarElement class="progress-bar progress-bar-striped" style="width: 0%" @attributes="AdditionalAttributes"><span style="color: white;font-weight: 600 !important;">@progressValue%</span></div>
+        </div>
+        <div>
+            <label>@current_buildItem.Name</label>
+        </div>
+        <div>
+            <label>@status_process</label>
+        </div>
+
+    </Authorized>
+    <NotAuthorized>
+        <h1>Authentication Failure!</h1>
+        <p>You're not signed in.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+
+
+
+
+@code {
+    
+}

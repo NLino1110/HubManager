@@ -1,0 +1,70 @@
+﻿@page "/component_tmp"
+
+@using System.IO;
+@using System.Threading
+
+<style>
+    .@dropTargetClass {
+        display: block;
+        padding: 20px;
+        margin-bottom: 10px;
+        border: 1px dashed black;
+        border-radius: 5px;
+        position: relative;
+    }
+
+    .@dropTargetDragClass {
+        border-color: orangered;
+        font-weight: bold;
+    }
+</style>
+
+<div class="progress" role="progressbar" aria-label="Info example" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+    <div @ref=progressBarElement class="progress-bar progress-bar-striped" style="width: 0%" @attributes="AdditionalAttributes"><span style="color: white;font-weight: 600 !important;">@progressValue%</span></div>
+</div>
+
+<button @onclick=@ChangePro>Procesar</button>
+
+@code {
+    public Dictionary<string, object> AdditionalAttributes = new Dictionary<string, object>();
+    ElementReference progressBarElement;
+    private int progressValue = 0;
+
+    ElementReference dropTargetElement;
+    ElementReference dropTargetInput;
+
+    bool Additive { get; set; }
+
+    private static readonly string nl = System.Environment.NewLine;
+
+    const string dropTargetDragClass = "droptarget-drag";
+    const string dropTargetClass = "droptarget";
+
+    private List<string> _dropClasses = new List<string>() { dropTargetClass };
+
+    string DropClass => string.Join(" ", _dropClasses);
+
+    string Output { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool isFirstRender)
+    {
+        if (isFirstRender)
+        {
+
+        }
+    }
+
+    public async Task ChangePro()
+    {
+        for (progressValue=0; progressValue < 100; progressValue++)
+        {            
+            //_ = InvokeAsync(StateHasChanged);
+            //AdditionalAttributes.Add("style", "width: " + progressValue.ToString() + "%");
+            AdditionalAttributes["style"] = "width: " + progressValue.ToString() + "%";            
+            await Task.Delay(1000);
+            _ = InvokeAsync(StateHasChanged);
+        }
+    }
+}
+
+

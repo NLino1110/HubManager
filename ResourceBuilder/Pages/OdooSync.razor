@@ -1,0 +1,51 @@
+﻿@page "/odoosync"
+@using BlazorDateRangePicker;
+@inject IWebHostEnvironment WebHostEnvironment
+
+<h3>Factura Legacy</h3>
+
+@* <button type="button" class="btn btn-sm btn-info"
+        @onclick="() => ClearDevices()"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Verificar estado">
+    <i class="fa fa-sm fa-wifi"></i>
+    Cargar clientes
+</button> *@
+
+@* <button type="button" class="btn btn-sm btn-info"
+        @onclick="() => SmtpTest()"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Verificar estado">
+    <i class="fa fa-sm fa-wifi"></i>
+    Prueba smtp
+</button> *@
+
+<div class="px-0 m-0">
+    <div class="row">
+        <div class="m-1">
+            <DateRangePicker 
+                CustomDateClass="form-control auto"
+                             TimePicker="true" 
+                             TimePicker24Hour="true"
+                             DateFormat="@($"dd/MM/yyyy hh:mm tt")"
+                             @bind-StartDate="StartDate" @bind-EndDate="EndDate" />
+        </div>
+        <div class="m-1">
+            <button type="button" class="btn btn-sm btn-success"
+                    @onclick="() => SyncManager()"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Verificar estado">
+                <i class="fa fa-sm fa-database"></i>
+                Importacion MBW/Odoo
+            </button>
+        </div>
+    </div>
+</div>
+
+
+@code {
+
+}

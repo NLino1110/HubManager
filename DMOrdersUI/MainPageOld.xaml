@@ -1,0 +1,245 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<uranium:UraniumContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
+             xmlns:validation="clr-namespace:InputKit.Shared.Validations;assembly=InputKit.Maui"
+             x:Class="DMOrdersUI.MainPageOld"
+             xmlns:local="clr-namespace:DMOrdersUI"
+             xmlns:pages="clr-namespace:DMOrdersUI.Pages.Fragments.Customers"
+             x:Name="page" 
+                            Title="Principal"
+                            NavigationPage.HasNavigationBar="False">
+    
+    <!--<uranium:UraniumContentPage.ToolbarItems>
+        <ToolbarItem Text="Nuevo Pedido"/>
+    </uranium:UraniumContentPage.ToolbarItems>-->
+    <uranium:UraniumContentPage.BindingContext>
+        <local:MainPageViewModel />
+    </uranium:UraniumContentPage.BindingContext>
+
+    <uranium:UraniumContentPage.Resources>
+        <Style TargetType="Border">
+            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SecondaryContainer}, Dark={StaticResource SecondaryContainerDark}}" />
+        </Style>
+    </uranium:UraniumContentPage.Resources>    
+
+        <Grid>
+
+            <!--<Button Text="Delete" StyleClass="FilledTonalButton"  Command="{Binding RemoveSelectedItemsCommand}" HorizontalOptions="Center" />-->
+            <!--<material:DataGrid ItemsSource="{Binding Items}" SelectedItems="{Binding SelectedItems}" HorizontalOptions="Center" VerticalOptions="Center">
+                <material:DataGrid.Columns>
+                    <material:DataGridSelectionColumn/>
+
+                    <material:DataGridColumn ValueBinding="{Binding Content}" Title="Todo" />
+
+                    <material:DataGridColumn ValueBinding="{Binding Type}" Title="Type"/>
+
+                    <material:DataGridColumn ValueBinding="{Binding IsDone}" Title="Done"/>
+
+                </material:DataGrid.Columns>
+            </material:DataGrid>-->
+
+        <material:TabView x:Name="tabViewMain" VerticalOptions="Fill" HorizontalOptions="Fill" Margin="0,0,0,30">
+                <material:TabItem Title="-">
+                    <material:TabItem.Content>
+                        <Label Text="Macronegocios" Margin="60" />
+                    </material:TabItem.Content>
+                </material:TabItem>
+
+                <material:TabItem Title="Clientes">
+                    <material:TabItem.Content>
+                        <pages:Container x:Name="tabCustomers"></pages:Container>                        
+                    </material:TabItem.Content>
+
+            </material:TabItem>
+
+                <material:TabItem Title="Artículos">
+
+                    <material:TabItem.Content>
+                        <Label Text="Tab Content 3" Margin="60" />
+                    </material:TabItem.Content>
+                </material:TabItem>
+
+                <material:TabItem Title="Pedidos">
+
+                    <material:TabItem.Content>
+                        <Label Text="Tab Content 3" Margin="60" />
+                    </material:TabItem.Content>
+                </material:TabItem>
+
+                <material:TabItem Title="Actividades">
+                    <material:TabItem.Content>
+                        <Label Text="Tab Content 3" Margin="60" />
+                    </material:TabItem.Content>
+                </material:TabItem>
+            </material:TabView>
+
+        </Grid>    
+
+    <uranium:UraniumContentPage.Attachments>
+        <!--<material:BackdropView
+                Title="Add" 
+                IconImageSource="{FontImageSource FontFamily=MaterialSharp, Glyph={x:Static uranium:MaterialSharp.Add_circle}, Color={StaticResource OnPrimary}}"
+                BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Gray950}}">
+            
+            <input:FormView SubmitCommand="{Binding AddNewItemCommand}" Spacing="10" Padding="25,30" HorizontalOptions="Center" MaximumWidthRequest="400">
+                <material:TextField 
+                    Title="What to do?"
+                    Text="{Binding NewItem.Content}"
+                    TextColor="{StaticResource OnPrimary}"
+                    AccentColor="{StaticResource OnPrimary}"
+                    Icon="{FontImageSource FontFamily=MaterialSharp, Glyph={x:Static uranium:MaterialSharp.Sticky_note_2}}">
+                    <validation:RequiredValidation />
+                </material:TextField>
+
+                <input:CheckBox 
+                    IsChecked="{Binding NewItem.IsDone}" 
+                    Text="Is done" Color="{StaticResource Primary}" 
+                    BorderColor="{StaticResource OnPrimary}" 
+                    Type="Filled" 
+                    TextColor="{StaticResource OnPrimary}" />
+                <input:SelectionView 
+                    Color="{StaticResource Secondary}" 
+                    ItemsSource="{x:Static local:TodoItem.AvailableTypes}" 
+                    SelectedItem="{Binding NewItem.Type}" 
+                    ColumnSpacing="-2" 
+                    ColumnNumber="4"/>
+                <Button 
+                    input:FormView.IsSubmitButton="True"
+                    Text="Add"
+                    StyleClass="ElevatedButton"/>
+            </input:FormView>
+        </material:BackdropView>-->
+
+        <!--<material:BackdropView
+        Title="Salir" 
+        IconImageSource="{FontImageSource FontFamily=MaterialSharp, Glyph={x:Static uranium:MaterialSharp.Add_circle}, Color={StaticResource OnPrimary}}"
+        BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Gray950}}">
+            <input:FormView SubmitCommand="{Binding AddNewItemCommand}" Spacing="10" Padding="25,30" HorizontalOptions="Center" MaximumWidthRequest="400">
+                
+            </input:FormView>
+        </material:BackdropView>-->
+
+
+        <material:BottomSheetView x:Name="bottomSheet" DisablePageWhenOpened="False" CloseOnTapOutside="True">
+            <material:BottomSheetView.Header>
+                <Grid HeightRequest="30"
+                    BackgroundColor="Gray"
+                    ColumnDefinitions="10,*,Auto,Auto" ColumnSpacing="10">
+                    <Grid.Shadow>
+                        <Shadow Brush="Black"
+                    Radius="20"
+                    Opacity="0.2" />
+                    </Grid.Shadow>
+                    <!--<Image Source="logo_macronegocios.png" />-->
+
+                    <Label Grid.Column="1" 
+               Text="Opciones" 
+               VerticalOptions="Center"
+               FontSize="12"
+               TextColor="{StaticResource OnPrimary}"/>
+
+                    <Label Grid.Column="2"
+               Text="..."
+               VerticalOptions="Center"
+               TextColor="{StaticResource OnPrimary}"/>
+                                        
+                    <ImageButton Grid.Column="3"
+                     BackgroundColor="Transparent"
+                     VerticalOptions="Center"
+                     HeightRequest="15"
+                     WidthRequest="15"
+                     Margin="10">
+                        <ImageButton.Source>
+                            <FontImageSource 
+                                Size="18"
+                                FontFamily="MaterialSharp"
+                         Glyph="{x:Static uranium:MaterialSharp.Settings}"
+                         Color="{StaticResource Primary}" />
+                        </ImageButton.Source>
+                    </ImageButton>
+
+                </Grid>
+            </material:BottomSheetView.Header>
+            <TableView Intent="Menu" Margin="0" BackgroundColor="White">
+                <TableRoot>
+                    <TableSection>
+
+                        <ViewCell Tapped="ViewCell_Add_Sale">
+                            <Grid Padding="3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Image Source="{FontImageSource FontFamily=MaterialSharp, Glyph={x:Static uranium:MaterialSharp.Point_of_sale}, Color={StaticResource Primary}}" WidthRequest="24" HeightRequest="24" Margin="10,0" />
+
+                                <StackLayout Grid.Column="1" VerticalOptions="Center">
+                                    <Label Text="Nuevo pedido" FontAttributes="Bold" />
+                                    <Label Text="Volver a ingresar credenciales." FontSize="12" />
+                                </StackLayout>
+                            </Grid>
+                        </ViewCell>
+
+                        <ViewCell Tapped="ViewCell_Add_Task">
+                            <Grid Padding="3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Image Source="{FontImageSource FontFamily=MaterialSharp, Glyph={x:Static uranium:MaterialSharp.Add_task}, Color={StaticResource Primary}}" WidthRequest="24" HeightRequest="24" Margin="10,0" />
+
+                                <StackLayout Grid.Column="1" VerticalOptions="Center">
+                                    <Label Text="Nueva actividad" FontAttributes="Bold" />
+                                    <Label Text="Volver a ingresar credenciales." FontSize="12" />
+                                </StackLayout>
+                            </Grid>
+                        </ViewCell>
+
+                        <ViewCell Tapped="ViewCell_Tapped_Update">
+                            <Grid Padding="3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Image Source="{FontImageSource FontFamily=MaterialSharp, Glyph={x:Static uranium:MaterialSharp.Cloud}, Color={StaticResource Primary}}" WidthRequest="24" HeightRequest="24" Margin="10,0" />
+
+                                <StackLayout Grid.Column="1" VerticalOptions="Center">
+                                    <Label Text="Actualización" FontAttributes="Bold" />
+                                    <Label Text="Sincronizar los datos principales." FontSize="12" />
+                                </StackLayout>
+                            </Grid>
+                        </ViewCell>
+
+                        <ViewCell Tapped="ViewCell_Tapped_Exit">
+                            <Grid Padding="3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Image Source="{FontImageSource FontFamily=MaterialSharp, Glyph={x:Static uranium:MaterialSharp.Exit_to_app}, Color={StaticResource Primary}}" WidthRequest="24" HeightRequest="24" Margin="10,0" />
+
+                                <StackLayout Grid.Column="1" VerticalOptions="Center">
+                                    <Label Text="Salir" FontAttributes="Bold" />
+                                    <Label Text="Volver a ingresar credenciales." FontSize="12" />
+                                </StackLayout>
+                            </Grid>
+                        </ViewCell>
+
+
+                        <!--<ImageCell Text="Report" ImageSource="{FontImageSource FontFamily=MaterialSharp, Glyph={x:Static uranium:MaterialSharp.Report}, Color={StaticResource Primary}}"
+                            Detail="Report this content." />-->
+                    </TableSection>
+                </TableRoot>
+            </TableView>
+        </material:BottomSheetView>
+    </uranium:UraniumContentPage.Attachments>
+</uranium:UraniumContentPage>
+
+

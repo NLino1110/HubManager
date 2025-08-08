@@ -1,0 +1,11 @@
+{
+    "AppName": "Punto de Venta",
+    "Version": "1.0.1",
+    "Description": "Aplicación Desktop",
+    "LastUpdate": "26/09/2024 15:30",
+    "Packs": [
+        {
+            "filename": "packs/dist.zip"
+        }
+    ]
+}

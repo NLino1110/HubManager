@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            x:Class="DMOrdersUI.Pages.Fragments.Orders.modals.CatalogViewer"            
+            xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+            xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+            xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+            xmlns:converters="clr-namespace:DMOrdersUI.Converters"             
+             xmlns:local="clr-namespace:DMOrdersUI.Pages.Fragments.Orders.modals"       
+            xmlns:customrows="clr-namespace:DMOrdersUI.Controls.CustomRows"
+             xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui">
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <converters:InverseBooleanConverter x:Key="InverseBoolConverter" />
+        </ResourceDictionary>
+
+        <DataTemplate x:Key="RowTemplate">
+            <customrows:ProductRow Item="{Binding .}" />
+        </DataTemplate>
+
+        <DataTemplate x:Key="GridTemplate">
+            <customrows:ProductRow Item="{Binding .}" />
+        </DataTemplate>
+
+        <DataTemplate x:Key="ViewerTemplate">
+            <customrows:ProductViewerRow
+                Item="{Binding .}"/>
+        </DataTemplate>
+
+        <local:ProductTemplateSelector x:Key="ProductTemplateSelector"
+                                   ViewerTemplate="{StaticResource ViewerTemplate}"
+                                   RowTemplate="{StaticResource RowTemplate}"
+                                   GridTemplate="{StaticResource GridTemplate}" />
+
+    </ContentView.Resources>
+    <Grid RowDefinitions="Auto,Auto,*" BackgroundColor="WhiteSmoke">
+        <Grid BackgroundColor="Black" RowDefinitions="Auto" ColumnDefinitions="Auto,*" Grid.Row="0">
+            <Button Grid.Row="0" Text="" 
+                    Grid.Column="0" 
+                    TextColor="GhostWhite"
+                    BackgroundColor="Transparent"
+                    Clicked="OnCloseClicked">
+                <Button.ImageSource>
+                    <FontImageSource
+                        Color="White"
+                        Size="18"
+                        FontFamily="MaterialSharp"
+                        Glyph="{x:Static uranium:MaterialSharp.Arrow_back}" />
+                </Button.ImageSource>
+            </Button>
+            <Label Grid.Row="0" Grid.Column="1" 
+                   Text="Titulo" 
+                   TextColor="WhiteSmoke" 
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center">
+                
+            </Label>
+        </Grid>
+
+        <!-- Grid Parametros -->
+        <Grid BackgroundColor="WhiteSmoke" 
+              RowDefinitions="*,*,*" 
+              ColumnDefinitions="*,*,Auto" 
+              Grid.Row="1" ColumnSpacing="5" RowSpacing="0"
+              Padding="5">
+                        
+            <material:TextField
+                Grid.Row="0"
+                FontSize="11"
+                x:Name="TextCode"
+                Title="Código producto"
+                BorderThickness="0.4"
+                Keyboard="Numeric"
+                Margin="0"
+                Padding="0"/>
+
+            <material:TextField
+                Grid.Row="1"
+                FontSize="11"
+                x:Name="TextDescription"
+                Title="Descripción"
+                BorderThickness="0.4"/>
+
+            <material:DropdownField 
+                x:Name="ddfBrands"
+                Title="Marcas"
+                FontSize="11"
+                AllowClear="True" 
+                StyleClass="ControlPreview"
+                BorderThickness="0.4"
+                Grid.Row="2">
+                <material:DropdownField.Icon>
+                    <FontImageSource Size="18" FontFamily="MaterialRounded" Glyph="{x:Static uranium:MaterialRounded.Health_and_beauty}"  />
+                </material:DropdownField.Icon>
+            </material:DropdownField>
+            
+            <material:DropdownField 
+                    Grid.Row="0"
+                Grid.Column="1"
+                    x:Name="ddfNews"
+                    Title="Nuevos"
+                    FontSize="11"
+                    AllowClear="True" 
+                    StyleClass="ControlPreview"
+                    BorderThickness="0.4">
+                <material:DropdownField.Icon>
+                    <FontImageSource
+                        Size="18"
+                        FontFamily="MaterialSharp"
+                        Glyph="{x:Static uranium:MaterialSharp.Category}" />
+                </material:DropdownField.Icon>
+            </material:DropdownField>
+
+            <material:DropdownField 
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    x:Name="ddfStock"
+                    Title="Stock"
+                    FontSize="11"
+                    AllowClear="True" 
+                    StyleClass="ControlPreview"
+                    BorderThickness="0.4">
+                <material:DropdownField.Icon>
+                    <FontImageSource
+                    Size="18"
+                    FontFamily="MaterialSharp"
+                    Glyph="{x:Static uranium:MaterialSharp.Category}" />
+                </material:DropdownField.Icon>
+            </material:DropdownField>
+
+            <material:DropdownField 
+                Grid.Row="2"
+                Grid.Column="1"
+                x:Name="ddfSort"
+                Title="Orden"
+                FontSize="11"
+                AllowClear="True" 
+                StyleClass="ControlPreview"
+                BorderThickness="0.4">
+                <material:DropdownField.Icon>
+                    <FontImageSource
+                        Size="18"
+                        FontFamily="MaterialSharp"
+                        Glyph="{x:Static uranium:MaterialSharp.Category}" />
+                </material:DropdownField.Icon>
+            </material:DropdownField>
+
+            <input:SelectionView
+                Grid.Row="0"
+                Grid.Column="3"
+                Color="Gray"
+                ItemDisplayBinding="{Binding name}"
+                ItemsSource="{Binding viewModesList}"
+                SelectedIndex="{Binding ViewModesListSelectedIndex}"
+                PropertyChanged="SelectionView_PropertyChanged"
+                ColumnNumber="4"
+                Padding="3">
+            </input:SelectionView>
+
+            <Button x:Name="btnClear" 
+                    Text="Limpiar" 
+                    FontSize="10" 
+                    BackgroundColor="Gray" 
+                    TextColor="White" 
+                    Grid.Row="1"
+                    Grid.Column="2">
+                <Button.ImageSource>
+                    <FontImageSource 
+            Size="18"
+            FontFamily="MaterialSharp"
+            Glyph="{x:Static uranium:MaterialSharp.Remove_done}" />
+                </Button.ImageSource>
+            </Button>
+
+            <Button x:Name="btnSearch" 
+                    Text="Buscar" 
+                    FontSize="10" 
+                    BackgroundColor="IndianRed"  
+                    TextColor="White" 
+                    Grid.Row="2"
+                    Grid.Column="2">
+                <Button.ImageSource>
+                    <FontImageSource 
+            Size="18"
+            FontFamily="MaterialSharp"
+            Glyph="{x:Static uranium:MaterialSharp.Search}" />
+                </Button.ImageSource>
+            </Button>
+
+            <!--<material:RadioButtonGroupView>
+                <material:RadioButton Text="Option 1" IsChecked="True" />
+                <material:RadioButton Text="Option 2" />
+            </material:RadioButtonGroupView>-->
+        </Grid>
+
+        <Grid RowDefinitions="*,Auto" Grid.Row="2">
+            <Grid.GestureRecognizers>
+                <PanGestureRecognizer PanUpdated="OnPanUpdated" />
+            </Grid.GestureRecognizers>
+            <ActivityIndicator 
+                Grid.Row="0"
+                IsRunning="{Binding IsLoading}"
+                IsVisible="{Binding IsLoading}"
+                HorizontalOptions="Center"
+                VerticalOptions="Fill"
+                Color="DarkGray"
+                WidthRequest="60"
+                HeightRequest="60"/>
+               
+                <CollectionView
+                    Grid.Row="0"
+                    x:Name="MyCollectionView"
+                    ItemsSource="{Binding ItemsData}"
+                    EmptyView="Datos no encontrados..." 
+                    HorizontalOptions="Fill" 
+                    VerticalOptions="Fill"
+                    SelectionMode="Single"
+                    SelectedItem="{Binding SelectedItem, Mode=TwoWay}"                    
+                    IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}"
+                    ItemTemplate="{StaticResource ProductTemplateSelector}">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="4" />
+                </CollectionView.ItemsLayout>
+
+            </CollectionView>                
+
+            <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+                <StackLayout Orientation="Horizontal" HorizontalOptions="Start" Margin="0,2" Grid.Column="0">
+                    <Button Text=""
+            Command="{Binding PreviousPageCommand}"
+            IsEnabled="{Binding CanGoPrevious}" >
+                        <Button.ImageSource>
+                            <FontImageSource x:Name="IconPrevious"
+                        Color="Black"
+                        Size="18"
+                        FontFamily="MaterialSharp"
+                        Glyph="{x:Static uranium:MaterialSharp.Skip_previous}" />
+                        </Button.ImageSource>
+                        <Button.Triggers>
+                            <Trigger TargetType="Button" Property="IsEnabled" Value="False">
+                                <Setter TargetName="IconPrevious" Property="FontImageSource.Color" Value="DarkGray" />
+                            </Trigger>
+                        </Button.Triggers>
+                    </Button>
+
+                    <Label Text="{Binding Page}" VerticalOptions="Center" Margin="5" />
+                    <Label Text="/" VerticalOptions="Center" Margin="2"/>
+                    <Label Text="{Binding TotalPages}" VerticalOptions="Center" Margin="5"/>
+
+                    <Button Text=""
+            Command="{Binding NextPageCommand}"
+            IsEnabled="{Binding CanGoNext}">
+                        <Button.ImageSource>
+                            <FontImageSource x:Name="IconNext"
+                         Size="18"
+                         FontFamily="MaterialSharp"
+                         Glyph="{x:Static uranium:MaterialSharp.Skip_next}"
+                         Color="Black" />
+                        </Button.ImageSource>
+                        <Button.Triggers>
+                            <Trigger TargetType="Button" Property="IsEnabled" Value="False">
+                                <Setter TargetName="IconNext" Property="FontImageSource.Color" Value="DarkGray" />
+                            </Trigger>
+                        </Button.Triggers>
+                    </Button>
+                </StackLayout>
+
+                <Button Text=""
+                        Clicked="SelectSingleItem"
+                        HorizontalOptions="End"
+                        BackgroundColor="DodgerBlue"
+                        Grid.Column="1"
+                        x:Name="SelectButtonUnique">
+                    <Button.ImageSource>
+                        <FontImageSource
+                             Size="18"
+                             FontFamily="MaterialSharp"
+                             Glyph="{x:Static uranium:MaterialSharp.Check}"
+                             Color="White" />
+                    </Button.ImageSource>
+                </Button>                
+            </Grid>
+        </Grid>
+    </Grid>    
+</ContentView>

@@ -1,0 +1,25 @@
+﻿@page "/searchproducts"
+@using ResourceBuilder.Data;
+@using Microsoft.EntityFrameworkCore;
+@using BlazorXTabs
+@inject BlazorSpinner.SpinnerService _spinnerService
+
+<PageTitle>Search Products</PageTitle>
+<h3>SearchProducts</h3>
+<XTabs @ref="_innerXTabs" RenderMode="BlazorXTabs.Configuration.RenderMode.Full">
+    <XTab Title="Bonificados">
+        <SurveyPrompt Title="Se mostrará un resultado máximo de 2000 items." />
+        <CascadingValue Value="_spinnerService">
+            <ResourceBuilder.Shared.master.BonusProducts/>
+        </CascadingValue>
+        @* <ResourceBuilder.Shared.master.MarcaCp></ResourceBuilder.Shared.master.MarcaCp> *@
+    </XTab>
+    <XTab Title="Apps">
+    </XTab>
+    <XTab Title="Backup">                
+    </XTab>
+</XTabs>
+
+@code {
+    //private Models.DMSA.Mbw.Inventario.GenMarca[]? data_marcas;    
+}

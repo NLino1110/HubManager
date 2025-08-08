@@ -1,0 +1,116 @@
+{
+  "pack_base_date": "2025-03-12T15:47:44.3592077-05:00",
+  "description": "Automático",
+  "details": [
+    {
+      "model": "account_move",
+      "total_files": 13,
+      "files": [
+        {
+          "name": "20.zip",
+          "hash": "c2136b126587b65b8671944c81c28291f276352aa2161510489d7b22953d24c3",
+          "create_date": "2025-03-12T15:47:43.7412924-05:00",
+          "year": 2025,
+          "month": 1,
+          "day": 20
+        },
+        {
+          "name": "24.zip",
+          "hash": "d13a19f3bbf1ce9151858b144f2276f651f43fd770767d4e4681ac1de7517955",
+          "create_date": "2025-03-12T15:47:43.7870228-05:00",
+          "year": 2025,
+          "month": 1,
+          "day": 24
+        },
+        {
+          "name": "20.zip",
+          "hash": "1fcf004ca22e9de619c60ab9f06cf58843344325c6d651ac5bc4c2f2f5807697",
+          "create_date": "2025-03-12T15:47:43.8175071-05:00",
+          "year": 2024,
+          "month": 12,
+          "day": 20
+        },
+        {
+          "name": "23.zip",
+          "hash": "2d73a0277de3d90066771b0647bbd7bb72da7a8f36162adb22761255c18502ed",
+          "create_date": "2025-03-12T15:47:43.9933204-05:00",
+          "year": 2025,
+          "month": 1,
+          "day": 23
+        },
+        {
+          "name": "18.zip",
+          "hash": "bb8259f4cd1029d58f21cf4d32495fd29cad4b55f39b8438e5d745eb68beabe8",
+          "create_date": "2025-03-12T15:47:44.0442956-05:00",
+          "year": 2024,
+          "month": 12,
+          "day": 18
+        },
+        {
+          "name": "27.zip",
+          "hash": "bd655207b135eba2e31475e7aa6f0cf6c9979635d7d1a0a0fe5e373f510d0c7a",
+          "create_date": "2025-03-12T15:47:44.0790436-05:00",
+          "year": 2025,
+          "month": 1,
+          "day": 27
+        },
+        {
+          "name": "10.zip",
+          "hash": "c955b10647473a6490c25cf4f72562d8b6cc72c74ac3ca5aa45325a90dcbd9ec",
+          "create_date": "2025-03-12T15:47:44.1015242-05:00",
+          "year": 2024,
+          "month": 12,
+          "day": 10
+        },
+        {
+          "name": "16.zip",
+          "hash": "a224a30ba9f659e342bce24d3cf770497926781d47a75fbf9983418df31bda1b",
+          "create_date": "2025-03-12T15:47:44.1677614-05:00",
+          "year": 2024,
+          "month": 12,
+          "day": 16
+        },
+        {
+          "name": "12.zip",
+          "hash": "a19196b0243bc7dd5879254e388bb0c572b063643f31a4e5c70265ecbe851db7",
+          "create_date": "2025-03-12T15:47:44.235534-05:00",
+          "year": 2024,
+          "month": 12,
+          "day": 12
+        },
+        {
+          "name": "17.zip",
+          "hash": "5e19d2fe192beb87221a24bcf34d9be7ddc40fc222a81a44d305f576b8eda7e8",
+          "create_date": "2025-03-12T15:47:44.2580095-05:00",
+          "year": 2024,
+          "month": 12,
+          "day": 17
+        },
+        {
+          "name": "11.zip",
+          "hash": "563528170cef409bc725c88dc35c49c5423053d8f2324b5208ffb837cc4cfe7f",
+          "create_date": "2025-03-12T15:47:44.3112026-05:00",
+          "year": 2024,
+          "month": 12,
+          "day": 11
+        },
+        {
+          "name": "19.zip",
+          "hash": "ea28202b7470d40039ea70a6be5432becd6a600a557cec589928743271c92e8d",
+          "create_date": "2025-03-12T15:47:44.3266806-05:00",
+          "year": 2024,
+          "month": 12,
+          "day": 19
+        },
+        {
+          "name": "13.zip",
+          "hash": "f3266a46bfbf2f23d136244c21896c03168583ce2b1ea5f3fece7174c0a8a74e",
+          "create_date": "2025-03-12T15:47:44.341679-05:00",
+          "year": 2024,
+          "month": 12,
+          "day": 13
+        }
+      ]
+    }
+  ]
+}

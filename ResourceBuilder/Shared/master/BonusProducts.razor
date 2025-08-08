@@ -1,0 +1,262 @@
+﻿@using System;
+@using System.ComponentModel;
+@using BlazorDateRangePicker;
+@* @using BlazorTable; *@
+
+@using Models.DMSA.Mbw.Inventario;
+@using Models.DMSA.Mbw.Sales
+@using Microsoft.AspNetCore.Components.QuickGrid
+
+@* <h3>MarcaCp</h3> *@
+@* 
+<button type="button" class="btn btn-sm btn-primary"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Agregar" @onclick=@(() =>
+        {
+        _spinnerService.Show();
+        })>
+    <i class="fa fa-th" aria-hidden="true"></i>
+    SHOW
+</button> *@
+
+<div class="content-xyz px-0 m-2">
+    <div class="row">
+        <label>El código de agencia que representa Vtex es 0 </label>
+        <div class="col-md-auto">
+            @if (empresas == null)
+            {
+                <p><em>Loading...</em></p>
+            }
+            else
+            {
+                <select @onchange="@OnUpdated" class="form-control form-control-sm">
+                    <option value="0">(Seleccione compañia)</option>
+                    @foreach (var item in empresas)
+                    {
+                        <option value="@item.CodEmpresa">@item.CodEmpresa - @item.RucEmpresa - @item.Nombre</option>
+                    }
+                </select>
+            }
+        </div>
+        <div class="col-md-auto">
+            <DateRangePicker CustomDateClass="form-control form-control-sm" @bind-StartDate="StartDate" @bind-EndDate="EndDate" />
+        </div>
+        <div class="col-md-auto">
+            <Autocomplete TItem="GenMarca"
+                          TValue="GenMarca"
+                            SearchMethod="@SearchBrand"                            
+                          @bind-Value="@SelectedBrand"
+                          Debounce="500"
+                          ResultContainerCSS="tag-container"
+                          ResultItemCSS="tag-item"
+                          InputMaskCSS="tag-input-mask">
+                <SelectedTemplate>
+                    @(context.CodMarca.ToString() + "-" + context.Descripcion)
+                </SelectedTemplate>
+                <ResultTemplate>
+                    @(context.CodMarca.ToString() + "-" + context.Descripcion)
+                </ResultTemplate>
+                <NotFoundTemplate>
+                    Sorry, there weren't any search results.
+                </NotFoundTemplate>                
+            </Autocomplete>
+        </div>
+        <div class="col-md-auto">
+            <Blazorise.Components.Autocomplete TItem="GenMarca"
+                                               TValue="string"
+                                               Data="@dataSourceBrands"                                               
+                                               TextField="@(( item ) => item.Descripcion)"
+                                               ValueField="@(( item ) => item.CodMarca.ToString())"
+                                               Placeholder="Search..."
+                                               SelectionMode="Blazorise.Components.AutocompleteSelectionMode.Multiple"
+                                               FreeTyping
+                                               @bind-SelectedValues="multipleSelectionData"
+                                               @bind-SelectedTexts="multipleSelectionTexts">
+
+            </Blazorise.Components.Autocomplete>
+        </div>
+        <div class="col-md-auto">
+            <input @bind-value="input_search_param_var" type="text" class="form-control form-control-sm" id="input_search_param" placeholder="Artículo" />
+        </div>
+        <div class="col-md-auto">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-sm btn-primary"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="Agregar" @onclick=@(async () =>
+                        {
+                        await OnClickSearchGeneral();
+                        })>
+                    <i class="fa fa-table" aria-hidden="true"></i>
+                    Buscar
+                </button>               
+
+                <button type="button" class="btn btn-sm btn-success"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="Agregar" @onclick=@(async () =>
+                        {
+                        await OnClickSearchNonBon();
+                        })>
+                    <i class="fa fa-th" aria-hidden="true"></i>
+                    No bonificados
+                </button>
+
+                <button type="button" class="btn btn-sm btn-warning"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="Agregar" @onclick=@(async () => {
+                        await LaunchSendResults();
+                        })>
+                    <i class="fa fa-chevron-circle-right" aria-hidden="true"></i>
+                    Enviar todos
+                </button>
+
+                <button type="button" class="btn btn-sm btn-warning"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="Agregar" @onclick=@(async () => {
+                        await LoadItemsWithStockAsync();
+                        })>
+                    <i class="fa fa-chevron-circle-right" aria-hidden="true"></i>
+                    Prod. con stock
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="grid">
+    <QuickGrid Items="dataSource" Pagination="@pagination">
+        <PropertyColumn Property="@(p => p.CodBonificadoArticulo)" Title="CodBon." Sortable="true" Align="Align.Center" />
+        <PropertyColumn Property="@(p => p.CodArticulo)" Sortable="true" Align="Align.Center"/>
+        <PropertyColumn Property="@(p => p.ArticulosXEmpresa.Articulo.CodAlterno)" Sortable="true" Align="Align.Center" />
+        <PropertyColumn Property="@(p => p.ArticulosXEmpresa.Articulo.Descripcion)" Sortable="true" Class="country-name">
+            @* <ColumnOptions>
+                <div class="search-box">
+                    <input type="search" autofocus @bind="nameFilter" @bind:event="oninput" placeholder="Country name..." />
+                </div>
+            </ColumnOptions> *@
+        </PropertyColumn>
+        <PropertyColumn Property="@(p => p.CodAgencia)" Sortable="true" Align="Align.Center" />
+        <PropertyColumn Property="@(p => p.ArticulosXEmpresa.Marca.Descripcion)" Title="Marca" Sortable="true" />
+        <PropertyColumn Property="@(p => p.FechaInicio)" Sortable="true" />
+        <PropertyColumn Property="@(p => p.FechaFin)" Sortable="true" />
+        <PropertyColumn Property="@(p => p.MinimoAplicaDscto)" Title="Min.Apl.Dsc."  Sortable="true" />
+        <PropertyColumn Property="@(p => p.PorcDescuento)" Title="% Dsc" Sortable="true" />
+        <PropertyColumn Property="@(p => p.Precio)" Sortable="true" />
+        <PropertyColumn Property="@(p => p.ValorDescuento)" Title="Val.Dsc." Sortable="true" />
+        <TemplateColumn Title="Actions">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-sm btn-success"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="Descuentos" @onclick="@(() => LaunchGet(context, true, true))">
+                    <i class="fa fa-eye" aria-hidden="true"></i>
+                </button>
+                @* <button type="button" class="btn btn-sm btn-primary"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="Stock" @onclick="@(() => LaunchGet(context, false, true))">
+                    <i class="fa fa-eye" aria-hidden="true"></i>
+                </button> *@
+                <button style="" type="button" class="btn btn-sm btn-warning"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="Enviar descuentos" @onclick="@(() => LaunchSendPrices(context))">
+                    <i class="fa fa-chevron-circle-right" aria-hidden="true"></i>
+                </button>
+                <button style="display:none" type="button" class="btn btn-sm btn-warning"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="Enviar stock" @onclick="@(() => LaunchSendStock(context))">
+                    <i class="fa fa-chevron-circle-right" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-warning"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="Enviar por MBW" @onclick="@(() => SendItemsByMBW(context.CodArticulo.ToString()))">
+                    <i class="fa fa-chevron-circle-right" aria-hidden="true"></i>
+                </button>
+            </div>
+        </TemplateColumn>
+        @* <PropertyColumn Property="@(p => p.)" Format="yyyy-MM-dd" Sortable="true" /> *@
+    </QuickGrid>
+</div>
+<Paginator State="@pagination" />
+
+<div class="grid">
+    <div class="content-xyz px-0 m-2">
+        <div class="row">
+            <div class="col-md-auto">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm btn-primary"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="Agregar" @onclick=@(async () => {
+                            await OnClickSearchBrands();
+                            })>
+                        <i class="fa fa-th" aria-hidden="true"></i>
+                        Cargar marcas
+                    </button>
+                    <button type="button" class="btn btn-sm btn-primary"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="Agregar" @onclick=@(async () =>
+                            {
+                            await SendAllBrandsByMbwBatch();
+                            })>
+                        <i class="fa fa-table" aria-hidden="true"></i>
+                        Enviar todas las marcas
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <QuickGrid Items="dataSourceBrands" Pagination="@pagination_brands">
+        <PropertyColumn Property="@(p => p.CodMarca)" Title="CodBon." Sortable="true" Align="Align.Center" />
+        <PropertyColumn Property="@(p => p.CodCategoriaMarca)" Sortable="true" Align="Align.Center" />
+        <PropertyColumn Property="@(p => p.Descripcion)" Sortable="true" Class="country-name"/>
+        <PropertyColumn Property="@(p => p.ProcesoKom)" Sortable="true" />
+        <PropertyColumn Property="@(p => p.OrdenPresentacion)" Sortable="true" />
+        <PropertyColumn Property="@(p => p.Origen)" Sortable="true" />
+            <TemplateColumn Title="Actions">
+                <div class="btn-group" role="group">
+                    <button style="display:none" type="button" class="btn btn-sm btn-primary"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                        title="Agregar" @onclick="@(() => LaunchSendByBrand(context))">
+                        <i class="fa fa-eye" aria-hidden="true"></i>
+                    </button>
+                    <button style="display:none" type="button" class="btn btn-sm btn-warning"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="Enviar Descuento" @onclick="@(() => LaunchSendByBrand(context))">
+                        <i class="fa fa-chevron-circle-right" aria-hidden="true"></i>
+                        Descuentos
+                    </button>
+                <button style="display:none"  type="button" class="btn btn-sm btn-warning"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="Enviar Stock" @onclick="@(() => LaunchSendByBrand(context))">
+                    <i class="fa fa-chevron-circle-right" aria-hidden="true"></i>
+                    Stock
+                </button>
+                <button type="button" class="btn btn-sm btn-primary"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="Enviar por MBW" @onclick="@(() => SendBrandByMBW(context.CodMarca))">
+                    <i class="fa fa-chevron-circle-right" aria-hidden="true"></i>
+                </button>
+                </div>
+            </TemplateColumn>
+    </QuickGrid>
+</div>
+<Paginator State="@pagination_brands" />
+
+@code {
+    
+}

@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36327.8
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiManagerOdoo", "ApiManagerOdoo\ApiManagerOdoo.csproj", "{E005F552-7B74-5EBC-8294-ECF0A9FBC217}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMSA.Models.Odoo", "DMSA.Models.Odoo\DMSA.Models.Odoo.csproj", "{36123E55-D9E5-4564-40CC-D0FC24080324}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiTradeHub", "ApiTradeHub\ApiTradeHub.csproj", "{6D098B4F-9319-C0D2-7D4A-704BC8A13413}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMOrdersUI", "DMOrdersUI\DMOrdersUI.csproj", "{41FABA0E-9994-BA6F-5D84-FB958936769A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeebTech.Maui.Controls", "BeebTech.Maui.Controls\BeebTech.Maui.Controls.csproj", "{AB893200-1F9A-BEDE-A64E-2D245F156902}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UraniumUI.Material", "UraniumUI.Material\UraniumUI.Material.csproj", "{C095C3A7-A079-10DE-0502-FCA1A45E2EB8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E005F552-7B74-5EBC-8294-ECF0A9FBC217}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E005F552-7B74-5EBC-8294-ECF0A9FBC217}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E005F552-7B74-5EBC-8294-ECF0A9FBC217}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E005F552-7B74-5EBC-8294-ECF0A9FBC217}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36123E55-D9E5-4564-40CC-D0FC24080324}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36123E55-D9E5-4564-40CC-D0FC24080324}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36123E55-D9E5-4564-40CC-D0FC24080324}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36123E55-D9E5-4564-40CC-D0FC24080324}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D098B4F-9319-C0D2-7D4A-704BC8A13413}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D098B4F-9319-C0D2-7D4A-704BC8A13413}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D098B4F-9319-C0D2-7D4A-704BC8A13413}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D098B4F-9319-C0D2-7D4A-704BC8A13413}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41FABA0E-9994-BA6F-5D84-FB958936769A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41FABA0E-9994-BA6F-5D84-FB958936769A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41FABA0E-9994-BA6F-5D84-FB958936769A}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{41FABA0E-9994-BA6F-5D84-FB958936769A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41FABA0E-9994-BA6F-5D84-FB958936769A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41FABA0E-9994-BA6F-5D84-FB958936769A}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{AB893200-1F9A-BEDE-A64E-2D245F156902}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB893200-1F9A-BEDE-A64E-2D245F156902}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB893200-1F9A-BEDE-A64E-2D245F156902}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB893200-1F9A-BEDE-A64E-2D245F156902}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C095C3A7-A079-10DE-0502-FCA1A45E2EB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C095C3A7-A079-10DE-0502-FCA1A45E2EB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C095C3A7-A079-10DE-0502-FCA1A45E2EB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C095C3A7-A079-10DE-0502-FCA1A45E2EB8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0550A97D-13FD-411E-8F28-5C52832CC06E}
+	EndGlobalSection
+EndGlobal

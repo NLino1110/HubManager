@@ -1,0 +1,57 @@
+﻿@page "/datamanager"
+@using ResourceBuilder.Data
+@using Microsoft.EntityFrameworkCore;
+@using BlazorXTabs
+
+@* @inject WeatherForecastService ForecastService *@
+
+<PageTitle>Data Manager</PageTitle>
+
+
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-sm btn-primary mb-1"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Agregar" @onclick=@(async () =>
+                    {
+                        
+                    })>
+                <i class="fas fa-plus"></i>
+                Agregar                
+            </button>
+            <button type="button" class="btn btn-sm btn-primary mb-1"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Agregar" @onclick=@(async () =>
+                    {
+                        
+                    })>
+                Actualizar
+                <i class="fas fa-sync-alt"></i>
+            </button>
+        </div>
+
+<XTabs @ref="_innerXTabs">
+    <XTab Title="Compañia">
+        <ResourceBuilder.Shared.master.Marca></ResourceBuilder.Shared.master.Marca>
+    </XTab>
+    <XTab Title="Apps">
+                
+    </XTab>
+    <XTab Title="Backup">
+                
+    </XTab>
+</XTabs>
+@code {
+    private Models.DMSA.Mbw.Inventario.GenMarca[]? data_marcas;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //forecasts = await ForecastService.GetForecastAsync(DateOnly.FromDateTime(DateTime.Now));
+
+        //DataSourceManager.AppDbContext appDbContext = new DataSourceManager.AppDbContext();
+        //List<GeneralModels.DMSA.Inventario.GenMarca> lresult = null;
+        //lresult = await appDbContext.GENMARCAS.Where(c => c.Descripcion.Contains("PALLADIO")).ToListAsync();
+        //data_marcas = lresult.ToArray();
+    }
+}

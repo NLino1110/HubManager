@@ -1,0 +1,254 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\build\common.props" />
+
+	<PropertyGroup>
+		<TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
+		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
+		<!-- <TargetFrameworks>$(TargetFrameworks);net7.0-tizen</TargetFrameworks> -->
+		<OutputType>Exe</OutputType>
+		<RootNamespace>DMOrdersUI</RootNamespace>
+		<UseMaui>true</UseMaui>
+		<SingleProject>true</SingleProject>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+
+		<!-- Display name -->
+		<ApplicationTitle Condition="'$(Configuration)' == 'Debug'">DMOrdersUI - Debug</ApplicationTitle>
+		<ApplicationTitle Condition="'$(Configuration)' == 'Release'">DMOrdersUI</ApplicationTitle>
+
+		<!-- App Identifier -->
+		<ApplicationId>com.macronegocios.orders</ApplicationId>
+		<ApplicationIdGuid>d474809a-bd80-440d-8b99-d76ee6d3c7e8</ApplicationIdGuid>
+
+		<!-- Versions -->
+		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+		<ApplicationVersion>1</ApplicationVersion>
+	
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
+		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+		<CsWinRTAotOptimizerEnabled>false</CsWinRTAotOptimizerEnabled>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+		<AndroidPackageFormat>aab</AndroidPackageFormat>
+		<ApplicationId>com.macronegocios.orders.debug</ApplicationId>
+		<AndroidPackageFileName>DMOrdersUI-Debug</AndroidPackageFileName>
+		<AndroidLinkMode>SdkOnly</AndroidLinkMode>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<AndroidPackageFormat>aab</AndroidPackageFormat>
+		<ApplicationId>com.macronegocios.orders</ApplicationId>
+		<AndroidPackageFileName>DMOrders</AndroidPackageFileName>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|AnyCPU'">
+	  <JavaOptions>-Xmx4096m -XX:+UseParallelGC -XX:ParallelGCThreads=4</JavaOptions>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|AnyCPU'">
+	  <JavaOptions>-Xmx4096m -XX:+UseParallelGC -XX:ParallelGCThreads=4</JavaOptions>
+	</PropertyGroup>
+	
+	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+		<AndroidResource Include="Resources\Values\Strings.Debug.xml">
+			<Link>Resources\values\Strings.xml</Link>
+		</AndroidResource>
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(Configuration)' == 'Release'">
+		<AndroidResource Include="Resources\Values\Strings.Release.xml">
+			<Link>Resources\values\Strings.xml</Link>
+		</AndroidResource>
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- App Icon -->
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#52D681" />
+
+		<!-- Splash Screen -->
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#EDE6EB" BaseSize="272,153" />
+
+		<!-- Images -->
+		<MauiImage Include="Resources\Images\*" />
+		<MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />
+
+		<!-- Custom Fonts -->
+		<MauiFont Include="Resources\Fonts\*" />
+
+		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
+		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Platforms\Android\Resources\values\strings.xml" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Maui" Version="9.1.1" />
+		<PackageReference Include="CommunityToolkit.Maui.Core" Version="9.1.1" />
+		<PackageReference Include="CommunityToolkit.Maui.Markup" Version="5.1.0" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
+		<PackageReference Include="System.Text.Json" Version="9.0.6" />
+		
+		<PackageReference Include="UraniumUI.Dialogs.CommunityToolkit" Version="$(UraniumUIVersion)" />
+		<PackageReference Include="UraniumUI.Dialogs.Mopups" Version="$(UraniumUIVersion)" />
+		<PackageReference Include="UraniumUI.Icons.FontAwesome" Version="$(UraniumUIVersion)" />
+		<PackageReference Include="UraniumUI.Icons.MaterialSymbols" Version="$(UraniumUIVersion)" />
+		<PackageReference Include="UraniumUI.Material" Version="$(UraniumUIVersion)" />
+		<PackageReference Include="UraniumUI.Icons.MaterialIcons" Version="$(UraniumUIVersion)" />
+		<PackageReference Include="UraniumUI.Icons.SegoeFluent" Version="$(UraniumUIVersion)" />
+		<PackageReference Include="UraniumUI.Blurs" Version="$(UraniumUIVersion)" />
+		<PackageReference Include="UraniumUI.Validations.DataAnnotations" Version="$(UraniumUIVersion)" />
+		<PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.6" />		
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.5" />
+		
+		<PackageReference Include="M.BindableProperty.Generator" Version="0.11.1" />
+		
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="ReactiveUI.Fody" Version="19.5.41" />
+		<PackageReference Include="RestSharp" Version="112.1.0" />
+		
+		<PackageReference Include="Plugin.BLE" Version="3.1.0" />
+		<PackageReference Include="SkiaSharp" Version="3.119.0" />
+		<PackageReference Include="SkiaSharp.QrCode" Version="0.7.0" />
+		<PackageReference Include="Spinner.MAUI" Version="1.1.2" />
+		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.5" />
+
+		<PackageReference Include="AdamE.MemoryToolkit.Maui" Version="1.0.0" />
+		<PackageReference Include="DotNurse.Injector" Version="2.5.2" />		
+		
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\ApiManagerOdoo\ApiManagerOdoo.csproj" />
+	  <ProjectReference Include="..\BeebTech.Maui.Controls\BeebTech.Maui.Controls.csproj" />
+	  <ProjectReference Include="..\DMSA.Models.Odoo\DMSA.Models.Odoo.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="AppShellStart.xaml.cs">
+	    <DependentUpon>AppShellStart.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="MainPageOld.xaml.cs">
+	    <DependentUpon>MainPageOld.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\Fragments\Activities\Details.xaml.cs">
+	    <DependentUpon>Details.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\Fragments\Customers\DataGrid.xaml.cs">
+	    <DependentUpon>DataGrid.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\Fragments\Customers\Info.xaml.cs">
+	    <DependentUpon>Info.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\Fragments\Customers\Filters.xaml.cs">
+	    <DependentUpon>Filters.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\Fragments\Customers\Container.xaml.cs">
+	    <DependentUpon>Container.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="AppShellStart.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Controls\PopupLoadingTask.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Controls\ProgressBarAnimationBehaviorPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Login.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="MainNavigation.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="MainPageOld.xaml">
+	    <Generator></Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fragments\Orders\Container.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fragments\Orders\DataGrid.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fragments\Orders\Details.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fragments\Orders\Filters.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fragments\Orders\modals\CatalogViewer.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fragments\Orders\modals\CatalogViewerInner.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fragments\Product\Container.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fragments\Product\DataGrid.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fragments\Product\Details.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fragments\Product\Filters.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fragments\Activities\Container.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fragments\Activities\Details.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fragments\Activities\DataGrid.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fragments\Activities\Filters.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fragments\Customers\DataGrid.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fragments\Customers\Info.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fragments\Customers\Filters.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fragments\Customers\PagingFragment.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fragments\Customers\Container.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fragments\Product\Info.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\Sys\UpdateData.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="StartPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Controls\CustomPopup\" />
+	  <Folder Include="patch\" />
+	  <Folder Include="Services\Update\Product\" />
+	</ItemGroup>
+
+</Project>

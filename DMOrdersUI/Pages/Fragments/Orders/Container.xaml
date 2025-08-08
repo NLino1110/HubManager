@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:pages="clr-namespace:DMOrdersUI.Pages.Fragments.Orders"             
+             xmlns:controls="clr-namespace:DMOrdersUI.Controls"
+             x:Class="DMOrdersUI.Pages.Fragments.Orders.Container"
+             xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material" x:Name="ActivitiesContainer">
+    
+    <Grid ColumnDefinitions="Auto,1,*" RowDefinitions="Auto,Auto,Auto,*">
+        <BoxView Grid.Row="0" Grid.Column="1" Grid.RowSpan="5" WidthRequest="1" Color="LightGrey"/>
+
+        <!--<pages:PagingFragment x:Name="pagingFragment" Grid.Row="0" Grid.Column="2" />-->
+
+        <BoxView Grid.Row="1" Grid.ColumnSpan="3" HeightRequest="1" Color="LightGrey"/>
+
+        <pages:Filters x:Name="filterOrders" Grid.Row="2" Grid.Column="0"/>
+        
+        <!--<pages:Info x:Name="info" Grid.Row="3" Grid.Column="0" />-->
+
+        <pages:DataGrid x:Name="dataOrders" Grid.Row="0" Grid.Column="2" Grid.RowSpan="4"/>
+    </Grid>
+</ContentView>
