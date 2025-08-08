@@ -18,7 +18,6 @@ using Models.DMSA.Mbw.Inventario;
 using Models.DMSA.Mbw.Sales;
 using Models.DMSA.Shared.Tools;
 using Newtonsoft.Json;
-using Polly.CircuitBreaker;
 using ResourceBuilder.ControllerManager.Ecommerce;
 using ResourceBuilder.Services.Inventory;
 using ResourceBuilder.Services.Sales;
@@ -949,7 +948,7 @@ namespace ResourceBuilder.Shared.master
                 p.CodArticulo
             };
 
-            var responseData = await LaunchItemLocal(articulos, new List<object> (), true, false, new long[] { });
+            var responseData = await LaunchItemLocal(articulos, new List<object> (), true, false, new long[] { }, true, false);
 
             _spinnerService.Hide();
 
@@ -1003,14 +1002,14 @@ namespace ResourceBuilder.Shared.master
             Debug.WriteLine(responseData);
         }
 
-        async Task LaunchGet(FacBonificadosXArticulo p, bool with_prices, bool with_stock)
+        async Task LaunchGet(FacBonificadosXArticulo p, bool with_prices, bool with_stock, bool with_full_stock)
         {            
             var articulos = new List<object>
             {
                 p.CodArticulo
             };
 
-            var responseData = await LaunchGetItem(articulos, new List<object>(), StartDate.Value.DateTime, EndDate.Value.DateTime, with_prices, with_stock, new long[] { 95, 96});
+            var responseData = await LaunchItemLocal(articulos, new List<object>(), true, true, new long[] {}, false, with_full_stock);
 
             if(responseData == null)
             {
@@ -1047,6 +1046,7 @@ namespace ResourceBuilder.Shared.master
             Debug.WriteLine(responseData);
         }
 
+        [Obsolete("Debe ser eliminado")]
         async Task<string> LaunchGetItem(List<object> CodeListProducts, List<object> CodeListBrands, 
             DateTime date_start, DateTime date_end, bool with_prices, bool with_stock, long[] stores)
         {
@@ -1064,6 +1064,7 @@ namespace ResourceBuilder.Shared.master
             return responseData;
         }
 
+        [Obsolete("Debe ser eliminado")]
         async Task<string> LaunchItem(List<object> CodeListProducts, List<object> CodeListBrands, bool with_discount, bool with_stock, long[] stores)
         {
             HubSyncWebItems hubSyncWebItems = new HubSyncWebItems(ConfigurationHelper.GetAppSettings().profile);
@@ -1077,19 +1078,25 @@ namespace ResourceBuilder.Shared.master
             return responseData;
         }
 
-        async Task<string> LaunchItemLocal(List<object> CodeListProducts, List<object> CodeListBrands, bool with_discount, bool with_stock, long[] stores)
+        async Task<string> LaunchItemLocal(List<object> CodeListProducts, 
+            List<object> CodeListBrands, 
+            bool with_discount, 
+            bool with_stock, 
+            long[] stores,
+            bool sendData,
+            bool with_full_stock)
         {
 
             //await InvokeAsync(async () =>
             //{
-                var parametros = new Models.DMSA.Mbw.Abstract.ParametersMode1();
-
-                //DataSourceManager.AppDbContext _appDbContext = new AppDbContext();
+                var parametros = new Models.DMSA.Mbw.Abstract.ParametersMode1();    
 
                 parametros.brands = CodeListBrands;
 
                 parametros.with_prices = true;
                 parametros.with_stock = true;
+                parametros.with_full_stock = with_full_stock;
+
                 parametros.ids = new List<object>
                 {
                     CodeListProducts
@@ -1106,8 +1113,26 @@ namespace ResourceBuilder.Shared.master
                 var jsonResult = JsonConvert.SerializeObject(articulosEnvio,
                     Formatting.Indented,
                     new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+
+            Debug.WriteLine(jsonResult);
+
+            if (sendData)
+            {
+                string urlMiddleware = "http://api.dmujeres.ec/dmujeres/sku/bulk/";//ConfigurationHelper.GetAppSettings().middleware_url;
+
+                //urlMiddleware = "http://api.dmujeres-dev.ec:8000/dmujeres/v2/sku/bulk/";
+
+                var response = await ecommerceService.SendDataToMiddleware(
+                        jsonResult,
+                        Method.Put,
+                        urlMiddleware,
+                        appDbContext);
+
+                jsonResult = JsonConvert.SerializeObject(response,
+                    Formatting.Indented);
+
+            }
             //});
-            
 
             return jsonResult;
         }
@@ -1176,7 +1201,7 @@ namespace ResourceBuilder.Shared.master
                 var range_items = dataSource.Skip(i).Take(long_take); // Toma los elementos correctos
 
                 var articulos = range_items.Select(item => (object) item.CodArticulo).ToList(); // Extrae CodArticulo
-                var responseData = await LaunchItem(articulos, new List<object>(), false, true, new long[] { }); // Lanza la operación para el lote actual
+                var responseData = await LaunchItemLocal(articulos, new List<object>(), false, true, new long[] { }, true, false); // Lanza la operación para el lote actual
 
                 Debug.WriteLine(responseData);
                 Debug.WriteLine("Enviados " + i + " de " + dataSource.Count());
@@ -1270,13 +1295,15 @@ namespace ResourceBuilder.Shared.master
 
         public async Task SendBrandByMBW(int CodMarca)
         {
-            var options = new RestClientOptions("http://localhost:8081")
+            string url_soap = "http://192.168.204.43:8081";
+
+            var options = new RestClientOptions(url_soap)
             {
                 Timeout = TimeSpan.FromMilliseconds(-1)
             };
 
             var client = new RestClient(options);
-            var request = new RestRequest("//MyBusiness-MyBusinessEJB/WSIntegracionEcommerce", Method.Post);
+            var request = new RestRequest("/MyBusiness-MyBusinessEJB/WSIntegracionEcommerce", Method.Post);
             request.AddHeader("Content-Type", "text/xml");
             request.AddHeader("Cookie", "frontend_lang=es_EC");
             var body = @"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:web=""http://webservices.etech.com/"">" + "\n" +
@@ -1290,7 +1317,7 @@ namespace ResourceBuilder.Shared.master
             @"</soapenv:Envelope>";
             request.AddParameter("text/xml", body, ParameterType.RequestBody);
             RestResponse response = await client.ExecuteAsync(request);
-            //Console.WriteLine(response.Content);
+            Console.WriteLine(response);
         }
 
         public async Task SendItemsByMBW(string ItemsCode)

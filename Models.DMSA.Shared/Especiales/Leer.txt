@@ -1,0 +1,8 @@
+﻿#Modelos especiales
+
+Coloque aquí las clases que no pertenecen a las tablas de la base de datos.
+
+Por ejemplo, para obtener las Nota de Credito para la aplicación móvil se arma una estructura JSON
+personalizada que se arma segun los datos obtenidos. Esta estructura no pertenece a ninguna tabla en
+específico.
+

@@ -15,6 +15,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeebTech.Maui.Controls", "B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UraniumUI.Material", "UraniumUI.Material\UraniumUI.Material.csproj", "{C095C3A7-A079-10DE-0502-FCA1A45E2EB8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceBuilder", "ResourceBuilder\ResourceBuilder.csproj", "{11031CA5-133C-DCEA-73F7-C6ECED0CB04F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataSourceManager", "DataSourceManager\DataSourceManager.csproj", "{9233956B-491E-B143-EE7C-43F1FFA66DE9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Models.DMSA.Mbw", "Models.DMSA.Mbw\Models.DMSA.Mbw.csproj", "{E4A6492B-4D1F-88C7-6880-28A24E547B9A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Models.DMSA.Shared", "Models.DMSA.Shared\Models.DMSA.Shared.csproj", "{4580E1D9-A151-3D22-D518-A3A1CC630B09}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VtexStrucsGen2", "VtexStrucsGen2\VtexStrucsGen2.csproj", "{885F80CD-4928-B855-9FC9-7D3E3C398E7E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +57,26 @@ Global
 		{C095C3A7-A079-10DE-0502-FCA1A45E2EB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C095C3A7-A079-10DE-0502-FCA1A45E2EB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C095C3A7-A079-10DE-0502-FCA1A45E2EB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11031CA5-133C-DCEA-73F7-C6ECED0CB04F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11031CA5-133C-DCEA-73F7-C6ECED0CB04F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11031CA5-133C-DCEA-73F7-C6ECED0CB04F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11031CA5-133C-DCEA-73F7-C6ECED0CB04F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9233956B-491E-B143-EE7C-43F1FFA66DE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9233956B-491E-B143-EE7C-43F1FFA66DE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9233956B-491E-B143-EE7C-43F1FFA66DE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9233956B-491E-B143-EE7C-43F1FFA66DE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4A6492B-4D1F-88C7-6880-28A24E547B9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4A6492B-4D1F-88C7-6880-28A24E547B9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4A6492B-4D1F-88C7-6880-28A24E547B9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4A6492B-4D1F-88C7-6880-28A24E547B9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4580E1D9-A151-3D22-D518-A3A1CC630B09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4580E1D9-A151-3D22-D518-A3A1CC630B09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4580E1D9-A151-3D22-D518-A3A1CC630B09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4580E1D9-A151-3D22-D518-A3A1CC630B09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{885F80CD-4928-B855-9FC9-7D3E3C398E7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{885F80CD-4928-B855-9FC9-7D3E3C398E7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{885F80CD-4928-B855-9FC9-7D3E3C398E7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{885F80CD-4928-B855-9FC9-7D3E3C398E7E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

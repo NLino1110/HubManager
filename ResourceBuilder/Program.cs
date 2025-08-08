@@ -64,9 +64,6 @@ builder.Logging.AddConsole(); // Agrega logging en la consola
 builder.Logging.AddDebug();
 builder.Logging.AddFile("Logs/app-log.txt");
 
-// Add service defaults & Aspire components.
-builder.AddServiceDefaults();
-
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

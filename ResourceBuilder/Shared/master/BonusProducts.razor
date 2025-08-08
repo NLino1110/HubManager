@@ -153,7 +153,7 @@
                 <button type="button" class="btn btn-sm btn-success"
                         data-toggle="tooltip"
                         data-placement="top"
-                        title="Descuentos" @onclick="@(() => LaunchGet(context, true, true))">
+                        title="Descuentos" @onclick="@(() => LaunchGet(context, true, true, true))">
                     <i class="fa fa-eye" aria-hidden="true"></i>
                 </button>
                 @* <button type="button" class="btn btn-sm btn-primary"
@@ -174,7 +174,7 @@
                         title="Enviar stock" @onclick="@(() => LaunchSendStock(context))">
                     <i class="fa fa-chevron-circle-right" aria-hidden="true"></i>
                 </button>
-                <button type="button" class="btn btn-sm btn-warning"
+                <button style="display:none" type="button" class="btn btn-sm btn-warning"
                         data-toggle="tooltip"
                         data-placement="top"
                         title="Enviar por MBW" @onclick="@(() => SendItemsByMBW(context.CodArticulo.ToString()))">
@@ -187,37 +187,39 @@
 </div>
 <Paginator State="@pagination" />
 
-<div class="grid">
-    <div class="content-xyz px-0 m-2">
-        <div class="row">
-            <div class="col-md-auto">
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-sm btn-primary"
-                            data-toggle="tooltip"
-                            data-placement="top"
-                            title="Agregar" @onclick=@(async () => {
-                            await OnClickSearchBrands();
-                            })>
-                        <i class="fa fa-th" aria-hidden="true"></i>
-                        Cargar marcas
-                    </button>
-                    <button type="button" class="btn btn-sm btn-primary"
-                            data-toggle="tooltip"
-                            data-placement="top"
-                            title="Agregar" @onclick=@(async () =>
-                            {
-                            await SendAllBrandsByMbwBatch();
-                            })>
-                        <i class="fa fa-table" aria-hidden="true"></i>
-                        Enviar todas las marcas
-                    </button>
-                </div>
+<div class="content-xyz px-0 m-2">
+    <div class="row">
+        <div class="col-md-auto">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-sm btn-primary"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="Agregar" @onclick=@(async () => {
+                        await OnClickSearchBrands();
+                        })>
+                    <i class="fa fa-th" aria-hidden="true"></i>
+                    Cargar marcas
+                </button>
+                <button type="button" class="btn btn-sm btn-primary"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="Agregar" @onclick=@(async () =>
+                        {
+                        await SendAllBrandsByMbwBatch();
+                        })>
+                    <i class="fa fa-table" aria-hidden="true"></i>
+                    Enviar todas las marcas
+                </button>
             </div>
         </div>
     </div>
+</div>
+
+<div class="grid">
+    
 
     <QuickGrid Items="dataSourceBrands" Pagination="@pagination_brands">
-        <PropertyColumn Property="@(p => p.CodMarca)" Title="CodBon." Sortable="true" Align="Align.Center" />
+        <PropertyColumn Property="@(p => p.CodMarca)" Title="CodMarca" Sortable="true" Align="Align.Center" />
         <PropertyColumn Property="@(p => p.CodCategoriaMarca)" Sortable="true" Align="Align.Center" />
         <PropertyColumn Property="@(p => p.Descripcion)" Sortable="true" Class="country-name"/>
         <PropertyColumn Property="@(p => p.ProcesoKom)" Sortable="true" />

@@ -26,6 +26,7 @@ using RestSharp;
 
 namespace ResourceBuilder.ControllerManager.Ecommerce
 {
+    [Obsolete("Debe ser eliminado....")]
     public class HubSyncWebItems
     {
         string EndPointServer = "https://127.0.0.1:5200";

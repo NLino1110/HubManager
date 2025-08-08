@@ -1,31 +1,13 @@
-﻿using DataSourceManager;
+﻿using Microsoft.EntityFrameworkCore;
+using Models.DMSA.Mbw.Abstract;
 using Models.DMSA.Mbw.Core;
 using Models.DMSA.Mbw.Inventario;
 using Models.DMSA.Mbw.Sales;
-using Newtonsoft.Json.Linq;
-using RestSharp;
-using System.Net;
-using System.Text;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-using System.Xml;
 using Newtonsoft.Json;
-using System.DirectoryServices.Protocols;
-//using ApiTradeHub.Services.Sales.Models;
-using System.Security.Policy;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+using RestSharp;
 using System.Data;
-using static System.Net.WebRequestMethods;
-using Ubiety.Dns.Core;
-using Models.DMSA.Mbw.Query;
-using Models.DMSA.Mbw.Abstract;
-using System.Drawing;
-using static Grpc.Core.Metadata;
-using Org.BouncyCastle.Math;
-using Microsoft.AspNetCore.Mvc;
-using System.Text.RegularExpressions;
+using System.Data.Common;
+using System.Diagnostics;
 
 namespace ResourceBuilder.Services.Sales
 {
@@ -37,11 +19,51 @@ namespace ResourceBuilder.Services.Sales
             _appDbContext = appDbContext;
         }
 
+        private static T GetValueOrDefault<T>(DbDataReader reader, string columnName)
+        {
+            try
+            {
+                int colIndex = reader.GetOrdinal(columnName);
+
+                if (reader.IsDBNull(colIndex))
+                {
+                    Debug.WriteLine($"INFO: La columna '{columnName}' contiene un valor NULL. Se devolverá el valor por defecto.");
+                    return default(T);
+                }
+
+                // Obtenemos el valor como un objeto genérico para evitar errores de casting directo.
+                object value = reader.GetValue(colIndex);
+
+                // Obtenemos el tipo de destino. Si es un tipo anulable (ej: int?), 
+                // necesitamos obtener su tipo subyacente (ej: int).
+                var targetType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+
+                // Usamos Convert.ChangeType para manejar de forma segura las conversiones numéricas,
+                // como la de Decimal (de Oracle) a Int64/long o Double.
+                return (T)Convert.ChangeType(value, targetType);
+            }
+            catch (IndexOutOfRangeException)
+            {
+                Debug.WriteLine($"ERROR: La columna '{columnName}' no fue encontrada en el resultado de la consulta SQL.");
+                throw new ArgumentException($"La columna '{columnName}' no fue encontrada en el resultado de la consulta SQL.");
+            }
+            catch (InvalidCastException ex)
+            {
+                // Este bloque nos dará información muy útil si la conversión falla por alguna razón.
+                object originalValue = reader.GetValue(reader.GetOrdinal(columnName));
+                Debug.WriteLine($"ERROR DE CASTING: No se pudo convertir el valor '{originalValue}' (tipo: {originalValue.GetType()}) de la columna '{columnName}' al tipo {typeof(T)}. Error: {ex.Message}");
+                throw; // Relanzamos la excepción para no ocultar el problema.
+            }
+        }
+
         public async Task<List<Models.DMSA.Mbw.Abstract.Inventory>> BuildStock(long codEmpresa, 
             long codAgencia, 
             ArticulosXEmpresa art,
             ParametersMode1 parametros)
         {
+            int TotalHoursBefore = 6;
+            bool FullStock = parametros.with_full_stock;
+
             DateTime fechaBefore = DateTime.Now.AddMinutes(-15);
             //fechaHace15Minutos = DateTime.Now.AddMinutes(-120);
             string fechaFormateada = fechaBefore.ToString("dd/MM/yyyy HH:mm:ss");
@@ -88,10 +110,6 @@ namespace ResourceBuilder.Services.Sales
 
                 Models.DMSA.Mbw.Query.StockResult minMaxArti = null;
 
-                //var connectionString = _appDbContext.Database.GetDbConnection().ConnectionString;
-                //var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-                //optionsBuilder.UseOracle(connectionString);
-
                 var connection = _appDbContext.Database.GetDbConnection();
 
                 if(connection.State != ConnectionState.Open)
@@ -106,15 +124,18 @@ namespace ResourceBuilder.Services.Sales
                     {
                         while (await reader.ReadAsync())
                         {
+                            DateTime? _fechaultingreso = GetValueOrDefault<DateTime?>(reader, "fechaultingreso");
+                            DateTime? _fechaultegreso = GetValueOrDefault<DateTime?>(reader, "fechaultegreso");
+                            
                             minMaxArti = new Models.DMSA.Mbw.Query.StockResult
                             {
-                                CodBodegaAgencia = reader.GetInt64(0),
-                                NombreBodega = reader.GetString(1),
-                                CantDisponibleWms = reader.GetDouble(2),
-                                MinimoVtaWeb = reader.GetDouble(3),
-                                CantidadReservada = reader.GetDouble(4),
-                                fechaultingreso = reader.GetDateTime(5),
-                                fechaultegreso = reader.GetDateTime(6),
+                                CodBodegaAgencia = reader.GetInt64(0), //GetValueOrDefault<long>(reader, "codbodegaagencia"),
+                                NombreBodega = reader.GetString(1), //GetValueOrDefault<string>(reader, "nombodega"),
+                                CantDisponibleWms = reader.GetDouble(2), //GetValueOrDefault<double>(reader, "cantdisponiblewms"),
+                                MinimoVtaWeb = reader.GetDouble(3), //GetValueOrDefault<double>(reader, "minimovtaweb"),
+                                CantidadReservada = reader.GetDouble(4), //GetValueOrDefault<double>(reader, "cantidadreservada"),
+                                fechaultingreso = _fechaultingreso, //GetValueOrDefault<DateTime?>(reader, "fechaultingreso"),
+                                fechaultegreso = _fechaultegreso, //GetValueOrDefault<DateTime?>(reader, "fechaultegreso"),
                             };
                             //resultados.Add(minMaxArti);
                             break;
@@ -130,19 +151,33 @@ namespace ResourceBuilder.Services.Sales
                         minMaxArti.CantDisponibleWms = 0;
                     }
 
-                    // Agregar al inventario
-                    response.Add(new Models.DMSA.Mbw.Abstract.Inventory
+                    var ahora = DateTime.Now;
+
+                    bool ingresoReciente = minMaxArti.fechaultingreso.HasValue &&
+                        (ahora - minMaxArti.fechaultingreso.Value).TotalHours <= TotalHoursBefore;
+
+                    bool egresoReciente = minMaxArti.fechaultegreso.HasValue &&
+                        (ahora - minMaxArti.fechaultegreso.Value).TotalHours <= TotalHoursBefore;
+
+                    //Evalua si las actualizaciones de stock son recientes
+                    
+                    if (ingresoReciente || egresoReciente || FullStock)
                     {
-                        Warehouse = new Warehouse
+                        // Agregar al inventario
+                        response.Add(new Models.DMSA.Mbw.Abstract.Inventory
                         {
-                            ExternalId = minMaxArti.CodBodegaAgencia.ToString(),
-                            Name = minMaxArti.NombreBodega
-                        },
-                        Stock = minMaxArti.CantDisponibleWms,
-                        Reserved = minMaxArti.CantidadReservada != null ? minMaxArti.CantidadReservada : 0,
-                        fechaultingreso = minMaxArti.fechaultingreso,
-                        fechaultegreso = minMaxArti.fechaultegreso
-                    });
+                            Warehouse = new Warehouse
+                            {
+                                ExternalId = minMaxArti.CodBodegaAgencia.ToString(),
+                                Name = minMaxArti.NombreBodega
+                            },
+                            Stock = minMaxArti.CantDisponibleWms,
+                            Reserved = minMaxArti.CantidadReservada != null ? minMaxArti.CantidadReservada : 0,
+                            fechaultingreso = minMaxArti.fechaultingreso,
+                            fechaultegreso = minMaxArti.fechaultegreso
+                        });
+                    }
+                    
                 }
 
                 // Consulta para obtener el stock de agencias
@@ -174,18 +209,35 @@ namespace ResourceBuilder.Services.Sales
                     {
                         while (await reader.ReadAsync())
                         {
-                            response.Add(new Models.DMSA.Mbw.Abstract.Inventory
+                            DateTime? _fechaultingreso = GetValueOrDefault<DateTime?>(reader, "fechaultingreso");
+                            DateTime? _fechaultegreso = GetValueOrDefault<DateTime?>(reader, "fechaultegreso");
+
+                            var ahora = DateTime.Now;
+
+                            bool ingresoReciente = _fechaultingreso.HasValue &&
+                                (ahora - _fechaultingreso.Value).TotalHours <= TotalHoursBefore;
+
+                            bool egresoReciente = _fechaultegreso.HasValue &&
+                                (ahora - _fechaultegreso.Value).TotalHours <= TotalHoursBefore;
+
+                            //Evalua si las actualizaciones de stock son recientes
+
+                            if (ingresoReciente || egresoReciente || FullStock)
                             {
-                                Warehouse = new Warehouse
+                                response.Add(new Models.DMSA.Mbw.Abstract.Inventory
                                 {
-                                    ExternalId = reader.GetInt64(0).ToString(),
-                                    Name = reader.GetString(1)                                        
-                                },
-                                Stock = reader.GetDouble(2),
-                                Reserved = reader.GetDouble(3) != null ? reader.GetDouble(3) : 0,
-                                fechaultingreso = reader.GetDateTime(4),
-                                fechaultegreso = reader.GetDateTime(5),
-                            });
+                                    Warehouse = new Warehouse
+                                    {
+                                        ExternalId = reader.GetInt64(0).ToString(), //GetValueOrDefault<long>(reader, "codbodegaagencia").ToString(),
+                                        Name = reader.GetString(1) //GetValueOrDefault<string>(reader, "nombodega")
+                                    },
+                                    Stock = reader.GetDouble(2), //GetValueOrDefault<double>(reader, "cantidad"),
+                                    Reserved = reader.GetDouble(3) != null ? reader.GetDouble(3) : 0, //GetValueOrDefault<double>(reader, "cantidadreservada"),
+                                    fechaultingreso = _fechaultingreso, //GetValueOrDefault<DateTime?>(reader, "fechaultingreso"),
+                                    fechaultegreso = _fechaultegreso, //GetValueOrDefault<DateTime?>(reader, "fechaultegreso"),
+                                });
+                            }
+                            
                         }
                     }
                 }
@@ -397,145 +449,7 @@ namespace ResourceBuilder.Services.Sales
             return responseData;
         }
 
-        [Obsolete]
-        //EnvioDataMasivoApiRest
-        public async Task<ResponseSkuBulk[]?> __SendToMiddleware(
-            int codEmpresa,
-            long codAgencia,
-            //StringBuilder jsonDatos,
-            //DiscountPayload payload,
-            List<ArticuloDTO> payload,
-            RestSharp.Method method,
-            string urlApiRest,
-            string proceso,
-            string procesoDetalle,
-            bool envioAdicional,
-            bool guardaBitacora,
-            DbContext context)
-        {
-            var jsonDatos = Newtonsoft.Json.JsonConvert.SerializeObject(payload, 
-                Newtonsoft.Json.Formatting.Indented, 
-                new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
-                        
-            ResponseSkuBulk[]? responseData = null;
-            //Console.WriteLine(payload);
-
-            string requestPort = "";
-
-            RestClient client = new RestClient(urlApiRest);
-            RestRequest request = new RestRequest(requestPort, method);
-            request.Timeout = TimeSpan.FromSeconds(0);
-
-            DateTime startDate = DateTime.Now;
-            
-            try
-            {  
-
-                //request.AddParameter("application/json", jsonDatos.ToString(), ParameterType.RequestBody);
-                request.AddBody(jsonDatos);
-
-                //Console.WriteLine("Envio Data: " + jsonDatos);
-                //Console.WriteLine("Metodo: " + method);
-
-                var response = client.Execute(request);
-                //Console.WriteLine("status: " + response.StatusCode);
-                //Console.WriteLine("responseMsg: " + response.Content);
-                
-                if (response.IsSuccessful)
-                {
-                    responseData = JsonConvert.DeserializeObject<ResponseSkuBulk[]?>(response.Content);
-                    Debug.WriteLine(responseData);
-                }
-                else
-                {
-                    //throw new Exception($"Server returned non-OK status: {response.StatusCode}, message: {response.ErrorMessage}\nServer Response:\n{response.Content}");
-                    responseData = new ResponseSkuBulk[]
-                    {
-                        new ResponseSkuBulk()
-                        {
-                            external_id = null,
-                            inventory = null,
-                            non_field_errors = new string[] { response.ErrorException.Message },
-                            status_code = (int) response.StatusCode, //response.StatusCode
-                        }
-                    };
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("catch de envioDataMasivoApiRest : " + e);
-
-                responseData = new ResponseSkuBulk[]
-                {
-                    new ResponseSkuBulk()
-                    {
-                        external_id = null,
-                        inventory = null,
-                        non_field_errors = null,
-                        status_code = null
-                    }
-                };
-
-                string messageCatch = (e.Message != null ? e.Message.Replace("\"", "") : "NULL MESSAGE");
-                
-                //string motivoError = (messageCatch.Length >= 1000) ? messageCatch.Substring(0, 999) : messageCatch + $"\n\nCADENA QUE SE ENVIO ES:\n{jsonDatos}";
-
-                //TODO: Implementar método de envío de email_queue
-                //EnviaCorreosEcomm(codEmpresa, "ERROR",
-                //    $"{{\"mensajeError\":\"Error ENVIO DATOS APIREST\",\"procesoError\":\"{procesoDetalle}\"}}",
-                //    motivoError, context);
-
-                Console.WriteLine("ERROR: " + messageCatch);
-                //respuesta = false;
-            }
-            
-            return responseData;
-        }
-
-        private void SaveLog()
-        {
-            //BitacoraWeb bitacora = null;
-            //if (guardaBitacora)
-            //{
-            //    bitacora = new BitacoraWeb
-            //    {
-            //        CodEmpresa = codEmpresa,
-            //        Proceso = PROCESO_CLASE,
-            //        ProcesoDetalle = procesoDetalle,
-            //        CadenaEnvio = jsonDatos.ToString(),
-            //        FechaInicio = startDate
-            //    };
-            //    context.Add(bitacora);
-            //    context.SaveChanges();
-            //}
-
-            //bitacora.FechaFin = DateTime.Now;
-            //bitacora.Status = response.StatusCode.ToString();
-            //bitacora.ResponseMsg = response.Content;
-            //context.SaveChanges();
-            //saveBitacora = true;
-
-            //if (guardaBitacora)
-            //{
-            //    var bitacoraError = new BitacoraWeb
-            //    {
-            //        CodEmpresa = codEmpresa,
-            //        Proceso = PROCESO_CLASE,
-            //        ProcesoDetalle = procesoDetalle,
-            //        CadenaEnvio = saveBitacora ? null : jsonDatos.ToString(),
-            //        FechaInicio = startDate,
-            //        ErrorGenerado = (messageCatch.Length >= 2000) ? messageCatch.Substring(0, 1999) : messageCatch
-            //    };
-            //    context.Add(bitacoraError);
-            //    context.SaveChanges();
-            //}
-        }
-
-        private void EnviaCorreosEcomm(long codEmpresa, string v1, string v2, string motivoError, DbContext context)
-        {
-            //throw new NotImplementedException();
-        }
-
+        [Obsolete("Debe ser eliminado........")]
         public async Task<List<PrecioDTO>> BuildPrecio(
             ArticulosXEmpresa art,
             ParametersMode1 parametros,
@@ -658,124 +572,6 @@ namespace ResourceBuilder.Services.Sales
             return precioDto;
         }
 
-        [Obsolete]
-        public async Task<ArticuloDTO> BuildItemForSendStockPrice(ArticulosXEmpresa art, 
-            long codEmpresa, 
-            long codAgencia, 
-            double IVA, 
-            bool envioAdicional,
-            long clienteWeb,
-            GenAgencias agenciaMatriz,
-            long nivelWeb,
-            Dictionary<long, double> articulosVE,
-            Dictionary<long, double> articulosAL)
-        {
-            var articuloDto = new ArticuloDTO();
-
-            var articuloWeb = await _appDbContext.GENARTICULOSWEB
-                .Where(x => x.CodArticulo == art.CodArticulo).FirstOrDefaultAsync();
-
-            if (articuloWeb != null &&
-                articuloWeb.ArticuloVariable != null &&
-                articuloWeb.ArticuloVariable.Equals("S", StringComparison.OrdinalIgnoreCase))
-            {
-                var articuloPadre = await _appDbContext.ARTICULOSXEMPRESA
-                    .Include(a => a.Articulo)
-                    .Where(x => x.CodArticulo == articuloWeb.CodArticuloPadre).FirstOrDefaultAsync();
-                articuloDto.Product = new ArticuloDTOProduct();
-                articuloDto.Product.ExternalId = articuloPadre.Articulo.CodArticulo.ToString();
-                articuloDto.Product.Name = !string.IsNullOrEmpty(articuloPadre.Articulo.DescripcionCorta) ?
-                    articuloPadre.Articulo.DescripcionCorta.Trim() :
-                    articuloPadre.Articulo.Descripcion.Trim();
-                articuloDto.Product.Reference = articuloPadre.Articulo.CodAlterno;
-            }
-
-            articuloDto.ExternalId = art.Articulo.CodArticulo.ToString();
-            articuloDto.Name = !string.IsNullOrEmpty(art.Articulo.DescripcionCorta) ?
-                    art.Articulo.DescripcionCorta.Trim() :
-                    art.Articulo.Descripcion.Trim();
-            articuloDto.Reference = art.Articulo.CodAlterno;
-            articuloDto.Weight = art.Articulo.MedidaPeso != null ? (double)art.Articulo.MedidaPeso : 0;
-            articuloDto.Width = art.Articulo.MedidaFrente != null ? (double)art.Articulo.MedidaFrente : 0;
-            articuloDto.Height = art.Articulo.MedidaAlto != null ? (double)art.Articulo.MedidaAlto : 0;
-            articuloDto.Length = art.Articulo.MedidaFondo != null ? (double)art.Articulo.MedidaFondo : 0;
-            articuloDto.Status = art.Estado.CodEstado.Equals(1);
-            articuloDto.ShowWeb = art.ActivaWeb.Equals("S");
-            articuloDto.ShowStore = art.VentaAlmacenes.Equals("S");
-            articuloDto.UnidadPresentacion = art.Articulo.CodUnidadPresentacion;
-
-            //count++;
-
-            if (envioAdicional)
-            {
-                var precioDto = new PrecioDTO();
-
-                var precioItem = await _appDbContext.FACPRECIOSVENTA.Where(x => x.CodArticulo == art.Articulo.CodArticulo &&
-                x.CodTipoCliente == clienteWeb &&
-                x.CodAgencia == agenciaMatriz.CodAgencia).FirstOrDefaultAsync();
-
-                //Facpreciosventa precioItem = null;
-
-                //string sqlPrecio = $"select p from Facpreciosventa p " +
-                //                   $"where p.genarticulos.codarticulo = {art.Genarticulos.Codarticulo} " +
-                //                   $"and p.gentiposclientes.codtipocliente = {clienteWeb} " +
-                //                   $"and p.id.genagencias.codagencia = {agenciaMatriz.Codagencia}";
-
-                ////var queryPrecio = objSesion.CreateQuery(sqlPrecio);
-                //precioItem = queryPrecio.UniqueResult<Facpreciosventa>();
-
-                if (precioItem != null)
-                {
-                    double precio = art.IncluyeIvaVentas.Equals("S") ?
-                        ((double)precioItem.Precio / (1 + (IVA / 100))) :
-                        (double)precioItem.Precio;
-
-                    //precioDto.ExternalId = precioItem.Id.Numprecioventa.ToString();
-                    precioDto.ExternalId = precioItem.NumPrecioVenta.ToString();
-                    precioDto.Type = "price";
-                    precioDto.Value = precio;
-                    articuloDto.Prices.Add(precioDto);
-
-                    //articulosEnvio.Add(articuloDto);
-
-                    articulosVE.TryAdd(art.CodArticulo, precio);
-                }
-
-                var precioAlm = new PrecioDTO();
-
-                var facPrecioAlmacen = await _appDbContext.FACPRECIOSALMACEN.Where(x => x.CodEmpresa == codEmpresa &&
-                x.CodArticulo == art.Articulo.CodArticulo &&
-                x.CodUnidadMedida == art.Articulo.CodUnidadPresentacion &&
-                x.CodNivel == nivelWeb).FirstOrDefaultAsync();
-
-                double precioAlmacen = 0;
-
-                if (facPrecioAlmacen != null)
-                {
-                    if (art.IncluyeIvaVentas.Equals("S"))
-                    {
-                        precioAlmacen = ((double)facPrecioAlmacen.Precio / (1 + (IVA / 100)));
-                    }
-                    else
-                    {
-                        precioAlmacen = (double)facPrecioAlmacen.Precio;
-                    }
-
-                    precioAlm.ExternalId = facPrecioAlmacen.CodArticulo.ToString();
-
-                    articulosAL.TryAdd(art.CodArticulo, precioAlmacen);
-                }
-
-                var stockResponse = await BuildStock(codEmpresa, codAgencia, art, null);
-
-                if (stockResponse != null && stockResponse.Count > 0)
-                {
-                    articuloDto.InventoryList = stockResponse;
-                }
-            }
-
-            return articuloDto;
-        }
 
         public async Task<List<PrecioDTO>> BuildPrices(
             ArticulosXEmpresa art,            
@@ -901,7 +697,7 @@ namespace ResourceBuilder.Services.Sales
         {
             List<FacBonificadosXArticulo> bonificados = new List<FacBonificadosXArticulo>();
             string sql = "";
-
+            
             if (vtaExterna)
             {
                 bonificados = await _appDbContext
@@ -917,22 +713,23 @@ namespace ResourceBuilder.Services.Sales
                     .OrderByDescending(x => x.PorcDescuento)
                     .ToListAsync();
             }
-            else
-            {
-                // Solo se envia Descuentos con Unidad de Presentacion
-                bonificados = await _appDbContext
-                    .FACBONIFICADOSXARTICULO
-                    .Include(y=>y.GenAgencias)
-                    .Where(
-                    predicate: x => x.CodArticulo.Equals(art.CodArticulo)
-                    && x.CodEmpresa == art.CodEmpresa
-                    && x.GenAgencias.EnvioEcommerce == "S"
-                    && x.CodNivel == decimal.Parse(paramNivel.Valor)
-                    && x.FechaInicio >= parametros.date_start
-                    && x.FechaFin <= parametros.date_end)
-                    .OrderByDescending(x => x.PorcDescuento)
-                    .ToListAsync();                
-            }
+            //TODO: CONFIRMADO QUE NO SE TOMA EN CUENTA PARA ESTOS CASOS 2025-08-04
+            //else
+            //{
+            //    // Solo se envia Descuentos con Unidad de Presentacion
+            //    bonificados = await _appDbContext
+            //        .FACBONIFICADOSXARTICULO
+            //        .Include(y=>y.GenAgencias)
+            //        .Where(
+            //        predicate: x => x.CodArticulo.Equals(art.CodArticulo)
+            //        && x.CodEmpresa == art.CodEmpresa
+            //        && x.GenAgencias.EnvioEcommerce == "S"
+            //        && x.CodNivel == decimal.Parse(paramNivel.Valor)
+            //        && x.FechaInicio >= parametros.date_start
+            //        && x.FechaFin <= parametros.date_end)
+            //        .OrderByDescending(x => x.PorcDescuento)
+            //        .ToListAsync();                
+            //}
 
             List<ArticuloDTO> articles = new List<ArticuloDTO>();
             List<PrecioDTO> prices = new List<PrecioDTO>();
@@ -1039,8 +836,8 @@ namespace ResourceBuilder.Services.Sales
             List<FacBonificadosXArticulo> dataSource_tmp = null;
             //if (true)
             //{
-            parametros.date_start = DateTime.Now.Date;
-            parametros.date_end = DateTime.Now.Date.AddDays(1).AddSeconds(-1);
+            //parametros.date_start = DateTime.Now.Date;
+            //parametros.date_end = DateTime.Now.Date.AddDays(1).AddSeconds(-1);
 
             dataSource_tmp = await _appDbContext.FACBONIFICADOSXARTICULO
                 .Where(c => c.CodEmpresa == 2
@@ -1164,7 +961,7 @@ namespace ResourceBuilder.Services.Sales
                                 }
                             }
 
-                            bool vtaExterna = false;
+                            bool vtaExterna = true;
                             var pricesDiscounts = await ecommerceService.BuildDiscounts(art, parametros, agenciaMatriz, clienteWeb, paramNivel, vtaExterna, IVA);
                             articuloDto.Prices.AddRange(pricesDiscounts);
                         }
@@ -1192,145 +989,6 @@ namespace ResourceBuilder.Services.Sales
             }
 
             return articulosEnvio;            
-        }
-
-        [Obsolete]
-        //EnvioArticulo
-        public async Task<List<ResponseSkuBulk>> SendProcessProducts(int codEmpresa,
-            long codAgencia,
-            List<ArticulosXEmpresa> listArticulos,
-            string endPointUrl,
-            RestSharp.Method method,
-            string proceso,
-            string procesoDetalle,
-            bool envioAdicional,
-            bool guardaBitacora)
-        {
-
-            List<ResponseSkuBulk> responseSkuBulks = new List<ResponseSkuBulk>();
-
-            bool retorno = false;
-            var articulosEnvio = new List<ArticuloDTO>();
-
-            try
-            {
-                var articulosVE = new Dictionary<long, double>();
-                var articulosAL = new Dictionary<long, double>();
-
-                double IVA = 0d;
-                var pIVA = await _appDbContext.GENPARAMETROS.Where(x => x.CodEmpresa == codEmpresa && x.CodParametro == "IVA").FirstOrDefaultAsync();
-                IVA = (pIVA != null) ? double.Parse(pIVA.Valor) : 0d;
-
-                var pClienteWeb = await _appDbContext.GENPARAMETROS.Where(x => x.CodEmpresa == codEmpresa && x.CodParametro == "PRECIO_WEB").FirstOrDefaultAsync();
-                long clienteWeb = (pClienteWeb != null) ? long.Parse(pClienteWeb.Valor) : 0l;
-
-                var paramNivel = await _appDbContext.GENPARAMETROS.Where(x => x.CodEmpresa == codEmpresa && x.CodParametro == "TIPO_NIVEL_DEFAULT_WEB").FirstOrDefaultAsync();
-                                
-                long nivelWeb = (paramNivel != null) ? long.Parse(paramNivel.Valor) : 0l;
-
-                if (paramNivel == null)
-                    throw new Exception("No se ha configurado el parámetro TIPO_CLIENTE_DEFAULT_WEB");
-
-                // Obtener la agencia matriz de la Empresa
-                var agenciaMatriz = await _appDbContext.GENAGENCIAS.Where(x => x.CodEmpresa == codEmpresa
-                && x.CodEstado == 1
-                && x.TipoAgencia == "M")
-                    .OrderBy(o => o.CodAgencia)
-                    .FirstOrDefaultAsync();
-
-                if (agenciaMatriz == null)
-                    throw new Exception("La empresa no tiene configurada Agencia Matriz");
-
-                //Genarticulosweb genArtWeb = new Genarticulosweb();
-                int count = 0;
-                int totalreg = 0;
-
-                if (listArticulos.Count > 0)
-                {
-                    totalreg = listArticulos.Count;
-                    foreach (var art in listArticulos)
-                    {                        
-                        string subCod = "";
-                        subCod = art.Articulo.CodAlterno.Length >= 3 ? art.Articulo.CodAlterno.Trim().Substring(0, 3) : art.Articulo.CodAlterno.Trim();
-
-                        totalreg--;
-
-                        if (!subCod.Equals("PADX", StringComparison.OrdinalIgnoreCase))
-                        {
-                            var articuloDto = await BuildItemForSendStockPrice( art,
-                                codEmpresa,
-                                codAgencia,
-                                IVA,
-                                envioAdicional,
-                                clienteWeb,
-                                agenciaMatriz,
-                                nivelWeb,
-                                articulosVE,
-                                articulosAL);
-
-                            if(articuloDto != null)
-                            {
-                                articulosEnvio.Add(articuloDto);
-                                count++;
-                            }
-                        }
-
-                        //DiscountPayload discountPayload = new DiscountPayload();
-                        //discountPayload.Articles = articulosEnvio;
-
-                        if (count == 10 || totalreg == 0)
-                        {
-                            //Send Stock and Prices
-                            var respApi = await __SendToMiddleware(codEmpresa, codAgencia, articulosEnvio, method, endPointUrl, proceso, procesoDetalle, true, guardaBitacora, _appDbContext);
-
-                            if(respApi != null)
-                                responseSkuBulks.AddRange(respApi.ToList());
-
-                            //Send Discounts
-                            //if (respApi || !respApi)
-                            {
-                                //EnvioDescuentoXCambioPrecio(codEmpresa, articulosVE, true, endPointUrl, guardaBitacora);
-                                //EnvioDescuentoXCambioPrecio(codEmpresa, articulosAL, false, endPointUrl, guardaBitacora);
-
-                                var ArticleForSendVE = await BuildItemForSendDiscounts(codEmpresa, articulosVE, true, endPointUrl, guardaBitacora, agenciaMatriz, clienteWeb, paramNivel);
-                                var ArticleForSendAL = await BuildItemForSendDiscounts(codEmpresa, articulosAL, true, endPointUrl, guardaBitacora, agenciaMatriz, clienteWeb, paramNivel);
-
-                                ResponseSkuBulk[] respApiVE;
-                                ResponseSkuBulk[] respApiAL;
-                                if (ArticleForSendVE.Count > 0)
-                                {                                
-                                    respApiVE = await __SendToMiddleware(codEmpresa, codAgencia, ArticleForSendVE, method, endPointUrl, proceso, procesoDetalle, true, guardaBitacora, _appDbContext);
-                                    if (respApiVE != null)
-                                        responseSkuBulks.AddRange(respApiVE.ToList());
-                                }
-
-                                if (ArticleForSendVE.Count > 0)
-                                {
-                                    respApiAL = await __SendToMiddleware(codEmpresa, codAgencia, ArticleForSendAL, method, endPointUrl, proceso, procesoDetalle, true, guardaBitacora, _appDbContext);
-                                    if (respApiAL != null)
-                                        responseSkuBulks.AddRange(respApiAL.ToList());
-                                }
-
-                                Debug.WriteLine(ArticleForSendVE);
-                                Debug.WriteLine(ArticleForSendAL);
-                            }
-
-                            count = 0;
-                        }
-                    }
-                }                             
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error: " + ex.Message);
-            }
-            finally
-            {
-                //if (sesion == null)
-                //    objSesion.Close();
-            }
-
-            return responseSkuBulks;
         }
 
         public async Task<List<ArticuloDTO>> BuildItemForSendDiscounts(
