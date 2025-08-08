@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:CobranzasDMSA_Odoo;assembly=CobranzasDMSA-Odoo"
+             x:Class="CobranzasDMSA_Odoo.DetailModal"
+             Title="DetailModal">
+
+    <VerticalStackLayout>
+        <Label 
+            Text="Procesando, espere un momento..."
+            VerticalOptions="Center" 
+            HorizontalOptions="Center" />
+        <Label 
+            Text="{Binding id}"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center" />
+        <Label 
+            Text="{Binding name}"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center" />
+        <Label 
+            x:Name="lblId"
+            Text="{Binding id}"
+            BindingContext="{x:Static local:DetailModal.estado}"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center" />
+        <Label 
+            x:Name="lblForUpdate"
+            Text="{Binding name, Mode=TwoWay}"
+            BindingContext="{x:Static local:DetailModal.estado}"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center" />        
+    </VerticalStackLayout>
+</ContentPage>

@@ -1,0 +1,33 @@
+﻿{% comment %}
+    {% raw %}
+        Título: Plantilla para impresión de solicitud de nota de crédito
+        Author: Ronald Chonillo Villón
+        Fecha: 30/10/2023
+    {% endraw %}
+{% endcomment %}
+{{_company.name}}
+=== SOLICITUD DE NOTA DE CREDITO ===
+
+CLIENTE: {{_account_move_send.partner_name}}
+Doc.Ref.: {{_account_move_send._ref}}
+.______________________________.
+| ESTE TICKET ES INFORMATIVO.**|
+| LA SOLICITUD SERA EVALUADA   |
+| PARA SU APROBACION.**********|
+.______________________________.
+
+{%- assign caracteres_a_mostrar = 30 %}
+=========== DETALLE ===========
+ARTICULO                                      CANTIDAD
+--------------------------------------------------------------
+{%- for lineItem in _accountMoveSendLines %}
+{{lineItem.name | slice: 0, caracteres_a_mostrar}}         {{lineItem.quantity}}
+{%- endfor %}
+
+================================
+Fecha:     {{_account_move_send.create_date}}
+
+
+______________________________
+-Firma cliente-
+

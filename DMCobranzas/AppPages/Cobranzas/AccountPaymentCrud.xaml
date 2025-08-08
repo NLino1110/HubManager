@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CobranzasDMSA_Odoo.Controls.Modals.AccountPaymentCrud"
+             xmlns:control="clr-namespace:CobranzasDMSA_Odoo.Controls"
+             Title="CobroNuevo">
+    
+    <!--<ContentPage.ToolbarItems>-->
+        <!--<ToolbarItem x:Name="btnSave" Text="GUARDAR ABONO" Clicked="btnSave_Clicked">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource FontFamily="FontAwesome5Solid"
+                                 Glyph="&#xf0c7;"
+                                 Color="White" />
+                --><!-- Icono de notificaciones --><!--
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+        <ToolbarItem x:Name="btnCancel" Text="CANCELAR" Clicked="btnCancel_Clicked">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource FontFamily="FontAwesome5Solid"
+                                 Glyph="&#xf410;"
+                                 Color="White" />
+                --><!-- Icono de notificaciones --><!--
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>-->
+    <!--</ContentPage.ToolbarItems>-->
+    <StackLayout Padding="0,0,0,0">
+        <AbsoluteLayout Margin="0" MinimumHeightRequest="50" Padding="0" BackgroundColor="{StaticResource Primary}">
+            <Label x:Name="lblTitle" 
+                   Text="PAGO-CLIENTE NOMBRE" 
+                   VerticalOptions="Center" 
+                   Margin="2,0,0,0" 
+                   TextColor="DarkBlue" 
+                   FontSize="18" 
+                   FontAttributes="Bold"
+                   AbsoluteLayout.LayoutFlags="All"
+                   AbsoluteLayout.LayoutBounds="0, 0.5, 1, 1"></Label>
+            <StackLayout Orientation="Horizontal"
+                         AbsoluteLayout.LayoutFlags="All"
+                         AbsoluteLayout.LayoutBounds="0, 1, 1, 0.5"
+                         HorizontalOptions="End"
+                         VerticalOptions="Center">
+                <StackLayout Orientation="Horizontal" x:Name="TopTools" IsVisible="False" 
+                             MaximumHeightRequest="40" 
+                             ZIndex="1">
+                    <Button x:Name="btnSave" 
+                            Text="GUARDAR" 
+                            FontSize="12" 
+                            Clicked="btnSave_Clicked" 
+                            Margin="1" 
+                            BackgroundColor="DodgerBlue" 
+                            CornerRadius="2"
+                            FontAttributes="Bold"
+                            HeightRequest="28"
+                            Padding="10,0,10,0">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid"
+                             Glyph="&#xf0c7;"
+                             Color="White"
+                                 Size="15"/>
+                            <!-- Icono de notificaciones -->
+                        </Button.ImageSource>
+                    </Button>
+                    <Button x:Name="btnCancel" Text="SALIR" 
+                            FontSize="12" 
+                            Clicked="btnCancel_Clicked" 
+                            Margin="1" 
+                            BackgroundColor="OrangeRed" FontAttributes="Bold"
+                            CornerRadius="2"
+                            HeightRequest="28"
+                            Padding="10,0,10,0">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid"
+                             Glyph="&#xf00d;"
+                             Color="White" 
+                             Size="15"/>
+                            <!-- Icono de notificaciones -->
+                        </Button.ImageSource>
+                    </Button>
+                </StackLayout>
+                <StackLayout Orientation="Horizontal" 
+                             VerticalOptions="Start">
+                    <Button x:Name="btnTopTools" 
+                            Text="" 
+                            FontSize="12" 
+                            Clicked="BtnTopTools_OnClicked_Clicked" 
+                            BackgroundColor="DodgerBlue" 
+                            CornerRadius="50"
+                            TextColor="White"
+                            HeightRequest="45"
+                            ContentLayout="Top,0"
+                            Padding="5,5,5,5"
+                            Margin="1,1,1,1">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid"
+                                             Glyph="&#xf0c9;"
+                                             Color="White" Size="18"/>
+                            <!-- Icono de notificaciones -->
+                        </Button.ImageSource>
+                    </Button>
+                </StackLayout>
+
+
+                </StackLayout>
+        </AbsoluteLayout>
+        
+        <StackLayout Orientation="Horizontal" Margin="5,5,5,0">
+            <Label Text="Fecha de pago:" VerticalOptions="Center" Margin="0,0,5,0" FontAttributes="Bold"/>
+            <DatePicker x:Name="pickerFecCobro"  Margin="0,0,20,0" MinimumWidthRequest="100"/>
+            <StackLayout Orientation="Horizontal" Margin="10,0,20,0" IsVisible="False">
+                <CheckBox Color="#ACCAEB" IsChecked="False" x:Name="chkIsAdvance" ScaleX="2" ScaleY="2"/>
+                <Label Text="Es anticipo" VerticalOptions="Center"  FontAttributes="Bold" TextColor="DarkViolet"/>
+            </StackLayout>
+        </StackLayout>
+
+        <FlexLayout Wrap="Wrap" Margin="5,0,0,0">
+            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" Margin="0,0,5,0">
+                <Label Text="Forma Pago:" VerticalOptions="Center" Margin="0,0,10,0" FontAttributes="Bold"/>
+                <Picker x:Name="pickerDiario"
+                    Title=""
+                    HorizontalOptions="FillAndExpand" 
+                        VerticalOptions="Center"
+                        MinimumWidthRequest="160">
+                </Picker>
+            </StackLayout>
+
+            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" Margin="0,0,0,0">
+                <Label Text="Método pago:" VerticalOptions="Center" Margin="0,0,10,0" FontAttributes="Bold"/>
+                <Picker x:Name="pickerPaymentMethod"
+                    HorizontalOptions="FillAndExpand" 
+                        VerticalOptions="Center"
+                        MinimumWidthRequest="160">
+                </Picker>
+            </StackLayout>
+        </FlexLayout>
+        
+        <!--<Picker x:Name="pickerIndicador"
+                Title="Indicador:"
+                ItemsSource="{Binding indicador}"
+                ItemDisplayBinding="{Binding VALOR}"
+                HorizontalOptions="FillAndExpand"
+                IsVisible="false"/>-->
+
+        <Entry x:Name="txtGirador" 
+                   Placeholder="Girador" 
+                   HorizontalOptions="FillAndExpand"
+               IsVisible="false">
+        </Entry>
+
+        <Entry x:Name="txtNCtaCheque"
+                   Placeholder="Cuenta Cheque" 
+                   HorizontalOptions="FillAndExpand" 
+               Keyboard="Numeric"
+               IsVisible="false">
+        </Entry>
+
+        <!--<Entry x:Name="txtNCheque"
+                   Placeholder="Número de Cheque" 
+                   HorizontalOptions="FillAndExpand" 
+               Keyboard="Numeric"
+               IsVisible="false">
+        </Entry>-->
+
+        <Entry x:Name="txtNDeposito"
+                   Placeholder="No. Deposito" 
+                   HorizontalOptions="FillAndExpand" 
+               Keyboard="Numeric"
+               IsVisible="false">
+        </Entry>        
+
+        <Entry x:Name="txtNTarjeta"
+                   Placeholder="No. Tarjeta:" 
+                   HorizontalOptions="FillAndExpand" 
+               Keyboard="Numeric"
+               IsVisible="false">
+        </Entry>
+
+        <Entry x:Name="txtNLote"
+                   Placeholder="No. Lote:" 
+                   HorizontalOptions="FillAndExpand" 
+               Keyboard="Numeric"
+               IsVisible="false">
+        </Entry>
+
+        <FlexLayout Wrap="Wrap" x:Name="CreditCardGroup" IsVisible="false" JustifyContent="Start" Margin="10">
+            <StackLayout Orientation="Horizontal">
+                <Label Text="Referencia TC:" Margin="5,0,5,0" 
+                       VerticalOptions="Center" FontAttributes="Bold"></Label>
+                 <Entry x:Name="txtReferenciaTc"
+                    Placeholder="Referencia Tarjeta de Crédito"
+                    HorizontalOptions="FillAndExpand" 
+                    Margin="0,0,10,0"
+                    VerticalOptions="Center"
+                    WidthRequest="160"> 
+                </Entry>
+            </StackLayout>
+            <StackLayout Orientation="Horizontal">
+                <Label Text="Autorizacion TC:" Margin="5,0,5,0" 
+           VerticalOptions="Center" FontAttributes="Bold"></Label>
+                <Entry x:Name="txtAuthTc"
+                    Placeholder="Autorizacion Tarjeta de Crédito"
+                    HorizontalOptions="FillAndExpand" 
+                    Margin="0,0,10,0"
+                    VerticalOptions="Center"
+                    WidthRequest="160">
+                </Entry>
+            </StackLayout>
+            <StackLayout Orientation="Horizontal">
+                <Label Text="Lote TC:" Margin="5,0,5,0" VerticalOptions="Center" FontAttributes="Bold"></Label>
+                <Entry x:Name="txtLoteTc"
+                    Placeholder="Lote"
+                    HorizontalOptions="FillAndExpand" 
+                    Margin="0,0,10,0"
+                    VerticalOptions="Center"
+                    WidthRequest="160">
+                </Entry>
+            </StackLayout>
+        </FlexLayout>
+        
+        <FlexLayout Wrap="Wrap" x:Name="ChequeGroup" IsVisible="false" JustifyContent="Start" Margin="10">
+            <!--bank_account_id-->
+            <!--<StackLayout Orientation="Horizontal" BackgroundColor="Aqua">-->
+                <!--<StackLayout Orientation="Vertical" BackgroundColor="Green">
+                    <Label Text="Debe seleccionar una cuenta existente, botón + para agregar una nueva" 
+                    VerticalTextAlignment="Center" 
+                    TextColor="Orange"
+                        FontSize="11"
+                    FontAttributes="Bold" 
+                           Padding="5"
+                           MaximumWidthRequest="250"></Label>-->
+
+                    <StackLayout 
+                        Orientation="Horizontal"                                  
+                                 VerticalOptions="Center">
+                        <Label Text="Cta. No.:"
+                   VerticalTextAlignment="Center" 
+                   TextColor="DimGray" 
+                   FontAttributes="Bold" 
+                   Padding="0,0,5,0"
+                               FontSize="13"></Label>
+                        <Entry x:Name="txtCuenta"
+                           HorizontalOptions="Fill"
+                           IsReadOnly="True"                           
+                               Margin="0,0,0,0"
+                               MinimumWidthRequest="200">
+                        </Entry>
+                        <Button Text=""
+                    ContentLayout="Top,0"
+                    BackgroundColor="LightGray"
+                    Clicked="btnCuenta_Clicked" 
+                    Margin="0,0,1,0"
+                    MaximumHeightRequest="40"
+                    MaximumWidthRequest="45"
+                    Padding="0"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center">
+                            <Button.ImageSource>
+                                <FontImageSource FontFamily="FontAwesome5Solid"
+									Color="DimGray"
+									Size="20"
+									FontAutoScalingEnabled="True"                                                         
+									Glyph="&#xf078;" />
+                            </Button.ImageSource>
+                        </Button>
+                        <Button 
+                            x:Name="btnNewAccountBank" 
+                            Text=""
+                            ContentLayout="Top,0"
+                            Clicked="btnNewAccountBank_Clicked" 
+                            BackgroundColor="Orange" 
+                            FontAttributes="Bold"
+                            Margin="0,0,0,0"
+                            MaximumHeightRequest="40"
+                            MaximumWidthRequest="45"
+                            Padding="0"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center">
+                            <Button.ImageSource>
+                                <FontImageSource
+                        FontFamily="FontAwesome5Solid"
+                        FontAutoScalingEnabled="True"                        
+                         Glyph="&#x2b;"
+                         Color="White" />
+                                <!-- Icono de notificaciones -->
+                            </Button.ImageSource>
+                        </Button>
+                    <!--</StackLayout>-->                    
+                </StackLayout>               
+            <!--</StackLayout>-->
+
+            <StackLayout IsVisible="false"
+                         BackgroundColor="LightGoldenrodYellow" 
+                         Orientation="Vertical"
+                         MinimumWidthRequest="300"                         
+                         Margin="2,0,2,0"
+                         Padding="10,10,10,10" 
+                         x:Name="stackAccountInfo">
+                <Label
+                    x:Name="lblAccountHolder"
+                    BackgroundColor="Transparent"
+                    Text="Propietario"
+                    TextColor="DimGray"
+                    FontSize="11"
+                    FontFamily="Consolas"
+                    FontAttributes="Bold"
+                    VerticalTextAlignment="Center">
+                </Label>
+                <Label
+                    x:Name="lblAccountBank"
+                    BackgroundColor="Transparent"
+                    Text="Banco"
+                    TextColor="DimGray"
+                    FontSize="11"
+                    FontFamily="Consoles"
+                    FontAttributes="Bold"
+                    VerticalTextAlignment="Center">
+                </Label>
+                <Label
+                    x:Name="lblAccountType"
+                    BackgroundColor="Transparent"
+                    Text="Tipo"
+                    TextColor="CadetBlue"
+                    FontSize="11"
+                    FontFamily="Consoles"
+                    FontAttributes="Bold,Italic"
+                    VerticalTextAlignment="Center">
+                </Label>
+            </StackLayout>
+            
+            <!--number_check_customer-->
+            <StackLayout Orientation="Horizontal">
+                <Label Text="Cheque:" Margin="5,0,5,0" 
+                       VerticalOptions="Center" FontAttributes="Bold"></Label>
+                <Entry x:Name="txtNCheque"
+                Placeholder="Número de Cheque"
+                HorizontalOptions="FillAndExpand" 
+                   Margin="0,0,10,0"
+                       VerticalOptions="Center"
+                WidthRequest="160">
+                </Entry>
+            </StackLayout>
+            
+            <!--Fecha para Depósito-->
+            <!--date_release-->
+            <StackLayout Orientation="Horizontal">
+                <Label Text="Fecha Depósito:" Margin="0,0,5,0" VerticalOptions="Center" FontAttributes="Bold"></Label>
+                <DatePicker x:Name="pickerFecDeposito" IsVisible="true" Margin="0,0,0,0" VerticalOptions="Center" MinimumWidthRequest="100"/>
+            </StackLayout>
+        </FlexLayout>
+        
+        <Entry x:Name="txtRef"
+           Placeholder="Memo"
+           HorizontalOptions="FillAndExpand"
+               TextColor="Green">
+        </Entry>
+
+        <StackLayout Orientation="Horizontal" Margin="5">
+            <Label Text="VALOR:   $" 
+                    VerticalTextAlignment="Center"
+                    FontSize="13"
+                    Margin="5"
+                    FontAttributes="Bold">            
+            </Label>
+            
+            <Entry x:Name="txtValor"
+                       Placeholder="0.00" 
+                       HorizontalOptions="FillAndExpand"               
+                   Keyboard="Numeric"
+                   FontAttributes="Bold">
+            </Entry>
+            
+            <Button x:Name="btnLoadDocs" 
+                    Text="Facturas" 
+                    Clicked="btnLoadDocs_Clicked" 
+                    BackgroundColor="YellowGreen" 
+                    FontAttributes="Bold"
+                    MaximumHeightRequest="36"
+                    FontSize="13"
+                    Padding="5,5,5,5"
+                    VerticalOptions="Center">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+                     Glyph="&#xf0ae;"
+                     Color="White" 
+                     Size="16"/>
+                    <!-- Icono de notificaciones -->
+                </Button.ImageSource>
+            </Button>
+        </StackLayout>
+
+        <FlexLayout Wrap="Wrap" JustifyContent="Center" Margin="10">
+            
+            <Label x:Name="lblCounter"                
+                Text="Total de documentos 0"
+                VerticalTextAlignment="Center"
+                FontSize="11"
+                FontAttributes="Bold" Margin="0,0,0,0"></Label>
+            <Label x:Name="lblMonto"         
+                 Text="$"
+                 VerticalTextAlignment="Center"         
+                       TextColor="Red"
+                 FontSize="11"
+                 FontAttributes="Bold" Margin="10,0,0,0"></Label>
+            
+        </FlexLayout>
+        <AbsoluteLayout x:Name="_absoluteLayout" HorizontalOptions="Center" VerticalOptions="Center" BackgroundColor="GhostWhite"/>
+
+        <!--<Frame BorderColor="LightGray" Padding="10" Margin="1" BackgroundColor="Gray" CornerRadius="0">
+            <Grid HorizontalOptions="FillAndExpand" BackgroundColor="Transparent">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>                    
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Row="0" Grid.Column="0" HorizontalOptions="Start" VerticalOptions="Center" Text="Documento" TextColor="WhiteSmoke" FontAttributes="Bold"/>
+                <Label Grid.Row="0" Grid.Column="1" HorizontalOptions="Start" VerticalOptions="Center" Text="Fec.Emisión" TextColor="WhiteSmoke" FontAttributes="Bold"/>
+                <Label Grid.Row="0" Grid.Column="2" HorizontalOptions="Start" VerticalOptions="Center" Text="Saldo" TextColor="WhiteSmoke" FontAttributes="Bold"/>
+                <Label Grid.Row="0" Grid.Column="4" HorizontalOptions="Start" VerticalOptions="Center" Text="Pago" TextColor="WhiteSmoke" FontAttributes="Bold"/>
+
+            </Grid>
+        </Frame>-->
+
+        <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+            <CollectionView x:Name="collectionView">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <control:InvoicePaymentItemV2 dataItem="{Binding .}"></control:InvoicePaymentItemV2>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </ScrollView>
+    </StackLayout>
+</ContentPage>

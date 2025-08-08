@@ -1,0 +1,37 @@
+﻿{% comment %}
+    {% raw %}
+        Título: Plantilla para impresión de ticket de cobro
+        Author: Ronald Chonillo Villón
+        Fecha: 25/10/2023
+    {% endraw %}
+{% endcomment %}
+{{_company.name}}
+RECIBO {{_accountPaymentHeader.recipe_name}}
+CLIENTE {{_accountPaymentHeader.partner_id}} {{_accountPaymentHeader.partner_name}}
+Estado {{_accountPaymentHeader.payment_status}}
+{% assign totalAmount = 0 %}
+{%- assign totalPendingAmount = 0 %}
+{%- for accountPaymentItem in _accountPayments %}
+F.PAGO
+{{accountPaymentItem.journal_name}}         $ {{accountPaymentItem.amount}}
+    DOCUMENTOS
+{%- for itemLine in accountPaymentItem.lines %}
+    {{itemLine.invoice_line_id_name}}         ${{itemLine.reconcile_amount}}
+{%- capture totalAmount %}{{totalAmount | plus:itemLine.reconcile_amount}}{% endcapture %}
+{%- endfor %}
+{%- endfor %}
+________________
+TOTAL F.P.:     $ {{_accountPaymentHeader.payment_amount}}
+TOTAL CANC:     $ {{totalAmount}}
+{% capture totalPendingAmount %}{{_accountPaymentHeader.payment_due | minus: totalAmount }}{% endcapture %}
+
+TOTAL FACT. Pendientes: $ {{totalPendingAmount}}
+
+
+Email: {{_res_partner.email}}
+Vnd: {{_user_access.name}}
+Fecha: {{_accountPaymentHeader.create_datetime}}
+
+
+________________________________
+             -Firma Cliente-

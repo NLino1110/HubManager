@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             x:Class="CobranzasDMSA_Odoo.AppPages.CobranzasPage"
+             xmlns:local="clr-namespace:CobranzasDMSA_Odoo"
+             xmlns:control="clr-namespace:CobranzasDMSA_Odoo.Controls"
+             Title="Cobranzas">
+    <StackLayout HorizontalOptions="Fill">
+        <StackLayout Orientation="Vertical" Margin="4">
+            <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10, 0,0,0">
+                <Label Text="Empresa:" VerticalOptions="Center" WidthRequest="100" TextColor="DodgerBlue"></Label>
+                <Picker x:Name="SelectorCmp"
+                        Title=""                        
+                        ItemDisplayBinding="{Binding name}"
+                        SelectedIndexChanged="OnPickerSelectedIndexChanged"
+                        VerticalOptions="Center"
+                        Margin="0,0,0,0"
+                        HorizontalOptions="FillAndExpand"/>
+            </StackLayout>
+            <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10, 0,0,0">
+                <Label Text="F. desde:" VerticalOptions="Center" WidthRequest="100" TextColor="DodgerBlue"></Label>
+                <DatePicker x:Name="dateIni" HorizontalOptions="FillAndExpand" />
+            </StackLayout>
+            <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10, 0,0,0">
+                <Label Text="F. hasta:" VerticalOptions="Center" WidthRequest="100" TextColor="DodgerBlue"></Label>
+                <DatePicker x:Name="dateEnd" HorizontalOptions="FillAndExpand" />
+            </StackLayout>
+
+            <StackLayout Orientation="Horizontal" Margin="10">
+                <Button CornerRadius="2" BackgroundColor="DodgerBlue" Text="Buscar" Margin="2" Clicked="btnBuscar_Clicked" HeightRequest="35" Padding="10,0,10,0">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FontAwesome5Solid"
+                                         Color="White"
+                                         Size="14"
+                                         FontAutoScalingEnabled="True"                                                         
+                                         Glyph="&#xf002;" />
+                    </Button.ImageSource>
+                </Button>
+                <Button CornerRadius="2" Text="Nuevo Pago" Margin="5" Clicked="NewPayment" BackgroundColor="DodgerBlue" HeightRequest="35" Padding="10,0,10,0">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FontAwesome5Solid"
+                                         Color="White"
+                                         Size="14"
+                                         FontAutoScalingEnabled="True"                                                         
+                                         Glyph="&#xf788;" />
+                    </Button.ImageSource>
+                </Button>
+            </StackLayout>
+
+            <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10, 0,0,0">
+                <Entry x:Name="txtSearch" Text="" Placeholder="Buscar por Cliente" HorizontalOptions="FillAndExpand" FlexLayout.Shrink="50" FlexLayout.Grow="1"/>
+            </StackLayout>
+        </StackLayout>
+
+        <AbsoluteLayout x:Name="_absoluteLayout" HorizontalOptions="Center" VerticalOptions="Center" BackgroundColor="GhostWhite">
+        </AbsoluteLayout>
+        <!--<RefreshView x:Name="refreshView"
+                     IsRefreshing="{Binding IsRefreshing}"
+                        Command="{Binding RefreshCommand}">-->
+        <ScrollView x:Name="scrollViewResult" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+            <CollectionView x:Name="collectionView"
+                            ItemsSource="{Binding _items}" 
+                            IsGrouped="True"
+                            HorizontalOptions="FillAndExpand"
+                            EmptyView=".....">
+                    <CollectionView.GroupHeaderTemplate>
+                        <DataTemplate>
+                            <control:CustomHeaderView Title="{x:Binding Title}"
+                                                  CommandParameter="{Binding .}"
+                                                  ShowButton2="{x:Binding showButtonCierre}"
+                                                  Button1Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ReporteDiaCommand}"
+                                                  Button2Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CerrarDiaCommand}">
+                            </control:CustomHeaderView>
+                        </DataTemplate>
+                    </CollectionView.GroupHeaderTemplate>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <control:PaymentHeaderItem DataItem="{x:Binding .}">
+                            </control:PaymentHeaderItem>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </ScrollView>
+        <!--</RefreshView>-->
+    </StackLayout>
+</ContentPage>

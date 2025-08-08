@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             x:Class="CobranzasDMSA_Odoo.AppPages.NotaCredito.AccountMoveSendView"
+             xmlns:control="clr-namespace:CobranzasDMSA_Odoo.Controls"
+             Title="Grupo">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem x:Name="btnSave" Text="GUARDAR" Clicked="btnSave_Clicked">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource FontFamily="FontAwesome5Solid"
+                         Glyph="&#xf0c7;"
+                         Color="Black" />
+                <!-- Icono de notificaciones -->
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+        <ToolbarItem x:Name="btnCancel" Text="CANCELAR" Clicked="btnClose_Clicked">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource FontFamily="FontAwesome5Solid"
+                         Glyph="&#xf410;"
+                         Color="Black" />
+                <!-- Icono de notificaciones -->
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+    </ContentPage.ToolbarItems>
+    <ContentPage.IconImageSource>
+        <FontImageSource FontFamily="FontAwesome5Solid"
+                                 Glyph="&#xf3d1;"
+                                 Color="Black" />
+        <!-- Icono de notificaciones -->
+    </ContentPage.IconImageSource>
+    <StackLayout>                        
+        <StackLayout Orientation="Horizontal" Margin="10">
+            <Grid HorizontalOptions="FillAndExpand">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                
+                <StackLayout Orientation="Horizontal" Margin="10" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5">
+                    <!--<Label Text="CLIENTE:" VerticalTextAlignment="Center"></Label>-->
+                    <Entry x:Name="txtCliente" HorizontalOptions="FillAndExpand" IsReadOnly="True">
+                    </Entry>
+                    <Button 
+                        CornerRadius="5"
+                        Text="" 
+                            BackgroundColor="LightGray"
+                            Clicked="btnCustomer_Clicked" Grid.Row="1" Grid.Column="2"
+                            MaximumWidthRequest="30"
+                            WidthRequest="30"
+                            MaximumHeightRequest="30"
+                            HeightRequest="30"
+                            Padding="2"
+                            Margin="1">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid"
+											Color="DimGray"
+											Size="12"
+											FontAutoScalingEnabled="True"                                                         
+											Glyph="&#xf078;" />
+                        </Button.ImageSource>
+                    </Button>
+                    <Button x:Name="btnRemoveCustomer" 
+						Text="" Clicked="btnRemoveCustomer_Clicked" 
+						Grid.Row="1" Grid.Column="2"
+						BackgroundColor="LightGray"
+                            MaximumWidthRequest="30"
+                            WidthRequest="30"
+                            MaximumHeightRequest="30"
+                            HeightRequest="30"
+                            CornerRadius="5"
+                            Padding="2"
+                            Margin="1">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid"
+											Color="DimGray"
+											Size="12"
+											FontAutoScalingEnabled="True"                                                         
+											Glyph="&#xf00d;" />
+                        </Button.ImageSource>
+                    </Button>                    
+                </StackLayout>
+
+                <StackLayout Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="5" Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                    <Button HorizontalOptions="Center"
+                            Text="X Factura"
+                            Margin="5"
+                            Clicked="btnAddAccountPayment_Clicked"
+                            BackgroundColor="DodgerBlue"
+                            FontAttributes="Bold"
+                            CornerRadius="2">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid"
+                                             Color="White"
+                                             Size="20"
+                                             FontAutoScalingEnabled="True"                                         
+                                             Glyph="&#xf0c9;" />
+                        </Button.ImageSource>
+                    </Button>
+
+                    <Button HorizontalOptions="Center"
+                            BackgroundColor="MediumSlateBlue"
+                            Text="X Artículo"
+                            Margin="5"
+                            Clicked="btnAddMoveByItem_Clicked"
+                            FontAttributes="Bold"
+                            CornerRadius="2">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid"
+                                             Color="White"
+                                             Size="20"
+                                             FontAutoScalingEnabled="True"                                         
+                                             Glyph="&#xf58d;" />
+                        </Button.ImageSource>
+                    </Button>
+                </StackLayout>
+                
+                <Label HorizontalOptions="Center" 
+                       Text="Cada línea de nota de crédito es un registro individual en Odoo." 
+                       VerticalTextAlignment="Center"  
+                       Grid.Column="0" 
+                       Grid.Row="2"
+                       Grid.ColumnSpan="5"
+                       FontAttributes="Bold"
+                       TextColor="DimGray" FontSize="12" ></Label>
+
+                <StackLayout Grid.Column="0" Grid.Row="3" Orientation="Horizontal">
+                    <Label x:Name="txtTotalPagado" HorizontalOptions="Center" 
+                       Text="TOTAL PAGO: $ 0.00" 
+                       VerticalTextAlignment="Center"
+                       FontAttributes="Bold"
+                       IsVisible="false"></Label>
+                    <Label x:Name="txtTotalAplicado" HorizontalOptions="Center" 
+                           Text="TOTAL APLICADO: $ 0.00" 
+                           VerticalTextAlignment="Center"
+                           FontAttributes="Bold" 
+                           IsVisible="false"></Label>
+                </StackLayout>
+            </Grid>            
+        </StackLayout>
+
+        <Frame BorderColor="LightGray" Padding="10" Margin="1" BackgroundColor="Gray" CornerRadius="0">
+            <Grid HorizontalOptions="FillAndExpand" BackgroundColor="Transparent">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <!--<ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>-->
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" HorizontalOptions="Start" VerticalOptions="Center" Text="Notas de Credito" TextColor="WhiteSmoke" FontAttributes="Bold"/>
+                <!--<Label Grid.Row="0" Grid.Column="1" HorizontalOptions="Start" VerticalOptions="Center" Text="Diario" TextColor="WhiteSmoke" FontAttributes="Bold"/>
+                <Label Grid.Row="0" Grid.Column="2" HorizontalOptions="Start" VerticalOptions="Center" Text="Método de Pago" TextColor="WhiteSmoke" FontAttributes="Bold"/>
+                <Label Grid.Row="0" Grid.Column="4" HorizontalOptions="Start" VerticalOptions="Center" Text="Importe" TextColor="WhiteSmoke" FontAttributes="Bold"/>
+                <Label Grid.Row="0" Grid.Column="5" HorizontalOptions="Start" VerticalOptions="Center" Text="Referencia" TextColor="WhiteSmoke" FontAttributes="Bold"/>-->
+            </Grid>
+        </Frame>
+        
+        <ScrollView VerticalOptions="FillAndExpand">
+            <CollectionView x:Name="collectionView">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <SwipeView x:Name="swipeView" IsClippedToBounds="true">
+                            <SwipeView.RightItems>
+                                <SwipeItems SwipeBehaviorOnInvoked="RemainOpen">
+                                    <SwipeItemView>
+                                        <StackLayout Orientation="Horizontal" Margin="5,5,5,5">
+                                            <Button                                                 
+                                                CornerRadius="5"
+                                            ContentLayout="Top,0"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteItemCommand}"
+                                            CommandParameter="{Binding .}" 
+                                                MaximumWidthRequest="120"                                                    
+                                            BackgroundColor="Red"
+                                            Text="BORRAR"
+                                            FontAttributes="Bold"
+                                            FontSize="12"
+                                            HorizontalOptions="Center"
+                                                    Margin="1,1,1,1">
+                                                <Button.ImageSource>
+                                                    <FontImageSource FontFamily="FontAwesome5Solid"
+                                                Color="White"
+                                                Size="20"
+                                                FontAutoScalingEnabled="True"                                                         
+                                                Glyph="&#xf2ed;" />
+                                                </Button.ImageSource>
+                                            </Button>
+                                            <Button                                                 
+                                                CornerRadius="5"
+                                            ContentLayout="Top,0"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditItemCommand}"
+                                            CommandParameter="{Binding .}" 
+                                                MaximumWidthRequest="120"
+                                            BackgroundColor="BlueViolet"
+                                            Text="EDITAR"
+                                            FontAttributes="Bold"
+                                            FontSize="12"
+                                            HorizontalOptions="Center"
+                                                Margin="1,1,1,1">
+                                                <Button.ImageSource>
+                                                    <FontImageSource FontFamily="FontAwesome5Solid"
+                                                Color="White"
+                                                Size="20"
+                                                FontAutoScalingEnabled="True"                                                         
+                                                Glyph="&#xf303;" />
+                                                </Button.ImageSource>
+                                            </Button>
+                                        </StackLayout>
+                                    </SwipeItemView>
+                                </SwipeItems>
+                            </SwipeView.RightItems>
+                            <!-- Content -->
+                            <Frame BorderColor="LightGray" Padding="5, 0, 5, 0" Margin="1" BackgroundColor="WhiteSmoke" CornerRadius="0" MinimumHeightRequest="70">
+                                <Grid HorizontalOptions="FillAndExpand" BackgroundColor="WhiteSmoke" VerticalOptions="Center">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <!--<RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>-->
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>                                    
+                                    <Label Grid.Row="0" Grid.Column="0" HorizontalOptions="Start" VerticalOptions="Center" Margin="8">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding title}"
+                                                  TextColor="Gray"
+                                                  TextTransform="Uppercase"                                                      
+                                                      FontSize="12"
+                                                      FontAttributes="Bold">
+                                                </Span>
+                                                <Span Text="-"
+                                                  TextColor="DimGray"
+                                                  TextTransform="Uppercase"                                                      
+                                                      FontSize="12"
+                                                      FontAttributes="Bold">
+                                                </Span>
+                                                <Span Text="{Binding invoice_date}"
+                                                  TextColor="Gray"
+                                                  TextTransform="Uppercase"
+                                                      FontSize="12"
+                                                      FontAttributes="Bold">
+                                                </Span>
+                                                <Span Text="-"
+                                                  TextColor="DimGray"
+                                                  TextTransform="Uppercase"                                                      
+                                                      FontSize="12"
+                                                      FontAttributes="Bold">
+                                                </Span>
+                                                <Span Text="{Binding partner_name}"
+                                                  TextColor="DimGray"
+                                                  TextTransform="Uppercase"                                                      
+                                                      FontSize="12"
+                                                      FontAttributes="Bold">
+                                                </Span>                                                
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+
+                                    <control:IndicatorLabelUI 
+                                        Text="{Binding build_mode}"
+                                        Grid.Row="0" 
+                                        Grid.Column="1"
+                                        HorizontalOptions="Start">
+                                    </control:IndicatorLabelUI>
+
+                                    <StackLayout Grid.Row="0" 
+                                                 Grid.Column="2" 
+                                                 Orientation="Horizontal" 
+                                                 Margin="2"
+                                                 IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.isWindows}">
+                                        
+                                        <Button CornerRadius="5"
+                                            ContentLayout="Top,0"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteItemCommand}"
+                                            CommandParameter="{Binding .}" 
+                                            MaximumWidthRequest="120"
+                                            BackgroundColor="Red"
+                                            Text="BORRAR"
+                                            FontAttributes="Bold"
+                                            FontSize="12"
+                                            HorizontalOptions="Center"
+                                                Margin="1,1,1,1">
+                                            <Button.ImageSource>
+                                                <FontImageSource FontFamily="FontAwesome5Solid"
+                                                Color="White"
+                                                Size="20"
+                                                FontAutoScalingEnabled="True"                                                         
+                                                Glyph="&#xf2ed;" />
+                                            </Button.ImageSource>
+                                        </Button>
+                                        <Button CornerRadius="5"
+                                            ContentLayout="Top,0"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditItemCommand}"
+                                            CommandParameter="{Binding .}" MaximumWidthRequest="120"
+                                            BackgroundColor="BlueViolet"
+                                            Text="EDITAR"
+                                            FontAttributes="Bold"
+                                            FontSize="12"
+                                            HorizontalOptions="Center"
+                                                Margin="1,1,1,1">
+                                            <Button.ImageSource>
+                                                <FontImageSource FontFamily="FontAwesome5Solid"
+                                                Color="White"
+                                                Size="20"
+                                                FontAutoScalingEnabled="True"                                                         
+                                                Glyph="&#xf303;" />
+                                            </Button.ImageSource>
+                                        </Button>
+                                    </StackLayout>
+                                    <StackLayout Grid.Row="1"
+                                         Grid.Column="3"
+                                         VerticalOptions="Center">
+                                        <!-- indicardor -->
+                                        <control:IndicatorUI></control:IndicatorUI>
+                                    </StackLayout>
+                                    <!--<BoxView Grid.Row="2" Grid.ColumnSpan="2" HeightRequest="1" Color="LightGray" Margin="0,5,0,0"/>-->
+                                </Grid>
+                            </Frame>
+                        </SwipeView>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </ScrollView>
+    </StackLayout>
+</ContentPage>

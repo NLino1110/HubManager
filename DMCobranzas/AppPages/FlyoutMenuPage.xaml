@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CobranzasDMSA_Odoo.AppPages.FlyoutMenuPage"
+             xmlns:local="clr-namespace:CobranzasDMSA_Odoo.AppPages"
+             xmlns:localsys="clr-namespace:CobranzasDMSA_Odoo.AppPages.Sys"
+             xmlns:printing="clr-namespace:CobranzasDMSA_Odoo.AppPages.Printing"
+             xmlns:nc="clr-namespace:CobranzasDMSA_Odoo.AppPages.NotaCredito"
+             xmlns:localmain="clr-namespace:CobranzasDMSA_Odoo"
+             Title="FlyoutMenuPage">
+    <ContentPage.Resources>
+        <!--<ResourceDictionary>
+            <Color x:Key="MyColor">#3498db</Color>
+        </ResourceDictionary>-->
+        <Style TargetType="StackLayout">
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                <!--<Setter TargetName="imgMenuItem" Property="Image.IsVisible" Value="False" />
+                                <Setter TargetName="imgMenuItemNo" Property="Image.IsVisible" Value="True" />-->
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Selected">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="Gray" />
+                                <Setter TargetName="lblTitle" Property="Label.TextColor" Value="White" />
+                                <Setter TargetName="imgMenuItem" Property="Image.IsVisible" Value="True" />
+                                <Setter TargetName="imgMenuItemNo" Property="Image.IsVisible" Value="False" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <!--<VisualState x:Name="Highlighted">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="DodgerBlue" />
+                                <Setter TargetName="imgMenuItem" Property="Image.Source" Value="{x:FontImage Color=Red, FontFamily='FontAwesome5Solid', Glyph='&#xf0e7;'}" />
+                            </VisualState.Setters>
+                        </VisualState>-->
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>            
+        </Style>
+    </ContentPage.Resources>
+    <ScrollView>
+        <VerticalStackLayout BackgroundColor="GhostWhite">
+            <HorizontalStackLayout HorizontalOptions="FillAndExpand" BackgroundColor="FloralWhite">
+                <StackLayout Padding="10,10,10,10" BackgroundColor="WhiteSmoke">
+                <Image
+                Source="user_svgrepo_com.png"
+                SemanticProperties.Description="Avantar profile picture"
+                HeightRequest="70"
+                HorizontalOptions="Center" />
+                </StackLayout>
+
+                <VerticalStackLayout VerticalOptions="Center" Padding="15,5,15,15">
+                    <Label
+                Text="@username"                
+                FontSize="18"
+                        x:Name="txtUser"
+                HorizontalOptions="Start" 
+                        FontAttributes="Bold"
+                TextTransform="Uppercase"
+                />
+                    <Label
+                Text="@Fullname"
+                FontSize="13"
+                        x:Name="txtName"
+                HorizontalOptions="Start" />
+                    <Label
+                Text="@Env"
+                FontSize="13"
+                        x:Name="txtEnvironment"
+                HorizontalOptions="Start" />
+                    <Button
+                        BackgroundColor="Red"
+                        x:Name="btnLogout"
+                        Text="SALIR"
+                        SemanticProperties.Hint=""
+                        Clicked="TryLogout"
+                        HorizontalOptions="Start" 
+                        FontSize="12"
+                        CornerRadius="2"
+                        HeightRequest="25"
+                        FontAttributes="Bold"
+                        Padding="5,2,5,2">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid"
+                                             Color="White"
+                                             Size="12"
+                                             FontAutoScalingEnabled="True"                                                         
+                                             Glyph="&#xf057;" />
+                        </Button.ImageSource>
+                    </Button>
+                </VerticalStackLayout>
+            </HorizontalStackLayout>
+
+            <CollectionView x:Name="collectionView"
+                    x:FieldModifier="public"
+                    SelectionMode="Single" 
+                    Margin="5">
+                <CollectionView.Resources>
+                    <Color x:Key="IconColorSelected">#FFF</Color>
+                    <Color x:Key="IconColorNoSelected">#ACACAC</Color>
+                </CollectionView.Resources>
+                <CollectionView.ItemsSource>
+                    <x:Array Type="{x:Type local:FlyoutPageItem}">
+                        <local:FlyoutPageItem Title="Principal"
+                                      IconSource="&#xf3fa;"
+                                              FontFamily="FontAwesome5Solid"
+                                      TargetType="{x:Type localmain:MainPage}" />
+                        <local:FlyoutPageItem Title="Cobranza"
+                                      IconSource="&#xf1ec;"
+                                              FontFamily="FontAwesome5Solid"
+                                      TargetType="{x:Type local:CobranzasPage}" />
+                        <!--<local:FlyoutPageItem Title="Cobranzas v2"
+                                      IconSource="&#xf3d1;"
+                                              FontFamily="FontAwesome5Regular"
+                                      TargetType="{x:Type toolkit:MultiplePopupPage}" />-->
+                        <!--<local:FlyoutPageItem Title="Rep. Cumplimiento"
+                                      IconSource="&#xf200;"
+                                              FontFamily="FontAwesome5Solid"
+                                      TargetType="{x:Type local:WebViewerCustom}" />-->
+                        <local:FlyoutPageItem Title="Nota de Crédito"
+                                      IconSource="&#xf49e;"
+                                              FontFamily="FontAwesome5Solid"
+                                      TargetType="{x:Type nc:NotasCreditoPage}" />
+                        <local:FlyoutPageItem Title="Actualización"
+                                      IconSource="&#xf7c0;"
+                                              FontFamily="FontAwesome5Solid"
+                                      TargetType="{x:Type local:UpdateData}" />
+                        <!--<local:FlyoutPageItem Title="Configuración"
+                                      IconSource="&#xf085;"
+                                              FontFamily="FontAwesome5Solid"
+                                      TargetType="{x:Type local:SettingsPage}" />
+                        <local:FlyoutPageItem Title="Impresión"
+                                      IconSource="&#xf02f;"
+                                              FontFamily="FontAwesome5Solid"
+                                      TargetType="{x:Type printing:TestTool}" />-->
+                        <local:FlyoutPageItem Title="Acerca de.."
+                                      IconSource="&#xf05a;"
+                                              FontFamily="FontAwesome5Solid"
+                                      TargetType="{x:Type localsys:About}" />
+                    </x:Array>
+                </CollectionView.ItemsSource>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout>
+                            <Grid Padding="5,10" Margin="0,0,0,2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="20"/>
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="100*" />
+                                </Grid.RowDefinitions>
+                                <Image x:Name="imgMenuItem" Grid.Column="0" Margin="0">
+                                    <Image.Source>
+                                        <FontImageSource FontFamily="{Binding FontFamily}"
+                                                         FontAutoScalingEnabled="True"
+                                                         Color="{StaticResource IconColorSelected}"
+                                                         Size="20"
+                                                         Glyph="{Binding IconSource}">
+                                        </FontImageSource>
+                                    </Image.Source>
+                                </Image>
+                                <Image x:Name="imgMenuItemNo" Grid.Column="0" Margin="0">
+                                    <Image.Source>
+                                        <FontImageSource FontFamily="{Binding FontFamily}"
+                                                         FontAutoScalingEnabled="True"
+                                                         Color="{StaticResource IconColorNoSelected}"
+                                                         Size="20"
+                                                         Glyph="{Binding IconSource}">
+                                        </FontImageSource>
+                                    </Image.Source>
+                                </Image>
+                                <Label x:Name="lblTitle" 
+                                       Grid.Column="1"
+                                   Margin="20,0"
+                                   Text="{Binding Title}"                                   
+                                   FontSize="17"
+                                   FontAttributes="Bold"
+                                       Padding="0,0,0,0"
+                                   VerticalOptions="Start"/>
+                            </Grid>
+                            <BoxView Grid.Column="1" HeightRequest="1.1" Color="LightGray" Margin="0" VerticalOptions="End" />
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

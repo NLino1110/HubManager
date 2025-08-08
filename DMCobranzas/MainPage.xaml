@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CobranzasDMSA_Odoo.MainPage"
+             Shell.FlyoutBehavior="Flyout"
+             Shell.NavBarIsVisible="True"
+             Title="Sistema de Cobranzas">
+    <ContentPage.MenuBarItems>
+        <!--<MenuBarItem Text="File">
+            <MenuFlyoutItem Text="Open" Clicked="OnTestSoap" />
+            <MenuFlyoutItem Text="Save" />
+            <MenuFlyoutItem Text="Exit" />
+        </MenuBarItem>-->
+        <!--<MenuBarItem Text="Media">
+            <MenuFlyoutItem Text="Play">
+                <MenuFlyoutItem.IconImageSource>
+                    <FontImageSource Glyph="&#x25B6;"
+                                 FontFamily="Arial" />
+                </MenuFlyoutItem.IconImageSource>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Pause"
+                        >
+                <MenuFlyoutItem.IconImageSource>
+                    <FontImageSource Glyph="&#x23F8;"
+                                 FontFamily="Arial" />
+                </MenuFlyoutItem.IconImageSource>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Stop"
+                        >
+                <MenuFlyoutItem.IconImageSource>
+                    <FontImageSource Glyph="&#x23F9;"
+                                 FontFamily="Arial" />
+                </MenuFlyoutItem.IconImageSource>
+            </MenuFlyoutItem>
+        </MenuBarItem>-->
+    </ContentPage.MenuBarItems>
+    
+    <!--<ContentPage.ToolbarItems>
+        <ToolbarItem Text="Run">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource Glyph="&#x25B6;"
+                                 FontFamily="Arial" 
+                                 Size="Subtitle" 
+                />
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+    </ContentPage.ToolbarItems>-->
+
+    <ScrollView>
+        <StackLayout Orientation="Vertical" Margin="10" >
+            <FlexLayout Wrap="Wrap" JustifyContent="Start" Margin="5"                
+    Padding="0"
+    VerticalOptions="Center"
+    HorizontalOptions="Center">
+
+                <Image
+        Source="logo_dmujeres.png"
+        SemanticProperties.Description=""
+        MaximumWidthRequest="200"
+        WidthRequest="200"
+        HorizontalOptions="Center" IsVisible="false"/>
+
+                <Image
+        Source="logo_macronegocios.png"
+        SemanticProperties.Description=""                
+        MaximumWidthRequest="200"
+        WidthRequest="200"
+        HorizontalOptions="Center" />
+
+                <Image
+        Source="logo_odoo.png"
+        SemanticProperties.Description=""                
+        MaximumWidthRequest="200"
+        WidthRequest="200"
+        HorizontalOptions="Center" IsVisible="false"/>
+            </FlexLayout>
+            
+            <VerticalStackLayout
+            Spacing="15"
+            Padding="10,0"
+            VerticalOptions="Start">
+                
+                <Label
+                Text="Información General"                
+                FontSize="23"
+                HorizontalOptions="Center" 
+                    FontAttributes="Bold" TextColor="DimGray"
+                    Margin="5"/>
+                <BoxView HeightRequest="1" Color="LightGray" Margin="3"/>
+                <Label
+                Text="Usuario:"
+                SemanticProperties.HeadingLevel="Level2"
+                SemanticProperties.Description=""
+                FontSize="18"
+                x:Name="txtUser"
+                HorizontalOptions="Start" />
+                <BoxView HeightRequest="1" Color="LightGray" Margin="3"/>
+                
+                <Label
+                Text="Nombre:"
+                SemanticProperties.HeadingLevel="Level2"
+                SemanticProperties.Description=""
+                FontSize="18"
+                x:Name="txtName"
+                HorizontalOptions="Start" />
+                
+                <BoxView HeightRequest="1" Color="LightGray" Margin="3"/>
+                
+                <Label
+                Text="Ult. Actualización:"
+                SemanticProperties.HeadingLevel="Level2"
+                SemanticProperties.Description=""
+                FontSize="18"
+                x:Name="txtUpdated"
+                HorizontalOptions="Start" />
+                
+                <Label
+                Text="Ult. Actualización NC:"
+                SemanticProperties.HeadingLevel="Level2"
+                SemanticProperties.Description=""
+                FontSize="18"
+                x:Name="txtUpdatedNC"
+                HorizontalOptions="Start" IsVisible="false" />
+                
+                <Label
+                Text="Ult. Acceso:"
+                SemanticProperties.HeadingLevel="Level2"
+                SemanticProperties.Description=""
+                FontSize="18"
+                x:Name="txtLastAccess"
+                HorizontalOptions="Start" IsVisible="false" />
+                
+                <BoxView HeightRequest="1" Color="LightGray" Margin="3" />
+                <!--<Button
+                x:Name="CounterBtn"
+                Text="Click me"
+                SemanticProperties.Hint="Counts the number of times you click"
+                Clicked="OnCounterClicked"
+                HorizontalOptions="Center" />
+
+            <Button
+                x:Name="TestSoap"
+                Text="Soap"
+                SemanticProperties.Hint="Prueba el soap"
+                Clicked="OnTestSoap"
+                HorizontalOptions="Center" />-->
+
+            </VerticalStackLayout>
+        </StackLayout>
+
+    </ScrollView>    
+</ContentPage>

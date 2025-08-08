@@ -1,0 +1,22 @@
+﻿{{_company.name}}
+Resumen Cobranzas
+Día: {{_accountPaymentDaily.closing_id}}
+{%- assign countItems = 0 %}
+{%- for paymentHeaderItem in _accountPayments %}
+{%- capture countItems %}{{countItems | plus:1}}{% endcapture %}
+{%- endfor %}
+================================
+Refer. Cierre: {{_accountPaymentDaily.payment_reference}}
+Cant. Recibos: {{countItems}}
+Cobrador: Administrator 125
+================================
+
+{%- for _journalSummaryItem in _journalSummary %}
+{{_journalSummaryItem.JournalName}}     {{_journalSummaryItem.TotalRecords}}
+TOTAL {{_journalSummaryItem.JournalName}}     $ {{_journalSummaryItem.TotalAmount}}
+{%- endfor %}
+
+
+________________________________
+             -Firma Vendedor-
+
