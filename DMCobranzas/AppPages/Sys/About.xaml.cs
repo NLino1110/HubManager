@@ -1,4 +1,4 @@
-using CobranzasDMSA_Odoo.Settings.Sqlite;
+using DMCobranzas.Settings.Sqlite;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using Newtonsoft.Json;
@@ -19,11 +19,11 @@ using System.Reflection;
 using Newtonsoft.Json.Schema;
 using DMSA.Models.General.Requests;
 using DMSA.Models.General.Responses;
-using CobranzasDMSA_Odoo.Services.ApiHub;
+using DMCobranzas.Services.ApiHub;
 using System.Net;
 //using Microsoft.Maui.Graphics.Platform;
 
-namespace CobranzasDMSA_Odoo.AppPages.Sys;
+namespace DMCobranzas.AppPages.Sys;
 
 public partial class About : ContentPage
 {

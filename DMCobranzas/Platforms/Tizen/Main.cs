@@ -2,7 +2,7 @@ using Microsoft.Maui;
 using Microsoft.Maui.Hosting;
 using System;
 
-namespace CobranzasDMSA_Odoo
+namespace DMCobranzas
 {
     internal class Program : MauiApplication
     {

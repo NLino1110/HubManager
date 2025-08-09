@@ -1,10 +1,10 @@
-﻿using CobranzasDMSA_Odoo.Services;
+﻿using DMCobranzas.Services;
 using CommunityToolkit.Maui;
 using DMSA.Models.Security;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
-namespace CobranzasDMSA_Odoo
+namespace DMCobranzas
 {
     public static class MauiProgram
     {

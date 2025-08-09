@@ -1,9 +1,9 @@
 using ApiManager;
-using CobranzasDMSA_Odoo.AppPages;
-using CobranzasDMSA_Odoo.Models;
-using CobranzasDMSA_Odoo.Services;
-using CobranzasDMSA_Odoo.Settings.helpers;
-using CobranzasDMSA_Odoo.Settings.Sqlite;
+using DMCobranzas.AppPages;
+using DMCobranzas.Models;
+using DMCobranzas.Services;
+using DMCobranzas.Settings.helpers;
+using DMCobranzas.Settings.Sqlite;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Markup;
@@ -21,9 +21,10 @@ using System.Buffers;
 using System.Diagnostics;
 using System.Threading;
 using System.Timers;
-//using CobranzasDMSA_Odoo;
+using DMSA.Models.Odoo.DMApps;
+//using DMCobranzas;
 
-namespace CobranzasDMSA_Odoo;
+namespace DMCobranzas;
 
 public partial class Login : ContentPage
 {
@@ -238,16 +239,16 @@ public partial class Login : ContentPage
 
         //FIX: 
         //---
-        itemInsert.ULTIMAACTUALIZACION = resultValidacion.data[0].datetime.ToString("dd/MM/yyyy HH:mm:ss");
+        //itemInsert.ULTIMAACTUALIZACION = resultValidacion.data[0].datetime.ToString("dd/MM/yyyy HH:mm:ss");
         //+++
         itemInsert.log_fec_acceso = resultValidacion.data[0].datetime;
         //NO SE ASIGNA PORQUE SE ASUME QUE NO HAY DATOS DE SINCRONIZACIÓN
         //itemInsert.log_fec_sincro = resultValidacion.fecha.AddDays(-3);
 
         //TODO: Nombre confuso FECHAACTUAL
-        itemInsert.FECHAACTUAL = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+        //itemInsert.FECHAACTUAL = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
         //TODO: Nombre confuso FECHAACTNC
-        itemInsert.FECHAACTNC = "";
+        //itemInsert.FECHAACTNC = "";
 
         itemInsert.companies = Newtonsoft.Json.JsonConvert.SerializeObject(resultValidacion.data[0].companies);
 
@@ -358,10 +359,10 @@ public partial class Login : ContentPage
         itemInsert.access_token = resultUser.access_token;
 
         //TODO: Nombre confuso (fechasincronizado)
-        itemInsert.ULTIMAACTUALIZACION = resultUser.fechasincronizado;
+        //itemInsert.ULTIMAACTUALIZACION = resultUser.fechasincronizado;
         //TODO: Nombre confuso (FECHAACTUAL)
-        itemInsert.FECHAACTUAL = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
-        itemInsert.FECHAACTNC = "";
+        //itemInsert.FECHAACTUAL = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+        //itemInsert.FECHAACTNC = "";
 
         //DateTime log_fec_acceso = resultUser.fechasincronizado
         //FIX:
@@ -467,7 +468,7 @@ public partial class Login : ContentPage
             //resultUser.fechasincronizado = userFound.FECHAACTUAL;
 
             //TODO: Corregir nombres, ULTIMAACTUALIZACION ???
-            resultUser.fechasincronizado = userFound.ULTIMAACTUALIZACION;
+            //resultUser.fechasincronizado = userFound.ULTIMAACTUALIZACION;
 
             resultUser.log_fec_acceso = userFound.log_fec_acceso;
 

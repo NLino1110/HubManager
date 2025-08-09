@@ -1,4 +1,4 @@
-﻿namespace CobranzasDMSA_Odoo.AppPages;
+﻿namespace DMCobranzas.AppPages;
 
 public class FlyoutPageItem
 {

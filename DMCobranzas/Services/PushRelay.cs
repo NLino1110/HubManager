@@ -16,7 +16,7 @@ using System.Net.NetworkInformation;
 
 using System.Timers;
 
-namespace CobranzasDMSA_Odoo.Services
+namespace DMCobranzas.Services
 {
     public partial class PushRelay
     {

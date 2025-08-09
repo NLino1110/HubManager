@@ -1,5 +1,5 @@
 ﻿
-using CobranzasDMSA_Odoo.Services;
+using DMCobranzas.Services;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using Microsoft.Maui;
@@ -18,7 +18,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
-namespace CobranzasDMSA_Odoo.AppPages.Printing;
+namespace DMCobranzas.AppPages.Printing;
 
 public partial class TestTool : ContentPage, IDisposable //, INotifyPropertyChanged
 {

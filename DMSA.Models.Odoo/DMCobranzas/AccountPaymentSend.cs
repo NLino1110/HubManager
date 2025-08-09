@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CobranzasDMSA_Odoo.Models
+namespace DMSA.Models.Odoo.DMCobranzas
 {
     public class AccountPaymentSend: AccountPayment
     {

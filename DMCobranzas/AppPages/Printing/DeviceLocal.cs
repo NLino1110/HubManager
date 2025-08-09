@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CobranzasDMSA_Odoo.AppPages.Printing
+namespace DMCobranzas.AppPages.Printing
 {
     public class DeviceLocal : Plugin.BLE.Abstractions.Contracts.IDevice
     {

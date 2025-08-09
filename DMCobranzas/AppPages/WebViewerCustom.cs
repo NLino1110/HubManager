@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CobranzasDMSA_Odoo.AppPages
+namespace DMCobranzas.AppPages
 {
     public class WebViewerCustom: ContentPage
     {

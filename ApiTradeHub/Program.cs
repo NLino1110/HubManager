@@ -35,9 +35,6 @@ DataConnection connection = new DataConnection();
 builder.Services.AddDbContext<AppDbContext>(p=>p.UseOracle(connection.GetConnectionString(),
                 b => b.UseOracleSQLCompatibility("11")));
 
-// Add service defaults & Aspire components.
-builder.AddServiceDefaults();
-
 // Add services to the container.
 builder.Services.AddProblemDetails();
 

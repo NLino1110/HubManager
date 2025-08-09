@@ -1,4 +1,4 @@
-﻿using CobranzasDMSA_Odoo.Models;
+﻿using DMSA.Models.Odoo.DMCobranzas;
 using Microsoft.Data.Sqlite;
 using SQLite;
 using System;

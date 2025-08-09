@@ -1,4 +1,4 @@
-﻿namespace CobranzasDMSA_Odoo
+﻿namespace DMCobranzas
 {
     public partial class AppShell : Shell
     {

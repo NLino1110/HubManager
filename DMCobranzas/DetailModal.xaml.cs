@@ -1,7 +1,7 @@
 //using Android.Provider;
-using static CobranzasDMSA_Odoo.DetailModal;
+using static DMCobranzas.DetailModal;
 
-namespace CobranzasDMSA_Odoo;
+namespace DMCobranzas;
 
 public partial class DetailModal : ContentPage
 {

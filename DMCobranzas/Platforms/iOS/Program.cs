@@ -1,7 +1,7 @@
 ﻿using ObjCRuntime;
 using UIKit;
 
-namespace CobranzasDMSA_Odoo
+namespace DMCobranzas
 {
     public class Program
     {

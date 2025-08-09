@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 
 namespace CobranzasDMSA_Odoo.Models
 {
-    public class user_access
+    [Obsolete("Debe ser eliminado")]
+    public class user_access_delete
     {
         //[PrimaryKey]
         //[NotNull]

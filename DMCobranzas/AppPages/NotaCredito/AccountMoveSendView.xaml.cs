@@ -1,23 +1,24 @@
-using CobranzasDMSA_Odoo.Models;
+using DMCobranzas.Models;
 using System.Collections.Generic;
 using System.Linq;
-using CobranzasDMSA_Odoo.Settings.Sqlite;
+using DMCobranzas.Settings.Sqlite;
 //using Foundation;
 using System.Diagnostics;
 using System.Windows.Input;
 using System.Collections;
 using System;
 using Newtonsoft.Json;
-using CobranzasDMSA_Odoo.Settings.helpers;
+using DMCobranzas.Settings.helpers;
 using CobranzasDMSA.Models.General.Core;
 using DMSA.Models.Odoo.Native;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Maui.Sample.Models;
-using CobranzasDMSA_Odoo.Controls.Modals;
-using CobranzasDMSA_Odoo.Controls;
+using DMCobranzas.Controls.Modals;
+using DMCobranzas.Controls;
+using DMSA.Models.Odoo.DMCobranzas;
 
-namespace CobranzasDMSA_Odoo.AppPages.NotaCredito;
+namespace DMCobranzas.AppPages.NotaCredito;
 
 [XamlCompilation(XamlCompilationOptions.Compile)]
 public partial class AccountMoveSendView : ContentPage

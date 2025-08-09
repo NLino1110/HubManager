@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 //using Android.Net.Wifi;
 #endif
 
-namespace CobranzasDMSA_Odoo.Services.AndroidTools
+namespace DMCobranzas.Services.AndroidTools
 {
     public class OsCore
     {

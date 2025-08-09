@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace DMSA.Models.General
 {
-    public class ApiResponse_v1
-    {
-        public string? success { get; set; }
-        public string? exito { get; set; }
-        public int cantidad_registros { get; set; }
-        public string? final { get; set; }
-        public dynamic? data { get; set; }
-    }
+    //public class ApiResponse_v1
+    //{
+    //    public string? success { get; set; }
+    //    public string? exito { get; set; }
+    //    public int cantidad_registros { get; set; }
+    //    public string? final { get; set; }
+    //    public dynamic? data { get; set; }
+    //}
 }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CobranzasDMSA_Odoo.Models
+namespace DMSA.Models.Odoo.DMCobranzas
 {
     public class AccountModule
     {

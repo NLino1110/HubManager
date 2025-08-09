@@ -2,8 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"			
-				x:Class="CobranzasDMSA_Odoo.AppPages.NotaCredito.AccountMoveSendCrud"
-				xmlns:control="clr-namespace:CobranzasDMSA_Odoo.Controls"
+				x:Class="DMCobranzas.AppPages.NotaCredito.AccountMoveSendCrud"
+				xmlns:control="clr-namespace:DMCobranzas.Controls"
 				Title="MultiplePopupPage">
     <ContentPage.ToolbarItems>
 		<ToolbarItem x:Name="btnSaveToolbar" Text="GUARDAR" Clicked="btnSave_Clicked">

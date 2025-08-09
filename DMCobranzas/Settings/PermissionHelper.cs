@@ -1,7 +1,7 @@
-﻿using CobranzasDMSA_Odoo.Settings.helpers;
+﻿using DMCobranzas.Settings.helpers;
 using System.Threading.Tasks;
 
-namespace CobranzasDMSA_Odoo.Settings;
+namespace DMCobranzas.Settings;
 
 public static class PermissionHelper
 {

@@ -1,5 +1,5 @@
 ﻿using ApiManager;
-using CobranzasDMSA_Odoo.Settings.Sqlite;
+using DMCobranzas.Settings.Sqlite;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
 using System;
@@ -16,8 +16,9 @@ using Newtonsoft.Json.Serialization;
 using System.Reflection;
 using DMSA.Models.Odoo.Tools;
 using Parlot.Fluent;
+using DMSA.Models.Odoo.DMCobranzas;
 
-namespace CobranzasDMSA_Odoo.Models
+namespace DMCobranzas.Models
 {
     public static class SendController
     {

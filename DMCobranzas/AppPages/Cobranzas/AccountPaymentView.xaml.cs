@@ -1,21 +1,13 @@
-using CobranzasDMSA_Odoo.Models;
-using System.Collections.Generic;
-using System.Linq;
-using CobranzasDMSA_Odoo.Settings.Sqlite;
-//using Foundation;
+using DMCobranzas.Settings.Sqlite;
 using System.Diagnostics;
 using System.Windows.Input;
-using System.Collections;
-using System;
-using Newtonsoft.Json;
-using CobranzasDMSA_Odoo.Settings.helpers;
-using CobranzasDMSA.Models.General.Core;
 using DMSA.Models.Odoo.Native;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Maui.Sample.Models;
+using DMSA.Models.Odoo.DMCobranzas;
 
-namespace CobranzasDMSA_Odoo.Controls.Modals.TabbedPages;
+namespace DMCobranzas.Controls.Modals.TabbedPages;
 
 [XamlCompilation(XamlCompilationOptions.Compile)]
 public partial class AccountPaymentView : ContentPage
@@ -554,7 +546,7 @@ public partial class AccountPaymentView : ContentPage
             //Se obtienen las formas de pago para almacenar            
             _accountPayment = accountPayments.ToList();
 
-            List<detallesDocumentos> detallesDocumentos = new List<detallesDocumentos>();
+            //List<detallesDocumentos> detallesDocumentos = new List<detallesDocumentos>();
             //detallesDocumentos = tabDocumentos.dataItems.ToList();
                        
             //codusuario
@@ -631,7 +623,7 @@ public partial class AccountPaymentView : ContentPage
             //Se obtienen las formas de pago para almacenar            
             _accountPayment = accountPayments.ToList();
 
-            List<detallesDocumentos> detallesDocumentos = new List<detallesDocumentos>();
+            //List<detallesDocumentos> DetallesDocumentos = new List<detallesDocumentos>();
 
             await database.InsertAsync(accountPaymentHeader);
 

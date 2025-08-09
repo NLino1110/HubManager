@@ -1,6 +1,6 @@
 using CommunityToolkit.Maui.Sample.Pages;
 
-namespace CobranzasDMSA_Odoo.AppPages;
+namespace DMCobranzas.AppPages;
 
 public partial class AppFlyout : FlyoutPage
 {

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.Maui.ApplicationModel.Permissions;
 
-namespace CobranzasDMSA_Odoo.Settings.helpers
+namespace DMCobranzas.Settings.helpers
 {
     internal class MyBluetoothPermission : BasePlatformPermission
     {

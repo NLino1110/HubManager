@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace CobranzasDMSA_Odoo.Controls
+namespace DMCobranzas.Controls
 {
     public class CustomHeaderView : ContentView
     {

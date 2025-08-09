@@ -1,7 +1,9 @@
-﻿using CobranzasDMSA_Odoo.Models;
-using CobranzasDMSA_Odoo.Models.Specials;
-using CobranzasDMSA_Odoo.Settings.helpers;
-using CobranzasDMSA_Odoo.Settings.Sqlite;
+﻿using DMCobranzas.Models;
+using DMCobranzas.Models.Specials;
+using DMCobranzas.Settings.helpers;
+using DMCobranzas.Settings.Sqlite;
+using DMSA.Models.Odoo.DMApps;
+using DMSA.Models.Odoo.DMCobranzas;
 using DMSA.Models.Odoo.Native;
 using Fluid;
 using Microsoft.Maui.Controls;
@@ -13,9 +15,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using static CobranzasDMSA_Odoo.Services.Templates.Processor;
+using static DMCobranzas.Services.Templates.Processor;
 
-namespace CobranzasDMSA_Odoo.Services.Templates
+namespace DMCobranzas.Services.Templates
 {
     public class Processor
     {
@@ -148,7 +150,7 @@ namespace CobranzasDMSA_Odoo.Services.Templates
                                      .ToList();
 
 
-                string resourceName = "CobranzasDMSA_Odoo.Resources.Raw.liq_ticket_closing.txt";
+                string resourceName = "DMCobranzas.Resources.Raw.liq_ticket_closing.txt";
 
                 var assembly = Assembly.GetExecutingAssembly();
 
@@ -225,8 +227,8 @@ namespace CobranzasDMSA_Odoo.Services.Templates
             Empresas = App.Session.CurrentUser.empresas;
             var empresaI = Empresas.ToList().Where(i => i.id == _accountPaymentHeader.company_id).FirstOrDefault();
 
-            //string resourceName = "CobranzasDMSA_Odoo.Resources.Raw.liq_ticket_small.txt";
-            string resourceName = "CobranzasDMSA_Odoo.Resources.Raw.liq_ticket_small.liquid";
+            //string resourceName = "DMCobranzas.Resources.Raw.liq_ticket_small.txt";
+            string resourceName = "DMCobranzas.Resources.Raw.liq_ticket_small.liquid";
             
             var assembly = Assembly.GetExecutingAssembly();
             
@@ -596,7 +598,7 @@ namespace CobranzasDMSA_Odoo.Services.Templates
             Empresas = App.Session.CurrentUser.empresas;
             var empresaI = Empresas.ToList().Where(i => i.id == _account_move_send.company_id).FirstOrDefault();
 
-            string resourceName = "CobranzasDMSA_Odoo.Resources.Raw.liq_refund_req_ncr.txt";
+            string resourceName = "DMCobranzas.Resources.Raw.liq_refund_req_ncr.txt";
 
             var assembly = Assembly.GetExecutingAssembly();
 
@@ -655,7 +657,7 @@ namespace CobranzasDMSA_Odoo.Services.Templates
             Empresas = App.Session.CurrentUser.empresas;
             var empresaI = Empresas.ToList().Where(i => i.id == _accountMoveSendHeader.company_id).FirstOrDefault();
 
-            string resourceName = "CobranzasDMSA_Odoo.Resources.Raw.liq_req_movSendHead_ncr.txt";
+            string resourceName = "DMCobranzas.Resources.Raw.liq_req_movSendHead_ncr.txt";
 
             var assembly = Assembly.GetExecutingAssembly();
 

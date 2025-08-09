@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading;
 
 
-namespace CobranzasDMSA_Odoo.Services
+namespace DMCobranzas.Services
 {
     public class BluetoothPrinterManager: IDisposable
     {

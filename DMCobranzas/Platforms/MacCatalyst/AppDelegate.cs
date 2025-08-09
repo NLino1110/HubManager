@@ -1,6 +1,6 @@
 ﻿using Foundation;
 
-namespace CobranzasDMSA_Odoo
+namespace DMCobranzas
 {
     [Register("AppDelegate")]
     public class AppDelegate : MauiUIApplicationDelegate

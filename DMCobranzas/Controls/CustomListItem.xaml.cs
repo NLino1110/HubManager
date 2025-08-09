@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace CobranzasDMSA_Odoo.Controls;
+namespace DMCobranzas.Controls;
 
 public partial class CustomListItem : ContentView
 {

@@ -49,4 +49,10 @@
     <None Include="wwwroot\data\query\invoice_payments.sql" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DataSourceManager\DataSourceManager.csproj" />
+    <ProjectReference Include="..\Models.DMSA.Mbw\Models.DMSA.Mbw.csproj" />
+    <ProjectReference Include="..\Models.DMSA.Shared\Models.DMSA.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

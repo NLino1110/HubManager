@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CobranzasDMSA_Odoo.Services
+namespace DMCobranzas.Services
 {
     public interface IAlertService
     {

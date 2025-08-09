@@ -1,7 +1,7 @@
-using CobranzasDMSA_Odoo;
-using CobranzasDMSA_Odoo.Models;
-using CobranzasDMSA_Odoo.Settings.helpers;
-using CobranzasDMSA_Odoo.Settings.Sqlite;
+using DMCobranzas;
+using DMCobranzas.Models;
+using DMCobranzas.Settings.helpers;
+using DMCobranzas.Settings.Sqlite;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Sample.Models;
 using CommunityToolkit.Maui.Views;

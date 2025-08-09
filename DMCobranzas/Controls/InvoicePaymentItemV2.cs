@@ -1,4 +1,4 @@
-﻿using CobranzasDMSA_Odoo.Models;
+﻿using DMCobranzas.Models;
 using CommunityToolkit.Maui.Alerts;
 using System;
 using System.Collections.Generic;
@@ -8,8 +8,9 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using DMSA.Models.Odoo.DMCobranzas;
 
-namespace CobranzasDMSA_Odoo.Controls
+namespace DMCobranzas.Controls
 {
     public class InvoicePaymentItemV2 : ContentView
     {

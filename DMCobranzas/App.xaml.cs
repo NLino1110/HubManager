@@ -1,7 +1,7 @@
-﻿using CobranzasDMSA_Odoo.Services;
+﻿using DMCobranzas.Services;
 using DMSA.Models.Security;
 
-namespace CobranzasDMSA_Odoo
+namespace DMCobranzas
 {
     public partial class App : Application
     {

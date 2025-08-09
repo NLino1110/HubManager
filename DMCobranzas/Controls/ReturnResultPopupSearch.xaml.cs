@@ -1,7 +1,7 @@
-using CobranzasDMSA_Odoo;
-using CobranzasDMSA_Odoo.Models;
-using CobranzasDMSA_Odoo.Settings.helpers;
-using CobranzasDMSA_Odoo.Settings.Sqlite;
+using DMCobranzas;
+using DMCobranzas.Models;
+using DMCobranzas.Settings.helpers;
+using DMCobranzas.Settings.Sqlite;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Sample.Models;
 using CommunityToolkit.Maui.Views;
@@ -18,7 +18,7 @@ public partial class ReturnResultPopupSearch : Popup
     res_company[] Empresas { get; set; }
     public res_company empresa { get; set; }
     public bool isWindows { get; set; } = false;
-    public FacNotaCreditoCab[] dataItems = null;
+    //public FacNotaCreditoCab[] dataItems = null;
     
     public ReturnResultPopupSearch(PopupSizeConstants popupSizeConstants)
 	{
@@ -112,7 +112,7 @@ public class SubstringPortion0Converter: IValueConverter
         string result = "";
         if (value != null)
         {
-            FacNotaCreditoCab facNotaCreditoCab = (FacNotaCreditoCab) value;
+            //FacNotaCreditoCab facNotaCreditoCab = (FacNotaCreditoCab) value;
             result = "??"; // facNotaCreditoCab.DATOS_CLIENTE;
             //result = facNotaCreditoCab.DATOS_CLIENTE;
 
@@ -136,8 +136,8 @@ public class SubstringPortion1Converter : IValueConverter
         string result = "";
         if (value != null)
         {
-            FacNotaCreditoCab facNotaCreditoCab = (FacNotaCreditoCab)value;
-            result = facNotaCreditoCab.VAT;
+            //FacNotaCreditoCab facNotaCreditoCab = (FacNotaCreditoCab)value;
+            //result = facNotaCreditoCab.VAT;
             //result = facNotaCreditoCab.DATOS_CLIENTE;
 
             //string[] sp_DATOS_CLIENTE = result.Split("-");
@@ -159,8 +159,8 @@ public class SubstringPortion2Converter : IValueConverter
         string result = "";
         if (value != null)
         {
-            FacNotaCreditoCab facNotaCreditoCab = (FacNotaCreditoCab)value;
-            result = facNotaCreditoCab.DATOS_CLIENTE;
+            //FacNotaCreditoCab facNotaCreditoCab = (FacNotaCreditoCab)value;
+            //result = facNotaCreditoCab.DATOS_CLIENTE;
             //string[] sp_DATOS_CLIENTE = result.Split("-");
             //result = sp_DATOS_CLIENTE[2];
         }

@@ -1,4 +1,4 @@
-﻿using CobranzasDMSA_Odoo.Models;
+﻿using DMCobranzas.Models;
 using CommunityToolkit.Maui.Alerts;
 using DMSA.Models.Odoo.Native;
 using System;
@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace CobranzasDMSA_Odoo.Controls
+namespace DMCobranzas.Controls
 {
     public class ItemAccountMove : SwipeView
     {

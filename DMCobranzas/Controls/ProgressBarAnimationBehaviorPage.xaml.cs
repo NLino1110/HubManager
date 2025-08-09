@@ -5,7 +5,7 @@ using CommunityToolkit.Maui.Markup;
 using System.Diagnostics;
 using System.Security.Cryptography;
 
-namespace CobranzasDMSA_Odoo;
+namespace DMCobranzas;
 
 [XamlCompilation(XamlCompilationOptions.Compile)]
 public partial class ProgressBarAnimationBehaviorPage : ContentPage

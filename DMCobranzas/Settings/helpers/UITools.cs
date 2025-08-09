@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CobranzasDMSA_Odoo.Settings.helpers
+namespace DMCobranzas.Settings.helpers
 {
     public static class UITools
     {

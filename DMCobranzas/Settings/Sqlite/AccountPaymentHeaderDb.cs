@@ -1,4 +1,5 @@
-﻿using CobranzasDMSA_Odoo.Models;
+﻿using DMCobranzas.Models;
+using DMSA.Models.Odoo.DMCobranzas;
 using Microsoft.Data.Sqlite;
 using SQLite;
 using System;
@@ -10,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 //using static CoreFoundation.DispatchSource;
 
-namespace CobranzasDMSA_Odoo.Settings.Sqlite
+namespace DMCobranzas.Settings.Sqlite
 {
     public class AccountPaymentHeaderDb
     {

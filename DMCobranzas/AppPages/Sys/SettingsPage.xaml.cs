@@ -1,7 +1,7 @@
 ﻿
-using CobranzasDMSA_Odoo.AppPages.Sys;
-using CobranzasDMSA_Odoo.Services;
-using CobranzasDMSA_Odoo.Settings.Sqlite;
+using DMCobranzas.AppPages.Sys;
+using DMCobranzas.Services;
+using DMCobranzas.Settings.Sqlite;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Views;
@@ -21,7 +21,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 
-namespace CobranzasDMSA_Odoo.AppPages;
+namespace DMCobranzas.AppPages;
 
 public partial class SettingsPage : ContentPage, IDisposable //, INotifyPropertyChanged
 {

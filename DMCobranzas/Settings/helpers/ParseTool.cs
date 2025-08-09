@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using CobranzasDMSA_Odoo;
+using DMCobranzas;
 
-namespace CobranzasDMSA_Odoo.Settings.helpers
+namespace DMCobranzas.Settings.helpers
 {
     public class ParseTool
     {

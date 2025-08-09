@@ -1,4 +1,5 @@
 ﻿using CobranzasDMSA_Odoo.Models;
+using DMCobranzas.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace CobranzasDMSA_Odoo.Controls
+namespace DMCobranzas.Controls
 {
     public class InvoicePaymentItem : ContentView
     {

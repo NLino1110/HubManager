@@ -1,4 +1,4 @@
-﻿using CobranzasDMSA_Odoo.Models;
+﻿using DMCobranzas.Models;
 using DMSA.Models.Odoo.Native;
 using Microsoft.Data.Sqlite;
 using SQLite;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CobranzasDMSA_Odoo.Settings.Sqlite
+namespace DMCobranzas.Settings.Sqlite
 {
     public class AccountMoveDb
     {
@@ -103,7 +103,7 @@ namespace CobranzasDMSA_Odoo.Settings.Sqlite
             await Init();
             return await Database.Table<account_move>().Where(x=>
             x._partner_id == res_Partner.id &&
-            x._company_id == res_Partner.company_id &&
+            x._company_id == res_Partner._company_id &&
             x.move_type == "out_invoice" && 
             x.amount_residual > 0).ToListAsync();
             //return Database.Table<account_journal>().ToList();

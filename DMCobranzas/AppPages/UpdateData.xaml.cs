@@ -1,4 +1,4 @@
-using CobranzasDMSA_Odoo.Settings.Sqlite;
+using DMCobranzas.Settings.Sqlite;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using Newtonsoft.Json;
@@ -12,8 +12,8 @@ using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Maui.Markup;
 using ApiManager;
 using DMSA.Models.Security;
-using CobranzasDMSA_Odoo.Models;
-using CobranzasDMSA_Odoo.Services.ApiHub;
+using DMCobranzas.Models;
+using DMCobranzas.Services.ApiHub;
 using DMSA.Models.General;
 using Newtonsoft.Json.Serialization;
 using System.Reflection;
@@ -24,13 +24,14 @@ using System.Net;
 using System.Text.Json.Nodes;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Tools;
-using CobranzasDMSA_Odoo.Settings.helpers;
+using DMCobranzas.Settings.helpers;
 using DMSA.Models.Odoo.Update;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using DMSA.Models.Odoo.Origin;
+using DMSA.Models.Odoo.DMCobranzas;
 
-namespace CobranzasDMSA_Odoo.AppPages;
+namespace DMCobranzas.AppPages;
 
 public partial class UpdateData : ContentPage
 {
@@ -691,8 +692,7 @@ public partial class UpdateData : ContentPage
 
         try
         {
-            Debug.WriteLine("Iniciando Upload...");
-            HubCobros hubCobros = new HubCobros(App.Session);
+            Debug.WriteLine("Iniciando Upload...");            
             //Se obtiene de la base de datos
             AccountPaymentHeaderDb cobReciboCabDb = new AccountPaymentHeaderDb();
             var itemsDebug = await cobReciboCabDb.GetItemsAsync();
@@ -702,7 +702,7 @@ public partial class UpdateData : ContentPage
                 foreach (var itemCobro in itemsCobros)
                 {
                     ApiProcessor apiProcessor = new ApiProcessor();
-                    await apiProcessor.EnviarCobro(itemCobro);
+                    //await apiProcessor.EnviarCobro(itemCobro);
                 }
             }
 
@@ -2824,7 +2824,7 @@ public partial class UpdateData : ContentPage
                 {
                     //TODO: Campo nombre confuso
                     //--
-                    foundUser.FECHAACTNC = responseSync.current_datetime.ToString("dd/MM/yyyy HH:mm:ss"); // DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+                    //foundUser.FECHAACTNC = responseSync.current_datetime.ToString("dd/MM/yyyy HH:mm:ss"); // DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
 
                     foundUser.log_fec_sincro = responseValSync.data[0].datetime;
                     foundUser.log_fec_sincro_nc = responseSync.current_datetime;

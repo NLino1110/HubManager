@@ -1,9 +1,9 @@
 
-using CobranzasDMSA_Odoo;
-using CobranzasDMSA_Odoo.Controls;
-using CobranzasDMSA_Odoo.Models;
-using CobranzasDMSA_Odoo.Settings.helpers;
-using CobranzasDMSA_Odoo.Settings.Sqlite;
+using DMCobranzas;
+using DMCobranzas.Controls;
+using DMCobranzas.Models;
+using DMCobranzas.Settings.helpers;
+using DMCobranzas.Settings.Sqlite;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Sample.Models;
@@ -22,8 +22,9 @@ using System.Threading;
 using System.Windows.Input;
 using static System.Net.Mime.MediaTypeNames;
 using Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;
+using DMSA.Models.Odoo.DMCobranzas;
 
-namespace CobranzasDMSA_Odoo.AppPages.NotaCredito;
+namespace DMCobranzas.AppPages.NotaCredito;
 
 [XamlCompilation(XamlCompilationOptions.Compile)]
 public partial class AccountMoveSendCrud : ContentPage

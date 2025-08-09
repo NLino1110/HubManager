@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 
 
-namespace CobranzasDMSA_Odoo.AppPages.Sys
+namespace DMCobranzas.AppPages.Sys
 {
     public partial class PasswordPromptPage : Popup, INotifyPropertyChanged
     {

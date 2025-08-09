@@ -1,6 +1,6 @@
 ﻿using ApiManagerOdoo.Base;
 using AppManagerOdoo.Tools;
-using CobranzasDMSA_Odoo.Models;
+using DMSA.Models.Odoo.DMCobranzas;
 using DMSA.Models.Odoo.General.Requests;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;

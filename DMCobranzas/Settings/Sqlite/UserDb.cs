@@ -1,5 +1,5 @@
 ﻿//using CloudKit;
-using CobranzasDMSA_Odoo.Models;
+using DMCobranzas.Models;
 using DMSA.Models.Odoo.Native;
 using SQLite;
 using System;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CobranzasDMSA_Odoo.Settings.Sqlite
+namespace DMCobranzas.Settings.Sqlite
 {
     public class UserDb
     {

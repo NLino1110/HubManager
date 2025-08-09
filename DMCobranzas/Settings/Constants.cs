@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CobranzasDMSA;
 
-namespace CobranzasDMSA_Odoo.Settings
+namespace DMCobranzas.Settings
 {
     public static class Constants
     {

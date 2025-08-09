@@ -1,6 +1,6 @@
-using CobranzasDMSA_Odoo.Models;
-using CobranzasDMSA_Odoo.Services;
-using CobranzasDMSA_Odoo.AppPages.Printing;
+using DMCobranzas.Models;
+using DMCobranzas.Services;
+using DMCobranzas.AppPages.Printing;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using Microsoft.Maui;
@@ -17,7 +17,7 @@ using System.Xml.Linq;
 using System.Reflection;
 using DMSA.Models.Odoo.Native;
 
-namespace CobranzasDMSA_Odoo.AppPages;
+namespace DMCobranzas.AppPages;
 
 public class TextProcessor
 {
@@ -275,7 +275,7 @@ public partial class PrintView : ContentPage, IDisposable
 
     public SKBitmap LoadEmbeddedBitmap()
     {        
-        string resourceName = "CobranzasDMSA_Odoo.Resources.Images.logo_macronegocios.bmp";
+        string resourceName = "DMCobranzas.Resources.Images.logo_macronegocios.bmp";
         var assembly = Assembly.GetExecutingAssembly();
         using (Stream stream = assembly.GetManifestResourceStream(resourceName))
         {
@@ -300,18 +300,18 @@ public partial class PrintView : ContentPage, IDisposable
         //    }
         //]
 
-        string resourceName = "CobranzasDMSA_Odoo.Resources.Images.logo_neutro.bmp";
+        string resourceName = "DMCobranzas.Resources.Images.logo_neutro.bmp";
 
         switch (company_id)
         {
             case 1:
                 {
-                    resourceName = "CobranzasDMSA_Odoo.Resources.Images.logo_macronegocios.bmp";
+                    resourceName = "DMCobranzas.Resources.Images.logo_macronegocios.bmp";
                 }
                 break;
             case 2:
                 {
-                    resourceName = "CobranzasDMSA_Odoo.Resources.Images.logo_dmujeres.bmp";
+                    resourceName = "DMCobranzas.Resources.Images.logo_dmujeres.bmp";
                 }
                 break;
         }

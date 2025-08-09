@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace CobranzasDMSA_Odoo.Models
+namespace DMSA.Models.Odoo.DMCobranzas
 {
     //cabeceraCobro
     public class AccountPaymentHeader

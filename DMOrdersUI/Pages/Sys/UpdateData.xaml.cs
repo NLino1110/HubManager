@@ -11,7 +11,6 @@ using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Maui.Markup;
 using ApiManager;
 using DMSA.Models.Security;
-using CobranzasDMSA_Odoo.Models;
 using DMSA.Models.General;
 using Newtonsoft.Json.Serialization;
 using System.Reflection;
@@ -31,6 +30,7 @@ using DMSA.Models.Odoo.Origin;
 using DMSA.Models.Odoo.General.Responses;
 using DMOrdersUI.Controls;
 using DMOrdersUI.Services.Update;
+using DMSA.Models.Odoo.DMCobranzas;
 
 namespace DMOrdersUI.Pages.Sys;
 
@@ -635,7 +635,6 @@ public partial class UpdateData : ContentPage
         try
         {
             Debug.WriteLine("Iniciando Upload...");
-            HubCobros hubCobros = new HubCobros(App.Session);
             //Se obtiene de la base de datos
             AccountPaymentHeaderDb cobReciboCabDb = new AccountPaymentHeaderDb();
             var itemsDebug = await cobReciboCabDb.GetItemsAsync();

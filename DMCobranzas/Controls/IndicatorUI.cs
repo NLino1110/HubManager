@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CobranzasDMSA_Odoo.Controls
+namespace DMCobranzas.Controls
 {
     public class IndicatorUI : ContentView
     {

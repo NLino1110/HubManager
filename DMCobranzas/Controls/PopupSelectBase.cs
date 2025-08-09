@@ -11,13 +11,13 @@ using System.Windows.Input;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Microsoft.Maui.Layouts;
-using CobranzasDMSA_Odoo.Settings.helpers;
+using DMCobranzas.Settings.helpers;
 using Microsoft.Maui.Controls;
 using DMSA.Models.Odoo.Native;
 using Microsoft.Maui.Controls.Shapes;
 using CommunityToolkit.Maui.Markup;
 
-namespace CobranzasDMSA_Odoo.Controls
+namespace DMCobranzas.Controls
 {
     public class PopupSelectBase : Popup, INotifyPropertyChanged
     {

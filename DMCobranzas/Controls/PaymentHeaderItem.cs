@@ -6,11 +6,12 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using CobranzasDMSA_Odoo.Models;
-using CobranzasDMSA_Odoo.Models.Specials;
+using DMCobranzas.Models;
+using DMCobranzas.Models.Specials;
+using DMSA.Models.Odoo.DMCobranzas;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace CobranzasDMSA_Odoo.Controls
+namespace DMCobranzas.Controls
 {
     public class PaymentHeaderItem : SwipeView
     {

@@ -1,12 +1,12 @@
 //using CloudKit;
 using ApiManager;
-using CobranzasDMSA_Odoo.Controls.Modals;
-using CobranzasDMSA_Odoo.Controls.Modals.TabbedPages;
-using CobranzasDMSA_Odoo.Models;
-using CobranzasDMSA_Odoo.Models.Specials;
-using CobranzasDMSA_Odoo.Services.ApiHub;
-using CobranzasDMSA_Odoo.Settings.helpers;
-using CobranzasDMSA_Odoo.Settings.Sqlite;
+using DMCobranzas.Controls.Modals;
+using DMCobranzas.Controls.Modals.TabbedPages;
+using DMCobranzas.Models;
+using DMCobranzas.Models.Specials;
+using DMCobranzas.Services.ApiHub;
+using DMCobranzas.Settings.helpers;
+using DMCobranzas.Settings.Sqlite;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Sample;
 using CommunityToolkit.Maui.Sample.Models;
@@ -30,8 +30,9 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Xml.Linq;
+using DMSA.Models.Odoo.DMCobranzas;
 
-namespace CobranzasDMSA_Odoo.AppPages;
+namespace DMCobranzas.AppPages;
 
 [XamlCompilation(XamlCompilationOptions.Compile)]
 public partial class CobranzasPage : ContentPage
@@ -450,7 +451,7 @@ public partial class CobranzasPage : ContentPage
     {
         Debug.WriteLine("EditItem");
 
-        CobranzasDMSA_Odoo.Controls.Modals.TabbedPages.AccountPaymentView objPage = new CobranzasDMSA_Odoo.Controls.Modals.TabbedPages.AccountPaymentView();
+        DMCobranzas.Controls.Modals.TabbedPages.AccountPaymentView objPage = new DMCobranzas.Controls.Modals.TabbedPages.AccountPaymentView();
         objPage.Sel_AccountPaymentHeader = (AccountPaymentHeader)obj;
         objPage.editionMode = true;
 

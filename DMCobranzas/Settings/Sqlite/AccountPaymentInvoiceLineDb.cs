@@ -1,4 +1,5 @@
-﻿using CobranzasDMSA_Odoo.Models;
+﻿using DMCobranzas.Models;
+using DMSA.Models.Odoo.DMCobranzas;
 using DMSA.Models.Odoo.Native;
 using Microsoft.Data.Sqlite;
 using SQLite;
@@ -9,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CobranzasDMSA_Odoo.Settings.Sqlite
+namespace DMCobranzas.Settings.Sqlite
 {
     public class AccountPaymentInvoiceLineDb
     {

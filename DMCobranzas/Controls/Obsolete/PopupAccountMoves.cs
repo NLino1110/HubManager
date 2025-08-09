@@ -8,18 +8,18 @@ using CommunityToolkit.Maui.Sample.Models;
 using Microsoft.Maui.Controls;
 using System.Drawing;
 using Microsoft.Maui.Graphics;
-using CobranzasDMSA_Odoo.Models;
+using DMCobranzas.Models;
 using System.Diagnostics;
 using DMSA.Models.Odoo.Native;
 using System.Collections.ObjectModel;
-using CobranzasDMSA_Odoo.Settings.Sqlite;
+using DMCobranzas.Settings.Sqlite;
 using DMSA.Models.Odoo.General.Responses;
 using System.Windows.Input;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using CobranzasDMSA_Odoo.Settings.helpers;
+using DMCobranzas.Settings.helpers;
 
-namespace CobranzasDMSA_Odoo.Controls
+namespace DMCobranzas.Controls
 {
     public class PopupAccountMoves : Popup //, INotifyPropertyChanged
     {

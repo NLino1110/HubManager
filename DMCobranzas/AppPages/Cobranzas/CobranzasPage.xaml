@@ -3,9 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             x:Class="CobranzasDMSA_Odoo.AppPages.CobranzasPage"
-             xmlns:local="clr-namespace:CobranzasDMSA_Odoo"
-             xmlns:control="clr-namespace:CobranzasDMSA_Odoo.Controls"
+             x:Class="DMCobranzas.AppPages.CobranzasPage"
+             xmlns:local="clr-namespace:DMCobranzas"
+             xmlns:control="clr-namespace:DMCobranzas.Controls"
              Title="Cobranzas">
     <StackLayout HorizontalOptions="Fill">
         <StackLayout Orientation="Vertical" Margin="4">

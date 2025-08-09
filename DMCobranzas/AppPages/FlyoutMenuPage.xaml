@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="CobranzasDMSA_Odoo.AppPages.FlyoutMenuPage"
-             xmlns:local="clr-namespace:CobranzasDMSA_Odoo.AppPages"
-             xmlns:localsys="clr-namespace:CobranzasDMSA_Odoo.AppPages.Sys"
-             xmlns:printing="clr-namespace:CobranzasDMSA_Odoo.AppPages.Printing"
-             xmlns:nc="clr-namespace:CobranzasDMSA_Odoo.AppPages.NotaCredito"
-             xmlns:localmain="clr-namespace:CobranzasDMSA_Odoo"
+             x:Class="DMCobranzas.AppPages.FlyoutMenuPage"
+             xmlns:local="clr-namespace:DMCobranzas.AppPages"
+             xmlns:localsys="clr-namespace:DMCobranzas.AppPages.Sys"
+             xmlns:printing="clr-namespace:DMCobranzas.AppPages.Printing"
+             xmlns:nc="clr-namespace:DMCobranzas.AppPages.NotaCredito"
+             xmlns:localmain="clr-namespace:DMCobranzas"
              Title="FlyoutMenuPage">
     <ContentPage.Resources>
         <!--<ResourceDictionary>

@@ -1,4 +1,4 @@
-﻿using CobranzasDMSA_Odoo.Models;
+﻿using DMCobranzas.Models;
 using DMSA.Models.Odoo.Native;
 using Microsoft.Data.Sqlite;
 using SQLite;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CobranzasDMSA_Odoo.Settings.Sqlite
+namespace DMCobranzas.Settings.Sqlite
 {
     public class ResPartnerDb
     {
@@ -43,7 +43,7 @@ namespace CobranzasDMSA_Odoo.Settings.Sqlite
         public async Task<res_partner> GetItemsAsync(int company_id, int partner_id)
         {
             await Init();
-            return await Database.Table<res_partner>().Where(x=> (x.company_id == company_id || x.company_id == 0) && 
+            return await Database.Table<res_partner>().Where(x=> (x._company_id == company_id || x._company_id == 0) && 
             x.id == partner_id).FirstOrDefaultAsync();
         }
 
@@ -57,7 +57,7 @@ namespace CobranzasDMSA_Odoo.Settings.Sqlite
             if (findCode > 0)
             {
                 return await Database.Table<res_partner>().Where(y =>
-                (y.company_id == company_id || y.company_id == 0) && (
+                (y._company_id == company_id || y._company_id == 0) && (
                 y.id == findCode )
                 ).Take(limit).ToListAsync();
             }
@@ -71,7 +71,7 @@ namespace CobranzasDMSA_Odoo.Settings.Sqlite
                 }
 
                 return await Database.Table<res_partner>().Where(y =>
-                (y.company_id == company_id || y.company_id == 0) && (
+                (y._company_id == company_id || y._company_id == 0) && (
                 y.id == findCode ||
                 y.name.Contains(TextSearch) ||
                 y.email.Contains(TextSearch) ||

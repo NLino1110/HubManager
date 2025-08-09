@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Zj.Com.Customize.Sdk;
 
-namespace CobranzasDMSA_Odoo.Services
+namespace DMCobranzas.Services
 {
     public class PrinterCommand
     {

@@ -1,7 +1,7 @@
 ﻿using Android.App;
 using Android.Runtime;
 
-namespace CobranzasDMSA_Odoo
+namespace DMCobranzas
 {
     [Application]
     public class MainApplication : MauiApplication

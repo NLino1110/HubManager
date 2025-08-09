@@ -1,8 +1,8 @@
 using ApiManager;
 
-using CobranzasDMSA_Odoo.Models;
-using CobranzasDMSA_Odoo.Settings.helpers;
-using CobranzasDMSA_Odoo.Settings.Sqlite;
+using DMCobranzas.Models;
+using DMCobranzas.Settings.helpers;
+using DMCobranzas.Settings.Sqlite;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Views;
@@ -17,8 +17,9 @@ using System.Diagnostics;
 using System.Windows.Input;
 using Microsoft.Maui.Controls.Internals;
 using System.Data.Common;
+using DMSA.Models.Odoo.DMCobranzas;
 
-namespace CobranzasDMSA_Odoo.Controls.Modals;
+namespace DMCobranzas.Controls.Modals;
 
 [XamlCompilation(XamlCompilationOptions.Compile)]
 public partial class AccountPaymentCrud : ContentPage
@@ -151,7 +152,7 @@ public partial class AccountPaymentCrud : ContentPage
 
     private async void ClearValue(object obj)
     {
-        ((FacNotaCreditoDetAuxiliar)obj).reconcile_amount = 0;
+        //((FacNotaCreditoDetAuxiliar)obj).reconcile_amount = 0;
         Debug.WriteLine(obj);
 
         //bool answer = await DisplayAlert("Envío de cobro", "Está seguro que desea enviar este cobro?", "Confirmar", "Cancelar");

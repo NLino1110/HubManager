@@ -1,20 +1,20 @@
 ﻿using Microsoft.Maui.ApplicationModel.Communication;
 using RestSharp;
-using static CobranzasDMSA_Odoo.DetailModal;
+using static DMCobranzas.DetailModal;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
-using CobranzasDMSA_Odoo.Settings;
-using CobranzasDMSA_Odoo.Settings.Sqlite;
+using DMCobranzas.Settings;
+using DMCobranzas.Settings.Sqlite;
 using System.Diagnostics;
-using CobranzasDMSA_Odoo.Models;
-using CobranzasDMSA_Odoo.Services.ApiHub;
+using DMCobranzas.Models;
+using DMCobranzas.Services.ApiHub;
 using CommunityToolkit.Maui.Sample.Models;
 using CommunityToolkit.Maui.Sample.ViewModels.Views;
-using CobranzasDMSA_Odoo.Settings.helpers;
+using DMCobranzas.Settings.helpers;
 using CommunityToolkit.Maui.Sample;
 using CommunityToolkit.Maui.Views;
 
-namespace CobranzasDMSA_Odoo;
+namespace DMCobranzas;
 
 public partial class MainPage : ContentPage
 {    

@@ -7,17 +7,17 @@ using System.Threading.Tasks;
 using CommunityToolkit.Maui.Sample.Models;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
-using CobranzasDMSA_Odoo.Models;
+using DMCobranzas.Models;
 using System.Diagnostics;
 using DMSA.Models.Odoo.Native;
 using System.Collections.ObjectModel;
-using CobranzasDMSA_Odoo.Settings.Sqlite;
+using DMCobranzas.Settings.Sqlite;
 using DMSA.Models.Odoo.General.Responses;
 using Microsoft.Maui.Layouts;
 using Microsoft.Maui.Graphics;
 using System.ComponentModel;
 
-namespace CobranzasDMSA_Odoo.Controls
+namespace DMCobranzas.Controls
 {
     public class use_bank_type
     {

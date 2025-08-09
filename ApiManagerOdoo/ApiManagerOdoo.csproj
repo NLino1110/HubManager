@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <Folder Include="Backup\" />
+    <Folder Include="eliminar\" />
   </ItemGroup>
 
 </Project>

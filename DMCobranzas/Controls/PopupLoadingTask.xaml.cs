@@ -1,4 +1,4 @@
-//using CobranzasDMSA_Odoo.Models;
+//using DMCobranzas.Models;
 using CommunityToolkit.Maui.Sample.Models;
 using CommunityToolkit.Maui.Views;
 

@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CobranzasDMSA_Odoo.Platforms
+namespace DMCobranzas.Platforms
 {
     public class CustomEditorHandler : EditorHandler
     {

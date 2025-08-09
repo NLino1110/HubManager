@@ -1,8 +1,8 @@
-using CobranzasDMSA_Odoo.AppPages.Printing;
+using DMCobranzas.AppPages.Printing;
 using System.Diagnostics;
 using System.Xml.Linq;
 
-namespace CobranzasDMSA_Odoo.AppPages;
+namespace DMCobranzas.AppPages;
 
 //public static class VisualStateProperties
 //{
