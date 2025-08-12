@@ -1,6 +1,6 @@
 ﻿using Microsoft.Maui.Devices;
 
-namespace CommunityToolkit.Maui.Sample.Models;
+namespace DMOrders.Controls;
 
 public class PopupSizeConstants
 {

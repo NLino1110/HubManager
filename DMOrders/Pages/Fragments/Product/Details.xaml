@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DMOrders.Pages.Fragments.Product.Details"
+             xmlns:customrows="clr-namespace:DMOrders.Controls.CustomRows"  
+             xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+             Title="Actividades Diarias No. 13   Fecha 01/01/2025">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <OnPlatform x:Key="IsBackButtonEnabled" x:TypeArguments="x:Boolean">
+                <On Platform="Android" Value="False" />
+                <On Platform="iOS" Value="True" />
+                <On Platform="WinUI" Value="True" />
+            </OnPlatform>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsEnabled="{StaticResource IsBackButtonEnabled}" IsVisible="{StaticResource IsBackButtonEnabled}"/>
+    </Shell.BackButtonBehavior>
+
+    <Grid RowDefinitions="Auto,*,*,Auto">        
+        <ScrollView Grid.Row="0" BackgroundColor="WhiteSmoke">
+            <VerticalStackLayout Padding="10">
+                <Label Text="Empty"></Label>
+                <CollectionView 
+                        x:Name="MyCollectionView"
+                        ItemsSource="{Binding Activities}" 
+                        EmptyView="....." 
+                        HorizontalOptions="Fill" 
+                        SelectionMode="Single"
+                        SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <customrows:PlanningSlotRow 
+                        Item="{Binding .}" 
+                        SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"/>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+        <HorizontalStackLayout Grid.Row="3" HorizontalOptions="Center" Margin="0,0,0,10" Spacing="10">
+            <Button Text="" Clicked="ButtonClose_Clicked" BackgroundColor="Gray" TextColor="White" HeightRequest="50" WidthRequest="50" Padding="0">
+                <Button.ImageSource>
+                    <FontImageSource 
+                        Size="30"
+                        FontFamily="MaterialSharp"
+                        Glyph="{x:Static uranium:MaterialSharp.Arrow_back}"
+                        />
+                </Button.ImageSource>
+            </Button>
+            <Button Text="Nuevo" Clicked="ButtonNew_Clicked" BackgroundColor="Green" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0">
+                <Button.ImageSource>
+                    <FontImageSource 
+                        Size="30"
+                        FontFamily="MaterialSharp"
+                        Glyph="{x:Static uranium:MaterialSharp.New_label}" />
+                    </Button.ImageSource>
+            </Button>
+            <Button Text="Guardar" Clicked="ButtonSave_Clicked" BackgroundColor="Orange" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0">
+                <Button.ImageSource>
+                    <FontImageSource 
+                        Size="30"
+                        FontFamily="MaterialSharp"
+                        Glyph="{x:Static uranium:MaterialSharp.Save}" />
+                </Button.ImageSource>
+            </Button>
+            <Button Text="Enviar" Clicked="ButtonSync_Clicked" BackgroundColor="DeepSkyBlue" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0">
+                <Button.ImageSource>
+                    <FontImageSource 
+                        Size="30"
+                        FontFamily="MaterialSharp"
+                        Glyph="{x:Static uranium:MaterialSharp.Send}" />
+                </Button.ImageSource>
+            </Button>
+        </HorizontalStackLayout>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"             
+             xmlns:vm="clr-namespace:DMOrders.Pages.Fragments.Customers"             
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit" 
+             xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+             xmlns:converters="clr-namespace:DMOrders.Converters"
+             xmlns:customrows="clr-namespace:DMOrders.Controls.CustomRows"
+             x:Class="DMOrders.Pages.Fragments.Customers.DataGrid">
+
+    <Grid RowDefinitions="*,Auto">
+        <!--<Grid.Behaviors>
+            <toolkit:TouchBehavior
+                BindingContext="{Binding Path=BindingContext, Source={x:Reference CurrentPage}, x:DataType=ContentView}"
+                Command="{Binding IncreaseTouchCountCommand}"
+                HoveredBackgroundColor="{StaticResource Gray900}"
+                LongPressCommand="{Binding IncreaseLongPressCountCommand}"
+                />
+        </Grid.Behaviors>-->
+            
+            <ScrollView Grid.Row="0" BackgroundColor="WhiteSmoke">
+                <VerticalStackLayout>
+                    <Label Text="Empty"></Label>
+                    <CollectionView 
+                        x:Name="MyCollectionView"
+                        ItemsSource="{Binding ItemsData}" 
+                        EmptyView="....." 
+                        HorizontalOptions="Fill" 
+                        SelectionMode="Single"
+                        SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <customrows:ResPartnerRow
+                        Item="{x:Binding .}" 
+                        EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
+                        SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"/>
+
+                         
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <StackLayout Grid.Row="1"  Orientation="Horizontal" HorizontalOptions="Center" Margin="0,2">
+            <Button Text=""
+            Command="{Binding PreviousPageCommand}"
+            IsEnabled="{Binding CanGoPrevious}" >
+                <Button.ImageSource>
+                    <FontImageSource x:Name="IconPrevious"
+                        Color="Black"
+                        Size="18"
+                        FontFamily="MaterialSharp"
+                        Glyph="{x:Static uranium:MaterialSharp.Skip_previous}" />
+                </Button.ImageSource>
+                <Button.Triggers>
+                    <Trigger TargetType="Button" Property="IsEnabled" Value="False">
+                        <Setter TargetName="IconPrevious" Property="FontImageSource.Color" Value="DarkGray" />
+                    </Trigger>
+                </Button.Triggers>
+            </Button>
+
+            <Label Text="{Binding Page}" VerticalOptions="Center" Margin="5" />
+            <Label Text="/" VerticalOptions="Center" Margin="2"/>
+            <Label Text="{Binding TotalPages}" VerticalOptions="Center" Margin="5"/>
+
+            <Button Text=""
+            Command="{Binding NextPageCommand}"
+            IsEnabled="{Binding CanGoNext}">
+                <Button.ImageSource>
+                    <FontImageSource x:Name="IconNext"
+                         Size="18"
+                         FontFamily="MaterialSharp"
+                         Glyph="{x:Static uranium:MaterialSharp.Skip_next}"
+                         Color="Black" />
+                </Button.ImageSource>
+                <Button.Triggers>
+                    <Trigger TargetType="Button" Property="IsEnabled" Value="False">
+                        <Setter TargetName="IconNext" Property="FontImageSource.Color" Value="DarkGray" />
+                    </Trigger>
+                </Button.Triggers>
+            </Button>
+        </StackLayout>
+    </Grid>
+</ContentView>

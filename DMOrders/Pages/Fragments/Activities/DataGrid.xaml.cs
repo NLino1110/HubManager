@@ -1,95 +1,73 @@
-﻿//using ClientAgree.AppPages;
-//using ClientAgree.AppPages.Sys;
-//using ClientAgree.Modals;
-using ClientAgree.Models;
-using DMOrders.ViewModels.DataGrid;
-using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Core;
+﻿using CobranzasDMSA_Odoo.Models;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using DMOrders.Models.Filters;
+using DMOrders.Pages.Sys;
 using DMSA.Models.Clientes;
-using Maui.DataGrid;
-using System.Diagnostics;
-using System.Windows.Input;
-using Microsoft.Maui.Devices;
-using CommunityToolkit.Maui.Markup;
-using CommunityToolkit.Maui.Behaviors;
-using System.Reflection;
+using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.Native;
+using System.Diagnostics;
+using System.Reflection;
+using System.Windows.Input;
+using UraniumUI.Dialogs;
 
-namespace DMOrders.Pages.data
+namespace DMOrders.Pages.Fragments.Activities
 {
-    [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class Customers : ContentView
+    //[XamlCompilation(XamlCompilationOptions.Compile)]
+    public partial class DataGrid : ContentView
     {
-        int count = 0;
-        public ICommand IncreaseLongPressCountCommand { get; }
-
         res_partner selectedItemData { get; set; }
 
-        public Customers()
+        string filterCode = "";
+        string filterId = "";
+        string filterName = "";
+        FDays filterDays = null;
+        FStatus filterStatus = null;
+
+        public ContentView ViewParent
+        {
+            get => (ContentView)GetValue(ViewParentProperty);
+            set => SetValue(ViewParentProperty, value);
+        }
+
+        public static readonly BindableProperty ViewParentProperty =
+            BindableProperty.Create(nameof(ViewParent), typeof(ContentView), typeof(DataGrid));
+
+        public DataGrid()
         {
             InitializeComponent();
-            BindingContext = new MainViewModelCustomers();
+            BindingContext = new ListViewModel();
 
-            IDispatcherTimer timer;
+            //IDispatcherTimer timer;
 
-            timer = Dispatcher.CreateTimer();
-            timer.Interval = TimeSpan.FromMilliseconds(1000);
-            timer.IsRepeating = false;
-            
-            timer.Tick += (s, e) =>
-            {
-                //UpdateParticles();
-                //canvasView.InvalidateSurface();
-                //OnTapGestureRecognizerTapped(this, null);
-            };
-            timer.Start();
+            //timer = Dispatcher.CreateTimer();
+            //timer.Interval = TimeSpan.FromMilliseconds(1000);
+            //timer.IsRepeating = false;
+
+            //timer.Tick += (s, e) =>
+            //{
+            //UpdateParticles();
+            //canvasView.InvalidateSurface();
+            //OnTapGestureRecognizerTapped(this, null);
+            //};
+            //timer.Start();
 
             //_dataGrid1.RowTappedCommand = rowTappedCommand;
-
-            IncreaseLongPressCountCommand = new Command(() =>
-            {
-                // Lógica al mantener presionado
-                Console.WriteLine("👉 LongPressCommand ejecutado");
-            });
-
-            var touchBehavior = new TouchBehavior
-            {
-                LongPressDuration = 200,
-            };
-
-            //touchBehavior.SetBinding(
-            //        TouchBehavior.LongPressCommandProperty,
-            //        new Binding("IncreaseLongPressCountCommand")
-            //        {
-            //            Source = this.BindingContext
-            //        });
-
-            //_dataGrid1.Behaviors.Add(touchBehavior);
+            
+            EditCommand = new Command(EditItem);
+            //EditCommand = new RelayCommand<ActivityHeader>(EditItem);
         }
 
-        ////        protected override void OnAppearing()
-        ////        {
-        ////            base.OnAppearing();
+        //protected override void OnSizeAllocated(double width, double height)
+        //{
+        //    base.OnSizeAllocated(width, height);
 
-        ////#if ANDROID
-        ////            Microsoft.Maui.ApplicationModel.Platform.CurrentActivity.RequestedOrientation = Android.Content.PM.ScreenOrientation.Landscape;
-        ////#elif IOS
-        ////             UIKit.UIDevice.CurrentDevice.SetValueForKey(Foundation.NSNumber.FromNInt((int)(UIKit.UIInterfaceOrientation.LandscapeLeft)), new Foundation.NSString("orientation"));  
-
-        ////#endif
-        ////            DeviceDisplay.Current.MainDisplayInfoChanged += Current_MainDisplayInfoChanged;
-        ////        }
-
-        protected override void OnSizeAllocated(double width, double height)
-        {
-            base.OnSizeAllocated(width, height);
-
-            if (_dataGrid1 != null)
-            {
-                _dataGrid1.HeightRequest = height;
-                _dataGrid1.WidthRequest = width;
-            }
-        }
+        //    //if (_dataGrid1 != null)
+        //    //{
+        //    //    _dataGrid1.HeightRequest = height;
+        //    //    _dataGrid1.WidthRequest = width;
+        //    //}
+        //}
 
         private void Current_MainDisplayInfoChanged(object sender, DisplayInfoChangedEventArgs e)
         {
@@ -114,9 +92,7 @@ namespace DMOrders.Pages.data
 
         void OnTapGestureRecognizerTapped(object sender, TappedEventArgs args)
         {
-            string filterName = "";
-
-            MainViewModelCustomers mainViewModelCliAprob = new MainViewModelCustomers(filterName);
+            ListViewModel mainViewModelCliAprob = new ListViewModel();
             BindingContext = mainViewModelCliAprob;
 
             //MainThread.BeginInvokeOnMainThread(() =>
@@ -135,7 +111,14 @@ namespace DMOrders.Pages.data
 
         private async void _dataGrid1_ItemSelected(object sender, SelectionChangedEventArgs e)
         {
+            //BUG: Crash sino se hace esta validación
+            if (e.CurrentSelection.Count == 0) return;
+
+            Debug.WriteLine(ViewParent);
             Debug.WriteLine(e.ToString());
+
+            var customerContainer = (Customers.Container)ViewParent;
+            customerContainer.LoadInfo((res_partner)e.CurrentSelection[0]);
 
             //if (e.CurrentSelection.Count == 0) return;
 
@@ -158,8 +141,21 @@ namespace DMOrders.Pages.data
             ////await Navigation.PushModalAsync(obj, true);
         }
 
+        //public static T FindParentOfType<T>(Element element) where T : Element
+        //{
+        //    while (element != null)
+        //    {
+        //        if (element is T parent)
+        //            return parent;
+
+        //        element = element.Parent;
+        //    }
+        //    return null;
+        //}
+
         private async void btnSelectItem(object sender, EventArgs e)
-        {
+        {  
+
             //////await Navigation.PopModalAsync(false);
             ////Debug.WriteLine("Seleccionado");
             Button btnItem = (Button) sender;
@@ -170,10 +166,6 @@ namespace DMOrders.Pages.data
 
             if (btnItem.Parent != null && btnItem.Parent.Parent != null)
             {
-                _dataGrid1.SelectedItem = btnItem.Parent.Parent.BindingContext;
-                var itemData = _dataGrid1.SelectedItem as ClienteAprobacion;
-                Debug.WriteLine(itemData);
-
                 //var type = Assembly.Load("Maui.DataGrid").GetType("Maui.DataGrid.DataGridRow");
                 //if (type == null)
                 //{
@@ -267,13 +259,42 @@ namespace DMOrders.Pages.data
             OnTapGestureRecognizerTapped(this, null);
         }
 
-        internal void LoadData(string Name)
+        internal void LoadData(string Code, string Id, string Name, FDays Days, FStatus Status)
         {
+            filterCode = Code;
+            filterId = Id;
+            filterName = Name;
+            filterDays = Days;
+            filterStatus = Status;
+
             OnTapGestureRecognizerTapped(this, null);
             //MainViewModelCustomers mainViewModelCustomers = new MainViewModelCustomers(Name);            
             //BindingContext = mainViewModelCustomers;
 
             //Debug.WriteLine("Tap:" + sender.ToString());
+        }
+
+        private async void MyCollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Debug.WriteLine("MyCollectionView_SelectionChanged");
+        }
+
+        public ICommand EditCommand { get; set; }
+
+        private async void EditItem(object obj)
+        {
+            Debug.WriteLine("EditItem");
+            Details viewObj = new Details();
+            viewObj.CurrentActivityHeader = (ActivityHeader)obj;
+            //objPage.Sel_AccountMoveSendHeader = (AccountMoveSendHeader)obj;
+            //objPage.editionMode = true;
+            viewObj.Disappearing += ViewObj_Disappearing;
+            await Navigation.PushAsync(viewObj);
+        }
+
+        private void ViewObj_Disappearing(object? sender, EventArgs e)
+        {
+            Debug.WriteLine("ViewObj_Disappearing");
         }
     }
 }

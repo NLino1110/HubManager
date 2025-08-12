@@ -1,7 +1,7 @@
 using CommunityToolkit.Maui.Markup;
-using CommunityToolkit.Maui.Sample.Models;
 using CommunityToolkit.Maui.Sample.ViewModels.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
+using DMOrders.Controls;
 using DMOrders.Pages;
 using DMOrders.Pages.Sys;
 using DMSA.Models.Odoo.Native;
@@ -87,7 +87,7 @@ public partial class MainPageTab : ContentPage
         {
             // Expandir
             await OverlayPanel.TranslateTo(0, 0, 100, Easing.CubicOut);
-            OverlayPanel.HeightRequest = 200;
+            OverlayPanel.HeightRequest = 220;
         }
 
         isExpanded = !isExpanded;
