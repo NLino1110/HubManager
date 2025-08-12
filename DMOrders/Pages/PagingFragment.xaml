@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:BeebTech.Maui.Controls;assembly=BeebTech.Maui.Controls"
+             x:Class="DMOrders.Pages.PagingFragment">
+    <Grid ColumnDefinitions="*, *, Auto" Padding="1">
+        
+        <HorizontalStackLayout Grid.Column="0" Spacing="3" HorizontalOptions="Start">
+
+            <!--<controls:EntryWithIcon 
+x:Name="EntryUserName"
+Placeholder="Usuario"
+            Text=""
+            HidePassword="False" 
+FontFamily="FontAwesome5Solid"
+Glyph="&#xf007;"/>-->            
+
+            <!--<VerticalStackLayout>
+                <Border Padding="1,1" BackgroundColor="White">
+                    <Grid ColumnDefinitions="Auto, *" VerticalOptions="Start">
+                        <Image Source="dotnet_bot.png"
+                               Margin="0,-10,0,0"
+                               WidthRequest="40" 
+                               HeightRequest="40" 
+                               HorizontalOptions="Start" 
+                               VerticalOptions="Center"/>
+
+                        <Label x:Name="lblPlaceholder" 
+                               Text="Usuario"
+                               FontSize="14"
+                               TextColor="Gray"
+                               TranslationX="-4"
+                               TranslationY="16"
+                               BackgroundColor="White"
+                               Padding="5,0"
+                               VerticalOptions="Start" 
+                               Grid.Column="1"/>
+
+                        <Entry x:Name="txtUser"
+                               FontSize="16"
+                               TextColor="Black"
+                               BackgroundColor="Transparent"
+                               WidthRequest="280"
+                               Margin="-3,10,0,0"                               
+                               TextChanged="TxtUser_TextChanged"
+                               Focused="txtUser_Focused"
+                               Unfocused="txtUser_Unfocused"
+                                Grid.Column="1"/>
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>-->
+
+            <Button x:Name="btnNew"
+                    Text="Nuevo"
+                    SemanticProperties.Hint="Actualizar"
+                    BackgroundColor="CadetBlue"
+                    IsVisible="True"
+                    Margin="2">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+                                     Color="White"
+                                     Size="20"
+                                     FontAutoScalingEnabled="True"
+                                     Glyph="&#xf055;" />
+                </Button.ImageSource>
+            </Button>
+
+            <Button x:Name="btnDelete"
+                    Text="Eliminar"
+                    SemanticProperties.Hint="Actualizar"
+                    BackgroundColor="Red"
+                    IsVisible="True"
+                    Margin="2">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+                                     Color="White"
+                                     Size="17"
+                                     FontAutoScalingEnabled="True"
+                                     Glyph="&#xf2ed;" />
+                </Button.ImageSource>
+            </Button>
+        </HorizontalStackLayout>
+        
+        <HorizontalStackLayout Grid.Column="1"                               
+                               HorizontalOptions="End"
+                               VerticalOptions="Center">
+            <Button WidthRequest="50"
+                    BackgroundColor="Transparent"
+                    TextColor="Black">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+                                     Color="Black"
+                                     Size="20"
+                                     FontAutoScalingEnabled="True"
+                                     Glyph="&#xf049;" />
+                </Button.ImageSource>
+            </Button>
+
+            <Button WidthRequest="50"
+                    BackgroundColor="Transparent"
+                    TextColor="Black">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+                                     Color="Black"
+                                     Size="20"
+                                     FontAutoScalingEnabled="True"
+                                     Glyph="&#xf048;" />
+                </Button.ImageSource>
+            </Button>
+
+            <VerticalStackLayout>
+                <Label WidthRequest="250"
+                       HorizontalTextAlignment="Center"
+                       Text="Página {0} de {1}"
+                       FontAttributes="Bold" />
+
+                <Label WidthRequest="250"
+                       HorizontalTextAlignment="Center"
+                       Text="Registros del {0} al {1} de {2}"
+                       FontAttributes="Bold" />
+            </VerticalStackLayout>
+
+            <Button WidthRequest="50"
+                    BackgroundColor="Transparent"
+                    TextColor="Gray">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+                                     Color="Black"
+                                     Size="20"
+                                     FontAutoScalingEnabled="True"
+                                     Glyph="&#xf051;" />
+                </Button.ImageSource>
+            </Button>
+
+            <Button WidthRequest="50"
+                    BackgroundColor="Transparent"
+                    TextColor="Gray">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+                                     Color="Black"
+                                     Size="20"
+                                     FontAutoScalingEnabled="True"
+                                     Glyph="&#xf050;" />
+                </Button.ImageSource>
+            </Button>
+        </HorizontalStackLayout>
+    </Grid>
+</ContentView>

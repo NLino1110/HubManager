@@ -24,7 +24,7 @@ namespace DMOrdersUI
         public App()
         {
             InitializeComponent();
-            //MainPage = new Login();
+            MainPage = new Login();
 
             //AppDomain.CurrentDomain.UnhandledException += (s, e) =>
             //{
@@ -32,7 +32,7 @@ namespace DMOrdersUI
             //    Debug.WriteLine($"[UNHANDLED] {ex?.Message}\n{ex?.StackTrace}");
             //};
 
-            MainPage = UraniumServiceProvider.Current.GetRequiredService<AppShellStart>();
+            //MainPage = UraniumServiceProvider.Current.GetRequiredService<AppShellStart>();
         }
 
         protected override Window CreateWindow(IActivationState activationState)

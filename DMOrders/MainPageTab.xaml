@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:DMOrders="clr-namespace:DMOrders"
+             xmlns:pages="clr-namespace:DMOrders.Pages"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             x:Class="DMOrders.MainPageTab"
+             Title="MainPageTab"
+             Padding="0"
+             NavigationPage.HasNavigationBar="False">
+    <ContentPage.Resources>        
+        <ControlTemplate x:Key="TabControlTemplate">
+            <VerticalStackLayout BindingContext="{Binding Source={RelativeSource TemplatedParent}}">
+                <Image Source="{Binding Value.Icon}"
+			       WidthRequest="30"
+			       HeightRequest="30"
+			       HorizontalOptions="Center"/>
+                <Label Text="{Binding Value.Title}"  FontSize="12"
+			       HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+        </ControlTemplate>
+    </ContentPage.Resources>
+    <Grid>
+        <!-- Contenido principal -->
+        <VerticalStackLayout x:Name="MainContent" Padding="0">
+            <Border StyleClass="SurfaceContainer,Rounded,Elevation1">
+                <material:TabView x:Name="tabViewMain" VerticalOptions="Fill">
+                    <material:TabItem Title="Custom Tab One">
+                        <material:TabItem.HeaderTemplate>
+                            <DataTemplate>
+                                <HorizontalStackLayout IsEnabled="False"
+                    HorizontalOptions="Center"
+                    Spacing="3"
+                    Padding="2"
+                    Margin="10,0,20,0">
+                                    <Image
+                        Source="dotnet_bot.png"
+                        WidthRequest="45"
+                        HeightRequest="45" />
+
+                                    <VerticalStackLayout VerticalOptions="Center">
+                                        <Label
+                            Text="Empresa Empresa Empresa S.A."
+                            FontSize="15"
+                            FontAttributes="Bold"
+                            TextColor="Black"/>
+
+                                        <Label 
+                            Text="Agencia" 
+                            FontSize="12"
+                            TextColor="Gray" />
+                                    </VerticalStackLayout>
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </material:TabItem.HeaderTemplate>
+                        <material:TabItem.Content>
+                            <Label Text="Macronegocios" Margin="60" />
+                        </material:TabItem.Content>
+                    </material:TabItem>
+
+                    <material:TabItem Title="Clientes">
+
+                        <material:TabItem.Content>
+                            <pages:TabCustomers x:Name="tabCustomers"></pages:TabCustomers>
+                        </material:TabItem.Content>
+                    </material:TabItem>
+
+                    <material:TabItem Title="Artículos">
+
+                        <material:TabItem.Content>
+                            <Label Text="Tab Content 3" Margin="60" />
+                        </material:TabItem.Content>
+                    </material:TabItem>
+
+                    <material:TabItem Title="Pedidos">
+
+                        <material:TabItem.Content>
+                            <Label Text="Tab Content 3" Margin="60" />
+                        </material:TabItem.Content>
+                    </material:TabItem>
+
+                    <material:TabItem Title="Actividades">
+                        <material:TabItem.Content>
+                            <Label Text="Tab Content 3" Margin="60" />
+                        </material:TabItem.Content>
+                    </material:TabItem>
+                </material:TabView>
+            </Border>
+
+            <!-- Barra flotante en AbsoluteLayout -->
+            <AbsoluteLayout Margin="0"
+                            HeightRequest="50"
+                            Padding="0"
+                            BackgroundColor="Transparent"
+                            IsVisible="False">
+                <!-- tu contenido del AbsoluteLayout -->
+            </AbsoluteLayout>
+        </VerticalStackLayout>
+
+        <!-- Panel inferior superpuesto -->
+        <ContentView x:Name="OverlayPanel"
+                     BackgroundColor="#80000000"
+                     IsVisible="True"
+                     VerticalOptions="End"
+                     HeightRequest="33"
+                     Grid.RowSpan="2"
+                     TranslationY="0">
+            <Grid RowDefinitions="Auto,Auto">
+                <Grid HeightRequest="33"
+    BackgroundColor="Gray"
+    ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto,Auto" 
+      ColumnSpacing="10" Grid.Row="0">
+                    <Grid.Shadow>
+                        <Shadow Brush="Black"
+    Radius="20"
+    Opacity="0.2" />
+                    </Grid.Shadow>
+
+                    <Image Grid.Column="0" Source="logo_macronegocios.png" WidthRequest="60"/>
+
+                    <Label Grid.Column="1"
+           x:Name="lblCompany"
+           Text="Opciones"
+           VerticalOptions="Center"
+           Padding="0"
+           FontSize="12"
+           FontAttributes="Bold"
+           TextColor="{StaticResource OnPrimary}"/>
+
+                    <Label Grid.Column="2"                           
+        x:Name="lblStore"
+           BackgroundColor="LightGray"
+        Text="..."
+        VerticalOptions="Center"
+        Padding="5,0,5,0"
+        FontAttributes="None"
+        FontSize="10"
+        TextColor="DimGray"/>
+
+                    <ImageButton 
+        x:Name="imageDebug"
+        Grid.Column="3"
+         BackgroundColor="Transparent"
+         HorizontalOptions="Start"
+         VerticalOptions="Center"
+         HeightRequest="15"
+         WidthRequest="15"
+         Margin="0">
+                        <ImageButton.Source>
+                            <FontImageSource FontFamily="FontAwesome5Solid"
+										Color="DimGray"
+										Size="13"
+										FontAutoScalingEnabled="False"                                                         
+										Glyph="&#xf7d9;" />
+                        </ImageButton.Source>
+                    </ImageButton>
+
+
+                    <ImageButton 
+        Grid.Column="4"
+         BackgroundColor="Transparent"
+         HorizontalOptions="Start"
+         VerticalOptions="Center"
+         HeightRequest="15"
+         WidthRequest="15"
+         Margin="10">
+                        <ImageButton.Source>
+                            <FontImageSource FontFamily="FontAwesome5Solid"
+										Color="DimGray"
+										Size="13"
+										FontAutoScalingEnabled="False"                                                         
+										Glyph="&#xf7d9;" />
+                        </ImageButton.Source>
+                    </ImageButton>
+
+                    <Label Grid.Column="5"                           
+        x:Name="lblUser"       
+        Text="..."
+           TextColor="Pink"
+        VerticalOptions="Center"
+        Padding="5,0,5,0"
+        FontAttributes="None"
+        FontSize="10"/>
+
+                    <Label Grid.Column="6"                           
+        x:Name="lblUserName"
+           BackgroundColor="LightGray"
+        Text="..."
+        VerticalOptions="Center"
+        Padding="5,0,5,0"
+        FontAttributes="None"
+        FontSize="10"
+        TextColor="DimGray"/>
+
+                    <ImageButton Grid.Column="7"
+     BackgroundColor="Transparent"
+     VerticalOptions="Center"
+     HeightRequest="15"
+     WidthRequest="15"
+     Margin="10">
+                        <ImageButton.Source>
+                            <FontImageSource FontFamily="FontAwesome5Solid"
+										Color="DimGray"
+										Size="20"
+										FontAutoScalingEnabled="True"                                                         
+										Glyph="&#xf7d9;" />
+                        </ImageButton.Source>
+                    </ImageButton>
+
+                </Grid>
+                <Grid ColumnDefinitions="*,Auto" Grid.Row="1">
+                    <TableView Intent="Menu" Margin="0" BackgroundColor="White" Grid.Column="0">
+                        <TableRoot>
+                            <TableSection>
+                                <ViewCell Tapped="ViewCell_Add_Task">
+                                    <Grid Padding="3">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+
+
+                                        <StackLayout Grid.Column="1" VerticalOptions="Center">
+                                            <Label Text="Nueva actividad" FontAttributes="Bold" />
+                                            <Label Text="Volver a ingresar credenciales." FontSize="12" />
+                                        </StackLayout>
+                                    </Grid>
+                                </ViewCell>
+
+                                <ViewCell Tapped="ViewCell_Tapped_Update">
+                                    <Grid Padding="3">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackLayout Grid.Column="1" VerticalOptions="Center">
+                                            <Label Text="Actualización" FontAttributes="Bold" />
+                                            <Label Text="Sincronizar los datos principales." FontSize="12" />
+                                        </StackLayout>
+                                    </Grid>
+                                </ViewCell>
+
+                                <ViewCell Tapped="ViewCell_Tapped_Exit">
+                                    <Grid Padding="3">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackLayout Grid.Column="1" VerticalOptions="Center">
+                                            <Label Text="Salir" FontAttributes="Bold" />
+                                            <Label Text="Volver a ingresar credenciales." FontSize="12" />
+                                        </StackLayout>
+                                    </Grid>
+                                </ViewCell>
+
+                                <ViewCell Tapped="ShowSettings">
+                                    <Grid Padding="3" BackgroundColor="GhostWhite">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackLayout Grid.Column="1" VerticalOptions="Center">
+                                            <Label Text="Configuraciones" FontAttributes="Bold" />
+                                            <Label Text="Modificar rutas de servidores y variables de entorno." FontSize="12" />
+                                        </StackLayout>
+                                    </Grid>
+                                </ViewCell>
+
+                            </TableSection>
+                        </TableRoot>
+                    </TableView>
+                    <StackLayout Grid.Column="1" Margin="10">
+                        <Label>0 procesos en background</Label>
+                    </StackLayout>
+                </Grid>
+            </Grid>
+            <ContentView.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnTogglePanelTapped"/>
+            </ContentView.GestureRecognizers>
+        </ContentView>
+    </Grid>
+    
+    <!--</ScrollView>-->
+</ContentPage>

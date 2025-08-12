@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DMOrdersUI.Pages.Sys.SettingsPage"
+             xmlns:control="clr-namespace:DMOrdersUI.Controls">
+    <VerticalStackLayout>
+        <HorizontalStackLayout HorizontalOptions="Fill" MinimumHeightRequest="40">
+            <Button                    
+            x:Name="btnSave"
+            Text="Guardar"                
+                BackgroundColor="DodgerBlue"                               
+            SemanticProperties.Hint="Save changes"
+            Clicked="btnSave_Clicked">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+										    Color="White"
+										    Size="20"
+										    FontAutoScalingEnabled="True"                                                         
+										    Glyph="&#xf0c7;" />
+                </Button.ImageSource>
+            </Button>
+
+            <Button                 
+                x:Name="BtnDropData"
+                Text="Eliminar"    
+                Clicked="DropData"                                 
+                BackgroundColor="Red" 
+                IsVisible="True">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+                    Color="White"
+                    Size="20"
+                    FontAutoScalingEnabled="True"
+                    Glyph="&#xf12d;" />
+                </Button.ImageSource>
+            </Button>
+
+            <Button
+            x:Name="btnClose"                
+            Text="Cerrar"            
+            BackgroundColor="Red"           
+            SemanticProperties.Hint="Cerrar"
+            Clicked="btnClose_Clicked"
+                IsVisible="False">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+							    Color="White"
+							    Size="20"
+							    FontAutoScalingEnabled="True"                                                         
+							    Glyph="&#xf410;" />
+                </Button.ImageSource>
+            </Button>
+        </HorizontalStackLayout>
+        <ScrollView>
+            <VerticalStackLayout>
+                
+            
+                <CollectionView x:Name="collectionView">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <control:AppSettingsItem dataItem="{Binding .}"></control:AppSettingsItem>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <Label x:Name="lblDbPath"></Label>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </VerticalStackLayout>
+</ContentView>

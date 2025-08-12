@@ -114,7 +114,7 @@ namespace DMOrdersUI.Controls
 
             entryValue = new Entry
             {
-                HorizontalTextAlignment = TextAlignment.End,
+                HorizontalTextAlignment = TextAlignment.Start,
                 Placeholder = "Valor",
                 HorizontalOptions = LayoutOptions.Fill,
                 Text = ""
@@ -152,7 +152,7 @@ namespace DMOrdersUI.Controls
                 {
                     new ColumnDefinition { Width = GridLength.Star },
                     new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Star },
+                    //new ColumnDefinition { Width = GridLength.Star },
                     //new ColumnDefinition { Width = GridLength.Star },
                     //new ColumnDefinition { Width = GridLength.Star },
                     //new ColumnDefinition { Width = GridLength.Auto }
@@ -184,6 +184,7 @@ namespace DMOrdersUI.Controls
                 HorizontalTextAlignment = TextAlignment.Start,
                 //HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Center,
+                IsVisible = false
             };
 
             var labelTotal = new Label { HorizontalOptions = LayoutOptions.Start, VerticalOptions = LayoutOptions.Center };
@@ -241,12 +242,12 @@ namespace DMOrdersUI.Controls
 
             mainGrid.Children.Add(labelName);
             Grid.SetColumn(labelName, 0);
-            mainGrid.Children.Add(labelDescription);
-            Grid.SetColumn(labelDescription, 1);
+            //mainGrid.Children.Add(labelDescription);
+            //Grid.SetColumn(labelDescription, 1);
             //mainGrid.Children.Add(labelTotal);
             //Grid.SetColumn(labelTotal, 2);
             mainGrid.Children.Add(entryValue);
-            Grid.SetColumn(entryValue, 2);
+            Grid.SetColumn(entryValue, 1);
             mainGrid.Children.Add(buttonClearValue);
             Grid.SetColumn(buttonClearValue, 5);
             //frame.Content.Children.Add(stackLayoutButtons, 5, 0);

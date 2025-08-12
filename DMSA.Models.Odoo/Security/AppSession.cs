@@ -38,7 +38,9 @@ namespace DMSA.Models.Security
         public string AppCodeOdoo = "01";
 
         public res_company res_Company { get; set; }
+        [Obsolete("Debe ser eliminado")]
         public res_store res_Store { get; set; }
+        public res_center res_center { get; set; }
         public stock_warehouse stock_Warehouse { get; set; }
 
         public AppSession()

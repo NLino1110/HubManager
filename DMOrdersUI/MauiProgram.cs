@@ -84,14 +84,14 @@ namespace DMOrdersUI
 
             var thisAssembly = typeof(MauiProgram).Assembly;
 
-            builder.Services.AddServicesFrom(
-                type => typeof(Page).IsAssignableFrom(type),
-                ServiceLifetime.Transient,
-                options => options.Assembly = thisAssembly)
-            .AddServicesByAttributes(assembly: thisAssembly);
+            //builder.Services.AddServicesFrom(
+            //    type => typeof(Page).IsAssignableFrom(type),
+            //    ServiceLifetime.Transient,
+            //    options => options.Assembly = thisAssembly)
+            //.AddServicesByAttributes(assembly: thisAssembly);
 
-            builder.Services.AddCommunityToolkitDialogs();
-            builder.Services.AddMopupsDialogs();
+            //builder.Services.AddCommunityToolkitDialogs();
+            //builder.Services.AddMopupsDialogs();
 
             //App.PushRelayGlobal = new PushRelay();
             //App.PushRelayGlobal.Name = "---";

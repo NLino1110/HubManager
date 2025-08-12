@@ -1,20 +1,11 @@
-﻿using ApiManager;
+﻿
 using CommunityToolkit.Mvvm.Input;
 using DMOrdersUI.Models.Filters;
 using DMOrdersUI.Services.Database.Sqlite;
-using DMSA.Models.Clientes;
-using DMSA.Models.General;
 using DMSA.Models.Odoo.Native;
-using Microsoft.Maui;
-using RestSharp;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace DMOrdersUI.Pages.Fragments.Customers
@@ -70,26 +61,43 @@ namespace DMOrdersUI.Pages.Fragments.Customers
             FilterName = _FilterName;
             FilterDays = _FilterDays;
             FilterStatus = _FilterStatus;
-
-            var task = Task.Run(async () =>
-            {
-                await LoadData();
-            });
-            Task.WaitAll(task);
-            RefreshCommand = new Command(CmdRefresh);
-        }
+            LoadDataByTimer();
+        }        
 
         public ViewModel()
         {
-            var task = Task.Run(async () =>
-            {
-                await LoadData();
-            });
-
-            Task.WaitAll(task);
-
-            RefreshCommand = new Command(CmdRefresh);
+            LoadDataByTimer();
         }
+
+        public void LoadDataByTimer()
+        {
+            // Usamos el dispatcher global de la app para garantizar ejecución en UI
+            var dispatcher = Application.Current.Dispatcher;
+
+            var timer = dispatcher.CreateTimer();
+            timer.Interval = TimeSpan.FromMilliseconds(100); // delay corto para dejar respirar la UI
+            timer.IsRepeating = false;
+
+            timer.Tick += async (s, e) =>
+            {
+                try
+                {
+                    if (IsBusy) return; // Previene cargas simultáneas
+                    await LoadData();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error en LoadData: {ex}");
+                }
+                finally
+                {
+                    timer.Stop();
+                }
+            };
+
+            timer.Start();
+        }
+
 
         public ObservableCollection<res_partner> ItemsData
         {
@@ -202,95 +210,78 @@ namespace DMOrdersUI.Pages.Fragments.Customers
             Debug.WriteLine("RelayRowTapped called");
         }
 
-        public ICommand RefreshCommand { get; set; }
 
-        private async void CmdRefresh()
+        private bool _isBusy;
+        public bool IsBusy
         {
-            IsRefreshing = true;
-            // wait 3 secs for demo
-            //await Task.Delay(3000);
-            //await LoadData();
-            await LoadData();
-            IsRefreshing = false;
+            get => _isBusy;
+            set
+            {
+                _isBusy = value;
+                OnPropertyChanged(nameof(IsBusy));
+            }
         }
 
-        //private async Task LoadDataStatic()
-        //{            
-        //    ItemsData = new ObservableCollection<res_partner>()
-        //    {
-        //        new res_partner()
-        //        {
-        //            id= 1,
-        //            name = "Cliente 1",
-        //            display_name = "Cliente 1",
-
-        //        }
-        //    };
-        //}
-
-        private async Task LoadData()
+        public async Task LoadData()
         {
+            if (IsBusy) return;
+
             try
             {
+                IsBusy = true;
+
                 var database = new ResPartnerDb();
+
+                // 🔹 Lo ideal: aplicar filtros y paginación en la consulta al DB
                 var allItems = await database.GetItemsAsync();
-                IEnumerable<res_partner> filtered = null;
 
-                //Filtro por ID/Code
-                if (!string.IsNullOrWhiteSpace(FilterCode))
+                // 🔹 Si tu método GetItemsAsync no soporta filtros, entonces:
+                // var allItemsList = (await database.GetItemsAsync()).ToList();
+
+                IEnumerable<res_partner> filtered = allItems; // ya viene filtrado si lo haces en DB
+
+                // Filtros en memoria solo si no puedes hacerlos en DB
+                if (!string.IsNullOrWhiteSpace(FilterCode) && int.TryParse(FilterCode, out int int_filterCode))
                 {
-                    int int_filterCode;
-
-                    if (int.TryParse(FilterCode, out int_filterCode))
-                    {
-                        filtered = allItems.Where(x => x.id == int_filterCode);
-                    }
+                    filtered = filtered.Where(x => x.id == int_filterCode);
                 }
-                else
+                else if (!string.IsNullOrWhiteSpace(FilterId))
                 {
-                    //Filtro por VAT
-                    if (!string.IsNullOrWhiteSpace(FilterId))
-                    {                        
-                        filtered = allItems.Where(x => x.vat == FilterId);                        
-                    }
-                    else
-                    {
-                        //Filtro por nombre
-                        if (string.IsNullOrWhiteSpace(FilterName))
-                        {
-                            FilterName = "";
-                        }
-
-                        filtered = string.IsNullOrWhiteSpace(FilterName)
-                            ? allItems
-                            : allItems.Where(x => x.name.Contains(FilterName, StringComparison.OrdinalIgnoreCase));
-                    }
+                    filtered = filtered.Where(x => x.vat == FilterId);
+                }
+                else if (!string.IsNullOrWhiteSpace(FilterName))
+                {
+                    filtered = filtered.Where(x => x.name.Contains(FilterName, StringComparison.OrdinalIgnoreCase));
                 }
 
-                Debug.WriteLine("Filtro actual:" + FilterName);
+                // Materializamos la lista para no volver a recorrerla varias veces
+                var filteredList = filtered.ToList();
 
-                string userSearch = "";
-                
-                //if (int.TryParse(str_codagencia, out company_id)) { }
+                TotalItems = filteredList.Count;
 
-                TotalItems = filtered.Count();
-
-                var paginated = filtered
+                // Paginación en memoria solo si no la hace el DB
+                var paginated = filteredList
                     .Skip((_page - 1) * _pageSize)
-                    .Take(_pageSize);
+                    .Take(_pageSize)
+                    .ToList();
 
-                _itemsData = [.. paginated];                
+                _itemsData = new ObservableCollection<res_partner>(paginated);
+
                 OnPropertyChanged(nameof(ItemsData));
                 OnPropertyChanged(nameof(CanGoNext));
                 OnPropertyChanged(nameof(CanGoPrevious));
-
             }
             catch (Exception ex)
             {
                 _itemsData = new ObservableCollection<res_partner>();
-                Debug.WriteLine(ex.ToString());
+                Debug.WriteLine(ex);
+            }
+            finally
+            {
+                IsBusy = false;
             }
         }
+
 
 
         public ICommand NextPageCommand => new Command(async () =>
@@ -298,7 +289,7 @@ namespace DMOrdersUI.Pages.Fragments.Customers
             if (CanGoNext)
             {
                 Page++;
-                await LoadData();
+                LoadDataByTimer();
             }
         });
 
@@ -307,7 +298,7 @@ namespace DMOrdersUI.Pages.Fragments.Customers
             if (CanGoPrevious)
             {
                 Page--;
-                await LoadData();
+                LoadDataByTimer();
             }
         });
         

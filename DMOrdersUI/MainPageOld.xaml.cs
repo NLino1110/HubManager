@@ -18,7 +18,7 @@ namespace DMOrdersUI
             MainThread.BeginInvokeOnMainThread(async () =>
             {
                 var headerTemplate = await Task.Run(() =>
-                    BuildTabHeaderSpecial(App.Session.res_Company.name, App.Session.res_Store.name));
+                    BuildTabHeaderSpecial(App.Session.res_Company.name, App.Session.res_center.name));
 
                 tabViewMain.Tabs[0].HeaderTemplate = headerTemplate;
                 tabViewMain.SelectedTab = tabViewMain.Tabs[1];

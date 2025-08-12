@@ -1,5 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-
 <uranium:UraniumContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
@@ -9,12 +8,12 @@
              x:Class="DMOrdersUI.MainPage"
              xmlns:local="clr-namespace:DMOrdersUI"
              xmlns:pages="clr-namespace:DMOrdersUI.Pages.Fragments.Customers"
-                            xmlns:pagesOrders="clr-namespace:DMOrdersUI.Pages.Fragments.Orders"
+            xmlns:pagesOrders="clr-namespace:DMOrdersUI.Pages.Fragments.Orders"
              xmlns:pagesActivities="clr-namespace:DMOrdersUI.Pages.Fragments.Activities"
              xmlns:pagesProducts="clr-namespace:DMOrdersUI.Pages.Fragments.Product"
              x:Name="page" 
-                            Title="Principal"
-                            NavigationPage.HasNavigationBar="False">
+            Title="Principal"
+            NavigationPage.HasNavigationBar="False">
     <uranium:UraniumContentPage.BindingContext>
         <local:MainPageViewModel />
     </uranium:UraniumContentPage.BindingContext>
@@ -27,14 +26,14 @@
 
         <Grid>
 
-        <material:TabView x:Name="tabViewMain" VerticalOptions="Fill" HorizontalOptions="Fill" Margin="0,0,0,30">
+            <material:TabView x:Name="tabViewMain" VerticalOptions="Fill" HorizontalOptions="Fill" Margin="0,0,0,30">
                 
-            <material:TabItem Title="Clientes">
-                <material:TabItem.Content>
-                    <!--<Label Text="Tab Content Customers" Margin="60" />-->
-                    <pages:Container x:Name="tabCustomers"></pages:Container>
-                </material:TabItem.Content>
-            </material:TabItem>
+                <material:TabItem Title="Clientes">
+                    <material:TabItem.Content>
+                        <!--<Label Text="Tab Content Customers" Margin="60" />-->
+                        <pages:Container x:Name="tabCustomers"></pages:Container>
+                    </material:TabItem.Content>
+                </material:TabItem>
 
                 <material:TabItem Title="Artículos">
                     <material:TabItem.Content>
@@ -232,7 +231,7 @@
                                 </Grid>
                             </ViewCell>
 
-                            <ViewCell Tapped="AskRadioButtons">
+                            <ViewCell Tapped="ShowSettings">
                                 <Grid Padding="3" BackgroundColor="GhostWhite">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />

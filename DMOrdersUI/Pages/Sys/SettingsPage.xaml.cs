@@ -1,0 +1,149 @@
+﻿
+using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Maui.Views;
+using DMOrdersUI.Services.Database.Sqlite;
+using DMSA.Models.Odoo;
+
+namespace DMOrdersUI.Pages.Sys;
+
+public partial class SettingsPage : ContentView, IDisposable //, INotifyPropertyChanged
+{    
+    public SettingsPage()
+	{        
+        //Scan(null, null);
+        InitializeComponent();
+
+        IDispatcherTimer timer;
+
+        timer = Dispatcher.CreateTimer();
+        timer.IsRepeating = false;
+        timer.Interval = TimeSpan.FromMilliseconds(500);
+        timer.Tick += async (s, e) =>
+        {
+            AppSettingsDb appSettingsDb = new AppSettingsDb();
+            await appSettingsDb.InitDefault();
+            var appSettingItems = await appSettingsDb.GetItemsAsync();
+
+            collectionView.ItemsSource = appSettingItems;
+
+            lblDbPath.Text = appSettingsDb.GetDbPath();
+            timer.Stop();
+        };
+        timer.Start();        
+
+        BindingContext = this;
+    }
+
+    //protected override void OnAppearing()
+    //{
+    //    if (Navigation.ModalStack.Count() == 0)
+    //    {
+    //        btnClose.IsVisible = false;
+    //    }
+
+    //    base.OnAppearing();
+    //}
+
+    private async void btnSave_Clicked(object sender, EventArgs e)
+    {        
+        var returnResultPopup = new PasswordPromptPage();
+        returnResultPopup.TitleBox = "Ingrese el pin correcto para aplicar cambios.";
+
+        //var result = await PopupExtensions.ShowPopupAsync(this, returnResultPopup);
+        //string result = await DisplayPromptAsync("PIN", "Ingrese el pin correcto para aplicar cambios", initialValue: "", maxLength: 4, keyboard: Keyboard.Numeric);
+        var result = "1381";      
+        if (result != null && result.ToString() == "1381")
+        {
+            AppSettingsDb appSettingsDb = new AppSettingsDb();
+            //await appSettingsDb.InitDefault();
+            //var appSettingItems = await appSettingsDb.GetItemsAsync();
+            //collectionView.ItemsSource = appSettingItems;
+
+            foreach (AppSettings itemSetting in collectionView.ItemsSource)
+            {
+                //var appSettingItems = collectionView.ItemsSource;
+                await appSettingsDb.InsertAsync(itemSetting);
+            }
+
+            await Toast.Make("Cambios de configuración aplicados").Show();
+            if (Navigation.ModalStack.Count() > 0)
+            {
+                await Navigation.PopModalAsync();
+            }
+        }
+        else
+        {
+            //await DisplayAlert("Alerta", "PIN incorrecto, no se aplicarán los cambios", "OK");
+
+            var returnAlertTest = new CustomAlertDialog();
+            returnAlertTest.TitleBox = "ALERTA!";
+            returnAlertTest.SubTitleBox = "PIN incorrecto, no se aplicarán los cambios.";
+            var resultAlert = await PopupExtensions.ShowPopupAsync(App.Current.MainPage, returnAlertTest);
+        }
+        
+    }
+
+    public void Dispose()
+    {
+        //btPrinterManager.Dispose();
+        //throw new NotImplementedException();
+    }
+
+    private async void btnClose_Clicked(object sender, EventArgs e)
+    {
+        await Navigation.PopModalAsync();
+    }
+
+    private async void DropData(object sender, EventArgs e)
+    {
+        //bool answer = await DisplayAlert("Eliminar", "Está seguro que desea eliminar los datos ingresados?", "Continuar", "Cancelar");
+        //Debug.WriteLine("Answer: " + answer);
+        bool answer = true;
+        if (!answer)
+        {
+            return;
+        }
+
+        //Eliminar datos de los archivos de actualizacion
+        string DeviceStorage = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "tmp");
+
+        if (Directory.Exists(DeviceStorage))
+        {
+            Directory.Delete(DeviceStorage, true);
+        }
+
+        AppSettingsDb appSettingsDb = new AppSettingsDb();
+        await appSettingsDb.TruncateAsync();
+
+        //ParametrosDb database = new ParametrosDb();
+        ////Se eliminan todos los datos de la tabla antes de volver a insertar
+        //await database.TruncateAsync();
+
+        //AccountPaymentHeaderDb database_r = new AccountPaymentHeaderDb();
+        //await database_r.Drop();
+        //await database_r.TruncateAsync();
+
+        //CobReciboDetDb database_rd = new CobReciboDetDb();
+        //await database_rd.Drop();
+        //await database_rd.TruncateAsync();
+
+        //CobCierreDb database_cobCierreDb = new CobCierreDb();
+        //await database_cobCierreDb.TruncateAsync();
+
+        //SolicitudesNCDb database_solicitudesNC = new SolicitudesNCDb();
+        //await database_solicitudesNC.Drop();
+        //await database_solicitudesNC.TruncateAsync();
+
+        UserAccessDb database_CobUsuarios = new UserAccessDb();
+        await database_CobUsuarios.Drop();
+
+        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+        string text = "Datos eliminados!";
+        ToastDuration duration = ToastDuration.Short;
+        double fontSize = 14;
+        var toast = Toast.Make(text, duration, fontSize);
+        await toast.Show(cancellationTokenSource.Token);
+    }
+}

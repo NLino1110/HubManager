@@ -63,9 +63,9 @@ namespace DMOrdersUI.Pages.Fragments.Customers
             viewObj.CurrentPartner = SelectedItem;
             viewObj.CurrentCompany = App.Session.res_Company;
             viewObj.CurrentSaleOrder = null;
-            viewObj.Disappearing += NewOrderPopup_Disappearing;
-            await viewObj.PrepareForm();
-            await Navigation.PushAsync(viewObj);
+            //viewObj.Disappearing += NewOrderPopup_Disappearing;
+            //await viewObj.PrepareForm();
+            await Navigation.PushAsync(viewObj, false);
         }
         //protected override void OnSizeAllocated(double width, double height)
         //{
@@ -94,6 +94,7 @@ namespace DMOrdersUI.Pages.Fragments.Customers
         ////    return true;
         ////}
 
+
         private void OnContentViewTapped(object sender, EventArgs e)
         {
             Console.WriteLine("Se tocó el ContentView o alguno de sus hijos");
@@ -101,8 +102,8 @@ namespace DMOrdersUI.Pages.Fragments.Customers
 
         void OnTapGestureRecognizerTapped(object sender, TappedEventArgs args)
         {
-            ViewModel mainViewModelCliAprob = new ViewModel(filterCode, filterId, filterName, filterDays, filterStatus);
-            BindingContext = mainViewModelCliAprob;
+            ViewModel viewModelObject = new ViewModel(filterCode, filterId, filterName, filterDays, filterStatus);
+            BindingContext = viewModelObject;
 
             //MainThread.BeginInvokeOnMainThread(() =>
             //{

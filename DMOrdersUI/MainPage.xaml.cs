@@ -30,8 +30,8 @@ namespace DMOrdersUI
             if(App.Session.res_Company != null)
                 lblCompany.Text = App.Session.res_Company.name;
 
-            if(App.Session.res_Store != null)
-                lblStore.Text = App.Session.res_Store.name;
+            if(App.Session.res_center != null)
+                lblStore.Text = App.Session.res_center.name;
 
             if (App.Session.CurrentUser != null)
             {
@@ -43,9 +43,27 @@ namespace DMOrdersUI
 
             //this.dialogServices = dialogServices.ToArray();
             //this.DialogService = this.dialogServices.FirstOrDefault();
-            DialogService = dialogServices.ToList()[1];
+            DialogService = null; // dialogServices.ToList()[1];
 
             ServicesExposer.DialogService = DialogService;
+        }
+
+        public MainPage()
+        {
+            SelectionView.GlobalSetting.CornerRadius = 0;
+            InitializeComponent();
+
+            NavigationPage.SetHasNavigationBar(this, false);
+
+            lblCompany.Text = App.Session.res_Company.name;
+            lblStore.Text = App.Session.res_center.name;
+        }
+
+        private async void ShowSettings(object sender, EventArgs e)
+        {
+            DMOrdersUI.Pages.Sys.SettingsPage settings = new DMOrdersUI.Pages.Sys.SettingsPage();
+            var result = ServicesExposer.DialogService.DisplayViewAsync(
+                "Configuración", settings, "Cerrar");            
         }
 
         private async void AskRadioButtons(object sender, EventArgs e)
@@ -70,107 +88,12 @@ namespace DMOrdersUI
             {
                 yield return "Option " + i;
             }
-        }
-
-
-        public MainPage()
-        {
-            SelectionView.GlobalSetting.CornerRadius = 0;
-            InitializeComponent();
-
-            NavigationPage.SetHasNavigationBar(this, false);
-
-            //MainThread.BeginInvokeOnMainThread(async () =>
-            //{
-            //    var headerTemplate = await Task.Run(() =>
-            //        BuildTabHeaderSpecial(App.Session.res_Company.name, App.Session.res_Store.name));
-
-            //    tabViewMain.Tabs[0].HeaderTemplate = headerTemplate;
-            //    tabViewMain.SelectedTab = tabViewMain.Tabs[1];
-            //});
-
-            lblCompany.Text = App.Session.res_Company.name;
-            lblStore.Text = App.Session.res_Store.name;            
-        }
+        }        
 
         private void ShowBottomSheet(object sender, EventArgs e)
         {            
             bottomSheet.IsPresented = true;
-        }
-
-        private DataTemplate BuildTabHeaderSpecial(string textLabel1, string textLabel2)
-        {
-            var headerTemplate = new DataTemplate(() =>
-            {
-                // Imagen
-                var image = new Image
-                {
-                    Source = "logo_macronegocios.png",
-                    WidthRequest = 45,
-                    HeightRequest = 45
-                };
-
-                // Label de la compañía con Binding
-                var labelCompany = new Label
-                {
-                    FontSize = 15,
-                    FontAttributes = FontAttributes.Bold,
-                    TextColor = Colors.Black,
-                    Text = textLabel1,
-                };                
-
-                // Label estático
-                var labelStore = new Label
-                {
-                    Text = textLabel2,
-                    FontSize = 12,
-                    TextColor = Colors.Gray
-                };
-
-                var verticalLayout = new VerticalStackLayout
-                {
-                    VerticalOptions = LayoutOptions.Center,
-                    Children = { labelCompany, labelStore }
-                };
-
-                var horizontalLayout = new HorizontalStackLayout
-                {
-                    IsEnabled = false,
-                    HorizontalOptions = LayoutOptions.Center,
-                    Spacing = 3,
-                    Padding = new Thickness(2),
-                    Margin = new Thickness(10, 0, 20, 0),
-                    Children = { image, verticalLayout }
-                };
-
-                return horizontalLayout;
-            });
-
-            return headerTemplate;
-
-        }
-
-        //private async void BtnTopTools_OnClicked_Clicked(object sender, EventArgs e)
-        //{
-        //    var fntSrc = (FontImageSource)btnTopTools.ImageSource;
-
-        //    int unicodevalue = char.ConvertToUtf32(fntSrc.Glyph, 0);
-
-        //    if (unicodevalue == 61641)
-        //    {
-        //        await btnTopTools.RotateTo(90, 200);
-        //        btnTopTools.Rotation = 0;
-        //        fntSrc.Glyph = "\uf00d";
-        //        TopTools.IsVisible = true;
-        //    }
-        //    else
-        //    {
-        //        await btnTopTools.RotateTo(-90, 200);
-        //        btnTopTools.Rotation = 0;
-        //        fntSrc.Glyph = "\uf0c9";
-        //        TopTools.IsVisible = false;
-        //    }
-        //}
+        }       
 
         private async void btnSave_Clicked(object sender, EventArgs e)
         {
@@ -179,11 +102,8 @@ namespace DMOrdersUI
         private async void btnUpdate_Clicked(object sender, EventArgs e)
         {
             //BtnTopTools_OnClicked_Clicked(sender, e);
-
             //UpdateData obj = new UpdateData();
             //obj.Disappearing += UpdateData_Disappearing;
-
-
             //await Navigation.PushModalAsync(obj);
         }
 

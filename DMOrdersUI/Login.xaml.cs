@@ -25,45 +25,11 @@ namespace DMOrdersUI
         private System.Timers.Timer _timer;
         private const double TimeToReset = 2000;
 
-        ////        public Login()
-        ////        {
-        ////            InitializeComponent();            
-        ////            Task.Run(async () =>
-        ////            {
-        ////                //SetupTapGesture();
-
-        ////                await LoadSettingsFromDb();
-
-        ////                Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-        ////                Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0, 10));
-
-        ////                txtEnvironment.Text = "Desarrollo";
-
-        ////                lblAppVersion.Text = "Versión " + App.Session.AppVersion;
-
-        ////                if (App.Session.isProduction)
-        ////                {
-        ////                    txtEnvironment.Text = "Producción";
-        ////                }
-        ////                else
-        ////                {
-        ////#if DEBUG
-        ////                    txtEnvironment.Text += " + DEBUG";
-        ////#endif
-        ////                }
-
-        ////                if (App.Session.isTestMode)
-        ////                {
-        ////                    txtUser.Text = "admin";
-        ////                    txtPassword.Text = "admin";
-        ////                }
-
-        ////                Debug.WriteLine(txtEnvironment.Text);
-        ////                Debug.WriteLine(lblAppVersion.Text);
-        ////            });
-
-        ////            Application.Current.UserAppTheme = AppTheme.Light;
-        ////        }
+        public Login()
+        {
+            InitializeComponent();
+            SetupLogin();
+        }
 
         public Login(IEnumerable<IDialogService> dialogServices)
         {
@@ -75,15 +41,17 @@ namespace DMOrdersUI
             DialogService = dialogServices.ToList()[1];
 
             ServicesExposer.DialogService = DialogService;
+            
+            SetupLogin();
+        }
 
+        public void SetupLogin()
+        {   
             Task.Run(async () =>
             {
                 SetupTapGesture();
 
                 await LoadSettingsFromDb();
-
-                App.Session.EndPointServer = "http://192.168.204.22:8069";
-                App.Session.DefaultDatabase = "qamacronegocios";
 
                 Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                 Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0, 10));
@@ -185,11 +153,15 @@ namespace DMOrdersUI
 
             var options = GenerateOptions(count);
 
-            var result = await DialogService.DisplayRadioButtonPromptAsync(
-                "Pick one of them below",
-                options,
-                 "Option 1");
+            //var result = await DialogService.DisplayRadioButtonPromptAsync(
+            //    "Pick one of them below",
+            //    options,
+            //     "Option 1");
 
+            DMOrdersUI.Pages.Sys.SettingsPage settings = new DMOrdersUI.Pages.Sys.SettingsPage();
+            var result = DialogService.DisplayViewAsync(
+                "Configuración", settings, "Cerrar");
+            
             Debug.WriteLine("Selected option: " + result);
         }
 

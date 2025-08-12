@@ -78,24 +78,38 @@ namespace DMOrdersUI.Pages.Fragments.Product
             FilterCategory = _FilterCategory;
             FilterStatus = _FilterStatus;
 
-            var task = Task.Run(async () =>
+            IDispatcherTimer timer;
+            //var timer = Application.Current.Dispatcher.CreateTimer()
+            timer = App.Current.MainPage.Dispatcher.CreateTimer();
+            timer.Interval = TimeSpan.FromMilliseconds(500);
+            timer.IsRepeating = false;
+            timer.Tick += async (s, e) =>
             {
                 await LoadData();
-            });
-            Task.WaitAll(task);
-            RefreshCommand = new Command(CmdRefresh);
+                timer.Stop();
+                timer.IsRepeating = false;
+
+            };
+            timer.Start();
+
         }
 
         public ProductListViewModel()
         {
-            var task = Task.Run(async () =>
+            IDispatcherTimer timer;
+            //var timer = Application.Current.Dispatcher.CreateTimer()
+            timer = App.Current.MainPage.Dispatcher.CreateTimer();
+            timer.Interval = TimeSpan.FromMilliseconds(500);
+            timer.IsRepeating = false;
+            timer.Tick += async (s, e) =>
             {
                 await LoadData();
-            });
+                timer.Stop();
+                timer.IsRepeating = false;
 
-            Task.WaitAll(task);
+            };
+            timer.Start();
 
-            RefreshCommand = new Command(CmdRefresh);
         }
 
         public ObservableCollection<product_product> ItemsData
@@ -169,18 +183,6 @@ namespace DMOrdersUI.Pages.Fragments.Product
             Debug.WriteLine("RelayRowTapped called");
         }
 
-        public ICommand RefreshCommand { get; set; }
-
-        private async void CmdRefresh()
-        {
-            IsRefreshing = true;
-            // wait 3 secs for demo
-            //await Task.Delay(3000);
-            //await LoadData();
-            await LoadData();
-            IsRefreshing = false;
-        }
-
         private async Task LoadData()
         {
             try
@@ -252,7 +254,7 @@ namespace DMOrdersUI.Pages.Fragments.Product
             if (CanGoNext)
             {
                 Page++;
-                await LoadData();
+                Task.Run(async () => await LoadData());
             }
         });
 
@@ -261,7 +263,7 @@ namespace DMOrdersUI.Pages.Fragments.Product
             if (CanGoPrevious)
             {
                 Page--;
-                await LoadData();
+                Task.Run(async () => await LoadData());
             }
         });
 
