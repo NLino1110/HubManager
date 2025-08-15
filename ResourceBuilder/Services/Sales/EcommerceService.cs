@@ -224,11 +224,19 @@ namespace ResourceBuilder.Services.Sales
 
                             if (ingresoReciente || egresoReciente || FullStock)
                             {
+                                int Merchant = 1;
+                                string ExternalId = reader.GetInt64(0).ToString();
+                                if(ExternalId == "100")
+                                {
+                                    Merchant = 7;
+                                }
+
                                 response.Add(new Models.DMSA.Mbw.Abstract.Inventory
                                 {
                                     Warehouse = new Warehouse
                                     {
-                                        ExternalId = reader.GetInt64(0).ToString(), //GetValueOrDefault<long>(reader, "codbodegaagencia").ToString(),
+                                        Merchant = Merchant,  //TODO: 1-Vtex , 7-Mercadolibre
+                                        ExternalId = ExternalId, //GetValueOrDefault<long>(reader, "codbodegaagencia").ToString(),
                                         Name = reader.GetString(1) //GetValueOrDefault<string>(reader, "nombodega")
                                     },
                                     Stock = reader.GetDouble(2), //GetValueOrDefault<double>(reader, "cantidad"),

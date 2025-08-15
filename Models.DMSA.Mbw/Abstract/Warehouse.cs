@@ -4,6 +4,9 @@ namespace Models.DMSA.Mbw.Abstract
 {
     public class Warehouse
     {
+        [JsonProperty("merchant")]
+        public int? Merchant { get; set; }
+
         [JsonProperty("external_id")]
         public string? ExternalId { get; set; }
 

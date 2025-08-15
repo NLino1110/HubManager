@@ -1029,6 +1029,8 @@ namespace ResourceBuilder.Shared.master
             //    p.Articulo.Descripcion;
 
             parameters.Add(nameof(MonacoViewer.ValueToSet), responseData);
+            parameters.Add(nameof(MonacoViewer.CodArticulo), p.CodArticulo);
+            
             var options = new ModalOptions
             {
                 UseCustomLayout = true,
