@@ -5,6 +5,9 @@
              xmlns:pages="clr-namespace:DMOrders.Pages"
              xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
              xmlns:pagesCustomer="clr-namespace:DMOrders.Pages.Fragments.Customers"
+             xmlns:pagesActivities="clr-namespace:DMOrders.Pages.Fragments.Activities"             
+             xmlns:pagesOrders="clr-namespace:DMOrders.Pages.Fragments.Orders"
+             xmlns:pagesProducts="clr-namespace:DMOrders.Pages.Fragments.Product"             
              x:Class="DMOrders.MainPageTab"
              Title="MainPageTab"
              Padding="0"
@@ -23,80 +26,66 @@
     </ContentPage.Resources>
     <Grid>
         <!-- Contenido principal -->
-        <VerticalStackLayout x:Name="MainContent" Padding="0">
-            <Border StyleClass="SurfaceContainer,Rounded,Elevation1">
-                <material:TabView x:Name="tabViewMain" VerticalOptions="Fill">
-                    <material:TabItem Title="Custom Tab One">
-                        <material:TabItem.HeaderTemplate>
-                            <DataTemplate>
-                                <HorizontalStackLayout IsEnabled="False"
-                    HorizontalOptions="Center"
-                    Spacing="3"
-                    Padding="2"
-                    Margin="10,0,20,0">
-                                    <Image
-                        Source="dotnet_bot.png"
-                        WidthRequest="45"
-                        HeightRequest="45" />
 
-                                    <VerticalStackLayout VerticalOptions="Center">
-                                        <Label
-                            Text="Empresa Empresa Empresa S.A."
-                            FontSize="15"
-                            FontAttributes="Bold"
-                            TextColor="Black"/>
+        <material:TabView x:Name="tabViewMain" VerticalOptions="Fill" HorizontalOptions="Fill" Margin="0,0,0,30">
+                <material:TabItem Title="Custom Tab One">
+                    <material:TabItem.HeaderTemplate>
+                        <DataTemplate>
+                            <HorizontalStackLayout IsEnabled="False"
+                HorizontalOptions="Center"
+                Spacing="3"
+                Padding="2"
+                Margin="10,0,20,0">
+                                <Image
+                    Source="dotnet_bot.png"
+                    WidthRequest="45"
+                    HeightRequest="45" />
 
-                                        <Label 
-                            Text="Agencia" 
-                            FontSize="12"
-                            TextColor="Gray" />
-                                    </VerticalStackLayout>
-                                </HorizontalStackLayout>
-                            </DataTemplate>
-                        </material:TabItem.HeaderTemplate>
-                        <material:TabItem.Content>
-                            <Label Text="Macronegocios" Margin="60" />
-                        </material:TabItem.Content>
-                    </material:TabItem>
+                                <VerticalStackLayout VerticalOptions="Center">
+                                    <Label
+                        Text="Empresa Empresa Empresa S.A."
+                        FontSize="15"
+                        FontAttributes="Bold"
+                        TextColor="Black"/>
 
-                    <material:TabItem Title="Clientes">
-                        <material:TabItem.Content>
-                            <pagesCustomer:Container x:Name="tabCustomers"></pagesCustomer:Container>                            
-                        </material:TabItem.Content>
-                    </material:TabItem>
+                                    <Label 
+                        Text="Agencia" 
+                        FontSize="12"
+                        TextColor="Gray" />
+                                </VerticalStackLayout>
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </material:TabItem.HeaderTemplate>
+                    <material:TabItem.Content>
+                        <Label Text="Macronegocios" Margin="60" />
+                    </material:TabItem.Content>
+                </material:TabItem>
 
-                    <material:TabItem Title="Artículos">
+                <material:TabItem Title="Clientes">
+                    <material:TabItem.Content>
+                        <pagesCustomer:Container x:Name="tabCustomers"></pagesCustomer:Container>                            
+                    </material:TabItem.Content>
+                </material:TabItem>
 
-                        <material:TabItem.Content>
-                            <Label Text="Tab Content 3" Margin="60" />
-                        </material:TabItem.Content>
-                    </material:TabItem>
+                <material:TabItem Title="Artículos">
+                    <material:TabItem.Content>
+                        <pagesProducts:Container x:Name="tabProducts"></pagesProducts:Container>
+                    </material:TabItem.Content>
+                </material:TabItem>
 
-                    <material:TabItem Title="Pedidos">
+                <material:TabItem Title="Pedidos">
+                    <material:TabItem.Content>
+                        <pagesOrders:Container x:Name="tabOrders"></pagesOrders:Container>
+                    </material:TabItem.Content>
+                </material:TabItem>
 
-                        <material:TabItem.Content>
-                            <Label Text="Tab Content 3" Margin="60" />
-                        </material:TabItem.Content>
-                    </material:TabItem>
-
-                    <material:TabItem Title="Actividades">
-                        <material:TabItem.Content>
-                            <Label Text="Tab Content 3" Margin="60" />
-                        </material:TabItem.Content>
-                    </material:TabItem>
-                </material:TabView>
-            </Border>
-
-            <!-- Barra flotante en AbsoluteLayout -->
-            <AbsoluteLayout Margin="0"
-                            HeightRequest="50"
-                            Padding="0"
-                            BackgroundColor="Transparent"
-                            IsVisible="False">
-                <!-- tu contenido del AbsoluteLayout -->
-            </AbsoluteLayout>
-        </VerticalStackLayout>
-
+                <material:TabItem Title="Actividades">
+                    <material:TabItem.Content>
+                        <pagesActivities:Container x:Name="tabActivities"></pagesActivities:Container>
+                    </material:TabItem.Content>
+                </material:TabItem>
+            </material:TabView>
+        
         <!-- Panel inferior superpuesto -->
         <ContentView x:Name="OverlayPanel"
                      BackgroundColor="#80000000"

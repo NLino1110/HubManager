@@ -1,4 +1,5 @@
-﻿using DMSA.Models.Odoo.DMOrders;
+﻿using DMOrders.Controls.Base;
+using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.Native;
 using System.Windows.Input;
 
@@ -6,7 +7,7 @@ using System.Windows.Input;
 namespace DMOrders.Controls.CustomRows
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public class ResPartnerRow : BaseRow<res_partner>
+    public class ResPartnerRow : RowAdvance<res_partner>
     {
         Label labelId { get; set; }
         Label labelVat { get; set; }

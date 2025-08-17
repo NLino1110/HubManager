@@ -122,8 +122,8 @@ public partial class Details : ContentPage, IBackButtonHandler
             var leave = await DisplayAlert("Atención", "Los cambios que haya realizado no se guardarán. ¿Desea continuar?", "Si", "No");
 
             if (leave)
-            {
-                await Navigation.PopAsync();
+            {                
+                await Navigation.PopModalAsync();
             }
         });
 

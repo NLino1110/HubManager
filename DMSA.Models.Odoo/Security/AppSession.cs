@@ -15,6 +15,7 @@ namespace DMSA.Models.Security
 
         public bool isProduction {  get; set; } = false;
         public bool isTestMode { get; set; } = true;
+        public bool useOfflineMode { get; set; }
         
         public string EndPointServer = "http://192.168.56.1:8069"; //ODOO SERVER        
         public string EndPointServerProd = "https://www.dmujeres.com.ec:8069";

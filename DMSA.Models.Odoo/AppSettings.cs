@@ -18,10 +18,12 @@ namespace DMSA.Models.Odoo
         public string description { get; set; }
         public string value { get; set; }
         public bool forAdmin { get; set; }
+        public DateTime create_date { get; set; }
+        public DateTime write_date { get; set; }
 
         public AppSettings()
         {
-
+            create_date = DateTime.Now;
         }
 
         public List<AppSettings> LoadDefault()

@@ -134,9 +134,7 @@ namespace DMOrders.Services.Database.Sqlite
         public async Task<int> InsertAsync(AppSettings item)
         {
             await Init();
-
             int result = await Database.InsertOrReplaceAsync(item);
-
             return 0;
         }
 

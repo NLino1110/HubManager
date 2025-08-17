@@ -10,9 +10,9 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
-		<!-- Display name -->
-		<ApplicationTitle>DMOrders</ApplicationTitle>
-
+		<ApplicationTitle Condition="'$(Configuration)' == 'Debug'">DMOrdersUI - Debug</ApplicationTitle>
+		<ApplicationTitle Condition="'$(Configuration)' == 'Release'">DMOrdersUI</ApplicationTitle>
+		
 		<!-- App Identifier -->
 		<ApplicationId>com.macronegocios.orders</ApplicationId>
 		<ApplicationIdGuid>ad97729f-51ee-4af9-8f3b-3a3b338c3e04</ApplicationIdGuid>
@@ -32,10 +32,10 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#52D681" />
 
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#EDE6EB" BaseSize="272,153" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
@@ -191,6 +191,12 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\Sys\UpdateData.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Resources\Styles\tmp\Colors.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Resources\Styles\tmp\Styles.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>	  
 	</ItemGroup>

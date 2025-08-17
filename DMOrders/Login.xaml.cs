@@ -51,6 +51,8 @@ public partial class Login : ContentPage
 
             await LoadSettingsFromDb();
 
+            App.Session.useOfflineMode = true;
+
             Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0, 10));
 
@@ -77,6 +79,11 @@ public partial class Login : ContentPage
 
             Debug.WriteLine(txtEnvironment.Text);
             Debug.WriteLine(lblAppVersion.Text);
+
+            if (App.Session.useOfflineMode)
+            {
+                await Toast.Make("Se usará modo modo offline.").Show();
+            }
         });
 
         Application.Current.UserAppTheme = AppTheme.Light;
@@ -132,7 +139,16 @@ public partial class Login : ContentPage
         //Debug.WriteLine("Acción ejecutada después de 6 toques");
         Debug.WriteLine("SettingsPage");
         SettingsPage objPage = new SettingsPage();
+        objPage.Disappearing += ObjPage_Disappearing;
         await Navigation.PushModalAsync(objPage);
+    }
+
+    private void ObjPage_Disappearing(object? sender, EventArgs e)
+    {
+        Task.Run(async () =>
+        {
+            LoadSettingsFromDb().Wait();
+        });
     }
 
     private void OnTimerElapsed(object sender, ElapsedEventArgs e)
@@ -440,6 +456,13 @@ public partial class Login : ContentPage
         }
         else
         {
+            if (App.Session.useOfflineMode)
+            {
+                LoginSelector.IsVisible = false;
+                CompanySelector.IsVisible = true;                
+                return;
+            }
+
             ApiChecker apiChecker = new ApiChecker(App.Session.EndPointServer + "/connect/checkonline");
             bool isOnline = await apiChecker.IsApiAvailable();
 
@@ -527,11 +550,14 @@ public partial class Login : ContentPage
         {
             if (resultUser.uid > 0)
             {
-                ServerPuller serverPuller = new ServerPuller();
+                if (!App.Session.useOfflineMode)
+                {
+                    ServerPuller serverPuller = new ServerPuller();
 
-                //Sincroniza empresas y tiendas
-                await serverPuller.Pull();
-                //App.Current.MainPage = new MainPageTab();
+                    //Sincroniza empresas y tiendas
+                    await serverPuller.Pull();
+                    //App.Current.MainPage = new MainPageTab();
+                }
 
                 LoginSelector.IsVisible = false;
                 CompanySelector.IsVisible = true;

@@ -52,6 +52,8 @@ namespace DMOrdersUI
                 SetupTapGesture();
 
                 await LoadSettingsFromDb();
+                App.Session.DefaultDatabase = "qamacronegocios";
+                App.Session.EndPointServer = "http://192.168.100.108:8069";
 
                 Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                 Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0, 10));
@@ -475,6 +477,14 @@ namespace DMOrdersUI
             }
             else
             {
+                if(App.Session.isTestMode)
+                {
+                    LoginSelector.IsVisible = false;
+                    CompanySelector.IsVisible = true;
+                    await Toast.Make("No se usará modo login online.").Show();
+                    return;
+                }
+
                 ApiChecker apiChecker = new ApiChecker(App.Session.EndPointServer + "/connect/checkonline");
                 bool isOnline = await apiChecker.IsApiAvailable();
 

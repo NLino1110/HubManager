@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Maui.Behaviors;
+using DMOrders.Controls.Base;
 using DMSA.Models.Odoo.DMOrders;
 using System.Diagnostics;
 using System.Windows.Input;
@@ -6,7 +7,7 @@ using System.Windows.Input;
 namespace DMOrders.Controls.CustomRows
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public class ActivityRow : BaseRow<ActivityHeader>
+    public class ActivityRow : RowAdvance<ActivityHeader>
     {
         Label labelId { get; set; }
         Label labelSellerName { get; set; }

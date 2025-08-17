@@ -55,7 +55,8 @@ namespace DMOrders.Controls.Base
         // Layout elements
         protected Grid LeftGrid { get; private set; }
         protected Grid ToolGrid { get; private set; }
-        private Border _mainBorder;
+        //private Border _mainBorder;
+        GraphicsView _mainBorder;
 
         public Row()
         {
@@ -72,14 +73,20 @@ namespace DMOrders.Controls.Base
 
         private void BuildLayout()
         {
-            _mainBorder = new Border
+            //_mainBorder = new Border
+            //{
+            //    Stroke = Colors.LightGray,
+            //    StrokeThickness = 0.5,
+            //    Padding = new Thickness(2),
+            //    Margin = new Thickness(0),
+            //    BackgroundColor = Colors.Transparent,
+            //    MinimumHeightRequest = 30,
+            //};
+
+            var _mainBorder = new GraphicsView
             {
-                Stroke = Colors.LightGray,
-                StrokeThickness = 0.5,
-                Padding = new Thickness(2),
-                Margin = new Thickness(0),
-                BackgroundColor = Colors.Transparent,
-                MinimumHeightRequest = 30,
+                Drawable = new CustomBorderDrawable(),
+                InputTransparent = true // ← importante: para que no bloquee los toques del contenido
             };
 
             var rootGrid = new Grid
@@ -140,8 +147,9 @@ namespace DMOrders.Controls.Base
             Grid.SetRow(ToolGrid, 0);
             Grid.SetColumn(ToolGrid, 1);
 
-            _mainBorder.Content = rootGrid;
-            Content = _mainBorder;
+            //_mainBorder.Content = rootGrid;
+            rootGrid.Children.Add(_mainBorder);
+            Content = rootGrid;
 
             // Build content in grids (can be overridden)
             BuildLeftGridContent(LeftGrid);

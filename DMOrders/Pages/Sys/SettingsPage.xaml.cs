@@ -97,7 +97,8 @@ public partial class SettingsPage : ContentPage //, IDisposable //, INotifyPrope
             //collectionView.ItemsSource = appSettingItems;
 
             foreach (AppSettings itemSetting in collectionView.ItemsSource)
-            {
+            {                
+                itemSetting.write_date = DateTime.Now;
                 //var appSettingItems = collectionView.ItemsSource;
                 await appSettingsDb.InsertAsync(itemSetting);
             }
@@ -128,7 +129,7 @@ public partial class SettingsPage : ContentPage //, IDisposable //, INotifyPrope
 
     private async void btnClose_Clicked(object sender, EventArgs e)
     {
-        //await Navigation.PopModalAsync();
+        await Navigation.PopModalAsync();
     }
 
     private async void DropData(object sender, EventArgs e)

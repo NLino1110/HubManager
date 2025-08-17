@@ -23,8 +23,7 @@
                 
                 <Button                    
                 x:Name="btnSave"
-                Text="Guardar"
-                    CornerRadius="2" 
+                Text="Guardar"                    
                     BackgroundColor="DodgerBlue"
                     Margin="2"
                     HeightRequest="35" 
@@ -41,8 +40,7 @@
                 </Button.ImageSource>
             </Button>
 
-                <Button 
-                    CornerRadius="2" 
+                <Button                     
     x:Name="BtnDropData"
     Text="Eliminar datos"    
     Clicked="DropData"
@@ -63,21 +61,19 @@
 
                 <Button
                 x:Name="btnClose"                
-                Text="Cerrar"
-                CornerRadius="2" 
-                BackgroundColor="Red"
+                Text="Cerrar"                                
                 Margin="2"
                 HeightRequest="35" 
                 Padding="10,0,10,0"
                 SemanticProperties.Hint="Cerrar"
                 Clicked="btnClose_Clicked"
-                HorizontalOptions="Center">
+                HorizontalOptions="End">
                     <Button.ImageSource>
                     <FontImageSource FontFamily="FontAwesome5Solid"
 									Color="White"
 									Size="20"
 									FontAutoScalingEnabled="True"                                                         
-									Glyph="&#xf410;" />
+									Glyph="&#xf060;" />
                 </Button.ImageSource>
             </Button>
             </HorizontalStackLayout>
