@@ -72,12 +72,12 @@ namespace DMOrders.Pages.Fragments.Customers
         public void LoadDataByTimer()
         {
             // Usamos el dispatcher global de la app para garantizar ejecución en UI
-            var dispatcher = Application.Current.Dispatcher;
-
+            //var dispatcher = Application.Current.Dispatcher;
+            var dispatcher = Dispatcher.GetForCurrentThread();
             var timer = dispatcher.CreateTimer();
             timer.Interval = TimeSpan.FromMilliseconds(300); // delay corto para dejar respirar la UI
             timer.IsRepeating = false;
-
+            
             timer.Tick += async (s, e) =>
             {
                 try

@@ -1,17 +1,16 @@
 using CommunityToolkit.Maui.Markup;
-using CommunityToolkit.Maui.Sample.ViewModels.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
-using DMOrders.Controls;
-using DMOrders.Pages;
-using DMOrders.Pages.Sys;
+using DMOrdersUI.Controls;
+using DMOrdersUI.Pages;
+using DMOrdersUI.Pages.Sys;
 using DMSA.Models.Odoo.Native;
 using Microsoft.Maui.Layouts;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
-namespace DMOrders;
+namespace DMOrdersUI;
 
-public partial class MainPageTab : ContentPage
+public partial class MainPageTab2 : ContentPage
 {
     public bool IsDebug =>
 #if DEBUG
@@ -21,10 +20,10 @@ public partial class MainPageTab : ContentPage
 #endif
 
     readonly PopupSizeConstants popupSizeConstants;
-    readonly CsharpBindingPopupViewModel csharpBindingPopupViewModel;
+    //readonly CsharpBindingPopupViewModel csharpBindingPopupViewModel;
 
     bool isExpanded = false;
-    public MainPageTab()
+    public MainPageTab2()
 	{
 		InitializeComponent();
         BindingContext = new MainViewModel();
@@ -171,7 +170,7 @@ public partial class MainPageTab : ContentPage
 
     private async void ShowSettings(object sender, EventArgs e)
     {
-        DMOrders.Pages.Sys.SettingsPage settings = new DMOrders.Pages.Sys.SettingsPage();
+        DMOrdersUI.Pages.Sys.SettingsPage settings = new DMOrdersUI.Pages.Sys.SettingsPage();
         
     }
 

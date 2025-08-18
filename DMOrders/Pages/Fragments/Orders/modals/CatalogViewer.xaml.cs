@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui.Views;
+﻿using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Maui.Views;
 using DMOrders.Controls;
 using DMOrders.Models.Filters;
 using DMSA.Models.Odoo.Native;
@@ -12,7 +13,7 @@ namespace DMOrders.Pages.Fragments.Orders.modals;
 
 public partial class CatalogViewer : ContentView
 {
-    private Popup _parentPopup;
+    private Popup<product_product> _parentPopup;
     public static ICommand CommandSelectListItem { get; set; }    
     public ContentView ViewParent
     {
@@ -26,9 +27,6 @@ public partial class CatalogViewer : ContentView
     private int span_columns = 4;
     double swipeThreshold = 50; // Distancia mínima para considerar un swipe
     double panX = 0;
-
-
-
     product_brand selected_brand { get; set; }
     public ObservableCollection<product_brand> Brands { get; set; } = new();
 
@@ -40,9 +38,10 @@ public partial class CatalogViewer : ContentView
     FStatus selected_stockProducts { get; set; }
     FStatus selected_sortProducts { get; set; }
 
-    public CatalogViewer(Popup parentPopup)
+    public CatalogViewer(Popup<product_product> parentPopup)
     {
         InitializeComponent();
+        //TODO: Corregir ----
         _parentPopup = parentPopup;
         Setup();
     }
@@ -195,23 +194,32 @@ public partial class CatalogViewer : ContentView
 
     private async void SelectListItem(object objItem)
     {
-        if (objItem != null)
+        //if (objItem != null)
+        //{
+        //    //((CatalogViewerModel)this.BindingContext).SelectedItem = (product_product)objItem;
+        //    _parentPopup.CloseAsync(objItem);
+        //}
+        //else
+        //{
+        //    Debug.WriteLine("Error de objeto");
+        //}
+
+        if (objItem is product_product item) // aquí validas y conviertes
         {
-            //((CatalogViewerModel)this.BindingContext).SelectedItem = (product_product)objItem;
-            _parentPopup.Close(objItem);
+            await _parentPopup.CloseAsync(item);
         }
         else
         {
-            Debug.WriteLine("Error de objeto");
+            Debug.WriteLine("Error: el objeto no es del tipo esperado.");
         }
     }
 
-    private void SelectSingleItem(object sender, EventArgs e)
+    private async void SelectSingleItem(object sender, EventArgs e)
     {
         var objItem = ((CatalogViewerModel)this.BindingContext).SelectedItem;
-        if (objItem != null)
+        if (objItem is product_product item)
         {
-            _parentPopup.Close(objItem);
+            await _parentPopup.CloseAsync(objItem);
         }
         else
         {
@@ -255,10 +263,11 @@ public partial class CatalogViewer : ContentView
         Debug.WriteLine(e.ToString());
     }
 
-    private void OnCloseClicked(object sender, EventArgs e)
+    private async void OnCloseClicked(object sender, EventArgs e)
     {
         Debug.WriteLine(((CatalogViewerModel)this.BindingContext).SelectedItem);
-        _parentPopup.Close(null);
+        
+        await _parentPopup.CloseAsync(default(product_product));
     }
 
     private async void SelectionView_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

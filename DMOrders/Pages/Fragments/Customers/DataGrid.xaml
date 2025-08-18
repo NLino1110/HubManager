@@ -25,7 +25,7 @@
                     <CollectionView 
                         x:Name="MyCollectionView"
                         ItemsSource="{Binding ItemsData}" 
-                        EmptyView="....." 
+                        EmptyView="...."                        
                         HorizontalOptions="Fill" 
                         SelectionMode="Single"
                         SelectedItem="{Binding SelectedItem, Mode=TwoWay}">

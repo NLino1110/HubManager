@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace DMOrders.Controls
 {
-    public class PopupSelectBrand : PopupSelectBase
+    public class PopupSelectBrand : PopupSelectBase<product_brand>
     {
         public res_company Company { get; set; }
         public int DetailMode { get; set; } = 0;

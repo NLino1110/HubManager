@@ -12,6 +12,7 @@ using Microsoft.Maui;
 using static System.Net.Mime.MediaTypeNames;
 using Image = Microsoft.Maui.Controls.Image;
 using Microsoft.Maui.Controls.Shapes;
+using Microsoft.Maui.ApplicationModel;
 
 namespace BeebTech.Maui.Controls
 {

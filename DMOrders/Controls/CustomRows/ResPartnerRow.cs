@@ -32,6 +32,17 @@ namespace DMOrders.Controls.CustomRows
 
         protected override void BuildLeftGridContent(Grid leftGrid)
         {
+            LeftGrid.ColumnDefinitions = new ColumnDefinitionCollection()
+            {
+                new ColumnDefinition { Width = GridLength.Star },
+                new ColumnDefinition { Width = GridLength.Auto },
+                new ColumnDefinition { Width = GridLength.Star },
+                new ColumnDefinition { Width = GridLength.Star },
+                new ColumnDefinition { Width = GridLength.Star },
+                new ColumnDefinition { Width = GridLength.Star },
+                new ColumnDefinition { Width = GridLength.Star },
+            };
+
             labelId = new Label { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, TextColor = Colors.Black, FontSize = 10, BackgroundColor = Colors.Transparent, Padding = new Thickness(3), Margin = new Thickness(0) };
             labelVat = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, FontAttributes = FontAttributes.Bold, FontSize = 13, BackgroundColor = Colors.Transparent };
             labelName = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, FontAttributes = FontAttributes.Bold, FontSize = 13, BackgroundColor = Colors.Transparent };
@@ -67,7 +78,7 @@ namespace DMOrders.Controls.CustomRows
             };
 
             cellGrid.Children.Add(labelName);
-            cellGrid.Children.Add(labelVat);
+            cellGrid.Children.Add(labelVat);            
             Grid.SetRow(labelVat, 1);
 
             AddCell(CreateCell(labelId), "left", 0, 0);

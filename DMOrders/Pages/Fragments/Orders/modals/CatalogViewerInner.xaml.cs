@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui.Views;
+﻿using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Maui.Views;
 using DMOrders.Controls;
 using DMOrders.Models.Filters;
 using DMSA.Models.Odoo.Native;

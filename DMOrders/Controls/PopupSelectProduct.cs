@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Maui.Views;
 using DMOrders.Pages.Fragments.Orders.modals;
+using DMSA.Models.Odoo.Native;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,20 +9,20 @@ using System.Threading.Tasks;
 
 namespace DMOrders.Controls
 {
-    public class PopupSelectProduct : Popup
+    public class PopupSelectProduct : Popup<product_template>
     {
         public PopupSelectProduct()
         {
             var popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);            
-            Size = popupSizeConstants.Large;
+            DesiredSize = popupSizeConstants.Large;
 
             //var contentView = new CatalogViewer(this);
             //Content = contentView;
         }
 
-        private void OnBtnClose_Clicked(object sender, EventArgs e)
+        private async void OnBtnClose_Clicked(object sender, EventArgs e)
         {            
-            Close(null);
+            await CloseAsync(default(product_template));
         }
     }
 }

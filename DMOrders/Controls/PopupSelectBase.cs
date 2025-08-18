@@ -1,25 +1,17 @@
 ﻿using CommunityToolkit.Maui.Views;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CommunityToolkit.Maui.Core.Platform;
+using CommunityToolkit.Maui.Extensions;
 using System.Diagnostics;
 using System.Windows.Input;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Microsoft.Maui.Layouts;
-
-using Microsoft.Maui.Controls;
-using DMSA.Models.Odoo.Native;
 using Microsoft.Maui.Controls.Shapes;
-using CommunityToolkit.Maui.Markup;
 using DMOrders.Controls.Tools;
 
 namespace DMOrders.Controls
 {
-    public class PopupSelectBase : Popup, INotifyPropertyChanged
+    public class PopupSelectBase<T> : Popup<T>, INotifyPropertyChanged
     {
         protected static Grid scrollGridContent { get; set; }
         private AbsoluteLayout _layoutLoading { get; set; }
@@ -91,7 +83,7 @@ namespace DMOrders.Controls
         public static readonly BindableProperty ShowTextSearchProperty =
             BindableProperty.Create(nameof(ShowTextSearch),
                 typeof(bool), //Clase de datos auxiliar
-                typeof(PopupSelectBase), //Clase contenedora
+                typeof(PopupSelectBase<T>), //Clase contenedora
                 true);
 
         public bool ShowTextSearch
@@ -103,7 +95,7 @@ namespace DMOrders.Controls
         public static readonly BindableProperty ShowToolBoxProperty =
             BindableProperty.Create(nameof(ShowToolBox),
                 typeof(bool),
-                typeof(PopupSelectBase),
+                typeof(PopupSelectBase<T>),
                 true);
 
         public bool ShowToolBox
@@ -115,7 +107,7 @@ namespace DMOrders.Controls
         public static readonly BindableProperty ContentCustomToolBoxProperty =
             BindableProperty.Create(nameof(ContentCustomToolBox),
                 typeof(ContentView),
-                typeof(PopupSelectBase));
+                typeof(PopupSelectBase<T>));
 
         public ContentView ContentCustomToolBox
         {
@@ -142,8 +134,8 @@ namespace DMOrders.Controls
         public void PopupSelectBaseBuild(PopupSizeConstants popupSizeConstants) //, bool renderCustomDataTemplate)
         {
             popupSizeConstants.CalculateSizes(DeviceDisplay.Current);
-            Size = popupSizeConstants.Large;
-            Color = _colorMain;
+            DesiredSize = popupSizeConstants.Large;
+            BackgroundColor = _colorMain;
             
             // Agregar componentes al Grid
             var gridContent = new Grid
@@ -215,7 +207,7 @@ namespace DMOrders.Controls
         private void OnPageSizeChanged(object sender, EventArgs e)
         {
             var popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
-            Size = popupSizeConstants.Large;
+            DesiredSize = popupSizeConstants.Large;
 
             var orientation = DeviceDisplay.MainDisplayInfo.Orientation;
             if(orientation == DisplayOrientation.Portrait)
@@ -863,32 +855,32 @@ namespace DMOrders.Controls
         public static ICommand CommandSelectListItem { get; set; }
 
         private async void SelectListItem(object objItem)
-        {            
-            if (objItem != null)
+        {
+            if (objItem is T item) // aquí validas y conviertes
             {
-                Close(objItem);
+                await CloseAsync(item);
             }
             else
             {
-                Debug.WriteLine("Error de objeto");
+                Debug.WriteLine("Error: el objeto no es del tipo esperado.");
             }
         }
 
         private async void OnBtnSave_Clicked(object sender, EventArgs e)
         {
-            Close(null);
+            await CloseAsync(default(T));
         }
 
         private void OnBtnCancel_Clicked(object sender, EventArgs e)
         {
             // Lógica cuando se hace clic en el segundo botón
-            Close(null);
+            CloseAsync(default(T));
         }
 
         private void OnBtnClose_Clicked(object sender, EventArgs e)
         {
             // Lógica cuando se hace clic en el segundo botón
-            Close(null);
+            CloseAsync(default(T));
         }
 
         protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)

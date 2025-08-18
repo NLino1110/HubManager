@@ -1,5 +1,6 @@
 
 using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Mvvm.Input;
 using DMOrders.Controls;
@@ -161,7 +162,8 @@ public partial class Details : ContentPage, IBackButtonHandler
         returnResultPopup = new PopupSelectProduct();
         returnResultPopup.BindingContext = previousCatalogViewerModel;
 
-        returnResultPopup.Reset();
+        //TODO: Replicar Reset
+        //returnResultPopup.Reset();
         var result = await PopupExtensions.ShowPopupAsync(this, returnResultPopup);
 
         if (result != null)

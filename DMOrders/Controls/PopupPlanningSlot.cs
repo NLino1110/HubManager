@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui.Markup;
+﻿using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Views;
 using DMOrders.Services.Database.Sqlite;
 using DMOrders.Services.Helpers;
@@ -22,7 +23,7 @@ using UraniumUI.Material.Controls;
 namespace DMOrders.Controls
 {
     [XamlCompilation(XamlCompilationOptions.Skip)]
-    public class PopupPlanningSlot : Popup, INotifyPropertyChanged
+    public class PopupPlanningSlot : Popup<PlanningSlot>, INotifyPropertyChanged
     {
         public IDialogService DialogService { get; private set; }
 
@@ -79,9 +80,10 @@ namespace DMOrders.Controls
             isWindows = DeviceInfo.Current.Platform == DevicePlatform.WinUI;
 
             popupSizeConstants.CalculateSizes(DeviceDisplay.Current);
-            Size = popupSizeConstants.Medium;
+            DesiredSize = popupSizeConstants.Medium;
             
-            Color = Colors.GhostWhite;
+            BackgroundColor = Colors.GhostWhite;
+            
             Title = "NUEVA ACTIVIDAD";
             
             // Agregar manipuladores de eventos para los botones
@@ -318,7 +320,7 @@ namespace DMOrders.Controls
 
             var popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
             popupSizeConstants.CalculateSizes(DeviceDisplay.Current);
-            Size = popupSizeConstants.Medium;
+            DesiredSize = popupSizeConstants.Medium;
 
             var returnResultPopup = new PopupSelectPartner(popupSizeConstants);
             
@@ -331,8 +333,9 @@ namespace DMOrders.Controls
             //Evita que se cierre cuando se haga clic (tap) fuera de la ventana
             returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;
 
-            if (!isWindows)
-                returnResultPopup.Size = popupSizeConstants.Large;
+            //TODO: Buscar modo de parametrizar 
+            //if (!isWindows)
+            //    returnResultPopup.DesiredSize = popupSizeConstants.Large;
 
             var result = await PopupExtensions.ShowPopupAsync(App.Current.MainPage, returnResultPopup);
             //var result = await this.ShowPopupAsync(returnResultPopup);
@@ -592,7 +595,7 @@ namespace DMOrders.Controls
         private void OnPageSizeChanged(object sender, EventArgs e)
         {
             var popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
-            Size = popupSizeConstants.Large;
+            DesiredSize = popupSizeConstants.Large;
 
             var orientation = DeviceDisplay.MainDisplayInfo.Orientation;
             if (orientation == DisplayOrientation.Portrait)
@@ -633,7 +636,8 @@ namespace DMOrders.Controls
                     await App.Current.MainPage.DisplayAlert("Nueva actividad",
                                         $"Se requiere que se especifique la actividad principal.",
                                         "Continuar");
-                    Close(null);
+                    await CloseAsync(default(PlanningSlot));
+                    
                     return;
                 }
 
@@ -811,19 +815,19 @@ namespace DMOrders.Controls
 
             }
 
-            Close(new_PlanningSlot);
+            await CloseAsync(new_PlanningSlot);
         }
 
-        private void OnBtnCancel_Clicked(object sender, EventArgs e)
+        private async void OnBtnCancel_Clicked(object sender, EventArgs e)
         {
             // Lógica cuando se hace clic en el segundo botón
-            Close(null);
+            await CloseAsync(default(PlanningSlot));
         }
 
-        private void OnBtnClose_Clicked(object sender, EventArgs e)
+        private async void OnBtnClose_Clicked(object sender, EventArgs e)
         {
             // Lógica cuando se hace clic en el segundo botón
-            Close(null);
+            await CloseAsync(default(PlanningSlot));
         }
     }
 }

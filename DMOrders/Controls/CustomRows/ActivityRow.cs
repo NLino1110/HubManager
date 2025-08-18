@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Windows.Input;
 
 namespace DMOrders.Controls.CustomRows
-{
+{    
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public class ActivityRow : RowAdvance<ActivityHeader>
     {
@@ -32,6 +32,15 @@ namespace DMOrders.Controls.CustomRows
 
         protected override void BuildLeftGridContent(Grid leftGrid)
         {
+            LeftGrid.ColumnDefinitions = new ColumnDefinitionCollection()
+            {
+                new ColumnDefinition { Width = GridLength.Star },
+                new ColumnDefinition { Width = GridLength.Auto },
+                new ColumnDefinition { Width = GridLength.Star },
+                new ColumnDefinition { Width = GridLength.Star },
+                new ColumnDefinition { Width = GridLength.Star },
+            };
+
             labelId = new Label { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, TextColor = Colors.Black, FontSize = 10, BackgroundColor = Colors.Transparent, Padding = new Thickness(3), Margin = new Thickness(0) };
             
             labelSellerName = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, FontAttributes = FontAttributes.Bold, FontSize = 13, BackgroundColor = Colors.Transparent };

@@ -119,7 +119,7 @@ namespace DMOrders.Controls.Base
                 },
                 ColumnDefinitions =
                 {
-                    new ColumnDefinition { Width = GridLength.Star },                    
+                    new ColumnDefinition { Width = GridLength.Star },
                 }
             };
 

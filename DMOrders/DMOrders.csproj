@@ -10,8 +10,8 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
-		<ApplicationTitle Condition="'$(Configuration)' == 'Debug'">DMOrdersUI - Debug</ApplicationTitle>
-		<ApplicationTitle Condition="'$(Configuration)' == 'Release'">DMOrdersUI</ApplicationTitle>
+		<ApplicationTitle Condition="'$(Configuration)' == 'Debug'">DMOrders - Debug</ApplicationTitle>
+		<ApplicationTitle Condition="'$(Configuration)' == 'Release'">DMOrders</ApplicationTitle>
 		
 		<!-- App Identifier -->
 		<ApplicationId>com.macronegocios.orders</ApplicationId>
@@ -61,16 +61,16 @@
 
 	<ItemGroup>
 		<PackageReference Include="akgul.Maui.DataGrid" Version="4.0.6" />
-		<PackageReference Include="CommunityToolkit.Maui" Version="9.1.1" />
-		<PackageReference Include="CommunityToolkit.Maui.Core" Version="9.1.1" />
-		<PackageReference Include="CommunityToolkit.Maui.Markup" Version="5.1.0" />
+		<PackageReference Include="CommunityToolkit.Maui" Version="12.2.0" />
+		<PackageReference Include="CommunityToolkit.Maui.Core" Version="12.2.0" />
+		<PackageReference Include="CommunityToolkit.Maui.Markup" Version="6.0.1" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-		<PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.4" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.60" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.4" />
+		<PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.8" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.100" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.8" />
 		
 		<PackageReference Include="M.BindableProperty.Generator" Version="0.11.1" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.60" />
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.100" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="ReactiveUI.Fody" Version="19.5.41" />
 		<PackageReference Include="RestSharp" Version="112.1.0" />
@@ -80,7 +80,7 @@
 		<PackageReference Include="SkiaSharp.QrCode" Version="0.7.0" />
 		<PackageReference Include="Spinner.MAUI" Version="1.1.2" />
 		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.4" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.8" />
 		<PackageReference Include="UraniumUI" Version="2.12.1" />
 		<PackageReference Include="UraniumUI.Blurs" Version="2.12.1" />
 		<PackageReference Include="UraniumUI.Dialogs.CommunityToolkit" Version="2.12.1" />
@@ -97,12 +97,6 @@
 	  <ProjectReference Include="..\ApiManagerOdoo\ApiManagerOdoo.csproj" />
 	  <ProjectReference Include="..\BeebTech.Maui.Controls\BeebTech.Maui.Controls.csproj" />
 	  <ProjectReference Include="..\DMSA.Models.Odoo\DMSA.Models.Odoo.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Compile Update="Resources\Styles\Custom.xaml.cs">
-	    <DependentUpon>Custom.xaml</DependentUpon>
-	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -191,12 +185,6 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\Sys\UpdateData.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Resources\Styles\tmp\Colors.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Resources\Styles\tmp\Styles.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>	  
 	</ItemGroup>

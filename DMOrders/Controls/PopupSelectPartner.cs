@@ -6,7 +6,7 @@ using DMOrders.Services.Database.Sqlite;
 
 namespace DMOrders.Controls
 {
-    public class PopupSelectPartner : PopupSelectBase
+    public class PopupSelectPartner : PopupSelectBase<res_partner>
     {
         public res_company Company { get; set; }
         public int DetailMode { get; set; } = 0;

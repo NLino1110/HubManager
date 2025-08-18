@@ -62,25 +62,25 @@ namespace DMOrdersUI
                 App.Session.EndPointServer = App.Session.EndPointServerProd;
             }
 
-#if DEBUG
-            builder.Logging.AddDebug();
+//#if DEBUG
+//            builder.Logging.AddDebug();
 
-            var memoryLeakEvents = new MemoryLeakDetectEvents();
-            builder.Services.AddSingleton(memoryLeakEvents);
-            builder.UseLeakDetection(onLeaked: memoryLeakEvents.InvokeOnLeaked, memoryLeakEvents.InvokeOnCollected);
-#endif
+//            var memoryLeakEvents = new MemoryLeakDetectEvents();
+//            builder.Services.AddSingleton(memoryLeakEvents);
+//            builder.UseLeakDetection(onLeaked: memoryLeakEvents.InvokeOnLeaked, memoryLeakEvents.InvokeOnCollected);
+//#endif
 
-            builder.Services.Configure<AutoFormViewOptions>(options =>
-            {
-                options.ValidationFactory = DataAnnotationValidation.CreateValidations;
-            });
+            //builder.Services.Configure<AutoFormViewOptions>(options =>
+            //{
+            //    options.ValidationFactory = DataAnnotationValidation.CreateValidations;
+            //});
 
-            RxApp.DefaultExceptionHandler = new AnonymousObserver<Exception>(ex =>
-            {
-                App.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
+            //RxApp.DefaultExceptionHandler = new AnonymousObserver<Exception>(ex =>
+            //{
+            //    App.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
 
-                // Track the exception here... (e.g. AppCenter, Sentry, etc.)
-            });
+            //    // Track the exception here... (e.g. AppCenter, Sentry, etc.)
+            //});
 
             var thisAssembly = typeof(MauiProgram).Assembly;
 

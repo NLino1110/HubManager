@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:DMOrders="clr-namespace:DMOrders"
-             xmlns:pages="clr-namespace:DMOrders.Pages"
+             xmlns:DMOrders="clr-namespace:DMOrdersUI"
+             
              xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
-             xmlns:pagesCustomer="clr-namespace:DMOrders.Pages.Fragments.Customers"
-             xmlns:pagesActivities="clr-namespace:DMOrders.Pages.Fragments.Activities"             
-             xmlns:pagesOrders="clr-namespace:DMOrders.Pages.Fragments.Orders"
-             xmlns:pagesProducts="clr-namespace:DMOrders.Pages.Fragments.Product"             
-             x:Class="DMOrders.MainPageTab"
-             Title="MainPageTab"
+             xmlns:pagesCustomer="clr-namespace:DMOrdersUI.Pages.Fragments.Customers"
+             xmlns:pagesActivities="clr-namespace:DMOrdersUI.Pages.Fragments.Activities"             
+             xmlns:pagesOrders="clr-namespace:DMOrdersUI.Pages.Fragments.Orders"
+             xmlns:pagesProducts="clr-namespace:DMOrdersUI.Pages.Fragments.Product"             
+             x:Class="DMOrdersUI.MainPageTab2"
+             Title="MainPageTab2"
              Padding="0"
              NavigationPage.HasNavigationBar="False">
     <ContentPage.Resources>        
@@ -140,7 +140,7 @@
                          Color="DimGray"
                          Size="10"
                          FontAutoScalingEnabled="False"
-                         Glyph="&#xf188;" />
+                         Glyph="&#xf7d9;" />
                         </Image.Source>
                     </Image>
 
@@ -157,7 +157,7 @@
 										Color="DimGray"
 										Size="13"
 										FontAutoScalingEnabled="False"                                                         
-										Glyph="&#xf007;" />
+										Glyph="&#xf7d9;" />
                         </Image.Source>
                     </Image>
 
@@ -191,7 +191,7 @@
 										Color="DimGray"
 										Size="20"
 										FontAutoScalingEnabled="True"                                                         
-										Glyph="&#xf00c;" />
+										Glyph="&#xf7d9;" />
                         </Image.Source>
                     </Image>
 
@@ -217,7 +217,7 @@
             Color="DimGray"
             Size="20"
             FontAutoScalingEnabled="True"
-            Glyph="&#xf279;" />
+            Glyph="&#xf7d9;" />
                                             </Image.Source>
                                         </Image>
 
@@ -245,7 +245,7 @@
             Color="DimGray"
             Size="20"
             FontAutoScalingEnabled="True"
-            Glyph="&#xf0c7;" />
+            Glyph="&#xf7d9;" />
                                             </Image.Source>
                                         </Image>
                                         
@@ -274,7 +274,7 @@
 								                    Color="DimGray"
 								                    Size="20"
 								                    FontAutoScalingEnabled="True"
-								                    Glyph="&#xf2f5;" />
+								                    Glyph="&#xf7d9;" />
                                             </Image.Source>
                                         </Image>
 

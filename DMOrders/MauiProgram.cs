@@ -32,6 +32,7 @@ namespace DMOrders
                     fonts.AddMaterialIconFonts();
                     fonts.AddFluentIconFonts();
                 })
+                .UseUraniumUIBlurs()
                 .UseMauiCommunityToolkit()
                 .UseUraniumUI()
                 .UseUraniumUIMaterial();

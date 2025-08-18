@@ -2,23 +2,9 @@
 using CobranzasDMSA_Odoo.AppPages.Sys;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
-using CommunityToolkit.Maui.Views;
+using CommunityToolkit.Maui.Extensions;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo;
-using Microsoft.Maui;
-using Microsoft.Maui.Controls;
-using Plugin.BLE;
-using Plugin.BLE.Abstractions;
-using Plugin.BLE.Abstractions.Contracts;
-using SkiaSharp;
-using SkiaSharp.QrCode;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection;
-using System.Text;
-using System.Threading;
 
 namespace DMOrders.Pages.Sys;
 

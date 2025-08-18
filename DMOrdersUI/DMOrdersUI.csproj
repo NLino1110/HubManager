@@ -141,6 +141,9 @@
 	  <Compile Update="MainPageOld.xaml.cs">
 	    <DependentUpon>MainPageOld.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="MainPageTab2.xaml.cs">
+	    <DependentUpon>MainPageTab2.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Pages\Fragments\Activities\Details.xaml.cs">
 	    <DependentUpon>Details.xaml</DependentUpon>
 	  </Compile>
@@ -176,6 +179,9 @@
 	  </MauiXaml>
 	  <MauiXaml Update="MainPageOld.xaml">
 	    <Generator></Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="MainPageTab2.xaml">
+	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\Fragments\Orders\Container.xaml">
 	    <Generator>MSBuild:Compile</Generator>
