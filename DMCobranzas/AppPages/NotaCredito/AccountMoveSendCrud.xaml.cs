@@ -23,6 +23,7 @@ using System.Windows.Input;
 using static System.Net.Mime.MediaTypeNames;
 using Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;
 using DMSA.Models.Odoo.DMCobranzas;
+using CommunityToolkit.Maui.Extensions;
 
 namespace DMCobranzas.AppPages.NotaCredito;
 
@@ -262,8 +263,8 @@ public partial class AccountMoveSendCrud : ContentPage
         //Evita que se cierre cuando se haga clic (tap) fuera de la ventana
         returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;
 
-        if (!isWindows)
-            returnResultPopup.Size = this.popupSizeConstants.Large;
+        //if (!isWindows)
+           // returnResultPopup.Size = this.popupSizeConstants.Large;
 
         var resultPopupSelectInvoice = new PopupSelectInvoice(popupSizeConstants);
         resultPopupSelectInvoice.Company = empresa;
@@ -507,7 +508,7 @@ public partial class AccountMoveSendCrud : ContentPage
         default_empresa = empresa;
 
         var simplePopup = new PopupLoadingTask(popupSizeConstants);
-        simplePopup.Size = popupSizeConstants.Small;
+        //simplePopup.Size = popupSizeConstants.Small;
         simplePopup.CanBeDismissedByTappingOutsideOfPopup = false;
         this.ShowPopup(simplePopup);
 
@@ -563,7 +564,7 @@ public partial class AccountMoveSendCrud : ContentPage
 
         collectionView.ItemsSource = laccountmoveLines;
 
-        simplePopup.Close();
+        await simplePopup.CloseAsync();
 
         _account_move_lines_send_items = result_send.ToArray();
 

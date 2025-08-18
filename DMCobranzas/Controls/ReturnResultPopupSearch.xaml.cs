@@ -13,7 +13,7 @@ using System.Windows.Input;
 
 namespace CommunityToolkit.Maui.Sample;
 
-public partial class ReturnResultPopupSearch : Popup
+public partial class ReturnResultPopupSearch : Popup<res_company>
 {
     res_company[] Empresas { get; set; }
     public res_company empresa { get; set; }
@@ -24,7 +24,7 @@ public partial class ReturnResultPopupSearch : Popup
 	{
 		InitializeComponent();
 
-		Size = popupSizeConstants.Medium;
+		DesiredSize = popupSizeConstants.Medium;
 		ResultWhenUserTapsOutsideOfPopup = "Clic afuera";
         
         isWindows = DeviceInfo.Current.Platform == DevicePlatform.WinUI;

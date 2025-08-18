@@ -3,8 +3,10 @@ using CobranzasDMSA_Odoo.AppPages.Sys;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Maui.Services;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo;
+using System.Diagnostics;
 
 namespace DMOrders.Pages.Sys;
 
@@ -70,12 +72,10 @@ public partial class SettingsPage : ContentPage //, IDisposable //, INotifyPrope
     {  
         var returnResultPopup = new PasswordPromptPage();
         returnResultPopup.TitleBox = "Ingrese el pin correcto para aplicar cambios.";
-
-        var result = await PopupExtensions.ShowPopupAsync(this, returnResultPopup);       
-        
-        //string result = await DisplayPromptAsync("PIN", "Ingrese el pin correcto para aplicar cambios", initialValue: "", maxLength: 4, keyboard: Keyboard.Numeric);
-
-        if (result != null && result.ToString() == "1381")
+                
+        var result = await PopupExtensions.ShowPopupAsync<string>(this, returnResultPopup);
+                
+        if (result.Result != null && result.Result.ToString() == "1381")
         {
             AppSettingsDb appSettingsDb = new AppSettingsDb();
             //await appSettingsDb.InitDefault();

@@ -23,7 +23,7 @@ using Microsoft.Maui.Layouts;
 
 namespace DMCobranzas.Controls
 {
-    public class PopupSelectInvoiceItems : PopupSelectBase
+    public class PopupSelectInvoiceItems : PopupSelectBase<account_move_line>
     {
         public res_company Company { get; set; }
         //Origen de datos
@@ -127,7 +127,7 @@ namespace DMCobranzas.Controls
                     await App.Current.MainPage.DisplayAlert("Clientes",
                                         $"Se requiere que se especifique la compañia para poder realizar la búsqueda de clientes.",
                                         "Continuar");
-                    Close(null);
+                    await CloseAsync();
                     return;
                 }
 
@@ -156,9 +156,9 @@ namespace DMCobranzas.Controls
 
         private async void SelectListItem(object objItem)
         {            
-            if (objItem != null)
+            if (objItem is account_move_line)
             {
-                Close(objItem);
+                await CloseAsync(objItem);
             }
             else
             {
@@ -172,7 +172,7 @@ namespace DMCobranzas.Controls
             ////res_partner res_Partner = await partnerBankDb.GetItem(1);
             //res_partner res_Partner = await partnerBankDb.GetItemsAsync(Company.id, partner.id);
             //// Lógica cuando se hace clic en el primer botón
-            Close(null);
+            await CloseAsync();
         }
 
         private void OnBtnCancel_Clicked(object sender, EventArgs e)

@@ -38,24 +38,27 @@
             <Image
         Source="logo_macronegocios.png"
         Aspect="AspectFill"
-        Opacity="0.3" />
-            <StackLayout Orientation="Vertical">
+        Opacity="0.3" 
+                Margin="-50,-50,-50,-50"/>
+            <StackLayout Orientation="Vertical" VerticalOptions="Center">
                 <FlexLayout Wrap="Wrap" JustifyContent="Start" Margin="10"
                 Padding="30"
                 VerticalOptions="Center"
-                HorizontalOptions="Center">
+                HorizontalOptions="Center"
+                            IsVisible="False">
                 </FlexLayout>
 
                 <Border    
-    Padding="10,10,10,10"
-    Margin="10,5,10,10"
-    MaximumWidthRequest="700"
-                BackgroundColor="#EEEEEE">
+                Padding="10,10,10,10"
+                Margin="10,5,10,10"
+                MaximumWidthRequest="700"
+                BackgroundColor="#EEEEEE"
+                Opacity="0.9">
 
                     <VerticalStackLayout
                     Spacing="20"
                     Padding="10"
-                    MinimumHeightRequest="450"
+                    MinimumHeightRequest="300"
                     VerticalOptions="Fill">
 
                         <Image
@@ -63,7 +66,8 @@
                     SemanticProperties.Description=""
                     MaximumWidthRequest="200"
                     WidthRequest="200"
-                    HorizontalOptions="Center" />
+                    HorizontalOptions="Center" 
+                            IsVisible="False" />
 
                         <Label 
                     Text="Sistema de Pedidos"
@@ -164,7 +168,8 @@
             FontSize="11"
         VerticalOptions="Center" 
         HorizontalOptions="Center"
-                        TextColor="Gray"/>
+                        TextColor="Gray"
+                            IsVisible="False"/>
 
                         <Label 
             x:Name="lblAppVersion"
@@ -211,8 +216,19 @@
       TextColor="DarkBlue" 
       FontSize="12" 
       FontAttributes="None"
-      AbsoluteLayout.LayoutFlags="All"
-      AbsoluteLayout.LayoutBounds="0, 5, 1, 0.1"></Label>
+      AbsoluteLayout.LayoutFlags="PositionProportional"
+      AbsoluteLayout.LayoutBounds="0,10.5,AutoSize,AutoSize"></Label>
+                    
+                    <Label 
+                    Text="Todos los derechos reservados &#169; D'Mujeres S.A. 2023"
+                    FontSize="11"
+                    VerticalOptions="Center" 
+                        Margin="10,0,0,0" 
+                    HorizontalOptions="Center"
+                    TextColor="Gray"
+                    AbsoluteLayout.LayoutFlags="PositionProportional"
+                    AbsoluteLayout.LayoutBounds="0,11,AutoSize,AutoSize"/>
+                    
                     <StackLayout Orientation="Horizontal"
 AbsoluteLayout.LayoutFlags="All"
 AbsoluteLayout.LayoutBounds="0, 5, 1, 0.1"

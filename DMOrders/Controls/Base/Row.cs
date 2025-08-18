@@ -1,23 +1,18 @@
 ﻿using CommunityToolkit.Maui.Behaviors;
-using System.Diagnostics;
+using DynamicData;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Graphics;
+using System;
 using System.Windows.Input;
 
 namespace DMOrders.Controls.Base
 {
     public class Row<T> : ContentView where T : class
     {
-        // Bindable Properties
-        public static readonly BindableProperty ItemProperty =
-            BindableProperty.Create(nameof(Item), typeof(T), typeof(Row<T>), propertyChanged: OnItemChanged);
-
-        public T Item
-        {
-            get => (T)GetValue(ItemProperty);
-            set => SetValue(ItemProperty, value);
-        }
+        #region Bindable Properties
 
         public static readonly BindableProperty SelectedItemProperty =
-            BindableProperty.Create(nameof(SelectedItem), typeof(T), typeof(Row<T>), propertyChanged: OnSelectedItemChanged);
+            BindableProperty.Create(nameof(SelectedItem), typeof(T), typeof(Row<T>));
 
         public T SelectedItem
         {
@@ -25,22 +20,13 @@ namespace DMOrders.Controls.Base
             set => SetValue(SelectedItemProperty, value);
         }
 
-        public static readonly BindableProperty IsSelectedProperty =
-            BindableProperty.Create(nameof(IsSelected), typeof(bool), typeof(Row<T>), false, propertyChanged: OnIsSelectedChanged);
+        public static readonly BindableProperty ItemProperty =
+            BindableProperty.Create(nameof(Item), typeof(T), typeof(Row<T>));
 
-        public bool IsSelected
+        public T Item
         {
-            get => (bool)GetValue(IsSelectedProperty);
-            set => SetValue(IsSelectedProperty, value);
-        }
-
-        public static readonly BindableProperty LongPressCommandProperty =
-            BindableProperty.Create(nameof(LongPressCommand), typeof(ICommand), typeof(Row<T>));
-
-        public ICommand LongPressCommand
-        {
-            get => (ICommand)GetValue(LongPressCommandProperty);
-            set => SetValue(LongPressCommandProperty, value);
+            get => (T)GetValue(ItemProperty);
+            set => SetValue(ItemProperty, value);
         }
 
         public static readonly BindableProperty TapCommandProperty =
@@ -52,52 +38,47 @@ namespace DMOrders.Controls.Base
             set => SetValue(TapCommandProperty, value);
         }
 
-        // Layout elements
+        public static readonly BindableProperty LongPressCommandProperty =
+            BindableProperty.Create(nameof(LongPressCommand), typeof(ICommand), typeof(Row<T>));
+
+        public ICommand LongPressCommand
+        {
+            get => (ICommand)GetValue(LongPressCommandProperty);
+            set => SetValue(LongPressCommandProperty, value);
+        }
+
+        #endregion
+
+        #region Layout
+
         protected Grid LeftGrid { get; private set; }
         protected Grid ToolGrid { get; private set; }
-        //private Border _mainBorder;
-        GraphicsView _mainBorder;
+        private Border _borderFrame;
+
+        #endregion
 
         public Row()
         {
             BuildLayout();
-
-            //SetupGestures();
-
-            // Default LongPressCommand example (can be overwritten)
-            //LongPressCommand = new Command(() =>
-            //{
-            //    Debug.WriteLine("Long press detected");
-            //});
+            SetupGestures();
         }
 
         private void BuildLayout()
         {
-            //_mainBorder = new Border
-            //{
-            //    Stroke = Colors.LightGray,
-            //    StrokeThickness = 0.5,
-            //    Padding = new Thickness(2),
-            //    Margin = new Thickness(0),
-            //    BackgroundColor = Colors.Transparent,
-            //    MinimumHeightRequest = 30,
-            //};
-
-            var _mainBorder = new GraphicsView
+            // Frame como borde ligero
+            _borderFrame = new Border
             {
-                Drawable = new CustomBorderDrawable(),
-                InputTransparent = true // ← importante: para que no bloquee los toques del contenido
+                Stroke = Colors.LightGray,
+                StrokeThickness = 0.5f,                
+                Padding = 0,
+                Margin = 0,
+                BackgroundColor = Colors.Transparent
             };
 
+            // Root Grid
             var rootGrid = new Grid
             {
                 HorizontalOptions = LayoutOptions.Fill,
-                BackgroundColor = Colors.Transparent,
-                Padding = new Thickness(0),
-                RowDefinitions =
-                {
-                    new RowDefinition { Height = GridLength.Star }
-                },
                 ColumnDefinitions =
                 {
                     new ColumnDefinition { Width = GridLength.Star },
@@ -105,37 +86,22 @@ namespace DMOrders.Controls.Base
                 }
             };
 
+            // Grids internos
             LeftGrid = new Grid
             {
                 HorizontalOptions = LayoutOptions.Fill,
-                BackgroundColor = Colors.Transparent,
-                Padding = new Thickness(0),
-                ColumnSpacing = 0,
-                RowSpacing = 0,
                 RowDefinitions =
                 {
-                    new RowDefinition { Height = GridLength.Star },
-                    new RowDefinition { Height = GridLength.Auto }
-                },
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition { Width = GridLength.Star },
+                    new RowDefinition { Height = GridLength.Star }
                 }
             };
 
             ToolGrid = new Grid
             {
                 HorizontalOptions = LayoutOptions.Fill,
-                BackgroundColor = Colors.Transparent,
-                Padding = new Thickness(0),
                 RowDefinitions =
                 {
                     new RowDefinition { Height = GridLength.Star }
-                },
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Auto }
                 }
             };
 
@@ -147,24 +113,75 @@ namespace DMOrders.Controls.Base
             Grid.SetRow(ToolGrid, 0);
             Grid.SetColumn(ToolGrid, 1);
 
-            //_mainBorder.Content = rootGrid;
-            rootGrid.Children.Add(_mainBorder);
-            Content = rootGrid;
+            // Frame como borde envolviendo rootGrid
+            _borderFrame.Content = rootGrid;
+            Content = _borderFrame;
 
-            // Build content in grids (can be overridden)
             BuildLeftGridContent(LeftGrid);
             BuildToolGridContent(ToolGrid);
+
+            // VisualStateManager para selección
+            VisualStateManager.SetVisualStateGroups(_borderFrame, new VisualStateGroupList
+            {
+                new VisualStateGroup
+                {
+                    Name = "CommonStates",
+                    States =
+                    {
+                        new VisualState
+                        {
+                            Name = "Normal",
+                            Setters = { new Setter { Property = Border.BackgroundColorProperty, Value = Colors.Transparent } }
+                        },
+                        new VisualState
+                        {
+                            Name = "Selected",
+                            Setters = { new Setter { Property = Border.BackgroundColorProperty, Value = Colors.LightBlue } }
+                        }
+                    }
+                }
+            });
         }
 
-        public View CreateCell(
-                View content,
-                Thickness? padding = null,
-                Color? strokeColor = null,
-                float strokeThickness = (float) 0.4,
-                float cornerRadius = 4,
-                Color? backgroundColor = null)
+        protected virtual void BuildLeftGridContent(Grid leftGrid) { }
+        protected virtual void BuildToolGridContent(Grid toolGrid) { }
+
+        private void SetupGestures()
         {
-            return content;           
+            var tapGesture = new TapGestureRecognizer
+            {
+                Command = new Command(() =>
+                {
+                    if (TapCommand?.CanExecute(Item) == true)
+                        TapCommand.Execute(Item);
+                })
+            };
+            this.GestureRecognizers.Add(tapGesture);
+
+            var longPressBehavior = new TouchBehavior
+            {
+                LongPressCommand = new Command(() =>
+                {
+                    if (LongPressCommand?.CanExecute(Item) == true)
+                        LongPressCommand.Execute(Item);
+                }),
+                LongPressCommandParameter = Item,
+                ShouldMakeChildrenInputTransparent = false,
+                DisallowTouchThreshold = 10
+            };
+            this.Behaviors.Add(longPressBehavior);
+        }
+
+        protected override void OnBindingContextChanged()
+        {
+            base.OnBindingContextChanged();
+            UpdateSelectionVisual();
+        }
+
+        public void UpdateSelectionVisual(object selectedItem = null)
+        {
+            var isSelected = Item != null && Item.Equals(selectedItem ?? ((CollectionView)Parent)?.SelectedItem);
+            VisualStateManager.GoToState(_borderFrame, isSelected ? "Selected" : "Normal");
         }
 
         public void AddCell(View cell, string region = "left", int row = 0, int column = 0)
@@ -181,72 +198,15 @@ namespace DMOrders.Controls.Base
             targetGrid.Children.Add(cell);
         }
 
-        protected virtual void BuildLeftGridContent(Grid leftGrid)
+        public View CreateCell(
+                View content,
+                Thickness? padding = null,
+                Color? strokeColor = null,
+                float strokeThickness = (float)0.4,
+                float cornerRadius = 4,
+                Color? backgroundColor = null)
         {
-            // By default do nothing; subclasses can override to add content
-        }
-
-        protected virtual void BuildToolGridContent(Grid toolGrid)
-        {
-            // By default do nothing; subclasses can override to add content
-        }
-
-        private void SetupGestures()
-        {
-            var longPress = new TouchBehavior
-            {
-                LongPressCommand = new Command(() =>
-                {
-                    if (LongPressCommand?.CanExecute(null) == true)
-                        LongPressCommand.Execute(null);
-                }),
-                LongPressCommandParameter = LeftGrid,
-                ShouldMakeChildrenInputTransparent = false,
-                DisallowTouchThreshold = 10,
-            };
-
-            var tapGesture = new TapGestureRecognizer
-            {
-                Command = new Command(() =>
-                {
-                    if (TapCommand?.CanExecute(Item) == true)
-                        TapCommand.Execute(Item);
-                })
-            };
-
-            //LeftGrid.Behaviors.Add(longPress);
-            //LeftGrid.GestureRecognizers.Add(tapGesture);
-        }
-
-        private static void OnItemChanged(BindableObject bindable, object oldValue, object newValue)
-        {
-            if (bindable is Row<T> row)
-            {
-                row.UpdateSelectionVisual();
-            }
-        }
-
-        private static void OnSelectedItemChanged(BindableObject bindable, object oldValue, object newValue)
-        {
-            if (bindable is Row<T> row)
-            {
-                row.UpdateSelectionVisual();
-            }
-        }
-
-        private static void OnIsSelectedChanged(BindableObject bindable, object oldValue, object newValue)
-        {
-            if (bindable is Row<T> row)
-            {
-                row.UpdateSelectionVisual();
-            }
-        }
-
-        protected virtual void UpdateSelectionVisual()
-        {
-            IsSelected = Item != null && Item.Equals(SelectedItem);
-
-            this.BackgroundColor = IsSelected ? Colors.LightBlue : Colors.Transparent;
+            return content;
         }
     }
 }

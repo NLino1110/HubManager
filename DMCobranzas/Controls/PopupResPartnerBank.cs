@@ -40,7 +40,7 @@ namespace DMCobranzas.Controls
         public string description { get; set; }
     }
 
-    public class PopupResPartnerBank : Popup, INotifyPropertyChanged
+    public class PopupResPartnerBank : Popup<res_partner_bank>, INotifyPropertyChanged
     {
         //Origen de datos
         public res_partner partner { get; set; }
@@ -84,12 +84,12 @@ namespace DMCobranzas.Controls
         public PopupResPartnerBank(PopupSizeConstants popupSizeConstants)
         {
             popupSizeConstants.CalculateSizes(DeviceDisplay.Current);
-            Size = popupSizeConstants.Large;
+            DesiredSize = popupSizeConstants.Large;
 
             ///Nueva linea para la nueva version de CommunityToolKit
             /// se requiere para el fondo
             
-            Color = Colors.GhostWhite;
+            BackgroundColor = Colors.GhostWhite;
             Title = "NUEVA CUENTA BANCARIA";
             
             // Agregar manipuladores de eventos para los botones
@@ -518,7 +518,7 @@ namespace DMCobranzas.Controls
         private void OnPageSizeChanged(object sender, EventArgs e)
         {
             var popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
-            Size = popupSizeConstants.Large;
+            DesiredSize = popupSizeConstants.Large;
 
             var orientation = DeviceDisplay.MainDisplayInfo.Orientation;
             if (orientation == DisplayOrientation.Portrait)
@@ -566,7 +566,7 @@ namespace DMCobranzas.Controls
                     await App.Current.MainPage.DisplayAlert("Nueva cuenta",
                                         $"Se requiere que se especifique el cliente para poder crear nueva cuenta bancaria",
                                         "Continuar");
-                    Close(null);
+                    await CloseAsync();
                     return;
                 }
 
@@ -732,19 +732,19 @@ namespace DMCobranzas.Controls
             }
 
             // Lógica cuando se hace clic en el primer botón
-            Close(new_Partner_Bank);
+            await CloseAsync(new_Partner_Bank);
         }
 
-        private void OnBtnCancel_Clicked(object sender, EventArgs e)
+        private async void OnBtnCancel_Clicked(object sender, EventArgs e)
         {
             // Lógica cuando se hace clic en el segundo botón
-            Close(null);
+            await CloseAsync();
         }
 
-        private void OnBtnClose_Clicked(object sender, EventArgs e)
+        private async void OnBtnClose_Clicked(object sender, EventArgs e)
         {
             // Lógica cuando se hace clic en el segundo botón
-            Close(null);
+            await CloseAsync();
         }
     }
 }

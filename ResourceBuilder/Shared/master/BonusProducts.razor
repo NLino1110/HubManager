@@ -107,20 +107,30 @@
                         data-toggle="tooltip"
                         data-placement="top"
                         title="Agregar" @onclick=@(async () => {
-                        await LaunchSendResults();
+                        await LoadItemsWithStockAsync();
                         })>
-                    <i class="fa fa-chevron-circle-right" aria-hidden="true"></i>
-                    Enviar todos
+                    <i class="fa fa-warehouse"></i>
+                    Bodega
                 </button>
 
                 <button type="button" class="btn btn-sm btn-warning"
                         data-toggle="tooltip"
                         data-placement="top"
                         title="Agregar" @onclick=@(async () => {
-                        await LoadItemsWithStockAsync();
+                        await LaunchSendResults();
                         })>
                     <i class="fa fa-chevron-circle-right" aria-hidden="true"></i>
-                    Prod. con stock
+                    Enviar Precios
+                </button>
+
+                <button type="button" class="btn btn-sm btn-warning"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="Agregar" @onclick=@(async () => {
+                        await LaunchSendResults();
+                        })>
+                    <i class="fa fa-chevron-circle-right" aria-hidden="true"></i>
+                    Enviar Stock
                 </button>
             </div>
         </div>
@@ -166,13 +176,13 @@
                         data-toggle="tooltip"
                         data-placement="top"
                         title="Enviar descuentos" @onclick="@(() => LaunchSendPrices(context))">
-                    <i class="fa fa-chevron-circle-right" aria-hidden="true"></i>
+                   <i class="fa fa-barcode"></i>
                 </button>
-                <button style="display:none" type="button" class="btn btn-sm btn-warning"
+                <button style="" type="button" class="btn btn-sm btn-warning"
                         data-toggle="tooltip"
                         data-placement="top"
                         title="Enviar stock" @onclick="@(() => LaunchSendStock(context))">
-                    <i class="fa fa-chevron-circle-right" aria-hidden="true"></i>
+                    <i class="fa fa-cubes"></i>
                 </button>
                 <button style="display:none" type="button" class="btn btn-sm btn-warning"
                         data-toggle="tooltip"

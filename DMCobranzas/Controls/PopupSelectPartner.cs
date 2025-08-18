@@ -23,7 +23,7 @@ using Microsoft.Maui.Layouts;
 
 namespace DMCobranzas.Controls
 {
-    public class PopupSelectPartner : PopupSelectBase
+    public class PopupSelectPartner : PopupSelectBase<res_partner>
     {
         public res_company Company { get; set; }
         //Origen de datos

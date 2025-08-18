@@ -994,7 +994,7 @@ namespace ResourceBuilder.Shared.master
                 p.CodArticulo
             };
 
-            var responseData = await LaunchItem(articulos, new List<object>(), false, true, new long[] { });
+            var responseData = await LaunchItemLocal(articulos, new List<object>(), false, true, new long[] { }, true, false);
 
             _spinnerService.Hide();
 
@@ -1095,8 +1095,8 @@ namespace ResourceBuilder.Shared.master
 
                 parametros.brands = CodeListBrands;
 
-                parametros.with_prices = true;
-                parametros.with_stock = true;
+                parametros.with_prices = with_discount;
+                parametros.with_stock = with_stock;
                 parametros.with_full_stock = with_full_stock;
 
                 parametros.ids = new List<object>

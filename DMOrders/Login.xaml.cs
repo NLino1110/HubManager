@@ -51,7 +51,7 @@ public partial class Login : ContentPage
 
             await LoadSettingsFromDb();
 
-            App.Session.useOfflineMode = true;
+            App.Session.useOfflineMode = false;
 
             Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0, 10));
@@ -608,7 +608,7 @@ public partial class Login : ContentPage
     }
 
     private void btnAccess_Clicked(object sender, EventArgs e)
-    {        
+    {
         Debug.WriteLine("Empresas: " + ddCompany.SelectedItem.ToString());
 
         if(ddCompany.SelectedItem != null && ddAgency.SelectedItem != null)

@@ -59,18 +59,18 @@
 		<None Remove="Resources\Fonts\Font Awesome 5 Free-Solid-900.otf" />		
 	</ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="akgul.Maui.DataGrid" Version="4.0.6" />
+	<ItemGroup>		
 		<PackageReference Include="CommunityToolkit.Maui" Version="12.2.0" />
 		<PackageReference Include="CommunityToolkit.Maui.Core" Version="12.2.0" />
 		<PackageReference Include="CommunityToolkit.Maui.Markup" Version="6.0.1" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.8" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.100" />
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.100" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.8" />
 		
 		<PackageReference Include="M.BindableProperty.Generator" Version="0.11.1" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.100" />
+		
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="ReactiveUI.Fody" Version="19.5.41" />
 		<PackageReference Include="RestSharp" Version="112.1.0" />
@@ -188,5 +188,4 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>	  
 	</ItemGroup>
-
 </Project>

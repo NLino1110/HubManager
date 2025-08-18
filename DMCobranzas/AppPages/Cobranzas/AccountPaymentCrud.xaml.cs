@@ -18,6 +18,7 @@ using System.Windows.Input;
 using Microsoft.Maui.Controls.Internals;
 using System.Data.Common;
 using DMSA.Models.Odoo.DMCobranzas;
+using CommunityToolkit.Maui.Extensions;
 
 namespace DMCobranzas.Controls.Modals;
 

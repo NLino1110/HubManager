@@ -736,13 +736,13 @@ public partial class AccountMoveSendView : ContentPage
 
         resultPopupSelectInvoice.CanBeDismissedByTappingOutsideOfPopup = false;
 
-        var result = await this.ShowPopupAsync(resultPopupSelectInvoice);
-        if (result != null)
-        {
-            var resPartner = (res_partner)result;
-            txtCliente.Text = resPartner.id.ToString() + " - " + resPartner.name;
-            Sel_Res_Partner = resPartner;
-        }
+        //var result = await this.ShowPopupAsync(resultPopupSelectInvoice);
+        //if (result != null)
+        //{
+        //    var resPartner = (res_partner)result;
+        //    txtCliente.Text = resPartner.id.ToString() + " - " + resPartner.name;
+        //    Sel_Res_Partner = resPartner;
+        //}
     }
 
     //async void ResultPopupAccountMove(object sender, EventArgs e)

@@ -187,10 +187,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="CommunityToolkit.Maui" Version="8.0.1" />
-		<PackageReference Include="CommunityToolkit.Maui.Core" Version="8.0.1" />
-		<PackageReference Include="CommunityToolkit.Maui.Markup" Version="3.2.0" />
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+		<PackageReference Include="CommunityToolkit.Maui" Version="12.2.0" />
+		<PackageReference Include="CommunityToolkit.Maui.Core" Version="12.2.0" />
+		<PackageReference Include="CommunityToolkit.Maui.Markup" Version="6.0.1" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="Fluid.Core" Version="2.11.1" />
 		<PackageReference Include="Microsoft.AppCenter" Version="5.0.5" />
 		<PackageReference Include="Microsoft.AppCenter.Analytics" Version="5.0.5" />
@@ -268,9 +268,6 @@
 	  <Compile Update="Controls\ReturnResultPopup.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="Controls\Obsolete\PopupSearchInvoice.xaml.cs">
-	    <DependentUpon>PopupSearchInvoice.xaml</DependentUpon>
-	  </Compile>
 	  <Compile Update="Controls\ReturnResultPopupSearch.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
@@ -345,9 +342,6 @@
 	  <MauiXaml Update="Controls\ReturnResultPopup.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Controls\Obsolete\PopupSearchInvoice.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
 	  <MauiXaml Update="Controls\ReturnResultPopupSearch.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -364,8 +358,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.100" />
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.100" />
 		<!--<PackageReference Include="Microsoft.Maui.Essentials" Version="$(MauiVersion)" />-->
 	</ItemGroup>
 

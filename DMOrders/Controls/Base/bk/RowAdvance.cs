@@ -1,7 +1,11 @@
 ﻿using System;
-using Microsoft.Maui.Controls;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace DMOrders.Controls.Base
+namespace DMOrders.Controls.Base.Bk
 {
     public class RowAdvance<T> : Row<T> where T : class
     {
@@ -22,17 +26,22 @@ namespace DMOrders.Controls.Base
         private static void OnTemplateBuilderChanged(BindableObject bindable, object oldValue, object newValue)
         {
             if (bindable is RowAdvance<T> row)
+            {
                 row.RebuildLayout();
+            }
         }
 
         protected override void BuildLeftGridContent(Grid leftGrid)
         {
             leftGrid.Children.Clear();
+
             if (Item != null && TemplateBuilder != null)
             {
                 var customView = TemplateBuilder.Invoke(Item);
                 if (customView != null)
+                {
                     AddCell(customView, region: "left", row: 0, column: 0);
+                }
             }
         }
 
@@ -45,7 +54,9 @@ namespace DMOrders.Controls.Base
         private void RebuildLayout()
         {
             if (Item != null)
+            {
                 BuildLeftGridContent(LeftGrid);
+            }
         }
     }
 }

@@ -23,7 +23,7 @@ using Microsoft.Maui.Layouts;
 
 namespace DMCobranzas.Controls
 {
-    public class PopupSelectInvoice : PopupSelectBase
+    public class PopupSelectInvoice : PopupSelectBase<account_move>
     {
         public res_company Company { get; set; }
         //Origen de datos
@@ -175,7 +175,7 @@ namespace DMCobranzas.Controls
                     await App.Current.MainPage.DisplayAlert("Clientes",
                                         $"Se requiere que se especifique la compañia para poder realizar la búsqueda de clientes.",
                                         "Continuar");
-                    Close(null);
+                    await CloseAsync();
                     return;
                 }
 
@@ -204,9 +204,9 @@ namespace DMCobranzas.Controls
 
         private async void SelectListItem(object objItem)
         {            
-            if (objItem != null)
+            if (objItem is account_move)
             {
-                Close(objItem);
+                await CloseAsync(objItem);
             }
             else
             {

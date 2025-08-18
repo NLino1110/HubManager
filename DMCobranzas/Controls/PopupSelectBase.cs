@@ -19,14 +19,12 @@ using CommunityToolkit.Maui.Markup;
 
 namespace DMCobranzas.Controls
 {
-    public class PopupSelectBase : Popup, INotifyPropertyChanged
+    public class PopupSelectBase<T> : Popup<T>, INotifyPropertyChanged
     {
         protected static Grid scrollGridContent { get; set; }
         private AbsoluteLayout _layoutLoading { get; set; }
 
         private SearchBar _searchBar { get; set; }
-
-        public Microsoft.Maui.Controls.Switch _switchWithCredit;
 
         public StackLayout _stackLayoutTop;
         public Label _labelOverTitle;
@@ -57,7 +55,7 @@ namespace DMCobranzas.Controls
 
         double lastParentHeight = 0;
         double lastParentWidth = 0;
-        public EventHandler popupSizeChanged {  get; set; }
+        public EventHandler popupSizeChanged { get; set; }
 
         //Eventos para clases heredadas
         public EventHandler _LaunchSearchEvent { get; set; }
@@ -69,7 +67,7 @@ namespace DMCobranzas.Controls
         //Propiedades para clases heredadas
         public string Title { get; set; }
         public string Subtitle { get; set; }
-        public static string DataField {  get; set; } = "id, name";
+        public static string DataField { get; set; } = "id, name";
         public string TextForSearch { get; set; }
 
         //public bool ShowTextSearch { get; set; } = true;
@@ -93,7 +91,7 @@ namespace DMCobranzas.Controls
         public static readonly BindableProperty ShowTextSearchProperty =
             BindableProperty.Create(nameof(ShowTextSearch),
                 typeof(bool), //Clase de datos auxiliar
-                typeof(PopupSelectBase), //Clase contenedora
+                typeof(PopupSelectBase<T>), //Clase contenedora
                 true);
 
         public bool ShowTextSearch
@@ -105,7 +103,7 @@ namespace DMCobranzas.Controls
         public static readonly BindableProperty ShowToolBoxProperty =
             BindableProperty.Create(nameof(ShowToolBox),
                 typeof(bool),
-                typeof(PopupSelectBase),
+                typeof(PopupSelectBase<T>),
                 true);
 
         public bool ShowToolBox
@@ -117,7 +115,7 @@ namespace DMCobranzas.Controls
         public static readonly BindableProperty ContentCustomToolBoxProperty =
             BindableProperty.Create(nameof(ContentCustomToolBox),
                 typeof(ContentView),
-                typeof(PopupSelectBase));
+                typeof(PopupSelectBase<T>));
 
         public ContentView ContentCustomToolBox
         {
@@ -130,10 +128,10 @@ namespace DMCobranzas.Controls
             PopupSelectBaseBuild(popupSizeConstants);
         }
 
-        public PopupSelectBase(PopupSizeConstants popupSizeConstants, 
+        public PopupSelectBase(PopupSizeConstants popupSizeConstants,
             bool renderCustomDataTemplate)
-            //ContentView cvCustomDataTemplate,
-            //Func<ContentView> _CustomDataTemplateFuncParam)
+        //ContentView cvCustomDataTemplate,
+        //Func<ContentView> _CustomDataTemplateFuncParam)
         {
             _renderCustomDataTemplate = renderCustomDataTemplate;
             //CustomDataTemplate = cvCustomDataTemplate;
@@ -144,12 +142,12 @@ namespace DMCobranzas.Controls
         public void PopupSelectBaseBuild(PopupSizeConstants popupSizeConstants) //, bool renderCustomDataTemplate)
         {
             popupSizeConstants.CalculateSizes(DeviceDisplay.Current);
-            Size = popupSizeConstants.Large;
-            Color = _colorMain;
-            
+            DesiredSize = popupSizeConstants.Large;
+            BackgroundColor = _colorMain;
+
             // Agregar componentes al Grid
             var gridContent = new Grid
-            {                
+            {
                 RowDefinitions =
                 {
                     new RowDefinition { Height = GridLength.Auto },
@@ -175,12 +173,12 @@ namespace DMCobranzas.Controls
             gridContent.VerticalOptions = LayoutOptions.Fill;
             gridContent.HorizontalOptions = LayoutOptions.Fill;
 
-            gridContent.Padding = new Thickness(2,2,2,2);
-                      
+            gridContent.Padding = new Thickness(2, 2, 2, 2);
+
             BuildTop(gridContent);
 
             BuildBody(gridContent);
-            
+
             BuildFooter(gridContent);
 
             Content = gridContent;
@@ -200,7 +198,7 @@ namespace DMCobranzas.Controls
                 {
                     if (((ContentPage)Parent).Height != lastParentHeight)
                     {
-                        if(lastParentHeight > 0)
+                        if (lastParentHeight > 0)
                         {
                             //Lanzar evento de Giro
                             popupSizeChanged(this, EventArgs.Empty);
@@ -217,10 +215,10 @@ namespace DMCobranzas.Controls
         private void OnPageSizeChanged(object sender, EventArgs e)
         {
             var popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
-            Size = popupSizeConstants.Large;
+            DesiredSize = popupSizeConstants.Large;
 
             var orientation = DeviceDisplay.MainDisplayInfo.Orientation;
-            if(orientation == DisplayOrientation.Portrait)
+            if (orientation == DisplayOrientation.Portrait)
             {
                 //FlexLayout.SetOrder(_btnClose, 2);
                 _btnClose.IsVisible = false;
@@ -230,7 +228,7 @@ namespace DMCobranzas.Controls
                 FlexLayout.SetOrder(_btnClose, 4);
                 _btnClose.IsVisible = true;
             }
-            
+
             //var width = this.Width;
             //var height = this.Height;
             // Realiza acciones basadas en el cambio de tamaño de la página aquí
@@ -254,12 +252,12 @@ namespace DMCobranzas.Controls
         }
 
         public virtual void SetDataFields(string Fields)
-        {            
+        {
             //Debug.WriteLine("CARGANDO CAMPOS!");
             scrollGridContent.Children.Clear();
             //scrollGridContent.HorizontalOptions = LayoutOptions.Fill;
             //scrollGridContent.BackgroundColor = Colors.WhiteSmoke;
-            
+
             var fieldsItems = Fields.Split(",");
 
             for (int i = 0; i < fieldsItems.Length; i++)
@@ -278,7 +276,7 @@ namespace DMCobranzas.Controls
 
             Button btnSelectSwipeWindows = new Button
             {
-                CornerRadius = 0,                
+                CornerRadius = 0,
                 Command = CommandSelectListItem,
                 BackgroundColor = Colors.DeepSkyBlue,
                 Text = "",
@@ -302,7 +300,7 @@ namespace DMCobranzas.Controls
             scrollGridContent.Add(stackLayout, 6, 0);
             Grid.SetRow(stackLayout, 0);
             Grid.SetColumn(stackLayout, 6);
-        }        
+        }
 
         async void _searchBar_BeginSearchBase(object sender, EventArgs e)
         {
@@ -365,7 +363,7 @@ namespace DMCobranzas.Controls
                 Wrap = Microsoft.Maui.Layouts.FlexWrap.Wrap,
                 //HeightRequest = 100,
             };
-            
+
             _searchBar = new SearchBar
             {
                 Placeholder = "",
@@ -374,7 +372,7 @@ namespace DMCobranzas.Controls
                 VerticalOptions = LayoutOptions.Center,
                 //MinimumWidthRequest = 250,
                 //HeightRequest = 50,
-                BackgroundColor = new Color(230,230,230),
+                BackgroundColor = new Color(230, 230, 230),
                 //MaxLength = 250,
             };
 
@@ -399,25 +397,7 @@ namespace DMCobranzas.Controls
                 //BackgroundColor = Colors.GhostWhite
             };
 
-            Label _labelWithCredit = new Label
-            {
-                Text = "Saldos > 0",
-                Margin = new Thickness(0, 0, 0, 0),
-                FontAttributes = FontAttributes.Bold,
-                VerticalOptions = LayoutOptions.Center,
-            };
-
-            _switchWithCredit = new Microsoft.Maui.Controls.Switch
-            {
-                //Text = "Aceptar términos y condiciones"
-                Margin = new Thickness(5, 0, 0, 3),                
-                ThumbColor = Colors.White,
-                OnColor = Colors.LimeGreen,
-                VerticalOptions = LayoutOptions.Center,
-            };
-
-            _stackLayoutToolBox1.Children.Add(_labelWithCredit);
-            _stackLayoutToolBox1.Children.Add(_switchWithCredit);
+            //_stackLayoutToolBox1.Children.Add(_switchWithCredit);
 
             _labelOverTitle = new Label
             {
@@ -427,7 +407,7 @@ namespace DMCobranzas.Controls
                 FontSize = 13,
                 TextColor = Colors.SeaGreen,
             };
-            
+
             _labelTitle = new Label
             {
                 Text = Title,
@@ -452,7 +432,7 @@ namespace DMCobranzas.Controls
                 },
                 CornerRadius = 0,
                 ContentLayout = new Button.ButtonContentLayout(Button.ButtonContentLayout.ImagePosition.Left, 0),
-                VerticalOptions = LayoutOptions.Start,                
+                VerticalOptions = LayoutOptions.Start,
             };
 
             Button _btnBack = new Button
@@ -481,7 +461,7 @@ namespace DMCobranzas.Controls
 
             var _stackLayoutButtonTop = new StackLayout
             {
-                Margin = new Thickness(2,0,2,0),
+                Margin = new Thickness(2, 0, 2, 0),
                 Orientation = StackOrientation.Vertical,
                 HorizontalOptions = LayoutOptions.Start,
                 VerticalOptions = LayoutOptions.Center,
@@ -490,12 +470,12 @@ namespace DMCobranzas.Controls
             };
 
             _stackLayoutButtonTop.Children.Add(_btnBack);
-            
+
             //FlexLayout.SetGrow(_stackLayoutButtonTop, 1);
             FlexLayout.SetOrder(_stackLayoutButtonTop, 1);
             //FlexLayout.SetAlignSelf(_btnBack, FlexAlignSelf.Center);
             flexTop.Children.Add(_stackLayoutButtonTop);
-            
+
             var _stackLayoutLabels = new StackLayout
             {
                 Margin = new Thickness(2, 0, 2, 0),
@@ -508,7 +488,7 @@ namespace DMCobranzas.Controls
 
             //FlexLayout.SetGrow(_stackLayoutLabels, 1);
             _stackLayoutLabels.Children.Add(_labelTitle);
-            _stackLayoutLabels.Children.Add(_labelOverTitle);            
+            _stackLayoutLabels.Children.Add(_labelOverTitle);
 
             flexTop.Children.Add(_stackLayoutLabels);
             //FlexLayout.SetGrow(_stackLayoutLabels, 1);
@@ -531,9 +511,9 @@ namespace DMCobranzas.Controls
                 },
                 Content = _searchBar
             };
-                        
+
             FlexLayout.SetOrder(border, 3);
-            
+
             bool isWindows = DeviceInfo.Current.Platform == DevicePlatform.WinUI;
 
             if (isWindows)
@@ -542,7 +522,7 @@ namespace DMCobranzas.Controls
                 FlexLayout.SetGrow(border, 1);
                 FlexLayout.SetAlignSelf(border, FlexAlignSelf.Center);
             }
-            
+
             FlexLayout.SetShrink(border, 0);
             flexTop.Children.Add(border);
 
@@ -638,7 +618,7 @@ namespace DMCobranzas.Controls
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 13,
                 TextColor = Colors.DarkGray,
-                HorizontalOptions= LayoutOptions.End,
+                HorizontalOptions = LayoutOptions.End,
                 Margin = new Thickness(0, 0, 5, 0),
             };
 
@@ -670,7 +650,7 @@ namespace DMCobranzas.Controls
                     new ColumnDefinition { Width = GridLength.Star },
                     new ColumnDefinition { Width = GridLength.Star },
                     new ColumnDefinition { Width = GridLength.Auto },
-                },                
+                },
             };
 
             gridBottom.Children.Add(_btnSave);
@@ -707,7 +687,7 @@ namespace DMCobranzas.Controls
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
-            
+
             lblColumnItem.SetBinding(Label.TextProperty, new Binding(ColName));
 
             var label1 = new Label
@@ -721,7 +701,7 @@ namespace DMCobranzas.Controls
             Grid.SetRow(lblColumnItem, 0);
             Grid.SetColumn(lblColumnItem, ColIndex);
         }
-        
+
         private CollectionView builCollectionViewModern()
         {
             return new CollectionView
@@ -804,7 +784,7 @@ namespace DMCobranzas.Controls
                 })
             };
         }
-        
+
         public virtual CollectionView builCollectionViewCustom()
         {
             //Se requiere implementar en la clase que hereda
@@ -831,7 +811,7 @@ namespace DMCobranzas.Controls
                 //{
                 //    CustomDataTemplate = _CustomDataTemplateFunc.Invoke();
                 //}
-                
+
                 _collectionViewSearch = builCollectionViewCustom();
             }
             else
@@ -874,7 +854,7 @@ namespace DMCobranzas.Controls
             //        // Aquí puedes acceder al SwipeView y realizar operaciones
             //        // Por ejemplo, abrir el SwipeView automáticamente
             //        Debug.WriteLine(swipeView.RightItems.Count.ToString());
-                    
+
             //        swipeView.Open(OpenSwipeItem.RightItems, true);                    
             //    }
             //};
@@ -883,32 +863,32 @@ namespace DMCobranzas.Controls
         public static ICommand CommandSelectListItem { get; set; }
 
         private async void SelectListItem(object objItem)
-        {            
-            if (objItem != null)
+        {
+            if (objItem is T item) // aquí validas y conviertes
             {
-                Close(objItem);
+                await CloseAsync(item);
             }
             else
             {
-                Debug.WriteLine("Error de objeto");
+                Debug.WriteLine("Error: el objeto no es del tipo esperado.");
             }
         }
 
         private async void OnBtnSave_Clicked(object sender, EventArgs e)
         {
-            Close(null);
+            await CloseAsync(default(T));
         }
 
         private void OnBtnCancel_Clicked(object sender, EventArgs e)
         {
             // Lógica cuando se hace clic en el segundo botón
-            Close(null);
+            CloseAsync(default(T));
         }
 
         private void OnBtnClose_Clicked(object sender, EventArgs e)
         {
             // Lógica cuando se hace clic en el segundo botón
-            Close(null);
+            CloseAsync(default(T));
         }
 
         protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -917,7 +897,7 @@ namespace DMCobranzas.Controls
 
             Console.WriteLine(propertyName);
 
-            switch(propertyName)
+            switch (propertyName)
             {
                 case "ShowTextSearch":
                     {

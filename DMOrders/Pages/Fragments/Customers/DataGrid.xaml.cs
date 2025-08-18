@@ -10,7 +10,6 @@ using System.Windows.Input;
 
 namespace DMOrders.Pages.Fragments.Customers
 {
-    [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class DataGrid : ContentView
     {
         res_partner SelectedItem { get; set; }
@@ -123,34 +122,18 @@ namespace DMOrders.Pages.Fragments.Customers
 
         private async void _dataGrid1_ItemSelected(object sender, SelectionChangedEventArgs e)
         {
-            //BUG: Crash sino se hace esta validación
-            if (e.CurrentSelection.Count == 0) return;
+            Dispatcher.Dispatch(async () =>
+            {
+                //BUG: Crash sino se hace esta validación
+                if (e.CurrentSelection.Count == 0) return;
 
-            Debug.WriteLine(ViewParent);
-            Debug.WriteLine(e.ToString());
+                Debug.WriteLine(ViewParent);
+                Debug.WriteLine(e.ToString());
 
-            var customerContainer = (Customers.Container)ViewParent;
-            customerContainer.LoadInfo((res_partner)e.CurrentSelection[0]);
+                var customerContainer = (Customers.Container)ViewParent;
+                customerContainer.LoadInfo((res_partner)e.CurrentSelection[0]);
+            });           
 
-            //if (e.CurrentSelection.Count == 0) return;
-
-            //CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            //ClienteAprobacion team = (ClienteAprobacion)e.CurrentSelection[0];
-
-            //string text = "Seleccionado: " + team.NOMBRESCLIENTE;
-            //ToastDuration duration = ToastDuration.Short;
-            //double fontSize = 14;
-            ////var toast = Toast.Make(text, duration, fontSize);
-            ////toast.Show(cancellationTokenSource.Token).Wait();
-
-            //ConfirmClient obj = new ConfirmClient();
-            //obj.selectedCustomer = team;
-            ////App.Current.MainPage = obj;
-            //await Navigation.PushModalAsync(obj, false);
-            ////await Task.Delay(2000);
-            ////await Navigation.PopModalAsync();
-            ////App.Current.MainPage = obj;
-            ////await Navigation.PushModalAsync(obj, true);
         }
 
         //public static T FindParentOfType<T>(Element element) where T : Element

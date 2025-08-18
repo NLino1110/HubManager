@@ -6,6 +6,7 @@ using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Maui.Sample.Models;
 using DMSA.Models.Odoo.DMCobranzas;
+using CommunityToolkit.Maui.Extensions;
 
 namespace DMCobranzas.Controls.Modals.TabbedPages;
 
@@ -686,8 +687,8 @@ public partial class AccountPaymentView : ContentPage
         //Evita que se cierre cuando se haga clic (tap) fuera de la ventana
         returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;
 
-        if (!isWindows)
-            returnResultPopup.Size = this.popupSizeConstants.Large;
+        //if (!isWindows)
+            //returnResultPopup.Size = this.popupSizeConstants.Large;
 
         var result = await PopupExtensions.ShowPopupAsync(this, returnResultPopup);
         //var result = await this.ShowPopupAsync(returnResultPopup);

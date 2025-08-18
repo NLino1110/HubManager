@@ -68,8 +68,8 @@ namespace DMCobranzas.AppPages.Sys
             //CanBeDismissedByTappingOutsideOfPopup = false;
             //PopupSizeConstants popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
             //popupSizeConstants.CalculateSizes(DeviceDisplay.Current);
-            Size = new Size(400,160); // popupSizeConstants.SmallWide;
-            Color = Colors.White;
+            DesiredSize = new Size(400,160); // popupSizeConstants.SmallWide;
+            BackgroundColor = Colors.White;
 
             imageAlert = new Image
             {
@@ -109,9 +109,9 @@ namespace DMCobranzas.AppPages.Sys
                 HorizontalOptions = LayoutOptions.FillAndExpand
             };
 
-            acceptButton.Clicked += (sender, e) => {
+            acceptButton.Clicked += async (sender, e) => {
                 //taskCompletionSource.SetResult(passwordEntry.Text);
-                Close(null);
+                await CloseAsync();
             };
 
             var cancelButton = new Button
@@ -125,15 +125,15 @@ namespace DMCobranzas.AppPages.Sys
                 IsVisible = false
             };
 
-            cancelButton.Clicked += (sender, e) => {
+            cancelButton.Clicked += async (sender, e) => {
                 //taskCompletionSource.SetResult(null);
-                Close(null);
+                await CloseAsync();
             };
 
             StackLayout stackLayout = new StackLayout
             {
-                MinimumHeightRequest = Size.Height,
-                MinimumWidthRequest= Size.Width,
+                MinimumHeightRequest = DesiredSize.Height,
+                MinimumWidthRequest= DesiredSize.Width,
                 HorizontalOptions = LayoutOptions.FillAndExpand,
                 VerticalOptions = LayoutOptions.FillAndExpand,
                 Padding = new Thickness(0),
@@ -168,7 +168,7 @@ namespace DMCobranzas.AppPages.Sys
             };
             
             Content = frameContent;
-            Color = Colors.Transparent;
+            BackgroundColor = Colors.Transparent;
             //passwordEntry.Focus();            
         }
 
@@ -432,17 +432,17 @@ namespace DMCobranzas.AppPages.Sys
 
         private async void OnBtnSave_Clicked(object sender, EventArgs e)
         {
-            Close(null);
+            await CloseAsync();
         }
 
-        private void OnBtnCancel_Clicked(object sender, EventArgs e)
-        {            
-            Close(null);
+        private async void OnBtnCancel_Clicked(object sender, EventArgs e)
+        {
+            await CloseAsync();
         }
 
-        private void OnBtnClose_Clicked(object sender, EventArgs e)
-        {            
-            Close(null);
+        private async void OnBtnClose_Clicked(object sender, EventArgs e)
+        {
+            await CloseAsync();
         }
 
         protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)

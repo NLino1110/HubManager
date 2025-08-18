@@ -23,6 +23,7 @@ using System.Windows.Input;
 using static System.Net.Mime.MediaTypeNames;
 using Fluid;
 using DMSA.Models.Odoo.DMCobranzas;
+using CommunityToolkit.Maui.Extensions;
 
 namespace DMCobranzas.AppPages.NotaCredito;
 
@@ -484,7 +485,7 @@ public partial class AccountMoveSendProdCrud : ContentPage
         default_empresa = empresa;
 
         var simplePopup = new PopupLoadingTask(popupSizeConstants);
-        simplePopup.Size = popupSizeConstants.Small;
+        //simplePopup.Size = popupSizeConstants.Small;
         simplePopup.CanBeDismissedByTappingOutsideOfPopup = false;
         this.ShowPopup(simplePopup);
 

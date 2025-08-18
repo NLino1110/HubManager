@@ -1,18 +1,17 @@
 ﻿using CommunityToolkit.Maui.Behaviors;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Controls.Shapes;
-using Microsoft.Maui.Graphics;
 using System.Diagnostics;
 using System.Windows.Input;
 
-namespace DMOrders.Controls.CustomRows
+namespace DMOrders.Controls.Base.Bk
 {
-    [Obsolete("Debe ser eliminado, ahora se usa Base.Row")]
-    public class BaseRow<T> : ContentView where T : class
+    public class Row<T> : ContentView where T : class
     {
         // Bindable Properties
+        //public static readonly BindableProperty ItemProperty =
+        //    BindableProperty.Create(nameof(Item), typeof(T), typeof(Row<T>), propertyChanged: OnItemChanged);
+
         public static readonly BindableProperty ItemProperty =
-            BindableProperty.Create(nameof(Item), typeof(T), typeof(BaseRow<T>), propertyChanged: OnItemChanged);
+            BindableProperty.Create(nameof(Item), typeof(T), typeof(Row<T>));
 
         public T Item
         {
@@ -20,8 +19,11 @@ namespace DMOrders.Controls.CustomRows
             set => SetValue(ItemProperty, value);
         }
 
+        //public static readonly BindableProperty SelectedItemProperty =
+        //    BindableProperty.Create(nameof(SelectedItem), typeof(T), typeof(Row<T>), propertyChanged: OnSelectedItemChanged);
+
         public static readonly BindableProperty SelectedItemProperty =
-            BindableProperty.Create(nameof(SelectedItem), typeof(T), typeof(BaseRow<T>), propertyChanged: OnSelectedItemChanged);
+            BindableProperty.Create(nameof(SelectedItem), typeof(T), typeof(Row<T>));
 
         public T SelectedItem
         {
@@ -29,8 +31,11 @@ namespace DMOrders.Controls.CustomRows
             set => SetValue(SelectedItemProperty, value);
         }
 
+        //public static readonly BindableProperty IsSelectedProperty =
+        //    BindableProperty.Create(nameof(IsSelected), typeof(bool), typeof(Row<T>), false, propertyChanged: OnIsSelectedChanged);
+
         public static readonly BindableProperty IsSelectedProperty =
-            BindableProperty.Create(nameof(IsSelected), typeof(bool), typeof(BaseRow<T>), false, propertyChanged: OnIsSelectedChanged);
+            BindableProperty.Create(nameof(IsSelected), typeof(bool), typeof(Row<T>), false);
 
         public bool IsSelected
         {
@@ -39,7 +44,7 @@ namespace DMOrders.Controls.CustomRows
         }
 
         public static readonly BindableProperty LongPressCommandProperty =
-            BindableProperty.Create(nameof(LongPressCommand), typeof(ICommand), typeof(BaseRow<T>));
+            BindableProperty.Create(nameof(LongPressCommand), typeof(ICommand), typeof(Row<T>));
 
         public ICommand LongPressCommand
         {
@@ -48,7 +53,7 @@ namespace DMOrders.Controls.CustomRows
         }
 
         public static readonly BindableProperty TapCommandProperty =
-            BindableProperty.Create(nameof(TapCommand), typeof(ICommand), typeof(BaseRow<T>));
+            BindableProperty.Create(nameof(TapCommand), typeof(ICommand), typeof(Row<T>));
 
         public ICommand TapCommand
         {
@@ -59,31 +64,38 @@ namespace DMOrders.Controls.CustomRows
         // Layout elements
         protected Grid LeftGrid { get; private set; }
         protected Grid ToolGrid { get; private set; }
-        private Border _mainBorder;
+        //private Border _mainBorder;
+        GraphicsView _mainBorder;
 
-        public BaseRow()
+        public Row()
         {
             BuildLayout();
 
-            SetupGestures();
+            //SetupGestures();
 
             // Default LongPressCommand example (can be overwritten)
-            LongPressCommand = new Command(() =>
-            {
-                Debug.WriteLine("Long press detected");
-            });
+            //LongPressCommand = new Command(() =>
+            //{
+            //    Debug.WriteLine("Long press detected");
+            //});
         }
 
         private void BuildLayout()
         {
-            _mainBorder = new Border
+            //_mainBorder = new Border
+            //{
+            //    Stroke = Colors.LightGray,
+            //    StrokeThickness = 0.5,
+            //    Padding = new Thickness(2),
+            //    Margin = new Thickness(0),
+            //    BackgroundColor = Colors.Transparent,
+            //    MinimumHeightRequest = 30,
+            //};
+
+            var _mainBorder = new GraphicsView
             {
-                Stroke = Colors.LightGray,
-                StrokeThickness = 0.5,
-                Padding = new Thickness(2),
-                Margin = new Thickness(0),
-                BackgroundColor = Colors.Transparent,
-                MinimumHeightRequest = 30,
+                Drawable = new CustomBorderDrawable(),
+                InputTransparent = true // ← importante: para que no bloquee los toques del contenido
             };
 
             var rootGrid = new Grid
@@ -117,12 +129,6 @@ namespace DMOrders.Controls.CustomRows
                 ColumnDefinitions =
                 {
                     new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = new GridLength(1) }, // Separator
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Auto }
                 }
             };
 
@@ -150,14 +156,16 @@ namespace DMOrders.Controls.CustomRows
             Grid.SetRow(ToolGrid, 0);
             Grid.SetColumn(ToolGrid, 1);
 
-            _mainBorder.Content = rootGrid;
-            Content = _mainBorder;
+            //_mainBorder.Content = rootGrid;
+            rootGrid.Children.Add(_mainBorder);
+            Content = rootGrid;
 
             // Build content in grids (can be overridden)
             BuildLeftGridContent(LeftGrid);
             BuildToolGridContent(ToolGrid);
         }
 
+        [Obsolete("Debe ser eliminado u optimizado")]
         public View CreateCell(
                 View content,
                 Thickness? padding = null,
@@ -166,19 +174,7 @@ namespace DMOrders.Controls.CustomRows
                 float cornerRadius = 4,
                 Color? backgroundColor = null)
         {
-            return new Border
-            {
-                Stroke = strokeColor ?? Colors.LightGray,
-                StrokeThickness = strokeThickness,
-                BackgroundColor = backgroundColor ?? Colors.Transparent,
-                Padding = padding ?? new Thickness(0),
-                Margin = new Thickness(0, 0),
-                //StrokeShape = new RoundRectangle
-                //{
-                //    CornerRadius = new CornerRadius(cornerRadius)
-                //},
-                Content = content
-            };
+            return content;           
         }
 
         public void AddCell(View cell, string region = "left", int row = 0, int column = 0)
@@ -234,15 +230,15 @@ namespace DMOrders.Controls.CustomRows
 
         private static void OnItemChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is BaseRow<T> row)
-            {
-                row.UpdateSelectionVisual();
-            }
+            //if (bindable is Row<T> row)
+            //{
+            //    row.UpdateSelectionVisual();
+            //}
         }
 
         private static void OnSelectedItemChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is BaseRow<T> row)
+            if (bindable is Row<T> row)
             {
                 row.UpdateSelectionVisual();
             }
@@ -250,17 +246,31 @@ namespace DMOrders.Controls.CustomRows
 
         private static void OnIsSelectedChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is BaseRow<T> row)
+            if (bindable is Row<T> row)
             {
                 row.UpdateSelectionVisual();
             }
         }
+        
 
-        protected virtual void UpdateSelectionVisual()
+        protected override void OnBindingContextChanged()
         {
-            IsSelected = Item != null && Item.Equals(SelectedItem);
+            base.OnBindingContextChanged();
+            UpdateSelectionVisual();
+        }
 
-            this.BackgroundColor = IsSelected ? Colors.LightBlue : Colors.Transparent;
+        //protected virtual void UpdateSelectionVisual()
+        //{
+        //    IsSelected = Item != null && Item.Equals(SelectedItem);
+
+        //    this.BackgroundColor = IsSelected ? Colors.LightBlue : Colors.Transparent;
+        //}
+
+        protected void UpdateSelectionVisual()
+        {
+            var selectedItem = ((CollectionView)Parent)?.SelectedItem;
+            bool selected = Item != null && Item.Equals(selectedItem);
+            //_borderFrame.BackgroundColor = selected ? Colors.LightBlue : Colors.Transparent;
         }
     }
 }

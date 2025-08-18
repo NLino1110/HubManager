@@ -768,7 +768,8 @@ namespace ResourceBuilder.Services.Sales
                 {
                     //restanteArt--;
                     //precio = (double) fbxa.Precio;
-                    
+                    if (fbxa.CodEstado != 1) continue;
+
                     precioConDescuento = precio - (precio * ((double)fbxa.PorcDescuento / 100));
 
                     PrecioDTO price = new PrecioDTO
@@ -783,9 +784,9 @@ namespace ResourceBuilder.Services.Sales
                         Type = "discount",
                         Minimum = (double)fbxa.MinimoAplicaDscto,
                         Value = precioConDescuento,
-                        Start = parametros.date_start.ToString("yyyy-MM-ddT00:00:00"),
-                        End = parametros.date_end.ToString("yyyy-MM-ddTHH:mm:ss"),
-                        Status = fbxa.CodEstado == 1 //GenestadosDAOEXT.ESTADO_ACTIVO
+                        Start = fbxa.FechaInicio.ToString("yyyy-MM-ddT00:00:00"), //parametros.date_start.ToString("yyyy-MM-ddT00:00:00"),
+                        End = fbxa.FechaFin.ToString("yyyy-MM-ddT23:59:59"),//parametros.date_end.ToString("yyyy-MM-ddTHH:mm:ss"),
+                        Status = true //fbxa.CodEstado == 1 //GenestadosDAOEXT.ESTADO_ACTIVO
                     };
 
                     prices.Add(price);

@@ -74,7 +74,7 @@ namespace DMOrders.Controls
                             Source = collectionView,
                             Mode = BindingMode.TwoWay
                         };
-                        row.SetBinding(ProductCategoryRow.SelectedItemProperty, selectedItemBinding);
+                        //row.SetBinding(ProductCategoryRow.SelectedItemProperty, selectedItemBinding);
                     }
                 };
 

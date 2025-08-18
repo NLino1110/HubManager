@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 
 namespace DMCobranzas.AppPages.Sys
 {
-    public partial class PasswordPromptPage : Popup, INotifyPropertyChanged
+    public partial class PasswordPromptPage : Popup<string>, INotifyPropertyChanged
     {
         private Label passwordLabel {  get; set; }
 
@@ -36,8 +36,8 @@ namespace DMCobranzas.AppPages.Sys
             //CanBeDismissedByTappingOutsideOfPopup = false;
             //PopupSizeConstants popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
             //popupSizeConstants.CalculateSizes(DeviceDisplay.Current);
-            Size = new Size(350,150); // popupSizeConstants.SmallWide;
-            Color = Colors.White;
+            DesiredSize = new Size(350,150); // popupSizeConstants.SmallWide;
+            BackgroundColor = Colors.White;
 
             //TaskCompletionSource<string> taskCompletionSource = new TaskCompletionSource<string>();
             passwordLabel = new Label
@@ -65,9 +65,9 @@ namespace DMCobranzas.AppPages.Sys
                 HorizontalOptions = LayoutOptions.FillAndExpand
             };
 
-            acceptButton.Clicked += (sender, e) => {
+            acceptButton.Clicked += async (sender, e) => {
                 //taskCompletionSource.SetResult(passwordEntry.Text);                
-                Close(passwordEntry.Text);
+                await CloseAsync(passwordEntry.Text);
             };
 
             var cancelButton = new Button
@@ -80,9 +80,9 @@ namespace DMCobranzas.AppPages.Sys
                 HorizontalOptions = LayoutOptions.FillAndExpand
             };
 
-            cancelButton.Clicked += (sender, e) => {
+            cancelButton.Clicked += async (sender, e) => {
                 //taskCompletionSource.SetResult(null);
-                Close(null);
+                await CloseAsync(default(string));
             };
 
             StackLayout stackLayout = new StackLayout
@@ -116,7 +116,7 @@ namespace DMCobranzas.AppPages.Sys
             };
             
             Content = frameContent;
-            Color = Colors.Transparent;
+            BackgroundColor = Colors.Transparent;
             //passwordEntry.Focus();            
         }
 

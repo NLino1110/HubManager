@@ -7,7 +7,8 @@
              xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
              xmlns:converters="clr-namespace:DMOrders.Converters"
              xmlns:customrows="clr-namespace:DMOrders.Controls.CustomRows"
-             x:Class="DMOrders.Pages.Fragments.Customers.DataGrid">
+             x:Class="DMOrders.Pages.Fragments.Customers.DataGrid"                                     
+             x:DataType="vm:ViewModel">
 
     <Grid RowDefinitions="*,Auto">
         <!--<Grid.Behaviors>
@@ -28,7 +29,8 @@
                         EmptyView="...."                        
                         HorizontalOptions="Fill" 
                         SelectionMode="Single"
-                        SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
+                        SelectedItem="{Binding SelectedItem, Mode=OneWay}"
+                        SelectionChanged="_dataGrid1_ItemSelected">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <customrows:ResPartnerRow

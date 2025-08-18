@@ -33,7 +33,7 @@ namespace DMOrders.Controls.CustomRows
         {
             //WidthRequest = 160;
             //HeightRequest = 120;
-            BackgroundColor = Colors.Red;
+            //BackgroundColor = Colors.AliceBlue;
         }
 
         protected override void BuildLeftGridContent(Grid leftGrid)
