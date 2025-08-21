@@ -153,7 +153,7 @@
                                 x:Name="BtnTryLogin"
                                 Text="Iniciar sesión"
                                 SemanticProperties.Hint="Iniciar sesión"
-                                Clicked="TryLogin"
+                                Clicked="OnLoginClicked"
                                 WidthRequest="250"
                                 
                                 HorizontalOptions="Center"
@@ -163,8 +163,7 @@
                             </HorizontalStackLayout>
                         </VerticalStackLayout>
 
-                        <Label 
-        Text="Todos los derechos reservados &#169; D'Mujeres S.A. 2023"
+                        <Label Text="Todos los derechos reservados &#169; D'Mujeres S.A. 2023"
             FontSize="11"
         VerticalOptions="Center" 
         HorizontalOptions="Center"

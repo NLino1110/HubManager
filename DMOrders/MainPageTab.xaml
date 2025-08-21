@@ -27,7 +27,11 @@
     <Grid>
         <!-- Contenido principal -->
 
-        <material:TabView x:Name="tabViewMain" VerticalOptions="Fill" HorizontalOptions="Fill" Margin="0,0,0,30">
+        <material:TabView x:Name="tabViewMain" 
+                          VerticalOptions="Fill" 
+                          HorizontalOptions="Fill" 
+                          Margin="0,0,0,30" 
+                          CachingStrategy="CacheOnLayout">
                 <!--<material:TabItem Title="Custom Tab One">
                     <material:TabItem.HeaderTemplate>
                         <DataTemplate>
@@ -63,26 +67,29 @@
 
                 <material:TabItem Title="Clientes">
                     <material:TabItem.Content>
-                        <pagesCustomer:Container x:Name="tabCustomers"></pagesCustomer:Container>                            
+                        <pagesCustomer:Container x:Name="tabCustomers"></pagesCustomer:Container>
                     </material:TabItem.Content>
                 </material:TabItem>
 
                 <material:TabItem Title="Artículos">
                     <material:TabItem.Content>
                         <pagesProducts:Container x:Name="tabProducts"></pagesProducts:Container>
+                    <!--<Label>Hola</Label>-->
                     </material:TabItem.Content>
                 </material:TabItem>
 
                 <material:TabItem Title="Pedidos">
                     <material:TabItem.Content>
                         <pagesOrders:Container x:Name="tabOrders"></pagesOrders:Container>
-                    </material:TabItem.Content>
+                    <!--<Label>Hola</Label>-->
+                </material:TabItem.Content>
                 </material:TabItem>
 
                 <material:TabItem Title="Actividades">
                     <material:TabItem.Content>
                         <pagesActivities:Container x:Name="tabActivities"></pagesActivities:Container>
-                    </material:TabItem.Content>
+                    <!--<Label>Hola</Label>-->
+                </material:TabItem.Content>
                 </material:TabItem>
             </material:TabView>
         

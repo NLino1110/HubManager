@@ -1,4 +1,4 @@
-using CommunityToolkit.Maui.Alerts;
+ï»¿using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using DMOrders.Services.Database.Sqlite;
 using DMOrders.Services.Helpers;
@@ -12,11 +12,15 @@ using System.Diagnostics;
 using System.Timers;
 using UraniumUI.Dialogs;
 using DMOrders.Pages.Sys;
+using System.Collections.ObjectModel;
 
 namespace DMOrders;
 
 public partial class Login : ContentPage
 {
+    public ObservableCollection<res_company> Companies { get; set; } = new();
+    public ObservableCollection<res_center> Agencies { get; set; } = new();
+
     public IDialogService DialogService { get; }
 
     private int _tapCount = 0;
@@ -58,11 +62,11 @@ public partial class Login : ContentPage
 
             txtEnvironment.Text = "Desarrollo";
 
-            lblAppVersion.Text = "Versión " + App.Session.AppVersion;
+            lblAppVersion.Text = "VersiÃ³n " + App.Session.AppVersion;
 
             if (App.Session.isProduction)
             {
-                txtEnvironment.Text = "Producción";
+                txtEnvironment.Text = "ProducciÃ³n";
             }
             else
             {
@@ -82,8 +86,13 @@ public partial class Login : ContentPage
 
             if (App.Session.useOfflineMode)
             {
-                await Toast.Make("Se usará modo modo offline.").Show();
+                await Toast.Make("Se usarÃ¡ modo modo offline.").Show();
             }
+
+            //ddCompany.ItemsSource = companies;
+            //ddAgency.ItemsSource = storesItems;
+            //ddCompany.ItemDisplayBinding = new Binding("name");
+            //ddAgency.ItemDisplayBinding = new Binding("name");
         });
 
         Application.Current.UserAppTheme = AppTheme.Light;
@@ -110,7 +119,7 @@ public partial class Login : ContentPage
 
         _timer = new System.Timers.Timer(TimeToReset);
         _timer.Elapsed += OnTimerElapsed;
-        _timer.AutoReset = false; // Para que el timer no se reinicie automáticamente
+        _timer.AutoReset = false; // Para que el timer no se reinicie automÃ¡ticamente
     }
 
     private void OnLabelTapped(object sender, EventArgs e)
@@ -127,7 +136,7 @@ public partial class Login : ContentPage
         }
         else
         {
-            // Restablecer el timer cada vez que se registra un toque, excepto el primero y el último
+            // Restablecer el timer cada vez que se registra un toque, excepto el primero y el Ãºltimo
             _timer.Stop();
             _timer.Start();
         }
@@ -135,8 +144,8 @@ public partial class Login : ContentPage
 
     private async void PerformAction()
     {
-        // Aquí ejecutarás la acción deseada después de 6 toques
-        //Debug.WriteLine("Acción ejecutada después de 6 toques");
+        // AquÃ­ ejecutarÃ¡s la acciÃ³n deseada despuÃ©s de 6 toques
+        //Debug.WriteLine("AcciÃ³n ejecutada despuÃ©s de 6 toques");
         Debug.WriteLine("SettingsPage");
         SettingsPage objPage = new SettingsPage();
         objPage.Disappearing += ObjPage_Disappearing;
@@ -179,7 +188,7 @@ public partial class Login : ContentPage
     private void Entry_Completed(object sender, EventArgs e)
     {
         Debug.WriteLine("Logged");
-        TryLogin(sender, e);
+        //TryLogin(sender, e);
     }
 
     private void OnEntryCompleted(object sender, EventArgs e)
@@ -222,23 +231,23 @@ public partial class Login : ContentPage
         if (resultValidacion != null)
         {
             //resultValidacion.empresas
-            Debug.WriteLine("Validación:" + resultValidacion.data[0].companies);
+            Debug.WriteLine("ValidaciÃ³n:" + resultValidacion.data[0].companies);
         }
 
         if (resultValidacion == null)
         {
-            await Toast.Make("Se requiere verificación en linea por falta de datos, pero no se encontró servidor.").Show();
+            await Toast.Make("Se requiere verificaciÃ³n en linea por falta de datos, pero no se encontrÃ³ servidor.").Show();
             return false;
         }
 
         resultUser.log_fec_acceso = resultValidacion.data[0].datetime;
-        //Se prepara para la sesión el scope de la aplicación
+        //Se prepara para la sesiÃ³n el scope de la aplicaciÃ³n
         //AppSession ns = new AppSession();
         App.Session.CurrentUser = resultUser;
         App.Session.CurrentUser.empresas = resultValidacion.data[0].companies;
         //App.Session = ns;
 
-        //Se realiza inserción/actualización en la tabla
+        //Se realiza inserciÃ³n/actualizaciÃ³n en la tabla
 
         user_access itemInsert = new user_access();
         itemInsert.name = resultUser.nombres;
@@ -343,14 +352,14 @@ public partial class Login : ContentPage
         resultUser.log_fec_acceso = userFound.log_fec_acceso;
         resultUser.log_fec_sincro = userFound.log_fec_sincro;
         resultUser.log_fec_sincro_nc = userFound.log_fec_sincro_nc;
-        //Se prepara para la sesión el scope de la aplicación
+        //Se prepara para la sesiÃ³n el scope de la aplicaciÃ³n
         //AppSession ns = new AppSession();
         App.Session.CurrentUser = resultUser;
         App.Session.CurrentUser.empresas = _empresas;
 
         //App.Session = ns;
 
-        //Se realiza inserción/actualización en la tabla
+        //Se realiza inserciÃ³n/actualizaciÃ³n en la tabla
 
         user_access itemInsert = new user_access();
         itemInsert.name = resultUser.nombres;
@@ -382,232 +391,198 @@ public partial class Login : ContentPage
         return true;
     }
 
-    public async void TryLogin(object sender, EventArgs e)
+    private async void OnLoginClicked(object sender, EventArgs e)
     {
-        DateTime currentDate = DateTime.Now;
+        await TryLoginAsync();
+    }
 
-        User user = new User();
-        user.username = txtUser.Text;
-        user.codclave = txtPassword.Text;
-        user.databasename = App.Session.DefaultDatabase;
+    // Cambiar async void â†’ async Task
+    public async Task TryLoginAsync()
+    {
+        try
+        {
+            DateTime currentDate = DateTime.Now;
+
+            User user = new User
+            {
+                username = txtUser.Text,
+                codclave = txtPassword.Text,
+                databasename = App.Session.DefaultDatabase
+            };
 
 #if !DEBUG
         if (!App.Session.isTestMode)
         {
             if (user.username.Length <= 3 || user.codclave.Length <= 3)
             {
-                //await Toast.Make("Al parecer los datos del usuario y password están incorrectos.").Show();
+                await Toast.Make("Datos incorrectos, verifique usuario y contraseÃ±a.").Show();
                 return;
             }
         }
 #endif
 
-        BtnTryLogin.IsEnabled = false;
-        var database = new UserAccessDb();
+            BtnTryLogin.IsEnabled = false;
 
-        ApiManager.HubUser hubUser = new ApiManager.HubUser(App.Session);
+            var database = new UserAccessDb();
+            var hubUser = new ApiManager.HubUser(App.Session);
+            User resultUser = null;
 
-        User resultUser = null;
+            // --- Ejecutar operaciones pesadas en un hilo de fondo ---
+            var userList = await Task.Run(async () => await database.GetItemsAsync());
 
-        //Primero se intenta OFFLINE
-        var userList = await database.GetItemsAsync();
-        //var userFound = userList.Where(
-        //    u=>u.CODUSUARIO == EntryUserName.Text &&
-        //    u.CLAVE == EntryPassword.Text &&
-        //    Convert.ToDateTime(u.FECHAACTUAL).Date == currentDate.Date).FirstOrDefault();
-
-        var userFound = userList.Where(
-            u => u.username == txtUser.Text &&
-            u.pwd == txtPassword.Text &&
-            u.log_fec_acceso.Date == currentDate.Date).FirstOrDefault();
-
-        //Se encontró el usuario en los datos locales
-        //  siempre y cuando haya iniciado sesión el mismo día
-        if (userFound != null)
-        {
-            //Asignación de datos desde la base de datos
-            resultUser = new User();
-            resultUser.uid = userFound.uid;
-            resultUser.username = userFound.username;
-            resultUser.nombres = userFound.name;
-            resultUser.codclave = userFound.pwd;
-            resultUser.api_key = userFound.api_key;
-            resultUser.token_type = userFound.token_type;
-            resultUser.access_token = userFound.access_token;
-
-            if (userFound.databasename == null)
-            {
-                userFound.databasename = App.Session.DefaultDatabase;
-            }
-
-            resultUser.databasename = userFound.databasename;
-
-            resultUser.log_fec_acceso = userFound.log_fec_acceso;
-
-            //resultUser.exito = "true";
-
-            //Tareas de actualización de datos
-            if (!(await SetDataSessionOffLine(resultUser, userFound, currentDate)))
-            {
-                BtnTryLogin.IsEnabled = true;
-                Debug.WriteLine("Error en login");
-                return;
-            }
-        }
-        else
-        {
-            if (App.Session.useOfflineMode)
-            {
-                LoginSelector.IsVisible = false;
-                CompanySelector.IsVisible = true;
-
-                userFound = userList.Where(
+            var userFound = userList.FirstOrDefault(
                 u => u.username == txtUser.Text &&
-                u.pwd == txtPassword.Text).FirstOrDefault();
+                     u.pwd == txtPassword.Text &&
+                     u.log_fec_acceso.Date == currentDate.Date);
 
-                resultUser = new User();
-                resultUser.username = txtUser.Text;
-                resultUser.codclave = txtPassword.Text;
-                resultUser.uid = userFound.uid;
-                resultUser.api_key = "-";
-                resultUser.token_type = "-";
-                resultUser.access_token = "-";
+            if (userFound != null)
+            {
+                // Usuario encontrado offline
+                resultUser = new User
+                {
+                    uid = userFound.uid,
+                    username = userFound.username,
+                    nombres = userFound.name,
+                    codclave = userFound.pwd,
+                    api_key = userFound.api_key,
+                    token_type = userFound.token_type,
+                    access_token = userFound.access_token,
+                    databasename = userFound.databasename ?? App.Session.DefaultDatabase,
+                    log_fec_acceso = userFound.log_fec_acceso
+                };
+
+                if (!(await SetDataSessionOffLine(resultUser, userFound, currentDate)))
+                {
+                    BtnTryLogin.IsEnabled = true;
+                    Debug.WriteLine("Error en login offline");
+                    return;
+                }
             }
             else
             {
-                ApiChecker apiChecker = new ApiChecker(App.Session.EndPointServer + "/connect/checkonline");
-                bool isOnline = await apiChecker.IsApiAvailable();
-
-                if (!isOnline)
+                // Modo offline
+                if (App.Session.useOfflineMode)
                 {
-                    BtnTryLogin.IsEnabled = true;
-                    await Toast.Make("Offline o servidor inválido!").Show();
-                    Debug.WriteLine("Offline o servidor inválido!");
-                    return;
-                }
+                    LoginSelector.IsVisible = false;
+                    CompanySelector.IsVisible = true;
 
-                //Sino lo encuentra en los datos locales se intenta ONLINE
-                var responseUser = await hubUser.TryLoginRpcWeb(user, currentDate);
+                    userFound = userList.Where(
+                        u => u.username == txtUser.Text &&
+                        u.pwd == txtPassword.Text).FirstOrDefault();
 
-                if (responseUser == null)
-                {
-                    BtnTryLogin.IsEnabled = true;
-                    await Toast.Make("Offline o servidor inválido!").Show();
-                    Debug.WriteLine("Offline o servidor inválido!");
-                    return;
-                }
-
-                if (responseUser.error != null)
-                {
-                    BtnTryLogin.IsEnabled = true;
-                    await Toast.Make(responseUser.error.message + ": " + responseUser.error.data.message).Show();
-                    Debug.WriteLine(responseUser.error.message + ": " + responseUser.error.data.message);
-                    return;
-                }
-
-                if (responseUser.result != null) //"true")
-                {
-                    resultUser = new User();
-
-                    //await Toast.Make("Error: " + resultUser.mensaje).Show();
-                    //return;
-                    //Se asigna la clave ya que el api no la devuelve
-                    resultUser.username = txtUser.Text;
-                    resultUser.codclave = txtPassword.Text;
-                    resultUser.uid = responseUser.result.uid;
-                    resultUser.api_key = "-";
-                    resultUser.token_type = "-";
-                    resultUser.access_token = "-";
-
-                    //Se extrae informacion del usuario
-                    // Odoo no devuelve por defecto los datos y necesitamos volver a usar el api
-                    //HubPartner hubPartner = new HubPartner(App.Session);
-                    //hubPartner.setApiKey(responseUser.result.api_key);
-
-                    var partner = await hubUser.GetById(resultUser.uid);
-                    if (partner != null)
+                    resultUser = new User
                     {
-                        resultUser.nombres = partner.result[0].name;
+                        username = txtUser.Text,
+                        codclave = txtPassword.Text,
+                        uid = userFound?.uid ?? 0,
+                        api_key = "-",
+                        token_type = "-",
+                        access_token = "-"
+                    };
+                }
+                else
+                {
+                    // Verificar conexiÃ³n
+                    var apiChecker = new ApiChecker(App.Session.EndPointServer + "/connect/checkonline");
+                    bool isOnline = await apiChecker.IsApiAvailable();
+
+                    if (!isOnline)
+                    {
+                        BtnTryLogin.IsEnabled = true;
+                        await Toast.Make("Offline o servidor invÃ¡lido!").Show();
+                        Debug.WriteLine("Offline o servidor invÃ¡lido!");
+                        return;
                     }
 
-                    if (resultUser.databasename == null)
+                    // Intentar login online
+                    var responseUser = await hubUser.TryLoginRpcWeb(user, currentDate);
+
+                    if (responseUser?.error != null)
                     {
-                        resultUser.databasename = App.Session.DefaultDatabase;
+                        BtnTryLogin.IsEnabled = true;
+                        await Toast.Make($"{responseUser.error.message}: {responseUser.error.data.message}").Show();
+                        Debug.WriteLine($"{responseUser.error.message}: {responseUser.error.data.message}");
+                        return;
                     }
 
-                    //Tareas de actualización de datos
-                    await SetDataSessionOnLine(resultUser, currentDate);
+                    if (responseUser?.result != null)
+                    {
+                        resultUser = new User
+                        {
+                            username = txtUser.Text,
+                            codclave = txtPassword.Text,
+                            uid = responseUser.result.uid,
+                            api_key = "-",
+                            token_type = "-",
+                            access_token = "-",
+                            databasename = App.Session.DefaultDatabase
+                        };
+
+                        var partner = await hubUser.GetById(resultUser.uid);
+                        if (partner != null)
+                            resultUser.nombres = partner.result[0].name;
+
+                        await SetDataSessionOnLine(resultUser, currentDate);
+                    }
+
+                    // Releer lista actualizada desde la base local
+                    userList = await Task.Run(async () => await database.GetItemsAsync());
+
+                    userFound = userList.FirstOrDefault(
+                        u => u.username == txtUser.Text &&
+                             u.pwd == txtPassword.Text &&
+                             u.log_fec_acceso.Date == currentDate.Date);
                 }
 
-                userList = await database.GetItemsAsync();
-
-                //Se vuelve a consultar el usuario ya que despues de haber logueado ya deberia existir.
-                userFound = userList.Where(
-                u => u.username == txtUser.Text &&
-                u.pwd == txtPassword.Text &&
-                u.log_fec_acceso.Date == currentDate.Date).FirstOrDefault();
-            }            
-
-            if (userFound == null)
-            {
-                await Toast.Make("Dato no coincide, verifique la fecha y hora de su dispositivo").Show();
-                BtnTryLogin.IsEnabled = true;
-                return;
+                if (userFound == null)
+                {
+                    await Toast.Make("Dato no coincide, verifique la fecha y hora de su dispositivo").Show();
+                    BtnTryLogin.IsEnabled = true;
+                    return;
+                }
             }
-        }
 
-        BtnTryLogin.IsEnabled = true;
+            BtnTryLogin.IsEnabled = true;
 
-        if (resultUser != null)
-        {
-            if (resultUser.uid > 0)
+            // ConfiguraciÃ³n post-login
+            if (resultUser?.uid > 0)
             {
                 if (!App.Session.useOfflineMode)
                 {
-                    ServerPuller serverPuller = new ServerPuller();
-
-                    //Sincroniza empresas y tiendas
+                    var serverPuller = new ServerPuller();
                     await serverPuller.Pull();
-                    //App.Current.MainPage = new MainPageTab();
                 }
 
                 LoginSelector.IsVisible = false;
                 CompanySelector.IsVisible = true;
 
-                var _companies = await PrepareCompanies(userFound);
-                ddCompany.ItemsSource = _companies;
+                var companies = await PrepareCompanies(userFound);
+                ddCompany.ItemsSource = companies;
                 ddCompany.ItemDisplayBinding = new Binding("name");
-
                 ddCompany.SelectedItemChanged += async (s, e) =>
                 {
-                    res_company res_CompanySelected = (res_company)ddCompany.SelectedItem;
-
-                    ResCenterDb stores = new ResCenterDb();
-                    var storesItems = (await stores.GetItemsAsync()).Where(s => s.company_id == res_CompanySelected.id).ToArray();
-
-                    ddAgency.SelectedItem = null;
+                    var selectedCompany = (res_company)ddCompany.SelectedItem;
+                    var storesDb = new ResCenterDb();
+                    var storesItems = (await storesDb.GetItemsAsync())
+                                      .Where(s => s.company_id == selectedCompany.id)
+                                      .ToArray();
                     ddAgency.ItemsSource = storesItems;
                     ddAgency.ItemDisplayBinding = new Binding("name");
-
-                    ddAgency.SelectedItem = storesItems[0];
+                    ddAgency.SelectedItem = storesItems.FirstOrDefault();
                 };
 
-                ddCompany.SelectedItem = _companies[0];
-                Debug.WriteLine("Empresas: " + _companies.Length);
+                ddCompany.SelectedItem = companies.FirstOrDefault();
+                Debug.WriteLine($"Empresas: {companies.Length}");
             }
             else
             {
-                Debug.WriteLine("Error en login");
-
-                ToastDuration duration = ToastDuration.Short;
-                double fontSize = 14;
-                var toast = Toast.Make("Error", duration, fontSize);
-                await toast.Show();
+                await Toast.Make("Error en login").Show();
             }
         }
-        else
+        catch (Exception ex)
         {
-            await Toast.Make("Error al intentar el login.").Show();
+            Debug.WriteLine($"Login error: {ex}");
+            await Toast.Make("Ha ocurrido un error durante el login").Show();
         }
     }
 
