@@ -9,7 +9,7 @@ public partial class PopupLoadingTask : Popup
 	public PopupLoadingTask(PopupSizeConstants popupSizeConstants)
 	{
 		InitializeComponent();
-		Size = popupSizeConstants.SmallWide;		
+		DesiredSize = popupSizeConstants.SmallWide;		
 	}
 
 	public void SetTitle(string newTitle)

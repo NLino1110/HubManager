@@ -315,7 +315,7 @@ namespace ResourceBuilder.Services.Sales
             Console.WriteLine(marcas);
         }
 
-        public async Task<ResponseSkuBulk[]?> SendToMiddleware(            
+        public async Task<ResponseSkuBulk[]?> SendToMiddleware(
             List<ArticuloDTO> payload,
             RestSharp.Method method,
             string urlApiRest,
@@ -404,7 +404,6 @@ namespace ResourceBuilder.Services.Sales
             RestRequest request = new RestRequest(requestPort, method);
             request.AddHeader("Content-Type", "application/json; charset=utf-8");
             request.AddHeader("Accept", "application/json");
-
             request.Timeout = TimeSpan.FromSeconds(60);
 
             DateTime startDate = DateTime.Now;
@@ -413,12 +412,12 @@ namespace ResourceBuilder.Services.Sales
             {
                 request.AddBody(jsonDatos);
 
-                var response = client.Execute(request);
+                var response = await client.ExecuteAsync(request);
 
                 if (response.IsSuccessful)
                 {
                     responseData = JsonConvert.DeserializeObject<ResponseSkuBulk[]?>(response.Content);
-                    Debug.WriteLine(responseData);
+                    //Debug.WriteLine(responseData);
                 }
                 else
                 {

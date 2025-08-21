@@ -51,7 +51,7 @@ public partial class Login : ContentPage
 
             await LoadSettingsFromDb();
 
-            App.Session.useOfflineMode = false;
+            App.Session.useOfflineMode = true;
 
             Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0, 10));
@@ -459,82 +459,94 @@ public partial class Login : ContentPage
             if (App.Session.useOfflineMode)
             {
                 LoginSelector.IsVisible = false;
-                CompanySelector.IsVisible = true;                
-                return;
-            }
+                CompanySelector.IsVisible = true;
 
-            ApiChecker apiChecker = new ApiChecker(App.Session.EndPointServer + "/connect/checkonline");
-            bool isOnline = await apiChecker.IsApiAvailable();
+                userFound = userList.Where(
+                u => u.username == txtUser.Text &&
+                u.pwd == txtPassword.Text).FirstOrDefault();
 
-            if (!isOnline)
-            {
-                BtnTryLogin.IsEnabled = true;
-                await Toast.Make("Offline o servidor inválido!").Show();
-                Debug.WriteLine("Offline o servidor inválido!");
-                return;
-            }
-
-            //Sino lo encuentra en los datos locales se intenta ONLINE
-            var responseUser = await hubUser.TryLoginRpcWeb(user, currentDate);
-
-            if (responseUser == null)
-            {
-                BtnTryLogin.IsEnabled = true;
-                await Toast.Make("Offline o servidor inválido!").Show();
-                Debug.WriteLine("Offline o servidor inválido!");
-                return;
-            }
-
-            if (responseUser.error != null)
-            {
-                BtnTryLogin.IsEnabled = true;
-                await Toast.Make(responseUser.error.message + ": " + responseUser.error.data.message).Show();
-                Debug.WriteLine(responseUser.error.message + ": " + responseUser.error.data.message);
-                return;
-            }
-
-            if (responseUser.result != null) //"true")
-            {
                 resultUser = new User();
-
-                //await Toast.Make("Error: " + resultUser.mensaje).Show();
-                //return;
-                //Se asigna la clave ya que el api no la devuelve
                 resultUser.username = txtUser.Text;
                 resultUser.codclave = txtPassword.Text;
-                resultUser.uid = responseUser.result.uid;
+                resultUser.uid = userFound.uid;
                 resultUser.api_key = "-";
                 resultUser.token_type = "-";
                 resultUser.access_token = "-";
-
-                //Se extrae informacion del usuario
-                // Odoo no devuelve por defecto los datos y necesitamos volver a usar el api
-                //HubPartner hubPartner = new HubPartner(App.Session);
-                //hubPartner.setApiKey(responseUser.result.api_key);
-
-                var partner = await hubUser.GetById(resultUser.uid);
-                if (partner != null)
-                {
-                    resultUser.nombres = partner.result[0].name;
-                }
-
-                if (resultUser.databasename == null)
-                {
-                    resultUser.databasename = App.Session.DefaultDatabase;
-                }
-
-                //Tareas de actualización de datos
-                await SetDataSessionOnLine(resultUser, currentDate);
             }
+            else
+            {
+                ApiChecker apiChecker = new ApiChecker(App.Session.EndPointServer + "/connect/checkonline");
+                bool isOnline = await apiChecker.IsApiAvailable();
 
-            //Se vuelve a consultar el usuario ya que despues de haber logueado ya deberia existir.
+                if (!isOnline)
+                {
+                    BtnTryLogin.IsEnabled = true;
+                    await Toast.Make("Offline o servidor inválido!").Show();
+                    Debug.WriteLine("Offline o servidor inválido!");
+                    return;
+                }
 
-            userList = await database.GetItemsAsync();
+                //Sino lo encuentra en los datos locales se intenta ONLINE
+                var responseUser = await hubUser.TryLoginRpcWeb(user, currentDate);
 
-            userFound = userList.Where(
-            u => u.username == txtUser.Text &&
-            u.pwd == txtPassword.Text &&
-            u.log_fec_acceso.Date == currentDate.Date).FirstOrDefault();
+                if (responseUser == null)
+                {
+                    BtnTryLogin.IsEnabled = true;
+                    await Toast.Make("Offline o servidor inválido!").Show();
+                    Debug.WriteLine("Offline o servidor inválido!");
+                    return;
+                }
+
+                if (responseUser.error != null)
+                {
+                    BtnTryLogin.IsEnabled = true;
+                    await Toast.Make(responseUser.error.message + ": " + responseUser.error.data.message).Show();
+                    Debug.WriteLine(responseUser.error.message + ": " + responseUser.error.data.message);
+                    return;
+                }
+
+                if (responseUser.result != null) //"true")
+                {
+                    resultUser = new User();
+
+                    //await Toast.Make("Error: " + resultUser.mensaje).Show();
+                    //return;
+                    //Se asigna la clave ya que el api no la devuelve
+                    resultUser.username = txtUser.Text;
+                    resultUser.codclave = txtPassword.Text;
+                    resultUser.uid = responseUser.result.uid;
+                    resultUser.api_key = "-";
+                    resultUser.token_type = "-";
+                    resultUser.access_token = "-";
+
+                    //Se extrae informacion del usuario
+                    // Odoo no devuelve por defecto los datos y necesitamos volver a usar el api
+                    //HubPartner hubPartner = new HubPartner(App.Session);
+                    //hubPartner.setApiKey(responseUser.result.api_key);
+
+                    var partner = await hubUser.GetById(resultUser.uid);
+                    if (partner != null)
+                    {
+                        resultUser.nombres = partner.result[0].name;
+                    }
+
+                    if (resultUser.databasename == null)
+                    {
+                        resultUser.databasename = App.Session.DefaultDatabase;
+                    }
+
+                    //Tareas de actualización de datos
+                    await SetDataSessionOnLine(resultUser, currentDate);
+                }
+
+                userList = await database.GetItemsAsync();
+
+                //Se vuelve a consultar el usuario ya que despues de haber logueado ya deberia existir.
+                userFound = userList.Where(
+                u => u.username == txtUser.Text &&
+                u.pwd == txtPassword.Text &&
+                u.log_fec_acceso.Date == currentDate.Date).FirstOrDefault();
+            }            
 
             if (userFound == null)
             {

@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui.Views;
+﻿using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Maui.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -97,7 +98,7 @@ namespace DMCobranzas.Settings.helpers
         {
             if (simplePopup != null)
             {                
-                simplePopup.Close();
+                await simplePopup.CloseAsync();
             }
         }
 

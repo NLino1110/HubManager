@@ -577,7 +577,7 @@ public partial class AccountMoveSendProdCrud : ContentPage
 
         collectionView.ItemsSource = laccountmoveLines;
 
-        simplePopup.Close();
+        await simplePopup.CloseAsync();
 
         accountMovesSend = result_move_send.ToArray();
 

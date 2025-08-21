@@ -5,6 +5,7 @@ using DMCobranzas.Settings.Sqlite;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Sample.Models;
 using CommunityToolkit.Maui.Views;
+
 using DMSA.Models.MovilCobranzas.Api;
 using DMSA.Models.Odoo.Native;
 using System.Diagnostics;
@@ -13,7 +14,7 @@ using System.Windows.Input;
 
 namespace CommunityToolkit.Maui.Sample;
 
-public partial class ReturnResultPopupSearch : Popup<res_company>
+public partial class ReturnResultPopwupSearch : Popup<res_company>
 {
     res_company[] Empresas { get; set; }
     public res_company empresa { get; set; }
@@ -66,7 +67,7 @@ public partial class ReturnResultPopupSearch : Popup<res_company>
         
     }
 
-    void ButtonClose_Clicked(object? sender, EventArgs e) => Close(null);
+    async void ButtonClose_Clicked(object? sender, EventArgs e) => await CloseAsync(null);
 
     public ICommand CommandVerSaldos { get; set; }
 

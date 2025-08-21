@@ -81,6 +81,7 @@
 		<PackageReference Include="Spinner.MAUI" Version="1.1.2" />
 		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.8" />
+		<PackageReference Include="System.Text.Json" Version="9.0.8" />
 		<PackageReference Include="UraniumUI" Version="2.12.1" />
 		<PackageReference Include="UraniumUI.Blurs" Version="2.12.1" />
 		<PackageReference Include="UraniumUI.Dialogs.CommunityToolkit" Version="2.12.1" />

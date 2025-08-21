@@ -46,6 +46,7 @@
     <PackageReference Include="FastMember" Version="1.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="9.0.5" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.8" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="PSC.Blazor.Components.AutoComplete" Version="8.0.1" />
     <PackageReference Include="Quartz" Version="3.13.1" />
@@ -56,7 +57,9 @@
 	<PackageReference Include="CliWrap" Version="3.7.1" />	  
 	<PackageReference Include="Excubo.Blazor.TreeViews" Version="4.0.24" />	  
 	<PackageReference Include="Serilog.Extensions.Logging.File" Version="3.0.0" />	  
-	<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
+	<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />	  
+	<PackageReference Include="System.Data.SqlClient" Version="4.9.0" />	  
+	<PackageReference Include="System.Text.Json" Version="9.0.8" />
 	<PackageReference Include="ZBlazorEx" Version="1.0.1" />
 	  
   </ItemGroup>

@@ -9,7 +9,7 @@ public partial class SimplePopupAutoclose : Popup
 	public SimplePopupAutoclose(PopupSizeConstants popupSizeConstants)
 	{
 		InitializeComponent();
-		Size = popupSizeConstants.Small;
+		DesiredSize = popupSizeConstants.Small;
 	}
 
 	public void SetTitle(string newTitle)

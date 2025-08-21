@@ -1116,7 +1116,7 @@ namespace ResourceBuilder.Shared.master
                     Formatting.Indented,
                     new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
 
-            Debug.WriteLine(jsonResult);
+            //Debug.WriteLine(jsonResult);
 
             if (sendData)
             {
@@ -1197,18 +1197,116 @@ namespace ResourceBuilder.Shared.master
             //=> message = $"You want to fire {p.FirstName} {p.LastName}";
             //toastService.ShowSuccess("Enviando " + p.CodMarca + " " + p.Descripcion);
 
-            for (int i = 0; i < dataSource.Count(); i += 10) // Avanza en bloques de 10
+            //for (int i = 0; i < dataSource.Count(); i += 10) // Avanza en bloques de 10
+            //{
+            //    int long_take = Math.Min(10, dataSource.Count() - i); // Evita exceder el límite de dataSource
+            //    var range_items = dataSource.Skip(i).Take(long_take); // Toma los elementos correctos
+
+            //    var articulos = range_items.Select(item => (object) item.CodArticulo).ToList(); // Extrae CodArticulo
+            //    var responseData = await LaunchItemLocal(articulos, new List<object>(), true, false, new long[] { }, true, false); // Lanza la operación para el lote actual
+
+            //    Debug.WriteLine(responseData);
+            //    Debug.WriteLine("Enviados " + i + " de " + dataSource.Count());
+            //    Console.WriteLine("Enviados " + i + " de " + dataSource.Count());
+            //}
+
+            //Envio 1x1
+            //for (int i = 0; i < dataSource.Count(); i++)
+            //{
+            //    var item = dataSource.ElementAt(i);
+            //    var articulos = new List<object> { item.CodArticulo.ToString() };
+
+            //    int retryCount = 0;
+            //    string responseData = "";
+
+            //    Debug.WriteLine("Procesando " + i.ToString() + " de " + dataSource.Count().ToString());
+
+            //    do
+            //    {
+            //        responseData = await LaunchItemLocal(
+            //            articulos,
+            //            new List<object>(),
+            //            true,
+            //            false,
+            //            new long[] { },
+            //            true,
+            //            false
+            //        );
+
+            //        //Debug.WriteLine($"Intento {retryCount + 1}: {responseData}");
+            //        retryCount++;
+
+            //        if (responseData == "[]")
+            //        {
+            //            Debug.WriteLine("Envío correcto " + item.CodArticulo.ToString());
+            //            Debug.WriteLine("Intento número " + retryCount.ToString());
+            //            Debug.WriteLine("===============================================");
+            //            break; // Éxito, salimos del bucle interno
+            //        }
+            //        else
+            //        {
+            //            //Debug.WriteLine(responseData);
+            //            Debug.WriteLine("Envío icorrecto " + item.CodArticulo.ToString());
+            //            Debug.WriteLine("Se va a reintentar " + retryCount.ToString());
+            //            Debug.WriteLine("===============================================");
+            //        }
+            //    } while (retryCount < 3);
+            //}
+
+
+            //Envio 10 en 10
+            int maxParallel = 10;
+            int maxRetries = 3;
+
+            Console.WriteLine($"=================================================");
+            Console.WriteLine($"Iniciando nuevo proceso de sincronización...");
+            Console.WriteLine(DateTime.Now.ToString());
+
+            for (int i = 0; i < dataSource.Count(); i += maxParallel)
             {
-                int long_take = Math.Min(10, dataSource.Count() - i); // Evita exceder el límite de dataSource
-                var range_items = dataSource.Skip(i).Take(long_take); // Toma los elementos correctos
+                // Tomamos bloques de 10
+                var batch = dataSource.Skip(i).Take(maxParallel).ToList();
 
-                var articulos = range_items.Select(item => (object) item.CodArticulo).ToList(); // Extrae CodArticulo
-                var responseData = await LaunchItemLocal(articulos, new List<object>(), false, true, new long[] { }, true, false); // Lanza la operación para el lote actual
+                var tasks = batch.Select(async item =>
+                {
+                    var articulos = new List<object> { item.CodArticulo.ToString() };
+                    string responseData = "[]";
+                    int attempts = 0;
 
-                Debug.WriteLine(responseData);
-                Debug.WriteLine("Enviados " + i + " de " + dataSource.Count());
-                Console.WriteLine("Enviados " + i + " de " + dataSource.Count());
+                    // Reintento hasta 3 veces si no es "[]"
+                    while (attempts < maxRetries)
+                    {
+                        responseData = await LaunchItemLocal(
+                            articulos,
+                            new List<object>(),
+                            true, false,
+                            new long[] { },
+                            true, false
+                        );
+
+                        if (responseData == "[]")
+                            break;
+
+                        attempts++;
+                        Debug.WriteLine($"Reintentando {item.CodArticulo}, intento {attempts}");
+                        Debug.WriteLine("=====================================================");
+                    }
+
+                    return new { item.CodArticulo, responseData };
+                });
+
+                // Esperamos a que todos los del batch terminen
+                var results = await Task.WhenAll(tasks);
+
+                foreach (var result in results)
+                {
+                    Debug.WriteLine($"Articulo {result.CodArticulo} -> {result.responseData}");
+                }
+
+                Console.WriteLine($"Procesados {Math.Min(i + maxParallel, dataSource.Count())} de {dataSource.Count()}");
+                Debug.WriteLine("=====================================================");
             }
+
         }
 
         public async Task<List<InvStock>> LoadItemsWithStockAsync()
