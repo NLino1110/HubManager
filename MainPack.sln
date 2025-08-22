@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMOrdersUI", "DMOrdersUI\DM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeebTech.Maui.Controls", "BeebTech.Maui.Controls\BeebTech.Maui.Controls.csproj", "{AB893200-1F9A-BEDE-A64E-2D245F156902}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UraniumUI.Material", "UraniumUI.Material\UraniumUI.Material.csproj", "{C095C3A7-A079-10DE-0502-FCA1A45E2EB8}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceBuilder", "ResourceBuilder\ResourceBuilder.csproj", "{11031CA5-133C-DCEA-73F7-C6ECED0CB04F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataSourceManager", "DataSourceManager\DataSourceManager.csproj", "{9233956B-491E-B143-EE7C-43F1FFA66DE9}"
@@ -57,10 +55,6 @@ Global
 		{AB893200-1F9A-BEDE-A64E-2D245F156902}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB893200-1F9A-BEDE-A64E-2D245F156902}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB893200-1F9A-BEDE-A64E-2D245F156902}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C095C3A7-A079-10DE-0502-FCA1A45E2EB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C095C3A7-A079-10DE-0502-FCA1A45E2EB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C095C3A7-A079-10DE-0502-FCA1A45E2EB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C095C3A7-A079-10DE-0502-FCA1A45E2EB8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{11031CA5-133C-DCEA-73F7-C6ECED0CB04F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{11031CA5-133C-DCEA-73F7-C6ECED0CB04F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11031CA5-133C-DCEA-73F7-C6ECED0CB04F}.Release|Any CPU.ActiveCfg = Release|Any CPU

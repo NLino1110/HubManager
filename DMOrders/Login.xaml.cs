@@ -29,8 +29,7 @@ public partial class Login : ContentPage
 
     public Login()
     {
-        InitializeComponent();
-        SetupLogin();
+        InitializeComponent();        
     }
 
     public Login(IEnumerable<IDialogService> dialogServices)
@@ -40,62 +39,64 @@ public partial class Login : ContentPage
         //Se selecciona manualmente el modo CommunityToolkit
         // ya que los DialogService de UraniumUI no son incompatibles con los
         // popus de CommunityToolkit
-        DialogService = dialogServices.ToList()[1];
-
-
-        SetupLogin();
+        //DialogService = dialogServices.ToList()[1];
     }
-
-
-    public void SetupLogin()
+    
+    public async Task SetupLogin()
     {
-        Task.Run(async () =>
+        
+        SetupTapGesture();
+
+        await LoadSettingsFromDb();
+
+        App.Session.useOfflineMode = true;
+
+        Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+        Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0, 10));
+
+        txtEnvironment.Text = "Desarrollo";
+
+        lblAppVersion.Text = "Versión " + App.Session.AppVersion;
+
+        if (App.Session.isProduction)
         {
-            SetupTapGesture();
-
-            await LoadSettingsFromDb();
-
-            App.Session.useOfflineMode = true;
-
-            Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-            Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0, 10));
-
-            txtEnvironment.Text = "Desarrollo";
-
-            lblAppVersion.Text = "Versión " + App.Session.AppVersion;
-
-            if (App.Session.isProduction)
-            {
-                txtEnvironment.Text = "Producción";
-            }
-            else
-            {
+            txtEnvironment.Text = "Producción";
+        }
+        else
+        {
 #if DEBUG
-                txtEnvironment.Text += " + DEBUG";
+            txtEnvironment.Text += " + DEBUG";
 #endif
-            }
+        }
 
-            if (App.Session.isTestMode)
-            {
-                txtUser.Text = "rchonillo@macronegocios.ec";
-                txtPassword.Text = "mnsa_18";
-            }
+        if (App.Session.isTestMode)
+        {
+            txtUser.Text = "rchonillo@macronegocios.ec";
+            txtPassword.Text = "mnsa_18";
+        }
 
-            Debug.WriteLine(txtEnvironment.Text);
-            Debug.WriteLine(lblAppVersion.Text);
+        Debug.WriteLine(txtEnvironment.Text);
+        Debug.WriteLine(lblAppVersion.Text);
 
-            if (App.Session.useOfflineMode)
-            {
-                await Toast.Make("Se usará modo modo offline.").Show();
-            }
+        if (App.Session.useOfflineMode)
+        {
+            Debug.WriteLine("Se usará modo modo offline.");
+            await Toast.Make("Se usará modo modo offline.").Show();                
+        }
 
-            //ddCompany.ItemsSource = companies;
-            //ddAgency.ItemsSource = storesItems;
-            //ddCompany.ItemDisplayBinding = new Binding("name");
-            //ddAgency.ItemDisplayBinding = new Binding("name");
-        });
+        //ddCompany.ItemsSource = companies;
+        //ddAgency.ItemsSource = storesItems;
+        //ddCompany.ItemDisplayBinding = new Binding("name");
+        //ddAgency.ItemDisplayBinding = new Binding("name");
+        
 
         Application.Current.UserAppTheme = AppTheme.Light;
+
+    }
+
+    private void Login_Loaded(object? sender, EventArgs e)
+    {
+        
     }
 
     private void OnSingleTapped()
@@ -148,11 +149,11 @@ public partial class Login : ContentPage
         //Debug.WriteLine("Acción ejecutada después de 6 toques");
         Debug.WriteLine("SettingsPage");
         SettingsPage objPage = new SettingsPage();
-        objPage.Disappearing += ObjPage_Disappearing;
+        objPage.Disappearing += ObjSettingPage_Disappearing;
         await Navigation.PushModalAsync(objPage);
     }
 
-    private void ObjPage_Disappearing(object? sender, EventArgs e)
+    private void ObjSettingPage_Disappearing(object? sender, EventArgs e)
     {
         Task.Run(async () =>
         {
@@ -199,7 +200,7 @@ public partial class Login : ContentPage
     public async Task<bool> LoadSettingsFromDb()
     {
         AppSettingsDb appSettingsDb = new AppSettingsDb();
-        await appSettingsDb.InitDefault();
+        await Task.Run(async () => await appSettingsDb.InitDefault());
 
         App.Session.isProduction = await appSettingsDb.getBoolean("is_production");
         App.Session.isTestMode = await appSettingsDb.getBoolean("is_test_mode");
@@ -555,15 +556,17 @@ public partial class Login : ContentPage
 
                 LoginSelector.IsVisible = false;
                 CompanySelector.IsVisible = true;
+                                
+                var companies = await Task.Run(async () => await PrepareCompanies(userFound));
 
-                var companies = await PrepareCompanies(userFound);
                 ddCompany.ItemsSource = companies;
                 ddCompany.ItemDisplayBinding = new Binding("name");
                 ddCompany.SelectedItemChanged += async (s, e) =>
                 {
                     var selectedCompany = (res_company)ddCompany.SelectedItem;
-                    var storesDb = new ResCenterDb();
-                    var storesItems = (await storesDb.GetItemsAsync())
+                    var storesDb = new ResCenterDb();                    
+
+                    var storesItems = (await Task.Run(async () => await storesDb.GetItemsAsync()))
                                       .Where(s => s.company_id == selectedCompany.id)
                                       .ToArray();
                     ddAgency.ItemsSource = storesItems;
@@ -587,11 +590,9 @@ public partial class Login : ContentPage
     }
 
     private async void ShowSettings(object sender, EventArgs e)
-    {
-        Debug.WriteLine("SettingsPage");
+    {        
         SettingsPage objPage = new SettingsPage();
-        await Navigation.PushModalAsync(objPage);
-        //await Navigation.PushAsync(objPage, false);
+        await Navigation.PushModalAsync(objPage);        
     }
 
     private void btnAccess_Clicked(object sender, EventArgs e)
@@ -603,6 +604,7 @@ public partial class Login : ContentPage
             App.Session.res_Company = (res_company) ddCompany.SelectedItem;
             //App.Session.res_Store = (res_store) ddAgency.SelectedItem;
             App.Session.res_center = (res_center)ddAgency.SelectedItem;
+            
             App.Current.MainPage = new MainPageTab();
         }
     }
@@ -611,5 +613,13 @@ public partial class Login : ContentPage
     {
         CompanySelector.IsVisible = false;
         LoginSelector.IsVisible = true;
-    }    
+    }
+
+    private void ContentPage_Appearing(object sender, EventArgs e)
+    {
+        Dispatcher.Dispatch(async () =>
+        {
+            await SetupLogin();
+        });
+    }
 }

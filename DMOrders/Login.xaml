@@ -1,252 +1,148 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="DMOrders.Login"
-             Title="Cobranzas Login"
-             Shell.FlyoutBehavior="Flyout"
-             Shell.NavBarIsVisible="False"
-             xmlns:controls="clr-namespace:BeebTech.Maui.Controls;assembly=BeebTech.Maui.Controls"
-             xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
-             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
-             xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui">
+<ContentPage 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+    xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+    x:Class="DMOrders.Login"
+    Title="Cobranzas Login"
+    Shell.FlyoutBehavior="Flyout"
+    Shell.NavBarIsVisible="False"    
+    Appearing="ContentPage_Appearing">
+
+    <!-- ESTILOS -->
     <ContentPage.Resources>
-        <Style x:Key="labelRedStyle"
-               TargetType="Label">
-            <Setter Property="HorizontalOptions" Value="Center" />
-            <Setter Property="VerticalOptions" Value="Center" />
-            <Setter Property="FontSize" Value="18" />
-            <Setter Property="TextColor" Value="Red" />
+        <Style x:Key="labelRedStyle" TargetType="Label">
+            <Setter Property="HorizontalOptions" Value="Center"/>
+            <Setter Property="VerticalOptions" Value="Center"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="TextColor" Value="Red"/>
         </Style>
-        <Style x:Key="labelGreenStyle"
-               TargetType="Label">
-            <Setter Property="HorizontalOptions" Value="Center" />
-            <Setter Property="VerticalOptions" Value="Center" />
-            <Setter Property="FontSize" Value="18" />
-            <Setter Property="TextColor" Value="Green" />
-        </Style>
-        <Style x:Key="CommonEntryStyle"
-               TargetType="Label">
-            <Setter Property="HorizontalOptions" Value="FillAndExpand" />
-            <Setter Property="VerticalOptions" Value="Center" />
-            <Setter Property="FontSize" Value="16" />
-            <Setter Property="TextColor" Value="Black" />
+
+        <Style x:Key="labelGreenStyle" TargetType="Label">
+            <Setter Property="HorizontalOptions" Value="Center"/>
+            <Setter Property="VerticalOptions" Value="Center"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="TextColor" Value="Green"/>
         </Style>
     </ContentPage.Resources>
+
+    <!-- CONTENIDO PRINCIPAL -->
     <ScrollView>
         <Grid>
-            <!-- Imagen de fondo -->
-            <Image
-        Source="logo_macronegocios.png"
-        Aspect="AspectFill"
-        Opacity="0.3" 
-                Margin="-50,-50,-50,-50"/>
-            <StackLayout Orientation="Vertical" VerticalOptions="Center">
-                <FlexLayout Wrap="Wrap" JustifyContent="Start" Margin="10"
-                Padding="30"
-                VerticalOptions="Center"
-                HorizontalOptions="Center"
-                            IsVisible="False">
-                </FlexLayout>
+            <!-- Fondo -->
+            <Image Source="logo_macronegocios.png"
+                   Aspect="AspectFill"
+                   Opacity="0.3"
+                   Margin="-50"/>
 
-                <Border    
-                Padding="10,10,10,10"
-                Margin="10,5,10,10"
-                MaximumWidthRequest="700"
-                BackgroundColor="#EEEEEE"
-                Opacity="0.9">
+            <VerticalStackLayout VerticalOptions="Center" Padding="10" Spacing="10">
+                <!-- Panel de contenido -->
+                <Border Padding="10"
+                        Margin="10,5"
+                        MaximumWidthRequest="700"
+                        BackgroundColor="#EEEEEE"
+                        Opacity="0.9">
 
-                    <VerticalStackLayout
-                    Spacing="20"
-                    Padding="10"
-                    MinimumHeightRequest="300"
-                    VerticalOptions="Fill">
+                    <VerticalStackLayout Spacing="20" Padding="10" VerticalOptions="Fill">
 
-                        <Image
-                    Source="logo_macronegocios.png"
-                    SemanticProperties.Description=""
-                    MaximumWidthRequest="200"
-                    WidthRequest="200"
-                    HorizontalOptions="Center" 
-                            IsVisible="False" />
+                        <!-- Título -->
+                        <Label Text="Sistema de Pedidos"
+                               HorizontalOptions="Center"
+                               FontAttributes="Bold"
+                               FontSize="19"
+                               TextColor="Gray"/>
 
-                        <Label 
-                    Text="Sistema de Pedidos"
-                    VerticalOptions="Center" 
-                    HorizontalOptions="Center" 
-                        FontAttributes="Bold" 
-                        TextColor="Gray"
-                        FontSize="19"/>
+                        <!-- Selección de Compañía/Agencia -->
+                        <VerticalStackLayout x:Name="CompanySelector" IsVisible="False" Spacing="10">
+                            <material:DropdownField x:Name="ddCompany" Title="Compañia"/>
+                            <material:DropdownField x:Name="ddAgency" Title="Agencia"/>
 
-
-                        <VerticalStackLayout x:Name="CompanySelector" IsVisible="False">
-                            <material:DropdownField x:Name="ddCompany"
-                                Title="Compañia">
-                            </material:DropdownField>
-                            <material:DropdownField x:Name="ddAgency"
-                            Title="Agencia">
-                            </material:DropdownField>
-
-                            <HorizontalStackLayout HorizontalOptions="Center" Padding="10" Spacing="10">
-                                <Button
-                                x:Name="btnAccess"
-                                Text="Ingresar"
-                                SemanticProperties.Hint="Ingresar"
-                                Clicked="btnAccess_Clicked"
-                                WidthRequest="250"
-                                CornerRadius="2"
-                                HorizontalOptions="Center"
-                                BackgroundColor="IndianRed"
-                                TextColor="White"
-                                FontAttributes="Bold"/>
-
-                                <Button
-                                x:Name="btnBack"
-                                Text="Regresar"
-                                SemanticProperties.Hint="Regresar"
-                                Clicked="btnBack_Clicked"
-                                WidthRequest="250"
-                                CornerRadius="2"
-                                HorizontalOptions="Center"
-                                BackgroundColor="BlueViolet"
-                                TextColor="White"
-                                FontAttributes="Bold"/>
+                            <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
+                                <Button x:Name="btnAccess"
+                                        Text="Ingresar"
+                                        Clicked="btnAccess_Clicked"
+                                        WidthRequest="250"
+                                        BackgroundColor="IndianRed"
+                                        TextColor="White"
+                                        FontAttributes="Bold"/>
+                                <Button x:Name="btnBack"
+                                        Text="Regresar"
+                                        Clicked="btnBack_Clicked"
+                                        WidthRequest="250"
+                                        BackgroundColor="BlueViolet"
+                                        TextColor="White"
+                                        FontAttributes="Bold"/>
                             </HorizontalStackLayout>
                         </VerticalStackLayout>
 
+                        <!-- Login -->
+                        <VerticalStackLayout x:Name="LoginSelector" Spacing="10">
+                            <material:TextField x:Name="txtUser"
+                                                Title="Usuario"
+                                                BorderThickness="0.4"
+                                                Icon="{FontImageSource FontFamily=MaterialRegular, Glyph={x:Static m:MaterialRegular.Email}}" />
 
-                        <VerticalStackLayout x:Name="LoginSelector">
-
-                            <material:TextField
-                        x:Name="txtUser"
-                        Title="Usuario"
-                            BorderThickness="0.4"
-                        Icon="{FontImageSource FontFamily=MaterialRegular, Glyph={x:Static m:MaterialRegular.Email}}"
-                        />
-
-                            <material:TextField 
-                        x:Name="txtPassword"
-                        Title="Password" 
-                        IsPassword="True"                        
-                        Icon="{FontImageSource FontFamily=MaterialRegular, Glyph={x:Static m:MaterialRegular.Lock}}">
+                            <material:TextField x:Name="txtPassword"
+                                                Title="Password"
+                                                IsPassword="True"
+                                                Icon="{FontImageSource FontFamily=MaterialRegular, Glyph={x:Static m:MaterialRegular.Lock}}">
                                 <material:TextField.Attachments>
                                     <material:TextFieldPasswordShowHideAttachment />
                                 </material:TextField.Attachments>
                             </material:TextField>
 
-                            <!--<controls:EntryLayout 
-                        x:Name="entryUser" 
-                        Placeholder="Usuario"
-                        HidePassword="False" 
-                        FontFamily="FontAwesome5Solid"
-                        Glyph="&#xf007;"/>
-                    
-                    <controls:EntryLayout 
-                        x:Name="entryPassword" 
-                        Placeholder="Contraseña"
-                        HidePassword="True" 
-                        HidePasswordColor="Gray"
-                        FontFamily="FontAwesome5Solid"
-                        Glyph="&#xf023;"
-                        AllowHidePasswordPassword="True"/>-->
-                            <HorizontalStackLayout HorizontalOptions="Center" Padding="10">
-                                <Button
-                                x:Name="BtnTryLogin"
-                                Text="Iniciar sesión"
-                                SemanticProperties.Hint="Iniciar sesión"
-                                Clicked="OnLoginClicked"
-                                WidthRequest="250"
-                                
-                                HorizontalOptions="Center"
-                                BackgroundColor="IndianRed"
-                                TextColor="White"
-                                FontAttributes="Bold"/>
-                            </HorizontalStackLayout>
+                            <Button x:Name="BtnTryLogin"
+                                    Text="Iniciar sesión"
+                                    Clicked="OnLoginClicked"
+                                    WidthRequest="250"
+                                    BackgroundColor="IndianRed"
+                                    TextColor="White"
+                                    FontAttributes="Bold"
+                                    HorizontalOptions="Center"/>
                         </VerticalStackLayout>
 
-                        <Label Text="Todos los derechos reservados &#169; D'Mujeres S.A. 2023"
-            FontSize="11"
-        VerticalOptions="Center" 
-        HorizontalOptions="Center"
-                        TextColor="Gray"
-                            IsVisible="False"/>
+                        <!-- Información -->
+                        <Label x:Name="lblAppVersion"
+                               Text="Version 0.1"
+                               FontSize="12"
+                               HorizontalOptions="Center"
+                               TextColor="Gray"/>
 
-                        <Label 
-            x:Name="lblAppVersion"
-        Text="Version 0.1"
-            FontSize="12"
-        VerticalOptions="Center" 
-        HorizontalOptions="Center" 
-                        Margin="0"                        
-                        TextColor="Gray"/>
-                        <Label
-            x:Name="txtEnvironment"
-        Text="Environment"
-            FontSize="12"
-        VerticalOptions="Center"
-        HorizontalOptions="Center" 
-                        TextColor="Gray"
-                        />
+                        <Label x:Name="txtEnvironment"
+                               Text="Environment"
+                               FontSize="12"
+                               HorizontalOptions="Center"
+                               TextColor="Gray"/>
 
-                        <Button
-                    BackgroundColor="Red"
-                    x:Name="btnSetting"
-                    Text=""
-                    SemanticProperties.Hint="Settings"
-                    Clicked="ShowSettings"
-                        VerticalOptions="Start"
-                        HorizontalOptions="Center"
-                        MinimumHeightRequest="40"
-                        IsVisible="false">
+                        <!-- Botón de configuración oculto -->
+                        <Button x:Name="btnSetting"
+                                BackgroundColor="Red"
+                                IsVisible="False"
+                                Clicked="ShowSettings"
+                                WidthRequest="40"
+                                HeightRequest="40">
                             <Button.ImageSource>
                                 <FontImageSource FontFamily="FontAwesome5Solid"
-											Color="DimGray"
-											Size="20"
-											FontAutoScalingEnabled="True"                                                         
-											Glyph="&#xf7d9;" />
+                                                 Color="DimGray"
+                                                 Size="20"
+                                                 Glyph="&#xf7d9;"/>
                             </Button.ImageSource>
                         </Button>
                     </VerticalStackLayout>
                 </Border>
-                <AbsoluteLayout Margin="0" MinimumHeightRequest="25" Padding="0" BackgroundColor="Transparent">
-                    <Label x:Name="lblTitle" 
-      Text="Powered By Macronegocios &#169;"
-      VerticalOptions="Center" 
-      Margin="10,0,0,0" 
-      TextColor="DarkBlue" 
-      FontSize="12" 
-      FontAttributes="None"
-      AbsoluteLayout.LayoutFlags="PositionProportional"
-      AbsoluteLayout.LayoutBounds="0,10.5,AutoSize,AutoSize"></Label>
-                    
-                    <Label 
-                    Text="Todos los derechos reservados &#169; D'Mujeres S.A. 2023"
-                    FontSize="11"
-                    VerticalOptions="Center" 
-                        Margin="10,0,0,0" 
-                    HorizontalOptions="Center"
-                    TextColor="Gray"
-                    AbsoluteLayout.LayoutFlags="PositionProportional"
-                    AbsoluteLayout.LayoutBounds="0,11,AutoSize,AutoSize"/>
-                    
-                    <StackLayout Orientation="Horizontal"
-AbsoluteLayout.LayoutFlags="All"
-AbsoluteLayout.LayoutBounds="0, 5, 1, 0.1"
-HorizontalOptions="End"
-VerticalOptions="Center">
-                        <StackLayout Orientation="Horizontal" x:Name="TopTools"
-    MaximumHeightRequest="40" 
-    ZIndex="1">
-                            <Image
-               Source="logo_odoo.png"
-               SemanticProperties.Description=""                
-               MaximumWidthRequest="200"
-               WidthRequest="200"
-               HorizontalOptions="Center"/>
-                        </StackLayout>
-                    </StackLayout>
-                </AbsoluteLayout>
 
-            </StackLayout>
+                <!-- Pie de página -->
+                <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                    <Label x:Name="lblTitle"
+                           Text="Powered By Macronegocios &#169;"
+                           FontSize="12"
+                           TextColor="DarkBlue"/>
+                    <Image Source="logo_odoo.png"
+                           WidthRequest="100"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
         </Grid>
     </ScrollView>
 </ContentPage>

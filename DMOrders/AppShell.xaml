@@ -14,5 +14,4 @@
         ContentTemplate="{DataTemplate local:Login}"
         Route="MainPage" 
         Shell.NavBarIsVisible="False"/>
-
 </Shell>

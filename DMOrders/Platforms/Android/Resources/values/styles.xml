@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?> 
+<resources>  
+  <style name="NoAnim">
+    <item name="android:activityOpenEnterAnimation">@android:anim/none</item>
+    <item name="android:activityOpenExitAnimation">@android:anim/none</item>
+    <item name="android:activityCloseEnterAnimation">@android:anim/none</item>
+    <item name="android:activityCloseExitAnimation">@android:anim/none</item>
+    <item name="android:taskOpenEnterAnimation">@android:anim/none</item>
+    <item name="android:taskOpenExitAnimation">@android:anim/none</item>
+    <item name="android:taskCloseEnterAnimation">@android:anim/none</item>
+    <item name="android:taskCloseExitAnimation">@android:anim/none</item>
+  </style>
+  
+  <style name="Maui.MainTheme" parent="Theme.Material3.DayNight.NoActionBar">    
+    <item name="android:windowAnimationStyle">@style/NoAnim</item>
+  </style>
+    <style name="MainTheme" parent="Theme.Maui.SplashTheme">
+        <!-- Elimina animaciones de ventana -->
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowEnterAnimation">@null</item>
+        <item name="android:windowExitAnimation">@null</item>
+
+        <!-- Elimina animaciones de diálogos -->
+        <item name="android:dialogTheme">@android:style/Theme.Dialog</item>
+        <item name="android:dialogAnimation">@null</item>
+
+        <!-- Elimina animaciones de tooltips y context menus -->
+        <item name="android:popupAnimationStyle">@null</item>
+    </style>
+</resources>
