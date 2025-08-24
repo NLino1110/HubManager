@@ -52,8 +52,8 @@ public partial class Container : ContentView
 
     }
 
-    public void LoadInfo(res_partner _data)
+    public async Task LoadInfo(res_partner _data)
     {
-        info.FillData(_data);
+        await info.FillData(_data);
     }
 }

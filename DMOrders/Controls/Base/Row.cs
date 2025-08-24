@@ -60,7 +60,7 @@ namespace DMOrders.Controls.Base
         public Row()
         {
             BuildLayout();
-            SetupGestures();
+            //SetupGestures();
         }
 
         private void BuildLayout()
@@ -119,28 +119,7 @@ namespace DMOrders.Controls.Base
 
             BuildLeftGridContent(LeftGrid);
             BuildToolGridContent(ToolGrid);
-
-            // VisualStateManager para selección
-            VisualStateManager.SetVisualStateGroups(_borderFrame, new VisualStateGroupList
-            {
-                new VisualStateGroup
-                {
-                    Name = "CommonStates",
-                    States =
-                    {
-                        new VisualState
-                        {
-                            Name = "Normal",
-                            Setters = { new Setter { Property = Border.BackgroundColorProperty, Value = Colors.Transparent } }
-                        },
-                        new VisualState
-                        {
-                            Name = "Selected",
-                            Setters = { new Setter { Property = Border.BackgroundColorProperty, Value = Colors.LightBlue } }
-                        }
-                    }
-                }
-            });
+                        
         }
 
         protected virtual void BuildLeftGridContent(Grid leftGrid) { }
@@ -170,18 +149,6 @@ namespace DMOrders.Controls.Base
                 DisallowTouchThreshold = 10
             };
             this.Behaviors.Add(longPressBehavior);
-        }
-
-        protected override void OnBindingContextChanged()
-        {
-            base.OnBindingContextChanged();
-            UpdateSelectionVisual();
-        }
-
-        public void UpdateSelectionVisual(object selectedItem = null)
-        {
-            var isSelected = Item != null && Item.Equals(selectedItem ?? ((CollectionView)Parent)?.SelectedItem);
-            VisualStateManager.GoToState(_borderFrame, isSelected ? "Selected" : "Normal");
         }
 
         public void AddCell(View cell, string region = "left", int row = 0, int column = 0)

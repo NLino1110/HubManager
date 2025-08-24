@@ -192,6 +192,12 @@
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\Sys\UpdateData.xaml">
 	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Resources\Styles\classic\Colors.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Resources\Styles\classic\Styles.xaml">
+	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>	  
 	</ItemGroup>
 </Project>

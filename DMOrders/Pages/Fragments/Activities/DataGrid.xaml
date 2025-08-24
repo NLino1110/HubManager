@@ -11,11 +11,19 @@
              x:Class="DMOrders.Pages.Fragments.Activities.DataGrid"
              x:Name="ActivitiesDataGrid">
 
-    <Grid RowDefinitions="*,Auto">
-
-        <ScrollView Grid.Row="0" BackgroundColor="WhiteSmoke">
-            <VerticalStackLayout>
-                <Label Text="Empty"></Label>
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Grid Grid.Row="0" BackgroundColor="LightGray" Padding="10" HeightRequest="35">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Text="Nombre" FontAttributes="Bold"/>
+            <Label Text="Precio" Grid.Column="1" FontAttributes="Bold"/>
+            <Label Text="Cantidad" Grid.Column="2" FontAttributes="Bold"/>
+        </Grid>
+        <ScrollView Grid.Row="1" BackgroundColor="WhiteSmoke">
+            <VerticalStackLayout>                
                 <CollectionView 
                     x:Name="MyCollectionView"
                     ItemsSource="{Binding Activities}" 
@@ -26,15 +34,17 @@
                                 SelectionChanged="MyCollectionView_SelectionChanged">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <customrows:ActivityRow/>
+                            <customrows:ActivityRow>
                                 
+                            </customrows:ActivityRow>
+
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
             </VerticalStackLayout>
         </ScrollView>
 
-        <StackLayout Grid.Row="1"  Orientation="Horizontal" HorizontalOptions="Center" Margin="0,2">
+        <StackLayout Grid.Row="2"  Orientation="Horizontal" HorizontalOptions="Center" Margin="0,2">
             <Button Text=""
                 Command="{Binding PreviousPageCommand}"
                 IsEnabled="{Binding CanGoPrevious}">

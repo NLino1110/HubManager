@@ -49,7 +49,7 @@ public partial class Login : ContentPage
 
         await LoadSettingsFromDb();
 
-        App.Session.useOfflineMode = true;
+        App.Session.useOfflineMode = false;
 
         Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
         Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0, 10));
@@ -394,11 +394,17 @@ public partial class Login : ContentPage
 
     private async void OnLoginClicked(object sender, EventArgs e)
     {
-        await TryLoginAsync();
+        if (App.Session.useOfflineMode)
+        {
+            await TryLoginAsyncOffline();
+        }
+        else
+        {
+            await TryLoginAsync();
+        }
     }
 
-    // Cambiar async void → async Task
-    public async Task TryLoginAsync()
+    public async Task TryLoginAsyncOffline()
     {
         try
         {
@@ -480,60 +486,164 @@ public partial class Login : ContentPage
                         token_type = "-",
                         access_token = "-"
                     };
-                }
-                else
+                }                
+            }
+
+            BtnTryLogin.IsEnabled = true;
+
+            // Configuración post-login
+            if (resultUser?.uid > 0)
+            {
+                LoginSelector.IsVisible = false;
+                CompanySelector.IsVisible = true;
+
+                var companies = await Task.Run(async () => await PrepareCompanies(userFound));
+
+                ddCompany.ItemsSource = companies;
+                ddCompany.ItemDisplayBinding = new Binding("name");
+                ddCompany.SelectedItemChanged += async (s, e) =>
                 {
-                    // Verificar conexión
-                    var apiChecker = new ApiChecker(App.Session.EndPointServer + "/connect/checkonline");
-                    bool isOnline = await apiChecker.IsApiAvailable();
+                    var selectedCompany = (res_company)ddCompany.SelectedItem;
+                    var storesDb = new ResCenterDb();
 
-                    if (!isOnline)
-                    {
-                        BtnTryLogin.IsEnabled = true;
-                        await Toast.Make("Offline o servidor inválido!").Show();
-                        Debug.WriteLine("Offline o servidor inválido!");
-                        return;
-                    }
+                    var storesItems = (await Task.Run(async () => await storesDb.GetItemsAsync()))
+                                      .Where(s => s.company_id == selectedCompany.id)
+                                      .ToArray();
+                    ddAgency.ItemsSource = storesItems;
+                    ddAgency.ItemDisplayBinding = new Binding("name");
+                    ddAgency.SelectedItem = storesItems.FirstOrDefault();
+                };
 
-                    // Intentar login online
-                    var responseUser = await hubUser.TryLoginRpcWeb(user, currentDate);
+                ddCompany.SelectedItem = companies.FirstOrDefault();
+                Debug.WriteLine($"Empresas: {companies.Length}");
+            }
+            else
+            {
+                await Toast.Make("Error en login").Show();
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Login error: {ex}");
+            await Toast.Make("Ha ocurrido un error durante el login").Show();
+        }
+    }
 
-                    if (responseUser?.error != null)
-                    {
-                        BtnTryLogin.IsEnabled = true;
-                        await Toast.Make($"{responseUser.error.message}: {responseUser.error.data.message}").Show();
-                        Debug.WriteLine($"{responseUser.error.message}: {responseUser.error.data.message}");
-                        return;
-                    }
+    // Cambiar async void → async Task
+    public async Task TryLoginAsync()
+    {
+        try
+        {
+            DateTime currentDate = DateTime.Now;
 
-                    if (responseUser?.result != null)
-                    {
-                        resultUser = new User
-                        {
-                            username = txtUser.Text,
-                            codclave = txtPassword.Text,
-                            uid = responseUser.result.uid,
-                            api_key = "-",
-                            token_type = "-",
-                            access_token = "-",
-                            databasename = App.Session.DefaultDatabase
-                        };
+            User user = new User
+            {
+                username = txtUser.Text,
+                codclave = txtPassword.Text,
+                databasename = App.Session.DefaultDatabase
+            };
 
-                        var partner = await hubUser.GetById(resultUser.uid);
-                        if (partner != null)
-                            resultUser.nombres = partner.result[0].name;
+#if !DEBUG
+        if (!App.Session.isTestMode)
+        {
+            if (user.username.Length <= 3 || user.codclave.Length <= 3)
+            {
+                await Toast.Make("Datos incorrectos, verifique usuario y contraseña.").Show();
+                return;
+            }
+        }
+#endif
 
-                        await SetDataSessionOnLine(resultUser, currentDate);
-                    }
+            BtnTryLogin.IsEnabled = false;
 
-                    // Releer lista actualizada desde la base local
-                    userList = await Task.Run(async () => await database.GetItemsAsync());
+            var database = new UserAccessDb();
+            var hubUser = new ApiManager.HubUser(App.Session);
+            User resultUser = null;
 
-                    userFound = userList.FirstOrDefault(
-                        u => u.username == txtUser.Text &&
-                             u.pwd == txtPassword.Text &&
-                             u.log_fec_acceso.Date == currentDate.Date);
+            // --- Ejecutar operaciones pesadas en un hilo de fondo ---
+            var userList = await Task.Run(async () => await database.GetItemsAsync());
+
+            var userFound = userList.FirstOrDefault(
+                u => u.username == txtUser.Text &&
+                     u.pwd == txtPassword.Text &&
+                     u.log_fec_acceso.Date == currentDate.Date);
+
+            if (userFound != null)
+            {
+                // Usuario encontrado offline
+                resultUser = new User
+                {
+                    uid = userFound.uid,
+                    username = userFound.username,
+                    nombres = userFound.name,
+                    codclave = userFound.pwd,
+                    api_key = userFound.api_key,
+                    token_type = userFound.token_type,
+                    access_token = userFound.access_token,
+                    databasename = userFound.databasename ?? App.Session.DefaultDatabase,
+                    log_fec_acceso = userFound.log_fec_acceso
+                };
+
+                if (!(await SetDataSessionOffLine(resultUser, userFound, currentDate)))
+                {
+                    BtnTryLogin.IsEnabled = true;
+                    Debug.WriteLine("Error en login offline");
+                    return;
                 }
+            }
+            else
+            {  
+                // Verificar conexión
+                var apiChecker = new ApiChecker(App.Session.EndPointServer + "/connect/checkonline");
+                bool isOnline = await apiChecker.IsApiAvailable();
+
+                if (!isOnline)
+                {
+                    BtnTryLogin.IsEnabled = true;
+                    await Toast.Make("Offline o servidor inválido!").Show();
+                    Debug.WriteLine("Offline o servidor inválido!");
+                    return;
+                }
+
+                // Intentar login online
+                var responseUser = await hubUser.TryLoginRpcWeb(user, currentDate);
+
+                if (responseUser?.error != null)
+                {
+                    BtnTryLogin.IsEnabled = true;
+                    await Toast.Make($"{responseUser.error.message}: {responseUser.error.data.message}").Show();
+                    Debug.WriteLine($"{responseUser.error.message}: {responseUser.error.data.message}");
+                    return;
+                }
+
+                if (responseUser?.result != null)
+                {
+                    resultUser = new User
+                    {
+                        username = txtUser.Text,
+                        codclave = txtPassword.Text,
+                        uid = responseUser.result.uid,
+                        api_key = "-",
+                        token_type = "-",
+                        access_token = "-",
+                        databasename = App.Session.DefaultDatabase
+                    };
+
+                    var partner = await hubUser.GetById(resultUser.uid);
+                    if (partner != null)
+                        resultUser.nombres = partner.result[0].name;
+
+                    await SetDataSessionOnLine(resultUser, currentDate);
+                }
+
+                // Releer lista actualizada desde la base local
+                userList = await Task.Run(async () => await database.GetItemsAsync());
+
+                userFound = userList.FirstOrDefault(
+                    u => u.username == txtUser.Text &&
+                            u.pwd == txtPassword.Text &&
+                            u.log_fec_acceso.Date == currentDate.Date);
+                
 
                 if (userFound == null)
                 {
@@ -547,12 +657,9 @@ public partial class Login : ContentPage
 
             // Configuración post-login
             if (resultUser?.uid > 0)
-            {
-                if (!App.Session.useOfflineMode)
-                {
-                    var serverPuller = new ServerPuller();
-                    await serverPuller.Pull();
-                }
+            {                
+                var serverPuller = new ServerPuller();
+                await serverPuller.Pull();                
 
                 LoginSelector.IsVisible = false;
                 CompanySelector.IsVisible = true;
@@ -597,8 +704,6 @@ public partial class Login : ContentPage
 
     private void btnAccess_Clicked(object sender, EventArgs e)
     {
-        Debug.WriteLine("Empresas: " + ddCompany.SelectedItem.ToString());
-
         if(ddCompany.SelectedItem != null && ddAgency.SelectedItem != null)
         {
             App.Session.res_Company = (res_company) ddCompany.SelectedItem;

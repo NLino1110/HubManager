@@ -115,7 +115,7 @@ namespace DMOrders.Controls.CustomRows
                 Orientation = StackOrientation.Vertical,
                 HorizontalOptions = LayoutOptions.Fill,
                 Padding = 4,                
-                Children = { nameLabel, codeLabel, groupStack3 }
+                Children = { nameLabel, codeLabel, groupStack3 },
             };
 
             Button btnSelect = new Button

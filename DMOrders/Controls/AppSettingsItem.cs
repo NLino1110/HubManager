@@ -159,13 +159,11 @@ namespace DMOrders.Controls
                 }
             };
 
-            var frame = new Frame
-            {
-                BorderColor = Colors.LightGray,
+            var frame = new Border
+            {                
                 Padding = new Thickness(5),
                 Margin = new Thickness(1),
-                BackgroundColor = Colors.WhiteSmoke,
-                CornerRadius = 0,
+                BackgroundColor = Colors.WhiteSmoke,                
                 MinimumHeightRequest = 30,
                 //Content = 
             };

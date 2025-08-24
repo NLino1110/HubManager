@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Graphics;
 
 namespace DMOrders.Controls.Base
 {
@@ -40,12 +41,45 @@ namespace DMOrders.Controls.Base
         {
             base.OnBindingContextChanged();
             RebuildLayout();
+            UpdateSelectionVisual();
         }
 
         private void RebuildLayout()
         {
             if (Item != null)
                 BuildLeftGridContent(LeftGrid);
+
+            // Configurar VisualStates para selección
+            VisualStateManager.SetVisualStateGroups(this, new VisualStateGroupList
+            {
+                new VisualStateGroup
+                {
+                    Name = "CommonStates",
+                    States =
+                    {
+                        new VisualState
+                        {
+                            Name = "Normal",
+                            Setters = { new Setter { Property = BackgroundColorProperty, Value = Colors.Transparent } }
+                        },
+                        new VisualState
+                        {
+                            Name = "Selected",
+                            Setters = { new Setter { Property = BackgroundColorProperty, Value = Colors.LightBlue } }
+                        }
+                    }
+                }
+            });
+        }
+
+        public void UpdateSelectionVisual()
+        {
+            if (Parent is CollectionView cv)
+            {
+                var selectedItem = cv.SelectedItem;
+                bool isSelected = Item != null && Item.Equals(selectedItem);
+                VisualStateManager.GoToState(this, isSelected ? "Selected" : "Normal");
+            }
         }
     }
 }

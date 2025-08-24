@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Input;
-using ClientAgree.Models;
 using RestSharp;
 using DMSA.Models.General;
 using ApiManager;

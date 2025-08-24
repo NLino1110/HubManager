@@ -70,6 +70,17 @@ namespace DMOrders.Pages.Fragments.Product
             }
         }
 
+        private bool _isBusy;
+        public bool IsBusy
+        {
+            get => _isBusy;
+            set
+            {
+                _isBusy = value;
+                OnPropertyChanged(nameof(IsBusy));
+            }
+        }
+
         public ProductListViewModel(string _FilterCode, string _FilterName, int _FilterBrand, int _FilterCategory, FStatus _FilterStatus)
         {
             FilterCode = _FilterCode;            
@@ -78,37 +89,13 @@ namespace DMOrders.Pages.Fragments.Product
             FilterCategory = _FilterCategory;
             FilterStatus = _FilterStatus;
 
-            IDispatcherTimer timer;
-            //var timer = Application.Current.Dispatcher.CreateTimer()
-            timer = App.Current.MainPage.Dispatcher.CreateTimer();
-            timer.Interval = TimeSpan.FromMilliseconds(500);
-            timer.IsRepeating = false;
-            timer.Tick += async (s, e) =>
-            {
-                await LoadData();
-                timer.Stop();
-                timer.IsRepeating = false;
-
-            };
-            timer.Start();
+            LoadDataByTimer();
 
         }
 
         public ProductListViewModel()
         {
-            IDispatcherTimer timer;
-            //var timer = Application.Current.Dispatcher.CreateTimer()
-            timer = App.Current.MainPage.Dispatcher.CreateTimer();
-            timer.Interval = TimeSpan.FromMilliseconds(500);
-            timer.IsRepeating = false;
-            timer.Tick += async (s, e) =>
-            {
-                await LoadData();
-                timer.Stop();
-                timer.IsRepeating = false;
-
-            };
-            timer.Start();
+            LoadDataByTimer();
 
         }
 
@@ -183,6 +170,35 @@ namespace DMOrders.Pages.Fragments.Product
             Debug.WriteLine("RelayRowTapped called");
         }
 
+        public void LoadDataByTimer()
+        {
+            // Usamos el dispatcher global de la app para garantizar ejecución en UI
+            //var dispatcher = Application.Current.Dispatcher;
+            var dispatcher = Dispatcher.GetForCurrentThread();
+            var timer = dispatcher.CreateTimer();
+            timer.Interval = TimeSpan.FromMilliseconds(300); // delay corto para dejar respirar la UI
+            timer.IsRepeating = false;
+
+            timer.Tick += async (s, e) =>
+            {
+                try
+                {
+                    if (IsBusy) return; // Previene cargas simultáneas
+                    await LoadData();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error en LoadData: {ex}");
+                }
+                finally
+                {
+                    timer.Stop();
+                }
+            };
+
+            timer.Start();
+        }
+
         private async Task LoadData()
         {
             try
@@ -254,7 +270,7 @@ namespace DMOrders.Pages.Fragments.Product
             if (CanGoNext)
             {
                 Page++;
-                Task.Run(async () => await LoadData());
+                LoadDataByTimer();
             }
         });
 
@@ -263,7 +279,7 @@ namespace DMOrders.Pages.Fragments.Product
             if (CanGoPrevious)
             {
                 Page--;
-                Task.Run(async () => await LoadData());
+                LoadDataByTimer();
             }
         });
 

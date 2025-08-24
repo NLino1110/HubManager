@@ -8,25 +8,9 @@
              xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material" 
              x:Name="ProductContainer">
     
-    <Grid ColumnDefinitions="Auto,1,*" RowDefinitions="Auto,Auto,Auto,*">
-        <!--<controls:CustomImageHeaderView
-            x:Name="customImageHeaderView"
-            Title="Usuario" 
-            Subtitle="Empty" 
-            Grid.Row="0" 
-            Grid.Column="0">
-            <controls:CustomImageHeaderView.ImageSource>
-                <FontImageSource FontFamily="MaterialSharp"
-                                 Color="{StaticResource Primary}"
-                                 Size="25"
-                                 FontAutoScalingEnabled="True"
-                                 Glyph="{x:Static uranium:MaterialSharp.Person}" />
-            </controls:CustomImageHeaderView.ImageSource>
-        </controls:CustomImageHeaderView>-->
+    <Grid ColumnDefinitions="Auto,1,*" RowDefinitions="Auto,Auto,Auto,*">        
 
         <BoxView Grid.Row="0" Grid.Column="1" Grid.RowSpan="5" WidthRequest="1" Color="LightGrey"/>
-
-        <!--<pages:PagingFragment x:Name="pagingFragment" Grid.Row="0" Grid.Column="2" />-->
 
         <BoxView Grid.Row="1" Grid.ColumnSpan="3" HeightRequest="1" Color="LightGrey"/>
 

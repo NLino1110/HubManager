@@ -117,28 +117,8 @@ namespace DMOrders.Pages.Fragments.Product
             Debug.WriteLine(ViewParent);
             Debug.WriteLine(e.ToString());
 
-            var customerContainer = (Customers.Container)ViewParent;
-            customerContainer.LoadInfo((res_partner)e.CurrentSelection[0]);
-
-            //if (e.CurrentSelection.Count == 0) return;
-
-            //CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            //ClienteAprobacion team = (ClienteAprobacion)e.CurrentSelection[0];
-
-            //string text = "Seleccionado: " + team.NOMBRESCLIENTE;
-            //ToastDuration duration = ToastDuration.Short;
-            //double fontSize = 14;
-            ////var toast = Toast.Make(text, duration, fontSize);
-            ////toast.Show(cancellationTokenSource.Token).Wait();
-
-            //ConfirmClient obj = new ConfirmClient();
-            //obj.selectedCustomer = team;
-            ////App.Current.MainPage = obj;
-            //await Navigation.PushModalAsync(obj, false);
-            ////await Task.Delay(2000);
-            ////await Navigation.PopModalAsync();
-            ////App.Current.MainPage = obj;
-            ////await Navigation.PushModalAsync(obj, true);
+            //var customerContainer = (Customers.Container)ViewParent;
+            //await Task.Run(async () => await customerContainer.LoadInfo((res_partner)e.CurrentSelection[0]));
         }
 
         //public static T FindParentOfType<T>(Element element) where T : Element

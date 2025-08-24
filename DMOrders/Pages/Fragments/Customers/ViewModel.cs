@@ -98,7 +98,6 @@ namespace DMOrders.Pages.Fragments.Customers
             timer.Start();
         }
 
-
         public ObservableCollection<res_partner> ItemsData
         {
             get => _itemsData;

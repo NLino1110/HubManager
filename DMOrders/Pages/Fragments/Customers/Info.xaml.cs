@@ -16,7 +16,7 @@ public partial class Info : ContentView
 		InitializeComponent();
     }
 
-    public void FillData(res_partner _data)
+    public async Task FillData(res_partner _data)
     {
         data = _data;
         tipIden.Text = "Cedula/Ruc";

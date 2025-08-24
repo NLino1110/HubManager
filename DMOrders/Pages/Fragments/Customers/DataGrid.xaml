@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"             
-             xmlns:vm="clr-namespace:DMOrders.Pages.Fragments.Customers"             
+             xmlns:vm="clr-namespace:DMOrders.Pages.Fragments.Customers"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit" 
              xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
              xmlns:converters="clr-namespace:DMOrders.Converters"
              xmlns:customrows="clr-namespace:DMOrders.Controls.CustomRows"
-             x:Class="DMOrders.Pages.Fragments.Customers.DataGrid"                                     
-             x:DataType="vm:ViewModel">
+             x:Class="DMOrders.Pages.Fragments.Customers.DataGrid"
+             x:Name="CustomerDataGrid">
 
-    <Grid RowDefinitions="*,Auto">
+    <Grid RowDefinitions="Auto,*,Auto">
         <!--<Grid.Behaviors>
             <toolkit:TouchBehavior
                 BindingContext="{Binding Path=BindingContext, Source={x:Reference CurrentPage}, x:DataType=ContentView}"
@@ -19,10 +18,19 @@
                 LongPressCommand="{Binding IncreaseLongPressCountCommand}"
                 />
         </Grid.Behaviors>-->
-            
-            <ScrollView Grid.Row="0" BackgroundColor="WhiteSmoke">
-                <VerticalStackLayout>
-                    <Label Text="Empty"></Label>
+        <Grid Grid.Row="0" BackgroundColor="LightGray" Padding="10" HeightRequest="35">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>                
+                <ColumnDefinition Width="2*"/>                
+                <ColumnDefinition Width="*"/>                
+            </Grid.ColumnDefinitions>
+            <Label Text="Nombre" FontAttributes="Bold"/>
+            <Label Text="Precio" Grid.Column="1" FontAttributes="Bold"/>
+            <Label Text="Cantidad" Grid.Column="2" FontAttributes="Bold"/>
+        </Grid>
+
+        <ScrollView Grid.Row="1" BackgroundColor="WhiteSmoke">
+                <VerticalStackLayout>                    
                     <CollectionView 
                         x:Name="MyCollectionView"
                         ItemsSource="{Binding ItemsData}" 
@@ -33,19 +41,20 @@
                         SelectionChanged="_dataGrid1_ItemSelected">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <customrows:ResPartnerRow
+                            <customrows:ResPartnerRow
                         Item="{x:Binding .}" 
                         EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
-                        SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"/>
+                        SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}">
+                                
+                            </customrows:ResPartnerRow>
 
-                         
-                            </DataTemplate>
+                        </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </VerticalStackLayout>
             </ScrollView>
 
-            <StackLayout Grid.Row="1"  Orientation="Horizontal" HorizontalOptions="Center" Margin="0,2">
+            <StackLayout Grid.Row="2"  Orientation="Horizontal" HorizontalOptions="Center" Margin="0,2">
             <Button Text=""
             Command="{Binding PreviousPageCommand}"
             IsEnabled="{Binding CanGoPrevious}" >

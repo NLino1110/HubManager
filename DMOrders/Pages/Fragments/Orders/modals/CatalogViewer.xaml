@@ -15,22 +15,25 @@
         </ResourceDictionary>
 
         <DataTemplate x:Key="RowTemplate">
-            <customrows:ProductRow Item="{Binding .}" />
+            <customrows:ProductRow Item="{Binding .}">
+            </customrows:ProductRow>            
         </DataTemplate>
 
         <DataTemplate x:Key="GridTemplate">
-            <customrows:ProductRow Item="{Binding .}" />
+            <customrows:ProductRow Item="{Binding .}">
+            </customrows:ProductRow>
         </DataTemplate>
 
         <DataTemplate x:Key="ViewerTemplate">
-            <customrows:ProductViewerRow
-                Item="{Binding .}"/>
+            <customrows:ProductViewerRow Item="{Binding .}">
+            </customrows:ProductViewerRow>
         </DataTemplate>
 
         <local:ProductTemplateSelector x:Key="ProductTemplateSelector"
                                    ViewerTemplate="{StaticResource ViewerTemplate}"
                                    RowTemplate="{StaticResource RowTemplate}"
-                                   GridTemplate="{StaticResource GridTemplate}" />
+                                   GridTemplate="{StaticResource GridTemplate}">
+        </local:ProductTemplateSelector>
 
     </ContentView.Resources>
     <Grid RowDefinitions="Auto,Auto,*" BackgroundColor="WhiteSmoke">
@@ -215,13 +218,12 @@
                     HorizontalOptions="Fill" 
                     VerticalOptions="Fill"
                     SelectionMode="Single"
-                    SelectedItem="{Binding SelectedItem, Mode=TwoWay}"                    
+                    SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
                     IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}"
                     ItemTemplate="{StaticResource ProductTemplateSelector}">
                 <CollectionView.ItemsLayout>
                     <GridItemsLayout Orientation="Vertical" Span="4" />
                 </CollectionView.ItemsLayout>
-
             </CollectionView>                
 
             <Grid Grid.Row="1" ColumnDefinitions="*,Auto">

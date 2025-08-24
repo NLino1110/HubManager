@@ -1,5 +1,6 @@
 ﻿using CobranzasDMSA_Odoo.Models;
 using CommunityToolkit.Maui.Behaviors;
+using DMOrders.Controls.Base;
 using DMOrders.Pages.Fragments.Activities;
 using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.Native;
@@ -15,7 +16,7 @@ using System.Windows.Input;
 namespace DMOrders.Controls.CustomRows
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public class PlanningSlotRow : BaseRow<PlanningSlot>
+    public class PlanningSlotRow : RowAdvance<PlanningSlot>
     {
         Label labelId { get; set; }
         Label labelCompany { get; set; }
