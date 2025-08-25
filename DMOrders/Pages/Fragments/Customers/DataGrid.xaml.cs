@@ -4,12 +4,31 @@ using DMOrders.Models.Filters;
 using DMOrders.Pages.Fragments.Orders;
 using DMSA.Models.Clientes;
 using DMSA.Models.Odoo.Native;
+using MPowerKit.VirtualizeListView;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Input;
 
 namespace DMOrders.Pages.Fragments.Customers
 {
+
+    public class ItemTemplateSelector : DataTemplateSelector
+    {
+        public DataTemplate EvenTemplate { get; set; }
+        public DataTemplate UnevenTemplate { get; set; }
+
+        protected override DataTemplate OnSelectTemplate(object item, BindableObject container)
+        {
+            if (item is res_partner data)
+            {
+                return data.id % 2 == 0 ? EvenTemplate : UnevenTemplate;
+            }
+
+            return null;
+        }
+    }
+
+
     public partial class DataGrid : ContentView
     {
         res_partner SelectedItem { get; set; }
@@ -36,6 +55,8 @@ namespace DMOrders.Pages.Fragments.Customers
             BindingContext = new ViewModel();
 
             EditCommand = new Command(AddProcess);
+
+            
 
             //IDispatcherTimer timer;
 
@@ -103,14 +124,19 @@ namespace DMOrders.Pages.Fragments.Customers
 
         void OnTapGestureRecognizerTapped(object sender, TappedEventArgs args)
         {
-            ViewModel viewModelObject = new ViewModel(filterCode, filterId, filterName, filterDays, filterStatus);
-            BindingContext = viewModelObject;
+            //ViewModel viewModelObject = new ViewModel(filterCode, filterId, filterName, filterDays, filterStatus);
+            //BindingContext = viewModelObject;
+
+            var viewModel = (ViewModel) BindingContext;
+            viewModel.LoadDataByTimer();
 
             //MainThread.BeginInvokeOnMainThread(() =>
             //{
             //    InvalidateMeasure();
             //});
 
+            //listView.ItemsSource = viewModel.ItemsData;
+            
             Debug.WriteLine("Tap:" + sender.ToString());
         }
 
@@ -234,5 +260,18 @@ namespace DMOrders.Pages.Fragments.Customers
 
             //Debug.WriteLine("Tap:" + sender.ToString());
         }
+
+        private async void FixedRefreshView_Refreshing(object sender, EventArgs e)
+        {
+            await Task.Delay(5000);
+
+            //FillItems();
+
+            (sender as FixedRefreshView).IsRefreshing = false;
+        }
+
+        
+
+        
     }
 }

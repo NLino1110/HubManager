@@ -35,8 +35,7 @@ namespace DMOrders.Services.Database.Sqlite
         public async Task<List<res_partner>> GetItemsAsync()
         {
             await Init();
-            return await Database.Table<res_partner>().Take(50).ToListAsync();
-            //return Database.Table<account_journal>().ToList();
+            return await Database.Table<res_partner>().Take(50).ToListAsync();            
         }
 
         public async Task<res_partner> GetItemsAsync(int company_id, int partner_id)

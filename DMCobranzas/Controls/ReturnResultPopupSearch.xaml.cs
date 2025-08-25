@@ -14,7 +14,7 @@ using System.Windows.Input;
 
 namespace CommunityToolkit.Maui.Sample;
 
-public partial class ReturnResultPopwupSearch : Popup<res_company>
+public partial class ReturnResultPopupSearch : Popup<res_company>
 {
     res_company[] Empresas { get; set; }
     public res_company empresa { get; set; }
@@ -26,7 +26,7 @@ public partial class ReturnResultPopwupSearch : Popup<res_company>
 		InitializeComponent();
 
 		DesiredSize = popupSizeConstants.Medium;
-		ResultWhenUserTapsOutsideOfPopup = "Clic afuera";
+		//ResultWhenUserTapsOutsideOfPopup = "Clic afuera";
         
         isWindows = DeviceInfo.Current.Platform == DevicePlatform.WinUI;
 
@@ -74,9 +74,9 @@ public partial class ReturnResultPopwupSearch : Popup<res_company>
     private async void VerSaldos(object objItem)
     {
         Debug.WriteLine("VerSaldos");
-        if (objItem != null)
+        if (objItem is res_company Item)
         {
-            Close(objItem);
+            await CloseAsync(Item);
         }
         else
         {

@@ -1195,7 +1195,7 @@ namespace ResourceBuilder.Shared.master
             }
 
             //=> message = $"You want to fire {p.FirstName} {p.LastName}";
-            //toastService.ShowSuccess("Enviando " + p.CodMarca + " " + p.Descripcion);
+            toastService.ShowSuccess("Enviando productos de la lista");
 
             //for (int i = 0; i < dataSource.Count(); i += 10) // Avanza en bloques de 10
             //{
@@ -1459,7 +1459,6 @@ namespace ResourceBuilder.Shared.master
                 Debug.WriteLine(totalCount + "/" + dataSourceBrands.Count());
             }
         }
-
 
         public async Task SendAllBrandsByMbwBatch_grup_awaited()
         {

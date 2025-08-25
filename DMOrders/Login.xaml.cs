@@ -49,7 +49,7 @@ public partial class Login : ContentPage
 
         await LoadSettingsFromDb();
 
-        App.Session.useOfflineMode = false;
+        App.Session.useOfflineMode = true;
 
         Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
         Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0, 10));
@@ -456,14 +456,7 @@ public partial class Login : ContentPage
                     access_token = userFound.access_token,
                     databasename = userFound.databasename ?? App.Session.DefaultDatabase,
                     log_fec_acceso = userFound.log_fec_acceso
-                };
-
-                if (!(await SetDataSessionOffLine(resultUser, userFound, currentDate)))
-                {
-                    BtnTryLogin.IsEnabled = true;
-                    Debug.WriteLine("Error en login offline");
-                    return;
-                }
+                };                
             }
             else
             {
@@ -494,6 +487,13 @@ public partial class Login : ContentPage
             // Configuración post-login
             if (resultUser?.uid > 0)
             {
+                if (!(await SetDataSessionOffLine(resultUser, userFound, currentDate)))
+                {
+                    BtnTryLogin.IsEnabled = true;
+                    Debug.WriteLine("Error en login offline");
+                    return;
+                }
+
                 LoginSelector.IsVisible = false;
                 CompanySelector.IsVisible = true;
 

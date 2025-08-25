@@ -26,8 +26,7 @@ public partial class MainPageTab : ContentPage
     bool isExpanded = false;
     public MainPageTab()
 	{
-		InitializeComponent();
-        BindingContext = new MainViewModel();
+		InitializeComponent();        
 
         NavigationPage.SetHasNavigationBar(this, false);
 
@@ -171,60 +170,8 @@ public partial class MainPageTab : ContentPage
 
     private async void ShowSettings(object sender, EventArgs e)
     {
-        DMOrders.Pages.Sys.SettingsPage settings = new DMOrders.Pages.Sys.SettingsPage();
-        
-    }
-
-    public partial class MainViewModel : ObservableObject
-    {
-        [ObservableProperty]
-        private Tab selectedTab;
-
-        public ObservableCollection<Tab> Tabs { get; set; } = new();
-        public ObservableCollection<Tab> Tabs2 { get; set; } = new();
-        public ObservableCollection<Tab> Tabs3 { get; set; } = new();
-
-        public MainViewModel()
-        {            
-            //Tabs.Add(new Tab()
-            //{
-            //    Title = "Tab1 - TOP",
-            //    Content = new Label() { Text = "Tab1 Label" },
-            //    Icon = "cat.png"
-            //});
-            //Tabs.Add(new Tab()
-            //{
-            //    Title = "Tab2 - TOP",
-            //    Content = new Label() { Text = "Tab2 Label" },
-            //    Icon = "dog.png"
-            //});
-            //Tabs2.Add(new Tab()
-            //{
-            //    Title = "Tab1",
-            //    Content = new Label() { Text = "Tab1 Label" },
-            //    Icon = "cat.png"
-            //});
-            //Tabs2.Add(new Tab()
-            //{
-            //    Title = "Tab2",
-            //    Content = new Label() { Text = "Tab2 Label" },
-            //    Icon = "dog.png"
-            //});
-            //Tabs3.Add(new Tab()
-            //{
-            //    Title = "Tab1",
-            //    Content = new Label() { Text = "Tab1 Label" },
-            //    Icon = "cat.png"
-            //});
-            //Tabs3.Add(new Tab()
-            //{
-            //    Title = "Tab2",
-            //    Content = new Label() { Text = "Tab2 Label" },
-            //    Icon = "dog.png"
-            //});
-            //SelectedTab = Tabs2[0];
-        }
-    }
+        DMOrders.Pages.Sys.SettingsPage settings = new DMOrders.Pages.Sys.SettingsPage();        
+    }        
 
     private void TabView_ActiveTabChanged(object sender, int e)
     {

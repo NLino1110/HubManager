@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using DMOrders.Models.Filters;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Native;
+using Microsoft.Maui.Controls;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -11,11 +12,10 @@ using System.Windows.Input;
 namespace DMOrders.Pages.Fragments.Customers
 {
     public partial class ViewModel : INotifyPropertyChanged
-    {
+    {        
         private ObservableCollection<res_partner> _itemsData;
                 
         private res_partner _selectedItem;
-        private bool _isRefreshing;
         private bool _teamColumnVisible = true;
         private bool _wonColumnVisible = true;
         private bool _headerBordersVisible = true;
@@ -33,7 +33,6 @@ namespace DMOrders.Pages.Fragments.Customers
         private string FilterName { get; set; }
         private FDays FilterDays { get; set; }
         private FStatus FilterStatus { get; set; }
-
 
         public bool CanGoNext => (_page * PageSize) < TotalItems;
         public bool CanGoPrevious => _page > 1;
@@ -56,6 +55,7 @@ namespace DMOrders.Pages.Fragments.Customers
 
         public ViewModel(string _FilterCode, string _FilterId, string _FilterName, FDays _FilterDays, FStatus _FilterStatus)
         {
+            _itemsData = new ObservableCollection<res_partner>();            
             FilterCode = _FilterCode;
             FilterId = _FilterId;
             FilterName = _FilterName;
@@ -66,6 +66,10 @@ namespace DMOrders.Pages.Fragments.Customers
 
         public ViewModel()
         {
+            _itemsData = new ObservableCollection<res_partner>();
+
+            ItemTappedCommand = new Command<res_partner>(OnItemTapped);
+
             LoadDataByTimer();
         }
 
@@ -81,8 +85,7 @@ namespace DMOrders.Pages.Fragments.Customers
             timer.Tick += async (s, e) =>
             {
                 try
-                {
-                    if (IsBusy) return; // Previene cargas simultáneas
+                {                    
                     await LoadData();
                 }
                 catch (Exception ex)
@@ -191,17 +194,7 @@ namespace DMOrders.Pages.Fragments.Customers
                 _selectedItem = value;
                 Debug.WriteLine("Team Selected : " + value?.id);
             }
-        }
-
-        public bool IsRefreshing
-        {
-            get => _isRefreshing;
-            set
-            {
-                _isRefreshing = value;
-                OnPropertyChanged(nameof(IsRefreshing));
-            }
-        }
+        }                
 
         [RelayCommand]
         void RelayRowTapped()
@@ -209,25 +202,31 @@ namespace DMOrders.Pages.Fragments.Customers
             Debug.WriteLine("RelayRowTapped called");
         }
 
-
-        private bool _isBusy;
-        public bool IsBusy
+        private bool _isLoading;
+        public bool IsLoading
         {
-            get => _isBusy;
+            get => _isLoading;
             set
             {
-                _isBusy = value;
-                OnPropertyChanged(nameof(IsBusy));
+                _isLoading = value;
+                OnPropertyChanged(nameof(IsLoading));
+                Debug.WriteLine("_isLoading");
+                Debug.WriteLine(_isLoading);
             }
         }
 
         public async Task LoadData()
         {
-            if (IsBusy) return;
+            if (IsLoading) return;
 
             try
             {
-                IsBusy = true;
+                if(_itemsData == null)
+                    _itemsData = new ObservableCollection<res_partner>();
+                
+                _itemsData.Clear();
+
+                IsLoading = true;
 
                 var database = new ResPartnerDb();
 
@@ -263,9 +262,9 @@ namespace DMOrders.Pages.Fragments.Customers
                     .Skip((_page - 1) * _pageSize)
                     .Take(_pageSize)
                     .ToList();
-
+                
                 _itemsData = new ObservableCollection<res_partner>(paginated);
-
+                
                 OnPropertyChanged(nameof(ItemsData));
                 OnPropertyChanged(nameof(CanGoNext));
                 OnPropertyChanged(nameof(CanGoPrevious));
@@ -277,11 +276,9 @@ namespace DMOrders.Pages.Fragments.Customers
             }
             finally
             {
-                IsBusy = false;
+                IsLoading = false;
             }
         }
-
-
 
         public ICommand NextPageCommand => new Command(async () =>
         {
@@ -304,5 +301,12 @@ namespace DMOrders.Pages.Fragments.Customers
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged(string property) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
 
+        public ICommand ItemTappedCommand { get; }
+        private void OnItemTapped(res_partner partner)
+        {
+            // Aquí puedes manejar la selección
+            // Por ejemplo, navegar o mostrar detalles del ítem
+            Debug.WriteLine($"Item seleccionado: {partner.name}");
+        }
     }
 }

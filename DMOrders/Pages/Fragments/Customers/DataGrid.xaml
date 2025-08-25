@@ -6,39 +6,35 @@
              xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
              xmlns:converters="clr-namespace:DMOrders.Converters"
              xmlns:customrows="clr-namespace:DMOrders.Controls.CustomRows"
+             xmlns:mpowerkit="clr-namespace:MPowerKit.VirtualizeListView;assembly=MPowerKit.VirtualizeListView"
+             xmlns:odoo="clr-namespace:DMSA.Models.Odoo.Native;assembly=DMSA.Models.Odoo" 
              x:Class="DMOrders.Pages.Fragments.Customers.DataGrid"
              x:Name="CustomerDataGrid">
-
     <Grid RowDefinitions="Auto,*,Auto">
-        <!--<Grid.Behaviors>
-            <toolkit:TouchBehavior
-                BindingContext="{Binding Path=BindingContext, Source={x:Reference CurrentPage}, x:DataType=ContentView}"
-                Command="{Binding IncreaseTouchCountCommand}"
-                HoveredBackgroundColor="{StaticResource Gray900}"
-                LongPressCommand="{Binding IncreaseLongPressCountCommand}"
-                />
-        </Grid.Behaviors>-->
+        
+        
         <Grid Grid.Row="0" BackgroundColor="LightGray" Padding="10" HeightRequest="35">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>                
-                <ColumnDefinition Width="2*"/>                
-                <ColumnDefinition Width="*"/>                
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Label Text="Nombre" FontAttributes="Bold"/>
             <Label Text="Precio" Grid.Column="1" FontAttributes="Bold"/>
             <Label Text="Cantidad" Grid.Column="2" FontAttributes="Bold"/>
         </Grid>
 
-        <ScrollView Grid.Row="1" BackgroundColor="WhiteSmoke">
-                <VerticalStackLayout>                    
-                    <CollectionView 
+        <!--<ScrollView Grid.Row="1" BackgroundColor="WhiteSmoke">
+                <VerticalStackLayout>-->                    
+                    <!--<CollectionView 
                         x:Name="MyCollectionView"
                         ItemsSource="{Binding ItemsData}" 
-                        EmptyView="...."                        
+                        EmptyView="..."
                         HorizontalOptions="Fill" 
                         SelectionMode="Single"
-                        SelectedItem="{Binding SelectedItem, Mode=OneWay}"
-                        SelectionChanged="_dataGrid1_ItemSelected">
+                        SelectedItem="{Binding SelectedItem, Mode=OneWay}"                        
+                        SelectionChanged="_dataGrid1_ItemSelected"
+                        ItemsUpdatingScrollMode="KeepItemsInView">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                             <customrows:ResPartnerRow
@@ -50,11 +46,90 @@
 
                         </DataTemplate>
                         </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </VerticalStackLayout>
-            </ScrollView>
+                    </CollectionView>-->
 
-            <StackLayout Grid.Row="2"  Orientation="Horizontal" HorizontalOptions="Center" Margin="0,2">
+        <mpowerkit:FixedRefreshView Grid.Row="1"
+                                            Refreshing="FixedRefreshView_Refreshing" 
+                                            HorizontalOptions="Fill" 
+                                            VerticalOptions="Fill"
+                                    IsPullToRefreshEnabled="False">
+                    <mpowerkit:VirtualizeListView x:Name="listView"
+                                          Padding="0"
+                                          BackgroundColor="Gray"
+                                                  ItemsSource="{Binding ItemsData}"
+                                                  ItemTapCommand="{Binding ItemTappedCommand}">
+                        <mpowerkit:VirtualizeListView.ItemTemplate>
+                            <DataTemplate x:DataType="odoo:res_partner">
+                                <mpowerkit:VirtualizeListViewCell BackgroundColor="WhiteSmoke">
+
+                            <!--<customrows:ResPartnerRow
+Item="{x:Binding .}" 
+EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
+SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}">
+
+                            </customrows:ResPartnerRow>-->
+
+                            
+                                <Grid Grid.Column="0"
+                                  VerticalOptions="Center"
+                                  ColumnSpacing="10"
+                                  ColumnDefinitions="50,100,*,*,*, 20"
+                                      Margin="20,0,20,0">
+                                    <Label Grid.Column="0" FontSize="10" Text="{Binding id}" />
+                                    <Label Grid.Column="1" FontSize="13" Text="{Binding vat}" />
+                                    <Label Grid.Column="2" FontSize="13" FontAttributes="Bold" Text="{Binding name}" />
+                                    <Label Grid.Column="3" FontSize="13" FontAttributes="Bold" Text="{Binding email}" />
+                                    <Label Grid.Column="4" FontSize="13" FontAttributes="Bold" Text="{Binding phone}" />
+
+                                    <Button Grid.Column="5"
+                                        HeightRequest="35"
+                                        WidthRequest="35"
+                                        BackgroundColor="DodgerBlue"
+                                        Text=""
+                                        TextColor="White"
+                                        FontAttributes="Bold"
+                                        FontSize="12"
+                                        HorizontalOptions="Center"
+                                        IsVisible="True"
+                                        Padding="3"
+                                        Margin="2">
+                                        <Button.ImageSource>
+                                            <FontImageSource
+                                            FontFamily="FontAwesome5Solid"
+                                            Color="White"
+                                            Size="15"
+                                            FontAutoScalingEnabled="True"
+                                            Glyph="&#xf303;" />
+                                        </Button.ImageSource>
+                                    </Button>
+                                </Grid>
+                                                                  
+                                    
+                                </mpowerkit:VirtualizeListViewCell>
+                            </DataTemplate>
+                        </mpowerkit:VirtualizeListView.ItemTemplate>                        
+                    </mpowerkit:VirtualizeListView>
+                </mpowerkit:FixedRefreshView>
+
+            <!--</VerticalStackLayout>
+            </ScrollView>-->
+        <Grid 
+            Grid.Row="1"
+            BackgroundColor="#80000000"
+            IsVisible="{Binding IsLoading}"
+            VerticalOptions="Fill"
+            HorizontalOptions="Fill"
+            ZIndex="10">
+            <ActivityIndicator 
+                IsRunning="{Binding IsLoading}" 
+                Color="MediumVioletRed"
+                WidthRequest="100"
+                HeightRequest="100"
+                VerticalOptions="Center"
+                HorizontalOptions="Center" />
+        </Grid>
+
+        <StackLayout Grid.Row="2"  Orientation="Horizontal" HorizontalOptions="Center" Margin="0,2">
             <Button Text=""
             Command="{Binding PreviousPageCommand}"
             IsEnabled="{Binding CanGoPrevious}" >

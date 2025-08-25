@@ -204,9 +204,9 @@ namespace DMCobranzas.Controls
 
         private async void SelectListItem(object objItem)
         {            
-            if (objItem is account_move)
+            if (objItem is account_move Item)
             {
-                await CloseAsync(objItem);
+                await CloseAsync(Item);
             }
             else
             {

@@ -2,6 +2,7 @@
 using DMOrders.Services;
 using DMSA.Models.Security;
 using Microsoft.Extensions.Logging;
+using MPowerKit.VirtualizeListView;
 using System.Diagnostics;
 using UraniumUI;
 
@@ -16,6 +17,7 @@ namespace DMOrders
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .UseMPowerKitListView()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

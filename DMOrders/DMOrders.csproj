@@ -76,6 +76,8 @@
 		
 		<PackageReference Include="M.BindableProperty.Generator" Version="0.11.1" />
 		
+		<PackageReference Include="MPowerKit.VirtualizeListView" Version="2.5.1" />
+		
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="ReactiveUI.Fody" Version="19.5.41" />
 		<PackageReference Include="RestSharp" Version="112.1.0" />
