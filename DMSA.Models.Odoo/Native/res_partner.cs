@@ -4,13 +4,15 @@ using Newtonsoft.Json.Linq;
 using SQLite;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace DMSA.Models.Odoo.Native
 {
     [Table("res_partner")]
-    public class res_partner : OdooEntity
+    public class res_partner : OdooEntity, INotifyPropertyChanged
     {
         [PrimaryKey]
         [AutoIncrement]
@@ -119,6 +121,28 @@ namespace DMSA.Models.Odoo.Native
         {
             get => string.Concat(id, " - ", name);
         }
+                
+        [JsonIgnore]
+        private bool _isSelected;
+        [Ignore]
+        [JsonIgnore]
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected != value)
+                {
+                    _isSelected = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

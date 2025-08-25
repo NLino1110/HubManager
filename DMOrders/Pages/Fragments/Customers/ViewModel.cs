@@ -1,5 +1,7 @@
 ﻿
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 using DMOrders.Models.Filters;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Native;
@@ -67,9 +69,7 @@ namespace DMOrders.Pages.Fragments.Customers
         public ViewModel()
         {
             _itemsData = new ObservableCollection<res_partner>();
-
             ItemTappedCommand = new Command<res_partner>(OnItemTapped);
-
             LoadDataByTimer();
         }
 
@@ -264,7 +264,7 @@ namespace DMOrders.Pages.Fragments.Customers
                     .ToList();
                 
                 _itemsData = new ObservableCollection<res_partner>(paginated);
-                
+
                 OnPropertyChanged(nameof(ItemsData));
                 OnPropertyChanged(nameof(CanGoNext));
                 OnPropertyChanged(nameof(CanGoPrevious));
@@ -302,11 +302,18 @@ namespace DMOrders.Pages.Fragments.Customers
         private void OnPropertyChanged(string property) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
 
         public ICommand ItemTappedCommand { get; }
-        private void OnItemTapped(res_partner partner)
+        public void OnItemTapped(res_partner tappedItem)
         {
-            // Aquí puedes manejar la selección
-            // Por ejemplo, navegar o mostrar detalles del ítem
-            Debug.WriteLine($"Item seleccionado: {partner.name}");
+            foreach (var res_partner_item in _itemsData)
+                res_partner_item.IsSelected = false;
+
+            tappedItem.IsSelected = true;            
+            WeakReferenceMessenger.Default.Send(new ItemSelectedMessage(tappedItem));           
+        }
+
+        public class ItemSelectedMessage : ValueChangedMessage<res_partner>
+        {
+            public ItemSelectedMessage(res_partner value) : base(value) { }
         }
     }
 }

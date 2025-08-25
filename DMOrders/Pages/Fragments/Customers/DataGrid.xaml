@@ -10,8 +10,7 @@
              xmlns:odoo="clr-namespace:DMSA.Models.Odoo.Native;assembly=DMSA.Models.Odoo" 
              x:Class="DMOrders.Pages.Fragments.Customers.DataGrid"
              x:Name="CustomerDataGrid">
-    <Grid RowDefinitions="Auto,*,Auto">
-        
+    <Grid RowDefinitions="Auto,*,Auto">        
         
         <Grid Grid.Row="0" BackgroundColor="LightGray" Padding="10" HeightRequest="35">
             <Grid.ColumnDefinitions>
@@ -25,8 +24,8 @@
         </Grid>
 
         <!--<ScrollView Grid.Row="1" BackgroundColor="WhiteSmoke">
-                <VerticalStackLayout>-->                    
-                    <!--<CollectionView 
+                <VerticalStackLayout>                    
+                    <CollectionView 
                         x:Name="MyCollectionView"
                         ItemsSource="{Binding ItemsData}" 
                         EmptyView="..."
@@ -36,17 +35,53 @@
                         SelectionChanged="_dataGrid1_ItemSelected"
                         ItemsUpdatingScrollMode="KeepItemsInView">
                         <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                            <customrows:ResPartnerRow
+                        <DataTemplate x:DataType="odoo:res_partner">-->
+                            <!--<customrows:ResPartnerRow
                         Item="{x:Binding .}" 
                         EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
                         SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}">
                                 
-                            </customrows:ResPartnerRow>
+                            </customrows:ResPartnerRow>-->
+                            
+                                <!--<Grid Grid.Column="0"
+  VerticalOptions="Center"
+  ColumnSpacing="10"
+  ColumnDefinitions="50,100,*,*,*, 20"
+      Margin="20,0,20,0">
+                                    <Label Grid.Column="0" FontSize="10" Text="{Binding id}" />
+                                    <Label Grid.Column="1" FontSize="13" Text="{Binding vat}" />
+                                    <Label Grid.Column="2" FontSize="13" FontAttributes="Bold" Text="{Binding name}" />
+                                    <Label Grid.Column="3" FontSize="13" FontAttributes="Bold" Text="{Binding email}" />
+                                    <Label Grid.Column="4" FontSize="13" FontAttributes="Bold" Text="{Binding phone}" />
 
+                                    <Button Grid.Column="5"
+        HeightRequest="35"
+        WidthRequest="35"
+        BackgroundColor="DodgerBlue"
+        Text=""
+        TextColor="White"
+        FontAttributes="Bold"
+        FontSize="12"
+        HorizontalOptions="Center"
+        IsVisible="True"
+        Padding="3"
+        Margin="2">
+                                        <Button.ImageSource>
+                                            <FontImageSource
+            FontFamily="FontAwesome5Solid"
+            Color="White"
+            Size="15"
+            FontAutoScalingEnabled="True"
+            Glyph="&#xf303;" />
+                                        </Button.ImageSource>
+                                    </Button>
+                                </Grid>
+                            
                         </DataTemplate>
                         </CollectionView.ItemTemplate>
-                    </CollectionView>-->
+                    </CollectionView>
+            </VerticalStackLayout>
+            </ScrollView>-->
 
         <mpowerkit:FixedRefreshView Grid.Row="1"
                                             Refreshing="FixedRefreshView_Refreshing" 
@@ -62,20 +97,31 @@
                             <DataTemplate x:DataType="odoo:res_partner">
                                 <mpowerkit:VirtualizeListViewCell BackgroundColor="WhiteSmoke">
 
-                            <!--<customrows:ResPartnerRow
-Item="{x:Binding .}" 
-EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
-SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}">
-
-                            </customrows:ResPartnerRow>-->
-
+                            <mpowerkit:VirtualizeListViewCell.Triggers>
+                                <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="LightBlue"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="False">
+                                    <Setter Property="BackgroundColor" Value="WhiteSmoke"/>
+                                </DataTrigger>
+                            </mpowerkit:VirtualizeListViewCell.Triggers>
                             
-                                <Grid Grid.Column="0"
+                                    <Grid Grid.Column="0"
                                   VerticalOptions="Center"
                                   ColumnSpacing="10"
                                   ColumnDefinitions="50,100,*,*,*, 20"
                                       Margin="20,0,20,0">
-                                    <Label Grid.Column="0" FontSize="10" Text="{Binding id}" />
+
+                                <!--<Grid.Triggers>
+                                    <DataTrigger TargetType="Grid" Binding="{Binding IsSelected}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="LightBlue"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Grid" Binding="{Binding IsSelected}" Value="False">
+                                        <Setter Property="BackgroundColor" Value="WhiteSmoke"/>
+                                    </DataTrigger>
+                                </Grid.Triggers>-->
+
+                                <Label Grid.Column="0" FontSize="10" Text="{Binding id}" />
                                     <Label Grid.Column="1" FontSize="13" Text="{Binding vat}" />
                                     <Label Grid.Column="2" FontSize="13" FontAttributes="Bold" Text="{Binding name}" />
                                     <Label Grid.Column="3" FontSize="13" FontAttributes="Bold" Text="{Binding email}" />
@@ -89,10 +135,10 @@ SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollec
                                         TextColor="White"
                                         FontAttributes="Bold"
                                         FontSize="12"
-                                        HorizontalOptions="Center"
-                                        IsVisible="True"
+                                        HorizontalOptions="Center"                                        
                                         Padding="3"
-                                        Margin="2">
+                                        Margin="2"
+                                            Clicked="Button_Clicked">
                                         <Button.ImageSource>
                                             <FontImageSource
                                             FontFamily="FontAwesome5Solid"
@@ -103,16 +149,13 @@ SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollec
                                         </Button.ImageSource>
                                     </Button>
                                 </Grid>
-                                                                  
                                     
                                 </mpowerkit:VirtualizeListViewCell>
                             </DataTemplate>
                         </mpowerkit:VirtualizeListView.ItemTemplate>                        
                     </mpowerkit:VirtualizeListView>
                 </mpowerkit:FixedRefreshView>
-
-            <!--</VerticalStackLayout>
-            </ScrollView>-->
+        
         <Grid 
             Grid.Row="1"
             BackgroundColor="#80000000"

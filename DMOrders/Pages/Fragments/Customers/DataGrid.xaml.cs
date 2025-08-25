@@ -7,28 +7,11 @@ using DMSA.Models.Odoo.Native;
 using MPowerKit.VirtualizeListView;
 using System.Diagnostics;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace DMOrders.Pages.Fragments.Customers
 {
-
-    public class ItemTemplateSelector : DataTemplateSelector
-    {
-        public DataTemplate EvenTemplate { get; set; }
-        public DataTemplate UnevenTemplate { get; set; }
-
-        protected override DataTemplate OnSelectTemplate(object item, BindableObject container)
-        {
-            if (item is res_partner data)
-            {
-                return data.id % 2 == 0 ? EvenTemplate : UnevenTemplate;
-            }
-
-            return null;
-        }
-    }
-
-
     public partial class DataGrid : ContentView
     {
         res_partner SelectedItem { get; set; }
@@ -55,9 +38,7 @@ namespace DMOrders.Pages.Fragments.Customers
             BindingContext = new ViewModel();
 
             EditCommand = new Command(AddProcess);
-
             
-
             //IDispatcherTimer timer;
 
             //timer = Dispatcher.CreateTimer();
@@ -89,6 +70,7 @@ namespace DMOrders.Pages.Fragments.Customers
 
             await Application.Current.MainPage.Navigation.PushModalAsync(new NavigationPage(viewObj));
         }
+
         //protected override void OnSizeAllocated(double width, double height)
         //{
         //    base.OnSizeAllocated(width, height);
@@ -270,8 +252,31 @@ namespace DMOrders.Pages.Fragments.Customers
             (sender as FixedRefreshView).IsRefreshing = false;
         }
 
-        
+        private async void Button_Clicked(object sender, EventArgs e)
+        {
+            Button button = (sender as Button);
+            SelectedItem = (res_partner) button.BindingContext;
 
-        
+            var viewModel = (ViewModel)BindingContext;
+            viewModel.OnItemTapped(SelectedItem);
+
+            Debug.WriteLine(sender);
+            Debug.WriteLine(e);
+
+            if (SelectedItem != null)
+            {
+
+                var itemData = SelectedItem;
+                Debug.WriteLine(itemData);
+
+                Details viewObj = new Details();
+                viewObj.CurrentPartner = itemData;
+                viewObj.CurrentCompany = App.Session.res_Company;
+                viewObj.CurrentSaleOrder = null;
+                viewObj.Disappearing += NewOrderPopup_Disappearing;
+                await viewObj.PrepareForm();
+                await Navigation.PushModalAsync(viewObj);
+            }
+        }
     }
 }

@@ -1,4 +1,7 @@
+using CommunityToolkit.Mvvm.Messaging;
 using DMSA.Models.Odoo.Native;
+using System.Diagnostics;
+using static DMOrders.Pages.Fragments.Customers.ViewModel;
 
 namespace DMOrders.Pages.Fragments.Customers;
 
@@ -14,6 +17,11 @@ public partial class Container : ContentView
             //customImageHeaderView.Title = App.Session.CurrentUser.username;
             //customImageHeaderView.Subtitle = App.Session.CurrentUser.nombres;
         }
+
+        WeakReferenceMessenger.Default.Register<ItemSelectedMessage>(this, async (r, m) =>
+        {            
+            await LoadInfo(m.Value);
+        });
     }
 
     //protected override void OnSizeAllocated(double width, double height)
