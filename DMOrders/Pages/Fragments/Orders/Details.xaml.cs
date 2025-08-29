@@ -120,6 +120,12 @@ public partial class Details : ContentPage, IBackButtonHandler
 
         Dispatcher.Dispatch(async () =>
         {
+            if (SearchProductView.IsVisible)
+            {
+                await Toast.Make("Primero cierre la búsqueda de productos.").Show();
+                return;
+            }
+
             var leave = await DisplayAlert("Atención", "Los cambios que haya realizado no se guardarán. ¿Desea continuar?", "Si", "No");
 
             if (leave)
@@ -128,8 +134,7 @@ public partial class Details : ContentPage, IBackButtonHandler
             }
         });
 
-        return true;
-        //return base.OnBackButtonPressed();
+        return true;        
     }
 
     protected override void OnDisappearing()
@@ -161,7 +166,8 @@ public partial class Details : ContentPage, IBackButtonHandler
 
         returnResultPopup = new PopupSelectProduct();
         returnResultPopup.BindingContext = previousCatalogViewerModel;
-
+        returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;
+        
         //TODO: Replicar Reset
         //returnResultPopup.Reset();
         var result = await PopupExtensions.ShowPopupAsync(this, returnResultPopup);

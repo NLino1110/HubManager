@@ -170,7 +170,10 @@ public partial class MainPageTab : ContentPage
 
     private async void ShowSettings(object sender, EventArgs e)
     {
-        DMOrders.Pages.Sys.SettingsPage settings = new DMOrders.Pages.Sys.SettingsPage();        
+        Debug.WriteLine("SettingsPage");
+        SettingsPage objPage = new SettingsPage();
+        //objPage.Disappearing += ObjSettingPage_Disappearing;
+        await Navigation.PushModalAsync(objPage);
     }        
 
     private void TabView_ActiveTabChanged(object sender, int e)

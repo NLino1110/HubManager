@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ClientAgree.Modals.Congratulations"
+             xmlns:skia="clr-namespace:SkiaSharp.Views.Maui.Controls;assembly=SkiaSharp.Views.Maui.Controls"
+             Title="Congratulations" 
+             >
+    <ContentPage.BackgroundColor>
+        <Color x:FactoryMethod="FromRgba">
+            <x:Arguments>
+                <x:Double>220</x:Double>
+                <x:Double>0</x:Double>
+                <x:Double>0</x:Double>
+                <x:Double>0.2</x:Double>
+            </x:Arguments>
+        </Color>
+    </ContentPage.BackgroundColor>
+    <skia:SKCanvasView x:Name="canvasView" 
+                           PaintSurface="OnCanvasViewPaintSurface" 
+                           BackgroundColor="Transparent" />    
+</ContentPage>

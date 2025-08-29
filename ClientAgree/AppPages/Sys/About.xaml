@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ClientAgree.AppPages.Sys.About"
+             Title="Acerca de la aplicación" Shell.NavBarIsVisible="True">
+    <VerticalStackLayout Margin="50">
+        <Frame BorderColor="Gray"
+       CornerRadius="5"
+       Padding="10"
+               Margin="10,5,10,30">
+            <StackLayout>
+                <Label Text="Dispositivo"
+           FontSize="14"
+           FontAttributes="Bold" 
+                       HorizontalOptions="Center"
+                       Margin="10,10,10,10"/>
+                <BoxView Color="Gray"
+             HeightRequest="1"
+             HorizontalOptions="Fill" />
+                <Label Text="01/01/2023 00:00:00"
+                       x:Name="lblUpdated"                       
+                       HorizontalOptions="Center"
+                       Margin="10,10,10,10"/>
+                <Label Text="-" VerticalOptions="Center" x:Name="lblUpdatedInfo"
+                    HorizontalOptions="Center" Margin="10,10,10,10"/>
+            </StackLayout>
+        </Frame>
+
+        <Grid Margin="0,0,0,0" Padding="20,20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="45" />                
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="1" Grid.ColumnSpan="2"
+                x:Name="btnClose"
+                Text="Cerrar"
+                SemanticProperties.Hint="Cerrar ventana"                
+                    BackgroundColor="Black"
+                    Clicked="btnClose_Clicked"
+                HorizontalOptions="Center">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+                            Color="White"
+                            Size="20"
+                            FontAutoScalingEnabled="True"                                                         
+                            Glyph="&#xf057;" />
+                </Button.ImageSource>
+            </Button>
+
+
+            
+        </Grid>
+    </VerticalStackLayout>
+</ContentPage>

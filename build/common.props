@@ -1,6 +1,5 @@
 <Project>
     <PropertyGroup>
         <UraniumUIVersion>2.12.1</UraniumUIVersion>
-		<MauiToolKitVersion>9.1.1</MauiToolKitVersion>
     </PropertyGroup>
 </Project>

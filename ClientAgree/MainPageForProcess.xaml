@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:dg="clr-namespace:Maui.DataGrid;assembly=Maui.DataGrid"
+             xmlns:vm="clr-namespace:ClientAgree.ViewModels"
+             xmlns:conv="clr-namespace:ClientAgree.Converters"
+             xmlns:controls="clr-namespace:BeebTech.Maui.Controls;assembly=BeebTech.Maui.Controls"
+             x:DataType="vm:MainViewModelCliAprob"
+             x:Class="ClientAgree.MainPageForProcess">
+    
+        <Grid RowDefinitions="Auto,*">
+        <!--<FlexLayout BackgroundColor="White" Wrap="Wrap" HorizontalOptions="FillAndExpand">-->
+            <Grid Margin="0,0,0,0" Padding="10,10" HorizontalOptions="FillAndExpand">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="45" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+                <Image Grid.Column="0"
+                Source="logo_dmujeres.png"
+                SemanticProperties.Description=""
+                HeightRequest="60"
+                MaximumWidthRequest="200"
+                WidthRequest="200"
+                HorizontalOptions="Center" />
+
+                <Label Grid.Column="1"                    
+                    Text="APROBACIÓN DE LOPDP" 
+                       TextColor="#FE4468" 
+                       Margin="0,0,5,0" 
+                       VerticalOptions="Center" 
+                       FontAttributes="Bold"
+                       FontSize="18">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer 
+                                        Tapped="OnTapGestureRecognizerTapped"
+                                            NumberOfTapsRequired="2"/>
+                    </Label.GestureRecognizers>
+                </Label>
+
+
+            <Grid Grid.Column="2" Margin="0,0,0,0" HorizontalOptions="FillAndExpand">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>                    
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Column="0"
+                    Text="usuario" 
+                       TextColor="#FE4468" 
+                       Margin="0,0,5,0" 
+                       VerticalOptions="Center" 
+                       FontAttributes="Bold"
+                       FontSize="16"
+                       x:Name="lblUser" Padding="20,0,0,0">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer 
+                                        Tapped="OnTapLabelUser"
+                                            NumberOfTapsRequired="2"/>
+                    </Label.GestureRecognizers>
+                </Label>
+
+                <Label Grid.Column="0" Grid.Row="1"
+                    Text="Agencia" 
+                       TextColor="#FE4468" 
+                       Margin="0,0,5,0" 
+                       VerticalOptions="Center" 
+                       FontAttributes="Bold"
+                       FontSize="13"
+                       x:Name="lblAgencia" Padding="20,0,0,0">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer 
+                                        Tapped="OnTapLabelUser"
+                                            NumberOfTapsRequired="2"/>
+                    </Label.GestureRecognizers>
+                </Label>
+
+            </Grid>
+
+            <Grid Grid.Column="3" Padding="5,0,5,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <!--<ColumnDefinition Width="50"/>-->
+                </Grid.ColumnDefinitions>
+
+                <!--<Picker x:Name="pickerSucursal"
+                    Title="Sucursal:"
+                    HorizontalOptions="FillAndExpand">
+                </Picker>-->
+                
+                <!--<Picker x:Name="pickerSucursal"
+                Title="Sucursal:"
+                ItemsSource="{Binding formaspagos}"
+                ItemDisplayBinding="{Binding descripcion}"
+                SelectedItem="{Binding selFormaspagos}"
+                HorizontalOptions="FillAndExpand" 
+                SelectedIndexChanged="OnPickerSelectedIndexChanged">
+                </Picker>-->
+
+                <Entry
+                    Grid.Column="0" 
+                       Text="" 
+                       x:Name="txtFilter"
+                       WidthRequest="250"
+                       Placeholder="Buscar por Cedula/Ruc/Nombres"
+                    ClearButtonVisibility="WhileEditing" />
+
+                <Button Grid.Column="1"
+                    BackgroundColor="SteelBlue"
+                    x:Name="btnBuscar"
+                    Text="Buscar"
+                    FontAttributes="Bold"
+                    FontSize="13"
+                    SemanticProperties.Hint="Buscar datos"                
+                    
+                    Clicked="btnBuscar_Clicked"
+                    HorizontalOptions="Center">
+                    <Button.ImageSource>
+                        <FontImageSource 
+                                        FontFamily="FontAwesome5Solid"
+                                        Glyph="&#xf002;"
+                                                 Size="20"                                                      
+                                 FontAutoScalingEnabled="True"
+                                                  />
+                    </Button.ImageSource>
+                </Button>
+            </Grid>                
+
+            <Button Grid.Column="4"
+                    BackgroundColor="CornflowerBlue"
+                    x:Name="BtnClose"
+                    Text="Cerrar"
+                    FontAttributes="Bold"
+                    FontSize="14"
+                    SemanticProperties.Hint="Salir de la sesión"                    
+                    Clicked="BtnClose_Clicked"
+                    HorizontalOptions="Center">
+                    <Button.ImageSource>
+                        <FontImageSource 
+                                        FontFamily="FontAwesome5Solid"
+                                        Glyph="&#xf057;"
+                                                 Size="20"                                                      
+                                 FontAutoScalingEnabled="True"
+                                                  />
+                    </Button.ImageSource>
+                </Button>
+
+            </Grid>
+        <!--</FlexLayout>-->
+            
+            
+            
+        <!--<FlexLayout BackgroundColor="Black" Wrap="Wrap">
+            <HorizontalStackLayout HeightRequest="50" Margin="0,0,15,0">
+                <CheckBox IsChecked="{Binding HeaderBordersVisible}" />
+                <Label Text="Header Borders Visible?" TextColor="White" Margin="0,0,5,0" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout HeightRequest="50" Margin="0,0,15,0">
+                <CheckBox IsChecked="{Binding TeamColumnVisible}"  />
+                <Label Text="Team Column" TextColor="White" Margin="0,0,5,0" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout HeightRequest="50" Margin="0,0,15,0">
+                <CheckBox IsChecked="{Binding WonColumnVisible}" />
+                <Label Text="Won Column" TextColor="White" Margin="0,0,5,0" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout HeightRequest="50" Margin="0,0,15,0">
+                <CheckBox IsChecked="{Binding PaginationEnabled}" />
+                <Label Text="Pagination Enabled?" TextColor="White" Margin="0,0,5,0" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout HeightRequest="50" Margin="0,0,15,0">
+                <Stepper Minimum="0" Maximum="100" Increment="10" Value="{Binding TeamColumnWidth}" />
+                <Label Text="Team Col Width" TextColor="White" Margin="0,0,5,0" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            <Button x:Name="_addColumnButton1" Text="Add Column" />
+        </FlexLayout>-->
+
+        <dg:DataGrid Grid.Row="1" ItemsSource="{Binding ItemsData}" 
+                     SelectionEnabled="True" 
+                     SelectedItem="{Binding SelectedItem}"
+                     RowHeight="70" 
+                     HeaderHeight="50" 
+                     BorderColor="{StaticResource GridBorderColor}"
+                     HeaderBackground="{StaticResource GridHeaderBgColor}" 
+                     HeaderBordersVisible="{Binding HeaderBordersVisible}"
+                     PullToRefreshCommand="{Binding RefreshCommand}" 
+                     IsRefreshing="{Binding IsRefreshing}" 
+                     PaginationEnabled="{Binding PaginationEnabled}" 
+                     PageSize="7"
+                     ActiveRowColor="{StaticResource ActiveRowColor}" 
+                     x:Name="_dataGrid1" 
+                     ItemSelected="_dataGrid1_ItemSelected">
+            <dg:DataGrid.Columns>
+                <dg:DataGridColumn Title="CED./RUC" PropertyName="IDENTIFICACION" Width="0.5*" SortingEnabled="False"/>
+                <dg:DataGridColumn Title="NOMBRES" PropertyName="NOMBRESCLIENTE" Width="0.5*" SortingEnabled="False"/>
+                <!--<dg:DataGridColumn Title="NOMBRES" PropertyName="NOMBRESCLIENTE" Width="0.5*" SortingEnabled="False">
+                    <dg:DataGridColumn.CellTemplate>
+                        <DataTemplate>
+                            <ContentView HorizontalOptions="Fill"
+                                         VerticalOptions="Fill">
+                                <Label Text="{Binding}"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"
+                                       TextColor="Black"
+                                       FontSize="17"
+                                       FontAttributes="Bold"/>
+                            </ContentView>
+                        </DataTemplate>
+                    </dg:DataGridColumn.CellTemplate>
+                </dg:DataGridColumn>-->
+                <dg:DataGridColumn Title="APELLIDOS" PropertyName="APELLIDOSCLIENTE" Width="0.5*" SortingEnabled="False"/>
+                <dg:DataGridColumn Title="DIRECCIÓN" PropertyName="DIRECCIONCLIENTE" Width="0.5*" SortingEnabled="False"/>
+                <dg:DataGridColumn Title="" PropertyName="IDENTIFICACION" SortingEnabled="False" Width="0.2*">
+                    <dg:DataGridColumn.CellTemplate>
+                        <DataTemplate>
+                            <Image WidthRequest="20">
+                                <Image.Source>
+                                    <FontImageSource FontFamily="FontAwesome5Solid"
+                                                     Color="DarkGray"
+                                                 Size="25"
+                                 FontAutoScalingEnabled="True"
+                                                 Glyph="&#xf017;" />
+                                </Image.Source>
+                                <!--<Image.GestureRecognizers>
+                                    <TapGestureRecognizer 
+                                        Tapped="OnTapGestureRecognizerTapped" CommandParameter="{Binding SelectedTeam}"
+                                            NumberOfTapsRequired="2"/>                                    
+                                </Image.GestureRecognizers>-->
+                            </Image>
+
+                        </DataTemplate>
+                    </dg:DataGridColumn.CellTemplate>
+                </dg:DataGridColumn>
+
+                <dg:DataGridColumn Title="" PropertyName="IDENTIFICACION" SortingEnabled="False" Width="0.3*">
+                    <dg:DataGridColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button
+                BackgroundColor="OrangeRed"
+                x:Name="BtnClose"
+                Text="Aprobar"
+                                FontAttributes="Bold"
+                                FontSize="18"
+                SemanticProperties.Hint="Cerrar"                
+                WidthRequest="150"
+                                Clicked="BtnSelect"
+                HorizontalOptions="Center"
+            Margin="5">
+                                <Button.ImageSource>
+                                    <FontImageSource 
+                                        FontFamily="FontAwesome5Solid"
+                                        Glyph="&#xf14a;"
+                                                 Size="20"                                                      
+                                 FontAutoScalingEnabled="True"
+                                                  />
+                                </Button.ImageSource>
+                            </Button>
+                        </DataTemplate>
+                    </dg:DataGridColumn.CellTemplate>
+                </dg:DataGridColumn>
+            </dg:DataGrid.Columns>
+            <dg:DataGrid.RowsBackgroundColorPalette>
+                <dg:PaletteCollection>
+                    <Color>#F2F2F2</Color>
+                    <Color>#FFFFFF</Color>
+                </dg:PaletteCollection>
+            </dg:DataGrid.RowsBackgroundColorPalette>
+            <dg:DataGrid.Resources>
+                <ResourceDictionary>
+                    <conv:StreakToColorConverter x:Key="StreakToColorConverter" />
+                </ResourceDictionary>
+            </dg:DataGrid.Resources>
+        </dg:DataGrid>
+    </Grid>
+
+</ContentPage>

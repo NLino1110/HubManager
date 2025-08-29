@@ -104,14 +104,12 @@
                                 <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="False">
                                     <Setter Property="BackgroundColor" Value="WhiteSmoke"/>
                                 </DataTrigger>
-                            </mpowerkit:VirtualizeListViewCell.Triggers>
-                            
+                            </mpowerkit:VirtualizeListViewCell.Triggers>                            
                                     <Grid Grid.Column="0"
                                   VerticalOptions="Center"
                                   ColumnSpacing="10"
                                   ColumnDefinitions="50,100,*,*,*, 20"
                                       Margin="20,0,20,0">
-
                                 <!--<Grid.Triggers>
                                     <DataTrigger TargetType="Grid" Binding="{Binding IsSelected}" Value="True">
                                         <Setter Property="BackgroundColor" Value="LightBlue"/>

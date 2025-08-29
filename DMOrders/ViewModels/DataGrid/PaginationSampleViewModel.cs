@@ -1,90 +1,86 @@
-﻿using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Net.Http.Json;
-using System.Windows.Input;
 
 namespace DMOrders.ViewModels.DataGrid;
 
-public class PaginationSampleViewModel : ReactiveObject
+public partial class PaginationSampleViewModel : ObservableObject
 {
     public ObservableCollection<Product> Products { get; } = new();
 
-    [Reactive] public bool IsBusy { get; set; }
-    [Reactive] public int CurrentPage { get; set; }
-    [Reactive] public int TotalPages { get; set; }
+    [ObservableProperty]
+    private bool isBusy;
+
+    [ObservableProperty]
+    private int currentPage;
+
+    [ObservableProperty]
+    private int totalPages;
 
     public const int limit = 10;
 
-    public ICommand GoNextCommand { get; }
-
-    public ICommand GoPreviousCommand { get; }
-
-    public ICommand SetPageCommand { get; }
-
     public PaginationSampleViewModel()
     {
-        GoNextCommand = ReactiveCommand.Create(GoNext);
-        GoPreviousCommand = ReactiveCommand.Create(GoPrevious);
-        SetPageCommand = new Command<int>(SetPage);
-
-        LoadFirstPage();
-
-        this.
-            WhenAnyValue(x => x.CurrentPage).
-            Subscribe(async page => await LoadPageAsync(page));
+        currentPage = 1;
+        LoadPageAsync(currentPage);
     }
 
-    void LoadFirstPage()
+    [RelayCommand]
+    private void GoNext()
     {
-        CurrentPage = 1;
-    }
-
-    public void GoNext()
-    {
-        CurrentPage++;
-    }
-
-    public void GoPrevious()
-    {
-        CurrentPage--;
-    }
-
-    public void SetPage(int page)
-    {
-        if (page >= 1 && page <= TotalPages)
+        if (currentPage < currentPage)
         {
-            CurrentPage = page;
+            currentPage++;
+            LoadPageAsync(currentPage);
         }
     }
 
-    private async Task LoadPageAsync(int page)
+    [RelayCommand]
+    private void GoPrevious()
     {
-        IsBusy = true;
-
-        var response = await GetProductsAsync(limit, (page - 1) * limit);
-
-        IsBusy = false;
-
-        TotalPages = (int)Math.Ceiling((double)response.total / limit);
-
-        Products.Clear();
-
-        foreach (var product in response.products)
+        if (currentPage > 1)
         {
-            Products.Add(product);
+            currentPage--;
+            LoadPageAsync(currentPage);
         }
     }
 
-    async Task<ApiResponse> GetProductsAsync(int limit, int skip = 0)
+    [RelayCommand]
+    private void SetPage(int page)
     {
-        using (var client = new HttpClient())
+        if (page >= 1 && page <= totalPages)
         {
-            var response = await client.GetFromJsonAsync<ApiResponse>(
-                $"https://dummyjson.com/products?limit={limit}&skip={skip}");
-
-            return response;
+            currentPage = page;
+            LoadPageAsync(currentPage);
         }
+    }
+
+    private async void LoadPageAsync(int page)
+    {
+        try
+        {
+            isBusy = true;
+
+            var response = await GetProductsAsync(limit, (page - 1) * limit);
+
+            totalPages = (int)Math.Ceiling((double)response.total / limit);
+
+            Products.Clear();
+            foreach (var product in response.products)
+                Products.Add(product);
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    private async Task<ApiResponse> GetProductsAsync(int limit, int skip = 0)
+    {
+        using var client = new HttpClient();
+        return await client.GetFromJsonAsync<ApiResponse>(
+            $"https://dummyjson.com/products?limit={limit}&skip={skip}");
     }
 }
 

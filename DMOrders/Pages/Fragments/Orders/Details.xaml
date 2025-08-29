@@ -55,7 +55,7 @@
 
             <Button Grid.Row="2" Text="Asignar" BackgroundColor="DodgerBlue" TextColor="White" FontAttributes="Bold" Margin="5" />
 
-            <Grid Grid.Row="3" ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto" Padding="5" RowSpacing="2" ColumnSpacing="2">
+            <Grid Grid.Row="3" ColumnDefinitions="Auto,Auto,Auto" RowDefinitions="Auto,Auto,Auto,Auto" Padding="5" RowSpacing="2" ColumnSpacing="2">
                 <!-- Fila 1 -->
                 <Button Text="1" Grid.Row="0" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" >
 

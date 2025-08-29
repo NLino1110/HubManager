@@ -1,0 +1,1 @@
+dotnet build -f net7.0-android -c Release

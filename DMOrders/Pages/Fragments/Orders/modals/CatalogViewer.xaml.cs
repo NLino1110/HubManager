@@ -4,7 +4,6 @@ using DMOrders.Controls;
 using DMOrders.Models.Filters;
 using DMSA.Models.Odoo.Native;
 using Microsoft.Maui.Controls;
-using ReactiveUI;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;

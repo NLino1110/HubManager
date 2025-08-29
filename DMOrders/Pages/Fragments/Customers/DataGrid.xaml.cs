@@ -260,12 +260,8 @@ namespace DMOrders.Pages.Fragments.Customers
             var viewModel = (ViewModel)BindingContext;
             viewModel.OnItemTapped(SelectedItem);
 
-            Debug.WriteLine(sender);
-            Debug.WriteLine(e);
-
             if (SelectedItem != null)
             {
-
                 var itemData = SelectedItem;
                 Debug.WriteLine(itemData);
 

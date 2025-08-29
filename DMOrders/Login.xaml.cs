@@ -81,7 +81,7 @@ public partial class Login : ContentPage
         if (App.Session.useOfflineMode)
         {
             Debug.WriteLine("Se usará modo modo offline.");
-            await Toast.Make("Se usará modo modo offline.").Show();                
+            await Toast.Make("Se usará modo modo offline.").Show();
         }
 
         //ddCompany.ItemsSource = companies;
@@ -524,7 +524,7 @@ public partial class Login : ContentPage
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Login error: {ex}");
+            Debug.WriteLine($"Login (offline) error: {ex}");
             await Toast.Make("Ha ocurrido un error durante el login").Show();
         }
     }

@@ -3,7 +3,6 @@ using CommunityToolkit.Maui.Views;
 using DMOrders.Controls;
 using DMOrders.Models.Filters;
 using DMSA.Models.Odoo.Native;
-using DynamicData;
 using Spinner.MAUI;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
