@@ -331,6 +331,176 @@ namespace ResourceBuilder.Shared.master
             }
         }
 
+
+        protected async Task SearchDataCurrent()
+        {
+            try
+            {
+                int[] codArticulos = new int[] { };
+
+                List<GenArticulos> genArticulo = null;
+                List<ArticulosXEmpresa> artXEmpresa = null;
+                if (input_search_param_var != String.Empty)
+                {
+                    //SE BUSCAN LOS CODIGOS DE LOS ARTICULOS QUE SE HAN ENVIADO COMO PARAMETROS
+                    if (int.TryParse(input_search_param_var, out int numero))
+                    {
+                        Console.WriteLine("El valor ingresado es un número: " + numero);
+
+                        genArticulo = await appDbContext.GENARTICULOS.Where(a =>
+                        a.CodArticulo == numero || a.CodAlterno.Contains(input_search_param_var)).ToListAsync();
+                    }
+                    else // if (input_search_param_var.All(char.IsLetter))
+                    {
+                        Console.WriteLine("El valor ingresado contiene solo caracteres.");
+                        genArticulo = await appDbContext.GENARTICULOS
+                            .Where(a => a.CodAlterno == input_search_param_var.Trim()
+                            || a.Descripcion.Contains(input_search_param_var.Trim())).ToListAsync();
+                    }
+
+                    if (genArticulo == null)
+                    {
+                        toastService.ShowError("Datos de artículo no encontrados!");
+                        return;
+                    }
+
+                    codArticulos = genArticulo.Select(articulo => articulo.CodArticulo).ToArray();
+                    artXEmpresa = await appDbContext.ARTICULOSXEMPRESA
+                            .Include(z => z.Articulo)
+                            .Include(y => y.Marca)
+                            .Where(Data =>
+                        Data.CodEmpresa == SelectedCompany.CodEmpresa
+                        && codArticulos.Contains(Data.CodArticulo)
+                        && Data.CodEstado == 1)?
+                        .ToListAsync();
+                }
+                else
+                {
+                    //SE BUSCAN TODOS LOS ARTICULOS RELACIONADOS CON LA EMPRESA Y MARCA SELECCIONADAS
+                    if (SelectedBrand != null)
+                    {
+                        artXEmpresa = await appDbContext.ARTICULOSXEMPRESA
+                            .Include(z => z.Articulo)
+                            .Include(y => y.Marca)
+                            .Where(Data =>
+                        Data.CodEmpresa == SelectedCompany.CodEmpresa
+                        && Data.CodMarca == SelectedBrand.CodMarca
+                        && Data.CodEstado == 1
+                        &&
+                        (
+                        Data.ActivaWeb == "N" ||
+                        Data.VentaAlmacenes == "S" ||
+                        Data.VentaAlmacenes == "N"
+                        )
+                        )?.ToListAsync();
+                    }
+                    else
+                    {
+                        //SE BUSCAN TODOS LOS ARTICULOS RELACIONADOS CON LA EMPRESA SELECCIONADA
+                        artXEmpresa = await appDbContext.ARTICULOSXEMPRESA
+                            .Include(z => z.Articulo)
+                            .Include(y => y.Marca)
+                            .Where(Data =>
+                        Data.CodEmpresa == SelectedCompany.CodEmpresa
+                        && Data.CodEstado == 1)?
+                        .ToListAsync();
+                    }
+
+                    codArticulos = artXEmpresa.Select(articulo => articulo.CodArticulo).ToArray();
+                    genArticulo = artXEmpresa.Select(articulo => articulo.Articulo).ToList();
+                }
+
+                List<GenMarca> brandTemp = new List<GenMarca>();
+
+                List<FacBonificadosXArticulo> dataSource_tmp = null;
+
+                DateTime today = DateTime.Today;
+                var maxPastStart = today.AddDays(-5);
+                var maxFutureStart = today.AddDays(30);
+
+                dataSource_tmp = await appDbContext.FACBONIFICADOSXARTICULO
+                    .Where(c => c.CodEmpresa == SelectedCompany.CodEmpresa                        
+                        && c.CodEstado == 1
+                        && codArticulos.Contains(c.CodArticulo)
+                        && (
+                            // Activos ahora, pero que no empezaron “hace mil años”
+                            (c.FechaInicio <= today && c.FechaFin >= today && c.FechaInicio >= maxPastStart)
+                            ||
+                            // Programados a iniciar pronto (no demasiado lejanos)
+                            (c.FechaInicio > today && c.FechaInicio <= maxFutureStart)
+                        )
+                        ).ToListAsync();
+
+                if (artXEmpresa != null && dataSource_tmp.Count > 0)
+                {
+                    //foreach (var itemSource in artXEmpresa)
+                    for (int i = 0; i < dataSource_tmp.Count; i++)
+                    {
+                        var itemSource = dataSource_tmp[i];
+
+                        var ArticulosXEmpresaFound = artXEmpresa.
+                            Where(x =>
+                            x.CodArticulo == dataSource_tmp[i].CodArticulo
+                            && x.CodEmpresa == dataSource_tmp[i].CodEmpresa)
+                            .FirstOrDefault();
+
+                        dataSource_tmp[i].ArticulosXEmpresa = ArticulosXEmpresaFound;
+                    }
+
+                    dataSource = dataSource_tmp.AsQueryable();
+                }
+                else
+                {
+
+                    dataSource_tmp = new List<FacBonificadosXArticulo>();
+
+                    foreach (var articulo in genArticulo)
+                    {
+                        var ArticulosXEmpresaFound = artXEmpresa.
+                            Where(x =>
+                            x.CodArticulo == articulo.CodArticulo
+                            && x.CodEmpresa == SelectedCompany.CodEmpresa)
+                            .FirstOrDefault();
+
+                        if (ArticulosXEmpresaFound == null)
+                        {
+                            ArticulosXEmpresaFound = new ArticulosXEmpresa();
+                            ArticulosXEmpresaFound.Articulo = articulo;
+                            ArticulosXEmpresaFound.Marca = new GenMarca();
+                            ArticulosXEmpresaFound.Marca.CodMarca = 0;
+                            ArticulosXEmpresaFound.Marca.Descripcion = "-";
+                        }
+
+                        FacBonificadosXArticulo facBonificadosXArticulo = new FacBonificadosXArticulo();
+                        facBonificadosXArticulo.Articulo = articulo;
+                        facBonificadosXArticulo.CodBonificadoArticulo = 0;
+                        facBonificadosXArticulo.CodArticulo = articulo.CodArticulo;
+                        facBonificadosXArticulo.CodAgencia = 0;
+                        facBonificadosXArticulo.ArticulosXEmpresa = ArticulosXEmpresaFound;
+                        facBonificadosXArticulo.FechaInicio = DateTime.Now.AddYears(-1000);
+                        facBonificadosXArticulo.FechaFin = DateTime.Now.AddYears(-1000);
+                        facBonificadosXArticulo.MinimoAplicaDscto = 0;
+                        facBonificadosXArticulo.PorcDescuento = 0;
+                        facBonificadosXArticulo.Precio = 0;
+                        facBonificadosXArticulo.ValorDescuento = 0;
+
+                        dataSource_tmp.Add(facBonificadosXArticulo);
+                    }
+
+                    dataSource = dataSource_tmp.AsQueryable();
+
+                    toastService.ShowError("No se encontró en bonificados");
+
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error: {e.Message}");
+                Console.WriteLine($"Error: {e}");
+            }
+        }
+
         protected async Task FillData()
         {
             if (SelectedCompany == null)
@@ -527,6 +697,27 @@ namespace ResourceBuilder.Shared.master
             
         }
 
+        async public Task OnClickSearchCurrent()
+        {
+            if (SelectedCompany == null)
+            {
+                toastService.ShowError("Compañia requerida!");
+                return;
+            }
+
+            _spinnerService.Show();
+
+            await InvokeAsync(async () =>
+            {
+                await Task.Delay(100);
+                //await FillData();
+                await SearchDataCurrent();
+                StateHasChanged();
+                _spinnerService.Hide();
+            });
+
+        }
+
         async public Task OnClickSearchBrands()
         {            
             _spinnerService.Show();
@@ -538,6 +729,25 @@ namespace ResourceBuilder.Shared.master
                 await Task.Delay(100);
                 //StateHasChanged();
                 await SearchBrands();
+                StateHasChanged();
+                _spinnerService.Hide();
+            });
+            //_ = InvokeAsync(SearchBrands);
+            //await Task.Delay(500);
+            //_spinnerService.Hide();
+        }
+
+        async public Task OnClickSearchBrandsCurrent()
+        {
+            _spinnerService.Show();
+            //await SearchBrands();
+            //_spinnerService.Show();
+            InvokeAsync(async () =>
+            {
+                //StateHasChanged();
+                await Task.Delay(100);
+                //StateHasChanged();
+                await SearchBrandsCurrent();
                 StateHasChanged();
                 _spinnerService.Hide();
             });
@@ -739,6 +949,102 @@ namespace ResourceBuilder.Shared.master
 
                 await pagination_brands.SetCurrentPageIndexAsync(0);
                 //MakeHtml(data, HtmlForPreview);
+                Console.WriteLine("Consulta terminada");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error: {e.Message}");
+                Console.WriteLine($"Error: {e}");
+            }
+
+            _spinnerService.Hide();
+        }
+
+        async public Task SearchBrandsCurrent()
+        {
+            if (SelectedCompany == null)
+            {
+                toastService.ShowError("Compañia requerida!");
+                return;
+            }
+
+            //_ = InvokeAsync(StateHasChanged);            
+            //_spinnerService.Show();
+
+            try
+            {
+                //var artXEmpresa = await appDbContext.ARTICULOSXEMPRESA
+                //        .Include(z => z.Articulo)
+                //        .Include(y => y.Marca)
+                //        .Where(Data =>
+                //    Data.CodEmpresa == SelectedCompany.CodEmpresa
+                //    && Data.CodEstado == 1 
+                //    //&&
+                //    //(
+                //    //Data.ActivaWeb == "N" ||
+                //    //Data.VentaAlmacenes == "S" ||
+                //    //Data.VentaAlmacenes == "N"
+                //    //)
+                //    )                    
+                //    .ToListAsync();
+
+                var artXEmpresa = await appDbContext.ARTICULOSXEMPRESA
+                      .Include(z => z.Articulo)
+                      .Include(y => y.Marca)
+                      .Where(Data =>
+                  Data.CodEmpresa == SelectedCompany.CodEmpresa
+                  && Data.CodEstado == 1)?
+                  .ToListAsync();
+
+                List<GenMarca> brandTemp = new List<GenMarca>();
+
+                DateTime today = DateTime.Today;
+                var maxPastStart = today.AddDays(-5); // ¿cuánto hacia atrás aceptas?
+                var maxFutureStart = today.AddDays(30);  // ¿cuánto hacia adelante aceptas?
+
+                var itemsFound = await appDbContext.FACBONIFICADOSXARTICULO
+                       .Where(c => c.CodEmpresa == SelectedCompany.CodEmpresa                           
+                           && c.CodEstado == 1
+                            && (
+                                // Activos ahora, pero que no empezaron “hace mil años”
+                                (c.FechaInicio <= today && c.FechaFin >= today && c.FechaInicio >= maxPastStart)
+                                ||
+                                // Programados a iniciar pronto (no demasiado lejanos)
+                                (c.FechaInicio > today && c.FechaInicio <= maxFutureStart)
+                        ))
+                       .ToListAsync();
+
+                for (int i = 0; i < artXEmpresa.Count; i++)
+                {
+                    var itemSource = artXEmpresa[i];
+
+                    var brandAlreadyAdded = brandTemp.Where(x => x.CodMarca == itemSource.CodMarca).FirstOrDefault();
+                    if (brandAlreadyAdded == null)
+                    {
+                        var itemFound = itemsFound.Where(c => c.CodArticulo == itemSource.CodArticulo)
+                            .FirstOrDefault();
+
+                        if (itemFound != null)
+                        {
+                            Debug.WriteLine("Nueva Marca agregada " + itemSource.Marca.Descripcion);
+                            //artXEmpresa.Marca.Descripcion
+                            brandTemp.Add(itemSource.Marca);
+                            artXEmpresa.RemoveAll(x => x.CodMarca == itemSource.CodMarca);
+                        }
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Marca ya agregada " + itemSource.Marca.Descripcion);
+                    }
+                }
+
+                if (brandTemp.Count > 0)
+                {                    
+                    dataSourceBrands = brandTemp.Distinct().AsQueryable();
+                    Console.WriteLine(dataSourceBrands.Count());
+                }                
+
+                await pagination_brands.SetCurrentPageIndexAsync(0);                
                 Console.WriteLine("Consulta terminada");
             }
             catch (Exception e)
@@ -1307,6 +1613,8 @@ namespace ResourceBuilder.Shared.master
                 Debug.WriteLine("=====================================================");
             }
 
+            Console.WriteLine($"Terminado proceso de sincronización...");
+            Console.WriteLine(DateTime.Now.ToString());
         }
 
         public async Task<List<InvStock>> LoadItemsWithStockAsync()

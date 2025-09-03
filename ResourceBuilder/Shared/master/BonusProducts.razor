@@ -90,7 +90,18 @@
                         })>
                     <i class="fa fa-table" aria-hidden="true"></i>
                     Buscar
-                </button>               
+                </button>
+
+                <button type="button" class="btn btn-sm btn-primary"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="Agregar" @onclick=@(async () =>
+                        {
+                        await OnClickSearchCurrent();
+                        })>
+                    <i class="fa fa-calendar-check" aria-hidden="true"></i>
+                    Vigentes
+                </button>    
 
                 <button type="button" class="btn btn-sm btn-success"
                         data-toggle="tooltip"
@@ -109,11 +120,16 @@
                         title="Agregar" @onclick=@(async () => {
                         await LoadItemsWithStockAsync();
                         })>
-                    <i class="fa fa-warehouse"></i>
-                    Bodega
+                    <i class="fa fa-warehouse"></i>                    
                 </button>
 
-                <button type="button" class="btn btn-sm btn-warning"
+               
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col text-right">
+             <button type="button" class="btn btn-sm btn-warning"
                         data-toggle="tooltip"
                         data-placement="top"
                         title="Agregar" @onclick=@(async () => {
@@ -132,7 +148,6 @@
                     <i class="fa fa-chevron-circle-right" aria-hidden="true"></i>
                     Enviar Stock
                 </button>
-            </div>
         </div>
     </div>
 </div>
@@ -209,6 +224,15 @@
                         })>
                     <i class="fa fa-th" aria-hidden="true"></i>
                     Cargar marcas
+                </button>
+                <button type="button" class="btn btn-sm btn-primary"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="Agregar" @onclick=@(async () => {
+                        await OnClickSearchBrandsCurrent();
+                        })>
+                    <i class="fa fa-calendar-check" aria-hidden="true"></i>
+                    X Marcas Vigentes
                 </button>
                 <button type="button" class="btn btn-sm btn-primary"
                         data-toggle="tooltip"

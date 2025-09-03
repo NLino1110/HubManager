@@ -64,6 +64,10 @@
 		<None Remove="Resources\Fonts\Font Awesome 5 Free-Solid-900.otf" />		
 	</ItemGroup>
 
+	<ItemGroup>
+	  <AndroidEnvironment Include="Platforms\Android\env.conf" />
+	</ItemGroup>
+
 	<ItemGroup>		
 		<PackageReference Include="CommunityToolkit.Maui" Version="12.2.0" />
 		<PackageReference Include="CommunityToolkit.Maui.Core" Version="12.2.0" />
