@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DataSourceManager;
+using Microsoft.EntityFrameworkCore;
 using Models.DMSA.Mbw.Abstract;
 using Models.DMSA.Mbw.Core;
 using Models.DMSA.Mbw.Inventario;
@@ -485,7 +486,7 @@ namespace ResourceBuilder.Services.Sales
 
                 PrecioDTO price = new PrecioDTO
                 {
-                    ExternalId = fbxa.CodBonificadoArticulo.ToString(),
+                    ExternalId = (int) fbxa.CodBonificadoArticulo,
                     Store = new Store
                     {
                         ExternalId = fbxa.GenAgencias.CodAgencia,
@@ -532,7 +533,7 @@ namespace ResourceBuilder.Services.Sales
                     precioAlmacen = (double) facPrecioAlmacen.Precio;
                 }
 
-                precioAlm.ExternalId = facPrecioAlmacen.CodArticulo.ToString();
+                precioAlm.ExternalId = facPrecioAlmacen.CodArticulo;
 
                 //articulosAL.TryAdd(art.CodArticulo, precioAlmacen);
                 precioAlm.Value = precioAlmacen;
@@ -566,7 +567,7 @@ namespace ResourceBuilder.Services.Sales
                     (double)precioItem.Precio;
 
                 //precioDto.ExternalId = precioItem.Id.Numprecioventa.ToString();
-                precioDto.ExternalId = precioItem.NumPrecioVenta.ToString();
+                precioDto.ExternalId = precioItem.NumPrecioVenta;
                 precioDto.Type = "price";
                 precioDto.Value = precio;
                 //articuloDto.Prices.Add(precioDto);
@@ -654,7 +655,7 @@ namespace ResourceBuilder.Services.Sales
                         (double)precioItem.Precio;
 
                     //precioDto.ExternalId = precioItem.Id.Numprecioventa.ToString();
-                    precioDto.ExternalId = precioItem.NumPrecioVenta.ToString();
+                    precioDto.ExternalId = precioItem.NumPrecioVenta;
                     precioDto.Type = "price";
                     precioDto.Value = precio;
                     //articuloDto.Prices.Add(precioDto);
@@ -684,7 +685,7 @@ namespace ResourceBuilder.Services.Sales
                         precioAlmacen = (double)facPrecioAlmacen.Precio;
                     }
 
-                    precioAlm.ExternalId = facPrecioAlmacen.CodArticulo.ToString();
+                    precioAlm.ExternalId = facPrecioAlmacen.CodArticulo;
 
                     articulosAL.TryAdd(art.CodArticulo, precioAlmacen);
                 }
@@ -704,7 +705,10 @@ namespace ResourceBuilder.Services.Sales
         {
             List<FacBonificadosXArticulo> bonificados = new List<FacBonificadosXArticulo>();
             string sql = "";
-            
+
+            DateTime today = DateTime.Today;
+            DateTime fechaExclusion = new DateTime(today.Year, 12, 31);
+
             if (vtaExterna)
             {
                 bonificados = await _appDbContext
@@ -714,29 +718,48 @@ namespace ResourceBuilder.Services.Sales
                     predicate: x => x.CodArticulo.Equals(art.CodArticulo)
                     && x.CodEmpresa == art.CodEmpresa
                     && x.CodAgencia == agenciaMatriz.CodAgencia
+                    && x.GenAgencias.EnvioEcommerce == "S"
                     && x.CodTipoCliente == clienteWeb
-                    && x.FechaInicio >= parametros.date_start 
-                    && x.FechaFin <= parametros.date_end)
+                    && (today <= x.FechaFin && x.FechaFin != fechaExclusion)
+                    && x.CodEstado == 1
+                    )
+                    .OrderByDescending(x => x.PorcDescuento)
+                    .ToListAsync();
+            }            
+            else
+            {
+                // Solo se envia Descuentos con Unidad de Presentacion
+                //bonificados = await _appDbContext
+                //    .FACBONIFICADOSXARTICULO
+                //    .Include(y => y.GenAgencias)
+                //    .Where(
+                //    predicate: x => x.CodArticulo.Equals(art.CodArticulo)
+                //    && x.CodEmpresa == art.CodEmpresa
+                //    && x.GenAgencias.EnvioEcommerce == "S"
+                //    && x.CodNivel == decimal.Parse(paramNivel.Valor)
+                //    && (today <= x.FechaFin && x.FechaFin != fechaExclusion)
+                //    && x.CodEstado == 1)
+                //    .OrderByDescending(x => x.PorcDescuento)
+                //    .ToListAsync();
+
+                bonificados = await _appDbContext.FACBONIFICADOSXARTICULO
+                    .Include(y => y.GenAgencias)
+                    .Include(y => y.Articulo)
+                    .Include(y => y.GenUnidadesMedida)
+                    .Include(y => y.FacNivelesPreciosFk)
+                    .Where(x =>
+                        x.Articulo.CodArticulo == art.CodArticulo &&
+                        x.Articulo.CodUnidadPresentacion == x.GenUnidadesMedida.CodUnidadMedida &&
+                        x.CodEmpresa == art.CodEmpresa &&
+                        (x.GenAgencias.EnvioEcommerce ?? "X") == "S" &&
+                        x.CodEstado == 1 &&
+                        x.FacNivelesPreciosFk.CodNivel == decimal.Parse(paramNivel.Valor) &&
+                        x.FacNivelesPreciosFk.CodEmpresa == art.CodEmpresa
+                        && (today <= x.FechaFin && x.FechaFin != fechaExclusion)
+                    )
                     .OrderByDescending(x => x.PorcDescuento)
                     .ToListAsync();
             }
-            //TODO: CONFIRMADO QUE NO SE TOMA EN CUENTA PARA ESTOS CASOS 2025-08-04
-            //else
-            //{
-            //    // Solo se envia Descuentos con Unidad de Presentacion
-            //    bonificados = await _appDbContext
-            //        .FACBONIFICADOSXARTICULO
-            //        .Include(y=>y.GenAgencias)
-            //        .Where(
-            //        predicate: x => x.CodArticulo.Equals(art.CodArticulo)
-            //        && x.CodEmpresa == art.CodEmpresa
-            //        && x.GenAgencias.EnvioEcommerce == "S"
-            //        && x.CodNivel == decimal.Parse(paramNivel.Valor)
-            //        && x.FechaInicio >= parametros.date_start
-            //        && x.FechaFin <= parametros.date_end)
-            //        .OrderByDescending(x => x.PorcDescuento)
-            //        .ToListAsync();                
-            //}
 
             List<ArticuloDTO> articles = new List<ArticuloDTO>();
             List<PrecioDTO> prices = new List<PrecioDTO>();
@@ -773,7 +796,7 @@ namespace ResourceBuilder.Services.Sales
 
                     PrecioDTO price = new PrecioDTO
                     {
-                        ExternalId = fbxa.CodBonificadoArticulo.ToString(),
+                        ExternalId = (int) fbxa.CodBonificadoArticulo,
                         Store = new Store
                         {
                             ExternalId = fbxa.GenAgencias.CodAgencia,
@@ -781,11 +804,11 @@ namespace ResourceBuilder.Services.Sales
                             Ecommerce = vtaExterna
                         },
                         Type = "discount",
-                        Minimum = (double)fbxa.MinimoAplicaDscto,
+                        Minimum = (double) fbxa.MinimoAplicaDscto,
                         Value = precioConDescuento,
-                        Start = fbxa.FechaInicio.ToString("yyyy-MM-ddT00:00:00"), //parametros.date_start.ToString("yyyy-MM-ddT00:00:00"),
-                        End = fbxa.FechaFin.ToString("yyyy-MM-ddT23:59:59"),//parametros.date_end.ToString("yyyy-MM-ddTHH:mm:ss"),
-                        Status = true //fbxa.CodEstado == 1 //GenestadosDAOEXT.ESTADO_ACTIVO
+                        Start = fbxa.FechaInicio.ToString("yyyy-MM-ddT00:00:00"),
+                        End = fbxa.FechaFin.ToString("yyyy-MM-ddT23:59:59"),
+                        Status = fbxa.CodEstado == 1 //GenestadosDAOEXT.ESTADO_ACTIVO
                     };
 
                     prices.Add(price);
@@ -800,6 +823,8 @@ namespace ResourceBuilder.Services.Sales
 
         public async Task<List<ArticuloDTO>> MakeProducts(ParametersMode1 parametros)
         {
+            bool buildBodyProduct = false;
+
             int codEmpresa = 2;
             string tmp_apikey = "9+7e3A7t4qI1Rl8XQ2GjKjs8KhZ9Y8p1MfbQvKlkmP4=";
 
@@ -934,33 +959,38 @@ namespace ResourceBuilder.Services.Sales
                         }
 
                         articuloDto.ExternalId = art.Articulo.CodArticulo.ToString();
-                        articuloDto.Name = !string.IsNullOrEmpty(art.Articulo.DescripcionCorta) ?
-                                art.Articulo.DescripcionCorta.Trim() :
-                                art.Articulo.Descripcion.Trim();
-                        articuloDto.Reference = art.Articulo.CodAlterno;
-                        articuloDto.Weight = art.Articulo.MedidaPeso != null ? (double)art.Articulo.MedidaPeso : 0;
-                        articuloDto.Width = art.Articulo.MedidaFrente != null ? (double)art.Articulo.MedidaFrente : 0;
-                        articuloDto.Height = art.Articulo.MedidaAlto != null ? (double)art.Articulo.MedidaAlto : 0;
-                        articuloDto.Length = art.Articulo.MedidaFondo != null ? (double)art.Articulo.MedidaFondo : 0;
-                        articuloDto.Status = art.Estado.CodEstado.Equals(1);
-                        articuloDto.ShowWeb = art.ActivaWeb.Equals("S");
-                        articuloDto.ShowStore = art.VentaAlmacenes.Equals("S");
-                        articuloDto.UnidadPresentacion = art.Articulo.CodUnidadPresentacion;
+                        
+                        if (buildBodyProduct)
+                        {
+                            articuloDto.Name = !string.IsNullOrEmpty(art.Articulo.DescripcionCorta) ?
+                                    art.Articulo.DescripcionCorta.Trim() :
+                                    art.Articulo.Descripcion.Trim();
+                            articuloDto.Reference = art.Articulo.CodAlterno;
+                            articuloDto.Weight = art.Articulo.MedidaPeso != null ? (double)art.Articulo.MedidaPeso : 0;
+                            articuloDto.Width = art.Articulo.MedidaFrente != null ? (double)art.Articulo.MedidaFrente : 0;
+                            articuloDto.Height = art.Articulo.MedidaAlto != null ? (double)art.Articulo.MedidaAlto : 0;
+                            articuloDto.Length = art.Articulo.MedidaFondo != null ? (double)art.Articulo.MedidaFondo : 0;
+                            articuloDto.Status = art.Estado.CodEstado.Equals(1);
+                            articuloDto.ShowWeb = art.ActivaWeb.Equals("S");
+                            articuloDto.ShowStore = art.VentaAlmacenes.Equals("S");
+                            articuloDto.UnidadPresentacion = art.Articulo.CodUnidadPresentacion;
+                        }
 
                         if(parametros.with_prices)
                         {
                             var pricesList = await ecommerceService.BuildPrices(
-                            art,
-                            //articuloDto,
-                            codEmpresa,
-                            codAgencia,
-                            IVA,
-                            envioAdicional,
-                            clienteWeb,
-                            agenciaMatriz,
-                            nivelWeb,
-                            articulosVE,
-                            articulosAL);
+                                art,
+                                //articuloDto,
+                                codEmpresa,
+                                codAgencia,
+                                IVA,
+                                envioAdicional,
+                                clienteWeb,
+                                agenciaMatriz,
+                                nivelWeb,
+                                articulosVE,
+                                articulosAL);
+
                             if (articuloDto != null)
                             {
                                 if (pricesList != null)
@@ -968,10 +998,16 @@ namespace ResourceBuilder.Services.Sales
                                     articuloDto.Prices = pricesList;
                                 }
                             }
+                        }
 
+                        if(parametros.with_discount)
+                        {
                             bool vtaExterna = true;
-                            var pricesDiscounts = await ecommerceService.BuildDiscounts(art, parametros, agenciaMatriz, clienteWeb, paramNivel, vtaExterna, IVA);
-                            articuloDto.Prices.AddRange(pricesDiscounts);
+                            //var pricesDiscounts = await ecommerceService.BuildDiscounts(art, parametros, agenciaMatriz, clienteWeb, paramNivel, vtaExterna, IVA);
+                            var pricesDiscounts2 = await ecommerceService.BuildDiscounts(art, parametros, agenciaMatriz, clienteWeb, paramNivel, !vtaExterna, IVA);
+
+                            //articuloDto.Prices.AddRange(pricesDiscounts);
+                            articuloDto.Prices.AddRange(pricesDiscounts2);
                         }
 
                         if (parametros.with_stock)
@@ -1095,7 +1131,7 @@ namespace ResourceBuilder.Services.Sales
 
                             PrecioDTO price = new PrecioDTO
                             {
-                                ExternalId = fbxa.CodBonificadoArticulo.ToString(),
+                                ExternalId = (int) fbxa.CodBonificadoArticulo,
                                 Store = new Store
                                 {
                                     ExternalId = fbxa.GenAgencias.CodAgencia,
@@ -1250,7 +1286,7 @@ namespace ResourceBuilder.Services.Sales
 
                             PrecioDTO price = new PrecioDTO
                             {
-                                ExternalId = fbxa.CodBonificadoArticulo.ToString(),
+                                ExternalId = (int) fbxa.CodBonificadoArticulo,
                                 Store = new Store
                                 {
                                     ExternalId = fbxa.GenAgencias.CodAgencia,

@@ -568,7 +568,7 @@ namespace ApiTradeHub.Services.Sales
 
                 PrecioDTO price = new PrecioDTO
                 {
-                    ExternalId = fbxa.CodBonificadoArticulo.ToString(),
+                    ExternalId = (int) fbxa.CodBonificadoArticulo,
                     Store = new Store
                     {
                         ExternalId = fbxa.GenAgencias.CodAgencia,
@@ -615,7 +615,7 @@ namespace ApiTradeHub.Services.Sales
                     precioAlmacen = (double) facPrecioAlmacen.Precio;
                 }
 
-                precioAlm.ExternalId = facPrecioAlmacen.CodArticulo.ToString();
+                precioAlm.ExternalId = facPrecioAlmacen.CodArticulo;
 
                 //articulosAL.TryAdd(art.CodArticulo, precioAlmacen);
                 precioAlm.Value = precioAlmacen;
@@ -649,7 +649,7 @@ namespace ApiTradeHub.Services.Sales
                     (double)precioItem.Precio;
 
                 //precioDto.ExternalId = precioItem.Id.Numprecioventa.ToString();
-                precioDto.ExternalId = precioItem.NumPrecioVenta.ToString();
+                precioDto.ExternalId = precioItem.NumPrecioVenta;
                 precioDto.Type = "price";
                 precioDto.Value = precio;
                 //articuloDto.Prices.Add(precioDto);
@@ -735,7 +735,7 @@ namespace ApiTradeHub.Services.Sales
                         (double)precioItem.Precio;
 
                     //precioDto.ExternalId = precioItem.Id.Numprecioventa.ToString();
-                    precioDto.ExternalId = precioItem.NumPrecioVenta.ToString();
+                    precioDto.ExternalId = precioItem.NumPrecioVenta;
                     precioDto.Type = "price";
                     precioDto.Value = precio;
                     articuloDto.Prices.Add(precioDto);
@@ -765,7 +765,7 @@ namespace ApiTradeHub.Services.Sales
                         precioAlmacen = (double)facPrecioAlmacen.Precio;
                     }
 
-                    precioAlm.ExternalId = facPrecioAlmacen.CodArticulo.ToString();
+                    precioAlm.ExternalId = facPrecioAlmacen.CodArticulo;
 
                     articulosAL.TryAdd(art.CodArticulo, precioAlmacen);
                 }
@@ -855,7 +855,7 @@ namespace ApiTradeHub.Services.Sales
                         (double)precioItem.Precio;
 
                     //precioDto.ExternalId = precioItem.Id.Numprecioventa.ToString();
-                    precioDto.ExternalId = precioItem.NumPrecioVenta.ToString();
+                    precioDto.ExternalId = precioItem.NumPrecioVenta;
                     precioDto.Type = "price";
                     precioDto.Value = precio;
                     //articuloDto.Prices.Add(precioDto);
@@ -885,7 +885,7 @@ namespace ApiTradeHub.Services.Sales
                         precioAlmacen = (double)facPrecioAlmacen.Precio;
                     }
 
-                    precioAlm.ExternalId = facPrecioAlmacen.CodArticulo.ToString();
+                    precioAlm.ExternalId = facPrecioAlmacen.CodArticulo;
 
                     articulosAL.TryAdd(art.CodArticulo, precioAlmacen);
                 }
@@ -972,7 +972,7 @@ namespace ApiTradeHub.Services.Sales
 
                     PrecioDTO price = new PrecioDTO
                     {
-                        ExternalId = fbxa.CodBonificadoArticulo.ToString(),
+                        ExternalId = (int) fbxa.CodBonificadoArticulo,
                         Store = new Store
                         {
                             ExternalId = fbxa.GenAgencias.CodAgencia,
@@ -1429,11 +1429,11 @@ namespace ApiTradeHub.Services.Sales
                             string fechafin = fbxa.FechaFin.ToString("yyyy-MM-dd") + "T23:59:59";
 
                             precio = entry.Value;
-                            precioConDescuento = precio - (precio * ((double)fbxa.PorcDescuento / 100));
+                            precioConDescuento = precio - (precio * ((double) fbxa.PorcDescuento / 100));
 
                             PrecioDTO price = new PrecioDTO
                             {
-                                ExternalId = fbxa.CodBonificadoArticulo.ToString(),
+                                ExternalId = (int) fbxa.CodBonificadoArticulo,
                                 Store = new Store
                                 {
                                     ExternalId = fbxa.GenAgencias.CodAgencia,
@@ -1588,7 +1588,7 @@ namespace ApiTradeHub.Services.Sales
 
                             PrecioDTO price = new PrecioDTO
                             {
-                                ExternalId = fbxa.CodBonificadoArticulo.ToString(),
+                                ExternalId = (int) fbxa.CodBonificadoArticulo,
                                 Store = new Store
                                 {
                                     ExternalId = fbxa.GenAgencias.CodAgencia,

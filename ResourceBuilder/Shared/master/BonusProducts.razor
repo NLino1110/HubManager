@@ -230,7 +230,7 @@
                         data-placement="top"
                         title="Agregar" @onclick=@(async () => {
                         await OnClickSearchBrandsCurrent();
-                        })>
+                        }) disabled>
                     <i class="fa fa-calendar-check" aria-hidden="true"></i>
                     X Marcas Vigentes
                 </button>
@@ -249,9 +249,23 @@
     </div>
 </div>
 
-<div class="grid">
-    
+<div class="grid">    
+    <QuickGrid Items="groupedBrandTmp" Pagination="@pagination_brands">
+        <PropertyColumn Property="@(p => p.CodMarca)" Title="Id" Sortable="true" Align="Align.Center"/>
+        <PropertyColumn Property="@(p => p.Marca)" Title="Marca" Sortable="true" Align="Align.Center" />
+        <PropertyColumn Property="@(p => p.TotalArticulos)" Title="Tot.Art." Sortable="true" Align="Align.Center" />        
+        <TemplateColumn Title="Rangos">
+            @foreach (var rango in @context.RangosFechas)
+            {
+                <div style="min-width: 250px;">
+                    @rango.FechaInicio.ToShortDateString() - @rango.FechaFin.ToShortDateString()    ( @rango.TotalArticulosPorRango )             
+                </div>            
+            }
+        </TemplateColumn>    
+    </QuickGrid>
+</div>
 
+<div class="grid">
     <QuickGrid Items="dataSourceBrands" Pagination="@pagination_brands">
         <PropertyColumn Property="@(p => p.CodMarca)" Title="CodMarca" Sortable="true" Align="Align.Center" />
         <PropertyColumn Property="@(p => p.CodCategoriaMarca)" Sortable="true" Align="Align.Center" />

@@ -10,20 +10,19 @@ using Models.DMSA.Mbw.Inventario;
 
 namespace Models.DMSA.Mbw.Sales
 {
-    using System;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
-
     [Table("FACNIVELESPRECIOS")]
     public class FacNivelesPrecios
     {
+        //[Key]
+        //public int Id { get; set; }
+
         [Required]
         [Column("CODEMPRESA")]
-        public decimal CodEmpresa { get; set; }
+        public int CodEmpresa { get; set; }
 
         [Required]
         [Column("CODNIVEL")]
-        public decimal CodNivel { get; set; }
+        public int CodNivel { get; set; }
 
         [Required]
         [Column("DESCRIPCION")]
@@ -52,6 +51,8 @@ namespace Models.DMSA.Mbw.Sales
         [Column("BLOQUEO")]
         [StringLength(1)]
         public string Bloqueo { get; set; }
-    }
 
+
+        public virtual ICollection<FacBonificadosXArticulo> FacBonificadosxArticuloFk { get; set; }
+    }
 }

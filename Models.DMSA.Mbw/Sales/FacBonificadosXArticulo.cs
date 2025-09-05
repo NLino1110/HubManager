@@ -22,7 +22,7 @@ namespace Models.DMSA.Mbw.Sales
         public decimal CodBonificadoArticulo { get; set; }
                 
         [Column("CODEMPRESA")]
-        public int CodEmpresa { get; set; }
+        public int? CodEmpresa { get; set; }
 
         //[ForeignKey("CodArticulo, CodEmpresa")]
         [NotMapped]
@@ -32,7 +32,7 @@ namespace Models.DMSA.Mbw.Sales
         public int CodAgencia { get; set; }
         
         [ForeignKey("CodAgencia")]
-        public virtual GenAgencias GenAgencias { get; set; } // Relación con GenAgencias
+        public virtual GenAgencias GenAgencias { get; set; }
 
         [Column("CODTIPOCLIENTE")]
         public decimal? CodTipoCliente { get; set; }
@@ -41,8 +41,11 @@ namespace Models.DMSA.Mbw.Sales
         public decimal? CodEmpresaNivel { get; set; }
 
         [Column("CODNIVEL")]
-        public decimal? CodNivel { get; set; }
-                
+        public int? CodNivel { get; set; }
+
+        [ForeignKey(nameof(CodNivel))]
+        public virtual FacNivelesPrecios FacNivelesPreciosFk { get; set; }
+
         [Column("CODARTICULO")]
         public int CodArticulo { get; set; }
 
@@ -53,6 +56,10 @@ namespace Models.DMSA.Mbw.Sales
         [StringLength(15)]
         public string? CodUnidadMedida { get; set; }
                 
+        [ForeignKey(nameof(CodUnidadMedida))]
+        public virtual GenUnidadesMedida GenUnidadesMedida { get; set; }
+
+
         [Column("FECHAINICIO")]
         public DateTime FechaInicio { get; set; }
                 

@@ -25,6 +25,7 @@ namespace Models.DMSA.Mbw.Abstract
         public List<object> ids { get; set; }
         public List<object> brands { get; set; }
         public bool with_prices { get; set; }
+        public bool with_discount { get; set; }
         public bool with_stock { get; set; }
         public bool with_full_stock { get; set; }
         public DateTime date_start { get; set; }
@@ -45,14 +46,14 @@ namespace Models.DMSA.Mbw.Abstract
     public class PrecioDTO
     {
         [JsonProperty("external_id")]
-        public string ExternalId { get; set; }
+        public int ExternalId { get; set; }
         [JsonProperty("type")]
         public string Type { get; set; }
         [JsonProperty("value")]
         public double Value { get; set; }
         [JsonProperty("store")]
         public Store Store { get; set; }
-        [JsonProperty("minimun")]
+        [JsonProperty("minimum")]
         public double? Minimum { get; set; }
         [JsonProperty("start")]
         public string? Start { get; set; }

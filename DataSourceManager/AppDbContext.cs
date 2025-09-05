@@ -1,20 +1,20 @@
 ﻿using DataSourceManager.Tools;
+using Microsoft.EntityFrameworkCore;
+using Models.DMSA.Mbw.Core;
 //using Entidades.Externals;
 //using Entidades.Security;
 //using Entidades.SyncTask;
 //using Models.DMSA.Mbw.Clientes;
 //using Models.DMSA.Mbw.Especiales;
 using Models.DMSA.Mbw.Inventario;
-
 using Models.DMSA.Mbw.Sales;
 using Models.DMSA.Shared.Tools;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Models.DMSA.Mbw.Core;
 using System.Diagnostics;
+using System.Linq;
 namespace DataSourceManager
 {
 
@@ -191,6 +191,14 @@ namespace DataSourceManager
             modelBuilder.Entity<FacPreciosAlmacen>()
                 .HasKey(pb => new { pb.CodEmpresa, pb.CodArticulo , pb.CodEmpresaNivel, pb.CodNivel, pb.CodUnidadMedida});
 
+            modelBuilder.Entity<FacBonificadosXArticulo>(entity =>
+            {
+                entity.HasOne(d => d.FacNivelesPreciosFk)
+                      .WithMany(p => p.FacBonificadosxArticuloFk)
+                      .HasForeignKey(d => new { d.CodNivel, d.CodEmpresa })  // 🔹 clave compuesta
+                      .HasPrincipalKey(p => new { p.CodNivel, p.CodEmpresa }); // 🔹 clave compuesta en FacNivelesPrecios
+            });
+
             //modelBuilder.Entity<ClienteAprobacion>()
             //.HasKey(a => new { a.I, a.prod_vtex_sku, a.account_name });
 
@@ -206,6 +214,16 @@ namespace DataSourceManager
             //        new Saldo(){ cid="0919826941", valorPagar= 777.66m, fechaMaxPago= DateTime.Now, estado="MALO"  },
             //    }
             //    );
+
+
+            foreach (var entity in modelBuilder.Model.GetEntityTypes())
+            {
+                foreach (var property in entity.GetProperties()
+                    .Where(p => p.ClrType == typeof(string)))
+                {
+                    property.SetIsUnicode(false);  // 🔑 Fuerza VARCHAR2
+                }
+            }
         }
     }
 }

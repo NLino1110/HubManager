@@ -30,12 +30,30 @@ using System.Linq;
 
 namespace ResourceBuilder.Shared.master
 {
+    public class GroupedMarca
+    {
+        public int CodMarca { get; set; }
+        public string Marca { get; set; }
+        public int TotalArticulos { get; set; }
+        public List<int> DistinctArticulos { get; set; }
+        public List<RangoFecha> RangosFechas { get; set; }
+    }
+
+    public class RangoFecha
+    {
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaFin { get; set; }
+        public int TotalArticulosPorRango { get; set; }
+    }
+
     public partial class BonusProducts
     {
         //DataSourceManager.AppDbContext appDbContext = new DataSourceManager.AppDbContext();
 
         [CascadingParameter]
         BlazorSpinner.SpinnerService _spinnerService { get; set; } = default!;
+
+        IQueryable<GroupedMarca> groupedBrandTmp { get; set; }
 
         IQueryable<FacBonificadosXArticulo> dataSource { get; set; }
         IQueryable<GenMarca> dataSourceBrands { get; set; }
@@ -414,21 +432,14 @@ namespace ResourceBuilder.Shared.master
 
                 List<FacBonificadosXArticulo> dataSource_tmp = null;
 
-                DateTime today = DateTime.Today;
-                var maxPastStart = today.AddDays(-5);
-                var maxFutureStart = today.AddDays(30);
+                DateTime today = DateTime.Today;                
+                DateTime fechaExclusion = new DateTime(today.Year, 12, 31);
 
                 dataSource_tmp = await appDbContext.FACBONIFICADOSXARTICULO
-                    .Where(c => c.CodEmpresa == SelectedCompany.CodEmpresa                        
+                    .Where(c => c.CodEmpresa == SelectedCompany.CodEmpresa
                         && c.CodEstado == 1
                         && codArticulos.Contains(c.CodArticulo)
-                        && (
-                            // Activos ahora, pero que no empezaron “hace mil años”
-                            (c.FechaInicio <= today && c.FechaFin >= today && c.FechaInicio >= maxPastStart)
-                            ||
-                            // Programados a iniciar pronto (no demasiado lejanos)
-                            (c.FechaInicio > today && c.FechaInicio <= maxFutureStart)
-                        )
+                        && (today <= c.FechaFin && c.FechaFin != fechaExclusion)
                         ).ToListAsync();
 
                 if (artXEmpresa != null && dataSource_tmp.Count > 0)
@@ -728,7 +739,8 @@ namespace ResourceBuilder.Shared.master
                 //StateHasChanged();
                 await Task.Delay(100);
                 //StateHasChanged();
-                await SearchBrands();
+                await SearchBrandsByResult();
+                //await SearchBrands();
                 StateHasChanged();
                 _spinnerService.Hide();
             });
@@ -874,6 +886,113 @@ namespace ResourceBuilder.Shared.master
             }
         }
 
+       
+
+
+        async public Task SearchBrandsByResult()
+        {            
+            try
+            {
+                //AGRUPAR SIN TOTAL EN RANGOS DE FECHA
+                //var groupedDataTmp = dataSource
+                //    .AsEnumerable()
+                //    .Where(x => x.ArticulosXEmpresa?.Marca != null)
+                //    .GroupBy(x => (x.ArticulosXEmpresa.Marca.Descripcion ?? string.Empty).Trim(),
+                //             StringComparer.OrdinalIgnoreCase)
+                //    .Select(g => new
+                //    {
+                //        Marca = g.Key,
+                //        TotalArticulos = g
+                //            .Select(x => x.CodArticulo)
+                //            .Distinct()
+                //            .Count(),
+                //        DistinctArticulos = g
+                //            .Select(x => x.CodArticulo)
+                //            .Distinct()
+                //            .ToList(),
+                //        RangosFechas = g
+                //            .Select(x => new { x.FechaInicio, x.FechaFin })
+                //            .Distinct()
+                //            .ToList()
+                //    })
+                //    .ToList();
+
+                //AGRUPAR CON TOTAL EN RANGOS DE FECHA
+                var groupedBrandDataTmp = dataSource
+                    .AsEnumerable()
+                    .Where(x => x.ArticulosXEmpresa?.Marca != null)
+                    .GroupBy(x => new
+                    {
+                        CodMarca = x.ArticulosXEmpresa.Marca.CodMarca,
+                        Descripcion = (x.ArticulosXEmpresa.Marca.Descripcion ?? string.Empty).Trim()
+                    })
+                    .Select(g => new GroupedMarca
+                    {
+                        CodMarca = g.Key.CodMarca,
+                        Marca = g.Key.Descripcion,
+                        TotalArticulos = g.Select(x => x.CodArticulo).Distinct().Count(),
+                        DistinctArticulos = g.Select(x => x.CodArticulo).Distinct().ToList(),
+                        RangosFechas = g
+                            .GroupBy(x => new { x.FechaInicio, x.FechaFin })  // Agrupamos por rango de fecha
+                            .Select(r => new RangoFecha
+                            {
+                                FechaInicio = r.Key.FechaInicio,
+                                FechaFin = r.Key.FechaFin,
+                                TotalArticulosPorRango = r.Select(x => x.CodArticulo).Distinct().Count()
+                            })
+                            .ToList()
+                    })
+                    .ToList();
+
+                groupedBrandTmp = groupedBrandDataTmp.AsQueryable();
+
+                var groupedData = dataSource
+                    .AsEnumerable()
+                    .DistinctBy(x => (x.ArticulosXEmpresa?.Marca.Descripcion ?? string.Empty).Trim(), StringComparer.OrdinalIgnoreCase)
+                    .Select(x => new FacBonificadosXArticulo
+                    {
+                        CodArticulo = x.CodArticulo,
+                        ArticulosXEmpresa = x.ArticulosXEmpresa
+                    })
+                    .ToList();
+
+                List<GenMarca> brandTemp = new List<GenMarca>();
+                                
+                for (int i = 0; i < groupedData.Count; i++)
+                {
+                    var itemSource = groupedData[i];
+
+                    var brandAlreadyAdded = brandTemp.Where(x => x.CodMarca == itemSource.ArticulosXEmpresa.CodMarca).FirstOrDefault();
+
+                    if (brandAlreadyAdded == null)
+                    {                       
+                        Debug.WriteLine("Nueva Marca agregada " + itemSource.ArticulosXEmpresa.Marca.Descripcion);                        
+                        brandTemp.Add(itemSource.ArticulosXEmpresa.Marca);                        
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Marca ya agregada " + itemSource.ArticulosXEmpresa.Marca.Descripcion);
+                    }
+                }
+
+                if (brandTemp.Count > 0)
+                {                    
+                    dataSourceBrands = brandTemp.Distinct().AsQueryable();
+                    Console.WriteLine(dataSourceBrands.Count());
+                }                
+
+                await pagination_brands.SetCurrentPageIndexAsync(0);                
+                Console.WriteLine("Consulta terminada");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error: {e.Message}");
+                Console.WriteLine($"Error: {e}");
+            }
+
+            _spinnerService.Hide();
+        }
+
         async public Task SearchBrands()
         {
             if (SelectedCompany == null)
@@ -998,20 +1117,14 @@ namespace ResourceBuilder.Shared.master
 
                 List<GenMarca> brandTemp = new List<GenMarca>();
 
-                DateTime today = DateTime.Today;
-                var maxPastStart = today.AddDays(-5); // ¿cuánto hacia atrás aceptas?
-                var maxFutureStart = today.AddDays(30);  // ¿cuánto hacia adelante aceptas?
+                DateTime today = DateTime.Today;                
+                DateTime fechaExclusion = new DateTime(today.Year, 12, 31);
 
                 var itemsFound = await appDbContext.FACBONIFICADOSXARTICULO
                        .Where(c => c.CodEmpresa == SelectedCompany.CodEmpresa                           
                            && c.CodEstado == 1
-                            && (
-                                // Activos ahora, pero que no empezaron “hace mil años”
-                                (c.FechaInicio <= today && c.FechaFin >= today && c.FechaInicio >= maxPastStart)
-                                ||
-                                // Programados a iniciar pronto (no demasiado lejanos)
-                                (c.FechaInicio > today && c.FechaInicio <= maxFutureStart)
-                        ))
+                            && (today <= c.FechaFin && c.FechaFin != fechaExclusion)
+                        )
                        .ToListAsync();
 
                 for (int i = 0; i < artXEmpresa.Count; i++)
@@ -1315,7 +1428,7 @@ namespace ResourceBuilder.Shared.master
                 p.CodArticulo
             };
 
-            var responseData = await LaunchItemLocal(articulos, new List<object>(), true, true, new long[] {}, false, with_full_stock);
+            var responseData = await LaunchItemLocal(articulos, new List<object>(), true, false, new long[] {}, false, with_full_stock);
 
             if(responseData == null)
             {
@@ -1401,7 +1514,8 @@ namespace ResourceBuilder.Shared.master
 
                 parametros.brands = CodeListBrands;
 
-                parametros.with_prices = with_discount;
+                parametros.with_prices = false;
+                parametros.with_discount = with_discount;
                 parametros.with_stock = with_stock;
                 parametros.with_full_stock = with_full_stock;
 
@@ -1422,11 +1536,11 @@ namespace ResourceBuilder.Shared.master
                     Formatting.Indented,
                     new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
 
-            //Debug.WriteLine(jsonResult);
+            Debug.WriteLine(jsonResult);
 
             if (sendData)
             {
-                string urlMiddleware = "http://api.dmujeres.ec/dmujeres/sku/bulk/";//ConfigurationHelper.GetAppSettings().middleware_url;
+                string urlMiddleware = "http://api.dmujeres.ec/dmujeres/sku/bulk/";   //ConfigurationHelper.GetAppSettings().middleware_url;
 
                 //urlMiddleware = "http://api.dmujeres-dev.ec:8000/dmujeres/v2/sku/bulk/";
 
@@ -1482,15 +1596,25 @@ namespace ResourceBuilder.Shared.master
 
         async Task LaunchSendResults()
         {
+            var groupedData = dataSource
+                .AsEnumerable()
+                .DistinctBy(x => x.CodArticulo)
+                .Select(x => new FacBonificadosXArticulo
+                {
+                    CodArticulo = x.CodArticulo
+                })
+                .ToList();
+
             var parameters = new ModalParameters();
 
-            string Message = "Desea sincronizar los productos listados?";
+            string Message = "Desea sincronizar los productos listados? " + groupedData.Count();
             parameters.Add(nameof(DisplayMessageCustom.Message), Message);
             var options = new ModalOptions
             {
                 UseCustomLayout = true,
                 DisableBackgroundCancel = true
             };
+
             var messageForm = modalService.Show<DisplayMessageCustom>("Sincronización", parameters, options);
 
             var resultDialog = await messageForm.Result;
@@ -1567,11 +1691,11 @@ namespace ResourceBuilder.Shared.master
             Console.WriteLine($"=================================================");
             Console.WriteLine($"Iniciando nuevo proceso de sincronización...");
             Console.WriteLine(DateTime.Now.ToString());
-
-            for (int i = 0; i < dataSource.Count(); i += maxParallel)
+            
+            for (int i = 0; i < groupedData.Count(); i += maxParallel)
             {
                 // Tomamos bloques de 10
-                var batch = dataSource.Skip(i).Take(maxParallel).ToList();
+                var batch = groupedData.Skip(i).Take(maxParallel).ToList();
 
                 var tasks = batch.Select(async item =>
                 {
@@ -1585,9 +1709,11 @@ namespace ResourceBuilder.Shared.master
                         responseData = await LaunchItemLocal(
                             articulos,
                             new List<object>(),
-                            true, false,
+                            true, 
+                            false,
                             new long[] { },
-                            true, false
+                            false, //true, 
+                            false
                         );
 
                         if (responseData == "[]")
@@ -1609,7 +1735,7 @@ namespace ResourceBuilder.Shared.master
                     Debug.WriteLine($"Articulo {result.CodArticulo} -> {result.responseData}");
                 }
 
-                Console.WriteLine($"Procesados {Math.Min(i + maxParallel, dataSource.Count())} de {dataSource.Count()}");
+                Console.WriteLine($"Procesados {Math.Min(i + maxParallel, groupedData.Count())} de {groupedData.Count()}");
                 Debug.WriteLine("=====================================================");
             }
 

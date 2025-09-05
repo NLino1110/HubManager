@@ -17,28 +17,28 @@ namespace Models.DMSA.Mbw.Abstract
         public string Reference { get; set; }
 
         [JsonProperty("weight")]
-        public double Weight { get; set; }
+        public double? Weight { get; set; }
 
         [JsonProperty("width")]
-        public double Width { get; set; }
+        public double? Width { get; set; }
 
         [JsonProperty("height")]
-        public double Height { get; set; }
+        public double? Height { get; set; }
 
         [JsonProperty("length")]
-        public double Length { get; set; }
+        public double? Length { get; set; }
 
         [JsonProperty("status")]
-        public bool Status { get; set; }
+        public bool? Status { get; set; }
 
         [JsonProperty("show_web")]
-        public bool ShowWeb { get; set; }
+        public bool? ShowWeb { get; set; }
 
         [JsonProperty("show_store")]
-        public bool ShowStore { get; set; }
+        public bool? ShowStore { get; set; }
 
         [JsonProperty("unidadpresentacion")]
-        public string UnidadPresentacion { get; set; }
+        public string? UnidadPresentacion { get; set; }
 
         [JsonProperty("prices")]
         public List<PrecioDTO> Prices { get; set; } = new List<PrecioDTO>();
