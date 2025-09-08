@@ -828,6 +828,9 @@ namespace ResourceBuilder.Services.Sales
             int codEmpresa = 2;
             string tmp_apikey = "9+7e3A7t4qI1Rl8XQ2GjKjs8KhZ9Y8p1MfbQvKlkmP4=";
 
+            var pClienteWeb = await _appDbContext.GENPARAMETROS.Where(x => x.CodEmpresa == codEmpresa && x.CodParametro == "PRECIO_WEB").FirstOrDefaultAsync();
+            long clienteWeb = (pClienteWeb != null) ? long.Parse(pClienteWeb.Valor) : 0l;
+
             List<GenEmpresa> empresas = _appDbContext.GENEMPRESAS.ToList();
             List<GenArticulos> articulos = new List<GenArticulos>();
             List<GenMarca> marcas = new List<GenMarca>();
@@ -876,6 +879,7 @@ namespace ResourceBuilder.Services.Sales
                 .Where(c => c.CodEmpresa == 2
                     && c.FechaInicio >= parametros.date_start
                     && c.FechaFin <= parametros.date_end
+                    && c.CodTipoCliente == clienteWeb
                     && c.CodEstado == 1)
                     //&& codArticulos.Contains(c.CodArticulo))
                     //.Take(2000)
@@ -896,8 +900,7 @@ namespace ResourceBuilder.Services.Sales
             var pIVA = await _appDbContext.GENPARAMETROS.Where(x => x.CodEmpresa == codEmpresa && x.CodParametro == "IVA").FirstOrDefaultAsync();
             IVA = (pIVA != null) ? double.Parse(pIVA.Valor) : 0d;
 
-            var pClienteWeb = await _appDbContext.GENPARAMETROS.Where(x => x.CodEmpresa == codEmpresa && x.CodParametro == "PRECIO_WEB").FirstOrDefaultAsync();
-            long clienteWeb = (pClienteWeb != null) ? long.Parse(pClienteWeb.Valor) : 0l;
+            
 
             var paramNivel = await _appDbContext.GENPARAMETROS.Where(x => x.CodEmpresa == codEmpresa && x.CodParametro == "TIPO_NIVEL_DEFAULT_WEB").FirstOrDefaultAsync();
 
@@ -1003,11 +1006,11 @@ namespace ResourceBuilder.Services.Sales
                         if(parametros.with_discount)
                         {
                             bool vtaExterna = true;
-                            //var pricesDiscounts = await ecommerceService.BuildDiscounts(art, parametros, agenciaMatriz, clienteWeb, paramNivel, vtaExterna, IVA);
-                            var pricesDiscounts2 = await ecommerceService.BuildDiscounts(art, parametros, agenciaMatriz, clienteWeb, paramNivel, !vtaExterna, IVA);
+                            var pricesDiscounts = await ecommerceService.BuildDiscounts(art, parametros, agenciaMatriz, clienteWeb, paramNivel, vtaExterna, IVA);
+                            //var pricesDiscounts2 = await ecommerceService.BuildDiscounts(art, parametros, agenciaMatriz, clienteWeb, paramNivel, !vtaExterna, IVA);
 
-                            //articuloDto.Prices.AddRange(pricesDiscounts);
-                            articuloDto.Prices.AddRange(pricesDiscounts2);
+                            articuloDto.Prices.AddRange(pricesDiscounts);
+                            //articuloDto.Prices.AddRange(pricesDiscounts2);
                         }
 
                         if (parametros.with_stock)

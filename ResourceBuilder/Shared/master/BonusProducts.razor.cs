@@ -93,6 +93,8 @@ namespace ResourceBuilder.Shared.master
 
         private string input_search_param_var = string.Empty;
 
+        private int clienteWeb = 15;
+
 
         List<string> multipleSelectionData;
         List<string> multipleSelectionTexts;
@@ -254,6 +256,7 @@ namespace ResourceBuilder.Shared.master
                 
                 dataSource_tmp = await appDbContext.FACBONIFICADOSXARTICULO
                     .Where(c => c.CodEmpresa == SelectedCompany.CodEmpresa
+                        && c.CodTipoCliente == clienteWeb
                         && c.FechaInicio >= StartDate
                         && c.FechaFin <= EndDate
                         && c.CodEstado == 1
@@ -438,6 +441,7 @@ namespace ResourceBuilder.Shared.master
                 dataSource_tmp = await appDbContext.FACBONIFICADOSXARTICULO
                     .Where(c => c.CodEmpresa == SelectedCompany.CodEmpresa
                         && c.CodEstado == 1
+                        && c.CodTipoCliente == clienteWeb
                         && codArticulos.Contains(c.CodArticulo)
                         && (today <= c.FechaFin && c.FechaFin != fechaExclusion)
                         ).ToListAsync();
