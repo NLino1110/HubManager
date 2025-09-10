@@ -13,12 +13,15 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.QuickGrid;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
+using Models.DMSA.Mbw.Abstract;
 using Models.DMSA.Mbw.Core;
 using Models.DMSA.Mbw.Inventario;
 using Models.DMSA.Mbw.Sales;
 using Models.DMSA.Shared.Tools;
 using Newtonsoft.Json;
 using ResourceBuilder.ControllerManager.Ecommerce;
+using ResourceBuilder.Data.Structs.DJango;
+using ResourceBuilder.DBContext.PostgreSql;
 using ResourceBuilder.Services.Inventory;
 using ResourceBuilder.Services.Sales;
 using ResourceBuilder.Shared.Modal;
@@ -27,9 +30,43 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.PerformanceData;
 using System.Linq;
+using System.IO;
 
 namespace ResourceBuilder.Shared.master
 {
+    public class StoreIdentityDTO
+    {
+        public long ObjectId { get; set; }
+        public string ExternalId { get; set; }
+        public int ContentTypeId { get; set; }
+    }
+
+    public class ComparacionPrecioResult
+    {
+        public int SkuId { get; set; }
+        public string? ReferenciaSku { get; set; }
+        public string? Tienda { get; set; }
+
+        public double ValorPostgres { get; set; }
+        public decimal? ValorLocal { get; set; }
+
+        public decimal? PorcentajeDescuentoPostgres { get; set; }
+        public decimal? PorcentajeDescuento { get; set; }
+
+        public DateTime? FechaInicioPostgres { get; set; }
+        public DateTime? FechaFinPostgres { get; set; }
+        public DateTime FechaInicioLocal { get; set; }
+        public DateTime FechaFinLocal { get; set; }
+
+        public string TipoPostgres { get; set; }
+        public string TipoLocal { get; set; }
+
+        public bool CoincidenFechas { get; set; }
+        public bool CoincidenValores { get; set; }
+        public bool CoincidenTipos { get; set; }
+    }
+
+
     public class GroupedMarca
     {
         public int CodMarca { get; set; }
@@ -81,6 +118,9 @@ namespace ResourceBuilder.Shared.master
 
         [Inject]
         DataSourceManager.AppDbContext appDbContext { get; set; }
+
+        [Inject]
+        PostgreSqlContext pgDbContext { get; set; }
 
         [Inject]
         public IModalService modalService { get; set; }
@@ -256,7 +296,7 @@ namespace ResourceBuilder.Shared.master
                 
                 dataSource_tmp = await appDbContext.FACBONIFICADOSXARTICULO
                     .Where(c => c.CodEmpresa == SelectedCompany.CodEmpresa
-                        && c.CodTipoCliente == clienteWeb
+                        //&& c.CodTipoCliente == clienteWeb
                         && c.FechaInicio >= StartDate
                         && c.FechaFin <= EndDate
                         && c.CodEstado == 1
@@ -441,7 +481,7 @@ namespace ResourceBuilder.Shared.master
                 dataSource_tmp = await appDbContext.FACBONIFICADOSXARTICULO
                     .Where(c => c.CodEmpresa == SelectedCompany.CodEmpresa
                         && c.CodEstado == 1
-                        && c.CodTipoCliente == clienteWeb
+                        //&& c.CodTipoCliente == clienteWeb
                         && codArticulos.Contains(c.CodArticulo)
                         && (today <= c.FechaFin && c.FechaFin != fechaExclusion)
                         ).ToListAsync();
@@ -725,13 +765,486 @@ namespace ResourceBuilder.Shared.master
             await InvokeAsync(async () =>
             {
                 await Task.Delay(100);
-                //await FillData();
+                //await FillData();                
+
                 await SearchDataCurrent();
+
                 StateHasChanged();
                 _spinnerService.Hide();
             });
 
         }
+
+        async public Task LaunchComparer()
+        {
+            Debug.WriteLine("Datos agrupados!!");
+
+            var groupedData = dataSource
+                .AsEnumerable()
+                .DistinctBy(x => x.CodArticulo)
+                .Select(x => new FacBonificadosXArticulo
+                {
+                    CodArticulo = x.CodArticulo
+                })
+                .ToList();
+
+            var skuExternalIdsString = groupedData
+                .Select(g => g.CodArticulo.ToString())
+                .ToList();
+
+            var catalogSkuIds = await pgDbContext.SettingsIdentity
+                .Where(s => skuExternalIdsString.Contains(s.ExternalId)
+                    && s.ContentTypeId == 18)
+                .Select(s => s.ObjectId)
+                .ToListAsync();
+
+            var storesIds = await pgDbContext.SettingsIdentity
+                .Where(s => s.ContentTypeId == 31 && s.App.ToLower() == "erp")
+                .Select(s => new StoreIdentityDTO
+                {
+                    ObjectId = s.ObjectId,
+                    ExternalId = s.ExternalId,
+                    ContentTypeId = s.ContentTypeId
+                })
+                .ToListAsync();
+
+            var storesList = await pgDbContext.OmsStore
+                .AsNoTracking()
+                .ToListAsync(); 
+
+            //var settingsList = await pgDbContext.SettingsIdentity
+            //    .Where(s => skuExternalIdsString.Contains(s.ExternalId) && s.ContentTypeId == 18)
+            //    .ToListAsync();
+
+            // Creamos el diccionario en memoria
+            //var skuMap = settingsList
+            //    .GroupBy(s => s.ObjectId)
+            //    .ToDictionary(g => g.Key, g => g.Select(s => int.Parse(s.ExternalId)).ToList());
+
+            int batchSize = 200;
+            int totalProcesados = 0;
+            int totalFaltantes = 0;
+
+            string brand_name = "";
+            //if (SelectedBrand != null)
+            //    brand_name = SelectedBrand.Descripcion;
+
+            var outputFilePath = Path.Combine(AppContext.BaseDirectory, "skus_faltantes_" + brand_name + ".txt");
+
+            // Dividimos en lotes de 200 SKUs
+            for (int i = 0; i < catalogSkuIds.Count; i += batchSize)
+            {
+                var skuBatch = catalogSkuIds.Skip(i).Take(batchSize).ToList();
+
+                //var prices = await pgDbContext.CatalogPrice
+                //    .AsNoTracking()
+                //    .Include(p => p.Sku)
+                //    .Include(p => p.Store)
+                //    .Where(p => skuBatch.Contains(p.SkuId))
+                //    .OrderBy(p => p.Id)
+                //    .ToListAsync();
+
+                var now = DateTime.UtcNow;
+
+                var prices = await pgDbContext.CatalogPrice
+                    .AsNoTracking()
+                    .Include(p => p.Sku)
+                    .Include(p => p.Store)
+                    .Where(p => skuBatch.Contains(p.SkuId) &&
+                        (
+                            (p.Start == null && p.End == null) ||
+                            (p.Start <= now && p.End == null) ||
+                            (p.Start == null && p.End >= now) ||
+                            (p.Start <= now && p.End >= now) ||
+                            (p.Start >= now)
+                        )
+                    )
+                    .OrderByDescending(p => p.Type)   // equivalente a '-type' en Django
+                    .ThenByDescending(p => p.StoreId) // '-store', ajusta según tu modelo
+                    .ThenBy(p => p.Start)
+                    .ThenBy(p => p.End)
+                    .ThenBy(p => p.Value)
+                    .ToListAsync();
+
+                foreach (var price in prices)
+                {
+                    if (price.Start.HasValue)
+                        price.Start = price.Start.Value.AddHours(-5);
+
+                    if (price.End.HasValue)
+                        price.End = price.End.Value.AddHours(-5);
+                }
+
+                //var codArticuloBatch = catalogSkuIds
+                //.SelectMany(id => skuMap.ContainsKey(id) ? skuMap[id] : new List<int>())
+                //.ToList();
+
+                //var groupedItems = dataSource
+                //    .Where(p => codArticuloBatch.Contains(p.CodArticulo))
+                //    .ToList();
+
+                var groupedItems = dataSource.ToList();
+
+                var preciosPorArticulo = new Dictionary<long, Dictionary<string, double>>();
+                
+                long codAgencia = 0;
+                double IVA = 15;
+                
+                var agenciaMatriz = await appDbContext.GENAGENCIAS.Where(x => x.CodEmpresa == SelectedCompany.CodEmpresa
+            && x.CodEstado == 1
+            && x.TipoAgencia == "M")
+                .OrderBy(o => o.CodAgencia)
+                .FirstOrDefaultAsync();
+
+                long nivelWeb = 0;
+
+                foreach (var art in dataSource)
+                {
+                    var precios = await GetPrice(
+                        art.ArticulosXEmpresa,
+                        SelectedCompany.CodEmpresa,
+                        codAgencia,
+                        IVA,
+                        clienteWeb,
+                        agenciaMatriz,
+                        nivelWeb
+                    );
+
+                    preciosPorArticulo[art.CodArticulo] = precios;
+                }
+
+                foreach (var kvp in preciosPorArticulo)
+                {
+                    long codArticulo = kvp.Key;
+                    var precios = kvp.Value;
+
+                    precios.TryGetValue("venta", out double precioVenta);
+                    precios.TryGetValue("almacen", out double precioAlmacen);
+
+                    Console.WriteLine($"Artículo {codArticulo}: Venta={precioVenta}, Almacén={precioAlmacen}");
+                }
+
+                Debug.WriteLine("Comparando!!");
+                
+                var comparaciones = CompararPreciosAvanzado(prices, groupedItems, preciosPorArticulo, storesIds, storesList);
+
+                Console.WriteLine("============================================================");
+
+                var skusGuardados = new HashSet<long>();
+
+                using (var writer = new StreamWriter(outputFilePath, append: true))
+                {
+                    foreach (var cmp in comparaciones)
+                    {
+                        Console.WriteLine($"SKU: {cmp.SkuId} ({cmp.ReferenciaSku}) - Tienda: {cmp.Tienda}");
+                        Console.WriteLine($" Valor -> Postgres: {cmp.ValorPostgres}, Local: {cmp.ValorLocal}, %Dscto. Pg.: {cmp.PorcentajeDescuento}");
+                        Console.WriteLine($"  Fechas -> Postgres: {cmp.FechaInicioPostgres:yyyy-MM-dd} - {cmp.FechaFinPostgres:yyyy-MM-dd}");
+                        Console.WriteLine($"  Fechas -> Local: {cmp.FechaInicioLocal:yyyy-MM-dd} - {cmp.FechaFinLocal:yyyy-MM-dd}");
+                        Console.WriteLine($" Tipo -> Postgres: {cmp.TipoPostgres}, Local: {cmp.TipoLocal}");
+                        Console.WriteLine($" Coinciden: Fechas={cmp.CoincidenFechas}, Valores={cmp.CoincidenValores}, Tipos={cmp.CoincidenTipos}");
+                        Console.WriteLine("------------------------------------------------");
+
+                        // Guardar el SKU en el archivo
+                        if (skusGuardados.Add(cmp.SkuId))
+                        {
+                            totalFaltantes++;
+                            writer.WriteLine(cmp.SkuId);
+                        }                        
+                    }
+                }
+
+                totalProcesados += prices.Count;
+            }
+
+            Console.WriteLine($"Total de precios faltantes: {totalFaltantes}");
+            Console.WriteLine($"Total de precios procesados: {totalProcesados}");
+        }
+
+        public static List<ComparacionPrecioResult> CompararPreciosAvanzado(
+            List<CatalogPrice> prices,
+            List<FacBonificadosXArticulo> groupedItems,
+            Dictionary<long, Dictionary<string, double>> preciosPorArticulo,
+            List<StoreIdentityDTO> storesIds,
+            List<OmsStore> storesList)
+        {
+            var resultados = new List<ComparacionPrecioResult>();
+
+            foreach (var item in groupedItems)
+            {
+                var storeItem = new OmsStore();
+                storeItem.Name = "-";
+
+                var bod = storesIds
+                    .Where(s => int.Parse(s.ExternalId) == item.CodAgencia)
+                    .FirstOrDefault();
+
+                if (bod == null)
+                {
+                    Console.WriteLine("Bodega es null...");
+                    continue;
+                }
+                else
+                {
+                    Console.WriteLine("External id bodega: " + bod.ExternalId);
+                    storeItem = storesList.Where(x => x.Id == bod.ObjectId).FirstOrDefault();
+                }
+
+                Console.WriteLine("Bodega: ");
+                Console.WriteLine(storeItem.Id + " " + storeItem.Name);                
+
+                var reference = item.ArticulosXEmpresa.Articulo.CodAlterno?.Trim();
+                if (string.IsNullOrEmpty(reference))
+                    continue;
+
+                var tipoLocal = (item.PorcDescuento.HasValue && item.PorcDescuento.Value > 0)
+                    ? "discount"
+                    : "normal";
+
+                double? valorLocal = null;
+                if (preciosPorArticulo.TryGetValue(item.ArticulosXEmpresa.Articulo.CodArticulo, out var preciosArticulo))
+                {
+                    if (preciosArticulo.TryGetValue("venta", out var precioVenta))
+                        valorLocal = precioVenta;
+                    else if (preciosArticulo.TryGetValue("almacen", out var precioAlmacen))
+                        valorLocal = precioAlmacen;
+                }
+
+                valorLocal = valorLocal;
+                
+                // Buscar coincidencias en Postgres
+                var coincidencias = prices.Where(p =>
+                    string.Equals(p.Sku?.Reference?.Trim(), reference, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(p.Type, tipoLocal, StringComparison.OrdinalIgnoreCase) &&
+                    //(decimal)p.Value == (decimal) (valorLocal ?? -999) && // aseguramos comparación
+                    (
+                        (bod == null && p.StoreId == null) ||   // Si bod es null, buscamos precios sin tienda
+                        (bod != null && p.StoreId == bod.ObjectId) // Si bod existe, buscamos coincidencia por ObjectId
+                    ) &&
+                    p.Start?.Date == item.FechaInicio.Date &&
+                    p.End?.Date == item.FechaFin.Date
+                ).ToList();
+
+                if (coincidencias.Any())
+                {
+                    // Ya existe un registro idéntico en Postgres → lo podemos marcar como sincronizado
+                    //foreach (var price in coincidencias)
+                    //{
+                    //    resultados.Add(new ComparacionPrecioResult
+                    //    {
+                    //        SkuId = price.SkuId,
+                    //        ReferenciaSku = reference,
+                    //        Tienda = price.Store?.Name,
+
+                    //        ValorPostgres = price.Value,
+                    //        ValorLocal = (decimal) valorLocal,
+
+                    //        PorcentajeDescuentoPostgres = 0,
+                    //        PorcentajeDescuento = item.PorcDescuento,
+
+                    //        FechaInicioPostgres = price.Start,
+                    //        FechaFinPostgres = price.End,
+                    //        FechaInicioLocal = item.FechaInicio,
+                    //        FechaFinLocal = item.FechaFin,
+
+                    //        TipoPostgres = price.Type,
+                    //        TipoLocal = tipoLocal,
+
+                    //        CoincidenFechas = true,
+                    //        CoincidenValores = true,
+                    //        CoincidenTipos = true
+                    //    });
+                    //}
+                }
+                else
+                {
+                    // No se encontró coincidencia → debe sincronizarse
+                    resultados.Add(new ComparacionPrecioResult
+                    {
+                        SkuId = item.CodArticulo, // no existe en Postgres
+                        ReferenciaSku = reference,
+                        Tienda = storeItem.Name,
+
+                        ValorPostgres = 0,
+                        ValorLocal = (decimal) valorLocal,
+                        PorcentajeDescuento = item.PorcDescuento,
+
+                        FechaInicioPostgres = null,
+                        FechaFinPostgres = null,
+                        FechaInicioLocal = item.FechaInicio,
+                        FechaFinLocal = item.FechaFin,
+
+                        TipoPostgres = null,
+                        TipoLocal = tipoLocal,
+
+                        CoincidenFechas = false,
+                        CoincidenValores = false,
+                        CoincidenTipos = false
+                    });
+                }
+            }
+
+            return resultados;
+        }
+
+
+
+
+        public static List<ComparacionPrecioResult> CompararPreciosAvanzado_OLD(
+    List<CatalogPrice> prices,
+    List<FacBonificadosXArticulo> groupedItems,
+    Dictionary<long, Dictionary<string, double>> preciosPorArticulo)
+        {
+            var resultados = new List<ComparacionPrecioResult>();
+
+            // Lookup por CodigoAlterno desde los items locales
+            var itemsLookup = groupedItems
+                .ToLookup(x => x.ArticulosXEmpresa.Articulo.CodAlterno?.Trim(), x => x);
+
+            // Lookup por Reference desde Postgres
+            var pricesLookup = prices
+                .ToLookup(p => p.Sku?.Reference?.Trim(), p => p);
+
+            // --- 1) Comparación de registros que existen en Postgres ---
+            //foreach (var price in prices)
+            //{
+            //    var reference = price.Sku?.Reference?.Trim();
+            //    if (string.IsNullOrEmpty(reference))
+            //        continue;
+
+            //    var itemsLocales = itemsLookup[reference];
+            //    if (!itemsLocales.Any())
+            //        continue;
+
+            //    foreach (var item in itemsLocales)
+            //    {
+            //        var tipoLocal = (item.PorcDescuento.HasValue && item.PorcDescuento.Value > 0)
+            //            ? "discount"
+            //            : "normal";
+
+            //        resultados.Add(new ComparacionPrecioResult
+            //        {
+            //            SkuId = price.SkuId,
+            //            ReferenciaSku = reference,
+            //            Tienda = price.Store?.Name,
+
+            //            ValorPostgres = price.Value,
+            //            ValorLocal = item.Precio ?? item.ValorDescuento,
+            //            PorcentajeDescuento = item.PorcDescuento,
+
+            //            FechaInicioPostgres = price.Start,
+            //            FechaFinPostgres = price.End,
+            //            FechaInicioLocal = item.FechaInicio,
+            //            FechaFinLocal = item.FechaFin,
+
+            //            TipoPostgres = price.Type,
+            //            TipoLocal = tipoLocal,
+
+            //            CoincidenFechas =
+            //                price.Start?.Date == item.FechaInicio.Date &&
+            //                price.End?.Date == item.FechaFin.Date,
+
+            //            CoincidenValores =
+            //                (item.Precio.HasValue && (decimal)price.Value == item.Precio.Value) ||
+            //                (item.ValorDescuento.HasValue && (decimal)price.Value == item.ValorDescuento.Value),
+
+            //            CoincidenTipos =
+            //                string.Equals(price.Type, tipoLocal, StringComparison.OrdinalIgnoreCase)
+            //        });
+            //    }
+            //}
+
+            // --- 2) Buscar registros que están en groupedItems pero no en prices ---
+            foreach (var item in groupedItems)
+            {
+                var reference = item.ArticulosXEmpresa.Articulo.CodAlterno?.Trim();
+                if (string.IsNullOrEmpty(reference))
+                    continue;
+
+                var existeEnPostgres = pricesLookup[reference].Any();
+                if (!existeEnPostgres)
+                {
+                    var tipoLocal = (item.PorcDescuento.HasValue && item.PorcDescuento.Value > 0)
+                        ? "discount"
+                        : "normal";
+
+                    resultados.Add(new ComparacionPrecioResult
+                    {
+                        SkuId = 0, // No existe en Postgres
+                        ReferenciaSku = reference,
+                        Tienda = item.ArticulosXEmpresa.Empresa?.Nombre,
+
+                        ValorPostgres = 0,
+                        ValorLocal = item.Precio ?? item.ValorDescuento,
+                        PorcentajeDescuento = item.PorcDescuento,
+
+                        FechaInicioPostgres = null,
+                        FechaFinPostgres = null,
+                        FechaInicioLocal = item.FechaInicio,
+                        FechaFinLocal = item.FechaFin,
+
+                        TipoPostgres = null,
+                        TipoLocal = tipoLocal,
+
+                        CoincidenFechas = false,
+                        CoincidenValores = false,
+                        CoincidenTipos = false
+                    });
+                }
+            }
+
+            return resultados;
+        }
+
+
+        public async Task<Dictionary<string, double>> GetPrice(
+            ArticulosXEmpresa art,
+            long codEmpresa,
+            long codAgencia,
+            double IVA,
+            long clienteWeb,
+            GenAgencias agenciaMatriz,
+            long nivelWeb)
+        {
+            var precios = new Dictionary<string, double>();
+
+            // Precio de venta
+            var precioVenta = await appDbContext.FACPRECIOSVENTA
+                .Where(x => x.CodArticulo == art.Articulo.CodArticulo &&
+                            x.CodTipoCliente == clienteWeb &&
+                            x.CodAgencia == agenciaMatriz.CodAgencia)
+                .Select(x => x.Precio)
+                .FirstOrDefaultAsync();
+
+            if (precioVenta != 0)
+            {
+                double valor = art.IncluyeIvaVentas == "S"
+                ? (double)precioVenta / (1 + IVA / 100)
+                : (double)precioVenta;
+
+                precios["venta"] = valor;
+            }
+
+            // Precio de almacén
+            var precioAlmacen = await appDbContext.FACPRECIOSALMACEN
+                .Where(x => x.CodEmpresa == codEmpresa &&
+                            x.CodArticulo == art.Articulo.CodArticulo &&
+                            x.CodUnidadMedida == art.Articulo.CodUnidadPresentacion &&
+                            x.CodNivel == nivelWeb)
+                .Select(x => x.Precio)
+                .FirstOrDefaultAsync();
+
+            if (precioAlmacen != 0)
+            {
+                double valor = art.IncluyeIvaVentas == "S"
+                ? (double)precioAlmacen / (1 + IVA / 100)
+                : (double)precioAlmacen;
+
+                precios["almacen"] = valor;
+            }
+
+            return precios;
+        }
+
 
         async public Task OnClickSearchBrands()
         {            

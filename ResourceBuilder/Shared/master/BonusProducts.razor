@@ -148,6 +148,16 @@
                     <i class="fa fa-chevron-circle-right" aria-hidden="true"></i>
                     Enviar Stock
                 </button>
+
+                <button type="button" class="btn btn-sm btn-warning"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="Comparador" @onclick=@(async () => {
+                        await LaunchComparer();
+                        })>
+                    <i class="fa fa-chevron-circle-right" aria-hidden="true"></i>
+                    Comparador
+                </button>
         </div>
     </div>
 </div>
@@ -173,6 +183,7 @@
         <PropertyColumn Property="@(p => p.PorcDescuento)" Title="% Dsc" Sortable="true" />
         <PropertyColumn Property="@(p => p.Precio)" Sortable="true" />
         <PropertyColumn Property="@(p => p.ValorDescuento)" Title="Val.Dsc." Sortable="true" />
+        <PropertyColumn Property="@(p => p.CodTipoCliente)" Title="Tip.Cli." Sortable="true" />
         <TemplateColumn Title="Actions">
             <div class="btn-group" role="group">
                 <button type="button" class="btn btn-sm btn-success"
@@ -265,7 +276,7 @@
     </QuickGrid>
 </div>
 
-<div class="grid">
+@* <div class="grid">
     <QuickGrid Items="dataSourceBrands" Pagination="@pagination_brands">
         <PropertyColumn Property="@(p => p.CodMarca)" Title="CodMarca" Sortable="true" Align="Align.Center" />
         <PropertyColumn Property="@(p => p.CodCategoriaMarca)" Sortable="true" Align="Align.Center" />
@@ -304,7 +315,7 @@
                 </div>
             </TemplateColumn>
     </QuickGrid>
-</div>
+</div> *@
 <Paginator State="@pagination_brands" />
 
 @code {

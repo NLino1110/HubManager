@@ -23,6 +23,7 @@ using Models.DMSA.Shared.Security;
 using Models.DMSA.Shared.Tools;
 using Quartz;
 using ResourceBuilder.Data;
+using ResourceBuilder.DBContext.PostgreSql;
 using ResourceBuilder.Handlers;
 using ResourceBuilder.Handlers.Models;
 using ResourceBuilder.Services.Automata;
@@ -58,6 +59,9 @@ builder.Services.AddDbContext<AppDbContext>(p => p.UseOracle(connection.GetConne
 
 builder.Services.AddDbContext<MySqlDbContext>(p => p.UseMySql(connection.GetDefaultConnectionString("MySql"),
     new MySqlServerVersion(new Version(8, 0, 21))));
+
+builder.Services.AddDbContext<PostgreSqlContext>(options =>
+    options.UseNpgsql("Host=127.0.0.1;Port=5434;Database=dmintegrations;Username=django;Password=DM@dj4ng0;ApplicationName=Blazor"));
 
 builder.Logging.ClearProviders(); // Opcional: limpia los proveedores de logging por defecto
 builder.Logging.AddConsole(); // Agrega logging en la consola
@@ -180,6 +184,8 @@ using (var scope = app.Services.CreateScope())
 
     // O si prefieres usar migraciones
     // mySqlDbContext.Database.Migrate();
+
+    var PgDbContext = scope.ServiceProvider.GetRequiredService<PostgreSqlContext>();
 }
 
 //var client = new OdooApiClient(

@@ -391,7 +391,7 @@ namespace ResourceBuilder.Services.Sync
                         productChange.prod_pvp_ant = prod_pvp_ant;
                         productChange.prod_active = productSyncCurrent.prod_active_up;
                         productChange.prod_status = 0;
-                        productChange.aud_mod_date = DateTime.Now;
+                        productChange.write_date = DateTime.Now;
                         _mysqlDbContext.SaveChanges();
                     }
                     else
@@ -412,7 +412,7 @@ namespace ResourceBuilder.Services.Sync
                         productChange.prod_pvp_ant = productSyncCurrent.prod_pvp_ant_up;
                         productChange.prod_active = productSyncCurrent.prod_active_up;
                         productChange.prod_status = 0;
-                        productChange.aud_mod_date = DateTime.Now;
+                        productChange.write_date = DateTime.Now;
                         _mysqlDbContext.SaveChanges();
                     }
                 }
@@ -435,7 +435,7 @@ namespace ResourceBuilder.Services.Sync
                         .FirstOrDefault();
 
                     productChange.prod_status = 0;
-                    productChange.aud_mod_date = DateTime.Now;
+                    productChange.write_date = DateTime.Now;
                     _mysqlDbContext.SaveChanges();
                 }
             }
@@ -814,8 +814,8 @@ namespace ResourceBuilder.Services.Sync
                         prodData.ProductName = itemObj.prod_name;
                         currentRefId = itemObj.prod_vtex_id;
 
-                        if (itemObj.aud_mod_date is not null)
-                            aud_mod_date = DateTime.Parse(itemObj.aud_mod_date.ToString());
+                        if (itemObj.write_date is not null)
+                            aud_mod_date = DateTime.Parse(itemObj.write_date.ToString());
 
                         if (itemObj.prod_prov is not null)
                             SupplierId = itemObj.prod_prov;

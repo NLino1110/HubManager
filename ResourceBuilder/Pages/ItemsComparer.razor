@@ -1,0 +1,475 @@
+﻿@page "/itemcomparer"
+@* @using Vtex_Tools.Components;
+@using Vtex_Tools.Data; *@
+@using BlazorTable;
+@using BlazorXTabs;
+@using ResourceBuilder.Data.Structs;
+@using ResourceBuilder.Data.Structs.SyncTask;
+
+<div class="btn-group" role="group" aria-label="Basic example">
+    <div class="d-flex" target="_self">
+                
+        @if (listCompany == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <select class="form-control" @onchange="@OnSelectAccount">
+                <option value="-1">(none)</option>
+                @foreach (var item in listCompany)
+                {
+                    <option value="@item.codempresa">@item.empresa</option>
+                }
+            </select>
+        }        
+
+        <select class="form-control" @onchange="@OnSelectType">
+            <option value="0">Sku</option>
+            <option value="1">Código</option>
+            <option value="2">Palabra clave</option>
+            <option value="3">Todos</option>
+        </select>            
+        <div class="input-group">
+            <div class="input-group-prepend">
+            <div class="input-group-text" id="btnGroupAddon">@@</div>
+            </div>
+            <input @bind-value="KeywordSearch"
+            type="text" class="form-control" placeholder="Clave" aria-label="Clave" aria-describedby="btnGroupAddon"/>
+        </div>            
+    </div>
+    <button type="submit" class="btn btn-success btn-sm" @onclick=LoadComparer>
+        <i class="fas fa-sync-alt"></i> Buscar
+    </button>
+    @*<button type="submit" class="btn btn-success btn-sm"
+        @onclick="@(async () =>
+                    {
+                        await TestApi();
+                    })">
+        <i class="fas fa-sync-alt"></i> Buscar X
+    </button>*@
+
+    @*<button type="button" class="btn btn-secondary">Middle</button>
+    <button type="button" class="btn btn-secondary">Right</button>*@
+</div>
+
+<XTabs>
+    <XTab Title="Productos">
+        <BlazorTable.Table TableItem="ItemForCompare" Items="listData" PageSize="20" @ref="Table" ColumnReorder="true">
+            <BlazorTable.Column TableItem="ItemForCompare" Title="Imagen" Field="@(x => x.productFull.ImageUrl)" Width="4%">
+                <Template>
+                    <div style="cursor: pointer" class="link-secondary text-center" @onclick="@(() => ImgPreview(context.productFull.ImageUrl))">
+                        <img src="@context.productFull.ImageUrl" width="40" height="40" />
+                    </div>
+                </Template>
+            </BlazorTable.Column>
+            <BlazorTable.Column TableItem="ItemForCompare" Title="Sku" Field="@(x => x.productFull.Id)" Sortable="true" Filterable="true" Width="5%" DefaultSortColumn="true">        
+                <Template>
+                    @context.productFull.Id
+                </Template>
+            </BlazorTable.Column>
+            <BlazorTable.Column TableItem="ItemForCompare" Title="RefId" Field="@(x => x.productFull.AlternateIdValues)" Sortable="true" Filterable="true" Width="5%" DefaultSortColumn="true">        
+                <Template>
+                    @if(context.productFull.AlternateIdValues != null)
+                    {
+                        @foreach (var itemId in context.productFull.AlternateIdValues)
+                        {
+                            @(itemId)
+                        }
+                    }
+                </Template>
+            </BlazorTable.Column>
+            <BlazorTable.Column TableItem="ItemForCompare" Title="Nombre" Field="@(x => x.productFull.ProductName)" Sortable="true" Filterable="true" Width="20%" DefaultSortColumn="true">
+                <Template>
+                    @context.productFull.ProductName
+                </Template>
+            </BlazorTable.Column>
+            <BlazorTable.Column TableItem="ItemForCompare" Title="Estado" Field="@(x => x.productFull.IsActive)" Sortable="true" Filterable="true" Width="3%">
+                <Template>
+                    @if (context.productFull.IsActive)
+                    {
+                        <strong class="text-success">Activo</strong>
+                    }
+                    else
+                    {
+                        <strong class="text-danger">Inactivo</strong>
+                    }                    
+                </Template>
+            </BlazorTable.Column>            
+            <BlazorTable.Column TableItem="ItemForCompare" Title="-" Field="@(x => x.siscomName)" Width="3%">
+                <Template>
+                    @if (context.productFull.AlternateIdValues != null)
+                    {
+                        <button type="submit" class="btn btn-info btn-sm"                        
+                        @onclick="@(async () =>
+                                    {
+                                        await LoadVtexData(context);
+                                        await LoadSyncData(context);
+                                        await LoadSiscomData(context);
+                                    })">
+                        <i class="fab fa-cloudversify"></i>
+                    </button>
+                    }
+                </Template>
+            </BlazorTable.Column>
+            <DetailTemplate TableItem="ItemForCompare">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col">
+                            <h4 class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="text-muted">Vtex</span>
+                                <span class="badge badge-secondary badge-pill d-none">3</span>
+                            </h4>
+                            <ul class="list-group mb-3">
+                                <li class="list-group-item d-flex justify-content-between lh-condensed">
+                                <div>
+                                        @{
+                                            string DetailUrl = "";
+                                            if(@context.productFull.DetailUrl != null)
+                                            {
+                                                DetailUrl = @context.productFull.DetailUrl;
+                                                DetailUrl = DetailUrl.Replace("https://bosque.vtexcommercestable.com.br","");
+                                            }
+
+                                            string itemUrl = "https://www.bosque.com.ec" + DetailUrl;
+
+                                            if(SelectedAccount != null)
+                                            {
+                                                
+                                            }
+                                        }
+                                    <h6 class="my-0"><a href="@itemUrl" target="_blank">@itemUrl</a></h6>                                    
+                                  </div>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between lh-condensed">                                  
+                                  <div>
+                                    <h6 class="my-0">Pvp</h6>
+                                    <small class="text-muted">$ @context.price.basePrice</small>
+                                  </div>
+                                    <div>
+                                        <h6 class="my-0">Pvp (+iva)</h6>
+                                        <small class="text-muted">$ @(((float) context.price.basePrice * 1.12).ToString("#0.00"))</small>
+                                    </div>
+                                  <div>
+                                    <h6 class="my-0">P.Ant</h6>
+                                    <small class="text-muted">$ @context.price.listPrice</small>
+                                  </div>
+                                <div>
+                                    <h6 class="my-0">P.Ant (+iva)</h6>
+                                    <small class="text-muted">$ @(((float)context.price.listPrice * 1.12).ToString("#0.00"))</small>
+                                </div>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between lh-condensed">
+                                  <div>
+                                    <h6 class="my-0">Stock</h6>
+                                    <small class="text-muted">@context.stock.balance[0].totalQuantity</small>
+                                  </div>
+                                  <div>
+                                    <h6 class="my-0">Reserv.</h6>
+                                    <small class="text-muted">@context.stock.balance[0].reservedQuantity</small>
+                                  </div>
+                                  <div>
+                                    <h6 class="my-0">Disp.</h6>
+                                        <small class="text-muted">@(context.stock.balance[0].totalQuantity - context.stock.balance[0].reservedQuantity)</small>
+                                  </div>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between lh-condensed">
+                                    <div>
+                                        <h6 class="my-0">Peso</h6>
+                                        @if(context.productFull.Dimension != null)
+                                        {
+                                        <small class="text-muted">@context.productFull.Dimension.weight</small>
+                                        }
+                                    </div>
+                                    <div>
+                                        <h6 class="my-0">PesoKg</h6>
+                                        @if (context.productFull.Dimension != null)
+                                        {
+                                            <small class="text-muted">@(
+                                                                      context.productFull.Dimension.weight / 1000
+                                                                      )</small>
+                                        }
+                                    </div>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                  <span>Marca</span>
+                                  <strong>@context.productFull.BrandName</strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Proveedor</span>
+                                    @if (context.supplier != null)
+                                    {
+                                        <strong>@context.supplier.Name</strong>
+                                    }
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between bg-light">
+                                  <div class="text-muted">
+                                    <h6 class="my-0">Categorías</h6>                          
+                                      <span class="text-success">
+                                      @foreach(var itemCategory in context.productFull.ProductCategories.ToList())
+                                      {
+                                          @itemCategory.Value<br>
+                                      }
+                                      </span>
+                                  </div>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between bg-light">
+                                  <div class="text-muted">
+                                    <h6 class="my-0">Lista de Servicios</h6>                          
+                                      <span class="text-success">
+                                         @if(context.productFull.Services != null)
+                                         {
+                                              @foreach(var itemService in context.productFull.Services)
+                                              {
+                                                  @itemService.Name<br>
+                                                  @foreach (var itemOptions in @itemService.Options)
+                                                  {
+                                                      @itemOptions.Id <span>-</span>
+                                                      @itemOptions.PriceName<span>-</span>
+                                                        @("$ ")
+
+                                                        @itemOptions.Price.ToString("#0.00")
+
+                                                        <span>&nbsp;</span>
+                                                        <button type="submit" class="btn btn-info btn-sm" alt="Eliminar Servicio" title="Eliminar Servicio"
+                                                            @onclick="@(async () =>
+                                                            {
+                                                                await DissociateSKUService(context, itemOptions.Id, itemOptions.PriceName);
+                                                            })">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                        <br>
+                                                  }
+                                              }
+                                         }
+                                      </span>
+                                  </div>
+                                </li>     
+                              </ul>
+                        </div>
+
+
+                <div class="col">
+                    <h4 class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">Sincronizador</span>
+                        <span class="badge badge-secondary badge-pill d-none">3</span>
+                    </h4>
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item d-flex justify-content-between lh-condensed">
+                          <div>
+                            <h6 class="my-0">SkuId</h6>
+                            <small class="text-muted">@context.productSync.prod_vtex_sku</small>
+                          </div>
+                          <div>
+                            <h6 class="my-0">RefId</h6>
+                            <small class="text-muted">@context.productSync.prod_vtex_id</small>
+                          </div>
+                          <span class="text-muted d-none">$12</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between lh-condensed">
+                          <div>
+                            <h6 class="my-0">Nombre</h6>
+                            <small class="text-muted">@context.productSync.prod_name</small>
+                          </div>
+                          <span class="text-muted d-none">$8</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between lh-condensed">
+                          <div>
+                            <h6 class="my-0">Pvp</h6>
+                            <small class="text-muted">$ @context.productSync.prod_pvp</small>
+                          </div>
+                          <div>
+                            <h6 class="my-0">Pvp (+iva)</h6>
+                            <small class="text-muted">$ @(((float)@context.productSync.prod_pvp * 1.12).ToString("#0.00"))</small>
+                          </div>
+                          <div>
+                            <h6 class="my-0">P.Ant</h6>
+                            <small class="text-muted">$ @context.productSync.prod_pvp_ant</small>
+                          </div>
+                          <div>
+                                        <h6 class="my-0">P.Ant (+iva)</h6>
+                            <small class="text-muted">$ @(((float)@context.productSync.prod_pvp_ant * 1.12).ToString("#0.00"))</small>
+                          </div>
+                          <div>
+                            <h6 class="my-0">Stock</h6>
+                            <small class="text-muted">@context.productSync.prod_stock</small>
+                          </div>
+                          <span class="text-muted d-none">$5</span>
+                        </li>
+                        @*<li class="list-group-item d-flex justify-content-between bg-light">
+                          <div class="text-success">
+                            <h6 class="my-0">Promo code</h6>
+                            <small>EXAMPLECODE</small>
+                          </div>
+                          <span class="text-success">-$5</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                          <span>Total (USD)</span>
+                          <strong>$20</strong>
+                        </li>*@
+                      </ul>
+                </div>
+                <div class="col">
+                    <h4 class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">Siscom</span>
+                        <span class="badge badge-secondary badge-pill d-none">3</span>
+                    </h4>
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item d-flex justify-content-between lh-condensed">
+                          <div>
+                            <h6 class="my-0">SkuId</h6>
+                            <small class="text-muted">@context.siscomId</small>
+                          </div>
+                          <div>
+                            <h6 class="my-0">RefId</h6>
+                            <small class="text-muted">@context.siscomRefId</small>
+                          </div>
+                          <span class="text-muted d-none">$12</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between lh-condensed">
+                          <div>
+                            <h6 class="my-0">Nombre</h6>
+                            <small class="text-muted">@context.siscomName</small>
+                          </div>
+                          <span class="text-muted d-none">$8</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between lh-condensed">
+                          <div>
+                            <small class="text-muted">Pvp</small>
+                                        <h6 class="text-info"><strong>$ @((context.siscomPvp).ToString("#0.00"))</strong></h6>
+                          </div>
+                                    <div>
+                                        <small class="text-muted">Pvp (+iva)</small>
+                                        <h6 class="text-info"><strong>$ @(((float)@context.siscomPvp * 1.12).ToString("#0.00"))</strong></h6>
+                                    </div>
+                          <div>
+                            <small class="text-muted">Stock</small>
+                            <h6 class="text-success"><strong>@context.siscomStock</strong></h6>
+                          </div>
+                                    <div>
+                                        <small class="text-muted">Peso Kg</small>
+                                        <h6 class="text-success"><strong>@context.PROD_PESO_KG</strong></h6>
+                                    </div>
+                          <span class="text-muted d-none">$5</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between lh-condensed">                          
+                          <div>
+                            <small class="text-muted">Estado</small>
+                            <h6 class="text-success"><strong>@context.siscomEstado</strong></h6>
+                          </div>
+                          <div>
+                                        @{
+                                            string idDomObj = RandomString(10);
+                                        }
+                            @*<div class="custom-control custom-switch">*@
+                                            @*<input type="checkbox" class="custom-control-input" id="@idDomObj" @bind=@context.siscomMktp>
+                                <label class="custom-control-label" for="@idDomObj">MartketPlace</label>*@                                 
+                            @*</div>*@                                        
+                          </div>
+                        </li>
+
+                        <li class="list-group-item d-flex justify-content-between lh-condensed">
+                          <div>
+                            <small class="text-muted">Ensamblado</small>
+                            <h6 class="text-success"><strong>@context.siscomEnsambleId &nbsp; @context.siscomEnsambleNombre</strong></h6>
+                          </div>
+                          <div>
+                            <small class="text-muted">Costo</small>
+                            <h6 class="text-info"><strong>$ @context.siscomEnsambleCosto</strong></h6>
+                          </div>
+                            <div>
+                                <small class="text-muted">+(IVA)</small>
+                                <h6 class="text-info"><strong>$ @((context.siscomEnsambleCosto * 1.12).ToString("#0.00"))</strong></h6>
+                            </div>
+                        </li>
+
+                      </ul>
+                </div>
+                <div class="col">
+                    <h4 class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">Promociones</span>
+                        <span class="badge badge-secondary badge-pill d-none">3</span>
+                    </h4>
+                    @*<ul class="list-group mb-3">
+                        @foreach(var itemPromo in @context.siscomPromociones)
+                        {
+                            <li class="list-group-item d-flex justify-content-between lh-condensed">
+                                <div class="col-2"><small class="text-muted">@itemPromo.idPromocion</small></div>
+                                <div class="col-4"><small class="text-muted">@itemPromo.nombrePromocion</small></div>
+                                <div class="col-3"><span class="text-muted">$@itemPromo.precio</span></div>
+                                <div class="col-3"><span class="text-muted">$@itemPromo.precioLista</span></div>
+                            </li>
+                        }                        
+                      </ul>*@
+                      <table class="table table-striped">
+                          <thead>
+                              <tr>
+                                  <td>Id</td>
+                                  <td>Nombre</td>
+                                  <td>Pvp</td>
+                                  <td>Pvp (+iva)</td>
+                                  <td>Desc</td>
+                                  <td>List</td>
+                                  <td>Vtex</td>
+                                  <td>P.Pre</td>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              @foreach(var itemPromo in @context.siscomPromociones)
+                        {
+                            string bgStyle = "";
+
+                            @if(itemPromo.aplicaVtex != "S" )
+                            {
+                                bgStyle = "bg-warning";
+                            }
+
+                                        <tr class="@bgStyle">
+                                  <td>
+                                      <small class="">@itemPromo.idPromocion</small>
+                                  </td>
+                                  <td>
+                                      <small class="">@itemPromo.nombrePromocion</small>
+                                  </td>                                  
+                                  <td>
+                                      <span class="">$@itemPromo.precio</span>
+                                  </td>
+                                  <td>
+                                                <span class="">$ @((itemPromo.precio * 1.12).ToString("#0.00"))</span>
+                                  </td>
+                                  <td>
+                                      <span class="">@itemPromo.descuento%</span>
+                                  </td>
+                                  <td>
+                                      <span class="">$@itemPromo.precioLista</span>
+                                  </td>
+                                  <td>
+                                      <span class="">@itemPromo.aplicaVtex</span>
+                                  </td>
+                                  <td>
+                                      <span class="">@itemPromo.esPromoPrecio</span>
+                                  </td>
+                              </tr>
+                        }  
+                              
+                          </tbody>
+                      </table>
+                </div>
+                </div>
+                </div>
+            </DetailTemplate>
+            <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+        </BlazorTable.Table>
+        </XTab>
+    <XTab Title="Agregar">            
+        @*<textarea @bind=TextSkuList style="min-height: 300px;" type="text" class="form-control mb-2" placeholder="Lista de Skus"/>
+        <button type="submit" @onclick="PushAll" class="btn btn-success"><i class="fas fa-plus"></i> Agregar lista</button>*@
+    </XTab>
+    <XTab Title="Subcolecciones">            
+    
+    </XTab>        
+</XTabs>
+
+@code {
+
+}
