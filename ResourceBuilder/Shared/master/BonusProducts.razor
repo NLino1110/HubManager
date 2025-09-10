@@ -66,11 +66,14 @@
             <Blazorise.Components.Autocomplete TItem="GenMarca"
                                                TValue="string"
                                                Data="@dataSourceBrands"                                               
-                                               TextField="@(( item ) => item.Descripcion)"
+                                               TextField="@(( item ) => item.CodMarca.ToString() + "-" + item.Descripcion)"
                                                ValueField="@(( item ) => item.CodMarca.ToString())"
                                                Placeholder="Search..."
                                                SelectionMode="Blazorise.Components.AutocompleteSelectionMode.Multiple"
+                                               CustomFilter="OnCustomFilter"
+                                               MaxMenuHeight="500px"
                                                FreeTyping
+                                               Style="border:solid;"
                                                @bind-SelectedValues="multipleSelectionData"
                                                @bind-SelectedTexts="multipleSelectionTexts">
 
@@ -184,6 +187,8 @@
         <PropertyColumn Property="@(p => p.Precio)" Sortable="true" />
         <PropertyColumn Property="@(p => p.ValorDescuento)" Title="Val.Dsc." Sortable="true" />
         <PropertyColumn Property="@(p => p.CodTipoCliente)" Title="Tip.Cli." Sortable="true" />
+        <PropertyColumn Property="@(p => p.CodNivel)" Title="Nivel" Sortable="true" />
+        <PropertyColumn Property="@(p => p.CodUnidadMedida)" Title="Un." Sortable="true" />
         <TemplateColumn Title="Actions">
             <div class="btn-group" role="group">
                 <button type="button" class="btn btn-sm btn-success"
@@ -264,7 +269,7 @@
     <QuickGrid Items="groupedBrandTmp" Pagination="@pagination_brands">
         <PropertyColumn Property="@(p => p.CodMarca)" Title="Id" Sortable="true" Align="Align.Center"/>
         <PropertyColumn Property="@(p => p.Marca)" Title="Marca" Sortable="true" Align="Align.Center" />
-        <PropertyColumn Property="@(p => p.TotalArticulos)" Title="Tot.Art." Sortable="true" Align="Align.Center" />        
+        <PropertyColumn Property="@(p => p.TotalArticulos)" Title="Tot.Art." Sortable="true" Align="Align.Center" />
         <TemplateColumn Title="Rangos">
             @foreach (var rango in @context.RangosFechas)
             {
@@ -272,7 +277,17 @@
                     @rango.FechaInicio.ToShortDateString() - @rango.FechaFin.ToShortDateString()    ( @rango.TotalArticulosPorRango )             
                 </div>            
             }
-        </TemplateColumn>    
+        </TemplateColumn>
+        <TemplateColumn Title="Actions">
+            <div class="btn-group" role="group">                
+                <button style="" type="button" class="btn btn-sm btn-warning"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="Enviar descuentos" @onclick="@(() => LaunchComparer(context))">
+                   <i class="fa fa-barcode"></i>
+                </button>                
+            </div>
+        </TemplateColumn>
     </QuickGrid>
 </div>
 

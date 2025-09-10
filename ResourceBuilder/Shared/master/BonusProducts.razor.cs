@@ -775,6 +775,18 @@ namespace ResourceBuilder.Shared.master
 
         }
 
+        async public Task LaunchComparer(GroupedMarca marca)
+        {
+            SelectedBrand = new GenMarca
+            {
+                CodMarca = marca.CodMarca,
+                Descripcion = marca.Marca
+            };
+
+            await OnClickSearchGeneral();
+            await LaunchComparer();
+        }
+
         async public Task LaunchComparer()
         {
             Debug.WriteLine("Datos agrupados!!");
@@ -1009,8 +1021,10 @@ namespace ResourceBuilder.Shared.master
                         valorLocal = precioAlmacen;
                 }
 
-                valorLocal = valorLocal;
-                
+                //TODO: Revisar esta validacion
+                if (valorLocal == null)
+                    valorLocal = 0;
+
                 // Buscar coincidencias en Postgres
                 var coincidencias = prices.Where(p =>
                     string.Equals(p.Sku?.Reference?.Trim(), reference, StringComparison.OrdinalIgnoreCase) &&
@@ -1057,37 +1071,42 @@ namespace ResourceBuilder.Shared.master
                 }
                 else
                 {
-                    // No se encontró coincidencia → debe sincronizarse
-                    resultados.Add(new ComparacionPrecioResult
+                    try
                     {
-                        SkuId = item.CodArticulo, // no existe en Postgres
-                        ReferenciaSku = reference,
-                        Tienda = storeItem.Name,
+                        // No se encontró coincidencia → debe sincronizarse
+                        resultados.Add(new ComparacionPrecioResult
+                        {
+                            SkuId = item.CodArticulo, // no existe en Postgres
+                            ReferenciaSku = reference,
+                            Tienda = storeItem.Name,
 
-                        ValorPostgres = 0,
-                        ValorLocal = (decimal) valorLocal,
-                        PorcentajeDescuento = item.PorcDescuento,
+                            ValorPostgres = 0,
+                            ValorLocal = (decimal) valorLocal,
+                            PorcentajeDescuento = item.PorcDescuento,
 
-                        FechaInicioPostgres = null,
-                        FechaFinPostgres = null,
-                        FechaInicioLocal = item.FechaInicio,
-                        FechaFinLocal = item.FechaFin,
+                            FechaInicioPostgres = null,
+                            FechaFinPostgres = null,
+                            FechaInicioLocal = item.FechaInicio,
+                            FechaFinLocal = item.FechaFin,
 
-                        TipoPostgres = null,
-                        TipoLocal = tipoLocal,
+                            TipoPostgres = null,
+                            TipoLocal = tipoLocal,
 
-                        CoincidenFechas = false,
-                        CoincidenValores = false,
-                        CoincidenTipos = false
-                    });
+                            CoincidenFechas = false,
+                            CoincidenValores = false,
+                            CoincidenTipos = false
+                        });
+
+                    }
+                    catch(Exception e)
+                    {
+                        Debug.WriteLine(e);
+                    }
                 }
             }
 
             return resultados;
         }
-
-
-
 
         public static List<ComparacionPrecioResult> CompararPreciosAvanzado_OLD(
     List<CatalogPrice> prices,
@@ -1494,8 +1513,8 @@ namespace ResourceBuilder.Shared.master
 
                 if (brandTemp.Count > 0)
                 {                    
-                    dataSourceBrands = brandTemp.Distinct().AsQueryable();
-                    Console.WriteLine(dataSourceBrands.Count());
+                    //dataSourceBrands = brandTemp.Distinct().AsQueryable();
+                    //Console.WriteLine(dataSourceBrands.Count());
                 }                
 
                 await pagination_brands.SetCurrentPageIndexAsync(0);                
@@ -1574,13 +1593,13 @@ namespace ResourceBuilder.Shared.master
                     }
                 }
 
-                if (brandTemp.Count > 0)
-                {
-                    //brandTemp = brandTemp.GroupBy(br => br.Descripcion).Distinct().ToList();
-                    //brandTemp = brandTemp.Distinct().ToList();
-                    dataSourceBrands = brandTemp.Distinct().AsQueryable();
-                    Console.WriteLine(dataSourceBrands.Count());
-                }
+                //if (brandTemp.Count > 0)
+                //{
+                //    //brandTemp = brandTemp.GroupBy(br => br.Descripcion).Distinct().ToList();
+                //    //brandTemp = brandTemp.Distinct().ToList();
+                //    dataSourceBrands = brandTemp.Distinct().AsQueryable();
+                //    Console.WriteLine(dataSourceBrands.Count());
+                //}
                 //dataSource = dataSource_tmp.AsQueryable();
 
                 await pagination_brands.SetCurrentPageIndexAsync(0);
@@ -1668,11 +1687,11 @@ namespace ResourceBuilder.Shared.master
                     }
                 }
 
-                if (brandTemp.Count > 0)
-                {                    
-                    dataSourceBrands = brandTemp.Distinct().AsQueryable();
-                    Console.WriteLine(dataSourceBrands.Count());
-                }                
+                //if (brandTemp.Count > 0)
+                //{                    
+                //    dataSourceBrands = brandTemp.Distinct().AsQueryable();
+                //    Console.WriteLine(dataSourceBrands.Count());
+                //}                
 
                 await pagination_brands.SetCurrentPageIndexAsync(0);                
                 Console.WriteLine("Consulta terminada");
@@ -1725,13 +1744,13 @@ namespace ResourceBuilder.Shared.master
                     brandTemp.Add(artXEmpresa.Marca);
                 }
 
-                if (brandTemp.Count > 0)
-                {
-                    //brandTemp = brandTemp.GroupBy(br => br.Descripcion).Distinct().ToList();
-                    //brandTemp = brandTemp.Distinct().ToList();
-                    dataSourceBrands = brandTemp.Distinct().AsQueryable();
-                    Console.WriteLine(dataSourceBrands.Count());
-                }
+                //if (brandTemp.Count > 0)
+                //{
+                //    //brandTemp = brandTemp.GroupBy(br => br.Descripcion).Distinct().ToList();
+                //    //brandTemp = brandTemp.Distinct().ToList();
+                //    dataSourceBrands = brandTemp.Distinct().AsQueryable();
+                //    Console.WriteLine(dataSourceBrands.Count());
+                //}
                 //dataSource = dataSource_tmp.AsQueryable();
 
                 await pagination.SetCurrentPageIndexAsync(0);
@@ -1785,11 +1804,23 @@ namespace ResourceBuilder.Shared.master
             empresas = await appDbContext.GENEMPRESAS.ToListAsync();
         }
 
+        private bool OnCustomFilter(GenMarca item, string searchValue)
+        {
+            if (string.IsNullOrWhiteSpace(searchValue))
+                return true;
+
+            return item.CodMarca.ToString().Contains(searchValue, StringComparison.OrdinalIgnoreCase)
+                || item.Descripcion.Contains(searchValue, StringComparison.OrdinalIgnoreCase);
+        }
+
         private async void OnUpdated(ChangeEventArgs e)
         {
             int CodEmpresa = int.Parse(e.Value.ToString());
             SelectedCompany = await appDbContext.GENEMPRESAS.Where(x => x.CodEmpresa == CodEmpresa).FirstOrDefaultAsync();
             //await FillData(e.Value.ToString());
+            dataSourceBrands = (await appDbContext.GENMARCAS.Where(x => x.CodEmpresaMarca == CodEmpresa).ToListAsync()).AsQueryable();
+            
+            Debug.WriteLine(dataSourceBrands);
         }
 
         public class _DataLoader : IDataLoader<GenMarca>
