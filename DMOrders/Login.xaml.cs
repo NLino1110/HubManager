@@ -1,9 +1,7 @@
 ﻿using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Core;
 using DMOrders.Services.Database.Sqlite;
 using DMOrders.Services.Helpers;
 using DMOrders.Services.Update;
-using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.DMApps;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Security;
@@ -89,9 +87,7 @@ public partial class Login : ContentPage
         //ddCompany.ItemDisplayBinding = new Binding("name");
         //ddAgency.ItemDisplayBinding = new Binding("name");
         
-
         Application.Current.UserAppTheme = AppTheme.Light;
-
     }
 
     private void Login_Loaded(object? sender, EventArgs e)

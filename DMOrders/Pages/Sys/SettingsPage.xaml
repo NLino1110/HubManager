@@ -4,184 +4,77 @@
              x:Class="DMOrders.Pages.Sys.SettingsPage"
              xmlns:control="clr-namespace:DMOrders.Controls"
              Title="Configuraciones">
-    <ScrollView>
-        <VerticalStackLayout>
-            <HorizontalStackLayout>
-            <Label
-                Text="Configuración del sistema"
-                VerticalOptions="Center"
-                HorizontalOptions="Center"
-                Padding="5"
-                FontAttributes="Bold"
-                />
-
-            <!--<StackLayout>
-                <Label Text="Modo de la aplicación" />
-                <RadioButton Content="Desarrollo" />
-                <RadioButton Content="Producción" IsChecked="True" />                
-            </StackLayout>-->                
-                
-                <Button                    
-                x:Name="btnSave"
-                Text="Guardar"                    
-                    BackgroundColor="DodgerBlue"
-                    Margin="2"
-                    HeightRequest="35" 
-                    Padding="10,0,10,0"
-                SemanticProperties.Hint="Save changes"
-                Clicked="btnSave_Clicked"
-                HorizontalOptions="Center" >
-                <Button.ImageSource>
-                    <FontImageSource FontFamily="FontAwesome5Solid"
-												Color="White"
-												Size="20"
-												FontAutoScalingEnabled="True"                                                         
-												Glyph="&#xf0c7;" />
-                </Button.ImageSource>
-            </Button>
-
-                <Button                     
-    x:Name="BtnDropData"
-    Text="Eliminar datos"    
-    Clicked="DropData"
-                    HeightRequest="35" 
-    HorizontalOptions="Center"                    
-    BackgroundColor="Red" 
-                        IsVisible="True"
-                    Padding="10,0,10,0">
-                    <Button.ImageSource>
-                        <FontImageSource FontFamily="FontAwesome5Solid"
-                        Color="White"
-                        Size="20"
-                        FontAutoScalingEnabled="True"                                                         
-                        Glyph="&#xf12d;" />
-                    </Button.ImageSource>
-                </Button>
-                
-
-                <Button
-                x:Name="btnClose"                
-                Text="Cerrar"                                
+    <Grid RowDefinitions="Auto,*">
+        <HorizontalStackLayout Grid.Row="0"
+                               Padding="10"
+                               Spacing="5">
+            <Label Text="Configuración del sistema"
+                   VerticalOptions="Center"
+                   FontAttributes="Bold"/>
+            <Button                    
+            x:Name="btnSave"
+            Text="Guardar"                    
+                BackgroundColor="DodgerBlue"
                 Margin="2"
                 HeightRequest="35" 
                 Padding="10,0,10,0"
-                SemanticProperties.Hint="Cerrar"
-                Clicked="btnClose_Clicked"
-                HorizontalOptions="End">
-                    <Button.ImageSource>
+            SemanticProperties.Hint="Save changes"
+            Clicked="btnSave_Clicked"
+            HorizontalOptions="Center" >
+                <Button.ImageSource>
                     <FontImageSource FontFamily="FontAwesome5Solid"
-									Color="White"
-									Size="20"
-									FontAutoScalingEnabled="True"                                                         
-									Glyph="&#xf060;" />
+											Color="White"
+											Size="20"
+											FontAutoScalingEnabled="True"                                                         
+											Glyph="&#xf0c7;" />
                 </Button.ImageSource>
             </Button>
-            </HorizontalStackLayout>
 
-            <!--<Image
-                x:Name="imgPrint"
-                Source="demo.bmp"
-                SemanticProperties.Description="Avantar profile picture"
-                HeightRequest="200"
-                WidthRequest="200"
-                HorizontalOptions="Center" />-->
+            <Button                     
+x:Name="BtnDropData"
+Text="Eliminar datos"    
+Clicked="DropData"
+                HeightRequest="35" 
+HorizontalOptions="Center"                    
+BackgroundColor="Red" 
+                    IsVisible="True"
+                Padding="10,0,10,0">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+                    Color="White"
+                    Size="20"
+                    FontAutoScalingEnabled="True"                                                         
+                    Glyph="&#xf12d;" />
+                </Button.ImageSource>
+            </Button>
 
-            <!--<StackLayout>
-                <Label Text="What's your favorite animal?" />
-                <StackLayout RadioButtonGroup.GroupName="animals"
-                 Orientation="Horizontal">
-                    <RadioButton Value="Cat">
-                        <RadioButton.Content>
-                            <StackLayout>
-                                <Image
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center">
-                                    <Image.Source>
-                                        <FontImageSource FontFamily="FontAwesome5Solid"
-                                                 Color="Black"
-                                                 Size="20"
-                                                 FontAutoScalingEnabled="True"
-                                                 Glyph="&#xf1b0;" />
-                                    </Image.Source>
-                                </Image>
-                                <Label Text="Cat"
-                           HorizontalOptions="Center"
-                           VerticalOptions="End" />
-                            </StackLayout>
-                        </RadioButton.Content>
-                    </RadioButton>
-                    <RadioButton Value="Dog">
-                        <RadioButton.Content>
-                            <StackLayout>
-                                <Image
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center">
-                                    <Image.Source>
-                                        <FontImageSource FontFamily="FontAwesome5Solid"
-                                                 Color="Black"
-                                                 Size="20"                                 
-                                                 FontAutoScalingEnabled="True"
-                                                 Glyph="&#xf1b0;" />
-                                    </Image.Source>
-                                </Image>
-                                <Label Text="Dog"
-                           HorizontalOptions="Center"
-                           VerticalOptions="End" />
-                            </StackLayout>
-                        </RadioButton.Content>
-                    </RadioButton>
-                    <RadioButton Value="Elephant">
-                        <RadioButton.Content>
-                            <StackLayout>
-                                <Image
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center">
-                                    <Image.Source>
-                                        <FontImageSource FontFamily="FontAwesome5Solid"
-                                                 Color="Black"
-                                                 Size="20"                                 
-                                                 FontAutoScalingEnabled="True"
-                                                 Glyph="&#xf1b0;" />
-                                    </Image.Source>
-                                </Image>
-                                <Label Text="Elephant"
-                           HorizontalOptions="Center"
-                           VerticalOptions="End" />
-                            </StackLayout>
-                        </RadioButton.Content>
-                    </RadioButton>
-                    <RadioButton Value="Monkey">
-                        <RadioButton.Content>
-                            <StackLayout>
-                                <Image
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center">
-                                    <Image.Source>
-                                        <FontImageSource FontFamily="FontAwesome5Solid"
-                                                 Color="Black"
-                                                 Size="20"
-                                                 FontAutoScalingEnabled="True"
-                                                 Glyph="&#xf1b0;" />
-                                    </Image.Source>
-                                </Image>
-                                <Label Text="Monkey"
-                           HorizontalOptions="Center"
-                           VerticalOptions="End" />
-                            </StackLayout>
-                        </RadioButton.Content>
-                    </RadioButton>
-                </StackLayout>
-            </StackLayout>-->
-
-            <CollectionView x:Name="collectionView">
+            <Button
+            x:Name="btnClose"                
+            Text="Cerrar"                                
+            Margin="2"
+            HeightRequest="35" 
+            Padding="10,0,10,0"
+            SemanticProperties.Hint="Cerrar"
+            Clicked="btnClose_Clicked"
+            HorizontalOptions="End">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+								Color="White"
+								Size="20"
+								FontAutoScalingEnabled="True"                                                         
+								Glyph="&#xf060;" />
+                </Button.ImageSource>
+            </Button>
+        </HorizontalStackLayout>
+        <CollectionView Grid.Row="1" x:Name="collectionView">            
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <control:AppSettingsItem dataItem="{Binding .}"></control:AppSettingsItem>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
-            </CollectionView>
-            <Label x:Name="lblDbPath"></Label>
-
-        </VerticalStackLayout>
-    </ScrollView>
+        <CollectionView.Footer>
+            <Label x:Name="lblDbPath" />
+        </CollectionView.Footer>
+    </CollectionView>
+    </Grid>
 </ContentPage>

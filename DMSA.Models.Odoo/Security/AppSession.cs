@@ -10,7 +10,8 @@ namespace DMSA.Models.Security
 {
     public class AppSession
     {
-        public User CurrentUser { get; set; }        
+        public User CurrentUserFront { get; set; }
+        public User CurrentUser { get; set; }
         public string UrlReportServer = "http://192.168.0.120:8080/jasperserver";
 
         public bool isProduction {  get; set; } = false;

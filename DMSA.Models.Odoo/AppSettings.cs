@@ -137,6 +137,24 @@ namespace DMSA.Models.Odoo
             }
             );
 
+            defaultSettings.Add(new AppSettings()
+            {
+                name = "back_user",
+                description = "Odoo User",
+                value = "admin",
+                forAdmin = true,
+            }
+            );
+
+            defaultSettings.Add(new AppSettings()
+            {
+                name = "back_user_password",
+                description = "Odoo User Password",
+                value = "demo",
+                forAdmin = true,
+            }
+            );
+
             return defaultSettings;
         }
     }
