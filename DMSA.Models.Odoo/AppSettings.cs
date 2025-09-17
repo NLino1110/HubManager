@@ -1,4 +1,5 @@
-﻿using SQLite;
+﻿using DMSA.Models.Odoo.Tools;
+using SQLite;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -137,11 +138,14 @@ namespace DMSA.Models.Odoo
             }
             );
 
+            string crypto_username = "admin"; // CryptoHelper.Encrypt("admin");
+            string crypto_paswword = "demo"; // CryptoHelper.Encrypt("demo");
+
             defaultSettings.Add(new AppSettings()
             {
                 name = "back_user",
                 description = "Odoo User",
-                value = "admin",
+                value = crypto_username,
                 forAdmin = true,
             }
             );
@@ -150,7 +154,7 @@ namespace DMSA.Models.Odoo
             {
                 name = "back_user_password",
                 description = "Odoo User Password",
-                value = "demo",
+                value = crypto_paswword,
                 forAdmin = true,
             }
             );

@@ -33,7 +33,7 @@ namespace ResourceBuilder.Data
                 access_token = appSetting.profile.Odoo.access_token,
                 uid = int.Parse(appSetting.profile.Odoo.uid),
                 username = appSetting.profile.Odoo.User,
-                codclave = appSetting.profile.Odoo.Password,
+                password = appSetting.profile.Odoo.Password,
                 databasename = appSetting.profile.Odoo.Database
             };
 
@@ -490,7 +490,7 @@ namespace ResourceBuilder.Data
                 api_key = appSetting.profile.Odoo.api_key,
                 access_token = appSetting.profile.Odoo.access_token,
                 username = appSetting.profile.Odoo.User,
-                codclave = appSetting.profile.Odoo.Password,
+                password = appSetting.profile.Odoo.Password,
                 uid = int.Parse(appSetting.profile.Odoo.uid),
                 databasename = appSetting.profile.Odoo.Database
             };
@@ -1055,7 +1055,7 @@ namespace ResourceBuilder.Data
                     access_token = appSetting.profile.Odoo.access_token,
                     uid = int.Parse(appSetting.profile.Odoo.uid),
                     username = appSetting.profile.Odoo.User,
-                    codclave = appSetting.profile.Odoo.Password,
+                    password = appSetting.profile.Odoo.Password,
                 databasename = appSetting.profile.Odoo.Database
             };
             return _appSession;
@@ -1267,7 +1267,7 @@ namespace ResourceBuilder.Data
                 api_key = appSetting.profile.Odoo.api_key,
                 access_token = appSetting.profile.Odoo.access_token,
                 username = appSetting.profile.Odoo.User,
-                codclave = appSetting.profile.Odoo.Password,
+                password = appSetting.profile.Odoo.Password,
                 uid = 2, //appSetting.profile.Odoo.uid,
             };
 

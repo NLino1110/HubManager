@@ -161,9 +161,12 @@ public partial class Login : ContentPage
         Debug.WriteLine("Logged");
     }
 
-
     public async Task<bool> LoadSettingsFromDb()
     {
+        
+
+
+
         AppSettingsDb appSettingsDb = new AppSettingsDb();
         await appSettingsDb.InitDefault();
 
@@ -183,6 +186,15 @@ public partial class Login : ContentPage
 
         App.Session.UrlReportServer = await appSettingsDb.getString("url_report_server");
         App.Session.DefaultDatabase = await appSettingsDb.getString("default_database");
+
+        var usernameback = await appSettingsDb.getString("back_user");
+        var passwordback = await appSettingsDb.getString("back_user_password");
+
+        App.Session.CurrentUserFront = new User()
+        {
+            username = usernameback,
+            password = passwordback
+        };
 
         return true;
     }
@@ -226,7 +238,7 @@ public partial class Login : ContentPage
         user_access itemInsert = new user_access();
         itemInsert.name = resultUser.nombres;
         itemInsert.uid = resultUser.uid;
-        itemInsert.pwd = resultUser.codclave;
+        itemInsert.pwd = resultUser.password;
         itemInsert.username = resultUser.username;
 
         itemInsert.api_key = resultUser.api_key;
@@ -352,7 +364,7 @@ public partial class Login : ContentPage
         user_access itemInsert = new user_access();
         itemInsert.name = resultUser.nombres;
         itemInsert.uid = resultUser.uid;
-        itemInsert.pwd = resultUser.codclave;
+        itemInsert.pwd = resultUser.password;
         itemInsert.username = resultUser.username;
         itemInsert.api_key = resultUser.api_key;
         itemInsert.token_type = resultUser.token_type;
@@ -408,7 +420,7 @@ public partial class Login : ContentPage
 
         User user = new User();
         user.username = EntryUserName.Text;
-        user.codclave = EntryPassword.Text;
+        user.password = EntryPassword.Text;
         //user.fechatablet = currentDate.ToString("yyyy-MM-dd HH:mm:ss");
 
 #if !DEBUG
@@ -450,7 +462,7 @@ public partial class Login : ContentPage
             resultUser.uid = userFound.uid;
             resultUser.username = userFound.username;
             resultUser.nombres = userFound.name;
-            resultUser.codclave = userFound.pwd;
+            resultUser.password = userFound.pwd;
             resultUser.api_key = userFound.api_key;
             resultUser.token_type = userFound.token_type;
             resultUser.access_token = userFound.access_token;
@@ -523,7 +535,7 @@ public partial class Login : ContentPage
                 //return;
                 //Se asigna la clave ya que el api no la devuelve
                 resultUser.username = EntryUserName.Text;
-                resultUser.codclave = EntryPassword.Text;
+                resultUser.password = EntryPassword.Text;
                 resultUser.uid = responseUser.result.uid;
                 resultUser.api_key = "-";
                 resultUser.token_type = "-";

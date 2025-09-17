@@ -6,7 +6,9 @@ using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Services;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo;
+using DMSA.Models.Odoo.Tools;
 using System.Diagnostics;
+using System.Security.Cryptography;
 
 namespace DMOrders.Pages.Sys;
 
@@ -77,15 +79,34 @@ public partial class SettingsPage : ContentPage //, IDisposable //, INotifyPrope
                 
         if (result.Result != null && result.Result.ToString() == "1381")
         {
-            AppSettingsDb appSettingsDb = new AppSettingsDb();
-            //await appSettingsDb.InitDefault();
-            //var appSettingItems = await appSettingsDb.GetItemsAsync();
-            //collectionView.ItemsSource = appSettingItems;
+            AppSettingsDb appSettingsDb = new AppSettingsDb();            
 
             foreach (AppSettings itemSetting in collectionView.ItemsSource)
-            {                
+            {
                 itemSetting.write_date = DateTime.Now;
-                //var appSettingItems = collectionView.ItemsSource;
+                
+                if (itemSetting.name == "back_user_password")
+                {
+                    try
+                    {
+                        string decrypt = CryptoHelper.Decrypt(itemSetting.value);
+                        Debug.WriteLine(decrypt);
+                    }
+                    catch(FormatException fe)
+                    {
+                        Console.WriteLine("Error:" + fe.Message);
+                        //Aquí se detecta que no es un texto encriptado, es decir que el valor fue modificado
+                        // y se requiere volver a encryptar
+                        // ya que la idea es que no se muestre desencriptado en el mantenimiento
+                        // solo será desencriptado cuando se use para la conexión
+                        itemSetting.value = CryptoHelper.Encrypt(itemSetting.value);
+                    }
+                    catch (CryptographicException ex)
+                    {
+                        Console.WriteLine("Error al descifrar: " + ex.Message);
+                        itemSetting.value = CryptoHelper.Encrypt(itemSetting.value);
+                    }
+                }
                 await appSettingsDb.InsertAsync(itemSetting);
             }
 
@@ -103,8 +124,7 @@ public partial class SettingsPage : ContentPage //, IDisposable //, INotifyPrope
             returnAlertTest.TitleBox = "ALERTA!";
             returnAlertTest.SubTitleBox = "PIN incorrecto, no se aplicarán los cambios.";
             var resultAlert = await PopupExtensions.ShowPopupAsync(this, returnAlertTest);
-        }
-        
+        }        
     }
 
     public void Dispose()

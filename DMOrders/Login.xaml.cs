@@ -1,16 +1,17 @@
 ﻿using CommunityToolkit.Maui.Alerts;
+using DMOrders.Pages.Sys;
 using DMOrders.Services.Database.Sqlite;
 using DMOrders.Services.Helpers;
 using DMOrders.Services.Update;
 using DMSA.Models.Odoo.DMApps;
 using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Tools;
 using DMSA.Models.Security;
 using System.Buffers;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Timers;
 using UraniumUI.Dialogs;
-using DMOrders.Pages.Sys;
-using System.Collections.ObjectModel;
 
 namespace DMOrders;
 
@@ -25,6 +26,7 @@ public partial class Login : ContentPage
     private System.Timers.Timer _timer;
     private const double TimeToReset = 2000;
 
+    private bool _isFirstAppearing = true;
     public Login()
     {
         InitializeComponent();        
@@ -47,7 +49,7 @@ public partial class Login : ContentPage
 
         await LoadSettingsFromDb();
 
-        App.Session.useOfflineMode = true;
+        App.Session.useOfflineMode = false;
 
         Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
         Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0, 10));
@@ -195,6 +197,11 @@ public partial class Login : ContentPage
 
     public async Task<bool> LoadSettingsFromDb()
     {
+        OdooConnectionDb odooConnectionDb = new OdooConnectionDb();
+        await Task.Run(async () => await odooConnectionDb.InitDefault());
+
+
+
         AppSettingsDb appSettingsDb = new AppSettingsDb();
         await Task.Run(async () => await appSettingsDb.InitDefault());
 
@@ -215,6 +222,18 @@ public partial class Login : ContentPage
         App.Session.UrlReportServer = await appSettingsDb.getString("url_report_server");
         App.Session.DefaultDatabase = await appSettingsDb.getString("default_database");
 
+        var usernameback = await appSettingsDb.getString("back_user");
+        var passwordback = await appSettingsDb.getString("back_user_password");
+
+        //passwordback = CryptoHelper.Decrypt(passwordback);
+        
+        App.Session.CurrentUserFront = new User()
+        {
+            username = usernameback,
+            password = passwordback,
+            databasename = App.Session.DefaultDatabase
+        };
+
         return true;
     }
 
@@ -230,8 +249,7 @@ public partial class Login : ContentPage
             //resultValidacion.empresas
             Debug.WriteLine("Validación:" + resultValidacion.data[0].companies);
         }
-
-        if (resultValidacion == null)
+        else if(resultValidacion == null || resultValidacion.data == null || resultValidacion.message == null)
         {
             await Toast.Make("Se requiere verificación en linea por falta de datos, pero no se encontró servidor.").Show();
             return false;
@@ -249,7 +267,7 @@ public partial class Login : ContentPage
         user_access itemInsert = new user_access();
         itemInsert.name = resultUser.nombres;
         itemInsert.uid = resultUser.uid;
-        itemInsert.pwd = resultUser.codclave;
+        itemInsert.pwd = resultUser.password;
         itemInsert.username = resultUser.username;
 
         itemInsert.api_key = resultUser.api_key;
@@ -361,7 +379,7 @@ public partial class Login : ContentPage
         user_access itemInsert = new user_access();
         itemInsert.name = resultUser.nombres;
         itemInsert.uid = resultUser.uid;
-        itemInsert.pwd = resultUser.codclave;
+        itemInsert.pwd = resultUser.password;
         itemInsert.username = resultUser.username;
         itemInsert.api_key = resultUser.api_key;
         itemInsert.token_type = resultUser.token_type;
@@ -396,7 +414,10 @@ public partial class Login : ContentPage
         }
         else
         {
-            await TryLoginAsync();
+            if(await TryLoginBackUserAsync())
+            {
+                await TryLoginAsync();
+            }                      
         }
     }
 
@@ -409,7 +430,7 @@ public partial class Login : ContentPage
             User user = new User
             {
                 username = txtUser.Text,
-                codclave = txtPassword.Text,
+                password = CryptoHelper.Encrypt(txtPassword.Text),
                 databasename = App.Session.DefaultDatabase
             };
 
@@ -435,7 +456,7 @@ public partial class Login : ContentPage
 
             var userFound = userList.FirstOrDefault(
                 u => u.username == txtUser.Text &&
-                     u.pwd == txtPassword.Text &&
+                     u.pwd == CryptoHelper.Encrypt(txtPassword.Text) &&
                      u.log_fec_acceso.Date == currentDate.Date);
 
             if (userFound != null)
@@ -446,7 +467,7 @@ public partial class Login : ContentPage
                     uid = userFound.uid,
                     username = userFound.username,
                     nombres = userFound.name,
-                    codclave = userFound.pwd,
+                    password = userFound.pwd,
                     api_key = userFound.api_key,
                     token_type = userFound.token_type,
                     access_token = userFound.access_token,
@@ -459,17 +480,17 @@ public partial class Login : ContentPage
                 // Modo offline
                 if (App.Session.useOfflineMode)
                 {
-                    LoginSelector.IsVisible = false;
-                    CompanySelector.IsVisible = true;
+                    //LoginSelector.IsVisible = false;
+                    //CompanySelector.IsVisible = true;
 
                     userFound = userList.Where(
                         u => u.username == txtUser.Text &&
-                        u.pwd == txtPassword.Text).FirstOrDefault();
+                        u.pwd == CryptoHelper.Encrypt(txtPassword.Text)).FirstOrDefault();
 
                     resultUser = new User
                     {
                         username = txtUser.Text,
-                        codclave = txtPassword.Text,
+                        password = CryptoHelper.Encrypt(txtPassword.Text),
                         uid = userFound?.uid ?? 0,
                         api_key = "-",
                         token_type = "-",
@@ -490,8 +511,8 @@ public partial class Login : ContentPage
                     return;
                 }
 
-                LoginSelector.IsVisible = false;
-                CompanySelector.IsVisible = true;
+                //LoginSelector.IsVisible = false;
+                //CompanySelector.IsVisible = true;
 
                 var companies = await Task.Run(async () => await PrepareCompanies(userFound));
 
@@ -535,7 +556,7 @@ public partial class Login : ContentPage
             User user = new User
             {
                 username = txtUser.Text,
-                codclave = txtPassword.Text,
+                password = CryptoHelper.Encrypt(txtPassword.Text),
                 databasename = App.Session.DefaultDatabase
             };
 
@@ -561,7 +582,7 @@ public partial class Login : ContentPage
 
             var userFound = userList.FirstOrDefault(
                 u => u.username == txtUser.Text &&
-                     u.pwd == txtPassword.Text &&
+                     u.pwd == CryptoHelper.Encrypt(txtPassword.Text) &&
                      u.log_fec_acceso.Date == currentDate.Date);
 
             if (userFound != null)
@@ -572,7 +593,7 @@ public partial class Login : ContentPage
                     uid = userFound.uid,
                     username = userFound.username,
                     nombres = userFound.name,
-                    codclave = userFound.pwd,
+                    password = userFound.pwd,
                     api_key = userFound.api_key,
                     token_type = userFound.token_type,
                     access_token = userFound.access_token,
@@ -617,7 +638,7 @@ public partial class Login : ContentPage
                     resultUser = new User
                     {
                         username = txtUser.Text,
-                        codclave = txtPassword.Text,
+                        password = CryptoHelper.Encrypt(txtPassword.Text),
                         uid = responseUser.result.uid,
                         api_key = "-",
                         token_type = "-",
@@ -637,7 +658,7 @@ public partial class Login : ContentPage
 
                 userFound = userList.FirstOrDefault(
                     u => u.username == txtUser.Text &&
-                            u.pwd == txtPassword.Text &&
+                            u.pwd == CryptoHelper.Encrypt(txtPassword.Text) &&
                             u.log_fec_acceso.Date == currentDate.Date);
                 
 
@@ -657,8 +678,8 @@ public partial class Login : ContentPage
                 var serverPuller = new ServerPuller();
                 await serverPuller.Pull();                
 
-                LoginSelector.IsVisible = false;
-                CompanySelector.IsVisible = true;
+                //LoginSelector.IsVisible = false;
+                //CompanySelector.IsVisible = true;
                                 
                 var companies = await Task.Run(async () => await PrepareCompanies(userFound));
 
@@ -692,6 +713,70 @@ public partial class Login : ContentPage
         }
     }
 
+    public async Task<bool> TryLoginBackUserAsync()
+    {
+        try
+        {
+            DateTime currentDate = DateTime.Now;
+
+            User user = App.Session.CurrentUserFront;
+
+            var database = new UserAccessDb();
+            var hubUser = new ApiManager.HubUser(App.Session);
+            User resultUser = null;
+
+            // Intentar login online
+            var responseUser = await hubUser.TryLoginRpcWeb(user, currentDate);
+
+            if (responseUser?.error != null)
+            {                
+                await Toast.Make($"{responseUser.error.message}: {responseUser.error.data.message} - BackUser").Show();
+                Debug.WriteLine($"{responseUser.error.message}: {responseUser.error.data.message}");
+                return false;
+            }
+
+            //if (responseUser?.result != null)
+            //{
+            //    resultUser = new User
+            //    {
+            //        username = txtUser.Text,
+            //        password = txtPassword.Text,
+            //        uid = responseUser.result.uid,
+            //        api_key = "-",
+            //        token_type = "-",
+            //        access_token = "-",
+            //        databasename = App.Session.DefaultDatabase
+            //    };
+
+            //    var partner = await hubUser.GetById(resultUser.uid);
+            //    if (partner != null)
+            //        resultUser.nombres = partner.result[0].name;
+            //}
+
+            // Releer lista actualizada desde la base local
+            //var userList = await Task.Run(async () => await database.GetItemsAsync());
+
+            //var userFound = userList.FirstOrDefault(
+            //    u => u.username == txtUser.Text &&
+            //            u.pwd == txtPassword.Text &&
+            //            u.log_fec_acceso.Date == currentDate.Date);
+
+            //if (userFound == null)
+            //{
+            //    await Toast.Make("Dato no coincide, verifique la fecha y hora de su dispositivo").Show();
+            //    BtnTryLogin.IsEnabled = true;
+            //    return false;
+            //}
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Login error: {ex}");
+            await Toast.Make("Ha ocurrido un error durante el login").Show();
+        }
+
+        return true;
+    }
+
     private async void ShowSettings(object sender, EventArgs e)
     {        
         SettingsPage objPage = new SettingsPage();
@@ -712,15 +797,25 @@ public partial class Login : ContentPage
 
     private void btnBack_Clicked(object sender, EventArgs e)
     {
-        CompanySelector.IsVisible = false;
-        LoginSelector.IsVisible = true;
+        //CompanySelector.IsVisible = false;
+        //LoginSelector.IsVisible = true;
     }
-
+    
     private void ContentPage_Appearing(object sender, EventArgs e)
     {
-        Dispatcher.Dispatch(async () =>
+        if (_isFirstAppearing)
         {
-            await SetupLogin();
-        });
-    }
+            Dispatcher.Dispatch(async () =>
+            {
+                await SetupLogin();
+            });
+
+            _isFirstAppearing = false;
+        }
+        else
+        {
+            // Esto ocurre cada vez que vuelvas a la página
+            Console.WriteLine("La página ya apareció antes.");
+        }        
+    }    
 }

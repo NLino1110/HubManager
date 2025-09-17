@@ -154,7 +154,7 @@ namespace ResourceBuilder.Pages
                 api_key = appSetting.profile.Odoo.api_key,
                 access_token = appSetting.profile.Odoo.access_token,
                 username = appSetting.profile.Odoo.User,
-                codclave = appSetting.profile.Odoo.Password,
+                password = appSetting.profile.Odoo.Password,
                 uid = int.Parse(appSetting.profile.Odoo.uid),
                 databasename = appSetting.profile.Odoo.Database
             };
@@ -163,7 +163,7 @@ namespace ResourceBuilder.Pages
 
             User user = new User();
             user.username = _appSession.CurrentUser.username;
-            user.codclave = _appSession.CurrentUser.codclave;
+            user.password = _appSession.CurrentUser.password;
             user.databasename = _appSession.CurrentUser.databasename;
 
             DateTime currentDate = DateTime.Now;
@@ -203,7 +203,7 @@ namespace ResourceBuilder.Pages
                 api_key = appSetting.profile.Odoo.api_key,
                 access_token = appSetting.profile.Odoo.access_token,
                 username = appSetting.profile.Odoo.User,
-                codclave = appSetting.profile.Odoo.Password,
+                password = appSetting.profile.Odoo.Password,
                 uid = int.Parse(appSetting.profile.Odoo.uid),
                 databasename = appSetting.profile.Odoo.Database
             };
@@ -212,7 +212,7 @@ namespace ResourceBuilder.Pages
 
             User user = new User();
             user.username = _appSession.CurrentUser.username;
-            user.codclave = _appSession.CurrentUser.codclave;
+            user.password = _appSession.CurrentUser.password;
             user.databasename = _appSession.CurrentUser.databasename;
 
             DateTime currentDate = DateTime.Now;
@@ -313,7 +313,7 @@ namespace ResourceBuilder.Pages
                 uid = int.Parse(appSetting.profile.Odoo.uid),
                 databasename = appSetting.profile.Odoo.Database,                
                 username = appSetting.profile.Odoo.User,
-                codclave = appSetting.profile.Odoo.Password,
+                password = appSetting.profile.Odoo.Password,
             };
 
 

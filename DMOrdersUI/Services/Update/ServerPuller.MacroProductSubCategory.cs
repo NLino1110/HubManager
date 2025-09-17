@@ -17,7 +17,7 @@ namespace DMOrdersUI.Services.Update
         {
             ApiRequestOdoo_v1 apiRequest = new ApiRequestOdoo_v1();
             apiRequest.uid = App.Session.CurrentUser.uid;
-            apiRequest.password = App.Session.CurrentUser.codclave;
+            apiRequest.password = App.Session.CurrentUser.password;
             apiRequest.databasename = "";
 
             apiRequest.index = 0;

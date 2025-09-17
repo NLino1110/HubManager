@@ -41,7 +41,7 @@ namespace AppManagerOdoo.Tools
         {
             User user = new User();
             user.username = _appSession.CurrentUser.username;
-            user.codclave = _appSession.CurrentUser.codclave;
+            user.password = _appSession.CurrentUser.password;
             user.databasename = _appSession.CurrentUser.databasename;
 
             DateTime currentDate = DateTime.Now;

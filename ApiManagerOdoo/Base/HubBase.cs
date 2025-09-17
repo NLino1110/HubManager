@@ -34,7 +34,7 @@ namespace ApiManagerOdoo.Base
             if (_appSession.CurrentUser != null)
             {
                 _username = _appSession.CurrentUser.username;
-                _password = _appSession.CurrentUser.codclave;
+                _password = _appSession.CurrentUser.GetPasswordDecrypt();
                 _db = _appSession.CurrentUser.databasename;
             }
 

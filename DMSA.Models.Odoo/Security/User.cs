@@ -1,6 +1,7 @@
 ﻿//using SQLite;
 //using CobranzasDMSA_Odoo.Models;
 using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Tools;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -32,9 +33,8 @@ namespace DMSA.Models.Security
         [NotMapped]
         public string token_type { get; set; }
 
-
         [NotMapped]
-        public string? codclave { get; set; }
+        public string? password { get; set; }
         [NotMapped]
         public string? username { get; set; }
         [NotMapped]
@@ -61,5 +61,25 @@ namespace DMSA.Models.Security
         //[NotMapped]
         //[PrimaryKey, AutoIncrement]
         //public int uid { get; set; }
+
+        public string GetPasswordDecrypt()
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(password))
+                    return string.Empty;
+
+                return CryptoHelper.Decrypt(password);
+            }
+            catch (System.Security.Cryptography.CryptographicException)
+            {                
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {                
+                Console.WriteLine($"Error al desencriptar: {ex.Message}");
+                return string.Empty;
+            }
+        }
     }
 }

@@ -262,7 +262,7 @@ namespace DMOrdersUI
             user_access itemInsert = new user_access();
             itemInsert.name = resultUser.nombres;
             itemInsert.uid = resultUser.uid;
-            itemInsert.pwd = resultUser.codclave;
+            itemInsert.pwd = resultUser.password;
             itemInsert.username = resultUser.username;
 
             itemInsert.api_key = resultUser.api_key;
@@ -376,7 +376,7 @@ namespace DMOrdersUI
             user_access itemInsert = new user_access();
             itemInsert.name = resultUser.nombres;
             itemInsert.uid = resultUser.uid;
-            itemInsert.pwd = resultUser.codclave;
+            itemInsert.pwd = resultUser.password;
             itemInsert.username = resultUser.username;
             itemInsert.api_key = resultUser.api_key;
             itemInsert.token_type = resultUser.token_type;
@@ -409,7 +409,7 @@ namespace DMOrdersUI
 
             User user = new User();
             user.username = txtUser.Text;
-            user.codclave = txtPassword.Text;
+            user.password = txtPassword.Text;
             user.databasename = App.Session.DefaultDatabase;
 
 #if !DEBUG
@@ -451,7 +451,7 @@ namespace DMOrdersUI
                 resultUser.uid = userFound.uid;
                 resultUser.username = userFound.username;
                 resultUser.nombres = userFound.name;
-                resultUser.codclave = userFound.pwd;
+                resultUser.password = userFound.pwd;
                 resultUser.api_key = userFound.api_key;
                 resultUser.token_type = userFound.token_type;
                 resultUser.access_token = userFound.access_token;
@@ -523,7 +523,7 @@ namespace DMOrdersUI
                     //return;
                     //Se asigna la clave ya que el api no la devuelve
                     resultUser.username = txtUser.Text;
-                    resultUser.codclave = txtPassword.Text;
+                    resultUser.password = txtPassword.Text;
                     resultUser.uid = responseUser.result.uid;
                     resultUser.api_key = "-";
                     resultUser.token_type = "-";

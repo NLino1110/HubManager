@@ -154,49 +154,7 @@ namespace ApiManager
 
         public async Task<ResponseAuthenticate?> TryLoginRpcWeb(User user, DateTime currentDate)
         {
-            ////string currentDateTime = currentDate.ToString("yyyy-MM-dd HH:mm:ss");
-
-            ////string dbName = user.databasename;
-            ////string login = user.username;
-            ////string password = user.codclave;
-
-            ////var restRequest = new RestRequest("/web/session/authenticate");
-            ////restRequest.RequestFormat = DataFormat.Json;
-            ////restRequest.AddJsonBody($@"
-            ////    {{
-            ////      ""jsonrpc"": ""2.0"",
-            ////      ""method"": ""call"",
-            ////      ""params"" : {{
-            ////            ""db"":  ""{dbName}"",
-            ////            ""login"": ""{login}"",
-            ////            ""password"": ""{password}""
-            ////        }}
-            ////    }}");
-
-            ////var result = await _client.RestClient().ExecutePostAsync(restRequest); ;
-            //////Console.WriteLine(result);
-
-            ////if (result != null && result.Content != null & result.Content != "")
-            ////{
-            ////    try
-            ////    {
-            ////        var resultUser = Newtonsoft.Json.JsonConvert.DeserializeObject<ResponseAuthenticate>(result.Content);
-            ////        if (resultUser != null && result.Cookies != null)
-            ////        {
-            ////            resultUser.Cookies = result.Cookies;
-            ////        }
-            ////        return resultUser;
-            ////    }
-            ////    catch(Exception err)
-            ////    {
-            ////        Console.WriteLine("Error HubUser TryLoginRpcWeb:" + err.Message);
-            ////    }
-            ////}
-
-            ////return null;
-
-
-            return await Authenticate<ResponseAuthenticate>(user.databasename, user.username, user.codclave);
+            return await Authenticate<ResponseAuthenticate>(user.databasename, user.username, user.GetPasswordDecrypt());
         }
 
         public async Task<ApiResponse_VALIDASINCRONIZACION?> ValidaSincronizacionAsync(User user, DateTime currentDate)

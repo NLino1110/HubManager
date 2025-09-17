@@ -445,7 +445,7 @@ namespace ResourceBuilder.Services.Sales
                 access_token = appSetting.profile.Odoo.access_token,
                 uid = int.Parse(appSetting.profile.Odoo.uid),
                 username = appSetting.profile.Odoo.User,
-                codclave = appSetting.profile.Odoo.Password,
+                password = appSetting.profile.Odoo.Password,
                 databasename = appSetting.profile.Odoo.Database
             };
 
@@ -477,7 +477,7 @@ namespace ResourceBuilder.Services.Sales
                 access_token = appSetting.profile.Odoo.access_token,
                 uid = int.Parse(appSetting.profile.Odoo.uid),
                 username = appSetting.profile.Odoo.User,
-                codclave = appSetting.profile.Odoo.Password,
+                password = appSetting.profile.Odoo.Password,
                 databasename = appSetting.profile.Odoo.Database
             };
 
@@ -509,7 +509,7 @@ namespace ResourceBuilder.Services.Sales
                 access_token = appSetting.profile.Odoo.access_token,
                 uid = int.Parse(appSetting.profile.Odoo.uid),
                 username = appSetting.profile.Odoo.User,
-                codclave = appSetting.profile.Odoo.Password,
+                password = appSetting.profile.Odoo.Password,
                 databasename = appSetting.profile.Odoo.Database
             };
 

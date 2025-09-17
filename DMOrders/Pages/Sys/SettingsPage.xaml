@@ -56,7 +56,8 @@ BackgroundColor="Red"
             Padding="10,0,10,0"
             SemanticProperties.Hint="Cerrar"
             Clicked="btnClose_Clicked"
-            HorizontalOptions="End">
+            HorizontalOptions="End"
+                BackgroundColor="BlueViolet">
                 <Button.ImageSource>
                     <FontImageSource FontFamily="FontAwesome5Solid"
 								Color="White"
