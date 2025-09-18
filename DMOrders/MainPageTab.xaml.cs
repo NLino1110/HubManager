@@ -40,8 +40,8 @@ public partial class MainPageTab : ContentPage
 
         if (App.Session.CurrentUser != null)
         {
-            lblUser.Text = App.Session.CurrentUser.username;
-            lblUserName.Text = App.Session.CurrentUser.nombres;
+            lblUser.Text = App.Session.CurrentUserFront.username;
+            lblUserName.Text = App.Session.CurrentUserFront.nombres;
         }
 
         imageDebug.IsVisible = IsDebug;
@@ -171,7 +171,8 @@ public partial class MainPageTab : ContentPage
     private async void ShowSettings(object sender, EventArgs e)
     {
         Debug.WriteLine("SettingsPage");
-        SettingsPage objPage = new SettingsPage();
+        //SettingsPage objPage = new SettingsPage();
+        Connections objPage = new Connections();
         //objPage.Disappearing += ObjSettingPage_Disappearing;
         await Navigation.PushModalAsync(objPage);
     }        

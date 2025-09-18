@@ -27,7 +27,7 @@ namespace DMOrders.Controls.CustomRows
         }
 
         public static readonly BindableProperty EditCommandProperty =
-            BindableProperty.Create(nameof(EditCommand), typeof(ICommand), typeof(ActivityRow), null);
+            BindableProperty.Create(nameof(EditCommand), typeof(ICommand), typeof(ProductRow), null);
 
         public ProductRow()
         {
@@ -120,8 +120,8 @@ namespace DMOrders.Controls.CustomRows
 
             Button btnSelect = new Button
             {
-                Command = CatalogViewer.CommandSelectListItem,
-                HeightRequest = 35,                
+                Command = EditCommand,
+                HeightRequest = 35,
                 BackgroundColor = Colors.DodgerBlue,
                 Text = "Seleccionar",
                 TextColor = Colors.White,

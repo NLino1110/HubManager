@@ -89,9 +89,9 @@ public partial class CobranzasPage : ContentPage
 
         //Task.WaitAll(task);
 
-        if (App.Session.CurrentUser.empresas != null)
+        if (App.Session.CurrentUserFront.empresas != null)
         {
-            Empresas = App.Session.CurrentUser.empresas;
+            Empresas = App.Session.CurrentUserFront.empresas;
         }
 
         SelectorCmp.ItemsSource = Empresas;
@@ -500,7 +500,7 @@ public partial class CobranzasPage : ContentPage
                     foreach (var _itemGroup in _itemsGroup)
                     {
                         res_company[] Empresas = null;
-                        Empresas = App.Session.CurrentUser.empresas;
+                        Empresas = App.Session.CurrentUserFront.empresas;
                         var res_CompanyData = Empresas.ToList().Where(i => i.id == _itemGroup.company_id).FirstOrDefault();
                         objPage.res_Company = res_CompanyData;
                         break;
@@ -514,7 +514,7 @@ public partial class CobranzasPage : ContentPage
                     var _itemGroup = (AccountPaymentHeader)obj;
                     
                     res_company[] Empresas = null;
-                    Empresas = App.Session.CurrentUser.empresas;
+                    Empresas = App.Session.CurrentUserFront.empresas;
                     var res_CompanyData = Empresas.ToList().Where(i => i.id == _itemGroup.company_id).FirstOrDefault();
                     objPage.res_Company = res_CompanyData;
                         

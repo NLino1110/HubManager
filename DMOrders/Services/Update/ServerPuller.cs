@@ -4,6 +4,7 @@ using DMSA.Models.General.Requests;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Security;
+using System.Diagnostics;
 
 namespace DMOrders.Services.Update
 {
@@ -30,15 +31,24 @@ namespace DMOrders.Services.Update
             //    day = appSession.CurrentUser.log_fec_sincro.Day;
             //}
 
-            limit = appSession.db_limit_default;
+            limit = App.Session.odooConnection.DbLimitDefault;
         }
 
         public async Task<bool> Pull()
         {
-            await OnlineSyncCompany();
-            //await OnlineSyncStores();
-            await OnlineSyncResCenter();
-            await OnlineSyncStockWarehouse();
+            try                
+            {
+                await OnlineSyncCompany();
+                //await OnlineSyncStores();
+                await OnlineSyncResCenter();
+                await OnlineSyncStockWarehouse();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error en Pull: " + ex.Message);
+                return false;
+            }
+            
             return true;
         }
 

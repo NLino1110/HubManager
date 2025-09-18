@@ -435,7 +435,7 @@ namespace ResourceBuilder.Services.Sales
         {
             AppSession _appSession = new AppSession();
             var appSetting = ConfigurationHelper.GetAppSettings();
-            _appSession.EndPointServer = appSetting.profile.Odoo.ApiBaseAddressOdoo;
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
 
             int company_id = 1;
 
@@ -467,7 +467,7 @@ namespace ResourceBuilder.Services.Sales
         {
             AppSession _appSession = new AppSession();
             var appSetting = ConfigurationHelper.GetAppSettings();
-            _appSession.EndPointServer = appSetting.profile.Odoo.ApiBaseAddressOdoo;
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
 
             int company_id = 1;
 
@@ -499,7 +499,7 @@ namespace ResourceBuilder.Services.Sales
         {
             AppSession _appSession = new AppSession();
             var appSetting = ConfigurationHelper.GetAppSettings();
-            _appSession.EndPointServer = appSetting.profile.Odoo.ApiBaseAddressOdoo;
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
 
             int company_id = 1;
 

@@ -13,8 +13,4 @@
     <PackageReference Include="SQLiteNetExtensions" Version="2.1.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Security\DmOrders\" />
-  </ItemGroup>
-
 </Project>

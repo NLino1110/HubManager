@@ -75,10 +75,10 @@ public partial class NotasCreditoPage : ContentPage
 
         //Task.WaitAll(task);
 
-        if (App.Session.CurrentUser.empresas != null)
+        if (App.Session.CurrentUserFront.empresas != null)
         {
-            Empresas = App.Session.CurrentUser.empresas.OrderBy(x=>x.id).ToArray();
-            uid = App.Session.CurrentUser.uid;
+            Empresas = App.Session.CurrentUserFront.empresas.OrderBy(x=>x.id).ToArray();
+            uid = App.Session.CurrentUserFront.uid;
         }
 
         SelectorCmp.ItemsSource = Empresas;

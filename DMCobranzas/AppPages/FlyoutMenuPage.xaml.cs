@@ -43,12 +43,12 @@ public partial class FlyoutMenuPage : ContentPage
             txtUser.Text = "" + App.Session.CurrentUser.username;
             txtName.Text = "" + App.Session.CurrentUser.nombres;
             txtEnvironment.Text = "Desarrollo";
-            if(App.Session.isProduction)
+            if(App.Session.odooConnection.IsProduction)
             {
                 txtEnvironment.Text = "Producción";
             }
 
-            if (App.Session.isTestMode)
+            if (App.Session.odooConnection.IsTestMode)
             {
                 //
                 FlyoutPageItem[] flyoutPageItem = (FlyoutPageItem[])collectionView.ItemsSource;

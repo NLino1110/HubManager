@@ -16,7 +16,7 @@
         </ResourceDictionary>
 
         <DataTemplate x:Key="RowTemplate">
-            <customrows:ProductRow Item="{Binding .}" />
+            <customrows:ProductRow Item="{Binding .}" EditCommand="{Binding CommandSelectListItem}"/>
         </DataTemplate>
 
         <DataTemplate x:Key="GridTemplate">

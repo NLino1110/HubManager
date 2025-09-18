@@ -268,11 +268,11 @@ public partial class AccountMoveSendProdCrud : ContentPage
 
 	async Task PrepareForm()
 	{
-        if (App.Session.CurrentUser.empresas != null)
+        if (App.Session.CurrentUserFront.empresas != null)
         {
             Debug.WriteLine("Empresas:");
-            Debug.WriteLine(App.Session.CurrentUser.empresas.Length);
-            Empresas = App.Session.CurrentUser.empresas;
+            Debug.WriteLine(App.Session.CurrentUserFront.empresas.Length);
+            Empresas = App.Session.CurrentUserFront.empresas;
             SelectorCmp.ItemsSource = Empresas;
             SelectorCmp.ItemDisplayBinding = new Binding(nameof(res_company.name));
             SelectorCmp.SelectedIndex = 0;

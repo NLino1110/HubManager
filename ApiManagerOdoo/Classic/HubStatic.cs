@@ -59,7 +59,7 @@ namespace ApiManager
         {
             RestClientOptions restClientOptions = new RestClientOptions();
             restClientOptions.RemoteCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;            
-            restClientOptions.BaseUrl = new Uri($"{_appSession.StaticResources_Server}");
+            restClientOptions.BaseUrl = new Uri($"{_appSession.odooConnection.HostDump}");
 
             RestClient restClient = new RestClient(restClientOptions);
 

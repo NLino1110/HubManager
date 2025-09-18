@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
     xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+    xmlns:DMOrders="clr-namespace:DMOrders"
     x:Class="DMOrders.Login"
     Title="Cobranzas Login"
     Shell.FlyoutBehavior="Flyout"
@@ -54,11 +55,9 @@
                                TextColor="Gray"/>
 
                         <!-- Selección de Compañía/Agencia -->
-                        <VerticalStackLayout x:Name="CompanySelector" Spacing="10">
-                            <material:DropdownField x:Name="ddCompany" Title="Compañia"/>
+                        <VerticalStackLayout x:Name="CompanySelector" IsVisible="False" Spacing="10">                            
                             <material:DropdownField x:Name="ddAgency" Title="Agencia"/>
-
-                            <HorizontalStackLayout HorizontalOptions="Center" Spacing="10" IsVisible="False">
+                            <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
                                 <Button x:Name="btnAccess"
                                         Text="Ingresar"
                                         Clicked="btnAccess_Clicked"
@@ -72,12 +71,21 @@
                                         WidthRequest="250"
                                         BackgroundColor="BlueViolet"
                                         TextColor="White"
-                                        FontAttributes="Bold"/>
+                                        FontAttributes="Bold">
+                                    <Button.ImageSource>
+                                        <FontImageSource FontFamily="FontAwesome5Solid"
+                                            Color="White"
+                                            Size="20"
+                                            FontAutoScalingEnabled="True"
+                                            Glyph="&#xf060;" />
+                                    </Button.ImageSource>
+                                </Button>
                             </HorizontalStackLayout>
                         </VerticalStackLayout>
 
                         <!-- Login -->
                         <VerticalStackLayout x:Name="LoginSelector" Spacing="10">
+                            <material:DropdownField x:Name="ddCompany" Title="Compañia"/>
                             <material:TextField x:Name="txtUser"
                                                 Title="Usuario"
                                                 BorderThickness="0.4"

@@ -25,6 +25,5 @@ namespace DMOrders.Services.Update
                 await database.InsertBatchAsync(dataList.result);
             }
         }
-
     }
 }

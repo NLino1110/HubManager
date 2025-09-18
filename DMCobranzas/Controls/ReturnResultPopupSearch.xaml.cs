@@ -30,9 +30,9 @@ public partial class ReturnResultPopupSearch : Popup<res_company>
         
         isWindows = DeviceInfo.Current.Platform == DevicePlatform.WinUI;
 
-        if (App.Session.CurrentUser.empresas != null)
+        if (App.Session.CurrentUserFront.empresas != null)
         {
-            Empresas = App.Session.CurrentUser.empresas;
+            Empresas = App.Session.CurrentUserFront.empresas;
         }
 
         SelectorCmp.ItemsSource = Empresas;

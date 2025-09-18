@@ -1,0 +1,149 @@
+﻿using DMSA.Models.Odoo.Tools;
+using SQLite;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DMSA.Models.Odoo.Abstract
+{
+    [Table("OdooConnections")]
+    public class OdooConnection
+    {
+        [PrimaryKey]
+        [Column("id")]
+        public int Id { get; set; }
+
+        [Required]
+        [Column("name")]
+        public string Name { get; set; } = string.Empty;  // nombre descriptivo de la conexión
+
+        [Required]
+        [Column("host")]
+        public string Host { get; set; } = string.Empty;  // host de Odoo
+
+        [Required]
+        [Column("host_dump")]
+        public string HostDump { get; set; } = string.Empty;
+
+        [Required]
+        [Column("dump_service")]
+        public string DumpService { get; set; } = string.Empty;
+
+        [Required]
+        [Column("db_name")]
+        public string DbName { get; set; } = string.Empty; // nombre de la base de datos
+
+        [Required]
+        [Column("db_limit_default")]
+        public int DbLimitDefault { get; set; } = 300;
+
+        [Required]
+        [Column("company_id")]
+        public int CompanyId { get; set; }
+
+        [Required]
+        [Column("username")]
+        public string Username { get; set; } = string.Empty; // usuario de Odoo
+
+        [Required]
+        [Column("password")]
+        public string Password { get; set; } = string.Empty; // contraseña de Odoo
+
+        [Required]
+        [Column("active")]
+        public bool Active { get; set; } = true;
+
+        [Required]
+        [Column("is_prod")]
+        public bool IsProduction { get; set; } = true;
+
+        [Required]
+        [Column("is_test")]
+        public bool IsTestMode { get; set; } = true;
+
+        [Column("create_date")]
+        public long CreateDate { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        [Column("write_date")]
+        public long WriteDate { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        public List<OdooConnection> LoadDefault()
+        {
+            List<OdooConnection> defaultSettings = new List<OdooConnection>();
+            defaultSettings.Add(new OdooConnection()
+                {
+                    Id = 1,
+                    CompanyId = 1,
+                    Name = "Macronegocios (DEV)",
+                    Host = "http://localhost:8069/",
+                    DbName = "qamacronegocios",
+                    Username = "admin",
+                    Password = CryptoHelper.Encrypt("demo"),
+                    HostDump = "https://192.168.204.66:2443",
+                    DumpService = "/resources/tmp/android/sqlite/",
+                    DbLimitDefault = 300,
+                    IsProduction = false,
+                    IsTestMode = true,
+            }
+            );
+
+            defaultSettings.Add(new OdooConnection()
+                {
+                    Id = 2,
+                    CompanyId = 2,
+                    Name = "DMujeres (DEV)",
+                    Host = "http://localhost:8069/",
+                    DbName = "qadmujeres",
+                    Username = "admin",
+                    Password = CryptoHelper.Encrypt("demo"),
+                HostDump = "https://192.168.204.66:2443",
+                DumpService = "/resources/tmp/android/sqlite/",
+                DbLimitDefault = 300,
+                IsProduction = false,
+                IsTestMode = true,
+            }
+            );
+
+            defaultSettings.Add(new OdooConnection()
+            {
+                Id = 3,
+                CompanyId = 1,
+                Name = "Macronegocios",
+                Host = "http://qa.macronegocios:8069/",
+                DbName = "qamacronegocios",
+                Username = "admin",
+                Password = CryptoHelper.Encrypt("demo"),
+                Active = false,
+                HostDump = "https://192.168.204.66:2443",
+                DumpService = "/resources/tmp/android/sqlite/",
+                DbLimitDefault = 300,
+                IsProduction = true,
+                IsTestMode = true,
+            }
+            );
+
+            defaultSettings.Add(new OdooConnection()
+            {
+                Id = 4,
+                CompanyId = 2,
+                Name = "DMujeres",
+                Host = "http://qa.dmujeres:8069/",
+                DbName = "qadmujeres",
+                Username = "admin",
+                Password = CryptoHelper.Encrypt("demo"),
+                Active = false,
+                HostDump = "https://192.168.204.66:2443",
+                DumpService = "/resources/tmp/android/sqlite/",
+                DbLimitDefault = 300,
+                IsProduction = true,
+                IsTestMode = true,
+            }
+            );
+
+            return defaultSettings;
+        }
+    }
+}

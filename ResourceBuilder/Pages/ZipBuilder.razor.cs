@@ -147,7 +147,7 @@ namespace ResourceBuilder.Pages
         {
             var appSetting = ConfigurationHelper.GetAppSettings();
             AppSession _appSession = new AppSession();
-            _appSession.EndPointServer = appSetting.profile.Odoo.ApiBaseAddressOdoo;
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
 
             _appSession.CurrentUser = new User()
             {
@@ -196,7 +196,7 @@ namespace ResourceBuilder.Pages
         {
             var appSetting = ConfigurationHelper.GetAppSettings();
             AppSession _appSession = new AppSession();
-            _appSession.EndPointServer = appSetting.profile.Odoo.ApiBaseAddressOdoo;
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
 
             _appSession.CurrentUser = new User()
             {
@@ -304,7 +304,7 @@ namespace ResourceBuilder.Pages
         {
             var appSetting = ConfigurationHelper.GetAppSettings();
             AppSession _appSession = new AppSession();
-            _appSession.EndPointServer = appSetting.profile.Odoo.ApiBaseAddressOdoo;
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
 
             _appSession.CurrentUser = new User()
             {

@@ -1,12 +1,13 @@
-﻿using DMSA.Models.Odoo;
+﻿using DMSA.Models.Odoo.Abstract;
 using SQLite;
+using System.ComponentModel.DataAnnotations;
 
 namespace DMOrders.Services.Database.Sqlite
 {
     public class OdooConnectionDb
     {
         SQLiteAsyncConnection Database;
-
+                
         public OdooConnectionDb()
         {
 
@@ -56,6 +57,13 @@ namespace DMOrders.Services.Database.Sqlite
         {
             await Init();
             int result = await Database.InsertOrReplaceAsync(item);
+            return 0;
+        }
+
+        public async Task<int> UpdateAsync(OdooConnection item)
+        {
+            await Init();
+            int result = await Database.UpdateAsync(item);
             return 0;
         }
 

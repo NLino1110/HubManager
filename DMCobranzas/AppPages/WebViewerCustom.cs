@@ -37,11 +37,11 @@ namespace DMCobranzas.AppPages
                 HubReportes reportes = new HubReportes(App.Session);
                 //App.Session.CurrentUser.empresas = "1";
                 int empresa = 0;
-                if(App.Session.CurrentUser.empresas.Length > 0)
+                if(App.Session.CurrentUserFront.empresas.Length > 0)
                 {
-                    empresa = App.Session.CurrentUser.empresas[0].id;
+                    empresa = App.Session.CurrentUserFront.empresas[0].id;
                 }
-                var repResponse = await reportes.Comisiones(empresa, App.Session.CurrentUser.uid);
+                var repResponse = await reportes.Comisiones(empresa, App.Session.CurrentUserFront.uid);
                 string finalUrlReport = App.Session.UrlReportServer + repResponse.url;
 
                 var webView = new Microsoft.Maui.Controls.WebView

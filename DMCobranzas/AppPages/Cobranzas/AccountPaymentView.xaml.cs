@@ -415,7 +415,7 @@ public partial class AccountPaymentView : ContentPage
 
             if (Sel_Company_Id == null)
             {
-                var cemp = App.Session.CurrentUser.empresas.Where(c => c.id == Sel_AccountPaymentHeader.company_id).FirstOrDefault();
+                var cemp = App.Session.CurrentUserFront.empresas.Where(c => c.id == Sel_AccountPaymentHeader.company_id).FirstOrDefault();
 
                 Sel_Company_Id = new res_company
                 {

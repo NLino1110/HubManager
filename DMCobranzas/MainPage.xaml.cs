@@ -67,11 +67,11 @@ public partial class MainPage : ContentPage
     {
         if (App.Session != null)
         {
-            txtUser.Text = "Usuario: " + App.Session.CurrentUser.username;
-            txtName.Text = "Nombre: " + App.Session.CurrentUser.nombres;
-            txtUpdated.Text = "Ult. Actualización: " + App.Session.CurrentUser.log_fec_sincro.ToString("dd/MM/yyyy HH:mm:ss");
-            txtUpdatedNC.Text = "Ult. Actualización NC: " + App.Session.CurrentUser.log_fec_sincro_nc.ToString("dd/MM/yyyy HH:mm:ss");
-            txtLastAccess.Text = "Ult. Acceso: " + App.Session.CurrentUser.log_fec_acceso.ToString("dd/MM/yyyy HH:mm:ss");
+            txtUser.Text = "Usuario: " + App.Session.CurrentUserFront.username;
+            txtName.Text = "Nombre: " + App.Session.CurrentUserFront.nombres;
+            txtUpdated.Text = "Ult. Actualización: " + App.Session.CurrentUserFront.log_fec_sincro.ToString("dd/MM/yyyy HH:mm:ss");
+            txtUpdatedNC.Text = "Ult. Actualización NC: " + App.Session.CurrentUserFront.log_fec_sincro_nc.ToString("dd/MM/yyyy HH:mm:ss");
+            txtLastAccess.Text = "Ult. Acceso: " + App.Session.CurrentUserFront.log_fec_acceso.ToString("dd/MM/yyyy HH:mm:ss");
         }
 
         //Aquí evaluar estado actual para saber si se deben
@@ -80,7 +80,7 @@ public partial class MainPage : ContentPage
         
         Task.Run(async () =>
         {
-            if(App.Session.isTestMode)
+            if(App.Session.odooConnection.IsTestMode)
             {
                 return;
             }

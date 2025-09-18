@@ -22,6 +22,9 @@ namespace DMSA.Models.Odoo.Native
         [Column("name")]
         public string? name { get; set; }
 
+        [Column("type_center")]
+        public string? type_center { get; set; }
+
         [Column("create_date")]
         public DateTime? create_date { get; set; }
 

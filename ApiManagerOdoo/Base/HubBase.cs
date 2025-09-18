@@ -29,7 +29,7 @@ namespace ApiManagerOdoo.Base
         public HubBase(AppSession _setAppSession)
         {
             _appSession = _setAppSession;            
-            _baseUrl = _appSession.EndPointServer;
+            _baseUrl = _appSession.odooConnection.Host;
 
             if (_appSession.CurrentUser != null)
             {
@@ -57,6 +57,7 @@ namespace ApiManagerOdoo.Base
             {
                 throw new InvalidOperationException("Username, password or database name is not set.");
             }
+
             if (!await LoginAsync())
             {
                 throw new UnauthorizedAccessException("Login failed. Please check your credentials.");

@@ -26,7 +26,7 @@ namespace ApiManager
         public SoapClient(AppSession appSession)
         {
             //Se obtiene URL desde la sesión iniciada
-            targetUri = appSession.EndPointServer;            
+            targetUri = appSession.odooConnection.Host;
         }
 
         public async Task<string> asyncPost(string SoapAction, string SoapBody)

@@ -446,7 +446,7 @@ public partial class AccountMoveSendView : ContentPage
 
             if (Sel_Company_Id == null)
             {
-                var cemp = App.Session.CurrentUser.empresas.Where(c => c.id == Sel_AccountMoveSendHeader.company_id).FirstOrDefault();
+                var cemp = App.Session.CurrentUserFront.empresas.Where(c => c.id == Sel_AccountMoveSendHeader.company_id).FirstOrDefault();
 
                 Sel_Company_Id = new res_company
                 {

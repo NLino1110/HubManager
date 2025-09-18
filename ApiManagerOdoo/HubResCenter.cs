@@ -9,7 +9,7 @@ namespace ApiManager
 {
     public class HubResCenter : HubBase
     {
-        string[] fields_array = new[] { "id", "name", "create_date", "write_date" };
+        string[] fields_array = new[] { "id", "name", "clave_externa", "type_center", "create_date", "write_date" };
 
         private readonly Type _type;
         public HubResCenter(AppSession _setAppSession) : base(_setAppSession)

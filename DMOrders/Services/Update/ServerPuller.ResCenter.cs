@@ -15,8 +15,7 @@ namespace DMOrders.Services.Update
     public partial class ServerPuller
     {
         public async Task OnlineSyncResCenter()
-        {  
-
+        {
             ApiManager.HubResCenter hubManagerInstance = new HubResCenter(App.Session);
             var dataList = await hubManagerInstance.GetItems(1000,0,2023,1,1);
 

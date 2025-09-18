@@ -42,22 +42,13 @@ namespace DMOrders
             builder.Services.AddCommunityToolkitDialogs();
 
             App.Session = new AppSession();
-            Debug.WriteLine(App.Session.isProduction);
-
+            
             App.Session.AppVersion = AppInfo.Current.VersionString;
 
             if (DeviceInfo.Platform == DevicePlatform.Android)
             {
                 App.Session.AppVersion = AppInfo.Current.VersionString + "." + AppInfo.Current.BuildString;
-            }
-
-            App.Session.EndPointServer = "http://192.168.56.1:8069";
-
-            //Solo cuando se inicia en modo producción
-            if (App.Session.isProduction)
-            {
-                App.Session.EndPointServer = App.Session.EndPointServerProd;
-            }
+            }            
 
 #if DEBUG
             builder.Logging.AddDebug();

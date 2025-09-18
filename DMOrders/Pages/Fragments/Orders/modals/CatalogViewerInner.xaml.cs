@@ -186,6 +186,7 @@ public partial class CatalogViewerInner : ContentView
         {
             //((CatalogViewerModel)this.BindingContext).SelectedItem = (product_product)objItem;
             //_parentPopup.Close(objItem);
+            Debug.WriteLine(objItem);
         }
         else
         {

@@ -79,7 +79,7 @@ public partial class SettingsPage : ContentPage //, IDisposable //, INotifyPrope
                 
         if (result.Result != null && result.Result.ToString() == "1381")
         {
-            AppSettingsDb appSettingsDb = new AppSettingsDb();            
+            AppSettingsDb appSettingsDb = new AppSettingsDb();
 
             foreach (AppSettings itemSetting in collectionView.ItemsSource)
             {

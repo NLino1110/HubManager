@@ -46,14 +46,14 @@ public partial class UpdateData : ContentPage
         InitializeComponent();
         lblUpdated.Text = "Ult. Actualización: " + App.Session.CurrentUser.log_fec_sincro.ToString("dd/MM/yyyy HH:mm:ss");
         //Asignación de URL de descarga según la configuración de la sesión
-        _rootUrl = App.Session.CacheFilesUrl;
+        _rootUrl = App.Session.odooConnection.DumpService;
 
-        if (!App.Session.isProduction)
+        if (!App.Session.odooConnection.IsProduction)
         {
             BtnDeleteTables.IsVisible = true;
         }
 
-        db_limit_default = App.Session.db_limit_default;
+        db_limit_default = App.Session.odooConnection.DbLimitDefault;
 
         //TODO: Agregar alertas al iniciar este proceso
         //HACK
@@ -63,7 +63,7 @@ public partial class UpdateData : ContentPage
 
     private async Task<bool> ServerOnlineStatus_Odoo()
     {
-        ApiChecker apiChecker = new ApiChecker(App.Session.EndPointServer + "/connect/checkonline");
+        ApiChecker apiChecker = new ApiChecker(App.Session.odooConnection.Host + "/connect/checkonline");
         bool isOnline = await apiChecker.IsApiAvailable();
 
         //if (!isOnline)
@@ -79,7 +79,7 @@ public partial class UpdateData : ContentPage
 
     private async Task<bool> ServerOnlineStatus_Resources()
     {
-        ApiChecker apiChecker = new ApiChecker(App.Session.StaticResources_Server + "/api/status/checkonline");
+        ApiChecker apiChecker = new ApiChecker(App.Session.odooConnection.HostDump + "/api/status/checkonline");
         bool isOnline = await apiChecker.IsApiAvailable();
 
         return isOnline;
@@ -162,12 +162,12 @@ public partial class UpdateData : ContentPage
             Directory.CreateDirectory(Path.GetDirectoryName(FinalDirectory));
         }
 
-        _rootUrl = App.Session.StaticResources_Server;
+        _rootUrl = App.Session.odooConnection.HostDump;
 
         if (File.Exists(Path.Combine(DeviceStorage, ZipFileName)))
             File.Delete(Path.Combine(DeviceStorage, ZipFileName));
 
-        _rootUrl += App.Session.CacheFilesUrl;
+        _rootUrl += App.Session.odooConnection.DumpService;
 
         //TODO: Deprecated
         //if (useExternalNetworkForCache)
@@ -2127,7 +2127,7 @@ public partial class UpdateData : ContentPage
         //Se obtienen los diarios para ser insertados en la base local
         ApiManager.HubJournal hubDiarios = new HubJournal(App.Session);
 
-        var ids = App.Session.CurrentUser.empresas.Select(e => e.id);
+        var ids = App.Session.CurrentUserFront.empresas.Select(e => e.id);
         string strEmpresas = string.Join(",", ids);
 
         var responsehubhubDiariosAll = await hubDiarios.GetAccountJournal(strEmpresas);
@@ -2829,8 +2829,8 @@ public partial class UpdateData : ContentPage
                     foundUser.log_fec_sincro = responseValSync.data[0].datetime;
                     foundUser.log_fec_sincro_nc = responseSync.current_datetime;
 
-                    App.Session.CurrentUser.log_fec_sincro = foundUser.log_fec_sincro;
-                    App.Session.CurrentUser.log_fec_sincro_nc = foundUser.log_fec_sincro_nc;
+                    App.Session.CurrentUserFront.log_fec_sincro = foundUser.log_fec_sincro;
+                    App.Session.CurrentUserFront.log_fec_sincro_nc = foundUser.log_fec_sincro_nc;
 
                     //    await database.InsertAsync(itemInsert);
                     //}

@@ -35,7 +35,7 @@ namespace DMOrders.Services.Update.Pusher
             //    day = appSession.CurrentUser.log_fec_sincro.Day;
             //}
 
-            limit = appSession.db_limit_default;
+            limit = App.Session.odooConnection.DbLimitDefault;
         }
 
         public async Task<bool> Push()

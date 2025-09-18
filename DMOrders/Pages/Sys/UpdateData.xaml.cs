@@ -46,9 +46,9 @@ public partial class UpdateData : ContentPage
         InitializeComponent();
         lblUpdated.Text = "Ult. Actualización: " + App.Session.CurrentUser.log_fec_sincro.ToString("dd/MM/yyyy HH:mm:ss");
         //Asignación de URL de descarga según la configuración de la sesión
-        _rootUrl = App.Session.CacheFilesUrl;
+        //_rootUrl = App.Session.CacheFilesUrl;
 
-        if (!App.Session.isProduction)
+        if (!App.Session.odooConnection.IsProduction)
         {
             BtnDeleteTables.IsVisible = true;
         }
@@ -61,7 +61,7 @@ public partial class UpdateData : ContentPage
 
     private async Task<bool> ServerOnlineStatus_Odoo()
     {
-        ApiChecker apiChecker = new ApiChecker(App.Session.EndPointServer + "/connect/checkonline");
+        ApiChecker apiChecker = new ApiChecker(App.Session.odooConnection.Host + "/connect/checkonline");
         bool isOnline = await apiChecker.IsApiAvailable();
 
         //if (!isOnline)
@@ -77,7 +77,7 @@ public partial class UpdateData : ContentPage
 
     private async Task<bool> ServerOnlineStatus_Resources()
     {
-        ApiChecker apiChecker = new ApiChecker(App.Session.StaticResources_Server + "/api/status/checkonline");
+        ApiChecker apiChecker = new ApiChecker(App.Session.odooConnection.Host + "/api/status/checkonline");
         bool isOnline = await apiChecker.IsApiAvailable();
 
         return isOnline;
@@ -160,12 +160,12 @@ public partial class UpdateData : ContentPage
             Directory.CreateDirectory(Path.GetDirectoryName(FinalDirectory));
         }
 
-        _rootUrl = App.Session.StaticResources_Server;
+        _rootUrl = App.Session.odooConnection.HostDump;
 
         if (File.Exists(Path.Combine(DeviceStorage, ZipFileName)))
             File.Delete(Path.Combine(DeviceStorage, ZipFileName));
 
-        _rootUrl += App.Session.CacheFilesUrl;
+        _rootUrl += App.Session.odooConnection.DumpService;
 
         //TODO: Deprecated
         //if (useExternalNetworkForCache)
@@ -1276,7 +1276,7 @@ public partial class UpdateData : ContentPage
             return false;
         }
 
-        int limit = App.Session.db_limit_default;
+        int limit = App.Session.odooConnection.DbLimitDefault;
         int countTotal = resultCount.result / limit;
 
         var database = new AccountPaymentHeaderDb();
@@ -1377,7 +1377,7 @@ public partial class UpdateData : ContentPage
             return false;
         }
 
-        int limit = App.Session.db_limit_default;
+        int limit = App.Session.odooConnection.DbLimitDefault;
         int countTotal = resultCount.result / limit;
 
         var database = new AccountPaymentDailyDb();
@@ -1542,7 +1542,7 @@ public partial class UpdateData : ContentPage
             return false;
         }
 
-        int limit = App.Session.db_limit_default;
+        int limit = App.Session.odooConnection.DbLimitDefault;
         int countTotal = resultCount.result / limit;
 
         var database = new AccountMoveDb();
@@ -1645,7 +1645,7 @@ public partial class UpdateData : ContentPage
         //Se obtienen los diarios para ser insertados en la base local
         ApiManager.HubJournal hubDiarios = new HubJournal(App.Session);
 
-        var ids = App.Session.CurrentUser.empresas.Select(e => e.id);
+        var ids = App.Session.CurrentUserFront.empresas.Select(e => e.id);
         string strEmpresas = string.Join(",", ids);
 
         var responsehubhubDiariosAll = await hubDiarios.GetAccountJournal(strEmpresas);
@@ -1769,7 +1769,7 @@ public partial class UpdateData : ContentPage
             return false;
         }
 
-        int limit = App.Session.db_limit_default;
+        int limit = App.Session.odooConnection.DbLimitDefault;
         int countTotal = resultCount.result / limit;
 
         var database = new ProductMarcaDb();
@@ -1877,7 +1877,7 @@ public partial class UpdateData : ContentPage
             return false;
         }
 
-        int limit = App.Session.db_limit_default;
+        int limit = App.Session.odooConnection.DbLimitDefault;
         int countTotal = resultCount.result / limit;
 
         var database = new ProductTemplateDb();
@@ -1931,7 +1931,7 @@ public partial class UpdateData : ContentPage
             return false;
         }
 
-        int limit = App.Session.db_limit_default;
+        int limit = App.Session.odooConnection.DbLimitDefault;
         int countTotal = resultCount.result / limit;
 
         var databaseDet = new AccountMoveLineDb();
@@ -2332,7 +2332,7 @@ public partial class UpdateData : ContentPage
             await OnlineSyncBank(_appSession, apiRequest);
             //await OnlineSyncAccountModule(_appSession, apiRequest);
             await OnlineSyncAccountTypeModule(_appSession, apiRequest);
-            await OnlineSyncCompany(_appSession, apiRequest);
+            //await OnlineSyncCompany(_appSession, apiRequest);
 
             ServerPuller serverPuller = new ServerPuller();
             await serverPuller.OnlineSyncProductCategory();

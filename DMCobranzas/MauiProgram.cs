@@ -40,7 +40,7 @@ namespace DMCobranzas
                 .UseMauiCommunityToolkit();
             
             App.Session = new AppSession();
-            Debug.WriteLine(App.Session.isProduction);
+            Debug.WriteLine(App.Session.odooConnection.IsProduction);
 
             App.Session.AppVersion = AppInfo.Current.VersionString;
 
@@ -56,16 +56,6 @@ namespace DMCobranzas
             //        AppInfo.Current.Version.Build.ToString() + ".";
             //}
             
-            //Solo cuando se inicia en modo producción
-            if (App.Session.isProduction)
-            {
-                App.Session.EndPointServer = App.Session.EndPointServerProd;
-
-                //App.Session.CacheFilesUrl = App.Session.CacheFilesUrlExternal;
-                //TODO: Se Omite por ahora ya que aun falta hacerle el NAT al servidor
-                //App.Session.CacheFilesUrl = App.Session.CacheFilesUrlProd;
-            }
-
 #if DEBUG
             builder.Logging.AddDebug();
 #endif

@@ -25,7 +25,7 @@ namespace ResourceBuilder.Data
             var appSetting = ConfigurationHelper.GetAppSettings();
 
             _appSession = new AppSession();
-            _appSession.EndPointServer = appSetting.profile.Odoo.ApiBaseAddressOdoo;
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
 
             _appSession.CurrentUser = new User()
             {
@@ -398,7 +398,7 @@ namespace ResourceBuilder.Data
         {
             var appSetting = ConfigurationHelper.GetAppSettings();
             AppSession _appSession = new AppSession();
-            _appSession.EndPointServer = appSetting.profile.Odoo.ApiBaseAddressOdoo;            
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;            
             _appSession.CurrentUser = new User()
             {
                 api_key = appSetting.profile.Odoo.api_key,
@@ -483,7 +483,7 @@ namespace ResourceBuilder.Data
         {
             var appSetting = ConfigurationHelper.GetAppSettings();
             AppSession _appSession = new AppSession();
-            _appSession.EndPointServer = appSetting.profile.Odoo.ApiBaseAddressOdoo;
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
             
             _appSession.CurrentUser = new User()
             {
@@ -572,7 +572,7 @@ namespace ResourceBuilder.Data
             var appSetting = ConfigurationHelper.GetAppSettings();
 
             AppSession _appSession = new AppSession();
-            _appSession.EndPointServer = appSetting.profile.Odoo.ApiBaseAddressOdoo;
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
             
             _appSession.CurrentUser = new User()
             {
@@ -1047,7 +1047,7 @@ namespace ResourceBuilder.Data
         {
             var appSetting = ConfigurationHelper.GetAppSettings();
             AppSession _appSession = new AppSession();
-            _appSession.EndPointServer = appSetting.profile.Odoo.ApiBaseAddressOdoo;
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
             
             _appSession.CurrentUser = new User()
             {
@@ -1169,7 +1169,7 @@ namespace ResourceBuilder.Data
             var appSetting = ConfigurationHelper.GetAppSettings();
 
             AppSession _appSession = new AppSession();
-            _appSession.EndPointServer = appSetting.profile.Odoo.ApiBaseAddressOdoo; // "http://192.168.204.75:8069";
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo; // "http://192.168.204.75:8069";
             _appSession.CurrentUser = new User()
             {
                 api_key = appSetting.profile.Odoo.api_key
@@ -1260,7 +1260,7 @@ namespace ResourceBuilder.Data
             var appSetting = ConfigurationHelper.GetAppSettings();
 
             AppSession _appSession = new AppSession();
-            _appSession.EndPointServer = appSetting.profile.Odoo.ApiBaseAddressOdoo;
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
             
             _appSession.CurrentUser = new User()
             {

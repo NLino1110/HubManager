@@ -44,9 +44,9 @@ namespace DMCobranzas.Services.Templates
 
                 res_company[] Empresas = null;
 
-                if (App.Session.CurrentUser.empresas != null)
+                if (App.Session.CurrentUserFront.empresas != null)
                 {
-                    Empresas = App.Session.CurrentUser.empresas;
+                    Empresas = App.Session.CurrentUserFront.empresas;
                     var empresaI = Empresas.ToList().Where(i => i.id == _cobReciboCab.company_id).FirstOrDefault();
 
                     if (empresaI != null)
@@ -130,7 +130,7 @@ namespace DMCobranzas.Services.Templates
                 var _accountPaymentDaily = await _accountPaymentDailyDb.GetItemsDateCutAsync(_itemGroup.company_id, _itemGroup.create_datetime);
 
                 res_company[] Empresas = null;
-                Empresas = App.Session.CurrentUser.empresas;
+                Empresas = App.Session.CurrentUserFront.empresas;
                 var empresaI = Empresas.ToList().Where(i => i.id == _itemGroup.company_id).FirstOrDefault();
 
                 AccountPaymentDb accountPaymentDb = new AccountPaymentDb();
@@ -224,7 +224,7 @@ namespace DMCobranzas.Services.Templates
             }
 
             res_company[] Empresas = null;
-            Empresas = App.Session.CurrentUser.empresas;
+            Empresas = App.Session.CurrentUserFront.empresas;
             var empresaI = Empresas.ToList().Where(i => i.id == _accountPaymentHeader.company_id).FirstOrDefault();
 
             //string resourceName = "DMCobranzas.Resources.Raw.liq_ticket_small.txt";
@@ -336,9 +336,9 @@ namespace DMCobranzas.Services.Templates
 
             res_company[] Empresas = null;
 
-            if (App.Session.CurrentUser.empresas != null)
+            if (App.Session.CurrentUserFront.empresas != null)
             {
-                Empresas = App.Session.CurrentUser.empresas;
+                Empresas = App.Session.CurrentUserFront.empresas;
                 var empresaI = Empresas.ToList().Where(i => i.id == _accountPaymentHeader.company_id).FirstOrDefault();
 
                 if (empresaI != null)
@@ -529,9 +529,9 @@ namespace DMCobranzas.Services.Templates
 
             res_company[] Empresas = null;
 
-            if (App.Session.CurrentUser.empresas != null)
+            if (App.Session.CurrentUserFront.empresas != null)
             {
-                Empresas = App.Session.CurrentUser.empresas;
+                Empresas = App.Session.CurrentUserFront.empresas;
                 var empresaI = Empresas.ToList().Where(i => i.id == _account_move_send.company_id).FirstOrDefault();
 
                 ResPartnerDb resPartnerDb = new ResPartnerDb();
@@ -595,7 +595,7 @@ namespace DMCobranzas.Services.Templates
             }
 
             res_company[] Empresas = null;
-            Empresas = App.Session.CurrentUser.empresas;
+            Empresas = App.Session.CurrentUserFront.empresas;
             var empresaI = Empresas.ToList().Where(i => i.id == _account_move_send.company_id).FirstOrDefault();
 
             string resourceName = "DMCobranzas.Resources.Raw.liq_refund_req_ncr.txt";
@@ -654,7 +654,7 @@ namespace DMCobranzas.Services.Templates
             }
 
             res_company[] Empresas = null;
-            Empresas = App.Session.CurrentUser.empresas;
+            Empresas = App.Session.CurrentUserFront.empresas;
             var empresaI = Empresas.ToList().Where(i => i.id == _accountMoveSendHeader.company_id).FirstOrDefault();
 
             string resourceName = "DMCobranzas.Resources.Raw.liq_req_movSendHead_ncr.txt";

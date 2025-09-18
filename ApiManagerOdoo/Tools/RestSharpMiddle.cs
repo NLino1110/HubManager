@@ -106,7 +106,7 @@ namespace AppManagerOdoo.Tools
             //restClientOptions.MaxTimeout = 30000;
             restClientOptions.Timeout = TimeSpan.FromMilliseconds(30000);
             restClientOptions.RemoteCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
-            restClientOptions.BaseUrl = new Uri($"{_appSession.EndPointServer}");
+            restClientOptions.BaseUrl = new Uri($"{_appSession.odooConnection.Host}");
             restClientOptions.UserAgent = "XYZ";
             restClientOptions.CookieContainer = _cookieContainer;
 

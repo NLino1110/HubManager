@@ -49,7 +49,7 @@ public partial class Login : ContentPage
 
             lblAppVersion.Text = "Versión " + App.Session.AppVersion;
 
-            if (App.Session.isProduction)
+            if (App.Session.odooConnection.IsProduction)
             {
                 txtEnvironment.Text = "Producción";
             }
@@ -60,7 +60,7 @@ public partial class Login : ContentPage
 #endif
             }
 
-            if (App.Session.isTestMode)
+            if (App.Session.odooConnection.IsTestMode)
             {
                 EntryUserName.Text = "admin";
                 EntryPassword.Text = "admin";
@@ -163,38 +163,34 @@ public partial class Login : ContentPage
 
     public async Task<bool> LoadSettingsFromDb()
     {
-        
-
-
-
         AppSettingsDb appSettingsDb = new AppSettingsDb();
         await appSettingsDb.InitDefault();
 
-        App.Session.isProduction = await appSettingsDb.getBoolean("is_production");
-        App.Session.isTestMode = await appSettingsDb.getBoolean("is_test_mode");
+        //App.Session.isProduction = await appSettingsDb.getBoolean("is_production");
+        //App.Session.isTestMode = await appSettingsDb.getBoolean("is_test_mode");
         
-        App.Session.EndPointServerProd = await appSettingsDb.getString("endpoint_server_prod");
-        App.Session.EndPointServer = await appSettingsDb.getString("endpoint_server_dev");
+        //App.Session.EndPointServerProd = await appSettingsDb.getString("endpoint_server_prod");
+        //App.Session.EndPointServer = await appSettingsDb.getString("endpoint_server_dev");
         
-        //App.Session.EndPointResourceServer = await appSettingsDb.getString("url_resources_dev");
+        ////App.Session.EndPointResourceServer = await appSettingsDb.getString("url_resources_dev");
 
-        App.Session.StaticResources_Server = await appSettingsDb.getString("url_resources_dev");
-        App.Session.StaticResources_Server_Prod = await appSettingsDb.getString("url_resources_prod");
+        //App.Session.StaticResources_Server = await appSettingsDb.getString("url_resources_dev");
+        //App.Session.StaticResources_Server_Prod = await appSettingsDb.getString("url_resources_prod");
 
-        App.Session.CacheFilesUrl = await appSettingsDb.getString("url_cache_files_internal");
-        App.Session.CacheFilesUrlExternal = await appSettingsDb.getString("url_cache_files_external");
+        //App.Session.CacheFilesUrl = await appSettingsDb.getString("url_cache_files_internal");
+        //App.Session.CacheFilesUrlExternal = await appSettingsDb.getString("url_cache_files_external");
 
-        App.Session.UrlReportServer = await appSettingsDb.getString("url_report_server");
-        App.Session.DefaultDatabase = await appSettingsDb.getString("default_database");
+        //App.Session.UrlReportServer = await appSettingsDb.getString("url_report_server");
+        //App.Session.DefaultDatabase = await appSettingsDb.getString("default_database");
 
-        var usernameback = await appSettingsDb.getString("back_user");
-        var passwordback = await appSettingsDb.getString("back_user_password");
+        //var usernameback = await appSettingsDb.getString("back_user");
+        //var passwordback = await appSettingsDb.getString("back_user_password");
 
-        App.Session.CurrentUserFront = new User()
-        {
-            username = usernameback,
-            password = passwordback
-        };
+        //App.Session.CurrentUserFront = new User()
+        //{
+        //    username = usernameback,
+        //    password = passwordback
+        //};
 
         return true;
     }
@@ -229,8 +225,8 @@ public partial class Login : ContentPage
         resultUser.log_fec_acceso = resultValidacion.data[0].datetime;
         //Se prepara para la sesión el scope de la aplicación
         //AppSession ns = new AppSession();
-        App.Session.CurrentUser = resultUser;
-        App.Session.CurrentUser.empresas = resultValidacion.data[0].companies;
+        App.Session.CurrentUserFront = resultUser;
+        App.Session.CurrentUserFront.empresas = resultValidacion.data[0].companies;
         //App.Session = ns;
 
         //Se realiza inserción/actualización en la tabla
@@ -355,8 +351,8 @@ public partial class Login : ContentPage
         resultUser.log_fec_sincro_nc = userFound.log_fec_sincro_nc;
         //Se prepara para la sesión el scope de la aplicación
         //AppSession ns = new AppSession();
-        App.Session.CurrentUser = resultUser;
-        App.Session.CurrentUser.empresas = _empresas;
+        App.Session.CurrentUserFront = resultUser;
+        App.Session.CurrentUserFront.empresas = _empresas;
         //App.Session = ns;
 
         //Se realiza inserción/actualización en la tabla
@@ -470,7 +466,7 @@ public partial class Login : ContentPage
 
             if(userFound.databasename == null)
             {
-                userFound.databasename = App.Session.DefaultDatabase;
+                userFound.databasename = App.Session.odooConnection.DbName;
             }
 
             resultUser.databasename = userFound.databasename;
@@ -497,7 +493,7 @@ public partial class Login : ContentPage
         else
         {
 
-            ApiChecker apiChecker = new ApiChecker(App.Session.EndPointServer + "/connect/checkonline");
+            ApiChecker apiChecker = new ApiChecker(App.Session.odooConnection.Host + "/connect/checkonline");
             bool isOnline = await apiChecker.IsApiAvailable();
 
             if(!isOnline)
@@ -553,7 +549,7 @@ public partial class Login : ContentPage
 
                 if (resultUser.databasename == null)
                 {
-                    resultUser.databasename = App.Session.DefaultDatabase;
+                    resultUser.databasename = App.Session.odooConnection.DbName;
                 }
 
                 //Tareas de actualización de datos
