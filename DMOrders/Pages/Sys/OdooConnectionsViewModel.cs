@@ -1,4 +1,7 @@
-﻿using DMOrders.Services.Database.Sqlite;
+﻿using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Extensions;
+using DMOrders.AppPages.Sys;
+using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Abstract;
 using DMSA.Models.Odoo.Tools;
 using SQLite;
@@ -16,6 +19,13 @@ namespace DMOrders.Pages.Sys
 {
     public class OdooConnectionsViewModel : BindableObject
     {
+        private bool _isOfflineMode;
+        public bool IsOfflineMode
+        {
+            get => _isOfflineMode;
+            set => _isOfflineMode = value;
+        }
+
         private OdooConnectionDb _database;
 
         public OdooConnectionsViewModel()
@@ -81,9 +91,25 @@ namespace DMOrders.Pages.Sys
             SelectedConnection = new OdooConnection();
         }
 
+        private CancellationTokenSource _cancellationTokenSource;
+
         // Guardar (insert/update)
         private async System.Threading.Tasks.Task SaveConnection()
         {
+            _cancellationTokenSource = new CancellationTokenSource();
+            CancellationToken cancellationToken = _cancellationTokenSource.Token;
+
+            var returnResultPopup = new PasswordPromptPage();
+            returnResultPopup.TitleBox = "Ingrese el pin correcto para aplicar cambios.";
+            
+            var result = await PopupExtensions.ShowPopupAsync<string>(Application.Current.MainPage, returnResultPopup);
+
+            if (result.Result == null || (result.Result != null && result.Result.ToString() != "1381"))
+            {
+                await Toast.Make("Pin incorrecto, cambios no serán aplicados").Show();
+                return;
+            }
+            
             try
             {
                 if (SelectedConnection.Id == 0)

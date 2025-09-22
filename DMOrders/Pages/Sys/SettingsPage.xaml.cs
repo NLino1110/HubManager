@@ -1,5 +1,5 @@
 ﻿
-using CobranzasDMSA_Odoo.AppPages.Sys;
+using DMOrders.AppPages.Sys;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Extensions;

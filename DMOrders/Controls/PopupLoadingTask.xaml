@@ -5,8 +5,10 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
 	xmlns:mct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit" 
     BackgroundColor="Transparent"
-    VerticalOptions="Center">
-	<StackLayout Style="{StaticResource PopupLayout}" BackgroundColor="Transparent" Padding="0">        
+    VerticalOptions="Center"
+    Margin="0"
+    Padding="0">
+	<StackLayout Style="{StaticResource PopupLayout}" BackgroundColor="Red" Padding="0">        
 		<StackLayout.Resources>
 			<ResourceDictionary>
 				<Style x:Key="Title" TargetType="Label">
@@ -39,11 +41,12 @@
 				</Style>
 			</ResourceDictionary>
 		</StackLayout.Resources>
-        <Frame Padding="0" 
+        <Border Padding="0" 
                 Margin="0"
-                VerticalOptions="FillAndExpand" 
-                HorizontalOptions="FillAndExpand" 
-               BorderColor="Gray">
+                VerticalOptions="Fill" 
+                HorizontalOptions="Fill" 
+                StrokeThickness="2"
+               BackgroundColor="#FCE4EC">
             <StackLayout Margin="0" Padding="5" VerticalOptions="Center">
                 <StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 					<ActivityIndicator IsRunning="True" Color="DeepPink"></ActivityIndicator>
@@ -51,8 +54,8 @@
                 </StackLayout>
 				<BoxView Style="{StaticResource Divider}" />
                 <Label Style="{StaticResource Content}" Text="Por favor espere un momento." HorizontalOptions="Center"/>
-                <Label x:Name="lblNotify" Style="{StaticResource ContentNotify}" Text="..." Margin="5,0,0,0" IsVisible="False"/>
+                <Label x:Name="lblNotify" Style="{StaticResource ContentNotify}" Text="..." Margin="5,0,0,0"/>
             </StackLayout>
-        </Frame>
+        </Border>
 	</StackLayout>
 </mct:Popup>

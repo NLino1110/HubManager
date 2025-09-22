@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 
-namespace CobranzasDMSA_Odoo.AppPages.Sys
+namespace DMOrders.AppPages.Sys
 {
     public partial class PasswordPromptPage : Popup<String>, INotifyPropertyChanged
     {
@@ -60,11 +60,11 @@ namespace CobranzasDMSA_Odoo.AppPages.Sys
                 Text = "OK",
                 WidthRequest = 100,
                 HeightRequest = 40,
-                HorizontalOptions = LayoutOptions.FillAndExpand
+                HorizontalOptions = LayoutOptions.Fill
             };
 
             acceptButton.Clicked += async (sender, e) => {
-                //taskCompletionSource.SetResult(passwordEntry.Text);                
+                //taskCompletionSource.SetResult(passwordEntry.Text);
                 await CloseAsync(passwordEntry.Text);
             };
 
@@ -75,20 +75,21 @@ namespace CobranzasDMSA_Odoo.AppPages.Sys
                 Text = "Cancelar",
                 WidthRequest = 100,
                 HeightRequest = 40,
-                HorizontalOptions = LayoutOptions.FillAndExpand
+                HorizontalOptions = LayoutOptions.Fill
             };
 
             cancelButton.Clicked += async (sender, e) => {
                 //taskCompletionSource.SetResult(null);
-                await CloseAsync(default(String));
+                //await CloseAsync(default(String));
+                await CloseAsync(string.Empty);
             };
 
             StackLayout stackLayout = new StackLayout
             {
                 MinimumHeightRequest = 150,
                 MinimumWidthRequest= 300,
-                HorizontalOptions = LayoutOptions.FillAndExpand,
-                VerticalOptions = LayoutOptions.FillAndExpand,
+                HorizontalOptions = LayoutOptions.Fill,
+                VerticalOptions = LayoutOptions.Fill,
                 Padding = new Thickness(20),
                 Children = {
                     passwordLabel,
@@ -113,6 +114,8 @@ namespace CobranzasDMSA_Odoo.AppPages.Sys
                 HasShadow = true
             };
             
+            Margin = new Thickness(0);
+            Padding = new Thickness(0);
             Content = frameContent;
             BackgroundColor = Colors.Transparent;
             //passwordEntry.Focus();            

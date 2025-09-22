@@ -24,8 +24,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="ViewerTemplate">
-            <customrows:ProductViewerRow
-                Item="{Binding .}"/>
+            <customrows:ProductViewerRow Item="{Binding .}"/>
         </DataTemplate>
 
         <local:ProductTemplateSelector x:Key="ProductTemplateSelector"

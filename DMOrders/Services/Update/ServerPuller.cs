@@ -36,7 +36,7 @@ namespace DMOrders.Services.Update
 
         public async Task<bool> Pull()
         {
-            try                
+            try
             {
                 await OnlineSyncCompany();
                 //await OnlineSyncStores();

@@ -2,9 +2,11 @@ using DMSA.Models.Odoo.Abstract;
 
 namespace DMOrders.Pages.Sys;
 
-public partial class Connections : ContentPage
+public partial class Connections : TabbedPage
 {
-	public Connections()
+    
+
+    public Connections()
 	{
 		InitializeComponent();
         BindingContext = new OdooConnectionsViewModel();

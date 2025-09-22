@@ -1,5 +1,7 @@
-﻿using CommunityToolkit.Maui.Extensions;
+﻿using CommunityToolkit.Maui;
+using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
+using Microsoft.Maui.Controls.Shapes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -91,7 +93,32 @@ namespace DMOrders.Controls.Tools
                 new PopupSizeConstants(DeviceDisplay.Current);
             simplePopup = new DMOrders.Controls.PopupLoadingTask(popupSizeConstants);
             simplePopup.CanBeDismissedByTappingOutsideOfPopup = false;            
-            contentPage.ShowPopup(simplePopup);
+            //contentPage.ShowPopup(simplePopup);
+
+            if (Application.Current?.Windows[0] is not { Page: not null } window)
+            {
+                throw new InvalidOperationException("Unable to find page");
+            }
+            
+            //simplePopup.Margin = new Thickness(0,0);
+            //simplePopup.Padding = new Thickness(0,0);
+            
+            window.Page.ShowPopup(simplePopup, new PopupOptions
+            {
+                Shape = new RoundRectangle
+                {
+                    CornerRadius = new CornerRadius(10),
+                    Stroke = Colors.Gray,
+                    StrokeThickness = 2
+                },
+                Shadow = new Shadow
+                {
+                    Brush = Brush.Black,
+                    Offset = new Point(15, 15),
+                    Opacity = 0.5f,
+                    Radius = 10
+                },
+            });
         }
 
         public static async Task HideLoadingPopup()

@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Maui.Alerts;
+using DMOrders.Controls.Tools;
 using DMOrders.Pages.Sys;
 using DMOrders.Services.Database.Sqlite;
 using DMOrders.Services.Helpers;
@@ -467,10 +468,14 @@ public partial class Login : ContentPage
         }
         else
         {
-            if(await TryLoginBackUserAsync())
+            await UITools.ShowLoadingPopup(this);
+            await UITools.SetNotifyLoadingPopup("Iniciando sesión...");
+            if (await TryLoginBackUserAsync())
             {
+                await UITools.SetNotifyLoadingPopup("Comprobado backuser...");
                 await TryLoginAsync();
-            }                      
+            }
+            await UITools.HideLoadingPopup();
         }
     }
 
@@ -601,7 +606,7 @@ public partial class Login : ContentPage
 
     // Cambiar async void → async Task
     public async Task TryLoginAsync()
-    {
+    {   
         try
         {
             DateTime currentDate = DateTime.Now;
@@ -763,7 +768,7 @@ public partial class Login : ContentPage
         }
         finally
         {
-            BtnTryLogin.IsEnabled = true;
+            BtnTryLogin.IsEnabled = true;            
         }
     }
 

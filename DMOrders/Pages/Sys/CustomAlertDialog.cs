@@ -10,7 +10,7 @@ using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.Layouts;
 
 
-namespace CobranzasDMSA_Odoo.AppPages.Sys
+namespace DMOrders.AppPages.Sys
 {
     public partial class CustomAlertDialog : Popup, INotifyPropertyChanged
     {
