@@ -14,14 +14,20 @@ namespace DMOrders.Services.Update
 {
     public partial class ServerPuller
     {
-        public async Task OnlineSyncStockWarehouse()
+        public async Task OnlineSyncStockWarehouse(bool force)
         {
+            var database = new StockWareHouseDb();
+            if (await database.GetCount() > 0)
+            {
+                //Ya se ha sincronizado previamente
+                return;
+            }
+
             ApiManager.HubStockWareHouse hubManagerInstance = new HubStockWareHouse(App.Session);
             ApiResponseOdooRpcT<stock_warehouse[]> dataList = await hubManagerInstance.GetByCreateDate(limit, 0, year, month, day);
 
             if (dataList != null && dataList.result !=null && dataList.result.Length > 0)
-            {
-                var database = new StockWareHouseDb();
+            {                
                 await database.InsertBatchAsync(dataList.result);
             }
         }

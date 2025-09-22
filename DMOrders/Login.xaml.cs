@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
 using DMOrders.Controls.Tools;
 using DMOrders.Pages.Sys;
 using DMOrders.Services.Database.Sqlite;
@@ -44,7 +45,29 @@ public partial class Login : ContentPage
     {
         InitializeComponent();
     }
-    
+
+    public static class ToastHelper
+    {
+        public static async Task RunWithToastAsync(string message, Func<Task> action)
+        {
+            using var cts = new CancellationTokenSource();
+
+            var toast = Toast.Make(message, ToastDuration.Long, textSize: 14);
+            var toastTask = toast.Show(cts.Token);
+
+            try
+            {
+                // Ejecuta la acción que le pases
+                await action();
+            }
+            finally
+            {
+                // Al terminar, se oculta el toast
+                cts.Cancel();
+            }
+        }
+    }
+
     public async Task SetupLogin()
     {        
         SetupTapGesture();
@@ -52,13 +75,29 @@ public partial class Login : ContentPage
         await LoadSettingsFromDb();
         await PrepareConnections();
 
+        //await ToastHelper.RunWithToastAsync("Procesando...", async () =>
+        //{
+        //    // Aquí tu lógica
+        //    await Task.Delay(15000); // simula proceso
+        //});
+
+        //var cts = new CancellationTokenSource();
+        //var toast = Toast.Make("Cargando...");
+        //var toastTask = toast.Show(cts.Token);
+
         var serverPuller = new ServerPuller();
         var pullResult = await serverPuller.Pull();
 
         if(!pullResult)
         {
-            await Toast.Make("Error al sincronizar datos bases.").Show();
+            await Toast.Make("Datos base incorrectos.").Show();
         }
+        else
+        {
+            await Toast.Make("Datos base correctos.").Show();
+        }
+
+        //cts.Cancel();
 
         App.Session.useOfflineMode = false;
 

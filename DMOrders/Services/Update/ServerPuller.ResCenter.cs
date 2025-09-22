@@ -14,8 +14,15 @@ namespace DMOrders.Services.Update
 {
     public partial class ServerPuller
     {
-        public async Task OnlineSyncResCenter()
+        public async Task OnlineSyncResCenter(bool force)
         {
+            var database = new ResCenterDb();
+            if (await database.GetCount() > 0)
+            {
+                //Ya se ha sincronizado previamente
+                return;
+            }
+
             ApiManager.HubResCenter hubManagerInstance = new HubResCenter(App.Session);
             var dataList = await hubManagerInstance.GetItems(1000,0,2023,1,1);
 
@@ -24,8 +31,7 @@ namespace DMOrders.Services.Update
                 foreach (var item in dataList.result)
                 {
                     item.company_id = 1;
-                }
-                var database = new ResCenterDb();
+                }                
                 await database.InsertBatchAsync(dataList.result);
             }
         }

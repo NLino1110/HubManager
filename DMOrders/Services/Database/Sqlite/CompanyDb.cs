@@ -21,6 +21,7 @@ namespace DMOrders.Services.Database.Sqlite
 
         public async Task<int> GetCount()
         {
+            await Init();
             return (await Database.Table<res_company>().ToListAsync()).Count;
         }
 

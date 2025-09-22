@@ -2339,7 +2339,7 @@ public partial class UpdateData : ContentPage
             await serverPuller.OnlineSyncMacroProductSubCategory();
             await serverPuller.OnlineSyncProductProduct();
             await serverPuller.OnlineSyncResPartner();
-            await serverPuller.OnlineSyncStockWarehouse();
+            await serverPuller.OnlineSyncStockWarehouse(false);
             await serverPuller.OnlineSyncStockLocation();
             await serverPuller.OnlineSyncStockQuant();
             obj.SetTotalPercentProgress(0.80);

@@ -38,10 +38,10 @@ namespace DMOrders.Services.Update
         {
             try
             {
-                await OnlineSyncCompany();
+                await OnlineSyncCompany(false);
                 //await OnlineSyncStores();
-                await OnlineSyncResCenter();
-                await OnlineSyncStockWarehouse();
+                await OnlineSyncResCenter(false);
+                await OnlineSyncStockWarehouse(false);
             }
             catch (Exception ex)
             {
@@ -52,14 +52,21 @@ namespace DMOrders.Services.Update
             return true;
         }
 
-        private async Task OnlineSyncCompany()
+        private async Task OnlineSyncCompany(bool force)
         {
+            var database = new CompanyDb();
+            if( await database.GetCount() > 0)
+            {
+                //Ya se ha sincronizado previamente
+                return;
+            }
+
             ApiManager.HubCompany hubCompany = new HubCompany(App.Session);
             var dataList = await hubCompany.GetAll();
 
             if (dataList!= null && dataList.result != null && dataList.result.Length > 0)
             {
-                var database = new CompanyDb();
+                
 
                 foreach (var companyItem in dataList.result)
                 {
