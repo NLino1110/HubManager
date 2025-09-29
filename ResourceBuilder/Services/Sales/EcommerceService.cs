@@ -823,7 +823,11 @@ namespace ResourceBuilder.Services.Sales
 
         public async Task<List<ArticuloDTO>> MakeProducts(ParametersMode1 parametros)
         {
+            // SI ES PAD DEBE SER TRUE PARA QUE CONSTRUYA EL BODY DEL PRODUCTO
             bool buildBodyProduct = false;
+
+            //TODO: DEBE COLOCARSE VALIDACION DE POST Y PUT DEPENDIENDO SI ES ACTUALIZACION O CREACION
+            // YA QUE ESTO NO ES AUTOMATICO EN EL MIDDLEWARE
 
             int codEmpresa = 2;
             string tmp_apikey = "9+7e3A7t4qI1Rl8XQ2GjKjs8KhZ9Y8p1MfbQvKlkmP4=";

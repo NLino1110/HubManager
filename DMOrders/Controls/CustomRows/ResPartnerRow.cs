@@ -1,21 +1,15 @@
 ﻿using DMOrders.Controls.Base;
-using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.Native;
 using System.Windows.Input;
-
 
 namespace DMOrders.Controls.CustomRows
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public class ResPartnerRow : RowAdvance<res_partner>
     {
-        Label labelId { get; set; }
-        Label labelVat { get; set; }
-        Label labelName { get; set; }
-        Label labelEmail { get; set; }
-        Label labelPhone { get; set; }
-        Label labelVisits { get; set; }
-        Label labelCity { get; set; }
+        // BP para el comando de edición
+        public static readonly BindableProperty EditCommandProperty =
+            BindableProperty.Create(nameof(EditCommand), typeof(ICommand), typeof(ResPartnerRow));
 
         public ICommand EditCommand
         {
@@ -23,75 +17,76 @@ namespace DMOrders.Controls.CustomRows
             set => SetValue(EditCommandProperty, value);
         }
 
-        public static readonly BindableProperty EditCommandProperty =
-            BindableProperty.Create(nameof(EditCommand), typeof(ICommand), typeof(ResPartnerRow), null);
-        public ResPartnerRow()
-        {            
-            
-        }
+        // cache de vistas (se crean 1 sola vez)
+        bool _built;
+        Label _id, _vat, _name, _email, _phone, _visits, _city;
+        Button _editBtn;
 
         protected override void BuildLeftGridContent(Grid leftGrid)
         {
-            LeftGrid.ColumnDefinitions = new ColumnDefinitionCollection()
+            // Evita reconstrucciones
+            if (_built)
+                return;
+
+            // ====== Layout: columnas fijas y planas (1 sola vez) ======
+            leftGrid.RowDefinitions.Clear();
+            leftGrid.ColumnDefinitions.Clear();
+
+            // Ajusta anchos según tu diseño real
+            leftGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 0: Id
+            leftGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(8) }); // 1: separador
+            leftGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star }); // 2: Name/VAT
+            leftGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star }); // 3: Email
+            leftGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 4: Phone
+            leftGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 5: Visits/Active
+            leftGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 6: City
+
+            // ====== Vistas (InputTransparent reduce hit-testing) ======
+            _id = new Label { FontSize = 10, TextColor = Colors.Black, Padding = 3, HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, InputTransparent = true };
+            _name = new Label { FontSize = 13, FontAttributes = FontAttributes.Bold, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, InputTransparent = true };
+            _vat = new Label { FontSize = 12, TextColor = Colors.Gray, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, InputTransparent = true };
+            _email = new Label { FontSize = 12, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, InputTransparent = true };
+            _phone = new Label { FontSize = 12, FontAttributes = FontAttributes.Bold, TextColor = Colors.DarkSlateGray, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, InputTransparent = true };
+            _visits = new Label { FontSize = 10, FontAttributes = FontAttributes.Bold, TextColor = Colors.OrangeRed, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, InputTransparent = true };
+            _city = new Label { FontSize = 10, FontAttributes = FontAttributes.Bold, TextColor = Colors.Green, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, InputTransparent = true };
+
+            // ====== Bindings baratos a Item.* (source: this) ======
+            _id.SetBinding(Label.TextProperty, new Binding("Item.id", source: this));
+            _name.SetBinding(Label.TextProperty, new Binding("Item.name", source: this));
+            _vat.SetBinding(Label.TextProperty, new Binding("Item.vat", source: this));
+            _email.SetBinding(Label.TextProperty, new Binding("Item.email", source: this));
+            _phone.SetBinding(Label.TextProperty, new Binding("Item.phone", source: this));
+            _visits.SetBinding(Label.TextProperty, new Binding("Item.active", source: this, stringFormat: "{0}")); // ajusta si no es boolean
+            _city.SetBinding(Label.TextProperty, new Binding("Item.city", source: this));
+
+            // Bloque Name/VAT para dos líneas (ligero)
+            var nameVat = new VerticalStackLayout
             {
-                new ColumnDefinition { Width = GridLength.Star },
-                new ColumnDefinition { Width = GridLength.Auto },
-                new ColumnDefinition { Width = GridLength.Star },
-                new ColumnDefinition { Width = GridLength.Star },
-                new ColumnDefinition { Width = GridLength.Star },
-                new ColumnDefinition { Width = GridLength.Star },
-                new ColumnDefinition { Width = GridLength.Star },
+                Spacing = 0,
+                Children = { _name, _vat }
             };
 
-            labelId = new Label { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, TextColor = Colors.Black, FontSize = 10, BackgroundColor = Colors.Transparent, Padding = new Thickness(3), Margin = new Thickness(0) };
-            labelVat = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, FontAttributes = FontAttributes.Bold, FontSize = 13, BackgroundColor = Colors.Transparent };
-            labelName = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, FontAttributes = FontAttributes.Bold, FontSize = 13, BackgroundColor = Colors.Transparent };
-            labelEmail = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, FontAttributes = FontAttributes.Bold, FontSize = 13, BackgroundColor = Colors.Transparent };
-            labelPhone = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, FontAttributes = FontAttributes.Bold, TextColor = Colors.DarkSlateGray, FontSize = 12 };
-            labelVisits = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, FontAttributes = FontAttributes.Bold, TextColor = Colors.OrangeRed, FontSize = 10 };
-            labelCity = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, FontAttributes = FontAttributes.Bold, TextColor = Colors.Green, FontSize = 10 };
-            
-            labelId.SetBinding(Label.TextProperty, new Binding(nameof(Item.id), source: Item));
-            labelVat.SetBinding(Label.TextProperty, new Binding(nameof(Item.vat), source: Item));
-            labelName.SetBinding(Label.TextProperty, new Binding(nameof(Item.name), source: Item));
-            labelEmail.SetBinding(Label.TextProperty, new Binding(nameof(Item.email), source: Item));
-            labelPhone.SetBinding(Label.TextProperty, new Binding(nameof(Item.phone), source: Item, stringFormat: "{0:hh\\:mm}"));
-            labelVisits.SetBinding(Label.TextProperty, new Binding(nameof(Item.active), source: Item, stringFormat: "{0:hh\\:mm}"));
-            labelCity.SetBinding(Label.TextProperty, new Binding(nameof(Item.city), source: Item, stringFormat: "{0:hh\\:mm}"));
+            // ====== Posicionamiento (una sola vez) ======
+            Grid.SetColumn(_id, 0); leftGrid.Children.Add(_id);
+            // col 1 es separador visual (sin vista)
+            Grid.SetColumn(nameVat, 2); leftGrid.Children.Add(nameVat);
+            Grid.SetColumn(_email, 3); leftGrid.Children.Add(_email);
+            Grid.SetColumn(_phone, 4); leftGrid.Children.Add(_phone);
+            Grid.SetColumn(_visits, 5); leftGrid.Children.Add(_visits);
+            Grid.SetColumn(_city, 6); leftGrid.Children.Add(_city);
 
-            var cellGrid = new Grid
-            {
-                HorizontalOptions = LayoutOptions.Fill,
-                BackgroundColor = Colors.Transparent,
-                Padding = new Thickness(0),
-                ColumnSpacing = 0,
-                RowSpacing = 0,
-                RowDefinitions =
-                {
-                    new RowDefinition { Height = GridLength.Star },
-                    new RowDefinition { Height = GridLength.Auto }
-                },
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition { Width = GridLength.Star },                    
-                }
-            };
+            // (Opcional) fila con altura fija para acelerar medición
+            this.HeightRequest = 72; // ajusta a tu diseño
 
-            cellGrid.Children.Add(labelName);
-            cellGrid.Children.Add(labelVat);            
-            Grid.SetRow(labelVat, 1);
-
-            AddCell(CreateCell(labelId), "left", 0, 0);
-            AddCell(CreateCell(cellGrid), "left", 0, 2);
-            AddCell(CreateCell(labelEmail), "left", 0, 3);
-            AddCell(CreateCell(labelPhone), "left", 0, 4);
-            AddCell(CreateCell(labelVisits), "left", 0, 5);
-            AddCell(CreateCell(labelCity), "left", 0, 6);
+            _built = true;
         }
 
         protected override void BuildToolGridContent(Grid toolGrid)
         {
-            var buttonEdit = new Button
+            if (_editBtn != null)
+                return;
+
+            _editBtn = new Button
             {
                 HeightRequest = 35,
                 WidthRequest = 35,
@@ -101,7 +96,9 @@ namespace DMOrders.Controls.CustomRows
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 12,
                 HorizontalOptions = LayoutOptions.Center,
-                IsVisible = true,
+                Padding = 3,
+                Margin = 2,
+                // RECOMENDACIÓN: reutiliza un FontImageSource desde Resources si el icono es fijo
                 ImageSource = new FontImageSource
                 {
                     FontFamily = "FontAwesome5Solid",
@@ -109,53 +106,15 @@ namespace DMOrders.Controls.CustomRows
                     Size = 15,
                     FontAutoScalingEnabled = true,
                     Glyph = "\uf303"
-                },
-                Padding = new Thickness(3),
-                Margin = new Thickness(2),
+                }
             };
 
-            buttonEdit.SetBinding(Button.CommandProperty, new Binding("EditCommand", source: new RelativeBindingSource(RelativeBindingSourceMode.FindAncestor, typeof(ResPartnerRow))));
-            buttonEdit.SetBinding(Button.CommandParameterProperty, new Binding("Item", source: this));
+            // Bindings sin FindAncestor (más rápido y estable)
+            _editBtn.SetBinding(Button.CommandProperty, new Binding(nameof(EditCommand), source: this));
+            _editBtn.SetBinding(Button.CommandParameterProperty, new Binding(nameof(Item), source: this));
 
-            //var buttonDelete = new Button
-            //{
-            //    //Command = EditCommand,
-            //    CommandParameter = "",
-            //    HeightRequest = 35,
-            //    WidthRequest = 35,
-            //    BackgroundColor = Colors.OrangeRed,
-            //    Text = "",
-            //    TextColor = Colors.White,
-            //    FontAttributes = FontAttributes.Bold,
-            //    FontSize = 12,
-            //    HorizontalOptions = LayoutOptions.Center,
-            //    IsVisible = true,
-            //    ImageSource = new FontImageSource
-            //    {
-            //        FontFamily = "FontAwesome5Solid",
-            //        Color = Colors.White,
-            //        Size = 15,
-            //        FontAutoScalingEnabled = true,
-            //        Glyph = "\uf2ed"
-            //    },
-            //    Padding = new Thickness(3),
-            //    Margin = new Thickness(2),
-            //};
-
-            var stackLayout = new StackLayout
-            {
-                Orientation = StackOrientation.Horizontal,
-                Margin = new Thickness(0),
-                BackgroundColor = Colors.Transparent
-            };
-
-            stackLayout.Children.Add(buttonEdit);
-            //stackLayout.Children.Add(buttonDelete);
-
-            toolGrid.Children.Add(stackLayout);
-            Grid.SetRow(stackLayout, 0);
-            Grid.SetRowSpan(stackLayout, 2);
-            Grid.SetColumn(stackLayout, 4);
+            // ToolGrid del Row base tiene 1 fila/1 columna → sin SetColumn/RowSpan fantasmas
+            toolGrid.Children.Add(_editBtn);
         }
     }
 }

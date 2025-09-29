@@ -2094,7 +2094,7 @@ namespace ResourceBuilder.Shared.master
 
                 var response = await ecommerceService.SendDataToMiddleware(
                         jsonResult,
-                        Method.Put,
+                        Method.Post,
                         urlMiddleware,
                         appDbContext);
 

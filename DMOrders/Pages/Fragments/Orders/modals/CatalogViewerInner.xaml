@@ -9,14 +9,15 @@
              xmlns:local="clr-namespace:DMOrders.Pages.Fragments.Orders.modals"       
             xmlns:customrows="clr-namespace:DMOrders.Controls.CustomRows"
              xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
-             ZIndex="1000">
+             ZIndex="1000"
+             x:Name="Root">
     <ContentView.Resources>
         <ResourceDictionary>
             <converters:InverseBooleanConverter x:Key="InverseBoolConverter" />
         </ResourceDictionary>
 
         <DataTemplate x:Key="RowTemplate">
-            <customrows:ProductRow Item="{Binding .}" EditCommand="{Binding CommandSelectListItem}"/>
+            <customrows:ProductRow Item="{Binding .}" ActionButton="{Binding Source={x:Reference Root}, Path=ItemPickedCommand}"/>
         </DataTemplate>
 
         <DataTemplate x:Key="GridTemplate">

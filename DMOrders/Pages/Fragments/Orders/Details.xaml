@@ -23,7 +23,9 @@
 
     <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,*">
 
-        <modals:CatalogViewerInner x:Name="SearchProductView" IsVisible="False" Grid.Row="0" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="2"></modals:CatalogViewerInner>
+        <modals:CatalogViewerInner x:Name="SearchProductView" IsVisible="False" Grid.Row="0" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="2" 
+                                   ItemPickedCommand="{Binding BindingContext.AddLineCommand,
+                                Source={RelativeSource AncestorType={x:Type ContentPage}}}"></modals:CatalogViewerInner>
         
         <Grid Grid.Row="0" Grid.Column="0" 
               Grid.RowSpan="4" Padding="10"

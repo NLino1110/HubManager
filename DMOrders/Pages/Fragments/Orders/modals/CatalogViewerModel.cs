@@ -13,6 +13,7 @@ namespace DMOrders.Pages.Fragments.Orders.modals
 {
     public partial class CatalogViewerModel : INotifyPropertyChanged
     {
+        public ICommand CommandSelectListItem { get; set; }
         public class ViewModesList
         {
             public int id { get; set; }
@@ -124,6 +125,8 @@ namespace DMOrders.Pages.Fragments.Orders.modals
             viewModesList.Add(new ViewModesList { id = 1, name = "▤" });
             viewModesList.Add(new ViewModesList { id = 2, name = "▦" });
             viewModesList.Add(new ViewModesList { id = 3, name = "⧉" });
+
+            CommandSelectListItem = new Command(AddSelectedItem);
         }
 
         public ObservableCollection<product_product> ItemsData
@@ -187,6 +190,22 @@ namespace DMOrders.Pages.Fragments.Orders.modals
             {
                 _isRefreshing = value;
                 OnPropertyChanged();
+            }
+        }
+
+        private async void AddSelectedItem(object objItem)
+        {
+            if (objItem != null)
+            {
+                //((CatalogViewerModel)this.BindingContext).SelectedItem = (product_product)objItem;
+                //_parentPopup.Close(objItem);
+
+                //ItemsData.Add((product_product) objItem);
+                //Debug.WriteLine(objItem);
+            }
+            else
+            {
+                Debug.WriteLine("Error de objeto");
             }
         }
 

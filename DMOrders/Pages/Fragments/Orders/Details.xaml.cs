@@ -270,9 +270,10 @@ public partial class Details : ContentPage, IBackButtonHandler
         //    await Toast.Make("Error al guardar líneas").Show();
         //}
 
-        await Navigation.PopAsync();
+        //await Navigation.PopAsync();
+        await Navigation.PopModalAsync();
+        //SendBackButtonPressed();
     }
-
 
     private async void ButtonSync_Clicked(object sender, EventArgs e)
     {

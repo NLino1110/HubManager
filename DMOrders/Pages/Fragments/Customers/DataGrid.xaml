@@ -33,49 +33,17 @@
                         SelectionMode="Single"
                         SelectedItem="{Binding SelectedItem, Mode=OneWay}"                        
                         SelectionChanged="_dataGrid1_ItemSelected"
-                        ItemsUpdatingScrollMode="KeepItemsInView">
+                        ItemsUpdatingScrollMode="KeepItemsInView"
+                        ItemSizingStrategy="MeasureFirstItem">
                         <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="odoo:res_partner">-->
-                            <!--<customrows:ResPartnerRow
+                        <DataTemplate x:DataType="odoo:res_partner">
+                            <customrows:ResPartnerRow
                         Item="{x:Binding .}" 
                         EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
                         SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}">
                                 
-                            </customrows:ResPartnerRow>-->
+                            </customrows:ResPartnerRow>
                             
-                                <!--<Grid Grid.Column="0"
-  VerticalOptions="Center"
-  ColumnSpacing="10"
-  ColumnDefinitions="50,100,*,*,*, 20"
-      Margin="20,0,20,0">
-                                    <Label Grid.Column="0" FontSize="10" Text="{Binding id}" />
-                                    <Label Grid.Column="1" FontSize="13" Text="{Binding vat}" />
-                                    <Label Grid.Column="2" FontSize="13" FontAttributes="Bold" Text="{Binding name}" />
-                                    <Label Grid.Column="3" FontSize="13" FontAttributes="Bold" Text="{Binding email}" />
-                                    <Label Grid.Column="4" FontSize="13" FontAttributes="Bold" Text="{Binding phone}" />
-
-                                    <Button Grid.Column="5"
-        HeightRequest="35"
-        WidthRequest="35"
-        BackgroundColor="DodgerBlue"
-        Text=""
-        TextColor="White"
-        FontAttributes="Bold"
-        FontSize="12"
-        HorizontalOptions="Center"
-        IsVisible="True"
-        Padding="3"
-        Margin="2">
-                                        <Button.ImageSource>
-                                            <FontImageSource
-            FontFamily="FontAwesome5Solid"
-            Color="White"
-            Size="15"
-            FontAutoScalingEnabled="True"
-            Glyph="&#xf303;" />
-                                        </Button.ImageSource>
-                                    </Button>
-                                </Grid>
                             
                         </DataTemplate>
                         </CollectionView.ItemTemplate>
@@ -110,15 +78,7 @@
                                   ColumnSpacing="10"
                                   ColumnDefinitions="50,100,*,*,*, 20"
                                       Margin="20,0,20,0">
-                                <!--<Grid.Triggers>
-                                    <DataTrigger TargetType="Grid" Binding="{Binding IsSelected}" Value="True">
-                                        <Setter Property="BackgroundColor" Value="LightBlue"/>
-                                    </DataTrigger>
-                                    <DataTrigger TargetType="Grid" Binding="{Binding IsSelected}" Value="False">
-                                        <Setter Property="BackgroundColor" Value="WhiteSmoke"/>
-                                    </DataTrigger>
-                                </Grid.Triggers>-->
-
+                               
                                 <Label Grid.Column="0" FontSize="10" Text="{Binding id}" />
                                     <Label Grid.Column="1" FontSize="13" Text="{Binding vat}" />
                                     <Label Grid.Column="2" FontSize="13" FontAttributes="Bold" Text="{Binding name}" />

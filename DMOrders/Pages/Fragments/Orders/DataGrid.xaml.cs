@@ -259,7 +259,7 @@ namespace DMOrders.Pages.Fragments.Orders
             //objPage.editionMode = true;
             viewObj.Disappearing += ViewObj_Disappearing;
             await viewObj.PrepareForm();
-            await Navigation.PushAsync(viewObj);
+            await Navigation.PushModalAsync(viewObj);
         }
 
         private void ViewObj_Disappearing(object? sender, EventArgs e)

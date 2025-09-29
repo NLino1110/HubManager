@@ -13,6 +13,7 @@ namespace DMOrders.Pages.Fragments.Orders
 {
     public class DetailsViewModel : INotifyPropertyChanged
     {
+        public ICommand AddLineCommand { get; }
         public res_company CurrentCompany { get; set; }
         public res_partner _CurrentPartner { get; set; }
         public sale_order CurrentSaleOrder { get; set; }
@@ -67,6 +68,8 @@ namespace DMOrders.Pages.Fragments.Orders
             NewCommand = new Command(OnNew);
             SaveCommand = new Command(OnSave);
             SyncCommand = new Command(OnSync);
+
+            AddLineCommand = new Command<product_product>(OnAddLine);
         }
 
         public async Task AddOrderLine(sale_order_line NewOrderLine)
@@ -132,6 +135,23 @@ namespace DMOrders.Pages.Fragments.Orders
         private async void OnSync()
         {            
             await Task.Delay(1000);
+        }
+
+        private void OnAddLine(product_product product)
+        {
+            if (product is null) return;
+
+            // Lógica para convertir product_product -> SaleOrderLine
+            var line = new sale_order_line
+            {
+                product_id = product.id,
+                product_display = product.name,
+                product_qty = 1,
+                price_total = (decimal) product.list_price,
+                // ... lo que corresponda
+            };
+
+            OrderLines.Add(line);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

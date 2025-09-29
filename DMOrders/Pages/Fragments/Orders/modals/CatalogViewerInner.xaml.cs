@@ -10,8 +10,25 @@ using System.Windows.Input;
 namespace DMOrders.Pages.Fragments.Orders.modals;
 
 public partial class CatalogViewerInner : ContentView
-{   
-    public static ICommand CommandSelectListItem { get; set; }
+{
+    //public static readonly BindableProperty CommandSelectListItemProperty =
+    //    BindableProperty.Create(nameof(CommandSelectListItem), typeof(ICommand), typeof(CatalogViewerInner));
+
+    //public ICommand CommandSelectListItem
+    //{
+    //    get => (ICommand)GetValue(CommandSelectListItemProperty);
+    //    set => SetValue(CommandSelectListItemProperty, value);
+    //}
+
+    public static readonly BindableProperty ItemPickedCommandProperty =
+        BindableProperty.Create(nameof(ItemPickedCommand), typeof(ICommand), typeof(CatalogViewerInner), default(ICommand));
+
+    public ICommand ItemPickedCommand
+    {
+        get => (ICommand)GetValue(ItemPickedCommandProperty);
+        set => SetValue(ItemPickedCommandProperty, value);
+    }
+
     public ContentView ViewParent
     {
         get => (ContentView)GetValue(ViewParentProperty);
@@ -44,7 +61,7 @@ public partial class CatalogViewerInner : ContentView
 
     public void Setup()
     {
-        CommandSelectListItem = new Command(SelectListItem);
+        //CommandSelectListItem = new Command(SelectListItem);
         BindingContext = new CatalogViewerModel();
 
         Brands =
@@ -180,19 +197,19 @@ public partial class CatalogViewerInner : ContentView
         return selected_product_brand;
     }
 
-    private async void SelectListItem(object objItem)
-    {
-        if (objItem != null)
-        {
-            //((CatalogViewerModel)this.BindingContext).SelectedItem = (product_product)objItem;
-            //_parentPopup.Close(objItem);
-            Debug.WriteLine(objItem);
-        }
-        else
-        {
-            Debug.WriteLine("Error de objeto");
-        }
-    }
+    //private async void SelectListItem(object objItem)
+    //{
+    //    if (objItem != null)
+    //    {
+    //        //((CatalogViewerModel)this.BindingContext).SelectedItem = (product_product)objItem;
+    //        //_parentPopup.Close(objItem);
+    //        Debug.WriteLine(objItem);
+    //    }
+    //    else
+    //    {
+    //        Debug.WriteLine("Error de objeto");
+    //    }
+    //}
 
     private void SelectSingleItem(object sender, EventArgs e)
     {
