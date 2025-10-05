@@ -60,7 +60,7 @@ namespace DMOrders.Pages.Fragments.Customers
         {
             SelectedItem = (res_partner)obj;
 
-            Details viewObj = new Details();
+            Crud viewObj = new Crud();
             viewObj.CurrentPartner = SelectedItem;
             viewObj.CurrentCompany = App.Session.res_Company;
             viewObj.CurrentSaleOrder = null;
@@ -173,7 +173,7 @@ namespace DMOrders.Pages.Fragments.Customers
                 var itemData = SelectedItem;
                 Debug.WriteLine(itemData);
 
-                Details viewObj = new Details();
+                Crud viewObj = new Crud();
                 viewObj.CurrentPartner = itemData;
                 viewObj.CurrentCompany = App.Session.res_Company;
                 viewObj.CurrentSaleOrder = null;
@@ -265,7 +265,7 @@ namespace DMOrders.Pages.Fragments.Customers
                 var itemData = SelectedItem;
                 Debug.WriteLine(itemData);
 
-                Details viewObj = new Details();
+                Crud viewObj = new Crud();
                 viewObj.CurrentPartner = itemData;
                 viewObj.CurrentCompany = App.Session.res_Company;
                 viewObj.CurrentSaleOrder = null;

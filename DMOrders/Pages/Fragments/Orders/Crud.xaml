@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DMOrders.Pages.Fragments.Orders.Crud"
+             xmlns:customrows="clr-namespace:DMOrders.Controls.CustomRows"  
+             xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+             xmlns:modals="clr-namespace:DMOrders.Pages.Fragments.Orders.modals"
+             Title="Pedido Nuevo - Edicion">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <OnPlatform x:Key="IsBackButtonEnabled" x:TypeArguments="x:Boolean">
+                <On Platform="Android" Value="False" />
+                <On Platform="iOS" Value="True" />
+                <On Platform="WinUI" Value="True" />
+            </OnPlatform>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsEnabled="{StaticResource IsBackButtonEnabled}" IsVisible="{StaticResource IsBackButtonEnabled}"/>
+    </Shell.BackButtonBehavior>
+
+    <Grid ColumnDefinitions="Auto,*">
+        <modals:CatalogViewerInner x:Name="SearchProductView" 
+                   IsVisible="False" 
+                   Grid.Row="0" 
+                   Grid.Column="0" 
+                   Grid.ColumnSpan="2"
+                   ItemPickedCommand="{Binding BindingContext.AddLineCommand,
+                Source={RelativeSource AncestorType={x:Type ContentPage}}}"></modals:CatalogViewerInner>
+        
+        <Grid Grid.Row="0" 
+              Grid.Column="0" 
+              Padding="10"
+RowDefinitions="Auto,Auto,Auto,Auto,Auto" 
+              WidthRequest="220">
+
+            <Grid Grid.Row="0" 
+    ColumnDefinitions="*" 
+    RowSpacing="4" 
+    RowDefinitions="Auto,Auto,Auto,Auto"
+    Padding="5">
+                <Label Text="Artículo: 1234" FontAttributes="Bold" FontSize="14" Grid.Row="0"/>
+                <Label Text="Unidad Vta.: Unidad" Grid.Row="1"/>
+                <Label Text="Stock: 25" Grid.Row="2"/>
+                <Label Text="Precio: $12.50" Grid.Row="3"/>
+            </Grid>
+
+            <Border Grid.Row="1" Stroke="Gray" Padding="1" Margin="0,0,0,0">
+                <VerticalStackLayout>
+                    <HorizontalStackLayout>
+                        <material:TextField FontSize="11" x:Name="EntryCantidadSolicitada" Title="Cant. solic.:" BorderThickness="0.4" Keyboard="Numeric" HorizontalOptions="Fill" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout>
+                        <material:TextField FontSize="11" x:Name="EntryCantidadFinal" Title="Cant. solic.:" BorderThickness="0.4" Keyboard="Numeric" HorizontalOptions="Fill"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <Button Grid.Row="2" Text="Asignar" BackgroundColor="DodgerBlue" TextColor="White" FontAttributes="Bold" Margin="5" />
+
+            <Grid Grid.Row="3" ColumnDefinitions="Auto,Auto,Auto" RowDefinitions="Auto,Auto,Auto,Auto" Padding="5" RowSpacing="2" ColumnSpacing="2">
+                <!-- Fila 1 -->
+                <Button Text="1" Grid.Row="0" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" >
+
+                </Button>
+
+                <Button Text="2" Grid.Row="0" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke">
+
+                </Button>
+                <Button Text="3" Grid.Row="0" Grid.Column="2" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" />
+                <!-- Fila 2 -->
+                <Button Text="4" Grid.Row="1" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" />
+                <Button Text="5" Grid.Row="1" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" />
+                <Button Text="6" Grid.Row="1" Grid.Column="2" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" />
+                <!-- Fila 3 -->
+                <Button Text="7" Grid.Row="2" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" />
+                <Button Text="8" Grid.Row="2" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" />
+                <Button Text="9" Grid.Row="2" Grid.Column="2" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" />
+                <!-- Fila 4 -->
+                <Button Text="." Grid.Row="3" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" />
+                <Button Text="0" Grid.Row="3" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" />
+                <Button Text="⌫" Grid.Row="3" Grid.Column="2" FontAttributes="Bold" FontSize="12" FontAutoScalingEnabled="True" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" />
+            </Grid>
+
+            <!-- Botón con fecha -->
+            <Button Grid.Row="4"
+              Text="->" 
+              HorizontalOptions="Fill" 
+              BackgroundColor="LightGray" 
+              TextColor="Black"
+              FontAttributes="Italic"
+              Margin="0,8,0,0"/>
+        </Grid>
+
+        <Grid RowDefinitions="Auto,Auto,*,Auto" Grid.Column="1">
+
+            <HorizontalStackLayout Grid.Row="0" Grid.Column="1" HorizontalOptions="Fill">
+                <VerticalStackLayout>
+                    <Label Text="Cliente"></Label>
+                    <Label Text="Direccion"></Label>
+                </VerticalStackLayout>
+                <VerticalStackLayout HorizontalOptions="End">
+                    <Label Text="Canal (MAYORISTA)"></Label>
+                    <Label Text="Estado: Activo/Inactivo"></Label>
+                </VerticalStackLayout>
+            </HorizontalStackLayout>
+            <!--<Label Grid.Row="1" Grid.Column="0" Text="TITULO CABECERAS" HorizontalOptions="Center"></Label>-->
+            <Grid BackgroundColor="LightGray" 
+                  Grid.Row="1" 
+                  Grid.Column="1" 
+                  ColumnDefinitions="Auto,*,*,*,*,*,*,*,*,*" 
+                  RowDefinitions="Auto" 
+                  HorizontalOptions="Fill">
+                <Label Grid.Column="0" FontAttributes="Bold" Text="No" Padding="0,0,5,0"></Label>
+                <Label Grid.Column="1" Text="ARTICULO"></Label>
+                <Label Grid.Column="2" Text="UNIDAD"></Label>
+                <Label Grid.Column="3" Text="CANTIDAD"></Label>
+                <Label Grid.Column="4" Text="PRECIO"></Label>
+                <Label Grid.Column="5" Text="SUBTOTAL"></Label>
+                <Label Grid.Column="6" Text="%DESC."></Label>
+                <Label Grid.Column="7" Text="$DESC."></Label>
+                <Label Grid.Column="8" Text="IMPUESTO"></Label>
+                <Label Grid.Column="9" Text="TOTAL"></Label>
+            </Grid>
+
+            <Grid RowDefinitions="*" ColumnDefinitions="*" Grid.Row="2" HorizontalOptions="Fill">
+                <CollectionView
+                    x:Name="MyCollectionView"
+                    ItemsSource="{Binding OrderLines}" 
+                    EmptyView="....."
+                    SelectionMode="Single"
+                    SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                    HorizontalOptions="Start">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <customrows:SaleOrderLineRow                                 
+                            Item="{Binding .}"
+                                HorizontalOptions="Fill"
+                            SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"
+                            EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=EditCommand}"
+                            DeleteCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=DeleteCommand}"/>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+
+            <Grid Grid.Row="3" Grid.Column="1" HorizontalOptions="Fill">
+                <HorizontalStackLayout Grid.Row="1" 
+                               VerticalOptions="Start" 
+                               HorizontalOptions="Center" 
+                               Margin="0,0,0,10" Spacing="10">
+                    <uranium:ExpanderView IsExpanded="True" WidthRequest="250">
+                        <uranium:ExpanderView.Header>
+                            <Label 
+                    Grid.Row="0" 
+                    BackgroundColor="Transparent" 
+                    Text="Observaciones"
+                    FontSize="12"
+                    FontAttributes="Bold"
+                    HorizontalTextAlignment="Center"
+                    Padding="3"/>
+                        </uranium:ExpanderView.Header>
+                        <StackLayout>
+                            <material:EditorField x:Name="fieldNote" Title="Description" Text="{Binding Note, Mode=TwoWay}" />
+                        </StackLayout>
+                    </uranium:ExpanderView>
+
+
+                    <Button Text="" Clicked="ButtonClose_Clicked" BackgroundColor="Gray" TextColor="White" HeightRequest="50" WidthRequest="50" Padding="0">
+                        <Button.ImageSource>
+                            <FontImageSource 
+                        Size="30"
+                        FontFamily="MaterialSharp"
+                        Glyph="{x:Static uranium:MaterialSharp.Arrow_back}"/>
+                        </Button.ImageSource>
+                    </Button>
+
+                    <Button Text="" Clicked="ButtonAddNew_Clicked" BackgroundColor="MediumPurple" TextColor="White" HeightRequest="50" WidthRequest="50" Padding="0">
+                        <Button.ImageSource>
+                            <FontImageSource 
+                        Size="30"
+                        FontFamily="MaterialSharp"
+                        Glyph="{x:Static uranium:MaterialSharp.Add}"/>
+                        </Button.ImageSource>
+                    </Button>
+                    <!--<Button Text="Agregar" Clicked="ButtonNew_Clicked" BackgroundColor="Green" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0">
+    <Button.ImageSource>
+        <FontImageSource 
+            Size="30"
+            FontFamily="MaterialSharp"
+            Glyph="{x:Static uranium:MaterialSharp.New_label}" />
+        </Button.ImageSource>
+</Button>-->
+                    <Button Text="Guardar" Clicked="ButtonSave_Clicked" BackgroundColor="Orange" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0">
+                        <Button.ImageSource>
+                            <FontImageSource 
+            Size="30"
+            FontFamily="MaterialSharp"
+            Glyph="{x:Static uranium:MaterialSharp.Save}" />
+                        </Button.ImageSource>
+                    </Button>
+                    <Button Text="Enviar" Clicked="ButtonSync_Clicked" BackgroundColor="DeepSkyBlue" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0">
+                        <Button.ImageSource>
+                            <FontImageSource 
+            Size="30"
+            FontFamily="MaterialSharp"
+            Glyph="{x:Static uranium:MaterialSharp.Send}" />
+                        </Button.ImageSource>
+                    </Button>
+                    <VerticalStackLayout HorizontalOptions="End" Margin="0" BackgroundColor="LightGray" WidthRequest="200">
+                        <Label Text="SUBTOTAL:" FontSize="10" FontAttributes="Bold"></Label>
+                        <Label Text="DESCUENTO:" FontSize="10" FontAttributes="Bold"></Label>
+                        <Label Text="NETO:" FontSize="10" FontAttributes="Bold"></Label>
+                        <Label Text="IMPUESTO:" FontSize="10" FontAttributes="Bold"></Label>
+                        <Label Text="COMP.SOLIDARIA:" FontSize="10" FontAttributes="Bold"></Label>
+                        <Label Text="TOTAL:" FontSize="10" FontAttributes="Bold"></Label>
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </Grid>
+
+        </Grid>
+    </Grid>
+    
+</ContentPage>

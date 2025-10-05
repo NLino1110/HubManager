@@ -789,7 +789,17 @@ namespace ResourceBuilder.Shared.master
 
         async public Task LaunchComparer()
         {
+            string brand_name = "";
+            if (SelectedBrand != null)
+                brand_name = SelectedBrand.Descripcion;
+
+            Console.WriteLine($"");
+            Console.WriteLine($"");
+            Console.WriteLine($"====================================================================");
+            Console.WriteLine($"Iniciado {brand_name}");
             Debug.WriteLine("Datos agrupados!!");
+            
+            var skusGuardados = new HashSet<long>();
 
             var groupedData = dataSource
                 .AsEnumerable()
@@ -805,9 +815,10 @@ namespace ResourceBuilder.Shared.master
                 .ToList();
 
             var catalogSkuIds = await pgDbContext.SettingsIdentity
-                .Where(s => skuExternalIdsString.Contains(s.ExternalId)
-                    && s.ContentTypeId == 18)
+                .AsNoTracking()
+                .Where(s => skuExternalIdsString.Contains(s.ExternalId) && s.ContentTypeId == 18)
                 .Select(s => s.ObjectId)
+                .Distinct()
                 .ToListAsync();
 
             var storesIds = await pgDbContext.SettingsIdentity
@@ -837,9 +848,7 @@ namespace ResourceBuilder.Shared.master
             int totalProcesados = 0;
             int totalFaltantes = 0;
 
-            string brand_name = "";
-            //if (SelectedBrand != null)
-            //    brand_name = SelectedBrand.Descripcion;
+            
 
             var outputFilePath = Path.Combine(AppContext.BaseDirectory, "skus_faltantes_" + brand_name + ".txt");
 
@@ -942,32 +951,33 @@ namespace ResourceBuilder.Shared.master
 
                 Console.WriteLine("============================================================");
 
-                var skusGuardados = new HashSet<long>();
+                comparaciones = comparaciones.Where(x=>x.SkuId > 0).Distinct().ToList();
 
                 using (var writer = new StreamWriter(outputFilePath, append: true))
                 {
                     foreach (var cmp in comparaciones)
                     {
-                        Console.WriteLine($"SKU: {cmp.SkuId} ({cmp.ReferenciaSku}) - Tienda: {cmp.Tienda}");
-                        Console.WriteLine($" Valor -> Postgres: {cmp.ValorPostgres}, Local: {cmp.ValorLocal}, %Dscto. Pg.: {cmp.PorcentajeDescuento}");
-                        Console.WriteLine($"  Fechas -> Postgres: {cmp.FechaInicioPostgres:yyyy-MM-dd} - {cmp.FechaFinPostgres:yyyy-MM-dd}");
-                        Console.WriteLine($"  Fechas -> Local: {cmp.FechaInicioLocal:yyyy-MM-dd} - {cmp.FechaFinLocal:yyyy-MM-dd}");
-                        Console.WriteLine($" Tipo -> Postgres: {cmp.TipoPostgres}, Local: {cmp.TipoLocal}");
-                        Console.WriteLine($" Coinciden: Fechas={cmp.CoincidenFechas}, Valores={cmp.CoincidenValores}, Tipos={cmp.CoincidenTipos}");
-                        Console.WriteLine("------------------------------------------------");
+                        //Console.WriteLine($"SKU: {cmp.SkuId} ({cmp.ReferenciaSku}) - Tienda: {cmp.Tienda}");
+                        //Console.WriteLine($" Valor -> Postgres: {cmp.ValorPostgres}, Local: {cmp.ValorLocal}, %Dscto. Pg.: {cmp.PorcentajeDescuento}");
+                        //Console.WriteLine($"  Fechas -> Postgres: {cmp.FechaInicioPostgres:yyyy-MM-dd} - {cmp.FechaFinPostgres:yyyy-MM-dd}");
+                        //Console.WriteLine($"  Fechas -> Local: {cmp.FechaInicioLocal:yyyy-MM-dd} - {cmp.FechaFinLocal:yyyy-MM-dd}");
+                        //Console.WriteLine($" Tipo -> Postgres: {cmp.TipoPostgres}, Local: {cmp.TipoLocal}");
+                        //Console.WriteLine($" Coinciden: Fechas={cmp.CoincidenFechas}, Valores={cmp.CoincidenValores}, Tipos={cmp.CoincidenTipos}");
+                        //Console.WriteLine("------------------------------------------------");
 
                         // Guardar el SKU en el archivo
                         if (skusGuardados.Add(cmp.SkuId))
                         {
                             totalFaltantes++;
                             writer.WriteLine(cmp.SkuId);
-                        }                        
+                        }
                     }
                 }
 
                 totalProcesados += prices.Count;
             }
 
+            Console.WriteLine($"Terminado: {brand_name}");
             Console.WriteLine($"Total de precios faltantes: {totalFaltantes}");
             Console.WriteLine($"Total de precios procesados: {totalProcesados}");
         }
@@ -1976,7 +1986,7 @@ namespace ResourceBuilder.Shared.master
                 p.CodArticulo
             };
 
-            var responseData = await LaunchItemLocal(articulos, new List<object>(), true, false, new long[] {}, false, with_full_stock);
+            var responseData = await LaunchItemLocal(articulos, new List<object>(), false, true, new long[] {}, false, with_full_stock);
 
             if(responseData == null)
             {

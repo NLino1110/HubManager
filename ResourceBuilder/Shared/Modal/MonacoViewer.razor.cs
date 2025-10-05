@@ -198,7 +198,7 @@ namespace ResourceBuilder.Shared.Modal
             
             string urlMiddleware = "http://api.dmujeres.ec/dmujeres/sku/bulk/";//ConfigurationHelper.GetAppSettings().middleware_url;
 
-            urlMiddleware = "http://api.dmujeres-dev.ec:8000/dmujeres/v2/sku/bulk/";
+            //urlMiddleware = "http://api.dmujeres-dev.ec:8000/dmujeres/v2/sku/bulk/";
 
             var response = await ecommerceService.SendDataToMiddleware(
                     jsonResult,

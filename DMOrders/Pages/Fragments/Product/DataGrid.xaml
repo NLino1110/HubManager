@@ -39,7 +39,8 @@
                             <customrows:ProductRow
                                 Item="{x:Binding .}" 
                                 ActionButton="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
-                                SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}">
+                                SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"
+                                ShowSelectButton="False">
 
                             </customrows:ProductRow>
                         </DataTemplate>

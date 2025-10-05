@@ -46,7 +46,7 @@ namespace DMOrders.Controls.CustomRows
 
             var idLabel = new Label
             {
-                Text = $"Código: {Item.id}",
+                Text = $"{Item.id}",
                 FontSize = 12,
                 TextColor = Colors.Green,
                 HorizontalOptions = LayoutOptions.Center
@@ -62,12 +62,13 @@ namespace DMOrders.Controls.CustomRows
                 TextColor = Colors.Black,
                 HorizontalOptions = LayoutOptions.Center
             };
+
             grid.Children.Add(nameLabel);
             Grid.SetColumn(nameLabel, 1);
 
             var dateOrderLabel = new Label
             {
-                Text = Item.date_order.ToString("dd/MM/yyyy"),
+                Text = Item.date_order.ToString("dd/MM/yyyy HH:mm:ss"),
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,

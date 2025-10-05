@@ -111,6 +111,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Pages\Fragments\Orders\Crud.xaml.cs">
+	    <DependentUpon>Crud.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <MauiXaml Update="Controls\PopupLoadingTask.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -159,7 +165,7 @@
 	  <MauiXaml Update="Pages\Fragments\Orders\DataGrid.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Fragments\Orders\Details.xaml">
+	  <MauiXaml Update="Pages\Fragments\Orders\Crud.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\Fragments\Orders\Filters.xaml">

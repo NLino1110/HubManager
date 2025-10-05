@@ -11,7 +11,7 @@ using System.Windows.Input;
 
 namespace DMOrders.Pages.Fragments.Orders
 {
-    public class DetailsViewModel : INotifyPropertyChanged
+    public class CrudViewModel : INotifyPropertyChanged
     {
         public ICommand AddLineCommand { get; }
         public res_company CurrentCompany { get; set; }
@@ -59,7 +59,7 @@ namespace DMOrders.Pages.Fragments.Orders
         public ICommand SaveCommand { get; }
         public ICommand SyncCommand { get; }
 
-        public DetailsViewModel()
+        public CrudViewModel()
         {
             OrderLines = new ObservableCollection<sale_order_line>();
             //LoadData();

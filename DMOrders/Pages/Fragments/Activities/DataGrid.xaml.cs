@@ -289,7 +289,7 @@ namespace DMOrders.Pages.Fragments.Activities
             //objPage.Sel_AccountMoveSendHeader = (AccountMoveSendHeader)obj;
             //objPage.editionMode = true;
             viewObj.Disappearing += ViewObj_Disappearing;
-            await Navigation.PushAsync(viewObj);
+            await Navigation.PushModalAsync(viewObj);
         }
 
         private void ViewObj_Disappearing(object? sender, EventArgs e)

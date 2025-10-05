@@ -216,7 +216,13 @@ public partial class CatalogViewerInner : ContentView
         var objItem = ((CatalogViewerModel)this.BindingContext).SelectedItem;
         if (objItem != null)
         {
+            //ItemPickedCommand
             //_parentPopup.Close(objItem);
+            this.IsVisible = false;
+
+            if(ItemPickedCommand?.CanExecute(objItem) != null)
+                ItemPickedCommand.Execute(objItem);
+
         }
         else
         {

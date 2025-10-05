@@ -252,7 +252,7 @@ namespace DMOrders.Pages.Fragments.Orders
         private async void EditItem(object obj)
         {
             Debug.WriteLine("EditItem");
-            Details viewObj = new Details();
+            Crud viewObj = new Crud();
             viewObj.CurrentSaleOrder = (sale_order) obj;
             viewObj.CurrentCompany = App.Session.res_Company;
             //objPage.Sel_AccountMoveSendHeader = (AccountMoveSendHeader)obj;

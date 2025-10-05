@@ -7,6 +7,15 @@ namespace DMOrders.Controls.CustomRows
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public class ProductRow : RowAdvance<product_product>
     {
+        public static readonly BindableProperty ShowSelectButtonProperty =
+            BindableProperty.Create(nameof(ShowSelectButton), typeof(bool), typeof(ProductRow), true);
+
+        public bool ShowSelectButton
+        {
+            get => (bool)GetValue(ShowSelectButtonProperty);
+            set => SetValue(ShowSelectButtonProperty, value);
+        }
+
         public static readonly BindableProperty ActionButtonProperty =
             BindableProperty.Create(nameof(ActionButton), typeof(ICommand), typeof(ProductRow), null);
 
@@ -76,30 +85,7 @@ namespace DMOrders.Controls.CustomRows
             infoGrid.Add(_priceBaseLabel, 0, 3);
             infoGrid.Add(_unitLabel, 1, 3);
 
-            // Botón (una vez) y BINDINGS (no asignaciones directas)
-            _btnSelect = new Button
-            {
-                HeightRequest = 35,
-                BackgroundColor = Colors.DodgerBlue,
-                Text = "Seleccionar",
-                TextColor = Colors.White,
-                FontAttributes = FontAttributes.Bold,
-                FontSize = 12,
-                HorizontalOptions = LayoutOptions.Fill,
-                ImageSource = new FontImageSource
-                {
-                    FontFamily = "FontAwesome5Solid",
-                    Color = Colors.White,
-                    Size = 15,
-                    FontAutoScalingEnabled = true,
-                    Glyph = "\uf058"
-                },
-                Padding = new Thickness(3)
-            };
-
-            // 🔗 ENLACES (se actualizan cuando el DataTemplate resuelve los bindings)
-            _btnSelect.SetBinding(Button.CommandProperty, new Binding(nameof(ActionButton), source: this));
-            _btnSelect.SetBinding(Button.CommandParameterProperty, new Binding(nameof(Item), source: this));
+            
 
             // Enlaza labels a las propiedades del Item (así no tienes que “repintar” manual)
             _nameLabel.SetBinding(Label.TextProperty, new Binding("Item.name", source: this));
@@ -118,8 +104,37 @@ namespace DMOrders.Controls.CustomRows
                     new RowDefinition { Height = GridLength.Auto }
                 }
             };
+
             container.Add(infoGrid, 0, 0);
-            container.Add(_btnSelect, 0, 1);
+
+            if (ShowSelectButton)
+            {
+                // Botón (una vez) y BINDINGS (no asignaciones directas)
+                _btnSelect = new Button
+                {
+                    HeightRequest = 35,
+                    BackgroundColor = Colors.DodgerBlue,
+                    Text = "Seleccionar",
+                    TextColor = Colors.White,
+                    FontAttributes = FontAttributes.Bold,
+                    FontSize = 12,
+                    HorizontalOptions = LayoutOptions.Fill,
+                    ImageSource = new FontImageSource
+                    {
+                        FontFamily = "FontAwesome5Solid",
+                        Color = Colors.White,
+                        Size = 15,
+                        FontAutoScalingEnabled = true,
+                        Glyph = "\uf058"
+                    },
+                    Padding = new Thickness(3)
+                };
+
+                // 🔗 ENLACES (se actualizan cuando el DataTemplate resuelve los bindings)
+                _btnSelect.SetBinding(Button.CommandProperty, new Binding(nameof(ActionButton), source: this));
+                _btnSelect.SetBinding(Button.CommandParameterProperty, new Binding(nameof(Item), source: this));
+                container.Add(_btnSelect, 0, 1);
+            }            
 
             // Agrega una vez al grid izquierdo
             leftGrid.Children.Add(container);

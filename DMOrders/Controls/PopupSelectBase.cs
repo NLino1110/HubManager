@@ -188,17 +188,17 @@ namespace DMOrders.Controls
             {
                 if (Parent != null)
                 {
-                    if (((ContentPage)Parent).Height != lastParentHeight)
-                    {
-                        if(lastParentHeight > 0)
-                        {
-                            //Lanzar evento de Giro
-                            popupSizeChanged(this, EventArgs.Empty);
-                        }
+                    //if (((ContentPage)Parent).Height != lastParentHeight)
+                    //{
+                    //    if(lastParentHeight > 0)
+                    //    {
+                    //        //Lanzar evento de Giro
+                    //        popupSizeChanged(this, EventArgs.Empty);
+                    //    }
 
-                        lastParentHeight = ((ContentPage)Parent).Height;
-                        lastParentWidth = ((ContentPage)Parent).Width;
-                    }
+                    //    lastParentHeight = ((ContentPage)Parent).Height;
+                    //    lastParentWidth = ((ContentPage)Parent).Width;
+                    //}
                 }
             };
             timer_eventController.Start();

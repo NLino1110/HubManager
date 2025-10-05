@@ -1,16 +1,5 @@
-﻿using CobranzasDMSA_Odoo.Models;
-using CommunityToolkit.Maui.Behaviors;
-using DMOrders.Controls.Base;
-using DMOrders.Pages.Fragments.Activities;
+﻿using DMOrders.Controls.Base;
 using DMSA.Models.Odoo.DMOrders;
-using DMSA.Models.Odoo.Native;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace DMOrders.Controls.CustomRows
@@ -18,70 +7,85 @@ namespace DMOrders.Controls.CustomRows
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public class PlanningSlotRow : RowAdvance<PlanningSlot>
     {
-        Label labelId { get; set; }
-        Label labelCompany { get; set; }
-        Label labelReason { get; set; }
-        Label labelPartner { get; set; }
-        Label labelStartDate { get; set; }
-        Label labelEndDate { get; set; }
-        Label labelStandby { get; set; }
+        // (Opcional pero útil) Command para el botón de herramientas
+        public static readonly BindableProperty EditCommandProperty =
+            BindableProperty.Create(nameof(EditCommand), typeof(ICommand), typeof(PlanningSlotRow));
 
-        public PlanningSlotRow()
-        {            
-            
+        public ICommand EditCommand
+        {
+            get => (ICommand)GetValue(EditCommandProperty);
+            set => SetValue(EditCommandProperty, value);
         }
+
+        // --- cache / flag ---
+        bool _built;
+        Label _labelId, _labelCompany, _labelReason, _labelPartner, _labelStartDate, _labelEndDate, _labelStandby;
+        Button _btnEdit, _btnDelete;
 
         protected override void BuildLeftGridContent(Grid leftGrid)
         {
-            labelId = new Label { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, TextColor = Colors.Black, FontSize = 10, BackgroundColor = Colors.Transparent, Padding = new Thickness(3), Margin = new Thickness(0) };
-            labelCompany = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, FontAttributes = FontAttributes.Bold, FontSize = 13, BackgroundColor = Colors.Transparent };
-            labelReason = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, FontAttributes = FontAttributes.Bold, FontSize = 13, BackgroundColor = Colors.Transparent };
-            labelPartner = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, FontAttributes = FontAttributes.Bold, FontSize = 13, BackgroundColor = Colors.Transparent };
-            labelStartDate = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, FontAttributes = FontAttributes.Bold, TextColor = Colors.DarkSlateGray, FontSize = 12 };
-            labelEndDate = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, FontAttributes = FontAttributes.Bold, TextColor = Colors.OrangeRed, FontSize = 10 };
-            labelStandby = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, FontAttributes = FontAttributes.Bold, TextColor = Colors.Green, FontSize = 10 };
-            
-            labelId.SetBinding(Label.TextProperty, new Binding(nameof(Item.id), source: Item));
-            labelCompany.SetBinding(Label.TextProperty, new Binding(nameof(Item.res_company_display), source: Item));
-            labelReason.SetBinding(Label.TextProperty, new Binding(nameof(Item.res_company_display), source: Item));
-            labelPartner.SetBinding(Label.TextProperty, new Binding(nameof(Item.res_partner_display), source: Item));
-            labelStartDate.SetBinding(Label.TextProperty, new Binding(nameof(Item.start_datetime), source: Item, stringFormat: "{0:hh\\:mm}"));
-            labelEndDate.SetBinding(Label.TextProperty, new Binding(nameof(Item.end_datetime), source: Item, stringFormat: "{0:hh\\:mm}"));
-            labelStandby.SetBinding(Label.TextProperty, new Binding(nameof(Item.end_datetime), source: Item, stringFormat: "{0:hh\\:mm}"));
+            // ⚡ evita reconstrucciones innecesarias del árbol visual
+            if (_built) return;
 
-            var cellGrid = new Grid
+            leftGrid.RowDefinitions.Clear();
+            leftGrid.ColumnDefinitions.Clear();
+
+            // Columnas coherentes con cómo colocas los controles (0..6), con un separador en 1
+            leftGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });     // 0: id
+            leftGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(8) });   // 1: separador
+            leftGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });     // 2: company/reason (bloque)
+            leftGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });     // 3: partner
+            leftGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });     // 4: start
+            leftGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });     // 5: end
+            leftGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });     // 6: standby
+
+            // Hereda Item como BC del grid (bindings simples abajo)
+            leftGrid.SetBinding(BindingContextProperty, new Binding(nameof(Item), source: this));
+
+            // Labels livianos (sin hit-testing) y con truncado
+            _labelId = new Label { FontSize = 10, TextColor = Colors.Black, Padding = 3, HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, InputTransparent = true };
+            _labelCompany = new Label { FontSize = 13, FontAttributes = FontAttributes.Bold, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, InputTransparent = true };
+            _labelReason = new Label { FontSize = 12, TextColor = Colors.Gray, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, InputTransparent = true };
+            _labelPartner = new Label { FontSize = 12, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, InputTransparent = true };
+            _labelStartDate = new Label { FontSize = 12, FontAttributes = FontAttributes.Bold, TextColor = Colors.DarkSlateGray, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, InputTransparent = true };
+            _labelEndDate = new Label { FontSize = 10, FontAttributes = FontAttributes.Bold, TextColor = Colors.OrangeRed, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, InputTransparent = true };
+            _labelStandby = new Label { FontSize = 10, FontAttributes = FontAttributes.Bold, TextColor = Colors.Green, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, InputTransparent = true };
+
+            // Bindings simples (ajusta los nombres si tu modelo difiere)
+            _labelId.SetBinding(Label.TextProperty, new Binding("id"));
+            _labelCompany.SetBinding(Label.TextProperty, new Binding("res_company_display"));
+            _labelReason.SetBinding(Label.TextProperty, new Binding("reason_display")); // ← si tu modelo no tiene esto, deja "res_company_display"
+            _labelPartner.SetBinding(Label.TextProperty, new Binding("res_partner_display"));
+            _labelStartDate.SetBinding(Label.TextProperty, new Binding("start_datetime", stringFormat: "{0:yyyy-MM-dd HH:mm}"));
+            _labelEndDate.SetBinding(Label.TextProperty, new Binding("end_datetime", stringFormat: "{0:yyyy-MM-dd HH:mm}"));
+            _labelStandby.SetBinding(Label.TextProperty, new Binding("standby")); // boolean/string, ajusta formato si quieres
+
+            // Bloque de 2 líneas: company / reason
+            var companyReason = new VerticalStackLayout
             {
-                HorizontalOptions = LayoutOptions.Fill,
-                BackgroundColor = Colors.Transparent,
-                Padding = new Thickness(0),
-                ColumnSpacing = 0,
-                RowSpacing = 0,
-                RowDefinitions =
-                {
-                    new RowDefinition { Height = GridLength.Star },
-                    new RowDefinition { Height = GridLength.Auto }
-                },
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition { Width = GridLength.Star },                    
-                }
+                Spacing = 0,
+                Children = { _labelCompany, _labelReason }
             };
 
-            cellGrid.Children.Add(labelCompany);
-            cellGrid.Children.Add(labelReason);
-            Grid.SetRow(labelReason, 1);
+            // Colocar en columnas (una sola vez)
+            Grid.SetColumn(_labelId, 0); leftGrid.Children.Add(_labelId);
+            Grid.SetColumn(companyReason, 2); leftGrid.Children.Add(companyReason);
+            Grid.SetColumn(_labelPartner, 3); leftGrid.Children.Add(_labelPartner);
+            Grid.SetColumn(_labelStartDate, 4); leftGrid.Children.Add(_labelStartDate);
+            Grid.SetColumn(_labelEndDate, 5); leftGrid.Children.Add(_labelEndDate);
+            Grid.SetColumn(_labelStandby, 6); leftGrid.Children.Add(_labelStandby);
 
-            AddCell(CreateCell(labelId), "left", 0, 0);
-            AddCell(CreateCell(cellGrid), "left", 0, 2);
-            AddCell(CreateCell(labelPartner), "left", 0, 3);
-            AddCell(CreateCell(labelStartDate), "left", 0, 4);
-            AddCell(CreateCell(labelEndDate), "left", 0, 5);
-            AddCell(CreateCell(labelStandby), "left", 0, 6);
+            // Altura fija opcional para acelerar medición con MeasureFirstItem
+            this.HeightRequest = 56; // ajusta a tu diseño
+
+            _built = true;
         }
 
         protected override void BuildToolGridContent(Grid toolGrid)
         {
-            var buttonEdit = new Button
+            if (_btnEdit != null) return;
+
+            _btnEdit = new Button
             {
                 HeightRequest = 35,
                 WidthRequest = 35,
@@ -91,7 +95,8 @@ namespace DMOrders.Controls.CustomRows
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 12,
                 HorizontalOptions = LayoutOptions.Center,
-                IsVisible = true,
+                Padding = 3,
+                Margin = 2,
                 ImageSource = new FontImageSource
                 {
                     FontFamily = "FontAwesome5Solid",
@@ -99,18 +104,14 @@ namespace DMOrders.Controls.CustomRows
                     Size = 15,
                     FontAutoScalingEnabled = true,
                     Glyph = "\uf303"
-                },
-                Padding = new Thickness(3),
-                Margin = new Thickness(2),
+                }
             };
+            // Bindings sin FindAncestor (más rápidos/robustos)
+            _btnEdit.SetBinding(Button.CommandProperty, new Binding(nameof(EditCommand), source: this));
+            _btnEdit.SetBinding(Button.CommandParameterProperty, new Binding(nameof(Item), source: this));
 
-            buttonEdit.SetBinding(Button.CommandProperty, new Binding("EditCommand", source: new RelativeBindingSource(RelativeBindingSourceMode.FindAncestor, typeof(ActivityRow))));
-            buttonEdit.SetBinding(Button.CommandParameterProperty, new Binding("Item", source: this));
-
-            var buttonDelete = new Button
+            _btnDelete = new Button
             {
-                //Command = EditCommand,
-                CommandParameter = "",
                 HeightRequest = 35,
                 WidthRequest = 35,
                 BackgroundColor = Colors.OrangeRed,
@@ -119,7 +120,8 @@ namespace DMOrders.Controls.CustomRows
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 12,
                 HorizontalOptions = LayoutOptions.Center,
-                IsVisible = true,
+                Padding = 3,
+                Margin = 2,
                 ImageSource = new FontImageSource
                 {
                     FontFamily = "FontAwesome5Solid",
@@ -127,25 +129,20 @@ namespace DMOrders.Controls.CustomRows
                     Size = 15,
                     FontAutoScalingEnabled = true,
                     Glyph = "\uf2ed"
-                },
-                Padding = new Thickness(3),
-                Margin = new Thickness(2),
+                }
             };
+            // Si más adelante expones DeleteCommand, cámbialo aquí:
+            //_btnDelete.SetBinding(Button.CommandProperty, new Binding(nameof(DeleteCommand), source: this));
 
-            var stackLayout = new StackLayout
+            var tools = new StackLayout
             {
                 Orientation = StackOrientation.Horizontal,
-                Margin = new Thickness(0),
-                BackgroundColor = Colors.Transparent
+                BackgroundColor = Colors.Transparent,
+                Children = { _btnEdit, _btnDelete }
             };
 
-            stackLayout.Children.Add(buttonEdit);
-            stackLayout.Children.Add(buttonDelete);
-
-            toolGrid.Children.Add(stackLayout);
-            Grid.SetRow(stackLayout, 0);
-            Grid.SetRowSpan(stackLayout, 2);
-            Grid.SetColumn(stackLayout, 4);
+            // ToolGrid suele ser 1x1 en tu base; no forces SetColumn/RowSpan fuera de rango
+            toolGrid.Children.Add(tools);
         }
     }
 }

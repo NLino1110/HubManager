@@ -44,7 +44,7 @@ public partial class Details : ContentPage, IBackButtonHandler
 
             if (leave)
             {
-                await Navigation.PopAsync();
+                await Navigation.PopModalAsync();
             }
         });
 
@@ -126,12 +126,11 @@ public partial class Details : ContentPage, IBackButtonHandler
     {
         //Save data
         await Toast.Make("Datos almacenados").Show();
-        await Navigation.PopAsync();
+        await Navigation.PopModalAsync();
     }
 
     private void ButtonSync_Clicked(object sender, EventArgs e)
     {
 
     }
-
 }

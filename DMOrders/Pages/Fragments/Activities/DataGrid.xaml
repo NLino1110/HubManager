@@ -34,7 +34,9 @@
                                 SelectionChanged="MyCollectionView_SelectionChanged">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <customrows:ActivityRow>
+                            <customrows:ActivityRow 
+                                Item="{x:Binding .}" 
+                                EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}">
                                 
                             </customrows:ActivityRow>
 

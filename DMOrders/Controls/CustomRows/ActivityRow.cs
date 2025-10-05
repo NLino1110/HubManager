@@ -9,13 +9,18 @@ namespace DMOrders.Controls.CustomRows
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public class ActivityRow : RowAdvance<ActivityHeader>
     {
+        private bool _built;
+
         Label labelId { get; set; }
         Label labelSellerName { get; set; }
         Label labelPlanningDate { get; set; }
         Label labelWriteDate { get; set; }
         Label labelUser { get; set; }
         Label labelState { get; set; }
-        
+
+        Button buttonEdit;
+        Button buttonDelete;
+
         public ICommand EditCommand
         {
             get => (ICommand)GetValue(EditCommandProperty);
@@ -32,6 +37,8 @@ namespace DMOrders.Controls.CustomRows
 
         protected override void BuildLeftGridContent(Grid leftGrid)
         {
+            if (_built) return;
+
             LeftGrid.ColumnDefinitions = new ColumnDefinitionCollection()
             {
                 new ColumnDefinition { Width = GridLength.Star },
@@ -65,12 +72,16 @@ namespace DMOrders.Controls.CustomRows
             AddCell(CreateCell(labelPlanningDate), "left", 0, 3);
             AddCell(CreateCell(labelWriteDate), "left", 0, 4);
             AddCell(CreateCell(labelUser), "left", 0, 5);
-            AddCell(CreateCell(labelState), "left", 0, 6);            
+            AddCell(CreateCell(labelState), "left", 0, 6);
+
+            _built = true;
         }
 
         protected override void BuildToolGridContent(Grid toolGrid)
         {
-            var buttonEdit = new Button
+            if (buttonEdit != null) return;
+
+            buttonEdit = new Button
             {                           
                 HeightRequest = 35,
                 WidthRequest = 35,
@@ -96,7 +107,7 @@ namespace DMOrders.Controls.CustomRows
             buttonEdit.SetBinding(Button.CommandProperty, new Binding("EditCommand", source: new RelativeBindingSource(RelativeBindingSourceMode.FindAncestor, typeof(ActivityRow))));
             buttonEdit.SetBinding(Button.CommandParameterProperty, new Binding("Item", source: this));
 
-            var buttonDelete = new Button
+            buttonDelete = new Button
             {                
                 Command = EditCommand,
                 CommandParameter = "",

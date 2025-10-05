@@ -18,7 +18,7 @@ using System.Windows.Input;
 namespace DMOrders.Pages.Fragments.Orders;
 
 [XamlCompilation(XamlCompilationOptions.Compile)]
-public partial class Details : ContentPage, IBackButtonHandler
+public partial class Crud : ContentPage, IBackButtonHandler
 {
     public res_company CurrentCompany { get; set; }
     public res_partner _CurrentPartner { get; set; }
@@ -42,10 +42,10 @@ public partial class Details : ContentPage, IBackButtonHandler
         }
     }
 
-    public Details()
+    public Crud()
 	{
 		InitializeComponent();        
-        BindingContext = new DetailsViewModel();
+        BindingContext = new CrudViewModel();
 
         returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;
 
@@ -78,10 +78,10 @@ public partial class Details : ContentPage, IBackButtonHandler
                 Title += " [nuevo]";
             }
 
-            ((DetailsViewModel)this.BindingContext)._CurrentPartner = CurrentPartner;
-            ((DetailsViewModel)this.BindingContext).CurrentCompany = CurrentCompany;
-            ((DetailsViewModel)this.BindingContext).CurrentSaleOrder = CurrentSaleOrder;
-            ((DetailsViewModel)this.BindingContext).LoadData();
+            ((CrudViewModel)this.BindingContext)._CurrentPartner = CurrentPartner;
+            ((CrudViewModel)this.BindingContext).CurrentCompany = CurrentCompany;
+            ((CrudViewModel)this.BindingContext).CurrentSaleOrder = CurrentSaleOrder;
+            ((CrudViewModel)this.BindingContext).LoadData();
         }
         else
         {
@@ -96,9 +96,9 @@ public partial class Details : ContentPage, IBackButtonHandler
             {
                 Title += " [edición]";
             }
-            ((DetailsViewModel)this.BindingContext).CurrentCompany = CurrentCompany;
-            ((DetailsViewModel)this.BindingContext).CurrentSaleOrder = CurrentSaleOrder;
-            ((DetailsViewModel)this.BindingContext).LoadData();
+            ((CrudViewModel)this.BindingContext).CurrentCompany = CurrentCompany;
+            ((CrudViewModel)this.BindingContext).CurrentSaleOrder = CurrentSaleOrder;
+            ((CrudViewModel)this.BindingContext).LoadData();
         }
     }
 
@@ -183,7 +183,7 @@ public partial class Details : ContentPage, IBackButtonHandler
                 product_id = selected_product.id,
                 product_display = selected_product.display_name
             };
-            ((DetailsViewModel)this.BindingContext).AddOrderLine(NewOrderLine);
+            ((CrudViewModel)this.BindingContext).AddOrderLine(NewOrderLine);
         }
         else
         {
@@ -211,7 +211,7 @@ public partial class Details : ContentPage, IBackButtonHandler
 
     private async void ButtonSave_Clicked(object sender, EventArgs e)
     {
-        var viewModel = (DetailsViewModel)this.BindingContext;
+        var viewModel = (CrudViewModel)this.BindingContext;
         var orderLines = viewModel.OrderLines;
         var saleOrderDb = new SaleOrderDb();
         var saleOrderLineDb = new SaleOrderLineDb();
@@ -279,7 +279,7 @@ public partial class Details : ContentPage, IBackButtonHandler
     {
         ServerPusher serverPusher = new ServerPusher();
 
-        var orderLinesList = ((DetailsViewModel)this.BindingContext).OrderLines.ToList();
+        var orderLinesList = ((CrudViewModel)this.BindingContext).OrderLines.ToList();
         CurrentSaleOrder.order_line = new List<OrderLineWrapper>();        
         foreach (var orderLine in orderLinesList)
         {
@@ -302,6 +302,6 @@ public partial class Details : ContentPage, IBackButtonHandler
     private async void DeleteItem(object obj)
     {        
         Debug.WriteLine("DeleteItem");
-        ((DetailsViewModel)this.BindingContext).OrderLines.Remove((sale_order_line) obj);
+        ((CrudViewModel)this.BindingContext).OrderLines.Remove((sale_order_line) obj);
     }
 }

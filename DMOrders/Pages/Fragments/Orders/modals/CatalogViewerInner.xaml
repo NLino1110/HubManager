@@ -32,9 +32,8 @@
                                    ViewerTemplate="{StaticResource ViewerTemplate}"
                                    RowTemplate="{StaticResource RowTemplate}"
                                    GridTemplate="{StaticResource GridTemplate}" />
-
     </ContentView.Resources>
-    <Grid RowDefinitions="Auto,Auto,*" BackgroundColor="WhiteSmoke">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" BackgroundColor="WhiteSmoke">
         <Grid BackgroundColor="Black" RowDefinitions="Auto" ColumnDefinitions="Auto,*" Grid.Row="0">
             <Button Grid.Row="0" Text="" 
                     Grid.Column="0" 
@@ -60,7 +59,7 @@
 
         <!-- Grid Parametros -->
         <Grid BackgroundColor="WhiteSmoke" 
-              RowDefinitions="*,*,*" 
+              RowDefinitions="Auto,Auto,Auto" 
               ColumnDefinitions="*,*,Auto" 
               Grid.Row="1" ColumnSpacing="5" RowSpacing="0"
               Padding="5">
@@ -194,7 +193,7 @@
             </material:RadioButtonGroupView>-->
         </Grid>
 
-        <Grid RowDefinitions="*,Auto" Grid.Row="2">
+        <Grid RowDefinitions="*" Grid.Row="2">
             <Grid.GestureRecognizers>
                 <PanGestureRecognizer PanUpdated="OnPanUpdated" />
             </Grid.GestureRecognizers>
@@ -222,65 +221,64 @@
                 <CollectionView.ItemsLayout>
                     <GridItemsLayout Orientation="Vertical" Span="4" />
                 </CollectionView.ItemsLayout>
+            </CollectionView>            
+        </Grid>
 
-            </CollectionView>
+        <Grid Grid.Row="3" ColumnDefinitions="*,Auto">
+            <StackLayout Orientation="Horizontal" HorizontalOptions="Start" Margin="0,2" Grid.Column="0">
+                <Button Text=""
+                    Command="{Binding PreviousPageCommand}"
+                    IsEnabled="{Binding CanGoPrevious}" >
+                    <Button.ImageSource>
+                        <FontImageSource x:Name="IconPrevious"
+                            Color="Black"
+                            Size="18"
+                            FontFamily="MaterialSharp"
+                            Glyph="{x:Static uranium:MaterialSharp.Skip_previous}" />
+                    </Button.ImageSource>
+                    <Button.Triggers>
+                        <Trigger TargetType="Button" Property="IsEnabled" Value="False">
+                            <Setter TargetName="IconPrevious" Property="FontImageSource.Color" Value="DarkGray" />
+                        </Trigger>
+                    </Button.Triggers>
+                </Button>
 
-            <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
-                <StackLayout Orientation="Horizontal" HorizontalOptions="Start" Margin="0,2" Grid.Column="0">
-                    <Button Text=""
-            Command="{Binding PreviousPageCommand}"
-            IsEnabled="{Binding CanGoPrevious}" >
-                        <Button.ImageSource>
-                            <FontImageSource x:Name="IconPrevious"
-                        Color="Black"
-                        Size="18"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.Skip_previous}" />
-                        </Button.ImageSource>
-                        <Button.Triggers>
-                            <Trigger TargetType="Button" Property="IsEnabled" Value="False">
-                                <Setter TargetName="IconPrevious" Property="FontImageSource.Color" Value="DarkGray" />
-                            </Trigger>
-                        </Button.Triggers>
-                    </Button>
-
-                    <Label Text="{Binding Page}" VerticalOptions="Center" Margin="5" />
-                    <Label Text="/" VerticalOptions="Center" Margin="2"/>
-                    <Label Text="{Binding TotalPages}" VerticalOptions="Center" Margin="5"/>
-
-                    <Button Text=""
-            Command="{Binding NextPageCommand}"
-            IsEnabled="{Binding CanGoNext}">
-                        <Button.ImageSource>
-                            <FontImageSource x:Name="IconNext"
-                         Size="18"
-                         FontFamily="MaterialSharp"
-                         Glyph="{x:Static uranium:MaterialSharp.Skip_next}"
-                         Color="Black" />
-                        </Button.ImageSource>
-                        <Button.Triggers>
-                            <Trigger TargetType="Button" Property="IsEnabled" Value="False">
-                                <Setter TargetName="IconNext" Property="FontImageSource.Color" Value="DarkGray" />
-                            </Trigger>
-                        </Button.Triggers>
-                    </Button>
-                </StackLayout>
+                <Label Text="{Binding Page}" VerticalOptions="Center" Margin="5" />
+                <Label Text="/" VerticalOptions="Center" Margin="2"/>
+                <Label Text="{Binding TotalPages}" VerticalOptions="Center" Margin="5"/>
 
                 <Button Text=""
-                        Clicked="SelectSingleItem"
-                        HorizontalOptions="End"
-                        BackgroundColor="DodgerBlue"
-                        Grid.Column="1"
-                        x:Name="SelectButtonUnique">
+                    Command="{Binding NextPageCommand}"
+                    IsEnabled="{Binding CanGoNext}">
                     <Button.ImageSource>
-                        <FontImageSource
-                             Size="18"
-                             FontFamily="MaterialSharp"
-                             Glyph="{x:Static uranium:MaterialSharp.Check}"
-                             Color="White" />
+                        <FontImageSource x:Name="IconNext"
+             Size="18"
+             FontFamily="MaterialSharp"
+             Glyph="{x:Static uranium:MaterialSharp.Skip_next}"
+             Color="Black" />
                     </Button.ImageSource>
+                    <Button.Triggers>
+                        <Trigger TargetType="Button" Property="IsEnabled" Value="False">
+                            <Setter TargetName="IconNext" Property="FontImageSource.Color" Value="DarkGray" />
+                        </Trigger>
+                    </Button.Triggers>
                 </Button>
-            </Grid>
+            </StackLayout>
+
+            <Button Text=""
+                Clicked="SelectSingleItem"
+                HorizontalOptions="End"
+                BackgroundColor="DodgerBlue"
+                Grid.Column="1"
+                x:Name="SelectButtonUnique">
+                <Button.ImageSource>
+                    <FontImageSource
+                     Size="18"
+                     FontFamily="MaterialSharp"
+                     Glyph="{x:Static uranium:MaterialSharp.Check}"
+                     Color="White" />
+                </Button.ImageSource>
+            </Button>
         </Grid>
     </Grid>
 </ContentView>

@@ -85,7 +85,9 @@ namespace DMOrders.Controls
             BackgroundColor = Colors.GhostWhite;
             
             Title = "NUEVA ACTIVIDAD";
-            
+            Padding = new Thickness(0);
+            Margin = new Thickness(0);
+
             // Agregar manipuladores de eventos para los botones
             //_btnSave.Clicked += OnBtnSave_Clicked;
             //_btnCancel.Clicked += OnBtnCancel_Clicked;
@@ -337,12 +339,12 @@ namespace DMOrders.Controls
             //if (!isWindows)
             //    returnResultPopup.DesiredSize = popupSizeConstants.Large;
 
-            var result = await PopupExtensions.ShowPopupAsync(App.Current.MainPage, returnResultPopup);
+            var result = await PopupExtensions.ShowPopupAsync<res_partner>(App.Current.MainPage, returnResultPopup);
             //var result = await this.ShowPopupAsync(returnResultPopup);
 
-            if (result != null)
+            if (result.Result != null)
             {
-                Sel_Res_Partner = (res_partner) result;
+                Sel_Res_Partner = (res_partner) result.Result;
                 _inputResPartner.Text = Sel_Res_Partner.id.ToString() + " - " + Sel_Res_Partner.name;
                 //_res_partnerItem = resPartner;
             }
