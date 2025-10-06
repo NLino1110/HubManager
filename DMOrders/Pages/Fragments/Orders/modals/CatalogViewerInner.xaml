@@ -17,7 +17,7 @@
         </ResourceDictionary>
 
         <DataTemplate x:Key="RowTemplate">
-            <customrows:ProductRow Item="{Binding .}" ActionButton="{Binding Source={x:Reference Root}, Path=ItemPickedCommand}"/>
+            <customrows:ProductRow Item="{Binding .}" ActionButton="{Binding Source={x:Reference Root}, Path=ItemPickedCommand}" ShowSelectButton="True"/>
         </DataTemplate>
 
         <DataTemplate x:Key="GridTemplate">

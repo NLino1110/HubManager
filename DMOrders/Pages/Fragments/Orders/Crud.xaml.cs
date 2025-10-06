@@ -304,4 +304,10 @@ public partial class Crud : ContentPage, IBackButtonHandler
         Debug.WriteLine("DeleteItem");
         ((CrudViewModel)this.BindingContext).OrderLines.Remove((sale_order_line) obj);
     }
+
+    private async void detail_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        Debug.WriteLine("detail_SelectionChanged");
+        ((CrudViewModel)this.BindingContext).OrderLines[0].product_qty = 5;
+    }
 }

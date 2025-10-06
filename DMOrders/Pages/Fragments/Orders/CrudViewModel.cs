@@ -146,9 +146,13 @@ namespace DMOrders.Pages.Fragments.Orders
             {
                 product_id = product.id,
                 product_display = product.name,
-                product_qty = 1,
-                price_total = (decimal) product.list_price,
-                // ... lo que corresponda
+                product_code = product.code,
+                qty_to_deliver = 1,
+                uom_category_display = "UND",
+                price_subtotal = 5,
+                discount = 15, 
+                price_tax = 8,
+                price_total = (decimal) product.list_price,                
             };
 
             OrderLines.Add(line);

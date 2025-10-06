@@ -42,8 +42,8 @@ public partial class CatalogViewerInner : ContentView
     double swipeThreshold = 50; // Distancia mínima para considerar un swipe
     double panX = 0;
 
-    product_brand selected_brand { get; set; }
-    public ObservableCollection<product_brand> Brands { get; set; } = new();
+    product_marca selected_brand { get; set; }
+    public ObservableCollection<product_marca> Brands { get; set; } = new();
 
     FStatus[] newProducts { get; set; }
     FStatus[] stockProducts { get; set; }
@@ -66,16 +66,16 @@ public partial class CatalogViewerInner : ContentView
 
         Brands =
             [
-                new product_brand { id = 0, name = "No seleccionada" },
-                new product_brand { id = -1, name = "🔍 Buscar..." },
-                new product_brand { id = 1, name = "Marca 1" },
-                new product_brand { id = 2, name = "Marca 2" },
-                new product_brand { id = 3, name = "Marca 3" },
-                new product_brand { id = 4, name = "Marca 4" },
-                new product_brand { id = 5, name = "Marca 5" },
-                new product_brand { id = 6, name = "Marca 6" },
-                new product_brand { id = 7, name = "Marca 7" },
-                new product_brand { id = 8, name = "Marca 8" },
+                new product_marca { id = 0, name = "No seleccionada" },
+                new product_marca { id = -1, name = "🔍 Buscar..." },
+                new product_marca { id = 1, name = "Marca 1" },
+                new product_marca { id = 2, name = "Marca 2" },
+                new product_marca { id = 3, name = "Marca 3" },
+                new product_marca { id = 4, name = "Marca 4" },
+                new product_marca { id = 5, name = "Marca 5" },
+                new product_marca { id = 6, name = "Marca 6" },
+                new product_marca { id = 7, name = "Marca 7" },
+                new product_marca { id = 8, name = "Marca 8" },
             ];
 
         ddfBrands.ItemsSource = Brands;
@@ -130,9 +130,9 @@ public partial class CatalogViewerInner : ContentView
     }
 
     private async void DdfBrands_SelectedItemChanged(object? sender, object e)
-    {
-        product_brand new_selected_brand = (product_brand)e;
-
+    {        
+        product_marca new_selected_brand = (product_marca) e;
+        
         if (new_selected_brand != null && (new_selected_brand.id == -1 || new_selected_brand.id == 0))
         {
             if (new_selected_brand.id == -1)
@@ -150,8 +150,12 @@ public partial class CatalogViewerInner : ContentView
                     ddfBrands.SelectedItem = selectedBrand;
                     selected_brand = selectedBrand;
                     ddfBrands.IsEnabled = true;
-                    return;
                 }
+                else
+                {
+                    ddfBrands.SelectedItem = selected_brand;                    
+                }
+                return;
             }
         }
 
@@ -160,7 +164,7 @@ public partial class CatalogViewerInner : ContentView
             ddfBrands.IsEnabled = false;
             Debug.WriteLine("Clear");
             ddfBrands.ItemsSource = null;
-            var nsBrand = new product_brand { id = 0, name = "No seleccionada" };
+            var nsBrand = new product_marca { id = 0, name = "No seleccionada" };
             Brands[0] = nsBrand;
             ddfBrands.ItemsSource = Brands;
             ddfBrands.SelectedItem = nsBrand;
@@ -174,24 +178,24 @@ public partial class CatalogViewerInner : ContentView
         }
     }
 
-    async Task<product_brand> PopupBrand(object sender, EventArgs e)
+    async Task<product_marca> PopupBrand(object sender, EventArgs e)
     {
-        product_brand selected_product_brand = null;
+        product_marca selected_product_brand = null;
 
         var popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
         popupSizeConstants.CalculateSizes(DeviceDisplay.Current);
 
-        var returnResultPopup = new PopupSelectBrand(popupSizeConstants);
+        var returnResultPopup = new PopupSelectMarca(popupSizeConstants);
 
         returnResultPopup.Company = App.Session.res_Company;
 
         returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;
 
-        var result = await PopupExtensions.ShowPopupAsync(App.Current.MainPage, returnResultPopup);
+        var result = await PopupExtensions.ShowPopupAsync<product_marca>(App.Current.MainPage, returnResultPopup);
 
-        if (result != null)
+        if (result.Result != null)
         {
-            selected_product_brand = (product_brand)result;
+            selected_product_brand = result.Result;
         }
 
         return selected_product_brand;

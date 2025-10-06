@@ -20,34 +20,32 @@
             <Label Text="Precio" Grid.Column="1" FontAttributes="Bold"/>
             <Label Text="Cantidad" Grid.Column="2" FontAttributes="Bold"/>
         </Grid>
-        <ScrollView Grid.Row="1" BackgroundColor="WhiteSmoke">
-            <VerticalStackLayout>                
-                <CollectionView
-                    x:Name="MyCollectionView"                    
-                    ItemsSource="{Binding ItemsData}"
-                                EmptyView="Datos no encontrados..." 
-                                HorizontalOptions="Fill" 
-                                SelectionMode="Single"
-                                SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-                                SelectionChanged="MyCollectionView_SelectionChanged">
-                    <CollectionView.ItemsLayout>
-                        <GridItemsLayout Orientation="Vertical" Span="4" />
-                    </CollectionView.ItemsLayout>
+        
+        <CollectionView Grid.Row="1"
+            x:Name="MyCollectionView"                    
+            ItemsSource="{Binding ItemsData}"
+                        EmptyView="Datos no encontrados..." 
+                        HorizontalOptions="Fill" 
+                        SelectionMode="Single"
+                        SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                        SelectionChanged="MyCollectionView_SelectionChanged">
+            <CollectionView.ItemsLayout>
+                <GridItemsLayout Orientation="Vertical" Span="4" />
+            </CollectionView.ItemsLayout>
 
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <customrows:ProductRow
-                                Item="{x:Binding .}" 
-                                ActionButton="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
-                                SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"
-                                ShowSelectButton="False">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <customrows:ProductRow
+                        Item="{x:Binding .}" 
+                        ActionButton="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
+                        SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"
+                        ShowSelectButton="False">
 
-                            </customrows:ProductRow>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-            </VerticalStackLayout>
-        </ScrollView>
+                    </customrows:ProductRow>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+            
 
         <StackLayout Grid.Row="2"  Orientation="Horizontal" HorizontalOptions="Center" Margin="0,2">
             <Button Text=""

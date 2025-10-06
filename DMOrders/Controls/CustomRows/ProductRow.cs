@@ -8,7 +8,7 @@ namespace DMOrders.Controls.CustomRows
     public class ProductRow : RowAdvance<product_product>
     {
         public static readonly BindableProperty ShowSelectButtonProperty =
-            BindableProperty.Create(nameof(ShowSelectButton), typeof(bool), typeof(ProductRow), true);
+            BindableProperty.Create(nameof(ShowSelectButton), typeof(bool), typeof(ProductRow), false);
 
         public bool ShowSelectButton
         {
@@ -106,35 +106,33 @@ namespace DMOrders.Controls.CustomRows
             };
 
             container.Add(infoGrid, 0, 0);
-
-            if (ShowSelectButton)
+                        
+            _btnSelect = new Button
             {
-                // Botón (una vez) y BINDINGS (no asignaciones directas)
-                _btnSelect = new Button
+                HeightRequest = 35,
+                BackgroundColor = Colors.DodgerBlue,
+                Text = "Seleccionar",
+                TextColor = Colors.White,
+                FontAttributes = FontAttributes.Bold,
+                FontSize = 12,
+                HorizontalOptions = LayoutOptions.Fill,
+                ImageSource = new FontImageSource
                 {
-                    HeightRequest = 35,
-                    BackgroundColor = Colors.DodgerBlue,
-                    Text = "Seleccionar",
-                    TextColor = Colors.White,
-                    FontAttributes = FontAttributes.Bold,
-                    FontSize = 12,
-                    HorizontalOptions = LayoutOptions.Fill,
-                    ImageSource = new FontImageSource
-                    {
-                        FontFamily = "FontAwesome5Solid",
-                        Color = Colors.White,
-                        Size = 15,
-                        FontAutoScalingEnabled = true,
-                        Glyph = "\uf058"
-                    },
-                    Padding = new Thickness(3)
-                };
+                    FontFamily = "FontAwesome5Solid",
+                    Color = Colors.White,
+                    Size = 15,
+                    FontAutoScalingEnabled = true,
+                    Glyph = "\uf058"
+                },
+                Padding = new Thickness(3)
+            };
 
-                // 🔗 ENLACES (se actualizan cuando el DataTemplate resuelve los bindings)
-                _btnSelect.SetBinding(Button.CommandProperty, new Binding(nameof(ActionButton), source: this));
-                _btnSelect.SetBinding(Button.CommandParameterProperty, new Binding(nameof(Item), source: this));
-                container.Add(_btnSelect, 0, 1);
-            }            
+            // 🔗 ENLACES (se actualizan cuando el DataTemplate resuelve los bindings)
+            _btnSelect.SetBinding(Button.CommandProperty, new Binding(nameof(ActionButton), source: this));
+            _btnSelect.SetBinding(Button.CommandParameterProperty, new Binding(nameof(Item), source: this));
+            _btnSelect.SetBinding(IsVisibleProperty, new Binding(nameof(ShowSelectButton), source: this));
+
+            container.Add(_btnSelect, 0, 1);            
 
             // Agrega una vez al grid izquierdo
             leftGrid.Children.Add(container);

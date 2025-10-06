@@ -50,6 +50,11 @@ namespace DMOrders.Controls.CustomRows
                     new ColumnDefinition { Width = GridLength.Star},
                     new ColumnDefinition { Width = GridLength.Star},
                     new ColumnDefinition { Width = GridLength.Star},
+                    new ColumnDefinition { Width = GridLength.Star},
+                    new ColumnDefinition { Width = GridLength.Star},
+                    new ColumnDefinition { Width = GridLength.Star},
+                    new ColumnDefinition { Width = GridLength.Star},
+                    new ColumnDefinition { Width = GridLength.Star},
                     new ColumnDefinition { Width = GridLength.Auto},
 
                 },
@@ -86,14 +91,39 @@ namespace DMOrders.Controls.CustomRows
             var nameLabel = new Label
             {
                 Text = Item.product_display,
+                FontAttributes = FontAttributes.None,
+                FontSize = 12,
+                TextColor = Colors.Black,
+                HorizontalOptions = LayoutOptions.Fill
+            };
+
+            grid.Children.Add(nameLabel);
+            Grid.SetRow(nameLabel, 1);
+            Grid.SetColumn(nameLabel, 1);
+            Grid.SetColumnSpan(nameLabel, 4);
+
+            var productUnd = new Label
+            {
+                Text = Item.uom_category_display,
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
                 HorizontalOptions = LayoutOptions.Fill
             };
-            grid.Children.Add(nameLabel);
-            Grid.SetRow(nameLabel, 1);
-            Grid.SetColumn(nameLabel, 1);
+            grid.Children.Add(productUnd);
+            Grid.SetRow(productUnd, 0);
+            Grid.SetColumn(productUnd, 2);
+
+            var qty = new Label
+            {
+                Text = Item.qty_to_deliver.ToString(),
+                FontAttributes = FontAttributes.Bold,
+                FontSize = 14,
+                TextColor = Colors.Black,
+                HorizontalOptions = LayoutOptions.Fill
+            };
+            grid.Children.Add(qty);            
+            Grid.SetColumn(qty, 3);
 
             var priceLabel = new Label
             {
@@ -104,9 +134,8 @@ namespace DMOrders.Controls.CustomRows
                 HorizontalOptions = LayoutOptions.Center
             };
             grid.Children.Add(priceLabel);
-            Grid.SetColumn(priceLabel, 2);
-            Grid.SetRowSpan(priceLabel, 2);
-
+            Grid.SetColumn(priceLabel, 4);
+            
             var subtotalLabel = new Label
             {
                 Text = Item.price_subtotal.ToString(),
@@ -116,8 +145,7 @@ namespace DMOrders.Controls.CustomRows
                 HorizontalOptions = LayoutOptions.Center
             };
             grid.Children.Add(subtotalLabel);
-            Grid.SetColumn(subtotalLabel, 3);
-            Grid.SetRowSpan(subtotalLabel, 2);
+            Grid.SetColumn(subtotalLabel, 5);                    
 
             var discountPercentLabel = new Label
             {
@@ -128,8 +156,8 @@ namespace DMOrders.Controls.CustomRows
                 HorizontalOptions = LayoutOptions.Center
             };
             grid.Children.Add(discountPercentLabel);
-            Grid.SetColumn(discountPercentLabel, 4);
-            Grid.SetRowSpan(discountPercentLabel, 2);
+            Grid.SetColumn(discountPercentLabel, 6);            
+
             var discountLabel = new Label
             {
                 Text = Item.discount.ToString(), //CALCULAR PORCENTAJE
@@ -139,8 +167,18 @@ namespace DMOrders.Controls.CustomRows
                 HorizontalOptions = LayoutOptions.Center
             };
             grid.Children.Add(discountLabel);
-            Grid.SetColumn(discountLabel, 5);
-            Grid.SetRowSpan(discountLabel, 2);
+            Grid.SetColumn(discountLabel, 7);            
+
+            var taxLabel = new Label
+            {
+                Text = Item.price_tax.ToString(), //CALCULAR PORCENTAJE
+                FontAttributes = FontAttributes.Bold,
+                FontSize = 14,
+                TextColor = Colors.Black,
+                HorizontalOptions = LayoutOptions.Center
+            };
+            grid.Children.Add(taxLabel);
+            Grid.SetColumn(taxLabel, 8);            
 
             //var btnSelect = new Button
             //{

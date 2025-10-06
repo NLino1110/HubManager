@@ -8,19 +8,20 @@ using System.Diagnostics;
 
 namespace DMOrders.Controls
 {
-    [Obsolete]
-    public class PopupSelectBrand : PopupSelectBase<product_brand>
+    public class PopupSelectMarca : PopupSelectBase<product_marca>
     {
         public res_company Company { get; set; }
         public int DetailMode { get; set; } = 0;
-        ObservableCollection<product_brand> resultItemsSearch { get; set; }
+        ObservableCollection<product_marca> resultItemsSearch { get; set; }
        
-        public PopupSelectBrand(PopupSizeConstants popupSizeConstants) : base(popupSizeConstants,true)
+        public PopupSelectMarca(PopupSizeConstants popupSizeConstants) : base(popupSizeConstants,true)
         {            
             DataField = "id, name";
             _LaunchSearchEvent += _searchBar_BeginSearch;
             _OnAppearing += _onAppearingCustom;
-            resultItemsSearch = new ObservableCollection<product_brand>();            
+            resultItemsSearch = new ObservableCollection<product_marca>();
+            Padding = new Thickness(0);
+            Margin = new Thickness(0);
         }
 
         async Task<int> LoadData()
@@ -31,9 +32,9 @@ namespace DMOrders.Controls
             }
 
             await SetWorkingStatus();
-            ProductBrandDb dbItemsDb = new ProductBrandDb();
-            resultItemsSearch = new ObservableCollection<product_brand>((await dbItemsDb.GetItemsAsync()).Where(data=>data.name.Contains(TextForSearch.ToUpper())));
-            //resultItemsSearch = new ObservableCollection<product_brand>((await dbItemsDb.GetItemsAsync()).ToList().Take(10));
+            ProductMarcaDb dbItemsDb = new ProductMarcaDb();
+            resultItemsSearch = new ObservableCollection<product_marca>((await dbItemsDb.GetItemsAsync()).Where(data=>data.name.Contains(TextForSearch.ToUpper())));
+            
             _collectionViewSearch.ItemsSource = resultItemsSearch;            
             await SetDoneStatus();
             return 1;
@@ -63,8 +64,8 @@ namespace DMOrders.Controls
                         
             collectionView.ItemTemplate = new DataTemplate(() =>
             {
-                var row = new BrandRow();
-                row.SetBinding(BrandRow.ItemProperty, new Binding("."));
+                var row = new MarcaRow();
+                row.SetBinding(MarcaRow.ItemProperty, new Binding("."));
 
                 row.BindingContextChanged += (s, e) =>
                 {
@@ -75,8 +76,7 @@ namespace DMOrders.Controls
                             Path = "SelectedItem",
                             Source = collectionView,
                             Mode = BindingMode.TwoWay
-                        };
-                        //row.SetBinding(BrandRow.SelectedItemProperty, selectedItemBinding);
+                        };                        
                     }
                 };
 
@@ -84,7 +84,6 @@ namespace DMOrders.Controls
             });
 
             return collectionView;
-
         }
     }
 }

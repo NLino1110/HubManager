@@ -47,14 +47,10 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto"
                 <Label Text="Precio: $12.50" Grid.Row="3"/>
             </Grid>
 
-            <Border Grid.Row="1" Stroke="Gray" Padding="1" Margin="0,0,0,0">
-                <VerticalStackLayout>
-                    <HorizontalStackLayout>
-                        <material:TextField FontSize="11" x:Name="EntryCantidadSolicitada" Title="Cant. solic.:" BorderThickness="0.4" Keyboard="Numeric" HorizontalOptions="Fill" />
-                    </HorizontalStackLayout>
-                    <HorizontalStackLayout>
-                        <material:TextField FontSize="11" x:Name="EntryCantidadFinal" Title="Cant. solic.:" BorderThickness="0.4" Keyboard="Numeric" HorizontalOptions="Fill"/>
-                    </HorizontalStackLayout>
+            <Border Grid.Row="1" Stroke="Green" Padding="3" Margin="0,0,0,0">
+                <VerticalStackLayout>                    
+                    <material:TextField FontSize="11" x:Name="EntryCantidadSolicitada" Title="Cant. solic.:" BorderThickness="0.3" Keyboard="Numeric" />
+                    <material:TextField FontSize="11" x:Name="EntryCantidadFinal" Title="Cant. fin.:" BorderThickness="0.3" Keyboard="Numeric" />                    
                 </VerticalStackLayout>
             </Border>
 
@@ -129,10 +125,11 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto"
                 <CollectionView
                     x:Name="MyCollectionView"
                     ItemsSource="{Binding OrderLines}" 
-                    EmptyView="....."
+                    EmptyView="..."
                     SelectionMode="Single"
                     SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-                    HorizontalOptions="Start">
+                    HorizontalOptions="Start"
+                    SelectionChanged="detail_SelectionChanged">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <customrows:SaleOrderLineRow                                 
