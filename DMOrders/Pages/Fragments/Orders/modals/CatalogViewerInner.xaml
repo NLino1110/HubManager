@@ -21,7 +21,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="GridTemplate">
-            <customrows:ProductRow Item="{Binding .}" />
+            <customrows:ProductCanvasRow Item="{Binding .}" ActionButton="{Binding Source={x:Reference Root}, Path=ItemPickedCommand}" ShowSelectButton="True"/>
         </DataTemplate>
 
         <DataTemplate x:Key="ViewerTemplate">

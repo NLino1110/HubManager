@@ -297,7 +297,7 @@ public partial class CatalogViewerInner : ContentView
             if (vm.ViewModesListSelectedIndex == 0)
             {
                 vm.PageSize = 40;
-                span_columns = 4;
+                span_columns = 1;
                 SelectButtonUnique.IsVisible = false;
             }
             else if (vm.ViewModesListSelectedIndex == 1)

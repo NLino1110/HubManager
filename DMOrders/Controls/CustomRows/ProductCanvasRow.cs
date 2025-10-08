@@ -5,7 +5,7 @@ using System.Windows.Input;
 namespace DMOrders.Controls.CustomRows
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public class ProductRow : RowAdvance<product_product>
+    public class ProductCanvasRow : RowAdvance<product_product>
     {
         public static readonly BindableProperty ShowSelectButtonProperty =
             BindableProperty.Create(nameof(ShowSelectButton), typeof(bool), typeof(ProductRow), false);
@@ -44,15 +44,13 @@ namespace DMOrders.Controls.CustomRows
                 ColumnSpacing = 12,
                 RowDefinitions =
                 {
-                    new RowDefinition { Height = GridLength.Star }, // name / unit /stock / price / priceBase / (ori/com)
-                    new RowDefinition { Height = GridLength.Star }, // code                    
+                    new RowDefinition { Height = GridLength.Auto }, // name
+                    new RowDefinition { Height = GridLength.Auto }, // code
+                    new RowDefinition { Height = GridLength.Auto }, // price / stock
+                    new RowDefinition { Height = GridLength.Auto }, // priceBase / unit
                 },
                 ColumnDefinitions =
                 {
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Star },
                     new ColumnDefinition { Width = GridLength.Star },
                     new ColumnDefinition { Width = GridLength.Auto },
                 }
@@ -68,7 +66,6 @@ namespace DMOrders.Controls.CustomRows
                 MinimumHeightRequest = 40,
                 InputTransparent = true
             };
-
             _codeLabel = new Label { FontSize = 12, TextColor = Colors.Gray, InputTransparent = true };
             _priceLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, InputTransparent = true };
             _priceBaseLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, InputTransparent = true };
@@ -77,14 +74,18 @@ namespace DMOrders.Controls.CustomRows
 
             // Colocar en la grilla
             infoGrid.Add(_nameLabel, 0, 0);
-            //Grid.SetColumnSpan(_nameLabel, 2);
-            infoGrid.Add(_codeLabel, 0, 1);
-            //Grid.SetColumnSpan(_codeLabel, 2);
-            infoGrid.Add(_unitLabel, 1, 0);
+            Grid.SetColumnSpan(_nameLabel, 2);
 
-            infoGrid.Add(_priceLabel, 2, 0);
-            infoGrid.Add(_stockLabel, 3, 0);
-            infoGrid.Add(_priceBaseLabel, 4, 0);            
+            infoGrid.Add(_codeLabel, 0, 1);
+            Grid.SetColumnSpan(_codeLabel, 2);
+
+            infoGrid.Add(_priceLabel, 0, 2);
+            infoGrid.Add(_stockLabel, 1, 2);
+
+            infoGrid.Add(_priceBaseLabel, 0, 3);
+            infoGrid.Add(_unitLabel, 1, 3);
+
+            
 
             // Enlaza labels a las propiedades del Item (así no tienes que “repintar” manual)
             _nameLabel.SetBinding(Label.TextProperty, new Binding("Item.name", source: this));
@@ -97,15 +98,10 @@ namespace DMOrders.Controls.CustomRows
             // Contenedor (dos filas: info + botón)
             var container = new Grid
             {
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Auto }
-                },
                 RowDefinitions =
                 {
-                    new RowDefinition { Height = GridLength.Star },
-                    //new RowDefinition { Height = GridLength.Auto }
+                    new RowDefinition { Height = GridLength.Auto },
+                    new RowDefinition { Height = GridLength.Auto }
                 }
             };
 
@@ -136,7 +132,7 @@ namespace DMOrders.Controls.CustomRows
             _btnSelect.SetBinding(Button.CommandParameterProperty, new Binding(nameof(Item), source: this));
             _btnSelect.SetBinding(IsVisibleProperty, new Binding(nameof(ShowSelectButton), source: this));
 
-            container.Add(_btnSelect, 1, 0);            
+            container.Add(_btnSelect, 0, 1);            
 
             // Agrega una vez al grid izquierdo
             leftGrid.Children.Add(container);
