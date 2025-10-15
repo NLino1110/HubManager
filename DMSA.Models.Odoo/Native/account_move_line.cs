@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using DMSA.Models.Odoo.Base;
+using Newtonsoft.Json.Linq;
 using SQLite;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DMSA.Models.Odoo.Native
 {
-    public class account_move_line : ABase
+    public class account_move_line : OdooEntity
     {
         [PrimaryKey]
         public int id { get; set; }

@@ -45,6 +45,10 @@ namespace DMSA.Models.Odoo.Abstract
         public int CompanyId { get; set; }
 
         [Required]
+        [Column("res_center_default")]
+        public int res_center_default { get; set; }
+
+        [Required]
         [Column("username")]
         public string Username { get; set; } = string.Empty; // usuario de Odoo
 

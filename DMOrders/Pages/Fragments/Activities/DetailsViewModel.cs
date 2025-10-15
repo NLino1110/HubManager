@@ -10,10 +10,10 @@ namespace DMOrders.Pages.Fragments.Activities
 {
     public class DetailsViewModel : INotifyPropertyChanged
     {
-        private ObservableCollection<PlanningSlot> _activities;
-        private PlanningSlot _selectedItem;
+        private ObservableCollection<MailActivityPlan> _activities;
+        private MailActivityPlan _selectedItem;
 
-        public ObservableCollection<PlanningSlot> Activities
+        public ObservableCollection<MailActivityPlan> Activities
         {
             get => _activities;
             set
@@ -23,7 +23,7 @@ namespace DMOrders.Pages.Fragments.Activities
             }
         }
 
-        public PlanningSlot SelectedItem
+        public MailActivityPlan SelectedItem
         {
             get => _selectedItem;
             set
@@ -40,7 +40,7 @@ namespace DMOrders.Pages.Fragments.Activities
 
         public DetailsViewModel()
         {
-            Activities = new ObservableCollection<PlanningSlot>();
+            Activities = new ObservableCollection<MailActivityPlan>();
             LoadActivities();
 
             CloseCommand = new Command(OnClose);
@@ -52,8 +52,8 @@ namespace DMOrders.Pages.Fragments.Activities
         private void LoadActivities()
         {
             // Aquí deberías cargar tus actividades desde el servicio o base de datos
-            Activities.Add(new PlanningSlot { id = 1, name = "Reunión diaria", res_company_display="Macronegocios", res_partner_display="Cliente", start_datetime = DateTime.Now.TimeOfDay, end_datetime = DateTime.Now.TimeOfDay  });
-            Activities.Add(new PlanningSlot { id = 2, name = "Revisión", res_company_display = "Macronegocios", res_partner_display = "Cliente", start_datetime = DateTime.Now.TimeOfDay, end_datetime = DateTime.Now.TimeOfDay });
+            Activities.Add(new MailActivityPlan { id = 1, name = "Reunión diaria",  display_name = "Reu dia", user_id = 3 });
+            Activities.Add(new MailActivityPlan { id = 2, name = "Revisión", display_name = "Reu dia 2", user_id = 3 });
         }
 
         private void OnClose()
@@ -63,7 +63,7 @@ namespace DMOrders.Pages.Fragments.Activities
 
         private void OnNew()
         {
-            var newActivity = new PlanningSlot { id = 0, name = "Nueva actividad" };
+            var newActivity = new MailActivityPlan { id = 0, name = "Nueva actividad" };
             Activities.Add(newActivity);
             SelectedItem = newActivity;
         }

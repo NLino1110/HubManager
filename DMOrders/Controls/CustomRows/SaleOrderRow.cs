@@ -38,18 +38,20 @@ namespace DMOrders.Controls.CustomRows
                 HorizontalOptions = LayoutOptions.Fill,
             };
 
-            // Definir las columnas (puedes usar GridLength.Star para que se repartan equitativamente)
-            for (int i = 0; i < 6; i++)
-            {
-                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
-            }
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
 
             var idLabel = new Label
             {
                 Text = $"{Item.id}",
                 FontSize = 12,
                 TextColor = Colors.Green,
-                HorizontalOptions = LayoutOptions.Center
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Center
             };
             grid.Children.Add(idLabel);
             Grid.SetColumn(idLabel, 0);
@@ -58,9 +60,12 @@ namespace DMOrders.Controls.CustomRows
             {
                 Text = Item.partner_display,
                 FontAttributes = FontAttributes.Bold,
-                FontSize = 14,
+                FontSize = 12,
                 TextColor = Colors.Black,
-                HorizontalOptions = LayoutOptions.Center
+                HorizontalOptions = LayoutOptions.Start,
+                MaxLines = 2,
+                LineBreakMode = LineBreakMode.TailTruncation,
+                VerticalOptions = LayoutOptions.Center
             };
 
             grid.Children.Add(nameLabel);
@@ -72,7 +77,8 @@ namespace DMOrders.Controls.CustomRows
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
-                HorizontalOptions = LayoutOptions.Center
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Center
             };
             grid.Children.Add(dateOrderLabel);
             Grid.SetColumn(dateOrderLabel, 2);
@@ -90,7 +96,8 @@ namespace DMOrders.Controls.CustomRows
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
-                HorizontalOptions = LayoutOptions.Center
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Center
             };
             grid.Children.Add(dateSyncLabel);
             Grid.SetColumn(dateSyncLabel, 3);
@@ -101,7 +108,8 @@ namespace DMOrders.Controls.CustomRows
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
-                HorizontalOptions = LayoutOptions.Center
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Center
             };
             grid.Children.Add(totalLabel);
             Grid.SetColumn(totalLabel, 4);
@@ -112,7 +120,8 @@ namespace DMOrders.Controls.CustomRows
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
-                HorizontalOptions = LayoutOptions.Center
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Center
             };
             grid.Children.Add(syncLabel);
             Grid.SetColumn(syncLabel, 5);

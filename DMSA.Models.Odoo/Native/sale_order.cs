@@ -41,6 +41,17 @@ namespace DMSA.Models.Odoo.Native
             set => company_id = SetId(company_id, value);
         }
 
+        [JsonIgnore]
+        public int _center_id
+        {
+            get => GetId(center_id);
+            set => center_id = SetId(center_id, value);
+        }
+
+        [Ignore]
+        [JsonProperty("center_id")]
+        public JToken center_id { get; set; }
+
         [JsonProperty("date_order")]
         public DateTime date_order { get; set; }
 

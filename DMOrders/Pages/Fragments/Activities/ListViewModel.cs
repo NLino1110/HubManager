@@ -1,4 +1,5 @@
-﻿using DMSA.Models.Odoo.DMOrders;
+﻿using DMOrders.Services.Database.Sqlite;
+using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.Native;
 using Microsoft.Maui;
 using System.Collections.ObjectModel;
@@ -10,10 +11,10 @@ namespace DMOrders.Pages.Fragments.Activities
 {
     public class ListViewModel : INotifyPropertyChanged
     {
-        public ObservableCollection<ActivityHeader> Activities { get; set; } = new();
+        public ObservableCollection<MailActivityPlan> Activities { get; set; } = new();
 
-        private ActivityHeader _selectedItem;
-        public ActivityHeader SelectedItem
+        private MailActivityPlan _selectedItem;
+        public MailActivityPlan SelectedItem
         {
             get => _selectedItem;
             set
@@ -58,43 +59,23 @@ namespace DMOrders.Pages.Fragments.Activities
             try
             {
                 IsBusy = true;
+                MailActivityPlanDb activityHeaderDb = new MailActivityPlanDb();
 
-                Activities = new ObservableCollection<ActivityHeader>
-            {
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 2, seller_name = "Miguel Vargas" },
-                new ActivityHeader { id = 3, seller_name = "Byron Freire" },
-                new ActivityHeader { id = 4, seller_name = "Sergio Ruiz" },
-                new ActivityHeader { id = 4, seller_name = "Sergio Ruiz" },
-                new ActivityHeader { id = 4, seller_name = "Sergio Ruiz" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
+                activityHeaderDb.GetItemsAsync().ContinueWith(task =>
+                {
+                    var items = task.Result;
+                    Activities = new ObservableCollection<MailActivityPlan>(items);
+                    OnPropertyChanged(nameof(Activities));
+                });
 
-            };
+                //Activities = new ObservableCollection<ActivityHeader>
+                //{
+                //    new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
+                //    new ActivityHeader { id = 2, seller_name = "Miguel Vargas" },
+                //    new ActivityHeader { id = 3, seller_name = "Byron Freire" },
+                //};
 
-                OnPropertyChanged(nameof(Activities));
+                //OnPropertyChanged(nameof(Activities));
                 //OnPropertyChanged(nameof(CanGoNext));
                 //OnPropertyChanged(nameof(CanGoPrevious));
             }

@@ -110,5 +110,13 @@ namespace DMSA.Models.Odoo.Native
         public JToken product_brand_id { get; set; }
 
         public int company_id { get; set; }
+
+        public int general_tipo_sri_id { get; set; }
+        public int general_marca_id { get; set; }
+        public int general_linea_id { get; set; }
+        public int general_categoria_id { get; set; }
+        public int general_subcategoria_id { get; set; }
+        public int general_grupor_tipo_id { get; set; }
+        public int general_tipo_marca_id { get; set; }
     }
 }

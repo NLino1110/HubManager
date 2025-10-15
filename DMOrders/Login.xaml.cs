@@ -88,7 +88,9 @@ public partial class Login : ContentPage
         var serverPuller = new ServerPuller();
         var pullResult = await serverPuller.Pull();
 
-        if(!pullResult)
+        await serverPuller.PullPromotions();
+
+        if (!pullResult)
         {
             await Toast.Make("Datos base incorrectos.").Show();
         }

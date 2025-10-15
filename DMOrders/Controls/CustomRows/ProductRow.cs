@@ -44,7 +44,7 @@ namespace DMOrders.Controls.CustomRows
                 ColumnSpacing = 12,
                 RowDefinitions =
                 {
-                    new RowDefinition { Height = GridLength.Star }, // name / unit /stock / price / priceBase / (ori/com)
+                    new RowDefinition { Height = GridLength.Auto }, // name / unit /stock / price / priceBase / (ori/com)
                     new RowDefinition { Height = GridLength.Star }, // code                    
                 },
                 ColumnDefinitions =
@@ -70,10 +70,10 @@ namespace DMOrders.Controls.CustomRows
             };
 
             _codeLabel = new Label { FontSize = 12, TextColor = Colors.Gray, InputTransparent = true };
-            _priceLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, InputTransparent = true };
-            _priceBaseLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, InputTransparent = true };
-            _stockLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, HorizontalTextAlignment = TextAlignment.End, InputTransparent = true };
-            _unitLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, HorizontalTextAlignment = TextAlignment.End, InputTransparent = true };
+            _priceLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, HorizontalTextAlignment = TextAlignment.End, InputTransparent = true , VerticalTextAlignment = TextAlignment.Center };
+            _priceBaseLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, HorizontalTextAlignment = TextAlignment.End, InputTransparent = true , VerticalTextAlignment = TextAlignment.Center };
+            _stockLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, HorizontalTextAlignment = TextAlignment.End, InputTransparent = true, VerticalTextAlignment = TextAlignment.Center };
+            _unitLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, HorizontalTextAlignment = TextAlignment.End, InputTransparent = true, VerticalTextAlignment = TextAlignment.Center };
 
             // Colocar en la grilla
             infoGrid.Add(_nameLabel, 0, 0);
@@ -81,10 +81,14 @@ namespace DMOrders.Controls.CustomRows
             infoGrid.Add(_codeLabel, 0, 1);
             //Grid.SetColumnSpan(_codeLabel, 2);
             infoGrid.Add(_unitLabel, 1, 0);
+            Grid.SetRowSpan(_unitLabel, 2);
 
             infoGrid.Add(_priceLabel, 2, 0);
+            Grid.SetRowSpan(_priceLabel, 2);
             infoGrid.Add(_stockLabel, 3, 0);
-            infoGrid.Add(_priceBaseLabel, 4, 0);            
+            Grid.SetRowSpan(_stockLabel, 2);
+            infoGrid.Add(_priceBaseLabel, 4, 0);
+            Grid.SetRowSpan(_priceBaseLabel, 2);
 
             // Enlaza labels a las propiedades del Item (así no tienes que “repintar” manual)
             _nameLabel.SetBinding(Label.TextProperty, new Binding("Item.name", source: this));
@@ -128,7 +132,7 @@ namespace DMOrders.Controls.CustomRows
                     FontAutoScalingEnabled = true,
                     Glyph = "\uf058"
                 },
-                Padding = new Thickness(3)
+                Padding = new Thickness(5,0,5,0)
             };
 
             // 🔗 ENLACES (se actualizan cuando el DataTemplate resuelve los bindings)

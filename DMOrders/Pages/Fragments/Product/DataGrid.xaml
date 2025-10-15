@@ -10,7 +10,7 @@
              x:Name="ProductDataGrid">
 
     <Grid RowDefinitions="Auto,*,Auto">
-        <Grid Grid.Row="0" BackgroundColor="LightGray" Padding="10" HeightRequest="35">
+        <Grid Grid.Row="0" BackgroundColor="LightGray" Padding="10" HeightRequest="35" IsVisible="False">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="2*"/>
@@ -35,13 +35,13 @@
 
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <customrows:ProductRow
+                    <customrows:ProductCanvasRow
                         Item="{x:Binding .}" 
                         ActionButton="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
                         SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"
                         ShowSelectButton="False">
 
-                    </customrows:ProductRow>
+                    </customrows:ProductCanvasRow>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>

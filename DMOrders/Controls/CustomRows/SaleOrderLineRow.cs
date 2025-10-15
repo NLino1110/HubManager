@@ -92,7 +92,7 @@ namespace DMOrders.Controls.CustomRows
             {
                 Text = Item.product_display,
                 FontAttributes = FontAttributes.None,
-                FontSize = 12,
+                FontSize = 11,
                 TextColor = Colors.Black,
                 HorizontalOptions = LayoutOptions.Fill
             };
@@ -100,7 +100,7 @@ namespace DMOrders.Controls.CustomRows
             grid.Children.Add(nameLabel);
             Grid.SetRow(nameLabel, 1);
             Grid.SetColumn(nameLabel, 1);
-            Grid.SetColumnSpan(nameLabel, 4);
+            Grid.SetColumnSpan(nameLabel, 6);
 
             var productUnd = new Label
             {

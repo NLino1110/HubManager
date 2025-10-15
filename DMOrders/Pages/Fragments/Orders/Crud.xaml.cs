@@ -72,10 +72,12 @@ public partial class Crud : ContentPage, IBackButtonHandler
             if(CurrentSaleOrder == null)
             {
                 Title += " [*]";
+                btnSend.IsVisible = false;
             }
             else
             {
                 Title += " [nuevo]";
+                btnSend.IsVisible = true;
             }
 
             ((CrudViewModel)this.BindingContext)._CurrentPartner = CurrentPartner;
@@ -280,10 +282,12 @@ public partial class Crud : ContentPage, IBackButtonHandler
         ServerPusher serverPusher = new ServerPusher();
 
         var orderLinesList = ((CrudViewModel)this.BindingContext).OrderLines.ToList();
-        CurrentSaleOrder.order_line = new List<OrderLineWrapper>();        
+        CurrentSaleOrder.order_line = new List<OrderLineWrapper>();
+        CurrentSaleOrder._center_id = App.Session.odooConnection.res_center_default;
+
         foreach (var orderLine in orderLinesList)
         {
-            orderLine.price_subtotal = 1;
+            //orderLine.price_subtotal = 1;
             orderLine.price_unit = 1;
             orderLine.product_uom_qty = 1;
 
@@ -308,6 +312,6 @@ public partial class Crud : ContentPage, IBackButtonHandler
     private async void detail_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         Debug.WriteLine("detail_SelectionChanged");
-        ((CrudViewModel)this.BindingContext).OrderLines[0].product_qty = 5;
+        //((CrudViewModel)this.BindingContext).OrderLines[0].product_qty = 5;
     }
 }

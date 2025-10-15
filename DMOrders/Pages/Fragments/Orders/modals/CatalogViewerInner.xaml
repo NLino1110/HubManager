@@ -48,9 +48,10 @@
                         Glyph="{x:Static uranium:MaterialSharp.Arrow_back}" />
                 </Button.ImageSource>
             </Button>
-            <Label Grid.Row="0" Grid.Column="1" 
-                   Text="Titulo" 
+            <Label Grid.Row="0" Grid.Column="1" Margin="-60,0,0,0"
+                   Text="Seleccione Productos para pedido" 
                    TextColor="WhiteSmoke" 
+                   FontAttributes="Bold"
                    HorizontalOptions="Center"
                    VerticalOptions="Center">
 
@@ -178,7 +179,8 @@
                     BackgroundColor="IndianRed"  
                     TextColor="White" 
                     Grid.Row="2"
-                    Grid.Column="2">
+                    Grid.Column="2"
+                    Command="{Binding RefreshCommand}">
                 <Button.ImageSource>
                     <FontImageSource 
             Size="18"
@@ -193,12 +195,20 @@
             </material:RadioButtonGroupView>-->
         </Grid>
 
-        <Grid RowDefinitions="*" Grid.Row="2">
+        <Grid RowDefinitions="Auto,*" Grid.Row="2">
             <Grid.GestureRecognizers>
                 <PanGestureRecognizer PanUpdated="OnPanUpdated" />
             </Grid.GestureRecognizers>
+            <Grid x:Name="GridTitleSearch" RowDefinitions="*" ColumnDefinitions="*,*,*,*,*,*,Auto" BackgroundColor="LightGray">
+                <Label Grid.Column="0" Text="Producto" FontAttributes="Bold" WidthRequest="100" HorizontalTextAlignment="Start"></Label>
+                <Label Grid.Column="1" Text="Unidad" FontAttributes="Bold" HorizontalTextAlignment="End"></Label>
+                <Label Grid.Column="2" Text="Precio" FontAttributes="Bold" HorizontalTextAlignment="End"></Label>
+                <Label Grid.Column="3" Text="Stock" FontAttributes="Bold" HorizontalTextAlignment="End"></Label>
+                <Label Grid.Column="4" Text="Pre. Base" FontAttributes="Bold" HorizontalTextAlignment="End"></Label>
+                <Label Grid.Column="6" Text="" HorizontalTextAlignment="End"></Label>
+            </Grid>
             <ActivityIndicator 
-                Grid.Row="0"
+                Grid.Row="1"
                 IsRunning="{Binding IsLoading}"
                 IsVisible="{Binding IsLoading}"
                 HorizontalOptions="Center"
@@ -208,7 +218,7 @@
                 HeightRequest="60"/>
 
             <CollectionView
-                    Grid.Row="0"
+                    Grid.Row="1"
                     x:Name="MyCollectionView"
                     ItemsSource="{Binding ItemsData}"
                     EmptyView="Datos no encontrados..." 

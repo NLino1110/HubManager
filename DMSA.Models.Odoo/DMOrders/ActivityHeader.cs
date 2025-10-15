@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 
 namespace DMSA.Models.Odoo.DMOrders
 {
+    [Obsolete]
+    [Table("activity_header")]
     public class ActivityHeader
     {
         [PrimaryKey]

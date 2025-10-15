@@ -207,7 +207,8 @@ namespace ResourceBuilder.Shared.Modal
                     appDbContext);
 
             jsonResult = JsonConvert.SerializeObject(response, Formatting.Indented);
-            
+
+            Debug.WriteLine("Response:===============");
             Debug.WriteLine(jsonResult);
 
             return jsonResult;

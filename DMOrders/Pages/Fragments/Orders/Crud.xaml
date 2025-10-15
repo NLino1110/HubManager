@@ -143,11 +143,15 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto"
                 </CollectionView>
             </Grid>
 
-            <Grid Grid.Row="3" Grid.Column="1" HorizontalOptions="Fill">
-                <HorizontalStackLayout Grid.Row="1" 
+            <Grid Grid.Row="3" Grid.Column="3" HorizontalOptions="Fill" ColumnDefinitions="*,Auto">
+                
+                <HorizontalStackLayout Grid.Row="0" 
+                                       Grid.Column="0"
                                VerticalOptions="Start" 
                                HorizontalOptions="Center" 
-                               Margin="0,0,0,10" Spacing="10">
+                               Margin="0,0,0,10" 
+                                       Spacing="10">
+                    
                     <uranium:ExpanderView IsExpanded="True" WidthRequest="250">
                         <uranium:ExpanderView.Header>
                             <Label 
@@ -198,7 +202,7 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto"
             Glyph="{x:Static uranium:MaterialSharp.Save}" />
                         </Button.ImageSource>
                     </Button>
-                    <Button Text="Enviar" Clicked="ButtonSync_Clicked" BackgroundColor="DeepSkyBlue" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0">
+                    <Button x:Name="btnSend" Text="Enviar" Clicked="ButtonSync_Clicked" BackgroundColor="DeepSkyBlue" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0">
                         <Button.ImageSource>
                             <FontImageSource 
             Size="30"
@@ -206,15 +210,17 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto"
             Glyph="{x:Static uranium:MaterialSharp.Send}" />
                         </Button.ImageSource>
                     </Button>
-                    <VerticalStackLayout HorizontalOptions="End" Margin="0" BackgroundColor="LightGray" WidthRequest="200">
-                        <Label Text="SUBTOTAL:" FontSize="10" FontAttributes="Bold"></Label>
-                        <Label Text="DESCUENTO:" FontSize="10" FontAttributes="Bold"></Label>
-                        <Label Text="NETO:" FontSize="10" FontAttributes="Bold"></Label>
-                        <Label Text="IMPUESTO:" FontSize="10" FontAttributes="Bold"></Label>
-                        <Label Text="COMP.SOLIDARIA:" FontSize="10" FontAttributes="Bold"></Label>
-                        <Label Text="TOTAL:" FontSize="10" FontAttributes="Bold"></Label>
-                    </VerticalStackLayout>
+                    
                 </HorizontalStackLayout>
+
+                <VerticalStackLayout Grid.Column="2" HorizontalOptions="End" Margin="0" BackgroundColor="LightGray" WidthRequest="200">
+                    <Label Text="SUBTOTAL:" FontSize="10" FontAttributes="Bold"></Label>
+                    <Label Text="DESCUENTO:" FontSize="10" FontAttributes="Bold"></Label>
+                    <Label Text="NETO:" FontSize="10" FontAttributes="Bold"></Label>
+                    <Label Text="IMPUESTO:" FontSize="10" FontAttributes="Bold"></Label>
+                    <Label Text="COMP.SOLIDARIA:" FontSize="10" FontAttributes="Bold"></Label>
+                    <Label Text="TOTAL:" FontSize="10" FontAttributes="Bold"></Label>
+                </VerticalStackLayout>
             </Grid>
 
         </Grid>

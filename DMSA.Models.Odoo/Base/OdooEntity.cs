@@ -30,6 +30,47 @@ namespace DMSA.Models.Odoo.Base
             }
             return new JArray { value };
         }
+
+        /// Obtiene IDs de un Many2many desde un JToken.
+        /// Acepta: [1,2,3] o cualquier JArray donde los elementos enteros serán recogidos.
+        protected int[] GetIds(JToken token)
+        {
+            if (token == null) return Array.Empty<int>();
+
+            if (token is JArray arr)
+            {
+                // Caso típico: [1,2,3]
+                var ints = arr
+                    .Where(t => t != null && t.Type == JTokenType.Integer)
+                    .Select(t => (int)t)
+                    .ToArray();
+
+                if (ints.Length > 0) return ints;
+
+                // Si viniera algo raro, intentamos dentro de sub-arreglos: [[1], [2], [3]] (defensivo)
+                var nested = arr
+                    .Where(t => t is JArray ja && ja.Count > 0 && ja[0].Type == JTokenType.Integer)
+                    .Select(t => (int)((JArray)t)[0])
+                    .ToArray();
+
+                if (nested.Length > 0) return nested;
+            }
+
+            // Valor simple no esperado para M2M
+            return Array.Empty<int>();
+        }
+
+        /// Establece IDs en un Many2many como JArray simple: [1,2,3]
+        protected JToken SetIds(JToken current, int[] values)
+        {
+            if (values == null || values.Length == 0) return new JArray(); // vacío
+
+            var ja = new JArray();
+            foreach (var v in values.Where(v => v > 0))
+                ja.Add(v);
+
+            return ja;
+        }
     }
 
 }

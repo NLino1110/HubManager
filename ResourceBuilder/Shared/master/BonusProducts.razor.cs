@@ -1986,7 +1986,7 @@ namespace ResourceBuilder.Shared.master
                 p.CodArticulo
             };
 
-            var responseData = await LaunchItemLocal(articulos, new List<object>(), false, true, new long[] {}, false, with_full_stock);
+            var responseData = await LaunchItemLocal(articulos, new List<object>(), true, false, new long[] {}, false, with_full_stock);
 
             if(responseData == null)
             {

@@ -5,7 +5,8 @@ using System.Diagnostics;
 using System.Windows.Input;
 
 namespace DMOrders.Controls.CustomRows
-{    
+{
+    [Obsolete]
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public class ActivityRow : RowAdvance<ActivityHeader>
     {

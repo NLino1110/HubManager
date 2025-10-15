@@ -160,6 +160,7 @@ namespace ApiManager
             JObjectExtensions.RenameProperty(newJObject, "_company_id", "company_id");
             JObjectExtensions.RenameProperty(newJObject, "_warehouse_id", "warehouse_id");
             JObjectExtensions.RenameProperty(newJObject, "_currency_id", "currency_id");
+            JObjectExtensions.RenameProperty(newJObject, "_center_id", "center_id");
 
             JObjectExtensions.RemoveProperty(newJObject, "is_synchronized");
             JObjectExtensions.RemoveProperty(newJObject, "date_synchronized");

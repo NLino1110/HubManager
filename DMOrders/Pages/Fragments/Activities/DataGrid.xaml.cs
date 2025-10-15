@@ -285,7 +285,7 @@ namespace DMOrders.Pages.Fragments.Activities
         {
             Debug.WriteLine("EditItem");
             Details viewObj = new Details();
-            viewObj.CurrentActivityHeader = (ActivityHeader)obj;
+            viewObj.CurrentActivityHeader = (MailActivityPlan)obj;
             //objPage.Sel_AccountMoveSendHeader = (AccountMoveSendHeader)obj;
             //objPage.editionMode = true;
             viewObj.Disappearing += ViewObj_Disappearing;

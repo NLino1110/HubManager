@@ -36,8 +36,9 @@
                             <!-- Columna 2 -->
                             <material:TextField Title="DB Limit Default" BorderThickness="0.4" Text="{Binding SelectedConnection.DbLimitDefault}" Grid.Row="0" Grid.Column="1"/>
                             <material:TextField Title="Company Id" BorderThickness="0.4" Text="{Binding SelectedConnection.CompanyId}" Grid.Row="1" Grid.Column="1"/>
-                            <material:TextField Title="Username" BorderThickness="0.4" Text="{Binding SelectedConnection.Username}" Grid.Row="2" Grid.Column="1"/>
-                            <material:TextField Title="Password" BorderThickness="0.4" Text="{Binding SelectedConnection.Password}" Grid.Row="3" Grid.Column="1"/>
+                            <material:TextField Title="Center Id" BorderThickness="0.4" Text="{Binding SelectedConnection.res_center_default}" Grid.Row="2" Grid.Column="1"/>
+                            <material:TextField Title="Username" BorderThickness="0.4" Text="{Binding SelectedConnection.Username}" Grid.Row="3" Grid.Column="1"/>
+                            <material:TextField Title="Password" BorderThickness="0.4" Text="{Binding SelectedConnection.Password}" Grid.Row="4" Grid.Column="1"/>
                         </Grid>
 
                         <StackLayout Orientation="Horizontal" Spacing="10">

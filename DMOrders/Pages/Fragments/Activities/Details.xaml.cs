@@ -15,7 +15,7 @@ namespace DMOrders.Pages.Fragments.Activities;
 [XamlCompilation(XamlCompilationOptions.Compile)]
 public partial class Details : ContentPage, IBackButtonHandler
 {
-    public ActivityHeader CurrentActivityHeader { get; set; }
+    public MailActivityPlan CurrentActivityHeader { get; set; }
 	public Details()
 	{
 		InitializeComponent();        
@@ -74,9 +74,9 @@ public partial class Details : ContentPage, IBackButtonHandler
     {
         PopupSizeConstants popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
 
-        var returnResultPopup = new PopupPlanningSlot(popupSizeConstants);
+        var returnResultPopup = new PopupMailActivityPlanTemplate(popupSizeConstants);
         returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;
-        returnResultPopup.activityHeader = CurrentActivityHeader;
+        returnResultPopup.activityPlan = CurrentActivityHeader;
 
         //if (!isWindows)
         //    returnResultPopup.Size = this.popupSizeConstants.Large;

@@ -43,8 +43,9 @@ namespace DMSA.Models.Odoo.Native
 
         [JsonProperty("product_uom_qty")]
         public decimal product_uom_qty { get; set; }
-        [JsonProperty("product_qty")]
-        public decimal product_qty { get; set; }
+        
+        //[JsonProperty("product_qty")]
+        //public decimal product_qty { get; set; }
 
         [JsonProperty("qty_to_deliver")]
         public decimal qty_to_deliver { get; set; }

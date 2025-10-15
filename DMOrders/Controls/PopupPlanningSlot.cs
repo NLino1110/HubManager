@@ -22,6 +22,7 @@ using UraniumUI.Material.Controls;
 
 namespace DMOrders.Controls
 {
+    [Obsolete]
     [XamlCompilation(XamlCompilationOptions.Skip)]
     public class PopupPlanningSlot : Popup<PlanningSlot>, INotifyPropertyChanged
     {

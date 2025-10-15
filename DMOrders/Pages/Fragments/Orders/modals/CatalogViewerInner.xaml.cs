@@ -299,18 +299,21 @@ public partial class CatalogViewerInner : ContentView
                 vm.PageSize = 40;
                 span_columns = 1;
                 SelectButtonUnique.IsVisible = false;
+                GridTitleSearch.IsVisible = true;
             }
             else if (vm.ViewModesListSelectedIndex == 1)
             {
                 vm.PageSize = 40;
                 span_columns = 4;
                 SelectButtonUnique.IsVisible = false;
+                GridTitleSearch.IsVisible = false;
             }
             else if (vm.ViewModesListSelectedIndex == 2)
             {
                 vm.PageSize = 1;
                 span_columns = 1;
                 SelectButtonUnique.IsVisible = true;
+                GridTitleSearch.IsVisible = false;
             }
 
             (MyCollectionView.ItemsLayout as GridItemsLayout).Span = span_columns;

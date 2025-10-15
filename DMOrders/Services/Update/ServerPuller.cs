@@ -52,6 +52,21 @@ namespace DMOrders.Services.Update
             return true;
         }
 
+        public async Task<bool> PullPromotions()
+        {
+            try
+            {
+                await OnlinePromotionBenefit(true);
+               
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error en PullPromotions: " + ex.Message);
+                return false;
+            }
+            return true;
+        }
+
         private async Task OnlineSyncCompany(bool force)
         {
             var database = new CompanyDb();
