@@ -1,5 +1,6 @@
 ﻿using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.DMOrders;
+using DMSA.Models.Odoo.DMOrders.tareas;
 using DMSA.Models.Odoo.Native;
 using Microsoft.Maui;
 using System.Collections.ObjectModel;
@@ -11,10 +12,10 @@ namespace DMOrders.Pages.Fragments.Activities
 {
     public class ListViewModel : INotifyPropertyChanged
     {
-        public ObservableCollection<MailActivityPlan> Activities { get; set; } = new();
+        public ObservableCollection<ProjectTask> Activities { get; set; } = new();
 
-        private MailActivityPlan _selectedItem;
-        public MailActivityPlan SelectedItem
+        private ProjectTask _selectedItem;
+        public ProjectTask SelectedItem
         {
             get => _selectedItem;
             set
@@ -59,12 +60,12 @@ namespace DMOrders.Pages.Fragments.Activities
             try
             {
                 IsBusy = true;
-                MailActivityPlanDb activityHeaderDb = new MailActivityPlanDb();
+                ProjectTaskDb activityHeaderDb = new ProjectTaskDb();
 
                 activityHeaderDb.GetItemsAsync().ContinueWith(task =>
                 {
                     var items = task.Result;
-                    Activities = new ObservableCollection<MailActivityPlan>(items);
+                    Activities = new ObservableCollection<ProjectTask>(items);
                     OnPropertyChanged(nameof(Activities));
                 });
 

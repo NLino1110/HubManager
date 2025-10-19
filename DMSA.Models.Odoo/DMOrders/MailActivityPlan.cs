@@ -24,5 +24,7 @@ namespace DMSA.Models.Odoo.DMOrders
         public MailActivityPlanTemplate[] template_id { get; set; }
 
         public int user_id { get; set; }
+        public DateTime? create_date { get; set; }
+        public DateTime? write_date { get; set; }
     }
 }

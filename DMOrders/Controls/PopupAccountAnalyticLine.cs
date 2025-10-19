@@ -1,9 +1,11 @@
-﻿using CommunityToolkit.Maui.Extensions;
+﻿using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Views;
 using DMOrders.Services.Database.Sqlite;
 using DMOrders.Services.Helpers;
 using DMSA.Models.Odoo.DMOrders;
+using DMSA.Models.Odoo.DMOrders.tareas;
 using DMSA.Models.Odoo.Native;
 using InputKit.Shared.Validations;
 using Microsoft.Maui.Graphics;
@@ -14,6 +16,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using UraniumUI.Dialogs;
@@ -21,16 +24,15 @@ using UraniumUI.Icons.MaterialIcons;
 using UraniumUI.Material.Controls;
 
 namespace DMOrders.Controls
-{
-    [Obsolete]
+{    
     [XamlCompilation(XamlCompilationOptions.Skip)]
-    public class PopupMailActivityPlanTemplate : Popup<MailActivityPlanTemplate>, INotifyPropertyChanged
+    public class PopupAccountAnalyticLine : Popup<AccountAnalyticLine>, INotifyPropertyChanged
     {
         public IDialogService DialogService { get; private set; }
 
-        public MailActivityPlan activityPlan { get; set; }
+        public ProjectTask projectTask { get; set; }
 
-        private MailActivityPlanTemplate new_ActivityPlanTemplate {  get; set; }
+        public AccountAnalyticLine analyticLine {  get; set; }
 
         private Picker _pickerPlanningSlot;
 
@@ -38,6 +40,7 @@ namespace DMOrders.Controls
         private DropdownField _pickerCompany;
         private TimePickerField _timePickerStart;
         private TimePickerField _timePickerEnd;
+
         
         //private Picker _pickerCompany;
         private TextField _inputResPartner;
@@ -64,7 +67,21 @@ namespace DMOrders.Controls
         public Color _colorBottom = Colors.GhostWhite;
         public Color _colorMain = Colors.GhostWhite;
 
-        public string Title { get; set; }
+        private string _title;
+        public string Title
+        {
+            get => _title;
+            set
+            {
+                if (_title != value)
+                {
+                    _title = value;
+                    OnPropertyChanged(); // 🔹 Esto notifica al Binding
+                }
+            }
+        }
+
+
         IDispatcherTimer timer_eventController;
 
         double lastParentHeight = 0;
@@ -74,9 +91,12 @@ namespace DMOrders.Controls
         public bool _boolShowButtonsFooter { get; set; } = true;
 
         public bool isWindows { get; set; } = false;
-
-        public PopupMailActivityPlanTemplate(PopupSizeConstants popupSizeConstants)
+        private res_partner Sel_Res_Partner { get; set; }
+        public PopupAccountAnalyticLine(PopupSizeConstants popupSizeConstants, ProjectTask _projectTask, AccountAnalyticLine _analyticLine)
         {
+            projectTask = _projectTask;
+            analyticLine = _analyticLine;
+
             isWindows = DeviceInfo.Current.Platform == DevicePlatform.WinUI;
 
             popupSizeConstants.CalculateSizes(DeviceDisplay.Current);
@@ -318,7 +338,7 @@ namespace DMOrders.Controls
 
         async void HandleReturnResultPopupButtonClicked(object sender, EventArgs e)
         {
-            var Sel_Res_Partner = new res_partner();
+            
 
             var popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
             popupSizeConstants.CalculateSizes(DeviceDisplay.Current);
@@ -383,13 +403,15 @@ namespace DMOrders.Controls
             
             _labelTitle = new Label
             {
-                Text = Title,
+                //Text = Title,
                 //Margin = new Thickness(15, 15, 0, 15),
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 13,
                 VerticalOptions = LayoutOptions.Start,
                 HorizontalOptions = LayoutOptions.Start,
             };
+
+            _labelTitle.SetBinding(Label.TextProperty, new Binding(nameof(Title), source: this));
 
             _btnClose = new Button
             {
@@ -622,10 +644,10 @@ namespace DMOrders.Controls
             {
                 Debug.WriteLine("Cargando los datos...");
 
-                if ( activityPlan != null )
+                if ( projectTask != null )
                 {
-                    ObservableCollection<MailActivityPlan> lplanning = new ObservableCollection<MailActivityPlan>();
-                    lplanning.Add(activityPlan);
+                    ObservableCollection<ProjectTask> lplanning = new ObservableCollection<ProjectTask>();
+                    lplanning.Add(projectTask);
                     _pickerPlanningSlot.ItemsSource = lplanning;                    
                     //_pickerPartner.ItemDisplayBinding = new Binding("name");
                     
@@ -638,77 +660,52 @@ namespace DMOrders.Controls
                     await App.Current.MainPage.DisplayAlert("Nueva actividad",
                                         $"Se requiere que se especifique la actividad principal.",
                                         "Continuar");
-                    await CloseAsync(default(MailActivityPlanTemplate));
+                    await CloseAsync(default(AccountAnalyticLine));
                     
                     return;
                 }
 
-                ObservableCollection<PlanningReason> lplanning_reason = new ObservableCollection<PlanningReason>();
-                lplanning_reason.Add(new PlanningReason() {
-                    id = 1,
-                    name = "company",
-                    description = "Compañia"
-                });
+                ObservableCollection<MotivoActividadDiaria> lplanning_reason = new ObservableCollection<MotivoActividadDiaria>();
 
-                lplanning_reason.Add(new PlanningReason()
-                {
-                    id = 2,
-                    name = "employee",
-                    description = "Empleado"
-                });
-
-                lplanning_reason.Add(new PlanningReason()
-                {
-                    id = 3,
-                    name = "other",
-                    description = "Otro"
-                });
+                MotivoActividadDiariaDb motivoActividadDiariaDb = new MotivoActividadDiariaDb();
+                lplanning_reason = new ObservableCollection<MotivoActividadDiaria>( (await motivoActividadDiariaDb.GetItemsAsync()).OrderBy(i=>i.name) );
 
                 _pickerPlanningReason.ItemsSource = lplanning_reason;
-                _pickerPlanningReason.ItemDisplayBinding = new Binding("description");
+                _pickerPlanningReason.ItemDisplayBinding = new Binding("name");
                 //_pickerPlanningReason.SelectedItem = 0;
 
                 ObservableCollection<res_company> lcompany = new ObservableCollection<res_company>();
-                lcompany.Add(new res_company()
-                {
-                    id = 1,
-                    name = "Macronegocios",
-                    //description = "Ahorros"
-                });
-
-                lcompany.Add(new res_company()
-                {
-                    id = 2,
-                    name = "DMUJERES",
-                    //description = "Corriente"
-                });
+                CompanyDb companyDb = new CompanyDb();
+                lcompany = new ObservableCollection<res_company>( (await companyDb.GetItemsAsync()).OrderBy(i=>i.name) );
 
                 _pickerCompany.ItemsSource = lcompany;
                 _pickerCompany.ItemDisplayBinding = new Binding("name");
-                //_pickerCompany.SelectedItem = 0;
+                
+                if(analyticLine != null)
+                {
+                    Title = "EDITANDO ACTIVIDAD";
+                    _inputReview.Text = analyticLine.name;
+                    
+                    ResPartnerDb resPartnerDb = new ResPartnerDb();
+                    Sel_Res_Partner = await resPartnerDb.GetItemsAsync(analyticLine.company_id, analyticLine.partner_id);
+                    if(Sel_Res_Partner != null)
+                    {
+                        _inputResPartner.Text = Sel_Res_Partner.id.ToString() + " - " + Sel_Res_Partner.name;
+                    }
 
-                //ObservableCollection<currency_struct> lcurrency_struct = new ObservableCollection<currency_struct>();
-                //lcurrency_struct.Add(new currency_struct()
-                //{
-                //    id = 1,
-                //    name = "USD",
-                //    description = "USD"
-                //});
+                    _pickerCompany.SelectedItem = lcompany.Where(i => i.id == analyticLine.company_id).FirstOrDefault();
 
-                //_pickerCurrency.ItemsSource = lcurrency_struct;
-                //_pickerCurrency.ItemDisplayBinding = new Binding("description");
-                //_pickerCurrency.SelectedIndex = 0;
+                    var motivo_selected = lplanning_reason.Where(i => i.id == analyticLine.motivo).FirstOrDefault();
+                    if(motivo_selected != null)
+                    {
+                        _pickerPlanningReason.SelectedItem = motivo_selected;
+                    }
+                    var time_start = TimeSpan.FromHours( (double) analyticLine.hour_start );
+                    _timePickerStart.Time = time_start;
+                    var time_end = TimeSpan.FromHours( (double) analyticLine.hour_end );
+                    _timePickerEnd.Time = time_end;
 
-                //ObservableCollection<Bank_Id> l_banks = new ObservableCollection<Bank_Id>();                
-                //BankDb bankDb = new BankDb();
-                //l_banks = new ObservableCollection<Bank_Id>( (await bankDb.GetItemsAsync()).OrderBy(i=>i.name) );
-
-                //_pickerBank.ItemsSource = l_banks;
-                //_pickerBank.ItemDisplayBinding = new Binding("name");
-                //_pickerBank.SelectedIndex = 0;
-
-                //string holder_name = ((res_partner)_pickerPartner.SelectedItem).name;
-                //_inputAccHolderName.Text = holder_name;
+                }
 
                 timer.Stop();
             };
@@ -747,89 +744,121 @@ namespace DMOrders.Controls
                 //await App.Current.MainPage.DisplayAlert("Review requerido", "Llene el campo de observaciones", "Cerrar");
                 //await ServicesExposer.DialogService.ConfirmAsync("Review requerido", "Llene el campo de observaciones", "Ok");
 
-                var messageView = new VerticalStackLayout
-                {
-                    Margin = new Thickness(15),
-                    Children =
-                    {
-                        new Label
-                        {
-                            Text = "Llene el campo de observaciones",
-                            FontSize = 15,
-                            FontAttributes = FontAttributes.None,
-                            HorizontalOptions = LayoutOptions.Center
-                        }
-                    }
-                };
+                //var messageView = new VerticalStackLayout
+                //{
+                //    Margin = new Thickness(15),
+                //    Children =
+                //    {
+                //        new Label
+                //        {
+                //            Text = "Llene el campo de observaciones",
+                //            FontSize = 15,
+                //            FontAttributes = FontAttributes.None,
+                //            HorizontalOptions = LayoutOptions.Center
+                //        }
+                //    }
+                //};
 
+                _inputReview.Focus();
                 //await ServicesExposer.DialogService.DisplayViewAsync("Review requerido", messageView);
-                Debug.WriteLine("Review requerido");
+                await Toast.Make("Llene el campo de observaciones").Show();                
                 return;
             }
 
-            new_ActivityPlanTemplate = new MailActivityPlanTemplate();
-            new_ActivityPlanTemplate.plan_id = activityPlan;
-            //new_ActivityHeader.type_account = ((type_account) _pickerCompany.SelectedItem).name;
-            //new_ActivityHeader.acc_number = _inputAccNumber.Text != null ? _inputAccNumber.Text : "";
-            //new_ActivityHeader.acc_holder_name = _inputAccHolderName.Text !=null ? _inputAccHolderName.Text : "";
-            //new_ActivityHeader.use_bank_type = ((use_bank_type) _pickerPlanningReason.SelectedItem).name;
-            //new_ActivityHeader.BankId = ((Bank_Id) _pickerBank.SelectedItem).id;
-            //new_ActivityHeader.bank_name = ((Bank_Id)_pickerBank.SelectedItem).name;
-            //new_ActivityHeader.CurrencyId = ((currency_struct) _pickerCurrency.SelectedItem).id;
-            //new_ActivityHeader.allow_out_payment = _switchAllowOutPayment.IsToggled;
+            var motivo = (MotivoActividadDiaria) _pickerPlanningReason.SelectedItem;
 
-            //PartnerBankDb partnerBankDb = new PartnerBankDb();
-            //var existsPrevious = await partnerBankDb.GetMatch(new_Partner_Bank);
+            var time_start = _timePickerStart.Time;
+            double hour_start = time_start.Value.Hours + (time_start.Value.Minutes / 60.0) + (time_start.Value.Seconds / 3600.0);
 
-            //if(existsPrevious != null)
-            //{
-            //    BankDb bankDb = new BankDb();
-            //    var bankItem = await bankDb.GetItem(existsPrevious.BankId);
-            //    string bankName = "";
+            var time_end = _timePickerEnd.Time;
+            double hour_end = time_end.Value.Hours + (time_end.Value.Minutes / 60.0) + (time_end.Value.Seconds / 3600.0);
 
-            //    if(bankItem!=null)
-            //    {
-            //        bankName = bankItem.name;
-            //    }
-
-            //    await App.Current.MainPage.DisplayAlert("Cuenta existente",
-            //        $"Cuenta ya existente, no se puede guardar, {bankName}, {existsPrevious.display}", "Cerrar");
-
-            //    return;
-            //}
-
-            //string BankName = ((Bank_Id)_pickerBank.SelectedItem).name;
+            if(hour_start >= hour_end)
+            {                
+                await Toast.Make("La hora final debe ser mayor a la hora de inicio").Show();
+                return;
+            }
 
             try
-            {   
+            {
+                bool isNew = true;
+                string title_save = "Guardar nueva actividad";
+                string message_save = $"¿Desea guardar la nueva actividad para el cliente {_inputResPartner.Text}?";
+                
+                if (analyticLine != null)
+                {
+                    isNew = false;                    
 
-                bool answer = await App.Current.MainPage.DisplayAlert("Nueva Actividad",
-                    $"Desea continuar guardando la nueva cuenta #{new_ActivityPlanTemplate.plan_id.id} para el cliente {_inputResPartner.Text}?",
-                    "Continuar", "Cerrar");
+                    title_save = "Modificar actividad";
+                    message_save = $"¿Desea guardar los cambios de la actividad para el cliente {_inputResPartner.Text}?";
+                }
+                else
+                {
+                    analyticLine = new AccountAnalyticLine();
+                }
+
+                bool answer = await App.Current.MainPage.DisplayAlert(title_save,
+                        message_save,
+                        "Continuar", "Cerrar");
 
                 if (!answer)
                 {
                     return;
                 }
+                
+                //new_PlanningSlot.id = 1;
+                //analyticLine.name = $"VISITA {Sel_Res_Partner.name}";
+                analyticLine.name = _inputReview.Text;
+                analyticLine.partner_id = Sel_Res_Partner.id;
+                analyticLine.company_id = App.Session.res_Company.id;
+                analyticLine.project_id = projectTask.project_id;
+                analyticLine.task_id = projectTask.id;
+                analyticLine.date = DateTime.Now;
+                analyticLine.motivo = motivo.id;
+
+                
+                analyticLine.hour_start = (decimal)hour_start;
+
+                
+                analyticLine.hour_end = (decimal)hour_end;
+
+                AccountAnalyticLineDb accountAnalyticLineDb = new AccountAnalyticLineDb();
+                if (isNew)
+                {
+                    await accountAnalyticLineDb.InsertAsync(analyticLine);
+                }
+                else
+                {
+                    await accountAnalyticLineDb.UpdateAsync(analyticLine);
+                }
+
+                await Toast.Make("Actividad guardada correctamente " + analyticLine.id.ToString()).Show();
             }
             catch (Exception ex)
             {
-
+                await Toast.Make("Error al guardar actividad: " + ex.Message).Show();
             }
 
-            await CloseAsync(new_ActivityPlanTemplate);
+            await CloseAsync(analyticLine);
         }
 
         private async void OnBtnCancel_Clicked(object sender, EventArgs e)
         {
             // Lógica cuando se hace clic en el segundo botón
-            await CloseAsync(default(MailActivityPlanTemplate));
+            await CloseAsync(default(AccountAnalyticLine));
         }
 
         private async void OnBtnClose_Clicked(object sender, EventArgs e)
         {
             // Lógica cuando se hace clic en el segundo botón
-            await CloseAsync(default(MailActivityPlanTemplate));
+            await CloseAsync(default(AccountAnalyticLine));
+        }
+
+        public new event PropertyChangedEventHandler? PropertyChanged;
+
+        protected new void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

@@ -1,14 +1,14 @@
 ﻿using CommunityToolkit.Maui.Behaviors;
 using DMOrders.Controls.Base;
 using DMSA.Models.Odoo.DMOrders;
+using DMSA.Models.Odoo.DMOrders.tareas;
 using System.Diagnostics;
 using System.Windows.Input;
 
 namespace DMOrders.Controls.CustomRows
-{
-    [Obsolete]
+{    
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public class ActivityRow : RowAdvance<ActivityHeader>
+    public class ActivityRow : RowAdvance<ProjectTask>
     {
         private bool _built;
 
@@ -58,10 +58,10 @@ namespace DMOrders.Controls.CustomRows
             labelState = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, FontAttributes = FontAttributes.Bold, TextColor = Colors.Green, FontSize = 10 };
 
             labelId.SetBinding(Label.TextProperty, new Binding(nameof(Item.id), source: Item));
-            labelSellerName.SetBinding(Label.TextProperty, new Binding(nameof(Item.seller_name), source: Item));
-            labelPlanningDate.SetBinding(Label.TextProperty, new Binding(nameof(Item.planning_date), source: Item));
-            labelWriteDate.SetBinding(Label.TextProperty, new Binding(nameof(Item.write_date), source: Item));
-            labelUser.SetBinding(Label.TextProperty, new Binding(nameof(Item.user_name), source: Item));
+            labelSellerName.SetBinding(Label.TextProperty, new Binding(nameof(Item.display_username), source: Item));
+            labelPlanningDate.SetBinding(Label.TextProperty, new Binding(nameof(Item.date_assign), source: Item));
+            labelWriteDate.SetBinding(Label.TextProperty, new Binding(nameof(Item.date_assign), source: Item));
+            labelUser.SetBinding(Label.TextProperty, new Binding(nameof(Item.create_user), source: Item));
             //labelState.SetBinding(Label.TextProperty, new Binding(nameof(Item.status), source: this));
 
             //leftGrid.Children.Add(labelId);

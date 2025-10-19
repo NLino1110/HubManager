@@ -42,6 +42,8 @@ namespace DMOrders.Services.Update
                 //await OnlineSyncStores();
                 await OnlineSyncResCenter(false);
                 await OnlineSyncStockWarehouse(false);
+
+                await OnlineMotivoActividadDiaria(true);
             }
             catch (Exception ex)
             {

@@ -3,7 +3,11 @@ using CommunityToolkit.Maui.Sample.ViewModels.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using DMOrders.Controls;
 using DMOrders.Pages;
+using DMOrders.Pages.Fragments.Activities;
 using DMOrders.Pages.Sys;
+using DMOrders.Services.Database.Sqlite;
+using DMSA.Models.Odoo.DMOrders;
+using DMSA.Models.Odoo.DMOrders.tareas;
 using DMSA.Models.Odoo.Native;
 using Microsoft.Maui.Layouts;
 using System.Collections.ObjectModel;
@@ -152,7 +156,44 @@ public partial class MainPageTab : ContentPage
 
     private async void ViewCell_Add_Task(object sender, EventArgs e)
     {
+        Debug.WriteLine("EditItem");
+        
+        ProjectTaskDb projectTaskDb = new ProjectTaskDb();
+        string nameTodayTask = DateTime.Now.ToString("yyyy-MM-dd");
+        var foundTodayTasks = await projectTaskDb.GetItemByNameAsync(nameTodayTask);
+        
+        ProjectTask CurrentActivityHeader = null;
 
+        if (foundTodayTasks != null && foundTodayTasks.Count > 0)
+        {
+            CurrentActivityHeader = foundTodayTasks[0];
+        }
+        else
+        {
+            var newTask = new DMSA.Models.Odoo.DMOrders.tareas.ProjectTask()
+            {
+                name = nameTodayTask,
+                create_uid = App.Session.CurrentUserFront.uid,
+                stage_id = 1,
+                project_id = 1, //proyecto predeterminado
+                parent_id = 1, //tarea predeterminada
+                date_deadline = DateTime.Now,
+                user_id = App.Session.CurrentUserFront.uid
+            };            
+
+            //viewObj.CurrentActivityHeader = new DMSA.Models.Odoo.DMOrders.tareas.ProjectTask() { id = 0, name = nameTodayTask };
+            await projectTaskDb.InsertAsync(newTask);
+            CurrentActivityHeader = newTask;
+        }
+
+        Details viewObj = new Details(CurrentActivityHeader);
+        viewObj.Disappearing += viewAddTask_Disappearing;
+        await Navigation.PushModalAsync(viewObj);
+    }
+
+    private void viewAddTask_Disappearing(object? sender, EventArgs e)
+    {
+        Debug.WriteLine("viewAddTask_Disappearing");
     }
 
     private async void ViewCell_Tapped_Update(object sender, EventArgs e)

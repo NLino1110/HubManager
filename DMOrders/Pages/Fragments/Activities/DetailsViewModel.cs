@@ -1,5 +1,7 @@
 ﻿using DMOrders.Models; // Asegúrate de que aquí esté la definición de tu modelo Activity
+using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.DMOrders;
+using DMSA.Models.Odoo.DMOrders.tareas;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -10,10 +12,11 @@ namespace DMOrders.Pages.Fragments.Activities
 {
     public class DetailsViewModel : INotifyPropertyChanged
     {
-        private ObservableCollection<MailActivityPlan> _activities;
-        private MailActivityPlan _selectedItem;
+        public ProjectTask ParentProjectTask { get; set; }
+        private ObservableCollection<AccountAnalyticLine> _activities;
+        private AccountAnalyticLine _selectedItem;
 
-        public ObservableCollection<MailActivityPlan> Activities
+        public ObservableCollection<AccountAnalyticLine> Activities
         {
             get => _activities;
             set
@@ -23,7 +26,7 @@ namespace DMOrders.Pages.Fragments.Activities
             }
         }
 
-        public MailActivityPlan SelectedItem
+        public AccountAnalyticLine SelectedItem
         {
             get => _selectedItem;
             set
@@ -38,9 +41,10 @@ namespace DMOrders.Pages.Fragments.Activities
         public ICommand SaveCommand { get; }
         public ICommand SyncCommand { get; }
 
-        public DetailsViewModel()
+        public DetailsViewModel(ProjectTask _ParentProjectTask)
         {
-            Activities = new ObservableCollection<MailActivityPlan>();
+            Activities = new ObservableCollection<AccountAnalyticLine>();
+            ParentProjectTask = _ParentProjectTask;
             LoadActivities();
 
             CloseCommand = new Command(OnClose);
@@ -49,11 +53,11 @@ namespace DMOrders.Pages.Fragments.Activities
             SyncCommand = new Command(OnSync);
         }
 
-        private void LoadActivities()
+        private async Task LoadActivities()
         {
-            // Aquí deberías cargar tus actividades desde el servicio o base de datos
-            Activities.Add(new MailActivityPlan { id = 1, name = "Reunión diaria",  display_name = "Reu dia", user_id = 3 });
-            Activities.Add(new MailActivityPlan { id = 2, name = "Revisión", display_name = "Reu dia 2", user_id = 3 });
+            var accountAnalyticDb = new AccountAnalyticLineDb();
+            var items = (await accountAnalyticDb.GetItemsAsync(ParentProjectTask));
+            Activities = new ObservableCollection<AccountAnalyticLine>(items);
         }
 
         private void OnClose()
@@ -63,7 +67,7 @@ namespace DMOrders.Pages.Fragments.Activities
 
         private void OnNew()
         {
-            var newActivity = new MailActivityPlan { id = 0, name = "Nueva actividad" };
+            var newActivity = new AccountAnalyticLine { id = 0, name = "Nueva actividad" };
             Activities.Add(newActivity);
             SelectedItem = newActivity;
         }

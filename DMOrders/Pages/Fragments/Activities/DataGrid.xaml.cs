@@ -5,6 +5,7 @@ using DMOrders.Models.Filters;
 using DMOrders.Pages.Sys;
 using DMSA.Models.Clientes;
 using DMSA.Models.Odoo.DMOrders;
+using DMSA.Models.Odoo.DMOrders.tareas;
 using DMSA.Models.Odoo.Native;
 using System.Diagnostics;
 using System.Reflection;
@@ -284,8 +285,9 @@ namespace DMOrders.Pages.Fragments.Activities
         private async void EditItem(object obj)
         {
             Debug.WriteLine("EditItem");
-            Details viewObj = new Details();
-            viewObj.CurrentActivityHeader = (MailActivityPlan)obj;
+            var CurrentActivityHeader = (ProjectTask)obj;
+            Details viewObj = new Details(CurrentActivityHeader);
+            
             //objPage.Sel_AccountMoveSendHeader = (AccountMoveSendHeader)obj;
             //objPage.editionMode = true;
             viewObj.Disappearing += ViewObj_Disappearing;

@@ -7,6 +7,7 @@ using DMOrders.Controls;
 using DMOrders.Services.Helpers;
 using DMOrders.Shared;
 using DMSA.Models.Odoo.DMOrders;
+using DMSA.Models.Odoo.DMOrders.tareas;
 using DMSA.Models.Odoo.Native;
 using System.Diagnostics;
 
@@ -15,7 +16,7 @@ namespace DMOrders.Pages.Fragments.Product;
 [XamlCompilation(XamlCompilationOptions.Compile)]
 public partial class Details : ContentPage, IBackButtonHandler
 {
-    public ActivityHeader CurrentActivityHeader { get; set; }
+    public ProjectTask CurrentActivityHeader { get; set; }
 	public Details()
 	{
 		InitializeComponent();        
@@ -75,9 +76,9 @@ public partial class Details : ContentPage, IBackButtonHandler
     {
         PopupSizeConstants popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
 
-        var returnResultPopup = new PopupPlanningSlot(popupSizeConstants);
+        var returnResultPopup = new PopupAccountAnalyticLine(popupSizeConstants, null, null);
         returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;
-        returnResultPopup.activityHeader = CurrentActivityHeader;
+        returnResultPopup.projectTask = CurrentActivityHeader;
 
         //if (!isWindows)
         //    returnResultPopup.Size = this.popupSizeConstants.Large;

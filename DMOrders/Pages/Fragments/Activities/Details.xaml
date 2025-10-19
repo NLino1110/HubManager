@@ -20,30 +20,59 @@
         <BackButtonBehavior IsEnabled="{StaticResource IsBackButtonEnabled}" IsVisible="{StaticResource IsBackButtonEnabled}"/>
     </Shell.BackButtonBehavior>
 
-    <Grid RowDefinitions="Auto,*,*,Auto">        
-        <ScrollView Grid.Row="1" BackgroundColor="WhiteSmoke">
-            <VerticalStackLayout Padding="10">
-                <Label Text="Empty"></Label>
-                <CollectionView 
-                        x:Name="MyCollectionView"
-                        ItemsSource="{Binding Activities}"
-                        ItemSizingStrategy="MeasureFirstItem"
-                        EmptyView="....." 
-                        HorizontalOptions="Fill" 
-                        SelectionMode="Single"
-                        SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <customrows:PlanningSlotRow 
-                        Item="{Binding .}" 
-                        SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"/>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-            </VerticalStackLayout>
-        </ScrollView>
-        <HorizontalStackLayout Grid.Row="3" HorizontalOptions="Center" Margin="0,0,0,10" Spacing="10">
-            <Button Text="" Clicked="ButtonClose_Clicked" BackgroundColor="Gray" TextColor="White" HeightRequest="50" WidthRequest="50" Padding="0">
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Grid Grid.Row="0"
+          BackgroundColor="WhiteSmoke"
+          ColumnDefinitions="Auto,*"
+          Padding="0"
+          ColumnSpacing="20"
+          VerticalOptions="Center">
+            <Button Grid.Column="0"
+            Text=""
+            Clicked="ButtonClose_Clicked"
+            BackgroundColor="DarkGray"
+            TextColor="White"
+            HeightRequest="50"
+            WidthRequest="50"
+            Padding="0">
+                <Button.ImageSource>
+                    <FontImageSource 
+                Size="30"
+                FontFamily="MaterialSharp"
+                Glyph="{x:Static uranium:MaterialSharp.Arrow_back}" />
+                </Button.ImageSource>
+            </Button>
+
+            <Label Grid.Column="1"
+               Text="Actividades Diarias No. 13   Fecha 01/01/2025"
+               HorizontalOptions="Fill"
+               VerticalOptions="Center"
+               HorizontalTextAlignment="Center"
+               FontAttributes="Bold"
+               FontSize="15" />
+        </Grid>
+
+        <CollectionView 
+            Grid.Row="1"
+                x:Name="MyCollectionView"
+                ItemsSource="{Binding Activities}"
+                ItemSizingStrategy="MeasureFirstItem"
+                EmptyView="....." 
+                HorizontalOptions="Fill" 
+                SelectionMode="Single"
+                SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <customrows:AccountAnalyticLineRow 
+                Item="{Binding .}" 
+                SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"
+                        EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=EditCommand}"/>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <HorizontalStackLayout Grid.Row="2" HorizontalOptions="Center" Margin="0,0,0,10" Spacing="10">
+            <Button Text="" Clicked="ButtonClose_Clicked" BackgroundColor="Gray" TextColor="White" HeightRequest="50" WidthRequest="50" Padding="0" IsVisible="False">
                 <Button.ImageSource>
                     <FontImageSource 
                         Size="30"
@@ -60,7 +89,7 @@
                         Glyph="{x:Static uranium:MaterialSharp.New_label}" />
                     </Button.ImageSource>
             </Button>
-            <Button Text="Guardar" Clicked="ButtonSave_Clicked" BackgroundColor="Orange" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0">
+            <Button Text="Guardar" Clicked="ButtonSave_Clicked" BackgroundColor="Orange" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0" IsVisible="False">
                 <Button.ImageSource>
                     <FontImageSource 
                         Size="30"

@@ -34,7 +34,10 @@
                             <material:TextField Title="Database Name" BorderThickness="0.4" Text="{Binding SelectedConnection.DbName}" Grid.Row="4" Grid.Column="0"/>
 
                             <!-- Columna 2 -->
-                            <material:TextField Title="DB Limit Default" BorderThickness="0.4" Text="{Binding SelectedConnection.DbLimitDefault}" Grid.Row="0" Grid.Column="1"/>
+                            <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="15">
+                                <material:TextField Title="DB Limit Default" BorderThickness="0.4" Text="{Binding SelectedConnection.DbLimitDefault}"/>
+                                <material:TextField Title="Tolerancy Days" BorderThickness="0.4" Text="{Binding SelectedConnection.DataToleranceDays}"/>
+                            </HorizontalStackLayout>
                             <material:TextField Title="Company Id" BorderThickness="0.4" Text="{Binding SelectedConnection.CompanyId}" Grid.Row="1" Grid.Column="1"/>
                             <material:TextField Title="Center Id" BorderThickness="0.4" Text="{Binding SelectedConnection.res_center_default}" Grid.Row="2" Grid.Column="1"/>
                             <material:TextField Title="Username" BorderThickness="0.4" Text="{Binding SelectedConnection.Username}" Grid.Row="3" Grid.Column="1"/>

@@ -1,16 +1,17 @@
 ﻿using DMOrders.Controls.Base;
+using DMOrders.Converters;
 using DMSA.Models.Odoo.DMOrders;
+using DMSA.Models.Odoo.DMOrders.tareas;
 using System.Windows.Input;
 
 namespace DMOrders.Controls.CustomRows
-{
-    [Obsolete]
+{    
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public class PlanningSlotRow : RowAdvance<PlanningSlot>
+    public class AccountAnalyticLineRow : RowAdvance<AccountAnalyticLine>
     {
         // (Opcional pero útil) Command para el botón de herramientas
         public static readonly BindableProperty EditCommandProperty =
-            BindableProperty.Create(nameof(EditCommand), typeof(ICommand), typeof(PlanningSlotRow));
+            BindableProperty.Create(nameof(EditCommand), typeof(ICommand), typeof(AccountAnalyticLine));
 
         public ICommand EditCommand
         {
@@ -57,9 +58,9 @@ namespace DMOrders.Controls.CustomRows
             _labelCompany.SetBinding(Label.TextProperty, new Binding("res_company_display"));
             _labelReason.SetBinding(Label.TextProperty, new Binding("reason_display")); // ← si tu modelo no tiene esto, deja "res_company_display"
             _labelPartner.SetBinding(Label.TextProperty, new Binding("res_partner_display"));
-            _labelStartDate.SetBinding(Label.TextProperty, new Binding("start_datetime", stringFormat: "{0:yyyy-MM-dd HH:mm}"));
-            _labelEndDate.SetBinding(Label.TextProperty, new Binding("end_datetime", stringFormat: "{0:yyyy-MM-dd HH:mm}"));
-            _labelStandby.SetBinding(Label.TextProperty, new Binding("standby")); // boolean/string, ajusta formato si quieres
+            _labelStartDate.SetBinding(Label.TextProperty, new Binding("hour_start", converter: new HourDecimalToTimeSpanConverter(), stringFormat: "{0:hh\\:mm}"));
+            _labelEndDate.SetBinding(Label.TextProperty, new Binding("hour_end", converter: new HourDecimalToTimeSpanConverter(), stringFormat: "{0:hh\\:mm}"));
+            _labelStandby.SetBinding(Label.TextProperty, new Binding("duration")); // boolean/string, ajusta formato si quieres
 
             // Bloque de 2 líneas: company / reason
             var companyReason = new VerticalStackLayout

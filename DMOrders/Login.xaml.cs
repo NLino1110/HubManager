@@ -88,8 +88,8 @@ public partial class Login : ContentPage
         var serverPuller = new ServerPuller();
         var pullResult = await serverPuller.Pull();
 
-        await serverPuller.PullPromotions();
-
+        //await serverPuller.PullPromotions();
+        
         if (!pullResult)
         {
             await Toast.Make("Datos base incorrectos.").Show();
@@ -208,7 +208,8 @@ public partial class Login : ContentPage
     {
         Task.Run(async () =>
         {
-            await LoadSettingsFromDb();
+            await LoadSettingsFromDb();            
+            await PrepareConnections();
         });
     }
 

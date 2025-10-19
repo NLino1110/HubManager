@@ -74,11 +74,15 @@ namespace DMSA.Models.Odoo.Abstract
         [Column("write_date")]
         public long WriteDate { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
+        [Required]
+        [Column("data_tolerance_days")]
+        public int DataToleranceDays { get; set; }
+
         public List<OdooConnection> LoadDefault()
         {
             List<OdooConnection> defaultSettings = new List<OdooConnection>();
             defaultSettings.Add(new OdooConnection()
-                {
+            {
                     Id = 1,
                     CompanyId = 1,
                     Name = "Macronegocios (DEV)",
@@ -91,11 +95,12 @@ namespace DMSA.Models.Odoo.Abstract
                     DbLimitDefault = 300,
                     IsProduction = false,
                     IsTestMode = true,
+                    DataToleranceDays = 365
             }
             );
 
             defaultSettings.Add(new OdooConnection()
-                {
+            {
                     Id = 2,
                     CompanyId = 2,
                     Name = "DMujeres (DEV)",
@@ -108,6 +113,7 @@ namespace DMSA.Models.Odoo.Abstract
                 DbLimitDefault = 300,
                 IsProduction = false,
                 IsTestMode = true,
+                DataToleranceDays = 365
             }
             );
 
@@ -126,6 +132,7 @@ namespace DMSA.Models.Odoo.Abstract
                 DbLimitDefault = 300,
                 IsProduction = true,
                 IsTestMode = true,
+                DataToleranceDays = 365
             }
             );
 
@@ -144,6 +151,7 @@ namespace DMSA.Models.Odoo.Abstract
                 DbLimitDefault = 300,
                 IsProduction = true,
                 IsTestMode = true,
+                DataToleranceDays = 365
             }
             );
 
