@@ -20,7 +20,7 @@ namespace DMSA.Models.Odoo.Native
         public float posz { get; set; }
         public string parent_path { get; set; }
         public bool scrap_location { get; set; }
-        public bool return_location { get; set; }
+        //public bool return_location { get; set; }
         public bool replenish_location { get; set; }
         public int cyclic_inventory_frequency { get; set; }
         public string barcode { get; set; }

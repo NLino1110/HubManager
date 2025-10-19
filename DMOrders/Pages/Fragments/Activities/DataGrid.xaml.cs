@@ -2,9 +2,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DMOrders.Models.Filters;
+using DMOrders.Pages.Fragments.Customers;
 using DMOrders.Pages.Sys;
-using DMSA.Models.Clientes;
-using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.DMOrders.tareas;
 using DMSA.Models.Odoo.Native;
 using System.Diagnostics;
@@ -18,12 +17,10 @@ namespace DMOrders.Pages.Fragments.Activities
     public partial class DataGrid : ContentView
     {
         res_partner selectedItemData { get; set; }
-
-        string filterCode = "";
-        string filterId = "";
-        string filterName = "";
-        FDays filterDays = null;
+                
         FStatus filterStatus = null;
+        DateTime? filterDateStart = DateTime.Now;
+        DateTime? filterDateEnd = DateTime.Now;
 
         public ContentView ViewParent
         {
@@ -93,13 +90,16 @@ namespace DMOrders.Pages.Fragments.Activities
 
         void OnTapGestureRecognizerTapped(object sender, TappedEventArgs args)
         {
-            ListViewModel mainViewModelCliAprob = new ListViewModel();
-            BindingContext = mainViewModelCliAprob;
+            //ListViewModel mainViewModelCliAprob = new ListViewModel();
+            //BindingContext = mainViewModelCliAprob;
 
             //MainThread.BeginInvokeOnMainThread(() =>
             //{
             //    InvalidateMeasure();
             //});
+
+            var viewModel = (ListViewModel)BindingContext;
+            viewModel.LoadDataByTimer();
 
             Debug.WriteLine("Tap:" + sender.ToString());
         }
@@ -247,7 +247,7 @@ namespace DMOrders.Pages.Fragments.Activities
             ////}
         }
 
-        private async Task ShowConfirmClient(ClienteAprobacion cliente)
+        private async Task ShowConfirmClient(object cliente)
         {
             //ConfirmClient obj = new ConfirmClient();
             //obj.selectedCustomer = cliente;
@@ -260,14 +260,11 @@ namespace DMOrders.Pages.Fragments.Activities
             OnTapGestureRecognizerTapped(this, null);
         }
 
-        internal void LoadData(string Code, string Id, string Name, FDays Days, FStatus Status)
-        {
-            filterCode = Code;
-            filterId = Id;
-            filterName = Name;
-            filterDays = Days;
+        internal void LoadData(FStatus Status, DateTime? dateStart, DateTime? DateEnd)
+        {            
             filterStatus = Status;
-
+            filterDateStart = dateStart;
+            filterDateEnd = DateEnd;
             OnTapGestureRecognizerTapped(this, null);
             //MainViewModelCustomers mainViewModelCustomers = new MainViewModelCustomers(Name);            
             //BindingContext = mainViewModelCustomers;

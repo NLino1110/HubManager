@@ -103,7 +103,7 @@
                                             Color="White"
                                             Size="15"
                                             FontAutoScalingEnabled="True"
-                                            Glyph="&#xf303;" />
+                                            Glyph="&#xf067;" />
                                         </Button.ImageSource>
                                     </Button>
                                 </Grid>

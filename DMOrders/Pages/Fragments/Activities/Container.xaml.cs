@@ -7,7 +7,7 @@ public partial class Container : ContentView
 	public Container()
 	{
 		InitializeComponent();
-        //filterCustomer.OnSearchButtonClicked += OnSearchButtonClicked;
+        filterActivities.OnSearchButtonClicked += OnSearchButtonClicked;
 
         if (App.Session.CurrentUser != null)
         {
@@ -28,11 +28,9 @@ public partial class Container : ContentView
 
     private void OnSearchButtonClicked(object? sender, EventArgs e)
     {
-        //dataCustomers.LoadData(filterCustomer.getCode() , 
-        //    filterCustomer.getId(), 
-        //    filterCustomer.getName(), 
-        //    filterCustomer.getDays(), 
-        //    filterCustomer.getStatus());
+        dataActivities.LoadData(filterActivities.getStatus() ,
+            filterActivities.getDateEnd(),
+            filterActivities.getDateEnd());
 
         //var label = new Label { Text = "Resultado de la búsqueda" };
         //var stackLayout = new StackLayout

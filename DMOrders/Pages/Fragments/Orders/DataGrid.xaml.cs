@@ -121,9 +121,7 @@ namespace DMOrders.Pages.Fragments.Orders
 
             var customerContainer = (Customers.Container)ViewParent;
             customerContainer.LoadInfo((res_partner)e.CurrentSelection[0]);
-
         }
-
 
         private async void btnSelectItem(object sender, EventArgs e)
         {  

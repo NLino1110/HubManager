@@ -338,8 +338,6 @@ namespace DMOrders.Controls
 
         async void HandleReturnResultPopupButtonClicked(object sender, EventArgs e)
         {
-            
-
             var popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
             popupSizeConstants.CalculateSizes(DeviceDisplay.Current);
             DesiredSize = popupSizeConstants.Medium;
@@ -635,81 +633,80 @@ namespace DMOrders.Controls
 
         private void PrepareForm()
         {
-            IDispatcherTimer timer;
-
-            timer = Dispatcher.CreateTimer();
-            timer.IsRepeating = false;
-            timer.Interval = TimeSpan.FromMilliseconds(500);
-            timer.Tick += async (s, e) =>
+            Task.Run(async () =>
             {
-                Debug.WriteLine("Cargando los datos...");
-
-                if ( projectTask != null )
+                try
                 {
-                    ObservableCollection<ProjectTask> lplanning = new ObservableCollection<ProjectTask>();
-                    lplanning.Add(projectTask);
-                    _pickerPlanningSlot.ItemsSource = lplanning;                    
-                    //_pickerPartner.ItemDisplayBinding = new Binding("name");
-                    
-                    _pickerPlanningSlot.SelectedIndex = 0;
-                    //labelArticulo.SetBinding(Label.TextProperty, new Binding(nameof(facturaItem.ARTICULO), source: this));
-                }
-                else
-                {
-                    //Si no se ha enviado el partner de origen no se permitirá el ingreso del dato
-                    await App.Current.MainPage.DisplayAlert("Nueva actividad",
-                                        $"Se requiere que se especifique la actividad principal.",
-                                        "Continuar");
-                    await CloseAsync(default(AccountAnalyticLine));
-                    
-                    return;
-                }
+                    Debug.WriteLine("Cargando los datos...");
 
-                ObservableCollection<MotivoActividadDiaria> lplanning_reason = new ObservableCollection<MotivoActividadDiaria>();
-
-                MotivoActividadDiariaDb motivoActividadDiariaDb = new MotivoActividadDiariaDb();
-                lplanning_reason = new ObservableCollection<MotivoActividadDiaria>( (await motivoActividadDiariaDb.GetItemsAsync()).OrderBy(i=>i.name) );
-
-                _pickerPlanningReason.ItemsSource = lplanning_reason;
-                _pickerPlanningReason.ItemDisplayBinding = new Binding("name");
-                //_pickerPlanningReason.SelectedItem = 0;
-
-                ObservableCollection<res_company> lcompany = new ObservableCollection<res_company>();
-                CompanyDb companyDb = new CompanyDb();
-                lcompany = new ObservableCollection<res_company>( (await companyDb.GetItemsAsync()).OrderBy(i=>i.name) );
-
-                _pickerCompany.ItemsSource = lcompany;
-                _pickerCompany.ItemDisplayBinding = new Binding("name");
-                
-                if(analyticLine != null)
-                {
-                    Title = "EDITANDO ACTIVIDAD";
-                    _inputReview.Text = analyticLine.name;
-                    
-                    ResPartnerDb resPartnerDb = new ResPartnerDb();
-                    Sel_Res_Partner = await resPartnerDb.GetItemsAsync(analyticLine.company_id, analyticLine.partner_id);
-                    if(Sel_Res_Partner != null)
+                    if (projectTask != null)
                     {
-                        _inputResPartner.Text = Sel_Res_Partner.id.ToString() + " - " + Sel_Res_Partner.name;
+                        ObservableCollection<ProjectTask> lplanning = new ObservableCollection<ProjectTask>();
+                        lplanning.Add(projectTask);
+                        _pickerPlanningSlot.ItemsSource = lplanning;
+                        //_pickerPartner.ItemDisplayBinding = new Binding("name");
+
+                        _pickerPlanningSlot.SelectedIndex = 0;
+                        //labelArticulo.SetBinding(Label.TextProperty, new Binding(nameof(facturaItem.ARTICULO), source: this));
+                    }
+                    else
+                    {
+                        //Si no se ha enviado el partner de origen no se permitirá el ingreso del dato
+                        await App.Current.MainPage.DisplayAlert("Nueva actividad",
+                                            $"Se requiere que se especifique la actividad principal.",
+                                            "Continuar");
+                        await CloseAsync(default(AccountAnalyticLine));
+
+                        return;
                     }
 
-                    _pickerCompany.SelectedItem = lcompany.Where(i => i.id == analyticLine.company_id).FirstOrDefault();
+                    ObservableCollection<MotivoActividadDiaria> lplanning_reason = new ObservableCollection<MotivoActividadDiaria>();
 
-                    var motivo_selected = lplanning_reason.Where(i => i.id == analyticLine.motivo).FirstOrDefault();
-                    if(motivo_selected != null)
+                    MotivoActividadDiariaDb motivoActividadDiariaDb = new MotivoActividadDiariaDb();
+                    lplanning_reason = new ObservableCollection<MotivoActividadDiaria>((await motivoActividadDiariaDb.GetItemsAsync()).OrderBy(i => i.name));
+
+                    _pickerPlanningReason.ItemsSource = lplanning_reason;
+                    _pickerPlanningReason.ItemDisplayBinding = new Binding("name");
+                    //_pickerPlanningReason.SelectedItem = 0;
+
+                    ObservableCollection<res_company> lcompany = new ObservableCollection<res_company>();
+                    CompanyDb companyDb = new CompanyDb();
+                    lcompany = new ObservableCollection<res_company>((await companyDb.GetItemsAsync()).OrderBy(i => i.name));
+
+                    _pickerCompany.ItemsSource = lcompany;
+                    _pickerCompany.ItemDisplayBinding = new Binding("name");
+
+                    if (analyticLine != null)
                     {
-                        _pickerPlanningReason.SelectedItem = motivo_selected;
+                        Title = "EDITANDO ACTIVIDAD";
+                        _inputReview.Text = analyticLine.name;
+
+                        ResPartnerDb resPartnerDb = new ResPartnerDb();
+                        Sel_Res_Partner = await resPartnerDb.GetItemsAsync(analyticLine.company_id, analyticLine.partner_id);
+                        if (Sel_Res_Partner != null)
+                        {
+                            _inputResPartner.Text = Sel_Res_Partner.id.ToString() + " - " + Sel_Res_Partner.name;
+                        }
+
+                        _pickerCompany.SelectedItem = lcompany.Where(i => i.id == analyticLine.company_id).FirstOrDefault();
+
+                        var motivo_selected = lplanning_reason.Where(i => i.id == analyticLine.motivo).FirstOrDefault();
+                        if (motivo_selected != null)
+                        {
+                            _pickerPlanningReason.SelectedItem = motivo_selected;
+                        }
+                        var time_start = TimeSpan.FromHours((double)analyticLine.hour_start);
+                        _timePickerStart.Time = time_start;
+                        var time_end = TimeSpan.FromHours((double)analyticLine.hour_end);
+                        _timePickerEnd.Time = time_end;
+
                     }
-                    var time_start = TimeSpan.FromHours( (double) analyticLine.hour_start );
-                    _timePickerStart.Time = time_start;
-                    var time_end = TimeSpan.FromHours( (double) analyticLine.hour_end );
-                    _timePickerEnd.Time = time_end;
-
                 }
-
-                timer.Stop();
-            };
-            timer.Start();
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error en PrepareForm: {ex}");
+                }
+            });
         }
 
         private async void OnBtnSave_Clicked(object sender, EventArgs e)

@@ -1,4 +1,5 @@
 ﻿using DMSA.Models.Odoo.Base;
+using DMSA.Models.Odoo.Json.Converters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SQLite;
@@ -18,7 +19,7 @@ namespace DMSA.Models.Odoo.Native
             set => product_id = SetId(product_id, value);
         }
 
-        public string priority { get; set; }
+        //public string priority { get; set; }
         public double quantity { get; set; }
         public double reserved_quantity { get; set; }
         public double available_quantity { get; set; }
@@ -29,7 +30,8 @@ namespace DMSA.Models.Odoo.Native
         public double inventory_quantity_auto_apply { get; set; }
         public double inventory_diff_quantity { get; set; }
         public DateTime inventory_date { get; set; }
-        public DateTime last_count_date { get; set; }
+        [JsonConverter(typeof(OdooNullableDateTimeConverter))]
+        public DateTime? last_count_date { get; set; }
         public bool inventory_quantity_set { get; set; }
         public bool is_outdated { get; set; }        
         public string display_name { get; set; }
@@ -38,7 +40,7 @@ namespace DMSA.Models.Odoo.Native
         public bool use_expiration_date { get; set; }
         public double value { get; set; }
         public string cost_method { get; set; }
-        public string dummy_id { get; set; }
+        //public string dummy_id { get; set; }
 
         [Ignore] public JToken product_id { get; set; }
         [Ignore] public JToken product_tmpl_id { get; set; }

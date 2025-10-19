@@ -9,7 +9,7 @@ namespace ApiManager
     {
         string[] fields_array = new[] {
                 "id",
-                "priority",
+                //"priority",
                 "quantity",
                 "reserved_quantity",
                 "available_quantity",
@@ -29,7 +29,7 @@ namespace ApiManager
                 "use_expiration_date",
                 "value",
                 "cost_method",
-                "dummy_id",
+                //"dummy_id",
                 "product_id",
                 "product_tmpl_id",
                 "product_uom_id",

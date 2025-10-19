@@ -77,4 +77,14 @@ public partial class Filters : ContentView
     {
         return (FStatus) ddfStatus.SelectedItem;
     }
+
+    internal DateTime? getDateStart()
+    {
+        return datePickerStart.Date;
+    }
+
+    internal DateTime? getDateEnd()
+    {
+        return datePickerEnd.Date;
+    }
 }

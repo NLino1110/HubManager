@@ -19,7 +19,7 @@ namespace ApiManager
                 "posz",
                 "parent_path",
                 "scrap_location",
-                "return_location",
+                //"return_location",
                 "replenish_location",
                 "cyclic_inventory_frequency",
                 "barcode",
@@ -95,7 +95,7 @@ namespace ApiManager
                 new object[] {"create_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
                 //new object[] {"create_date", "<=", $"{year}-{month:00}-{day:00} 23:59:59" },
             };
-            return await SearchRead<ApiResponseOdooRpcT<stock_location[]>>(args, _custom_args, kwargs);
+            return await SearchRead<ApiResponseOdooRpcT<stock_location[]>>(args, _custom_args, kwargs, true);
         }
 
         public async Task<ApiResponseOdooRpcT<stock_location[]>?> GetByWriteDate_dl(int year, int month, int day)
