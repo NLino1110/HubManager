@@ -1,4 +1,5 @@
-﻿using DMOrders.Services.Database.Sqlite;
+﻿using DMOrders.Models.Filters;
+using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.DMOrders.tareas;
 using DMSA.Models.Odoo.Native;
@@ -15,6 +16,12 @@ namespace DMOrders.Pages.Fragments.Activities
         public ObservableCollection<ProjectTask> Activities { get; set; } = new();
 
         private ProjectTask _selectedItem;
+
+        public Filters filters { get; set; }
+        //public FStatus FilterStatus { get; set; }
+        //public DateTime? FilterDateStart { get; set; }
+        //public DateTime? FilterDateEnd { get; set; }
+
         public ProjectTask SelectedItem
         {
             get => _selectedItem;
@@ -46,9 +53,10 @@ namespace DMOrders.Pages.Fragments.Activities
             }
         }
 
-        public ListViewModel()
+        public ListViewModel(Filters _filters)
         {
-            LoadDataByTimer();
+            filters = _filters;
+            //LoadDataByTimer();
             //EditCommand = new Command(EditItem);
             //EditCommand = new RelayCommand<ActivityHeader>(EditItem);
         }
@@ -62,19 +70,9 @@ namespace DMOrders.Pages.Fragments.Activities
                 IsBusy = true;
                 ProjectTaskDb activityHeaderDb = new ProjectTaskDb();
 
-                activityHeaderDb.GetItemsAsync().ContinueWith(task =>
-                {
-                    var items = task.Result;
-                    Activities = new ObservableCollection<ProjectTask>(items);
-                    OnPropertyChanged(nameof(Activities));
-                });
-
-                //Activities = new ObservableCollection<ActivityHeader>
-                //{
-                //    new ActivityHeader { id = 1, seller_name = "Ronald Chonillo" },
-                //    new ActivityHeader { id = 2, seller_name = "Miguel Vargas" },
-                //    new ActivityHeader { id = 3, seller_name = "Byron Freire" },
-                //};
+                var items = await activityHeaderDb.GetItemsAsync(App.Session.res_Company.id, filters.getStatus().id, filters.getDateStart(), filters.getDateEnd());
+                Activities = new ObservableCollection<ProjectTask>(items);
+                OnPropertyChanged(nameof(Activities));                
 
                 //OnPropertyChanged(nameof(Activities));
                 //OnPropertyChanged(nameof(CanGoNext));

@@ -52,8 +52,13 @@ public partial class Details : ContentPage, IBackButtonHandler
 		InitializeComponent();
 
         CurrentProjectTask = _CurrentActivityHeader;
-        BindingContext = new DetailsViewModel(CurrentProjectTask);
 
+        if(CurrentProjectTask != null)
+        {
+            lblMainTitle.Text = $"Actividades Diarias No. {CurrentProjectTask.id}   Fecha {CurrentProjectTask.name}";
+        }
+
+        BindingContext = new DetailsViewModel(CurrentProjectTask);
         EditCommand = new Command(EditItem);
     }
 

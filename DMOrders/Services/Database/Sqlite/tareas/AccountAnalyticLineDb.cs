@@ -31,7 +31,7 @@ namespace DMOrders.Services.Database.Sqlite
         public async Task<List<AccountAnalyticLine>> GetItemsAsync(ProjectTask parent)
         {
             await Init();
-            return await Database.Table<AccountAnalyticLine>().Where(x=> x.project_id == parent.project_id && x.task_id == parent.id).ToListAsync();
+            return await Database.Table<AccountAnalyticLine>().Where(x=> x.project_id == parent.project_id_ && x.task_id == parent.id).ToListAsync();
         }
 
         public async Task<List<AccountAnalyticLine>> GetItemsAsync(int company_id, bool sync_status)

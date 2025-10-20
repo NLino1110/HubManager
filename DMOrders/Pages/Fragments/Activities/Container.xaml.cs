@@ -28,9 +28,7 @@ public partial class Container : ContentView
 
     private void OnSearchButtonClicked(object? sender, EventArgs e)
     {
-        dataActivities.LoadData(filterActivities.getStatus() ,
-            filterActivities.getDateEnd(),
-            filterActivities.getDateEnd());
+        dataActivities.LoadData(filterActivities);
 
         //var label = new Label { Text = "Resultado de la búsqueda" };
         //var stackLayout = new StackLayout

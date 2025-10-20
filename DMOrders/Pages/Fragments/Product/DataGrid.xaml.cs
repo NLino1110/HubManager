@@ -92,8 +92,8 @@ namespace DMOrders.Pages.Fragments.Product
 
         void OnTapGestureRecognizerTapped(object sender, TappedEventArgs args)
         {
-            ProductListViewModel mainViewModelCliAprob = new ProductListViewModel();
-            BindingContext = mainViewModelCliAprob;
+            ProductListViewModel productListViewModel = new ProductListViewModel();
+            BindingContext = productListViewModel;
 
             //MainThread.BeginInvokeOnMainThread(() =>
             //{

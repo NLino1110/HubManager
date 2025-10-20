@@ -808,7 +808,7 @@ namespace DMOrders.Controls
                 analyticLine.name = _inputReview.Text;
                 analyticLine.partner_id = Sel_Res_Partner.id;
                 analyticLine.company_id = App.Session.res_Company.id;
-                analyticLine.project_id = projectTask.project_id;
+                analyticLine.project_id = projectTask.project_id_;
                 analyticLine.task_id = projectTask.id;
                 analyticLine.date = DateTime.Now;
                 analyticLine.motivo = motivo.id;

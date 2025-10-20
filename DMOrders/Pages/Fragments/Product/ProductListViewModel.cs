@@ -81,6 +81,7 @@ namespace DMOrders.Pages.Fragments.Product
             }
         }
 
+        [Obsolete]
         public ProductListViewModel(string _FilterCode, string _FilterName, int _FilterBrand, int _FilterCategory, FStatus _FilterStatus)
         {
             FilterCode = _FilterCode;            

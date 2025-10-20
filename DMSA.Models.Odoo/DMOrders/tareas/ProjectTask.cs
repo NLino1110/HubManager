@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DMSA.Models.Odoo.Base;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SQLite;
 using System;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 namespace DMSA.Models.Odoo.DMOrders.tareas
 {
     [Table("project_task")]
-    public class ProjectTask
+    public class ProjectTask: OdooEntity
     {
         [PrimaryKey]
         [AutoIncrement]
@@ -19,8 +20,28 @@ namespace DMSA.Models.Odoo.DMOrders.tareas
         public string name { get; set; }        
         public string? description { get; set; }
         public int priority { get; set; }
-        public int stage_id { get; set; }
-        public int project_id { get; set; }
+        [Ignore]
+        public JToken stage_id { get; set; }
+
+
+        [JsonIgnore]
+        public int stage_id_
+        {
+            get => GetId(stage_id);
+            set => stage_id = SetId(stage_id, value);
+        }
+
+        [Ignore]
+        public JToken project_id { get; set; }
+        
+        
+        [JsonIgnore]
+        public int project_id_
+        {
+            get => GetId(project_id);
+            set => project_id = SetId(project_id, value);
+        }
+
         public int company_id { get; set; }
         public int parent_id { get; set; }
         public int create_uid { get; set; }

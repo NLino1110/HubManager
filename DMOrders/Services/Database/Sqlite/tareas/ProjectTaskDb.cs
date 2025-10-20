@@ -41,10 +41,36 @@ namespace DMOrders.Services.Database.Sqlite
                 .ToListAsync();
         }
 
-        public async Task<List<ProjectTask>> GetItemByNameAsync(string name)
+        public async Task<List<ProjectTask>> GetItemsAsync(int company_id, int int_status, DateTime? dateStart, DateTime? dateEnd)
         {
             await Init();
-            return await Database.Table<ProjectTask>().Where(x=>x.name == name).ToListAsync();
+            var query = Database.Table<ProjectTask>().Where(x => x.company_id == company_id);
+            //int_status == -1 TODOS
+            //int_status == 0 NO SINCRONIZADOS
+            //int_status == 1 SINCRONIZADOS
+            if (int_status == 0)
+            {
+                // NO SINCRONIZADOS
+                query = query.Where(x => !x.is_synchronized);
+            }
+            else if (int_status == 1)
+            {
+                // SINCRONIZADOS
+                query = query.Where(x => x.is_synchronized);
+            }
+
+            if (dateStart.HasValue && dateEnd.HasValue)
+            {
+                query = query.Where(x => x.date_assign >= dateStart && x.date_assign <= dateEnd);
+            }
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<List<ProjectTask>> GetItemByNameAsync(int company_id, string name)
+        {
+            await Init();
+            return await Database.Table<ProjectTask>().Where(x=>x.name == name && x.company_id == company_id).ToListAsync();
         }
 
         public async Task<ProjectTask> GetItem(int id)

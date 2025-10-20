@@ -33,6 +33,6 @@
         
         <!--<pages:Info x:Name="info" Grid.Row="3" Grid.Column="0" />-->
 
-        <pages:DataGrid x:Name="dataActivities" Grid.Row="0" Grid.Column="2" Grid.RowSpan="4"/>
+        <pages:DataGrid x:Name="dataActivities" FiltersView="{x:Reference filterActivities}" Grid.Row="0" Grid.Column="2" Grid.RowSpan="4"/>
     </Grid>
 </ContentView>

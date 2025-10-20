@@ -17,10 +17,36 @@ namespace DMOrders.Pages.Fragments.Activities
     public partial class DataGrid : ContentView
     {
         res_partner selectedItemData { get; set; }
-                
-        FStatus filterStatus = null;
-        DateTime? filterDateStart = DateTime.Now;
-        DateTime? filterDateEnd = DateTime.Now;
+
+        public static readonly BindableProperty FiltersViewProperty =
+        BindableProperty.Create(
+            nameof(FiltersView),
+            typeof(Filters),
+            typeof(DataGrid),
+            default(Filters),
+            validateValue: (bindable, value) => value is null || value is Filters, // opcional
+            propertyChanged: OnFiltersChanged);
+
+        public Filters FiltersView
+        {
+            get => (Filters)GetValue(FiltersViewProperty);
+            set => SetValue(FiltersViewProperty, value);
+        }
+
+        private static void OnFiltersChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            var view = (DataGrid)bindable;
+            view.ApplyFilters();
+        }
+
+        private void ApplyFilters()
+        {
+            if (BindingContext is ListViewModel vm)
+            {
+                vm.filters = FiltersView;
+                vm.LoadDataByTimer();
+            }
+        }
 
         public ContentView ViewParent
         {
@@ -34,7 +60,7 @@ namespace DMOrders.Pages.Fragments.Activities
         public DataGrid()
         {
             InitializeComponent();
-            BindingContext = new ListViewModel();
+            BindingContext = new ListViewModel(FiltersView);
 
             //IDispatcherTimer timer;
 
@@ -98,7 +124,8 @@ namespace DMOrders.Pages.Fragments.Activities
             //    InvalidateMeasure();
             //});
 
-            var viewModel = (ListViewModel)BindingContext;
+            var viewModel = (ListViewModel) BindingContext;
+            viewModel.filters = FiltersView;
             viewModel.LoadDataByTimer();
 
             Debug.WriteLine("Tap:" + sender.ToString());
@@ -260,11 +287,9 @@ namespace DMOrders.Pages.Fragments.Activities
             OnTapGestureRecognizerTapped(this, null);
         }
 
-        internal void LoadData(FStatus Status, DateTime? dateStart, DateTime? DateEnd)
-        {            
-            filterStatus = Status;
-            filterDateStart = dateStart;
-            filterDateEnd = DateEnd;
+        internal void LoadData(Filters _filters)
+        {
+            FiltersView = _filters;            
             OnTapGestureRecognizerTapped(this, null);
             //MainViewModelCustomers mainViewModelCustomers = new MainViewModelCustomers(Name);            
             //BindingContext = mainViewModelCustomers;

@@ -160,7 +160,7 @@ public partial class MainPageTab : ContentPage
         
         ProjectTaskDb projectTaskDb = new ProjectTaskDb();
         string nameTodayTask = DateTime.Now.ToString("yyyy-MM-dd");
-        var foundTodayTasks = await projectTaskDb.GetItemByNameAsync(nameTodayTask);
+        var foundTodayTasks = await projectTaskDb.GetItemByNameAsync(App.Session.res_Company.id, nameTodayTask);
         
         ProjectTask CurrentActivityHeader = null;
 
@@ -173,6 +173,7 @@ public partial class MainPageTab : ContentPage
             var newTask = new DMSA.Models.Odoo.DMOrders.tareas.ProjectTask()
             {
                 name = nameTodayTask,
+                company_id = App.Session.res_Company.id,
                 create_uid = App.Session.CurrentUserFront.uid,
                 stage_id = 1,
                 project_id = 1, //proyecto predeterminado

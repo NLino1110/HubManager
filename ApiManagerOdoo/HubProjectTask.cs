@@ -14,42 +14,18 @@ namespace ApiManager
         string[] fields_array = new[] {
                 "id",
                 "name",
-                "complete_name",
-                "active",
-                "usage",
-                "comment",
-                "posx",
-                "posy",
-                "posz",
-                "parent_path",
-                "scrap_location",
-                "return_location",
-                "replenish_location",
-                "cyclic_inventory_frequency",
-                "barcode",
-                "net_weight",
-                "forecast_weight",
+                "project_id",
                 "display_name",
+                "duration_tracking",
+                "access_url",
+                "access_token",
+                "stage_id",
+                "tag_ids",
+                "state",
+                "is_closed",
                 "create_date",
-                "location_id",
-                "child_ids",
-                "child_internal_location_ids",
-                "company_id",
-                "removal_strategy_id",
-                "putaway_rule_ids",
-                "quant_ids",
-                "last_inventory_date",
-                "next_inventory_date",
-                "warehouse_view_ids",
-                "warehouse_id",
-                "storage_category_id",
-                "outgoing_move_line_ids",
-                "incoming_move_line_ids",
-                "create_uid",
-                "write_uid",
                 "write_date",
-                "valuation_in_account_id",
-                "valuation_out_account_id",
+                "date_end",
         };
 
         public HubProjectTask(AppSession _setAppSession) : base(_setAppSession)
@@ -158,7 +134,7 @@ namespace ApiManager
             object[] _custom_args = new object[] {
                 new object[] { "name", "=", task_name },
             };
-            return await SearchRead<ApiResponseOdooRpcT<ProjectTask[]>>(args, _custom_args, kwargs);
+            return await SearchRead<ApiResponseOdooRpcT<ProjectTask[]>>(args, _custom_args, kwargs, true);
         }
 
         public async Task<ApiResponseOdooRpcT<int>?> Create(ProjectTask sale_Order)

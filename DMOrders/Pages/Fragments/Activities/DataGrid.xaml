@@ -42,10 +42,8 @@
                         <DataTemplate>
                             <customrows:ActivityRow 
                                 Item="{x:Binding .}" 
-                                EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}">
-                                
+                                EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}">                                
                             </customrows:ActivityRow>
-
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
