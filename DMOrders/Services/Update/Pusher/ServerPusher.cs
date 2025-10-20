@@ -2,6 +2,7 @@
 using CommunityToolkit.Maui.Alerts;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.General.Requests;
+using DMSA.Models.Odoo.DMOrders.tareas;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Security;
@@ -73,6 +74,121 @@ namespace DMOrders.Services.Update.Pusher
                 SaleOrderDb saleOrderDb = new SaleOrderDb();
                 await saleOrderDb.UpdateAsync(sale_Order);
             }            
+        }
+
+        public async Task SendAllSaleOrders(ProgressBarAnimationBehaviorPage obj)
+        {           
+            SaleOrderDb saleOrderDb = new SaleOrderDb();
+            var listOrders = await saleOrderDb.GetItemsAsync(App.Session.res_Company.id, false);
+            
+            if(listOrders == null || listOrders.Count == 0)
+                return;
+
+            int totalItems = listOrders.Count;
+            int itemIndex = 0;
+            foreach (var item in listOrders)
+            {
+                itemIndex++;
+                obj.SetTitle($"Sincronizando pedidos ({itemIndex}/{totalItems})");
+                await SendSaleOrder(item);
+            }            
+        }
+
+        public async Task SendProjectTask(ProjectTask projectTask)
+        {            
+            //TODO: Agregar validacion para ProjectTask existente
+            ApiManager.HubProjectTask hubManager = new HubProjectTask(App.Session);
+
+            var existingTasks = await hubManager.GetByName(projectTask.name);
+
+            if (existingTasks != null && existingTasks.result != null && existingTasks.result.Length > 0)
+            {
+                Debug.WriteLine("La tarea ya existe en el servidor: " + projectTask.name);
+                await Toast.Make("La tarea ya existe en el servidor: " + projectTask.name).Show();
+                return;
+            }
+
+            ApiResponseOdooRpcT<int> resultTask = await hubManager.Create(projectTask);
+
+            if (resultTask != null && resultTask.error != null)
+            {
+                Debug.WriteLine(resultTask.error.data.message);
+                Debug.WriteLine(resultTask.error.data.debug);
+                await Toast.Make("Error:" + resultTask.error.data.message).Show();
+                return;
+            }
+
+            if (resultTask != null && resultTask.result != null)
+            {
+                await Toast.Make("Datos enviados correctamente").Show();
+
+                projectTask.is_synchronized = true;
+                projectTask.date_synchronized = DateTime.Now;
+                ProjectTaskDb projectTaskDb = new ProjectTaskDb();
+                await projectTaskDb.UpdateAsync(projectTask);
+            }
+        }
+
+        public async Task SendAllProjectTask(ProgressBarAnimationBehaviorPage obj)
+        {
+            ProjectTaskDb saleOrderDb = new ProjectTaskDb();
+            var listOrders = await saleOrderDb.GetItemsAsync(App.Session.res_Company.id, false);
+
+            if (listOrders == null || listOrders.Count == 0)
+                return;
+
+            int totalItems = listOrders.Count;
+            int itemIndex = 0;
+            foreach (var item in listOrders)
+            {
+                itemIndex++;
+                obj.SetTitle($"Sincronizando tareas ({itemIndex}/{totalItems})");
+                await SendProjectTask(item);
+            }
+        }
+
+        public async Task SendAccountAnalyticLine(AccountAnalyticLine item)
+        {
+
+            ApiManager.HubAccountAnalyticLine hubManager = new HubAccountAnalyticLine(App.Session);
+            ApiResponseOdooRpcT<int> resultTask = await hubManager.Create(item);
+
+            if (resultTask != null && resultTask.error != null)
+            {
+                Debug.WriteLine(resultTask.error.data.message);
+                Debug.WriteLine(resultTask.error.data.debug);
+                await Toast.Make("Error:" + resultTask.error.data.message).Show();
+                return;
+            }
+
+            if (resultTask != null && resultTask.result != null)
+            {
+                await Toast.Make("Datos enviados correctamente").Show();
+
+                item.is_synchronized = true;
+                item.date_synchronized = DateTime.Now;
+                AccountAnalyticLineDb projectTaskDb = new AccountAnalyticLineDb();
+                await projectTaskDb.UpdateAsync(item);
+            }
+        }
+
+        public async Task SendAllAccountAnalyticLine(ProgressBarAnimationBehaviorPage obj)
+        {
+            AccountAnalyticLineDb accountAnalyticLineDb = new AccountAnalyticLineDb();
+            var listItems = await accountAnalyticLineDb.GetItemsAsync(App.Session.res_Company.id, false);
+
+            if (listItems == null || listItems.Count == 0)
+                return;
+
+            int totalItems = listItems.Count;
+            int itemIndex = 0;
+            foreach (var item in listItems)
+            {
+                //TODO: Agregar validacion para ProjectTask existente
+                itemIndex++;
+                obj.SetTitle($"Sincronizando tareas ({itemIndex}/{totalItems})");
+                await SendAccountAnalyticLine(item);
+            }
         }
     }
 }

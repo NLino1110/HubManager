@@ -50,7 +50,7 @@ namespace ApiManager
             object[] _custom_args = new object[] {
                 
             };
-            return await SearchRead<ApiResponseOdooRpcT<AccountTypeModule[]>>(args, _custom_args, kwargs);
+            return await SearchRead<ApiResponseOdooRpcT<AccountTypeModule[]>>(args, _custom_args, kwargs, true);
         }
     }
 }

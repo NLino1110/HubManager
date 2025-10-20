@@ -5,6 +5,7 @@ using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Mvvm.Input;
 using DMOrders.Controls;
 using DMOrders.Services.Helpers;
+using DMOrders.Services.Update.Pusher;
 using DMOrders.Shared;
 using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.DMOrders.tareas;
@@ -17,7 +18,7 @@ namespace DMOrders.Pages.Fragments.Activities;
 [XamlCompilation(XamlCompilationOptions.Compile)]
 public partial class Details : ContentPage, IBackButtonHandler
 {
-    public ProjectTask CurrentActivityHeader { get; set; }
+    public ProjectTask CurrentProjectTask { get; set; }
     public ICommand EditCommand { get; set; }
 
     private async void EditItem(object obj)
@@ -26,9 +27,8 @@ public partial class Details : ContentPage, IBackButtonHandler
         var ItemForEdit = (AccountAnalyticLine)obj;
         PopupSizeConstants popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
         
-        var returnResultPopup = new PopupAccountAnalyticLine(popupSizeConstants, CurrentActivityHeader, ItemForEdit);
-        returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;
-        
+        var returnResultPopup = new PopupAccountAnalyticLine(popupSizeConstants, CurrentProjectTask, ItemForEdit);
+        returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;        
 
         var result = await this.ShowPopupAsync(returnResultPopup);
 
@@ -51,8 +51,8 @@ public partial class Details : ContentPage, IBackButtonHandler
 	{
 		InitializeComponent();
 
-        CurrentActivityHeader = _CurrentActivityHeader;
-        BindingContext = new DetailsViewModel(CurrentActivityHeader);
+        CurrentProjectTask = _CurrentActivityHeader;
+        BindingContext = new DetailsViewModel(CurrentProjectTask);
 
         EditCommand = new Command(EditItem);
     }
@@ -109,7 +109,7 @@ public partial class Details : ContentPage, IBackButtonHandler
     {
         PopupSizeConstants popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
         
-        var returnResultPopup = new PopupAccountAnalyticLine(popupSizeConstants, CurrentActivityHeader, null);
+        var returnResultPopup = new PopupAccountAnalyticLine(popupSizeConstants, CurrentProjectTask, null);
         returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;
         
         var result = await this.ShowPopupAsync(returnResultPopup);
@@ -131,8 +131,23 @@ public partial class Details : ContentPage, IBackButtonHandler
         await Navigation.PopModalAsync();
     }
 
-    private void ButtonSync_Clicked(object sender, EventArgs e)
+    private async void ButtonSync_Clicked(object sender, EventArgs e)
     {
+        ServerPusher serverPusher = new ServerPusher();
 
+        //var orderLinesList = ((CrudViewModel)this.BindingContext).OrderLines.ToList();
+        //CurrentSaleOrder.order_line = new List<OrderLineWrapper>();
+        //CurrentSaleOrder._center_id = App.Session.odooConnection.res_center_default;
+
+        //foreach (var orderLine in orderLinesList)
+        //{
+        //    //orderLine.price_subtotal = 1;
+        //    orderLine.price_unit = 1;
+        //    orderLine.product_uom_qty = 1;
+
+        //    CurrentSaleOrder.order_line.Add(new OrderLineWrapper(orderLine));
+        //}
+
+        await serverPusher.SendProjectTask(CurrentProjectTask);
     }
 }

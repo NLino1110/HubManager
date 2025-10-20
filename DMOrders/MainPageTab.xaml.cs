@@ -177,7 +177,9 @@ public partial class MainPageTab : ContentPage
                 stage_id = 1,
                 project_id = 1, //proyecto predeterminado
                 parent_id = 1, //tarea predeterminada
+                date_assign = DateTime.Now,
                 date_deadline = DateTime.Now,
+                display_in_project = true,
                 user_id = App.Session.CurrentUserFront.uid
             };            
 

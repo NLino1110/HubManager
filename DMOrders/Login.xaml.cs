@@ -71,6 +71,46 @@ public partial class Login : ContentPage
     public async Task SetupLogin()
     {        
         SetupTapGesture();
+                
+        OdooConnectionItems = new ObservableCollection<OdooConnection>();
+        ddCompany.ItemsSource = OdooConnectionItems;
+        //ddCompany.ItemDisplayBinding = new Binding(nameof(OdooConnection.Name));
+        ddCompany.ItemDisplayBinding = new Binding("Name");
+
+        ddCompany.SelectedItemChanged += async (s, e) =>
+        {
+            if (ddCompany.SelectedItem == null)
+                return;
+
+            SelConnection = (OdooConnection)ddCompany.SelectedItem;
+            App.Session.odooConnection = SelConnection;
+            App.Session.CurrentUser = new User
+            {
+                username = App.Session.odooConnection.Username,
+                password = App.Session.odooConnection.Password,
+                databasename = App.Session.odooConnection.DbName,
+            };
+
+            LoadEnvironment();
+
+            CompanyDb companyDb = new CompanyDb();
+            SelCompany = (await companyDb.GetItemsAsync()).Where(x => x.id == SelConnection.CompanyId).FirstOrDefault();
+
+            if (SelCompany == null)
+            {
+                await Toast.Make("Error: No se encontró la empresa asociada a la conexión.").Show();
+                return;
+            }
+
+            var storesDb = new ResCenterDb();
+
+            var storesItems = (await Task.Run(async () => await storesDb.GetItemsAsync()))
+                              .Where(s => s.company_id == SelCompany.id && s.type_center == "M")
+                              .ToArray();
+            ddAgency.ItemsSource = storesItems;
+            ddAgency.ItemDisplayBinding = new Binding("name");
+            ddAgency.SelectedItem = storesItems.FirstOrDefault();
+        };
 
         await LoadSettingsFromDb();
         await PrepareConnections();
@@ -199,18 +239,19 @@ public partial class Login : ContentPage
         //SettingsPage objPage = new SettingsPage();
 
         Connections objPage = new Connections();
-
-        objPage.Disappearing += ObjSettingPage_Disappearing;
+        objPage.Disappearing += ObjSettingPage_Disappearing;        
         await Navigation.PushModalAsync(objPage);
     }
 
-    private void ObjSettingPage_Disappearing(object? sender, EventArgs e)
+    private async void ObjSettingPage_Disappearing(object? sender, EventArgs e)
     {
-        Task.Run(async () =>
+        var senderObject = (Connections) sender;
+        if (senderObject.Navigation.ModalStack.Count == 0)
         {
-            await LoadSettingsFromDb();            
-            await PrepareConnections();
-        });
+            Debug.WriteLine("Si es el cierre correcto");            
+            await LoadSettingsFromDb();
+            await PrepareConnections();            
+        }
     }
 
     private void OnTimerElapsed(object sender, ElapsedEventArgs e)
@@ -402,45 +443,82 @@ public partial class Login : ContentPage
 
     private async Task PrepareConnections()
     {
+        ddCompany.ItemsSource = null;
+        OdooConnectionItems = new ObservableCollection<OdooConnection>();
+
         OdooConnectionDb connectionsDb = new OdooConnectionDb();
-        IEnumerable<OdooConnection> filtered = (await connectionsDb.GetItemsAsync()).Where(c=>c.Active);
+        IEnumerable<OdooConnection> filtered = (await connectionsDb.GetItemsAsync()).Where(c => c.Active);
         OdooConnectionItems = new ObservableCollection<OdooConnection>(filtered.ToList());
         ddCompany.ItemsSource = OdooConnectionItems;
         ddCompany.ItemDisplayBinding = new Binding("Name");
 
-        ddCompany.SelectedItemChanged += async (s, e) =>
-        {
-            SelConnection = (OdooConnection) ddCompany.SelectedItem;
-            App.Session.odooConnection = SelConnection;
-            App.Session.CurrentUser = new User
-            {
-                username = App.Session.odooConnection.Username,
-                password = App.Session.odooConnection.Password,
-                databasename = App.Session.odooConnection.DbName,
-            };
-
-            LoadEnvironment();
-
-            CompanyDb companyDb = new CompanyDb();
-            SelCompany = (await companyDb.GetItemsAsync()).Where(x => x.id == SelConnection.CompanyId).FirstOrDefault();
-            
-            if(SelCompany == null)
-            {
-                await Toast.Make("Error: No se encontró la empresa asociada a la conexión.").Show();
-                return;
-            }
-
-            var storesDb = new ResCenterDb();
-
-            var storesItems = (await Task.Run(async () => await storesDb.GetItemsAsync()))
-                              .Where(s => s.company_id == SelCompany.id && s.type_center == "M")
-                              .ToArray();
-            ddAgency.ItemsSource = storesItems;
-            ddAgency.ItemDisplayBinding = new Binding("name");
-            ddAgency.SelectedItem = storesItems.FirstOrDefault();
-        };
+        
 
         ddCompany.SelectedItem = OdooConnectionItems.FirstOrDefault();
+        Debug.WriteLine("Conexiones cargadas!!");
+    }
+
+    private async Task __PrepareConnections()
+    {
+        var connectionsDb = new OdooConnectionDb();
+        var filtered = (await connectionsDb.GetItemsAsync())
+                        .Where(c => c.Active)
+                        .ToList();
+
+        // Asegura que todo cambio de UI vaya en el hilo principal
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            // No reasignes ItemDisplayBinding aquí.
+            // No reemplaces la instancia de la colección.
+            OdooConnectionItems.Clear();
+            foreach (var c in filtered)
+                OdooConnectionItems.Add(c);
+
+            // Limpia selección antes de reasignar
+            ddCompany.SelectedItem = null;
+
+            // (Opcional si ya se asignó en el constructor)
+            // ddCompany.ItemsSource = OdooConnectionItems;
+
+            ddCompany.SelectedItemChanged += async (s, e) =>
+            {
+                if (ddCompany.SelectedItem == null)
+                    return;
+
+                SelConnection = (OdooConnection)ddCompany.SelectedItem;
+                App.Session.odooConnection = SelConnection;
+                App.Session.CurrentUser = new User
+                {
+                    username = App.Session.odooConnection.Username,
+                    password = App.Session.odooConnection.Password,
+                    databasename = App.Session.odooConnection.DbName,
+                };
+
+                LoadEnvironment();
+
+                CompanyDb companyDb = new CompanyDb();
+                SelCompany = (await companyDb.GetItemsAsync()).Where(x => x.id == SelConnection.CompanyId).FirstOrDefault();
+
+                if (SelCompany == null)
+                {
+                    await Toast.Make("Error: No se encontró la empresa asociada a la conexión.").Show();
+                    return;
+                }
+
+                var storesDb = new ResCenterDb();
+
+                var storesItems = (await Task.Run(async () => await storesDb.GetItemsAsync()))
+                                  .Where(s => s.company_id == SelCompany.id && s.type_center == "M")
+                                  .ToArray();
+                ddAgency.ItemsSource = storesItems;
+                ddAgency.ItemDisplayBinding = new Binding("name");
+                ddAgency.SelectedItem = storesItems.FirstOrDefault();
+            };
+
+            ddCompany.SelectedItem = OdooConnectionItems.FirstOrDefault();
+        });
+
+        Debug.WriteLine("Conexiones cargadas!!");
     }
 
     public async Task<bool> SetDataSessionOffLine(User resultUser, user_access userFound, DateTime currentDate)

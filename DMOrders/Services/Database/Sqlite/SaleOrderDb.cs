@@ -26,6 +26,14 @@ namespace DMOrders.Services.Database.Sqlite
                 .ToListAsync();
         }
 
+        public async Task<List<sale_order>> GetItemsAsync(int company_id, bool sync_status)
+        {
+            await Init();
+            return await Database.Table<sale_order>()
+                .Where(x => x._company_id == company_id && x.is_synchronized == sync_status)
+                .ToListAsync();
+        }
+
         public async Task<List<sale_order>> GetItemsAsync(int partner_id, int company_id)
         {
             await Init();

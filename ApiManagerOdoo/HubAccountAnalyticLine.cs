@@ -1,4 +1,5 @@
 ﻿using ApiManagerOdoo.Base;
+using DMSA.Models.Odoo.DMOrders.tareas;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Tools;
@@ -8,7 +9,7 @@ using Newtonsoft.Json.Linq;
 
 namespace ApiManager
 {
-    public class HubSaleOrder : HubBase
+    public class HubAccountAnalyticLine : HubBase
     {
         string[] fields_array = new[] {
                 "id",
@@ -51,10 +52,10 @@ namespace ApiManager
                 "valuation_out_account_id",
         };
 
-        public HubSaleOrder(AppSession _setAppSession) : base(_setAppSession)
+        public HubAccountAnalyticLine(AppSession _setAppSession) : base(_setAppSession)
         {
             EndPointApi = "/web/dataset/call_kw";
-            _modelname = "sale.order";
+            _modelname = "account.analytic.line";
         }
 
         public async Task<ApiResponseOdooRpc?> GetCount()
@@ -83,8 +84,8 @@ namespace ApiManager
             };
             return await GetCount(args, _custom_args);
         }
-        
-        public async Task<ApiResponseOdooRpcT<sale_order[]>?> GetByCreateDate(int limit, int index, int year, int month, int day)
+                
+        public async Task<ApiResponseOdooRpcT<AccountAnalyticLine[]>?> GetByCreateDate(int limit, int index, int year, int month, int day)
         {            
             var kwargs = new
             {
@@ -98,10 +99,10 @@ namespace ApiManager
                 new object[] {"create_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
                 //new object[] {"create_date", "<=", $"{year}-{month:00}-{day:00} 23:59:59" },
             };
-            return await SearchRead<ApiResponseOdooRpcT<sale_order[]>>(args, _custom_args, kwargs);
+            return await SearchRead<ApiResponseOdooRpcT<AccountAnalyticLine[]>>(args, _custom_args, kwargs);
         }
 
-        public async Task<ApiResponseOdooRpcT<sale_order[]>?> GetByWriteDate_dl(int year, int month, int day)
+        public async Task<ApiResponseOdooRpcT<AccountAnalyticLine[]>?> GetByWriteDate_dl(int year, int month, int day)
         {
             var kwargs = new
             {
@@ -112,10 +113,10 @@ namespace ApiManager
             object[] _custom_args = new object[] {
                 new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
             };
-            return await SearchRead<ApiResponseOdooRpcT<sale_order[]>>(args, _custom_args, kwargs);
+            return await SearchRead<ApiResponseOdooRpcT<AccountAnalyticLine[]>>(args, _custom_args, kwargs);
         }
 
-        public async Task<ApiResponseOdooRpcT<sale_order[]>?> GetByCreateDate_dl(int year, int month, int day)
+        public async Task<ApiResponseOdooRpcT<AccountAnalyticLine[]>?> GetByCreateDate_dl(int year, int month, int day)
         {
             var kwargs = new
             {
@@ -126,10 +127,10 @@ namespace ApiManager
             object[] _custom_args = new object[] {
                 new object[] { "create_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
             };
-            return await SearchRead<ApiResponseOdooRpcT<sale_order[]>>(args, _custom_args, kwargs);
+            return await SearchRead<ApiResponseOdooRpcT<AccountAnalyticLine[]>>(args, _custom_args, kwargs);
         }
         
-        public async Task<ApiResponseOdooRpcT<sale_order[]>?> GetByWriteDate(int year, int month, int day)
+        public async Task<ApiResponseOdooRpcT<AccountAnalyticLine[]>?> GetByWriteDate(int year, int month, int day)
         {
             var kwargs = new
             {
@@ -140,10 +141,10 @@ namespace ApiManager
             object[] _custom_args = new object[] {                
                 new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
             };
-            return await SearchRead<ApiResponseOdooRpcT<sale_order[]>>(args, _custom_args, kwargs);
+            return await SearchRead<ApiResponseOdooRpcT<AccountAnalyticLine[]>>(args, _custom_args, kwargs);
         }
 
-        public async Task<ApiResponseOdooRpcT<int>?> Create(sale_order sale_Order)
+        public async Task<ApiResponseOdooRpcT<int>?> Create(AccountAnalyticLine sale_Order)
         {
             var kwargs = new{};
             var settings = new JsonSerializerSettings

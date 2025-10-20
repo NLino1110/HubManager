@@ -24,6 +24,7 @@ namespace DMSA.Models.Odoo.DMOrders.tareas
         public int company_id { get; set; }
         public int parent_id { get; set; }
         public int create_uid { get; set; }
+        public bool display_in_project { get; set; }
         [Ignore]
         [JsonIgnore]
         public string create_user { get; set; }
@@ -35,5 +36,9 @@ namespace DMSA.Models.Odoo.DMOrders.tareas
         public string display_username { get; set; }
         public DateTime date_assign { get; set; }
         public DateTime date_deadline { get; set; }
+        [JsonIgnore]
+        public bool is_synchronized { get; set; }
+        [JsonIgnore]
+        public DateTime date_synchronized { get; set; }
     }
 }

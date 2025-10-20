@@ -1,4 +1,5 @@
 ﻿using ApiManagerOdoo.Base;
+using DMSA.Models.Odoo.DMOrders.tareas;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Tools;
@@ -8,7 +9,7 @@ using Newtonsoft.Json.Linq;
 
 namespace ApiManager
 {
-    public class HubSaleOrder : HubBase
+    public class HubProjectTask : HubBase
     {
         string[] fields_array = new[] {
                 "id",
@@ -51,10 +52,10 @@ namespace ApiManager
                 "valuation_out_account_id",
         };
 
-        public HubSaleOrder(AppSession _setAppSession) : base(_setAppSession)
+        public HubProjectTask(AppSession _setAppSession) : base(_setAppSession)
         {
             EndPointApi = "/web/dataset/call_kw";
-            _modelname = "sale.order";
+            _modelname = "project.task";
         }
 
         public async Task<ApiResponseOdooRpc?> GetCount()
@@ -83,8 +84,8 @@ namespace ApiManager
             };
             return await GetCount(args, _custom_args);
         }
-        
-        public async Task<ApiResponseOdooRpcT<sale_order[]>?> GetByCreateDate(int limit, int index, int year, int month, int day)
+                
+        public async Task<ApiResponseOdooRpcT<ProjectTask[]>?> GetByCreateDate(int limit, int index, int year, int month, int day)
         {            
             var kwargs = new
             {
@@ -98,10 +99,10 @@ namespace ApiManager
                 new object[] {"create_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
                 //new object[] {"create_date", "<=", $"{year}-{month:00}-{day:00} 23:59:59" },
             };
-            return await SearchRead<ApiResponseOdooRpcT<sale_order[]>>(args, _custom_args, kwargs);
+            return await SearchRead<ApiResponseOdooRpcT<ProjectTask[]>>(args, _custom_args, kwargs);
         }
 
-        public async Task<ApiResponseOdooRpcT<sale_order[]>?> GetByWriteDate_dl(int year, int month, int day)
+        public async Task<ApiResponseOdooRpcT<ProjectTask[]>?> GetByWriteDate_dl(int year, int month, int day)
         {
             var kwargs = new
             {
@@ -112,10 +113,10 @@ namespace ApiManager
             object[] _custom_args = new object[] {
                 new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
             };
-            return await SearchRead<ApiResponseOdooRpcT<sale_order[]>>(args, _custom_args, kwargs);
+            return await SearchRead<ApiResponseOdooRpcT<ProjectTask[]>>(args, _custom_args, kwargs);
         }
 
-        public async Task<ApiResponseOdooRpcT<sale_order[]>?> GetByCreateDate_dl(int year, int month, int day)
+        public async Task<ApiResponseOdooRpcT<ProjectTask[]>?> GetByCreateDate_dl(int year, int month, int day)
         {
             var kwargs = new
             {
@@ -126,10 +127,10 @@ namespace ApiManager
             object[] _custom_args = new object[] {
                 new object[] { "create_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
             };
-            return await SearchRead<ApiResponseOdooRpcT<sale_order[]>>(args, _custom_args, kwargs);
+            return await SearchRead<ApiResponseOdooRpcT<ProjectTask[]>>(args, _custom_args, kwargs);
         }
         
-        public async Task<ApiResponseOdooRpcT<sale_order[]>?> GetByWriteDate(int year, int month, int day)
+        public async Task<ApiResponseOdooRpcT<ProjectTask[]>?> GetByWriteDate(int year, int month, int day)
         {
             var kwargs = new
             {
@@ -140,10 +141,27 @@ namespace ApiManager
             object[] _custom_args = new object[] {                
                 new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
             };
-            return await SearchRead<ApiResponseOdooRpcT<sale_order[]>>(args, _custom_args, kwargs);
+            return await SearchRead<ApiResponseOdooRpcT<ProjectTask[]>>(args, _custom_args, kwargs);
         }
 
-        public async Task<ApiResponseOdooRpcT<int>?> Create(sale_order sale_Order)
+        public async Task<ApiResponseOdooRpcT<ProjectTask[]>?> GetByName(string task_name)
+        {
+            //Este metodo busca por nombre el projectTask
+            // el projectTask representa a la tarea del día, es decir
+            // todos los vendedores serán asignados a la misma tarea
+            var kwargs = new
+            {
+                fields = fields_array
+            };
+
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] { "name", "=", task_name },
+            };
+            return await SearchRead<ApiResponseOdooRpcT<ProjectTask[]>>(args, _custom_args, kwargs);
+        }
+
+        public async Task<ApiResponseOdooRpcT<int>?> Create(ProjectTask sale_Order)
         {
             var kwargs = new{};
             var settings = new JsonSerializerSettings
@@ -162,10 +180,12 @@ namespace ApiManager
             JObjectExtensions.RenameProperty(newJObject, "_currency_id", "currency_id");
             JObjectExtensions.RenameProperty(newJObject, "_center_id", "center_id");
 
+            JObjectExtensions.RemoveProperty(newJObject, "create_user");
+            JObjectExtensions.RemoveProperty(newJObject, "display_username");
             JObjectExtensions.RemoveProperty(newJObject, "is_synchronized");
             JObjectExtensions.RemoveProperty(newJObject, "date_synchronized");
-            JObjectExtensions.RemoveProperty(newJObject, "is_imported");
-            JObjectExtensions.RemoveProperty(newJObject, "date_imported");
+            JObjectExtensions.RemoveProperty(newJObject, "parent_id");
+
             JObjectExtensions.RemoveProperty(newJObject, "partner_display");
             JObjectExtensions.RemoveProperty(newJObject, "partner_invoice_id");
             JObjectExtensions.RemoveProperty(newJObject, "partner_shipping_id");

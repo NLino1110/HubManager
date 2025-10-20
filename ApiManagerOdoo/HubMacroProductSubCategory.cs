@@ -63,7 +63,7 @@ namespace ApiManager
                 new object[] {"create_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
                 //new object[] {"create_date", "<=", $"{year}-{month:00}-{day:00} 23:59:59" },
             };
-            return await SearchRead<ApiResponseOdooRpcT<macro_product_sub_category[]>>(args, _custom_args, kwargs);
+            return await SearchRead<ApiResponseOdooRpcT<macro_product_sub_category[]>>(args, _custom_args, kwargs, true);
         }
 
         public async Task<ApiResponseOdooRpcT<macro_product_sub_category[]>?> GetByWriteDate_dl(int year, int month, int day)
@@ -77,7 +77,7 @@ namespace ApiManager
             object[] _custom_args = new object[] {
                 new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
             };
-            return await SearchRead<ApiResponseOdooRpcT<macro_product_sub_category[]>>(args, _custom_args, kwargs);
+            return await SearchRead<ApiResponseOdooRpcT<macro_product_sub_category[]>>(args, _custom_args, kwargs, true);
         }
 
         public async Task<ApiResponseOdooRpcT<macro_product_sub_category[]>?> GetByCreateDate_dl(int year, int month, int day)
@@ -91,7 +91,7 @@ namespace ApiManager
             object[] _custom_args = new object[] {
                 new object[] { "create_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
             };
-            return await SearchRead<ApiResponseOdooRpcT<macro_product_sub_category[]>>(args, _custom_args, kwargs);
+            return await SearchRead<ApiResponseOdooRpcT<macro_product_sub_category[]>>(args, _custom_args, kwargs, true);
         }
         
         public async Task<ApiResponseOdooRpcT<macro_product_sub_category[]>?> GetByWriteDate(int year, int month, int day)
@@ -105,7 +105,7 @@ namespace ApiManager
             object[] _custom_args = new object[] {                
                 new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
             };
-            return await SearchRead<ApiResponseOdooRpcT<macro_product_sub_category[]>>(args, _custom_args, kwargs);
+            return await SearchRead<ApiResponseOdooRpcT<macro_product_sub_category[]>>(args, _custom_args, kwargs, true);
         }
     }
 }

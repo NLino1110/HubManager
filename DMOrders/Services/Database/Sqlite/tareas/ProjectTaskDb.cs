@@ -33,6 +33,14 @@ namespace DMOrders.Services.Database.Sqlite
             return await Database.Table<ProjectTask>().ToListAsync();
         }
 
+        public async Task<List<ProjectTask>> GetItemsAsync(int company_id, bool sync_status)
+        {
+            await Init();
+            return await Database.Table<ProjectTask>()
+                .Where(x => x.company_id == company_id && x.is_synchronized == sync_status)
+                .ToListAsync();
+        }
+
         public async Task<List<ProjectTask>> GetItemByNameAsync(string name)
         {
             await Init();
@@ -57,6 +65,12 @@ namespace DMOrders.Services.Database.Sqlite
             await Init();
             await Database.InsertAllAsync(items, "OR REPLACE",true);            
             return 0;
+        }
+
+        public async Task<int> UpdateAsync(ProjectTask item)
+        {
+            await Init();
+            return await Database.UpdateAsync(item);
         }
 
         public async Task<int> Truncate()

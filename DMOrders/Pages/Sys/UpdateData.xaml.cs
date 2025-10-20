@@ -2328,7 +2328,7 @@ public partial class UpdateData : ContentPage
             // y el AccountJournal no tiene fecha de creación en la devolución de datos por 
             // medio del api
 
-            await OnlineSyncJournal(_appSession, apiRequest);
+            //await OnlineSyncJournal(_appSession, apiRequest);
             await OnlineSyncBank(_appSession, apiRequest);
             //await OnlineSyncAccountModule(_appSession, apiRequest);
             await OnlineSyncAccountTypeModule(_appSession, apiRequest);

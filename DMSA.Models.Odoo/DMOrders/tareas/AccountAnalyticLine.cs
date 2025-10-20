@@ -38,5 +38,9 @@ namespace DMSA.Models.Odoo.DMOrders.tareas
         public decimal hour_end { get; set; }
         public decimal duration { get; set; }
         public int x_account_id_1 { get; set; }
+        [JsonIgnore]
+        public bool is_synchronized { get; set; }
+        [JsonIgnore]
+        public DateTime date_synchronized { get; set; }
     }
 }

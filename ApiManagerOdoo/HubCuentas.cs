@@ -64,7 +64,7 @@ namespace ApiManager
             object[] _custom_args = new object[] {
                 
             };
-            return await SearchRead<ApiResponseOdooRpcT<res_partner_bank[]>>(args, _custom_args, kwargs);
+            return await SearchRead<ApiResponseOdooRpcT<res_partner_bank[]>>(args, _custom_args, kwargs, true);
         }
 
         public async Task<ApiResponseOdooRpcT<res_partner_bank[]>?> Get(res_partner_bank_send new_partner_bank)
