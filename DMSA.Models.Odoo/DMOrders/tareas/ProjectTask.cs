@@ -61,5 +61,7 @@ namespace DMSA.Models.Odoo.DMOrders.tareas
         public bool is_synchronized { get; set; }
         [JsonIgnore]
         public DateTime date_synchronized { get; set; }
+        [JsonIgnore]
+        public int id_sync { get; set; }
     }
 }

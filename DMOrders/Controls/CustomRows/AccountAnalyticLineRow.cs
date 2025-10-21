@@ -28,7 +28,7 @@ namespace DMOrders.Controls.CustomRows
         {
             // ⚡ evita reconstrucciones innecesarias del árbol visual
             if (_built) return;
-
+            leftGrid.ColumnSpacing = 10; 
             leftGrid.RowDefinitions.Clear();
             leftGrid.ColumnDefinitions.Clear();
 
@@ -46,28 +46,29 @@ namespace DMOrders.Controls.CustomRows
 
             // Labels livianos (sin hit-testing) y con truncado
             _labelId = new Label { FontSize = 10, TextColor = Colors.Black, Padding = 3, HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, InputTransparent = true };
-            _labelCompany = new Label { FontSize = 13, FontAttributes = FontAttributes.Bold, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, InputTransparent = true };
-            _labelReason = new Label { FontSize = 12, TextColor = Colors.Gray, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, InputTransparent = true };
-            _labelPartner = new Label { FontSize = 12, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, InputTransparent = true };
-            _labelStartDate = new Label { FontSize = 12, FontAttributes = FontAttributes.Bold, TextColor = Colors.DarkSlateGray, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, InputTransparent = true };
-            _labelEndDate = new Label { FontSize = 10, FontAttributes = FontAttributes.Bold, TextColor = Colors.OrangeRed, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, InputTransparent = true };
-            _labelStandby = new Label { FontSize = 10, FontAttributes = FontAttributes.Bold, TextColor = Colors.Green, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, InputTransparent = true };
+            _labelCompany = new Label { FontSize = 13, FontAttributes = FontAttributes.Bold, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, VerticalOptions = LayoutOptions.Center, InputTransparent = true };
+            _labelReason = new Label { FontSize = 12, TextColor = Colors.Gray, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, VerticalOptions = LayoutOptions.Center, InputTransparent = true };
+            _labelPartner = new Label { FontSize = 12, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, VerticalOptions = LayoutOptions.Center, InputTransparent = true };
+            _labelStartDate = new Label { FontSize = 12, FontAttributes = FontAttributes.Bold, TextColor = Colors.Gray, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, VerticalOptions = LayoutOptions.Center, InputTransparent = true };
+            _labelEndDate = new Label { FontSize = 12, FontAttributes = FontAttributes.Bold, TextColor = Colors.Gray, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, VerticalOptions = LayoutOptions.Center, InputTransparent = true };
+            _labelStandby = new Label { FontSize = 12, FontAttributes = FontAttributes.Bold, TextColor = Colors.Green, LineBreakMode = LineBreakMode.TailTruncation, MaxLines = 1, VerticalOptions = LayoutOptions.Center, InputTransparent = true };
 
             // Bindings simples (ajusta los nombres si tu modelo difiere)
             _labelId.SetBinding(Label.TextProperty, new Binding("id"));
             _labelCompany.SetBinding(Label.TextProperty, new Binding("res_company_display"));
-            _labelReason.SetBinding(Label.TextProperty, new Binding("reason_display")); // ← si tu modelo no tiene esto, deja "res_company_display"
+            _labelReason.SetBinding(Label.TextProperty, new Binding("motivo_display")); // ← si tu modelo no tiene esto, deja "res_company_display"
             _labelPartner.SetBinding(Label.TextProperty, new Binding("res_partner_display"));
             _labelStartDate.SetBinding(Label.TextProperty, new Binding("hour_start", converter: new HourDecimalToTimeSpanConverter(), stringFormat: "{0:hh\\:mm}"));
             _labelEndDate.SetBinding(Label.TextProperty, new Binding("hour_end", converter: new HourDecimalToTimeSpanConverter(), stringFormat: "{0:hh\\:mm}"));
-            _labelStandby.SetBinding(Label.TextProperty, new Binding("duration")); // boolean/string, ajusta formato si quieres
+            _labelStandby.SetBinding(Label.TextProperty, new Binding("duration", converter: new HourDecimalToTimeSpanConverter(), stringFormat: "{0:hh\\:mm}"));
 
             // Bloque de 2 líneas: company / reason
             var companyReason = new VerticalStackLayout
             {
                 Spacing = 0,
-                Children = { _labelCompany, _labelReason }
-            };
+                Children = { _labelCompany, _labelReason },
+                VerticalOptions = LayoutOptions.Center
+            };            
 
             // Colocar en columnas (una sola vez)
             Grid.SetColumn(_labelId, 0); leftGrid.Children.Add(_labelId);

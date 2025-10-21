@@ -214,6 +214,7 @@ namespace DMOrders.Controls
                     FontAutoScalingEnabled = true,
                     Glyph = MaterialSharp.Timer
                 },
+                
             };
 
             _timePickerEnd = new TimePickerField
@@ -312,7 +313,7 @@ namespace DMOrders.Controls
             // Agregar elementos al FlexLayout
             flexLayout.Children.Add(_pickerPlanningSlot);
             flexLayout.Children.Add(_pickerPlanningReason);
-            flexLayout.Children.Add(_pickerCompany);            
+            //flexLayout.Children.Add(_pickerCompany);            
             flexLayout.Children.Add(_inputResPartner);
             flexLayout.Children.Add(_inputReview);
             flexLayout.Children.Add(_timePickerStart);
@@ -673,8 +674,8 @@ namespace DMOrders.Controls
                     CompanyDb companyDb = new CompanyDb();
                     lcompany = new ObservableCollection<res_company>((await companyDb.GetItemsAsync()).OrderBy(i => i.name));
 
-                    _pickerCompany.ItemsSource = lcompany;
-                    _pickerCompany.ItemDisplayBinding = new Binding("name");
+                    //_pickerCompany.ItemsSource = lcompany;
+                    //_pickerCompany.ItemDisplayBinding = new Binding("name");
 
                     if (analyticLine != null)
                     {
@@ -688,7 +689,7 @@ namespace DMOrders.Controls
                             _inputResPartner.Text = Sel_Res_Partner.id.ToString() + " - " + Sel_Res_Partner.name;
                         }
 
-                        _pickerCompany.SelectedItem = lcompany.Where(i => i.id == analyticLine.company_id).FirstOrDefault();
+                        //_pickerCompany.SelectedItem = lcompany.Where(i => i.id == analyticLine.company_id).FirstOrDefault();
 
                         var motivo_selected = lplanning_reason.Where(i => i.id == analyticLine.motivo).FirstOrDefault();
                         if (motivo_selected != null)

@@ -70,7 +70,11 @@ namespace DMOrders.Pages.Fragments.Activities
                 IsBusy = true;
                 ProjectTaskDb activityHeaderDb = new ProjectTaskDb();
 
-                var items = await activityHeaderDb.GetItemsAsync(App.Session.res_Company.id, filters.getStatus().id, filters.getDateStart(), filters.getDateEnd());
+                var items = await activityHeaderDb.GetItemsAsync(App.Session.res_Company.id, App.Session.CurrentUserFront.uid, filters.getStatus().id, filters.getDateStart(), filters.getDateEnd());
+                foreach(var item in items)
+                {
+                    item.display_username = App.Session.CurrentUserFront.nombres;
+                }
                 Activities = new ObservableCollection<ProjectTask>(items);
                 OnPropertyChanged(nameof(Activities));                
 

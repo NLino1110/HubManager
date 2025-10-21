@@ -41,10 +41,10 @@ namespace DMOrders.Services.Database.Sqlite
                 .ToListAsync();
         }
 
-        public async Task<List<ProjectTask>> GetItemsAsync(int company_id, int int_status, DateTime? dateStart, DateTime? dateEnd)
+        public async Task<List<ProjectTask>> GetItemsAsync(int company_id, int user_id, int int_status, DateTime? dateStart, DateTime? dateEnd)
         {
             await Init();
-            var query = Database.Table<ProjectTask>().Where(x => x.company_id == company_id);
+            var query = Database.Table<ProjectTask>().Where(x => x.company_id == company_id && x.user_id == user_id);
             //int_status == -1 TODOS
             //int_status == 0 NO SINCRONIZADOS
             //int_status == 1 SINCRONIZADOS

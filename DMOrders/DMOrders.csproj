@@ -92,16 +92,16 @@
 		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.8" />
 		<PackageReference Include="System.Text.Json" Version="9.0.8" />
-		<PackageReference Include="UraniumUI" Version="2.12.1" />
-		<PackageReference Include="UraniumUI.Blurs" Version="2.12.1" />
-		<PackageReference Include="UraniumUI.Dialogs.CommunityToolkit" Version="2.12.1" />
-		<PackageReference Include="UraniumUI.Dialogs.Mopups" Version="2.12.1" />
-		<PackageReference Include="UraniumUI.Icons.FontAwesome" Version="2.12.1" />
-		<PackageReference Include="UraniumUI.Icons.MaterialIcons" Version="2.12.1" />
-		<PackageReference Include="UraniumUI.Icons.MaterialSymbols" Version="2.12.1" />
-		<PackageReference Include="UraniumUI.Icons.SegoeFluent" Version="2.12.1" />
-		<PackageReference Include="UraniumUI.Material" Version="2.12.1" />
-		<PackageReference Include="UraniumUI.Validations.DataAnnotations" Version="2.12.1" />
+		<PackageReference Include="UraniumUI" Version="2.13.0" />
+		<PackageReference Include="UraniumUI.Blurs" Version="2.13.0" />
+		<PackageReference Include="UraniumUI.Dialogs.CommunityToolkit" Version="2.13.0" />
+		<PackageReference Include="UraniumUI.Dialogs.Mopups" Version="2.13.0" />
+		<PackageReference Include="UraniumUI.Icons.FontAwesome" Version="2.13.0" />
+		<PackageReference Include="UraniumUI.Icons.MaterialIcons" Version="2.13.0" />
+		<PackageReference Include="UraniumUI.Icons.MaterialSymbols" Version="2.13.0" />
+		<PackageReference Include="UraniumUI.Icons.SegoeFluent" Version="2.13.0" />
+		<PackageReference Include="UraniumUI.Material" Version="2.13.0" />
+		<PackageReference Include="UraniumUI.Validations.DataAnnotations" Version="2.13.0" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -24,10 +24,11 @@
         <Grid Grid.Row="0"
           BackgroundColor="WhiteSmoke"
           ColumnDefinitions="Auto,*"
+              RowDefinitions="*,*"
           Padding="0"
           ColumnSpacing="20"
           VerticalOptions="Center">
-            <Button Grid.Column="0"
+            <Button Grid.Column="0" Grid.Row="0"
             Text=""
             Clicked="ButtonClose_Clicked"
             BackgroundColor="DarkGray"
@@ -43,7 +44,7 @@
                 </Button.ImageSource>
             </Button>
 
-            <Label Grid.Column="1"
+            <Label Grid.Column="1" Grid.Row="0"
                    x:Name="lblMainTitle"
                Text="Actividades Diarias No. {}   Fecha {}"
                HorizontalOptions="Fill"
@@ -51,6 +52,9 @@
                HorizontalTextAlignment="Center"
                FontAttributes="Bold"
                FontSize="15" />
+            
+            
+
         </Grid>
 
         <CollectionView 
@@ -58,7 +62,7 @@
                 x:Name="MyCollectionView"
                 ItemsSource="{Binding Activities}"
                 ItemSizingStrategy="MeasureFirstItem"
-                EmptyView="....." 
+                EmptyView="No hay actividades ingresadas..." 
                 HorizontalOptions="Fill" 
                 SelectionMode="Single"
                 SelectedItem="{Binding SelectedItem, Mode=TwoWay}">

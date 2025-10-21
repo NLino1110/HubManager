@@ -175,13 +175,15 @@ public partial class MainPageTab : ContentPage
                 name = nameTodayTask,
                 company_id = App.Session.res_Company.id,
                 create_uid = App.Session.CurrentUserFront.uid,
-                stage_id = 1,
-                project_id = 1, //proyecto predeterminado
+                stage_id_ = 1,
+                project_id_ = 1, //proyecto predeterminado
                 parent_id = 1, //tarea predeterminada
                 date_assign = DateTime.Now,
                 date_deadline = DateTime.Now,
                 display_in_project = true,
-                user_id = App.Session.CurrentUserFront.uid
+                id_sync = 0,
+                user_id = App.Session.CurrentUserFront.uid,
+                user_ids = new int [App.Session.CurrentUserFront.uid] 
             };            
 
             //viewObj.CurrentActivityHeader = new DMSA.Models.Odoo.DMOrders.tareas.ProjectTask() { id = 0, name = nameTodayTask };

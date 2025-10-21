@@ -157,30 +157,29 @@ namespace ApiManager
 
             var newJObject = JObject.Parse(serialized);
 
-            JObjectExtensions.RenameProperty(newJObject, "_partner_id", "partner_id");
+            //JObjectExtensions.RenameProperty(newJObject, "_partner_id", "partner_id");
             JObjectExtensions.RenameProperty(newJObject, "_company_id", "company_id");
             JObjectExtensions.RenameProperty(newJObject, "_warehouse_id", "warehouse_id");
             JObjectExtensions.RenameProperty(newJObject, "_currency_id", "currency_id");
-            JObjectExtensions.RenameProperty(newJObject, "_center_id", "center_id");
+            JObjectExtensions.RenameProperty(newJObject, "task_id_sync", "task_id");
 
             JObjectExtensions.RemoveProperty(newJObject, "is_synchronized");
             JObjectExtensions.RemoveProperty(newJObject, "date_synchronized");
-            JObjectExtensions.RemoveProperty(newJObject, "is_imported");
-            JObjectExtensions.RemoveProperty(newJObject, "date_imported");
-            JObjectExtensions.RemoveProperty(newJObject, "partner_display");
-            JObjectExtensions.RemoveProperty(newJObject, "partner_invoice_id");
-            JObjectExtensions.RemoveProperty(newJObject, "partner_shipping_id");
-            JObjectExtensions.RemoveProperty(newJObject, "pricelist_id");
-            JObjectExtensions.RemoveProperty(newJObject, "payment_term_id");
-            JObjectExtensions.RemoveProperty(newJObject, "team_id");
-            JObjectExtensions.RemoveProperty(newJObject, "user_id");
-            JObjectExtensions.RemoveProperty(newJObject, "warehouse_id");
+            JObjectExtensions.RemoveProperty(newJObject, "id_sync");
+            JObjectExtensions.RemoveProperty(newJObject, "task_id_sync");
 
-            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_order_id");
-            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_product_uom_category_id");
-            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "product_code");
-            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "product_display");
-            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "uom_category_display");
+            //JObjectExtensions.RemoveProperty(newJObject, "is_imported");
+            //JObjectExtensions.RemoveProperty(newJObject, "date_imported");
+            //JObjectExtensions.RemoveProperty(newJObject, "partner_display");
+            //JObjectExtensions.RemoveProperty(newJObject, "partner_invoice_id");
+            //JObjectExtensions.RemoveProperty(newJObject, "partner_shipping_id");
+            //JObjectExtensions.RemoveProperty(newJObject, "pricelist_id");
+            //JObjectExtensions.RemoveProperty(newJObject, "payment_term_id");
+            //JObjectExtensions.RemoveProperty(newJObject, "team_id");
+
+            //Se requiere borrar user_id del JSON
+            JObjectExtensions.RemoveProperty(newJObject, "user_id");
+            //JObjectExtensions.RemoveProperty(newJObject, "warehouse_id");
 
             //if (newJObject["partner_id"] != null)
             //{
@@ -196,8 +195,5 @@ namespace ApiManager
             object[] args = new object[] { newJObject };
             return await Create<ApiResponseOdooRpcT<int>>(args, kwargs);
         }
-
-
-        
     }
 }

@@ -43,24 +43,26 @@ namespace DMOrders.Controls.CustomRows
 
             LeftGrid.ColumnDefinitions = new ColumnDefinitionCollection()
             {
-                new ColumnDefinition { Width = GridLength.Star },
                 new ColumnDefinition { Width = GridLength.Auto },
+                new ColumnDefinition { Width = new GridLength(2.5, GridUnitType.Star) },
+                //new ColumnDefinition { Width = GridLength.Star },
+                new ColumnDefinition { Width = GridLength.Star },
                 new ColumnDefinition { Width = GridLength.Star },
                 new ColumnDefinition { Width = GridLength.Star },
                 new ColumnDefinition { Width = GridLength.Star },
             };
 
-            labelId = new Label { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, TextColor = Colors.Black, FontSize = 10, BackgroundColor = Colors.Transparent, Padding = new Thickness(3), Margin = new Thickness(0) };
+            labelId = new Label { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, TextColor = Colors.Black, FontSize = 12, BackgroundColor = Colors.Transparent, Padding = new Thickness(20,0,20,0), Margin = new Thickness(0) };
 
-            labelName = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, FontSize = 13, BackgroundColor = Colors.Transparent };
-            labelSellerName = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, FontSize = 13, BackgroundColor = Colors.Transparent };
-            labelPlanningDate = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, TextColor = Colors.DarkSlateGray, FontSize = 12 };
+            labelName = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, FontSize = 12, BackgroundColor = Colors.Transparent };
+            labelSellerName = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, FontSize = 12, BackgroundColor = Colors.Red };
+            labelPlanningDate = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, TextColor = Colors.Blue, FontSize = 12 };
             labelWriteDate = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, TextColor = Colors.OrangeRed, FontSize = 10 };
             labelUser = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, TextColor = Colors.Green, FontSize = 10 };
             labelState = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, TextColor = Colors.Green, FontSize = 10 };
 
             labelId.SetBinding(Label.TextProperty, new Binding(nameof(Item.id), source: Item));
-            labelName.SetBinding(Label.TextProperty, new Binding(nameof(Item.name), source: Item));
+            labelName.SetBinding(Label.TextProperty, new Binding(nameof(Item.display_username), source: Item));
             labelSellerName.SetBinding(Label.TextProperty, new Binding(nameof(Item.display_username), source: Item));
             labelPlanningDate.SetBinding(Label.TextProperty, new Binding(nameof(Item.date_assign), source: Item));
             labelWriteDate.SetBinding(Label.TextProperty, new Binding(nameof(Item.date_synchronized), source: Item));
@@ -72,12 +74,12 @@ namespace DMOrders.Controls.CustomRows
             //Grid.SetColumn(labelId, 0);
                         
             AddCell(CreateCell(labelId), "left", 0, 0);
-            AddCell(CreateCell(labelName), "left", 1, 2);
-            AddCell(CreateCell(labelSellerName), "left", 0, 2);
-            AddCell(CreateCell(labelPlanningDate), "left", 0, 3);
-            AddCell(CreateCell(labelWriteDate), "left", 0, 4);
-            AddCell(CreateCell(labelUser), "left", 0, 5);
-            AddCell(CreateCell(labelState), "left", 0, 6);
+            AddCell(CreateCell(labelName), "left", 0, 1);
+            //AddCell(CreateCell(labelSellerName), "left", 0, 2);
+            AddCell(CreateCell(labelPlanningDate), "left", 0, 2);
+            AddCell(CreateCell(labelWriteDate), "left", 0, 3);
+            AddCell(CreateCell(labelUser), "left", 0, 4);
+            AddCell(CreateCell(labelState), "left", 0, 5);
 
             _built = true;
         }
@@ -124,7 +126,7 @@ namespace DMOrders.Controls.CustomRows
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 12,
                 HorizontalOptions = LayoutOptions.Center,
-                IsVisible = true,
+                IsVisible = false,
                 ImageSource = new FontImageSource
                 {
                     FontFamily = "FontAwesome5Solid",

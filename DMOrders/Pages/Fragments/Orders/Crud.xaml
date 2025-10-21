@@ -125,7 +125,7 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto"
                 <CollectionView
                     x:Name="MyCollectionView"
                     ItemsSource="{Binding OrderLines}" 
-                    EmptyView="..."
+                    EmptyView="No hay productos seleccionados..."
                     SelectionMode="Single"
                     SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
                     HorizontalOptions="Start"

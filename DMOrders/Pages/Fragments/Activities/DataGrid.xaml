@@ -12,28 +12,30 @@
              x:Name="ActivitiesDataGrid">
 
     <Grid RowDefinitions="Auto,*,Auto">
-        <Grid Grid.Row="0" BackgroundColor="LightGray" Padding="2">
+        <Grid Grid.Row="0" BackgroundColor="Gray" Padding="2">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="2.7*"/>
+                <ColumnDefinition Width="1.6*"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Label Text="Id" FontAttributes="Bold"/>
-            <Label Text="FECHA REP." Grid.Column="1" FontAttributes="Bold"/>
-            <Label Text="FECHA MOD." Grid.Column="2" FontAttributes="Bold"/>
-            <Label Text="USUARIO" Grid.Column="3" FontAttributes="Bold"/>
-            <Label Text="ESTADO" Grid.Column="4" FontAttributes="Bold"/>
-            <Label Text="-" Grid.Column="5" FontAttributes="Bold"/>
+            <Label Text="ID" FontAttributes="Bold" Padding="10,0,10,0" TextColor="GhostWhite"/>
+            <Label Text="VENDEDOR" Grid.Column="1" FontAttributes="Bold" Padding="10,0,0,0" TextColor="GhostWhite"/>
+            <Label Text="FECHA REP." Grid.Column="2" FontAttributes="Bold" Padding="0,0,10,0" TextColor="GhostWhite"/>
+            <Label Text="FECHA SINC." Grid.Column="3" FontAttributes="Bold" Padding="10,0,10,0" TextColor="GhostWhite"/>
+            <Label Text="USUARIO" Grid.Column="4" FontAttributes="Bold" Padding="10,0,10,0" TextColor="GhostWhite"/>
+            <Label Text="ESTADO" Grid.Column="5" FontAttributes="Bold" Padding="10,0,10,0" TextColor="GhostWhite"/>
+            <Label Text="-" Grid.Column="6" FontAttributes="Bold" Padding="10,0,10,0" TextColor="GhostWhite"/>
         </Grid>
         <ScrollView Grid.Row="1" BackgroundColor="WhiteSmoke">
             <VerticalStackLayout>                
                 <CollectionView 
                     x:Name="MyCollectionView"
                     ItemsSource="{Binding Activities}" 
-                                EmptyView="....." 
+                                EmptyView="No hay tareas diarias ingresadas..." 
                                 HorizontalOptions="Fill" 
                                 SelectionMode="Single"
                                 SelectedItem="{Binding SelectedItem, Mode=TwoWay}"

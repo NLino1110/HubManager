@@ -55,8 +55,28 @@ namespace DMOrders.Pages.Fragments.Activities
 
         private async Task LoadActivities()
         {
+            var companyDb = new CompanyDb();
+            var MotivoDb = new MotivoActividadDiariaDb();
+            var resPartnerDb = new ResPartnerDb();
+
             var accountAnalyticDb = new AccountAnalyticLineDb();
             var items = (await accountAnalyticDb.GetItemsAsync(ParentProjectTask));
+            foreach(var item in items)
+            {
+                var companyItem = await companyDb.GetItem(item.company_id);
+                if (companyItem != null)
+                    item.res_company_display = companyItem.name;
+
+                var motivoItem = await MotivoDb.GetItem(item.motivo);
+
+                if(motivoItem != null)
+                    item.motivo_display = motivoItem.name;
+
+                var partnerItem = await resPartnerDb.GetItemsAsync(item.company_id, item.partner_id);
+                
+                if(partnerItem != null)
+                    item.res_partner_display = partnerItem.name;
+            }
             Activities = new ObservableCollection<AccountAnalyticLine>(items);
         }
 
