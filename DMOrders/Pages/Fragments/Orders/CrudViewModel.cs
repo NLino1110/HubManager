@@ -17,9 +17,20 @@ namespace DMOrders.Pages.Fragments.Orders
         public res_company CurrentCompany { get; set; }
         public res_partner _CurrentPartner { get; set; }
         public sale_order CurrentSaleOrder { get; set; }
+                
+        private sale_order_line _selectedItem;
 
         private ObservableCollection<sale_order_line> _order_lines;
-        private sale_order_line _selectedItem;
+
+        public ObservableCollection<sale_order_line> OrderLines
+        {
+            get => _order_lines;
+            set
+            {
+                _order_lines = value;
+                OnPropertyChanged();
+            }
+        }
 
         public string Note
         {
@@ -34,16 +45,6 @@ namespace DMOrders.Pages.Fragments.Orders
             }
         }
 
-        public ObservableCollection<sale_order_line> OrderLines
-        {
-            get => _order_lines;
-            set
-            {
-                _order_lines = value;
-                OnPropertyChanged();
-            }
-        }
-
         public sale_order_line SelectedItem
         {
             get => _selectedItem;
@@ -54,8 +55,7 @@ namespace DMOrders.Pages.Fragments.Orders
             }
         }
 
-        public ICommand CloseCommand { get; }
-        public ICommand NewCommand { get; }
+        public ICommand CloseCommand { get; }        
         public ICommand SaveCommand { get; }
         public ICommand SyncCommand { get; }
 
@@ -64,8 +64,7 @@ namespace DMOrders.Pages.Fragments.Orders
             OrderLines = new ObservableCollection<sale_order_line>();
             //LoadData();
 
-            CloseCommand = new Command(OnClose);
-            NewCommand = new Command(OnNew);
+            CloseCommand = new Command(OnClose);            
             SaveCommand = new Command(OnSave);
             SyncCommand = new Command(OnSync);
 
@@ -90,9 +89,12 @@ namespace DMOrders.Pages.Fragments.Orders
                 {
                     if (task.IsCompletedSuccessfully)
                     {
-                        var orderLines = task.Result;
+                        var orderLines = task.Result
+                            .OrderBy(l => l.id) 
+                            .ToList();
+
                         foreach (var line in orderLines)
-                        {                         
+                        {
                             ProductProductDb productDb = new ProductProductDb();
                             productDb.GetItem(line.product_id).ContinueWith(taskProduct =>
                             {
@@ -108,23 +110,25 @@ namespace DMOrders.Pages.Fragments.Orders
                                 }
 
                                 OrderLines.Add(line);
-                            });                            
+                            });
                         }
                     }
-                });                
+                });
+
+                //var orderLines = await saleOrderLinesDb.GetItemsAsync(CurrentSaleOrder.id);
+                //foreach (var line in orderLines.OrderBy(l => l.order_id))
+                //{
+                //    var product = await new ProductProductDb().GetItem(line.product_id);
+                //    line.product_code = product.code;
+                //    line.product_display = product.display_name;
+                //    OrderLines.Add(line);
+                //}
             }
         }
 
         private void OnClose()
         {
             
-        }
-
-        private void OnNew()
-        {
-            var newLine = new sale_order_line { id = 2, product_id = 20777, product_display = "[ST-9700] *** SILETI MALETIN COSMETIQUERO", product_uom_qty = 1, price_unit = 3, discount = 0, price_subtotal = 0, price_tax = 0, price_total = 0 };
-            OrderLines.Add(newLine);
-            SelectedItem = newLine;
         }
 
         private void OnSave()
@@ -141,22 +145,39 @@ namespace DMOrders.Pages.Fragments.Orders
         {
             if (product is null) return;
 
-            // Lógica para convertir product_product -> SaleOrderLine
-            var line = new sale_order_line
-            {
-                product_id = product.id,
-                product_display = product.name,
-                product_code = product.code,
-                qty_to_deliver = 1,
-                uom_category_display = "UND",
-                price_subtotal = 5,
-                discount = 15, 
-                price_tax = 8,
-                price_total = (decimal) product.list_price,                
-            };
+            // Buscar si el producto ya existe en la lista
+            var existingLine = OrderLines.FirstOrDefault(l => l.product_id == product.id);
 
-            OrderLines.Add(line);
+            if (existingLine != null)
+            {
+                // Si existe, aumentar la cantidad
+                existingLine.qty_to_deliver += 1;
+
+                // Recalcular totales (si aplica)
+                existingLine.price_total = existingLine.qty_to_deliver * (decimal)product.list_price;
+                existingLine.price_subtotal = existingLine.price_total; // o el cálculo que corresponda
+                OnPropertyChanged(nameof(OrderLines));
+            }
+            else
+            {
+                // Si no existe, agregar una nueva línea
+                var line = new sale_order_line
+                {
+                    product_id = product.id,
+                    product_display = product.name,
+                    product_code = product.code,
+                    qty_to_deliver = 1,
+                    uom_category_display = "UND",
+                    price_subtotal = 5,
+                    discount = 15,
+                    price_tax = 8,
+                    price_total = (decimal)product.list_price,
+                };
+
+                OrderLines.Add(line);
+            }
         }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = "")

@@ -24,7 +24,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
     public res_partner _CurrentPartner { get; set; }
     public sale_order CurrentSaleOrder { get; set; }
 
-    PopupSelectProduct returnResultPopup = new PopupSelectProduct();
+    //PopupSelectProduct returnResultPopup = new PopupSelectProduct();
     
     public ICommand EditCommand { get; set; }
     public ICommand DeleteCommand { get; set; }
@@ -47,10 +47,22 @@ public partial class Crud : ContentPage, IBackButtonHandler
 		InitializeComponent();        
         BindingContext = new CrudViewModel();
 
-        returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;
+        //returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;
 
         EditCommand = new Command(EditItem);
         DeleteCommand = new Command(DeleteItem);
+
+        SearchProductView.PropertyChanged += SearchProductView_PropertyChanged;
+    }
+
+    private void SearchProductView_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        //throw new NotImplementedException();
+        Debug.WriteLine(e.PropertyName);
+        if(e.PropertyName== "IsVisible" && !SearchProductView.IsVisible)
+        {
+            OnPropertyChanged(nameof(OrderLinesCl));
+        }
     }
 
     protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -157,47 +169,47 @@ public partial class Crud : ContentPage, IBackButtonHandler
         //await Navigation.PopAsync();
     }
 
-    private async void ButtonAddNew_Clicked_old(object sender, EventArgs e)
-    {
-        CatalogViewerModel previousCatalogViewerModel;
+    ////private async void ButtonAddNew_Clicked_old(object sender, EventArgs e)
+    ////{
+    ////    CatalogViewerModel previousCatalogViewerModel;
 
-        if (returnResultPopup.BindingContext != null)
-            previousCatalogViewerModel = (CatalogViewerModel)returnResultPopup.BindingContext;
-        else
-            previousCatalogViewerModel = new CatalogViewerModel();
+    ////    if (returnResultPopup.BindingContext != null)
+    ////        previousCatalogViewerModel = (CatalogViewerModel)returnResultPopup.BindingContext;
+    ////    else
+    ////        previousCatalogViewerModel = new CatalogViewerModel();
 
-        returnResultPopup = new PopupSelectProduct();
-        returnResultPopup.BindingContext = previousCatalogViewerModel;
-        returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;
+    ////    returnResultPopup = new PopupSelectProduct();
+    ////    returnResultPopup.BindingContext = previousCatalogViewerModel;
+    ////    returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;
         
-        //TODO: Replicar Reset
-        //returnResultPopup.Reset();
-        var result = await PopupExtensions.ShowPopupAsync(this, returnResultPopup);
+    ////    //TODO: Replicar Reset
+    ////    //returnResultPopup.Reset();
+    ////    var result = await PopupExtensions.ShowPopupAsync(this, returnResultPopup);
 
-        if (result != null)
-        {
-            var selected_product = (product_product) result;
+    ////    if (result != null)
+    ////    {
+    ////        var selected_product = (product_product) result;
 
-            sale_order_line NewOrderLine = new sale_order_line
-            {
-                id = 0,
-                product_code = selected_product.code,
-                product_id = selected_product.id,
-                product_display = selected_product.display_name
-            };
-            ((CrudViewModel)this.BindingContext).AddOrderLine(NewOrderLine);
-        }
-        else
-        {
-           // stackAccountInfo.IsVisible = false;
-        }
-    }
+    ////        sale_order_line NewOrderLine = new sale_order_line
+    ////        {
+    ////            id = 0,
+    ////            product_code = selected_product.code,
+    ////            product_id = selected_product.id,
+    ////            product_display = selected_product.display_name
+    ////        };
+    ////        ((CrudViewModel)this.BindingContext).AddOrderLine(NewOrderLine);
+    ////    }
+    ////    else
+    ////    {
+    ////       // stackAccountInfo.IsVisible = false;
+    ////    }
+    ////}
 
 
     private async void ButtonAddNew_Clicked(object sender, EventArgs e)
     {
         SearchProductView.IsVisible = true;
-
+        
         //var selected_product = (product_product)result;
 
         //sale_order_line NewOrderLine = new sale_order_line

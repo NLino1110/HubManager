@@ -123,7 +123,7 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto"
 
             <Grid RowDefinitions="*" ColumnDefinitions="*" Grid.Row="2" HorizontalOptions="Fill">
                 <CollectionView
-                    x:Name="MyCollectionView"
+                    x:Name="OrderLinesCl"
                     ItemsSource="{Binding OrderLines}" 
                     EmptyView="No hay productos seleccionados..."
                     SelectionMode="Single"
@@ -135,7 +135,7 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto"
                             <customrows:SaleOrderLineRow                                 
                             Item="{Binding .}"
                                 HorizontalOptions="Fill"
-                            SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"
+                            SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference OrderLinesCl}}"
                             EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=EditCommand}"
                             DeleteCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=DeleteCommand}"/>
                         </DataTemplate>

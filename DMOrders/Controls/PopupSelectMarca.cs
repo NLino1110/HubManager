@@ -55,10 +55,11 @@ namespace DMOrders.Controls
         public override CollectionView builCollectionViewCustom()
         {
             var collectionView = new CollectionView
-            {                
+            {
+                BackgroundColor = Colors.WhiteSmoke,
                 HorizontalOptions = LayoutOptions.Fill,
                 SelectionMode = SelectionMode.Single,
-                EmptyView = "Datos no encontrados...",
+                EmptyView = "No hay datos para mostrar...",
                 ItemsLayout = new GridItemsLayout(4, ItemsLayoutOrientation.Vertical)
             };
                         

@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SQLite;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace DMSA.Models.Odoo.Native
@@ -18,7 +19,7 @@ namespace DMSA.Models.Odoo.Native
     }
 
     [Table("sale_order_line")]
-    public class sale_order_line: OdooEntity
+    public class sale_order_line: OdooEntity, INotifyPropertyChanged
     {
         [Key]
         [PrimaryKey]
@@ -47,11 +48,27 @@ namespace DMSA.Models.Odoo.Native
         //[JsonProperty("product_qty")]
         //public decimal product_qty { get; set; }
 
-        [JsonProperty("qty_to_deliver")]
-        public decimal qty_to_deliver { get; set; }
+        //[JsonProperty("qty_to_deliver")]        
 
         [JsonProperty("price_unit")]
         public decimal price_unit { get; set; }
+
+        
+        public decimal _qty_to_deliver { get; set; }
+
+        [JsonProperty("qty_to_deliver")]
+        public decimal qty_to_deliver
+        {
+            get => _qty_to_deliver;
+            set
+            {
+                if (_qty_to_deliver == value) return;
+                _qty_to_deliver = value;
+                OnPropertyChanged(nameof(qty_to_deliver));
+                
+            }
+        }
+
 
         [Ignore]
         [JsonProperty("product_uom_category_id")]
@@ -86,5 +103,8 @@ namespace DMSA.Models.Odoo.Native
         [Ignore]
         [JsonIgnore]
         public string uom_category_display { get; set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        void OnPropertyChanged(string n) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
     }
 }

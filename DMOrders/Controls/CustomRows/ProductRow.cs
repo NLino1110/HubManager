@@ -119,10 +119,10 @@ namespace DMOrders.Controls.CustomRows
             {
                 HeightRequest = 35,
                 BackgroundColor = Colors.DodgerBlue,
-                Text = "Seleccionar",
+                Text = "1",
                 TextColor = Colors.White,
                 FontAttributes = FontAttributes.Bold,
-                FontSize = 12,
+                FontSize = 15,
                 HorizontalOptions = LayoutOptions.Fill,
                 ImageSource = new FontImageSource
                 {
@@ -130,9 +130,9 @@ namespace DMOrders.Controls.CustomRows
                     Color = Colors.White,
                     Size = 15,
                     FontAutoScalingEnabled = true,
-                    Glyph = "\uf058"
+                    Glyph = "\uf067"
                 },
-                Padding = new Thickness(5,0,5,0)
+                Padding = new Thickness(10,0,10,0)
             };
 
             // 🔗 ENLACES (se actualizan cuando el DataTemplate resuelve los bindings)

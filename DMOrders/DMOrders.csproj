@@ -171,6 +171,9 @@
 	  <MauiXaml Update="Pages\Fragments\Orders\Filters.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Pages\Fragments\Orders\modals\CatalogFilter.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Pages\Fragments\Orders\modals\CatalogViewer.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

@@ -2,6 +2,7 @@
 using DMOrders.Models.Filters;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Native;
+using Microsoft.Maui;
 using Microsoft.Maui.Controls;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -100,18 +101,18 @@ namespace DMOrders.Pages.Fragments.Orders.modals
         product_brand selected_brand { get; set; }
         public ObservableCollection<product_brand> Brands { get; set; } = new();
 
-        public CatalogViewerModel(string filterCode, string filterName, int filterBrand, int filterCategory, FStatus filterStatus)
-        {
-            FilterCode = filterCode;
-            FilterName = filterName;
-            FilterBrand = filterBrand;
-            FilterCategory = filterCategory;
-            FilterStatus = filterStatus;
+        //public CatalogViewerModel(string filterCode, string filterName, int filterBrand, int filterCategory, FStatus filterStatus)
+        //{
+        //    FilterCode = filterCode;
+        //    FilterName = filterName;
+        //    FilterBrand = filterBrand;
+        //    FilterCategory = filterCategory;
+        //    FilterStatus = filterStatus;
 
-            InitViewModes();
-            RefreshCommand = new Command(async () => await CmdRefresh());
-            _ = LoadData();
-        }
+        //    InitViewModes();
+        //    RefreshCommand = new Command(async () => await CmdRefresh());
+        //    _ = LoadData();
+        //}
 
         public CatalogViewerModel()
         {
@@ -230,8 +231,10 @@ namespace DMOrders.Pages.Fragments.Orders.modals
             var stopwatch = Stopwatch.StartNew();
             try
             {
+                
                 IsLoading = true;
                 var database = new ProductProductDb();
+                Debug.WriteLine(FilterCode);
                 var allItems = await database.GetItemsAsync();
                 IEnumerable<product_product> filtered = allItems;
 

@@ -116,12 +116,15 @@ namespace DMOrders.Controls.CustomRows
 
             var qty = new Label
             {
-                Text = Item.qty_to_deliver.ToString(),
+                //Text = Item.qty_to_deliver.ToString(),
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
                 HorizontalOptions = LayoutOptions.Fill
             };
+
+            qty.SetBinding(Label.TextProperty, new Binding("qty_to_deliver"));
+
             grid.Children.Add(qty);            
             Grid.SetColumn(qty, 3);
 
@@ -179,33 +182,6 @@ namespace DMOrders.Controls.CustomRows
             };
             grid.Children.Add(taxLabel);
             Grid.SetColumn(taxLabel, 8);            
-
-            //var btnSelect = new Button
-            //{
-            //    Command = PopupSelectBrand.CommandSelectListItem,
-            //    HeightRequest = 35,
-            //    WidthRequest = 35,
-            //    BackgroundColor = Colors.DodgerBlue,
-            //    Text = "",
-            //    TextColor = Colors.White,
-            //    FontAttributes = FontAttributes.Bold,
-            //    FontSize = 12,
-            //    HorizontalOptions = LayoutOptions.Center,
-            //    ImageSource = new FontImageSource
-            //    {
-            //        FontFamily = "FontAwesome5Solid",
-            //        Color = Colors.White,
-            //        Size = 15,
-            //        FontAutoScalingEnabled = true,
-            //        Glyph = "\uf058"
-            //    },
-            //    Padding = new Thickness(3),
-            //    Margin = new Thickness(2),
-            //};
-
-            //btnSelect.SetBinding(Button.CommandParameterProperty, new Binding("."));
-            //grid.Children.Add(btnSelect);
-            //Grid.SetColumn(btnSelect, 6);
 
             var cell = CreateCell(grid, padding: new Thickness(4), backgroundColor: Colors.Transparent);
             AddCell(cell, region: "left", row: 0, column: 0);

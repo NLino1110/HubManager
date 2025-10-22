@@ -48,6 +48,7 @@ namespace DMOrders.Controls.CustomRows
 
             var contentStack = new StackLayout
             {
+                BackgroundColor = Colors.Transparent,
                 Orientation = StackOrientation.Vertical,
                 HorizontalOptions = LayoutOptions.Fill,
                 Padding = 4,
@@ -86,8 +87,10 @@ namespace DMOrders.Controls.CustomRows
             btnSelect.SetBinding(Button.CommandParameterProperty, new Binding("."));
             contentStack.Children.Add(btnSelect);
 
-            var cell = CreateCell(contentStack, padding: new Thickness(4), backgroundColor: Colors.Transparent);
-            AddCell(cell, region: "left", row: 0, column: 0);
+            //var cell = CreateCell(contentStack, padding: new Thickness(4), backgroundColor: Colors.Transparent);
+            //AddCell(cell, region: "left", row: 0, column: 0);
+
+            leftGrid.Children.Add(contentStack);
         }
     }
 }

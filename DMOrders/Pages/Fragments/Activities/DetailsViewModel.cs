@@ -56,7 +56,7 @@ namespace DMOrders.Pages.Fragments.Activities
         private async Task LoadActivities()
         {
             var companyDb = new CompanyDb();
-            var MotivoDb = new MotivoActividadDiariaDb();
+            var motivoDb = new MotivoActividadDiariaDb();
             var resPartnerDb = new ResPartnerDb();
 
             var accountAnalyticDb = new AccountAnalyticLineDb();
@@ -64,10 +64,11 @@ namespace DMOrders.Pages.Fragments.Activities
             foreach(var item in items)
             {
                 var companyItem = await companyDb.GetItem(item.company_id);
+
                 if (companyItem != null)
                     item.res_company_display = companyItem.name;
 
-                var motivoItem = await MotivoDb.GetItem(item.motivo);
+                var motivoItem = await motivoDb.GetItem(item.motivo);
 
                 if(motivoItem != null)
                     item.motivo_display = motivoItem.name;

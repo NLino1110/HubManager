@@ -811,7 +811,7 @@ namespace DMOrders.Controls
                 _collectionViewSearch = builCollectionViewModern();
             }
 
-            _collectionViewSearch.BackgroundColor = Colors.DarkGray; //Color.FromUint(0xFF778899);
+            _collectionViewSearch.BackgroundColor = Colors.WhiteSmoke; //Color.FromUint(0xFF778899);
 
             _scrollView = new ScrollView
             {

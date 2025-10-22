@@ -9,6 +9,7 @@ namespace DMOrders.Controls.CustomRows
     public class SaleOrderRow : RowAdvance<sale_order>
     {
         public bool IsSynchronized => Item != null && !Item.is_synchronized;
+        public bool IsNotSynchronized => Item != null && Item.is_synchronized;
 
         public ICommand EditCommand
         {
@@ -33,13 +34,14 @@ namespace DMOrders.Controls.CustomRows
 
             var grid = new Grid
             {
-                ColumnSpacing = 8,
+                ColumnSpacing = 10,
                 Padding = 4,
                 HorizontalOptions = LayoutOptions.Fill,
             };
 
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+            //grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(3, GridUnitType.Star)});
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
@@ -50,7 +52,7 @@ namespace DMOrders.Controls.CustomRows
                 Text = $"{Item.id}",
                 FontSize = 12,
                 TextColor = Colors.Green,
-                HorizontalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.End,
                 VerticalOptions = LayoutOptions.Center
             };
             grid.Children.Add(idLabel);
@@ -60,7 +62,7 @@ namespace DMOrders.Controls.CustomRows
             {
                 Text = Item.partner_display,
                 FontAttributes = FontAttributes.Bold,
-                FontSize = 12,
+                FontSize = 11,
                 TextColor = Colors.Black,
                 HorizontalOptions = LayoutOptions.Start,
                 MaxLines = 2,
@@ -75,9 +77,9 @@ namespace DMOrders.Controls.CustomRows
             {
                 Text = Item.date_order.ToString("dd/MM/yyyy HH:mm:ss"),
                 FontAttributes = FontAttributes.Bold,
-                FontSize = 14,
+                FontSize = 11,
                 TextColor = Colors.Black,
-                HorizontalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
                 VerticalOptions = LayoutOptions.Center
             };
             grid.Children.Add(dateOrderLabel);
@@ -94,9 +96,9 @@ namespace DMOrders.Controls.CustomRows
             {
                 Text = date_synchronized,
                 FontAttributes = FontAttributes.Bold,
-                FontSize = 14,
+                FontSize = 11,
                 TextColor = Colors.Black,
-                HorizontalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
                 VerticalOptions = LayoutOptions.Center
             };
             grid.Children.Add(dateSyncLabel);
@@ -106,9 +108,9 @@ namespace DMOrders.Controls.CustomRows
             {
                 Text = Item.amount_total.ToString(),
                 FontAttributes = FontAttributes.Bold,
-                FontSize = 14,
+                FontSize = 11,
                 TextColor = Colors.Black,
-                HorizontalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.End,
                 VerticalOptions = LayoutOptions.Center
             };
             grid.Children.Add(totalLabel);
@@ -118,9 +120,9 @@ namespace DMOrders.Controls.CustomRows
             {
                 Text = Item.is_synchronized.ToString(),
                 FontAttributes = FontAttributes.Bold,
-                FontSize = 14,
+                FontSize = 11,
                 TextColor = Colors.Black,
-                HorizontalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
                 VerticalOptions = LayoutOptions.Center
             };
             grid.Children.Add(syncLabel);
@@ -184,7 +186,7 @@ namespace DMOrders.Controls.CustomRows
 
             buttonEdit.SetBinding(Button.CommandProperty, new Binding("EditCommand", source: new RelativeBindingSource(RelativeBindingSourceMode.FindAncestor, typeof(SaleOrderRow))));
             buttonEdit.SetBinding(Button.CommandParameterProperty, new Binding("Item", source: this));
-            buttonEdit.SetBinding(Button.IsVisibleProperty, new Binding("IsSynchronized", source: new RelativeBindingSource(RelativeBindingSourceMode.FindAncestor, typeof(SaleOrderRow))));
+            //buttonEdit.SetBinding(Button.IsVisibleProperty, new Binding("IsSynchronized", source: new RelativeBindingSource(RelativeBindingSourceMode.FindAncestor, typeof(SaleOrderRow))));
 
             var buttonDelete = new Button
             {
@@ -211,8 +213,9 @@ namespace DMOrders.Controls.CustomRows
                 Margin = new Thickness(2),
             };
 
-            buttonDelete.SetBinding(Button.IsVisibleProperty, new Binding("IsSynchronized", source: new RelativeBindingSource(RelativeBindingSourceMode.FindAncestor, typeof(SaleOrderRow))));
+            //buttonDelete.SetBinding(Button.IsVisibleProperty, new Binding("IsSynchronized", source: new RelativeBindingSource(RelativeBindingSourceMode.FindAncestor, typeof(SaleOrderRow))));
 
+            
             var stackLayout = new StackLayout
             {
                 Orientation = StackOrientation.Horizontal,
@@ -222,12 +225,83 @@ namespace DMOrders.Controls.CustomRows
             
             stackLayout.Children.Add(buttonEdit);
             stackLayout.Children.Add(buttonDelete);
+            
 
             toolGrid.Children.Add(stackLayout);
             Grid.SetRow(stackLayout, 0);
             Grid.SetRowSpan(stackLayout, 2);
             Grid.SetColumn(stackLayout, 4);
-        }
 
+
+            var buttonEditDummy = new Button
+            {
+                HeightRequest = 35,
+                WidthRequest = 35,
+                BackgroundColor = Colors.DarkGray,
+                Text = "",
+                TextColor = Colors.White,
+                FontAttributes = FontAttributes.Bold,
+                FontSize = 12,
+                HorizontalOptions = LayoutOptions.Center,
+                IsEnabled = false,
+                ImageSource = new FontImageSource
+                {
+                    FontFamily = "FontAwesome5Solid",
+                    Color = Colors.White,
+                    Size = 15,
+                    FontAutoScalingEnabled = true,
+                    Glyph = "\uf303"
+                },
+                Padding = new Thickness(3),
+                Margin = new Thickness(2),
+            };
+
+            //buttonEditDummy.SetBinding(Button.IsVisibleProperty, new Binding("IsSynchronized", source: new RelativeBindingSource(RelativeBindingSourceMode.FindAncestor, typeof(SaleOrderRow))));
+
+            var buttonDeleteDummy = new Button
+            {
+                Command = EditCommand,
+                CommandParameter = "",
+                HeightRequest = 35,
+                WidthRequest = 35,
+                BackgroundColor = Colors.DarkGray,
+                Text = "",
+                TextColor = Colors.White,
+                FontAttributes = FontAttributes.Bold,
+                FontSize = 12,
+                HorizontalOptions = LayoutOptions.Center,
+                IsEnabled = false,
+                ImageSource = new FontImageSource
+                {
+                    FontFamily = "FontAwesome5Solid",
+                    Color = Colors.White,
+                    Size = 15,
+                    FontAutoScalingEnabled = true,
+                    Glyph = "\uf2ed"
+                },
+                Padding = new Thickness(3),
+                Margin = new Thickness(2),
+            };
+
+            //buttonDeleteDummy.SetBinding(Button.IsVisibleProperty, new Binding("IsSynchronized", source: new RelativeBindingSource(RelativeBindingSourceMode.FindAncestor, typeof(SaleOrderRow))));
+
+            var stackLayoutDummy = new StackLayout
+            {
+                Orientation = StackOrientation.Horizontal,
+                Margin = new Thickness(0),
+                BackgroundColor = Colors.Transparent
+            };
+
+            stackLayoutDummy.Children.Add(buttonEditDummy);
+            stackLayoutDummy.Children.Add(buttonDeleteDummy);
+
+            toolGrid.Children.Add(stackLayoutDummy);
+            Grid.SetRow(stackLayoutDummy, 0);
+            Grid.SetRowSpan(stackLayoutDummy, 2);
+            Grid.SetColumn(stackLayoutDummy, 4);
+
+            stackLayout.SetBinding(Button.IsVisibleProperty, new Binding("IsSynchronized", source: new RelativeBindingSource(RelativeBindingSourceMode.FindAncestor, typeof(SaleOrderRow))));
+            stackLayoutDummy.SetBinding(Button.IsVisibleProperty, new Binding("IsNotSynchronized", source: new RelativeBindingSource(RelativeBindingSourceMode.FindAncestor, typeof(SaleOrderRow))));            
+        }
     }
 }

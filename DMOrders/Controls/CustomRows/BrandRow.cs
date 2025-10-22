@@ -5,7 +5,7 @@ using System.Windows.Input;
 namespace DMOrders.Controls.CustomRows
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-
+    [Obsolete]
     public class BrandRow : RowAdvance<product_brand>
     {
         public ICommand EditCommand
@@ -57,6 +57,7 @@ namespace DMOrders.Controls.CustomRows
 
             var contentStack = new StackLayout
             {
+                BackgroundColor = Colors.GhostWhite,
                 Orientation = StackOrientation.Vertical,
                 HorizontalOptions = LayoutOptions.Fill,
                 Padding = 4,

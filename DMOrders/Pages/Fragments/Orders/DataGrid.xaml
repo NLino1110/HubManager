@@ -15,11 +15,11 @@
 
         <ScrollView Grid.Row="0" BackgroundColor="WhiteSmoke">
             <VerticalStackLayout>
-                <Label Text="Empty"></Label>
+                <Label Text="Listado de ordenes creadas por el usuario..." TextColor="DimGray" BackgroundColor="LightYellow" Padding="5"></Label>
                 <CollectionView 
                     x:Name="MyCollectionView"
                     ItemsSource="{Binding Orders}" 
-                                EmptyView="....." 
+                                EmptyView="No existen resultados..." 
                                 HorizontalOptions="Fill" 
                                 SelectionMode="Single"
                                 SelectedItem="{Binding SelectedItem, Mode=TwoWay}"

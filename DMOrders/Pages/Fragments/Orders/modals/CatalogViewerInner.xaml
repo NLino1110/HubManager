@@ -179,7 +179,7 @@
                     BackgroundColor="IndianRed"  
                     TextColor="White" 
                     Grid.Row="2"
-                    Grid.Column="2"
+                    Grid.Column="2"                    
                     Command="{Binding RefreshCommand}">
                 <Button.ImageSource>
                     <FontImageSource 

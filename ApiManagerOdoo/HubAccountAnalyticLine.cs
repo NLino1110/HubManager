@@ -168,6 +168,10 @@ namespace ApiManager
             JObjectExtensions.RemoveProperty(newJObject, "id_sync");
             JObjectExtensions.RemoveProperty(newJObject, "task_id_sync");
 
+            JObjectExtensions.RemoveProperty(newJObject, "res_company_display");
+            JObjectExtensions.RemoveProperty(newJObject, "motivo_display");
+            JObjectExtensions.RemoveProperty(newJObject, "res_partner_display");            
+
             //JObjectExtensions.RemoveProperty(newJObject, "is_imported");
             //JObjectExtensions.RemoveProperty(newJObject, "date_imported");
             //JObjectExtensions.RemoveProperty(newJObject, "partner_display");
