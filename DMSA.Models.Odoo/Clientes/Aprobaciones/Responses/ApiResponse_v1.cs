@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace DMSA.Models.Clientes.Aprobaciones.Responses
 {
+    [Obsolete]
     public class ApiResponse_v1
     {
         public bool success { get; set; }

@@ -44,6 +44,7 @@ namespace DMOrders
             App.Session = new AppSession();
             
             App.Session.AppVersion = AppInfo.Current.VersionString;
+            App.Session.SqliteCoreDbName = "DMOrders_app";
 
             if (DeviceInfo.Platform == DevicePlatform.Android)
             {

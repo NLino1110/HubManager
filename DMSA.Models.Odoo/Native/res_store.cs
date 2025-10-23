@@ -9,6 +9,7 @@ using SQLite;
 
 namespace DMSA.Models.Odoo.Native
 {
+    [Obsolete]
     public class res_store
     {
         [PrimaryKey]

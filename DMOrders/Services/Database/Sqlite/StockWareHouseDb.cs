@@ -9,6 +9,10 @@ namespace DMOrders.Services.Database.Sqlite
 {
     public class StockWareHouseDb : SqliteDbBase<stock_warehouse>
     {
+        public StockWareHouseDb(string _DatabaseFilename) : base(_DatabaseFilename)
+        {
+        }
+
         public async Task<stock_warehouse> GetItem(int id)
         {
             await Init();

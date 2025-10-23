@@ -38,7 +38,7 @@ namespace DMOrders.Services.Update
 
             int countTotal = resultCount.result / 300;
 
-            var database = new StockQuantDb();
+            var database = new StockQuantDb(App.Session.odooConnection.DbNameSqlite);
 
             for (int indice = 0; indice <= countTotal; indice++)
             {

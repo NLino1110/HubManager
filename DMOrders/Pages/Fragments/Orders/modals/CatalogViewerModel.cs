@@ -14,6 +14,7 @@ namespace DMOrders.Pages.Fragments.Orders.modals
 {
     public partial class CatalogViewerModel : INotifyPropertyChanged
     {
+        private ProductProductDb _db { get; set; }
         public ICommand CommandSelectListItem { get; set; }
         public class ViewModesList
         {
@@ -50,11 +51,14 @@ namespace DMOrders.Pages.Fragments.Orders.modals
         private int _pageSize = 1;
         private int _page = 1;
 
-        private readonly string FilterCode;
-        private readonly string FilterName;
-        private readonly int FilterBrand;
-        private readonly int FilterCategory;
-        private readonly FStatus FilterStatus;
+        private string filter_code;
+        private string filter_name;
+        private int filter_brand;
+        private int filter_category;
+        private int filter_new;
+        private int filter_stock;
+        private int filter_sort;
+        private FStatus FilterStatus;
 
         public bool CanGoNext => (_page * PageSize) < TotalItems;
         public bool CanGoPrevious => _page > 1;
@@ -98,27 +102,21 @@ namespace DMOrders.Pages.Fragments.Orders.modals
             }
         }
 
-        product_brand selected_brand { get; set; }
+        //product_brand selected_brand { get; set; }
         public ObservableCollection<product_brand> Brands { get; set; } = new();
 
-        //public CatalogViewerModel(string filterCode, string filterName, int filterBrand, int filterCategory, FStatus filterStatus)
-        //{
-        //    FilterCode = filterCode;
-        //    FilterName = filterName;
-        //    FilterBrand = filterBrand;
-        //    FilterCategory = filterCategory;
-        //    FilterStatus = filterStatus;
+        private string _lastFilterSignature;
 
-        //    InitViewModes();
-        //    RefreshCommand = new Command(async () => await CmdRefresh());
-        //    _ = LoadData();
-        //}
+        private string BuildFilterSignature() =>
+            $"{filter_code}|{filter_name}|{filter_brand}|{filter_new}|{filter_stock}|{filter_sort}";
+
 
         public CatalogViewerModel()
         {
+            _db = new ProductProductDb();
             InitViewModes();
             RefreshCommand = new Command(async () => await CmdRefresh());
-            _ = LoadData();
+            //_ = LoadData();
         }
 
         private void InitViewModes()
@@ -225,7 +223,75 @@ namespace DMOrders.Pages.Fragments.Orders.modals
             IsRefreshing = false;
         }
 
+
+        private readonly SemaphoreSlim _loadLock = new(1, 1); // evita cargas simultáneas
+        private CancellationTokenSource _cts;
+
         public async Task LoadData()
+        {
+            var signature = BuildFilterSignature();
+            var filtersChanged = signature != _lastFilterSignature;
+
+            if (filtersChanged)
+            {
+                Page = 1;                 // ← Siempre arranca desde la primera
+                _lastFilterSignature = signature;
+            }
+
+            _cts?.Cancel();
+            _cts = new CancellationTokenSource();
+            var ct = _cts.Token;
+
+            await _loadLock.WaitAsync(ct);
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                IsLoading = true;
+
+                // Llama paginado (NO vuelvas a traer todo)
+                var (items, total) = await _db.GetPagedAsync(
+                    filter_code, filter_name, filter_brand, filter_new, filter_stock, filter_sort,
+                    Page, PageSize, ct);
+
+                TotalItems = total;
+
+                // Evita recrear la OC (menos churn de UI)
+                if (ItemsData == null)
+                    ItemsData = new ObservableCollection<product_product>();
+                else
+                    ItemsData.Clear();
+
+                foreach (var it in items)
+                    ItemsData.Add(it);
+
+                // No asumas ItemsData[0]
+                if (ViewModesListSelectedIndex == 2 && ItemsData.Count > 0)
+                {
+                    SelectedItem = ItemsData[0];
+                    // Asegúrate que notifique SelectedItem:
+                    OnPropertyChanged(nameof(SelectedItem));
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // ignorar: una nueva carga comenzó
+            }
+            catch (Exception ex)
+            {
+                ItemsData = new ObservableCollection<product_product>();
+                Debug.WriteLine(ex);
+            }
+            finally
+            {
+                IsLoading = false;
+                _loadLock.Release();
+                stopwatch.Stop();
+                Debug.WriteLine($"[CatalogViewerModel] Carga en {stopwatch.ElapsedMilliseconds} ms | TotalItems: {TotalItems}, Page: {Page}, PageSize: {PageSize}, Filtro: {filter_code ?? filter_name ?? "sin filtro"}");
+            }
+        }
+
+        public async Task __LoadData()
         {
             Debug.WriteLine($"[CatalogViewerModel] LoadData Initialized");
             var stopwatch = Stopwatch.StartNew();
@@ -234,26 +300,9 @@ namespace DMOrders.Pages.Fragments.Orders.modals
                 
                 IsLoading = true;
                 var database = new ProductProductDb();
-                Debug.WriteLine(FilterCode);
-                var allItems = await database.GetItemsAsync();
+                Debug.WriteLine(filter_code);
+                var allItems = await database.GetItemsAsync(filter_code, filter_name, filter_brand, filter_new, filter_stock, filter_sort);
                 IEnumerable<product_product> filtered = allItems;
-
-                if (!string.IsNullOrWhiteSpace(FilterCode) && int.TryParse(FilterCode, out var intFilterCode))
-                {
-                    filtered = filtered.Where(x => x.id == intFilterCode);
-                }
-                else if (FilterCategory > 0)
-                {
-                    filtered = filtered.Where(x => x._categ_id == FilterCategory);
-                }
-                else if (!string.IsNullOrWhiteSpace(FilterName))
-                {
-                    filtered = filtered.Where(x => x.name.Contains(FilterName, StringComparison.OrdinalIgnoreCase));
-                }
-                else
-                {
-                    //filtered = filtered.Where(x => !x.image_256.Contains("false"));
-                }
 
                 TotalItems = filtered.Count();
 
@@ -277,7 +326,7 @@ namespace DMOrders.Pages.Fragments.Orders.modals
             {
                 IsLoading = false;
                 stopwatch.Stop();
-                Debug.WriteLine($"[CatalogViewerModel] Carga completada en {stopwatch.ElapsedMilliseconds} ms | TotalItems: {TotalItems}, Page: {Page}, PageSize: {PageSize}, Filtro: {FilterCode ?? FilterName ?? "sin filtro"}");
+                Debug.WriteLine($"[CatalogViewerModel] Carga completada en {stopwatch.ElapsedMilliseconds} ms | TotalItems: {TotalItems}, Page: {Page}, PageSize: {PageSize}, Filtro: {filter_code ?? filter_name ?? "sin filtro"}");
             }
         }
 
@@ -298,6 +347,35 @@ namespace DMOrders.Pages.Fragments.Orders.modals
                 await LoadData();
             }
         });
+
+        public void SetFilterCode(string _filter_code)
+        {
+            filter_code = _filter_code;
+        }
+
+        public void SetFilterName(string _filter_name)
+        {
+            filter_name = _filter_name;
+        }
+
+        public void SetFilterBrand(int _filter_brand)
+        {
+            filter_brand = _filter_brand;
+        }
+        public void SetFilterNew(int _filter_new)
+        {
+            filter_new = _filter_new;
+        }
+
+        public void SetFilterStock(int _filter_stock)
+        {
+            filter_stock = _filter_stock;
+        }
+
+        public void SetFilterSort(int _filter_sort)
+        {
+            filter_sort = _filter_sort;
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

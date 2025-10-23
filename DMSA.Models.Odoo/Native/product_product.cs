@@ -117,51 +117,50 @@ namespace DMSA.Models.Odoo.Native
         }
 
         [Ignore]
-        [JsonProperty("product_brand_id")]
-        public JToken product_brand_id { get; set; }
+        [JsonProperty("general_marca_id")]
+        public JToken general_marca_id { get; set; }
 
         [JsonIgnore]
-        public int _product_brand_id
+        public int _general_marca_id
         {
-            get => GetId(product_brand_id);
-            set => product_brand_id = SetId(product_brand_id, value);
+            get => GetId(general_marca_id);
+            set => general_marca_id = SetId(general_marca_id, value);
         }
 
         [JsonProperty("website_url")]
         public string website_url { get; set; }
 
+        //[Ignore]
+        //[JsonProperty("macro_product_line_id")]
+        //public JToken macro_product_line_id { get; set; }
 
-        [Ignore]
-        [JsonProperty("macro_product_line_id")]
-        public JToken macro_product_line_id { get; set; }
+        //[JsonIgnore]
+        //public int _macro_product_line_id
+        //{
+        //    get => GetId(macro_product_line_id);
+        //    set => macro_product_line_id = SetId(macro_product_line_id, value);
+        //}
 
-        [JsonIgnore]
-        public int _macro_product_line_id
-        {
-            get => GetId(macro_product_line_id);
-            set => macro_product_line_id = SetId(macro_product_line_id, value);
-        }
+        //[Ignore]
+        //[JsonProperty("macro_product_group_brand_id")]
+        //public JToken macro_product_group_brand_id { get; set; }
 
-        [Ignore]
-        [JsonProperty("macro_product_group_brand_id")]
-        public JToken macro_product_group_brand_id { get; set; }
+        //[JsonIgnore]
+        //public int _macro_product_group_brand_id
+        //{
+        //    get => GetId(macro_product_group_brand_id);
+        //    set => macro_product_group_brand_id = SetId(macro_product_group_brand_id, value);
+        //}
 
-        [JsonIgnore]
-        public int _macro_product_group_brand_id
-        {
-            get => GetId(macro_product_group_brand_id);
-            set => macro_product_group_brand_id = SetId(macro_product_group_brand_id, value);
-        }
+        //[Ignore]
+        //[JsonProperty("marco_product_subcategory_id")]
+        //public JToken marco_product_subcategory_id { get; set; }
 
-        [Ignore]
-        [JsonProperty("marco_product_subcategory_id")]
-        public JToken marco_product_subcategory_id { get; set; }
-
-        [JsonIgnore]
-        public int _marco_product_subcategory_id
-        {
-            get => GetId(marco_product_subcategory_id);
-            set => marco_product_subcategory_id = SetId(marco_product_subcategory_id, value);
-        }
+        //[JsonIgnore]
+        //public int _marco_product_subcategory_id
+        //{
+        //    get => GetId(marco_product_subcategory_id);
+        //    set => marco_product_subcategory_id = SetId(marco_product_subcategory_id, value);
+        //}
     }
 }

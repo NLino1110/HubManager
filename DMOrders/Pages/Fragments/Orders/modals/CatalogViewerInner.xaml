@@ -70,17 +70,18 @@
                 FontSize="11"
                 x:Name="TextCode"
                 Title="Código producto"
-                BorderThickness="0.4"
-                Keyboard="Numeric"
+                BorderThickness="0.4"                
                 Margin="0"
-                Padding="0"/>
+                Padding="0"
+                PropertyChanged="TextCode_PropertyChanged"/>
 
             <material:TextField
                 Grid.Row="1"
                 FontSize="11"
                 x:Name="TextDescription"
                 Title="Descripción"
-                BorderThickness="0.4"/>
+                BorderThickness="0.4"
+                 PropertyChanged="TextDescription_PropertyChanged"/>
 
             <material:DropdownField 
                 x:Name="ddfBrands"

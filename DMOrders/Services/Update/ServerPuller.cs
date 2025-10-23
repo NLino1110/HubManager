@@ -74,8 +74,10 @@ namespace DMOrders.Services.Update
             var database = new CompanyDb();
             if( await database.GetCount() > 0)
             {
+                //var listCmp = await database.GetItemsAsync();
+                //Debug.WriteLine("Si existen!");
                 //Ya se ha sincronizado previamente
-                return;
+                //return;
             }
 
             ApiManager.HubCompany hubCompany = new HubCompany(App.Session);
@@ -83,8 +85,6 @@ namespace DMOrders.Services.Update
 
             if (dataList!= null && dataList.result != null && dataList.result.Length > 0)
             {
-                
-
                 foreach (var companyItem in dataList.result)
                 {
                     //if (companyItem.partner_id != null && companyItem.partner_id.Length > 0)

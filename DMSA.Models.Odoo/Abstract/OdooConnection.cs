@@ -36,6 +36,15 @@ namespace DMSA.Models.Odoo.Abstract
         [Column("db_name")]
         public string DbName { get; set; } = string.Empty; // nombre de la base de datos
 
+        [Ignore]
+        public string DbNameSqlite
+        {
+            get
+            {
+                return DbName;
+            }
+        }
+
         [Required]
         [Column("db_limit_default")]
         public int DbLimitDefault { get; set; } = 300;

@@ -60,17 +60,23 @@ namespace ApiManager
                 "uom_id",
                 "uom_name",
                 "sale_ok",
-                "purchase_ok",
-                //"website_url", //NO ENCONTRADO
-                //"product_brand_id", //NO ENCONTRADO
-                //"macro_product_line_id", //NO ENCONTRADO
-                //"macro_product_group_brand_id", //NO ENCONTRADO
-                //"marco_product_subcategory_id", //NO ENCONTRADO
-                //"macro_product_available", //NO ENCONTRADO
-                //"base_unit_count", //NO ENCONTRADO
-                //"base_unit_price", //NO ENCONTRADO
-                //"base_unit_name", //NO ENCONTRADO
-                "image_256"
+                "purchase_ok",                
+                "image_256",
+
+                "cod_marca",
+                "cod_linea",
+                "cod_sublinea",
+                "cod_sublineado",
+                "es_perecible",
+                "es_combo",
+                "categ_id",
+                "list_price",
+                "product_variant_ids",
+                "general_marca_id",
+                "general_linea_id",
+                "general_categoria_id",
+                "general_subcategoria_id",
+                "general_grupor_tipo_id"
                 };
 
         public HubProductProduct(AppSession _setAppSession) : base(_setAppSession)

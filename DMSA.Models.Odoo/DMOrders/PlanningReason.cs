@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace DMSA.Models.Odoo.DMOrders
 {
+    [Obsolete]
     public class PlanningReason
     {
         [PrimaryKey]

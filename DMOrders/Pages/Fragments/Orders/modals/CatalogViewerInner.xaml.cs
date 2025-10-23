@@ -2,6 +2,7 @@
 using CommunityToolkit.Maui.Views;
 using DMOrders.Controls;
 using DMOrders.Models.Filters;
+using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Native;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -11,15 +12,6 @@ namespace DMOrders.Pages.Fragments.Orders.modals;
 
 public partial class CatalogViewerInner : ContentView
 {
-    //public static readonly BindableProperty CommandSelectListItemProperty =
-    //    BindableProperty.Create(nameof(CommandSelectListItem), typeof(ICommand), typeof(CatalogViewerInner));
-
-    //public ICommand CommandSelectListItem
-    //{
-    //    get => (ICommand)GetValue(CommandSelectListItemProperty);
-    //    set => SetValue(CommandSelectListItemProperty, value);
-    //}
-
     public static readonly BindableProperty ItemPickedCommandProperty =
         BindableProperty.Create(nameof(ItemPickedCommand), typeof(ICommand), typeof(CatalogViewerInner), default(ICommand));
 
@@ -42,16 +34,19 @@ public partial class CatalogViewerInner : ContentView
     double swipeThreshold = 50; // Distancia mínima para considerar un swipe
     double panX = 0;
 
-    product_marca selected_brand { get; set; }
+    
     public ObservableCollection<product_marca> Brands { get; set; } = new();
 
     FStatus[] newProducts { get; set; }
     FStatus[] stockProducts { get; set; }
     FStatus[] sortProducts { get; set; }
 
-    FStatus selected_newProducts { get; set; }
-    FStatus selected_stockProducts { get; set; }
-    FStatus selected_sortProducts { get; set; }
+    string filter_code { get; set; }
+    string filter_name { get; set; }
+    product_marca filter_brand { get; set; }
+    int filter_new { get; set; }
+    int filter_stock { get; set; }
+    int filter_sort { get; set; }
 
     public CatalogViewerInner()
     {
@@ -59,30 +54,59 @@ public partial class CatalogViewerInner : ContentView
         Setup();
     }
 
+    private async Task LoadTopMarcasAsync()
+    {
+        //int[] topMarcas = new int[] { 66, 21, 46, 59, 24, 31, 68, 44, 57, 3, 22, 69, 64 };
+        int[] topMarcas = new int[] { 545, 669, 716, 773, 869, 512, 517, 701, 554, 968, 872, 960, 682 };
+
+        ProductMarcaDb marcasDb = new ProductMarcaDb();
+        var itemsTopMarcas = await marcasDb.GetItemsAsync(topMarcas);
+
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            Brands =
+            [
+                new product_marca { id = 0, name = "No seleccionada" },
+                new product_marca { id = -1, name = "🔍 Buscar..." }
+            ];
+
+            foreach (var marca in itemsTopMarcas)
+                Brands.Add(marca);
+
+            ddfBrands.ItemsSource = Brands;
+            ddfBrands.ItemDisplayBinding = new Binding("name");
+            ddfBrands.SelectedItem = Brands[0];
+            ddfBrands.SelectedItemChanged += DdfBrands_SelectedItemChanged;
+            filter_brand = Brands[0];
+        });
+    }
+
     public void Setup()
     {
         //CommandSelectListItem = new Command(SelectListItem);
         BindingContext = new CatalogViewerModel();
 
-        Brands =
-            [
-                new product_marca { id = 0, name = "No seleccionada" },
-                new product_marca { id = -1, name = "🔍 Buscar..." },
-                new product_marca { id = 1, name = "Marca 1" },
-                new product_marca { id = 2, name = "Marca 2" },
-                new product_marca { id = 3, name = "Marca 3" },
-                new product_marca { id = 4, name = "Marca 4" },
-                new product_marca { id = 5, name = "Marca 5" },
-                new product_marca { id = 6, name = "Marca 6" },
-                new product_marca { id = 7, name = "Marca 7" },
-                new product_marca { id = 8, name = "Marca 8" },
-            ];
+        //Brands =
+        //    [
+        //        new product_marca { id = 0, name = "No seleccionada" },
+        //        new product_marca { id = -1, name = "🔍 Buscar..." },
+        //        //new product_marca { id = 1, name = "Marca 1" },
+        //        //new product_marca { id = 2, name = "Marca 2" },
+        //        //new product_marca { id = 3, name = "Marca 3" },
+        //        //new product_marca { id = 4, name = "Marca 4" },
+        //        //new product_marca { id = 5, name = "Marca 5" },
+        //        //new product_marca { id = 6, name = "Marca 6" },
+        //        //new product_marca { id = 7, name = "Marca 7" },
+        //        //new product_marca { id = 8, name = "Marca 8" },
+        //    ];
 
-        ddfBrands.ItemsSource = Brands;
-        ddfBrands.ItemDisplayBinding = new Binding("name");
-        ddfBrands.SelectedItem = Brands[0];
-        ddfBrands.SelectedItemChanged += DdfBrands_SelectedItemChanged;
-        selected_brand = Brands[0];
+        LoadTopMarcasAsync();
+
+        //ddfBrands.ItemsSource = Brands;
+        //ddfBrands.ItemDisplayBinding = new Binding("name");
+        //ddfBrands.SelectedItem = Brands[0];
+        //ddfBrands.SelectedItemChanged += DdfBrands_SelectedItemChanged;
+        //filter_brand = Brands[0];
 
         newProducts =
         [
@@ -95,8 +119,8 @@ public partial class CatalogViewerInner : ContentView
         ddfNews.ItemsSource = newProducts;
         ddfNews.ItemDisplayBinding = new Binding("Name");
         ddfNews.SelectedItem = newProducts[0];
-        //ddfNews.SelectedItemChanged += DdfBrands_SelectedItemChanged;
-        selected_newProducts = newProducts[0];
+        ddfNews.SelectedItemChanged += DdfNews_SelectedItemChanged;
+        filter_new = newProducts[0].id;
 
         stockProducts =
         [
@@ -111,8 +135,8 @@ public partial class CatalogViewerInner : ContentView
         ddfStock.ItemsSource = stockProducts;
         ddfStock.ItemDisplayBinding = new Binding("Name");
         ddfStock.SelectedItem = stockProducts[0];
-        //ddfNews.SelectedItemChanged += DdfBrands_SelectedItemChanged;
-        selected_stockProducts = stockProducts[0];
+        ddfStock.SelectedItemChanged += DdfStock_SelectedItemChanged;
+        filter_stock = stockProducts[0].id;
 
         sortProducts =
         [
@@ -125,12 +149,14 @@ public partial class CatalogViewerInner : ContentView
         ddfSort.ItemsSource = sortProducts;
         ddfSort.ItemDisplayBinding = new Binding("Name");
         ddfSort.SelectedItem = sortProducts[0];
-        //ddfNews.SelectedItemChanged += DdfBrands_SelectedItemChanged;
-        selected_sortProducts = sortProducts[0];
+        ddfSort.SelectedItemChanged += DdfSort_SelectedItemChanged;
+        filter_sort = sortProducts[0].id;
     }
 
     private async void DdfBrands_SelectedItemChanged(object? sender, object e)
-    {        
+    {
+        var vm = BindingContext as CatalogViewerModel;
+
         product_marca new_selected_brand = (product_marca) e;
         
         if (new_selected_brand != null && (new_selected_brand.id == -1 || new_selected_brand.id == 0))
@@ -138,7 +164,7 @@ public partial class CatalogViewerInner : ContentView
             if (new_selected_brand.id == -1)
             {
                 Debug.WriteLine("Buscar");
-                ddfBrands.SelectedItem = selected_brand;
+                ddfBrands.SelectedItem = filter_brand;
                 var selectedBrand = await PopupBrand(sender, null);
 
                 if (selectedBrand != null)
@@ -148,13 +174,15 @@ public partial class CatalogViewerInner : ContentView
                     Brands[0] = selectedBrand;
                     ddfBrands.ItemsSource = Brands;
                     ddfBrands.SelectedItem = selectedBrand;
-                    selected_brand = selectedBrand;
+                    filter_brand = selectedBrand;
                     ddfBrands.IsEnabled = true;
                 }
                 else
                 {
-                    ddfBrands.SelectedItem = selected_brand;                    
-                }
+                    ddfBrands.SelectedItem = filter_brand;                    
+                }                
+                
+                vm.SetFilterBrand(filter_brand.id);
                 return;
             }
         }
@@ -168,13 +196,60 @@ public partial class CatalogViewerInner : ContentView
             Brands[0] = nsBrand;
             ddfBrands.ItemsSource = Brands;
             ddfBrands.SelectedItem = nsBrand;
-            selected_brand = nsBrand;
+            filter_brand = nsBrand;
             ddfBrands.IsEnabled = true;
         }
         else
         {
             Debug.WriteLine("Seleccion valida directa...");
-            selected_brand = new_selected_brand;
+            filter_brand = new_selected_brand;
+        }
+        
+        vm.SetFilterBrand(filter_brand.id);
+    }
+
+    private async void DdfNews_SelectedItemChanged(object? sender, object e)
+    {
+        try
+        {
+            var vm = BindingContext as CatalogViewerModel;
+            FStatus new_selected_item = (FStatus)e;
+            filter_new = new_selected_item.id;
+            vm.SetFilterNew(filter_new);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error en DdfNews_SelectedItemChanged: {ex.Message}");
+        }
+    }
+
+    private async void DdfStock_SelectedItemChanged(object? sender, object e)
+    {
+        try 
+        { 
+            var vm = BindingContext as CatalogViewerModel;
+            FStatus new_selected_item = (FStatus)e;
+            filter_stock = new_selected_item.id;
+            vm.SetFilterStock(filter_stock);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error en DdfStock_SelectedItemChanged: {ex.Message}");
+        }
+    }
+
+    private async void DdfSort_SelectedItemChanged(object? sender, object e)
+    {
+        try
+        { 
+            var vm = BindingContext as CatalogViewerModel;
+            FStatus new_selected_item = (FStatus)e;
+            filter_sort = new_selected_item.id;
+            vm.SetFilterSort(filter_sort);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error en DdfSort_SelectedItemChanged: {ex.Message}");
         }
     }
 
@@ -279,10 +354,32 @@ public partial class CatalogViewerInner : ContentView
 
     private async void SelectionView_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        Debug.WriteLine($"SelectionView Property Changed: {e.PropertyName}");
+        //Debug.WriteLine($"SelectionView Property Changed: {e.PropertyName}");
         if (e.PropertyName.Equals("SelectedIndex"))
         {
             await SetViewMode(-1);
+        }
+    }
+
+    private async void TextCode_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        //Debug.WriteLine($"TextCode Property Changed: {e.PropertyName}");
+        if (e.PropertyName.Equals("Text"))
+        {
+            filter_code = TextCode.Text;
+            var vm = BindingContext as CatalogViewerModel;
+            vm.SetFilterCode(filter_code);
+        }
+    }
+
+    private async void TextDescription_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        //Debug.WriteLine($"TextDescription Property Changed: {e.PropertyName}");
+        if (e.PropertyName.Equals("Text"))
+        {
+            filter_name = TextDescription.Text;
+            var vm = BindingContext as CatalogViewerModel;
+            vm.SetFilterName(filter_name);
         }
     }
 

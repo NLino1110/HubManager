@@ -16,7 +16,7 @@ namespace DMOrders.Services.Update
     {
         public async Task OnlineSyncStockWarehouse(bool force)
         {
-            var database = new StockWareHouseDb();
+            var database = new StockWareHouseDb(App.Session.odooConnection.DbNameSqlite);
             if (await database.GetCount() > 0)
             {
                 //Ya se ha sincronizado previamente

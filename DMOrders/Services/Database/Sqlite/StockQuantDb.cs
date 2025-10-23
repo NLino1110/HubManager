@@ -3,6 +3,10 @@ namespace DMOrders.Services.Database.Sqlite
 {
     public class StockQuantDb : SqliteDbBase<DMSA.Models.Odoo.Native.stock_quant>
     {
+        public StockQuantDb(string _DatabaseFilename) : base(_DatabaseFilename)
+        {
+        }
+
         public async Task<DMSA.Models.Odoo.Native.stock_quant> GetItem(int id)
         {
             return await GetItemAsync(x => x.id == id);

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace DMSA.Models.Clientes
 {
+    [Obsolete]
     public class ClienteAprobacion
 	{
 		[Key]

@@ -13,17 +13,22 @@ namespace DMOrders.Services.Database.Sqlite
 
         protected virtual string TableName => typeof(T).Name;
 
-        public SqliteDbBase()
-        {
+        protected virtual string DatabaseFilename { get; set; }
 
+        public SqliteDbBase(string _DatabaseFilename)
+        {
+            DatabaseFilename = _DatabaseFilename;
         }
 
         protected async Task Init()
         {
             if (Database != null)
                 return;
+            
+            string DatabasePath = Path.Combine(FileSystem.AppDataDirectory, DatabaseFilename);
 
-            Database = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
+            //Database = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
+            Database = new SQLiteAsyncConnection(DatabasePath, Constants.Flags);
             await Database.CreateTableAsync<T>();
         }
 

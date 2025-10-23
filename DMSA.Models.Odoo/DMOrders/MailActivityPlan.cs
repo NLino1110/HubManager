@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace DMSA.Models.Odoo.DMOrders
 {
+    [Obsolete]
     [Table("mail_activity_plan")]
     public class MailActivityPlan
     {        
