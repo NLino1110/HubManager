@@ -9,6 +9,7 @@
              xmlns:local="clr-namespace:DMOrders.Pages.Fragments.Orders.modals"       
             xmlns:customrows="clr-namespace:DMOrders.Controls.CustomRows"
              xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
+             xmlns:controls="clr-namespace:DMOrders.Controls"
              ZIndex="1000"
              x:Name="Root">
     <ContentView.Resources>
@@ -34,6 +35,7 @@
                                    GridTemplate="{StaticResource GridTemplate}" />
     </ContentView.Resources>
     <Grid RowDefinitions="Auto,Auto,*,Auto" BackgroundColor="WhiteSmoke">
+        
         <Grid BackgroundColor="Black" RowDefinitions="Auto" ColumnDefinitions="Auto,*" Grid.Row="0">
             <Button Grid.Row="0" Text="" 
                     Grid.Column="0" 
@@ -156,7 +158,7 @@
                 SelectedIndex="{Binding ViewModesListSelectedIndex}"
                 PropertyChanged="SelectionView_PropertyChanged"
                 ColumnNumber="4"
-                Padding="3">
+                Padding="7">
             </input:SelectionView>
 
             <Button x:Name="btnClear" 
@@ -165,12 +167,13 @@
                     BackgroundColor="Gray" 
                     TextColor="White" 
                     Grid.Row="1"
-                    Grid.Column="2">
+                    Grid.Column="2"
+                    Clicked="btnClear_Clicked">
                 <Button.ImageSource>
                     <FontImageSource 
-            Size="18"
-            FontFamily="MaterialSharp"
-            Glyph="{x:Static uranium:MaterialSharp.Remove_done}" />
+                        Size="18"
+                        FontFamily="MaterialSharp"
+                        Glyph="{x:Static uranium:MaterialSharp.Filter_list_off}" />
                 </Button.ImageSource>
             </Button>
 
@@ -180,7 +183,7 @@
                     BackgroundColor="IndianRed"  
                     TextColor="White" 
                     Grid.Row="2"
-                    Grid.Column="2"                    
+                    Grid.Column="2"
                     Command="{Binding RefreshCommand}">
                 <Button.ImageSource>
                     <FontImageSource 
@@ -291,5 +294,8 @@
                 </Button.ImageSource>
             </Button>
         </Grid>
+        <controls:ConfettiOverlay x:Name="Confetti" 
+                                  HorizontalOptions="Fill"
+                              VerticalOptions="Fill" Grid.RowSpan="4"/>
     </Grid>
 </ContentView>

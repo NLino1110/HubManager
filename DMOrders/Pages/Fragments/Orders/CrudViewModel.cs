@@ -61,13 +61,10 @@ namespace DMOrders.Pages.Fragments.Orders
 
         public CrudViewModel()
         {
-            OrderLines = new ObservableCollection<sale_order_line>();
-            //LoadData();
-
-            CloseCommand = new Command(OnClose);            
+            OrderLines = new ObservableCollection<sale_order_line>();            
+            CloseCommand = new Command(OnClose);           
             SaveCommand = new Command(OnSave);
             SyncCommand = new Command(OnSync);
-
             AddLineCommand = new Command<product_product>(OnAddLine);
         }
 
@@ -85,44 +82,44 @@ namespace DMOrders.Pages.Fragments.Orders
                 OnPropertyChanged(nameof(Note));
 
                 SaleOrderLineDb saleOrderLinesDb = new SaleOrderLineDb();
-                _ = saleOrderLinesDb.GetItemsAsync(CurrentSaleOrder.id).ContinueWith(task =>
-                {
-                    if (task.IsCompletedSuccessfully)
-                    {
-                        var orderLines = task.Result
-                            .OrderBy(l => l.id) 
-                            .ToList();
-
-                        foreach (var line in orderLines)
-                        {
-                            ProductProductDb productDb = new ProductProductDb();
-                            productDb.GetItem(line.product_id).ContinueWith(taskProduct =>
-                            {
-                                if (taskProduct.IsCompletedSuccessfully)
-                                {
-                                    var product = taskProduct.Result;
-                                    line.product_code = product.code;
-                                    line.product_display = product.display_name;
-                                }
-                                else
-                                {
-                                    System.Diagnostics.Debug.WriteLine($"Error al obtener productos: {taskProduct.Exception?.Message}");
-                                }
-
-                                OrderLines.Add(line);
-                            });
-                        }
-                    }
-                });
-
-                //var orderLines = await saleOrderLinesDb.GetItemsAsync(CurrentSaleOrder.id);
-                //foreach (var line in orderLines.OrderBy(l => l.order_id))
+                //_ = saleOrderLinesDb.GetItemsAsync(CurrentSaleOrder.id).ContinueWith(task =>
                 //{
-                //    var product = await new ProductProductDb().GetItem(line.product_id);
-                //    line.product_code = product.code;
-                //    line.product_display = product.display_name;
-                //    OrderLines.Add(line);
-                //}
+                //    if (task.IsCompletedSuccessfully)
+                //    {
+                //        var orderLines = task.Result
+                //            .OrderBy(l => l.id) 
+                //            .ToList();
+
+                //        foreach (var line in orderLines)
+                //        {
+                //            ProductProductDb productDb = new ProductProductDb();
+                //            productDb.GetItem(line.product_id).ContinueWith(taskProduct =>
+                //            {
+                //                if (taskProduct.IsCompletedSuccessfully)
+                //                {
+                //                    var product = taskProduct.Result;
+                //                    line.product_code = product.code;
+                //                    line.product_display = product.display_name;
+                //                }
+                //                else
+                //                {
+                //                    System.Diagnostics.Debug.WriteLine($"Error al obtener productos: {taskProduct.Exception?.Message}");
+                //                }
+
+                //                OrderLines.Add(line);
+                //            });
+                //        }
+                //    }
+                //});
+
+                var orderLines = await saleOrderLinesDb.GetItemsAsync(CurrentSaleOrder.id);
+                foreach (var line in orderLines)
+                {
+                    var product = await new ProductProductDb().GetItem(line.product_id);
+                    line.product_code = product.code;
+                    line.product_display = product.display_name;
+                    OrderLines.Add(line);
+                }
             }
         }
 

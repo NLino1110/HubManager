@@ -7,6 +7,7 @@
              xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
              xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
              xmlns:modals="clr-namespace:DMOrders.Pages.Fragments.Orders.modals"
+             x:Name="RootPage"
              Title="Pedido Nuevo - Edicion">
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -37,69 +38,172 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto"
               WidthRequest="220">
 
             <Grid Grid.Row="0" 
-    ColumnDefinitions="*" 
-    RowSpacing="4" 
-    RowDefinitions="Auto,Auto,Auto,Auto"
-    Padding="5">
-                <Label Text="Artículo: 1234" FontAttributes="Bold" FontSize="14" Grid.Row="0"/>
-                <Label Text="Unidad Vta.: Unidad" Grid.Row="1"/>
-                <Label Text="Stock: 25" Grid.Row="2"/>
-                <Label Text="Precio: $12.50" Grid.Row="3"/>
+                    ColumnDefinitions="*,*" 
+                    RowSpacing="4" 
+                    RowDefinitions="Auto,Auto,Auto,Auto"
+                    Padding="5">
+                
+                <Label Text="{Binding Path=ProductEditing.name, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+       FontSize="13" 
+       FontAttributes="Bold"
+       TextColor="#242322" Grid.ColumnSpan="2" MinimumHeightRequest="80"></Label>
+                
+                <Label Text="Unidad Vta.:" Grid.Row="1" Grid.Column="0"/>
+                <Label Grid.Row="1" Grid.Column="1" Text="{Binding Path=ProductEditing._uom_id, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+                    FontSize="12" 
+                    FontAttributes="Bold"
+                    TextColor="#242322"
+                       HorizontalTextAlignment="Start"></Label>
+
+                <Label Text="Stock:" Grid.Row="2" Grid.Column="0"/>
+                <Label Grid.Row="2" Grid.Column="1" Text="{Binding Path=ProductEditing.qty_available, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+    FontSize="12" 
+    FontAttributes="Bold"
+    TextColor="#242322"
+                       HorizontalTextAlignment="Start"></Label>
+                <Label Text="Precio: $" Grid.Row="3" Grid.Column="0"/>
+                <Label Grid.Row="3" Grid.Column="1" Text="{Binding Path=ProductEditing.list_price, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+FontSize="12" 
+FontAttributes="Bold"
+TextColor="#242322"
+                       HorizontalTextAlignment="Start"></Label>
             </Grid>
 
-            <Border Grid.Row="1" Stroke="Green" Padding="3" Margin="0,0,0,0">
-                <VerticalStackLayout>                    
-                    <material:TextField FontSize="11" x:Name="EntryCantidadSolicitada" Title="Cant. solic.:" BorderThickness="0.3" Keyboard="Numeric" />
-                    <material:TextField FontSize="11" x:Name="EntryCantidadFinal" Title="Cant. fin.:" BorderThickness="0.3" Keyboard="Numeric" />                    
+            <Border Grid.Row="1" Stroke="LightGrey" Padding="3" Margin="0,0,0,0">
+                <VerticalStackLayout>
+                    <Label Text="Cant. sol." 
+                           BackgroundColor="SlateGray" 
+                           TextColor="White" 
+                           HorizontalTextAlignment="Center"></Label>
+                    <Entry x:Name="EntryCantidadSolicitada" IsReadOnly="True"
+                                   Text="{Binding Path=product_uom_qty_real, 
+                                    Mode=TwoWay,
+                                    Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                           HorizontalTextAlignment="End"                           
+                           FontAttributes="Bold">
+                        <Entry.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnEntryTapped" />
+                        </Entry.GestureRecognizers>
+                    </Entry>
+                    <Label Text="Cant. fin." BackgroundColor="SlateGray" TextColor="White" HorizontalTextAlignment="Center"></Label>
+                    <Entry x:Name="EntryCantidadFinal" IsReadOnly="True"
+                           Text="{Binding Path=product_uom_qty, 
+                             Mode=TwoWay,
+                             Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                           HorizontalTextAlignment="End"
+                           FontAttributes="Bold">
+                        <Entry.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnEntryTapped" />
+                        </Entry.GestureRecognizers>
+                    </Entry>
+                    
+                    <!--<material:TextField FontSize="11" 
+                                        x:Name="EntryCantidadSolicitada" 
+                                        Title="Cant. sol. (ANT. 12)"
+                                        BorderThickness="0.3"
+                                        Keyboard="Numeric"
+                                        HorizontalTextAlignment="End"
+                                        Text="{Binding Path=CurrentSaleOrderLine.product_uom_qty_real, 
+                                Mode=TwoWay,
+                                Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                        IsReadOnly="True">
+                        <material:TextField.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnEntryTapped" />
+                        </material:TextField.GestureRecognizers>
+                    </material:TextField>
+                    
+                    <material:TextField FontSize="11" x:Name="EntryCantidadFinal" 
+                                        Title="Cant. fin.: (ANT. 9)" 
+                                        BorderThickness="0.3" 
+                                        Keyboard="Numeric" 
+                                        HorizontalTextAlignment="End"
+                                        Text="{Binding Path=CurrentSaleOrderLine.product_uom_qty, 
+                                Mode=TwoWay,
+                                Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                        IsReadOnly="True">
+                        <material:TextField.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnEntryTapped" />
+                        </material:TextField.GestureRecognizers>
+                    </material:TextField>-->
                 </VerticalStackLayout>
             </Border>
 
-            <Button Grid.Row="2" Text="Asignar" BackgroundColor="DodgerBlue" TextColor="White" FontAttributes="Bold" Margin="5" />
+            <Button Grid.Row="2" Text="" BackgroundColor="LimeGreen" 
+                    TextColor="White" 
+                    FontAttributes="Bold" 
+                    Margin="5"
+                    Clicked="ApplyValueChanges">
+                <Button.ImageSource>
+                    <FontImageSource 
+            Size="25"
+            FontFamily="MaterialSharp"
+            Glyph="{x:Static uranium:MaterialSharp.Check}" />
+                </Button.ImageSource>
+            </Button>
 
             <Grid Grid.Row="3" ColumnDefinitions="Auto,Auto,Auto" RowDefinitions="Auto,Auto,Auto,Auto" Padding="5" RowSpacing="2" ColumnSpacing="2">
                 <!-- Fila 1 -->
-                <Button Text="1" Grid.Row="0" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" >
+                <Button Text="1" Grid.Row="0" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked">
 
                 </Button>
 
-                <Button Text="2" Grid.Row="0" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke">
+                <Button Text="2" Grid.Row="0" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked">
 
                 </Button>
-                <Button Text="3" Grid.Row="0" Grid.Column="2" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" />
+                <Button Text="3" Grid.Row="0" Grid.Column="2" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
                 <!-- Fila 2 -->
-                <Button Text="4" Grid.Row="1" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" />
-                <Button Text="5" Grid.Row="1" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" />
-                <Button Text="6" Grid.Row="1" Grid.Column="2" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" />
+                <Button Text="4" Grid.Row="1" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
+                <Button Text="5" Grid.Row="1" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
+                <Button Text="6" Grid.Row="1" Grid.Column="2" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
                 <!-- Fila 3 -->
-                <Button Text="7" Grid.Row="2" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" />
-                <Button Text="8" Grid.Row="2" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" />
-                <Button Text="9" Grid.Row="2" Grid.Column="2" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" />
+                <Button Text="7" Grid.Row="2" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
+                <Button Text="8" Grid.Row="2" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
+                <Button Text="9" Grid.Row="2" Grid.Column="2" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
                 <!-- Fila 4 -->
-                <Button Text="." Grid.Row="3" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" />
-                <Button Text="0" Grid.Row="3" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" />
-                <Button Text="⌫" Grid.Row="3" Grid.Column="2" FontAttributes="Bold" FontSize="12" FontAutoScalingEnabled="True" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" />
+                <Button Text="." Grid.Row="3" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
+                <Button Text="0" Grid.Row="3" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
+                <Button Text="⌫" Grid.Row="3" Grid.Column="2" FontAttributes="Bold" FontSize="12" FontAutoScalingEnabled="True" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
             </Grid>
 
-            <!-- Botón con fecha -->
             <Button Grid.Row="4"
-              Text="->" 
+              Text="" 
               HorizontalOptions="Fill" 
-              BackgroundColor="LightGray" 
+              BackgroundColor="Gray" 
               TextColor="Black"
               FontAttributes="Italic"
-              Margin="0,8,0,0"/>
+              Margin="0,8,0,0"
+                    Clicked="ResetOriginalValues">
+                <Button.ImageSource>
+                    <FontImageSource 
+                        Size="25"
+                        FontFamily="MaterialSharp"
+                        Glyph="{x:Static uranium:MaterialSharp.Undo}" />
+                </Button.ImageSource>
+            </Button>
         </Grid>
 
         <Grid RowDefinitions="Auto,Auto,*,Auto" Grid.Column="1">
 
-            <HorizontalStackLayout Grid.Row="0" Grid.Column="1" HorizontalOptions="Fill">
-                <VerticalStackLayout>
-                    <Label Text="Cliente"></Label>
-                    <Label Text="Direccion"></Label>
+            <HorizontalStackLayout Grid.Row="0" Grid.Column="1" HorizontalOptions="Fill" Spacing="50" Margin="10">
+                <VerticalStackLayout HorizontalOptions="Fill">
+                    <Label Text="{Binding Path=PartnerDisplayName, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+                           FontSize="16" 
+                           FontAttributes="Bold"
+                           TextColor="#242322"></Label>
+                    <Label Text="{Binding Path=PartnerDisplayAddress, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+                           FontSize="16" 
+                           FontAttributes="Bold"
+                           TextColor="#4d4947"></Label>
                 </VerticalStackLayout>
                 <VerticalStackLayout HorizontalOptions="End">
-                    <Label Text="Canal (MAYORISTA)"></Label>
-                    <Label Text="Estado: Activo/Inactivo"></Label>
+                    <Label Text="CANAL VTA" 
+                           FontSize="16" 
+                           FontAttributes="Bold"
+                           TextColor="#242322"></Label>
+                    <Label Text="{Binding Path=PartnerDisplayStatus, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+                           FontSize="16" 
+                           FontAttributes="Bold"
+                           TextColor="#4d4947"></Label>
                 </VerticalStackLayout>
             </HorizontalStackLayout>
             <!--<Label Grid.Row="1" Grid.Column="0" Text="TITULO CABECERAS" HorizontalOptions="Center"></Label>-->

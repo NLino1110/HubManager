@@ -1,4 +1,4 @@
-
+ï»¿
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
@@ -11,23 +11,54 @@ using DMOrders.Services.Update.Pusher;
 using DMOrders.Shared;
 using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.Native;
+using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using UraniumUI.Material.Controls;
 
 namespace DMOrders.Pages.Fragments.Orders;
 
 [XamlCompilation(XamlCompilationOptions.Compile)]
 public partial class Crud : ContentPage, IBackButtonHandler
-{
+{    
+    private Entry _activeEntry;
+
     public res_company CurrentCompany { get; set; }
     public res_partner _CurrentPartner { get; set; }
-    public sale_order CurrentSaleOrder { get; set; }
-
-    //PopupSelectProduct returnResultPopup = new PopupSelectProduct();
-    
+    public sale_order _CurrentSaleOrder { get; set; }
     public ICommand EditCommand { get; set; }
     public ICommand DeleteCommand { get; set; }
+
+    public product_product _ProductEditing { get; set; }
+
+    public product_product ProductEditing
+    {
+        get => _ProductEditing;
+        set
+        {
+            if (_ProductEditing != value)
+            {
+                _ProductEditing = value;
+                OnPropertyChanged(nameof(ProductEditing));
+            }
+        }
+    }
+
+    public sale_order_line _CurrentSaleOrderLine { get; set; }
+
+    public sale_order_line CurrentSaleOrderLine
+    {
+        get => _CurrentSaleOrderLine;
+        set
+        {
+            if (_CurrentSaleOrderLine != value)
+            {
+                _CurrentSaleOrderLine = value;
+                OnPropertyChanged(nameof(CurrentSaleOrderLine));
+            }
+        }
+    }
 
     public res_partner CurrentPartner
     {
@@ -42,12 +73,68 @@ public partial class Crud : ContentPage, IBackButtonHandler
         }
     }
 
+    public sale_order CurrentSaleOrder
+    {
+        get => _CurrentSaleOrder;
+        set
+        {
+            if (_CurrentSaleOrder != value)
+            {
+                _CurrentSaleOrder = value;
+                OnPropertyChanged(nameof(CurrentSaleOrder));
+
+                OnPropertyChanged(nameof(PartnerDisplayName));
+                OnPropertyChanged(nameof(PartnerDisplayAddress));
+                OnPropertyChanged(nameof(PartnerDisplayStatus));
+            }
+        }
+    }
+
+    public decimal _product_uom_qty { get; set; }
+    public decimal _product_uom_qty_real { get; set; }
+
+    public decimal product_uom_qty 
+    { 
+        get => _product_uom_qty;
+        set
+        {
+            if(_product_uom_qty != value)
+            {
+                _product_uom_qty = value;
+                OnPropertyChanged(nameof(product_uom_qty));
+            }
+        }
+    }
+    public decimal product_uom_qty_real
+    {
+        get => _product_uom_qty_real;
+        set
+        {
+            if (_product_uom_qty_real != value)
+            {
+                _product_uom_qty_real = value;
+                OnPropertyChanged(nameof(product_uom_qty_real));
+            }
+        }
+    }
+
+    public string PartnerDisplayName => CurrentSaleOrder?.partner_display_name ?? string.Empty;
+    public string PartnerDisplayAddress => CurrentSaleOrder?.partner_display_address ?? string.Empty;
+    public string PartnerDisplayStatus => CurrentSaleOrder?.partner_display_status ?? string.Empty;
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+
+        // El primero activo por defecto
+        _activeEntry = EntryCantidadSolicitada;
+        HighlightActiveEntry(_activeEntry);
+    }
+
     public Crud()
 	{
 		InitializeComponent();        
         BindingContext = new CrudViewModel();
-
-        //returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;
 
         EditCommand = new Command(EditItem);
         DeleteCommand = new Command(DeleteItem);
@@ -59,10 +146,10 @@ public partial class Crud : ContentPage, IBackButtonHandler
     {
         //throw new NotImplementedException();
         Debug.WriteLine(e.PropertyName);
-        if(e.PropertyName== "IsVisible" && !SearchProductView.IsVisible)
-        {
-            OnPropertyChanged(nameof(OrderLinesCl));
-        }
+        //if(e.PropertyName== "IsVisible" && !SearchProductView.IsVisible)
+        //{
+            //OnPropertyChanged(nameof(OrderLinesCl));
+        //}
     }
 
     protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -95,7 +182,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
             ((CrudViewModel)this.BindingContext)._CurrentPartner = CurrentPartner;
             ((CrudViewModel)this.BindingContext).CurrentCompany = CurrentCompany;
             ((CrudViewModel)this.BindingContext).CurrentSaleOrder = CurrentSaleOrder;
-            ((CrudViewModel)this.BindingContext).LoadData();
+            await ((CrudViewModel)this.BindingContext).LoadData();
         }
         else
         {
@@ -108,17 +195,18 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
             if (CurrentSaleOrder != null)
             {
-                Title += " [edición]";
+                Title += " [ediciÃ³n]";
             }
+
             ((CrudViewModel)this.BindingContext).CurrentCompany = CurrentCompany;
             ((CrudViewModel)this.BindingContext).CurrentSaleOrder = CurrentSaleOrder;
-            ((CrudViewModel)this.BindingContext).LoadData();
+            await ((CrudViewModel)this.BindingContext).LoadData();
         }
     }
 
     public async Task<bool> OnBackButtonPressedAsync()
     {
-        bool result = await DisplayAlert("Confirmación", "Minimizar la aplicación, ¿Desea continuar?", "Sí", "No");
+        bool result = await DisplayAlert("ConfirmaciÃ³n", "Minimizar la aplicaciÃ³n, Â¿Desea continuar?", "SÃ­", "No");
         if (result)
         {
 #if ANDROID
@@ -136,11 +224,11 @@ public partial class Crud : ContentPage, IBackButtonHandler
         {
             if (SearchProductView.IsVisible)
             {
-                await Toast.Make("Primero cierre la búsqueda de productos.").Show();
+                await Toast.Make("Primero cierre la bÃºsqueda de productos.").Show();
                 return;
             }
 
-            var leave = await DisplayAlert("Atención", "Los cambios que haya realizado no se guardarán. ¿Desea continuar?", "Si", "No");
+            var leave = await DisplayAlert("AtenciÃ³n", "Los cambios que haya realizado no se guardarÃ¡n. Â¿Desea continuar?", "Si", "No");
 
             if (leave)
             {                
@@ -158,7 +246,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
         //if (true)
         //{
-        //    // Si no se permite el cierre, evitar que la página se cierre
+        //    // Si no se permite el cierre, evitar que la pÃ¡gina se cierre
         //    Navigation.PopModalAsync(false);
         //}
     }
@@ -169,58 +257,9 @@ public partial class Crud : ContentPage, IBackButtonHandler
         //await Navigation.PopAsync();
     }
 
-    ////private async void ButtonAddNew_Clicked_old(object sender, EventArgs e)
-    ////{
-    ////    CatalogViewerModel previousCatalogViewerModel;
-
-    ////    if (returnResultPopup.BindingContext != null)
-    ////        previousCatalogViewerModel = (CatalogViewerModel)returnResultPopup.BindingContext;
-    ////    else
-    ////        previousCatalogViewerModel = new CatalogViewerModel();
-
-    ////    returnResultPopup = new PopupSelectProduct();
-    ////    returnResultPopup.BindingContext = previousCatalogViewerModel;
-    ////    returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;
-        
-    ////    //TODO: Replicar Reset
-    ////    //returnResultPopup.Reset();
-    ////    var result = await PopupExtensions.ShowPopupAsync(this, returnResultPopup);
-
-    ////    if (result != null)
-    ////    {
-    ////        var selected_product = (product_product) result;
-
-    ////        sale_order_line NewOrderLine = new sale_order_line
-    ////        {
-    ////            id = 0,
-    ////            product_code = selected_product.code,
-    ////            product_id = selected_product.id,
-    ////            product_display = selected_product.display_name
-    ////        };
-    ////        ((CrudViewModel)this.BindingContext).AddOrderLine(NewOrderLine);
-    ////    }
-    ////    else
-    ////    {
-    ////       // stackAccountInfo.IsVisible = false;
-    ////    }
-    ////}
-
-
     private async void ButtonAddNew_Clicked(object sender, EventArgs e)
     {
         SearchProductView.IsVisible = true;
-        
-        //var selected_product = (product_product)result;
-
-        //sale_order_line NewOrderLine = new sale_order_line
-        //{
-        //    id = 0,
-        //    product_code = selected_product.code,
-        //    product_id = selected_product.id,
-        //    product_display = selected_product.display_name
-        //};
-        //((DetailsViewModel)this.BindingContext).AddOrderLine(NewOrderLine);
-
     }
 
     private async void ButtonSave_Clicked(object sender, EventArgs e)
@@ -262,15 +301,18 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 return;
             }
 
-            // Eliminar líneas anteriores antes de insertar las nuevas
+            // Eliminar lÃ­neas anteriores antes de insertar las nuevas
             await saleOrderLineDb.DeleteItemOfParent(targetOrder);
         }
 
-        // Asignar el ID de la orden a las líneas y guardar
+        int ordinal = 1;
+        // Asignar el ID de la orden a las lÃ­neas y guardar
         foreach (var orderLine in orderLines)
         {
             orderLine._order_id = targetOrder.id;
+            orderLine.ordinal = ordinal;
             await saleOrderLineDb.InsertAsync(orderLine);
+            ordinal++;
         }
 
         await Toast.Make(isNew ? "Orden creada" : "Orden actualizada").Show();
@@ -281,7 +323,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         //}
         //else
         //{
-        //    await Toast.Make("Error al guardar líneas").Show();
+        //    await Toast.Make("Error al guardar lÃ­neas").Show();
         //}
 
         //await Navigation.PopAsync();
@@ -324,6 +366,117 @@ public partial class Crud : ContentPage, IBackButtonHandler
     private async void detail_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         Debug.WriteLine("detail_SelectionChanged");
-        //((CrudViewModel)this.BindingContext).OrderLines[0].product_qty = 5;
+        //((CrudViewModel)this.BindingContext).OrderLines[0].qty_to_deliver = 5;
+        //LoadDetailInfo();
+        if (e.CurrentSelection != null && e.CurrentSelection.Count > 0)
+        {
+            CurrentSaleOrderLine = (sale_order_line)e.CurrentSelection[0];
+            await LoadDetailInfo(CurrentSaleOrderLine);
+            //Debug.WriteLine(CurrentSaleOrderLine.product_display);
+        }
+    }
+
+    private async Task LoadDetailInfo(sale_order_line SaleOrderLine)
+    {
+        //SaleOrderLine.qty_to_deliver = 6;
+        ProductProductDb productProductDb = new ProductProductDb();
+        ProductEditing = await productProductDb.GetItem(SaleOrderLine.product_id);
+        //OnPropertyChanged(nameof(ProductEditing));
+
+        product_uom_qty_real = SaleOrderLine.product_uom_qty_real;
+        product_uom_qty = SaleOrderLine.product_uom_qty;        
+    }
+    
+    private void OnEntryTapped(object sender, EventArgs e)
+    {
+        if (sender is not Entry tappedEntry)
+            return;
+
+        // Si haces clic en el mismo, no hagas nada
+        if (_activeEntry == tappedEntry)
+            return;
+
+        // Cambiar estados visuales
+        HighlightActiveEntry(tappedEntry);
+        _activeEntry = tappedEntry;
+    }
+
+    private void HighlightActiveEntry(Entry active)
+    {
+        // Resalta el activo y apaga el otro
+        EntryCantidadSolicitada.BackgroundColor = active == EntryCantidadSolicitada
+            ? Colors.LightBlue
+            : Colors.LightGray;
+
+        EntryCantidadFinal.BackgroundColor = active == EntryCantidadFinal
+            ? Colors.LightBlue
+            : Colors.LightGray;
+    }
+
+    private static string Normalize(string s)
+    {
+        // Evitar "-0" accidentales o mÃºltiples ceros iniciales (opcional)
+        if (s == "") return "";
+        if (s == ".") return "0.";     // si el usuario empieza con punto
+        if (s.StartsWith("0") && s != "0" && !s.StartsWith("0."))
+            s = s.TrimStart('0');      // 0005 -> 5
+        if (s == "") s = "0";
+        return s;
+    }
+
+    private void OnKeyClicked(object sender, EventArgs e)
+    {
+        if (_activeEntry is null) return;
+        if (sender is not Button btn) return;
+
+        var key = btn.Text;
+        var text = _activeEntry.Text ?? string.Empty;
+
+        switch (key)
+        {
+            case "âŒ«":
+                if (text.Length > 0)
+                    text = text[..^1]; // elimina el Ãºltimo carÃ¡cter
+
+                // ðŸ‘‡ si quedÃ³ vacÃ­o, coloca "0"
+                if (string.IsNullOrEmpty(text))
+                    text = "0";
+                break;
+
+            case ".":
+                if (!text.Contains("."))
+                {
+                    text = text.Length == 0 ? "0." : text + ".";
+                }
+                break;
+
+            default:
+                if (key.Length == 1 && char.IsDigit(key[0]))
+                {
+                    if (text == "0")
+                        text = key; // reemplaza 0 inicial
+                    else
+                        text += key;
+                }
+                break;
+        }
+
+        _activeEntry.Text = text;
+    }
+
+    private void ResetOriginalValues(object sender, EventArgs e)
+    {
+        product_uom_qty_real = CurrentSaleOrderLine.product_uom_qty_real;
+        product_uom_qty = CurrentSaleOrderLine.product_uom_qty;
+    }
+
+    private void ApplyValueChanges(object sender, EventArgs e)
+    {
+        CurrentSaleOrderLine.product_uom_qty_real = product_uom_qty_real;
+        CurrentSaleOrderLine.product_uom_qty = product_uom_qty;
+        //var vmOrderLines = ((CrudViewModel)this.BindingContext).OrderLines;
+        //var foundLine = vmOrderLines.Where(x => x.id == CurrentSaleOrderLine.id).FirstOrDefault();
+        //foundLine = CurrentSaleOrderLine;
+        //foundLine.product_uom_qty_real = product_uom_qty_real;
     }
 }

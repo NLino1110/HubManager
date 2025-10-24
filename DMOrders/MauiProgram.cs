@@ -3,6 +3,7 @@ using DMOrders.Services;
 using DMSA.Models.Security;
 using Microsoft.Extensions.Logging;
 using MPowerKit.VirtualizeListView;
+using SkiaSharp.Views.Maui.Controls.Hosting;
 using System.Diagnostics;
 using UraniumUI;
 
@@ -17,6 +18,7 @@ namespace DMOrders
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .UseSkiaSharp()
                 .UseMPowerKitListView()
                 .ConfigureFonts(fonts =>
                 {

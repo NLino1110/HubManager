@@ -10,6 +10,26 @@ using System.Windows.Input;
 
 namespace DMOrders.Pages.Fragments.Orders.modals;
 
+public static class ViewExtensions
+{
+    public static Rect GetBoundingBoxIn(this VisualElement view, VisualElement container)
+    {
+        var p = view.GetAbsoluteBounds();
+        var c = container.GetAbsoluteBounds();
+        return new Rect(p.X - c.X, p.Y - c.Y, p.Width, p.Height);
+    }
+
+    public static Rect GetAbsoluteBounds(this VisualElement view)
+    {
+        var x = view.X; var y = view.Y;
+        Element? parent = view.Parent;
+        while (parent is VisualElement ve)
+        {
+            x += ve.X; y += ve.Y; parent = ve.Parent;
+        }
+        return new Rect(x, y, view.Width, view.Height);
+    }
+}
 public partial class CatalogViewerInner : ContentView
 {
     public static readonly BindableProperty ItemPickedCommandProperty =
@@ -82,31 +102,10 @@ public partial class CatalogViewerInner : ContentView
     }
 
     public void Setup()
-    {
-        //CommandSelectListItem = new Command(SelectListItem);
+    {        
         BindingContext = new CatalogViewerModel();
 
-        //Brands =
-        //    [
-        //        new product_marca { id = 0, name = "No seleccionada" },
-        //        new product_marca { id = -1, name = "🔍 Buscar..." },
-        //        //new product_marca { id = 1, name = "Marca 1" },
-        //        //new product_marca { id = 2, name = "Marca 2" },
-        //        //new product_marca { id = 3, name = "Marca 3" },
-        //        //new product_marca { id = 4, name = "Marca 4" },
-        //        //new product_marca { id = 5, name = "Marca 5" },
-        //        //new product_marca { id = 6, name = "Marca 6" },
-        //        //new product_marca { id = 7, name = "Marca 7" },
-        //        //new product_marca { id = 8, name = "Marca 8" },
-        //    ];
-
         LoadTopMarcasAsync();
-
-        //ddfBrands.ItemsSource = Brands;
-        //ddfBrands.ItemDisplayBinding = new Binding("name");
-        //ddfBrands.SelectedItem = Brands[0];
-        //ddfBrands.SelectedItemChanged += DdfBrands_SelectedItemChanged;
-        //filter_brand = Brands[0];
 
         newProducts =
         [
@@ -346,9 +345,7 @@ public partial class CatalogViewerInner : ContentView
     }
 
     private void OnCloseClicked(object sender, EventArgs e)
-    {
-        //Debug.WriteLine(((CatalogViewerModel)this.BindingContext).SelectedItem);
-        //_parentPopup.Close(null);
+    {        
         IsVisible = false;
     }
 
@@ -420,5 +417,23 @@ public partial class CatalogViewerInner : ContentView
             //await Task.Delay(500);
             await vm.LoadData();
         }
+    }
+
+    private void btnClear_Clicked(object sender, EventArgs e)
+    {
+        TextCode.ClearValue();
+        TextDescription.ClearValue();
+        ddfBrands.SelectedItem = Brands[0];
+        ddfNews.SelectedItem = newProducts[0];
+        ddfStock.SelectedItem = stockProducts[0];
+        ddfSort.SelectedItem = sortProducts[0];
+                
+        var btn = (View) sender;
+
+        // convertir la coordenada del botón al espacio del overlay
+        var origin = btn.GetBoundingBoxIn(Confetti).Center;
+        Confetti.TriggerAt(origin);
+
+        //Confetti.TriggerCenter();
     }
 }

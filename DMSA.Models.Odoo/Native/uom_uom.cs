@@ -5,6 +5,7 @@ using SQLite;
 
 namespace DMSA.Models.Odoo.Native
 {
+    [Table("uom_uom")]
     public class uom_uom
     {
         [PrimaryKey]
@@ -35,7 +36,10 @@ namespace DMSA.Models.Odoo.Native
         public int? color { get; set; }
 
         [Column("display_name")]
-        public string? display_name { get; set; }              
+        public string? display_name { get; set; }
+
+        [Column("clave_externa")]
+        public string? clave_externa { get; set; }
 
         [Column("create_date")]
         public DateTime? create_date { get; set; }

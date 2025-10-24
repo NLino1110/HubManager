@@ -55,6 +55,7 @@ namespace DMOrders.Controls.CustomRows
                     new ColumnDefinition { Width = GridLength.Star},
                     new ColumnDefinition { Width = GridLength.Star},
                     new ColumnDefinition { Width = GridLength.Star},
+                    new ColumnDefinition { Width = GridLength.Star},
                     new ColumnDefinition { Width = GridLength.Auto},
 
                 },
@@ -67,7 +68,7 @@ namespace DMOrders.Controls.CustomRows
 
             var idLabel = new Label
             {
-                Text = $"{Item.id}",
+                Text = $"{Item.ordinal}",
                 FontSize = 12,
                 TextColor = Colors.Green,
                 HorizontalOptions = LayoutOptions.Start
@@ -114,6 +115,20 @@ namespace DMOrders.Controls.CustomRows
             Grid.SetRow(productUnd, 0);
             Grid.SetColumn(productUnd, 2);
 
+            var qty_real = new Label
+            {
+                //Text = Item.qty_to_deliver.ToString(),
+                FontAttributes = FontAttributes.Bold,
+                FontSize = 14,
+                TextColor = Colors.Black,
+                HorizontalOptions = LayoutOptions.Fill
+            };
+
+            qty_real.SetBinding(Label.TextProperty, new Binding("product_uom_qty_real"));
+
+            grid.Children.Add(qty_real);            
+            Grid.SetColumn(qty_real, 3);
+
             var qty = new Label
             {
                 //Text = Item.qty_to_deliver.ToString(),
@@ -123,10 +138,10 @@ namespace DMOrders.Controls.CustomRows
                 HorizontalOptions = LayoutOptions.Fill
             };
 
-            qty.SetBinding(Label.TextProperty, new Binding("qty_to_deliver"));
+            qty.SetBinding(Label.TextProperty, new Binding("product_uom_qty"));
 
-            grid.Children.Add(qty);            
-            Grid.SetColumn(qty, 3);
+            grid.Children.Add(qty);
+            Grid.SetColumn(qty, 4);
 
             var priceLabel = new Label
             {
@@ -137,7 +152,7 @@ namespace DMOrders.Controls.CustomRows
                 HorizontalOptions = LayoutOptions.Center
             };
             grid.Children.Add(priceLabel);
-            Grid.SetColumn(priceLabel, 4);
+            Grid.SetColumn(priceLabel, 5);
             
             var subtotalLabel = new Label
             {
@@ -148,7 +163,7 @@ namespace DMOrders.Controls.CustomRows
                 HorizontalOptions = LayoutOptions.Center
             };
             grid.Children.Add(subtotalLabel);
-            Grid.SetColumn(subtotalLabel, 5);                    
+            Grid.SetColumn(subtotalLabel, 6);                    
 
             var discountPercentLabel = new Label
             {
@@ -159,7 +174,7 @@ namespace DMOrders.Controls.CustomRows
                 HorizontalOptions = LayoutOptions.Center
             };
             grid.Children.Add(discountPercentLabel);
-            Grid.SetColumn(discountPercentLabel, 6);            
+            Grid.SetColumn(discountPercentLabel, 7);            
 
             var discountLabel = new Label
             {
@@ -170,7 +185,7 @@ namespace DMOrders.Controls.CustomRows
                 HorizontalOptions = LayoutOptions.Center
             };
             grid.Children.Add(discountLabel);
-            Grid.SetColumn(discountLabel, 7);            
+            Grid.SetColumn(discountLabel, 8);            
 
             var taxLabel = new Label
             {
@@ -181,7 +196,7 @@ namespace DMOrders.Controls.CustomRows
                 HorizontalOptions = LayoutOptions.Center
             };
             grid.Children.Add(taxLabel);
-            Grid.SetColumn(taxLabel, 8);            
+            Grid.SetColumn(taxLabel, 9);            
 
             var cell = CreateCell(grid, padding: new Thickness(4), backgroundColor: Colors.Transparent);
             AddCell(cell, region: "left", row: 0, column: 0);

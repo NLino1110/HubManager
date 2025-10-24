@@ -70,7 +70,9 @@ namespace DMOrders.Pages.Fragments.Orders
                                 //if (existingItem != null)
                                 //{
                                     //existingItem.partner_display = partner?.name ?? "-";
-                                    item.partner_display = partner?.name ?? "-";
+                                    item.partner_display_name = partner?.name ?? "-";
+                                    item.partner_display_address = partner?.street ?? "";
+                                    item.partner_display_status = partner?.active == true ? "Activo" : "Inactivo";
                                 //}
                             }
                             else

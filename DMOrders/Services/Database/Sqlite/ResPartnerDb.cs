@@ -89,10 +89,10 @@ namespace DMOrders.Services.Database.Sqlite
         //    //return Database.Table<account_journal>().ToList();
         //}
 
-        public async Task<res_partner> GetItem(int id_sequence)
+        public async Task<res_partner> GetItem(int id)
         {
             await Init();
-            return await Database.Table<res_partner>().Where(i => i.id_sequence == id_sequence).FirstOrDefaultAsync();
+            return await Database.Table<res_partner>().Where(i => i.id == id).FirstOrDefaultAsync();
         }
 
         public async Task<int> InsertAsync(res_partner item)

@@ -234,7 +234,7 @@ namespace DMOrders.Pages.Fragments.Orders.modals
 
             if (filtersChanged)
             {
-                Page = 1;                 // ← Siempre arranca desde la primera
+                Page = 1;
                 _lastFilterSignature = signature;
             }
 

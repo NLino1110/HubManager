@@ -139,6 +139,13 @@ namespace DMSA.Models.Odoo.Native
 
         [Ignore]
         [JsonIgnore]
-        public string partner_display { get; set; } = "-";
+        public string partner_display_name { get; set; } = "-";
+
+        [Ignore]
+        [JsonIgnore]
+        public string partner_display_address { get; set; } = "-";
+        [Ignore]
+        [JsonIgnore]
+        public string partner_display_status { get; set; } = "-";
     }
 }

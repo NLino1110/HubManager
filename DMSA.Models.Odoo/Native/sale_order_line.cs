@@ -28,6 +28,9 @@ namespace DMSA.Models.Odoo.Native
         [JsonProperty("id")]
         public int id { get; set; }
 
+        [JsonIgnore]
+        public int ordinal { get; set; }
+
         [Ignore]
         [JsonProperty("order_id")]
         public JToken order_id { get; set; }
@@ -42,9 +45,44 @@ namespace DMSA.Models.Odoo.Native
         [JsonProperty("product_id")]
         public int product_id { get; set; }
 
+        [Ignore]
+        [JsonIgnore]
+        public decimal _product_uom_qty { get; set; }
+
+
+
         [JsonProperty("product_uom_qty")]
-        public decimal product_uom_qty { get; set; }
-        
+        public decimal product_uom_qty
+        {
+            get => _product_uom_qty;
+            set
+            {
+                if (_product_uom_qty != value)
+                {
+                    _product_uom_qty = value;
+                    OnPropertyChanged(nameof(product_uom_qty));
+                }
+            }
+        }
+
+
+        [Ignore]
+        [JsonIgnore]
+        private decimal _product_uom_qty_real { get; set; }
+
+        [JsonProperty("product_uom_qty_real")]
+        public decimal product_uom_qty_real
+        {
+            get => _product_uom_qty_real;
+            set { 
+                if (_product_uom_qty_real != value) 
+                { 
+                    _product_uom_qty_real = value; 
+                    OnPropertyChanged(nameof(product_uom_qty_real)); 
+                } 
+            }
+        }
+
         //[JsonProperty("product_qty")]
         //public decimal product_qty { get; set; }
 
@@ -53,7 +91,8 @@ namespace DMSA.Models.Odoo.Native
         [JsonProperty("price_unit")]
         public decimal price_unit { get; set; }
 
-        
+        [Ignore]
+        [JsonIgnore]
         public decimal _qty_to_deliver { get; set; }
 
         [JsonProperty("qty_to_deliver")]

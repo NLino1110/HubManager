@@ -60,7 +60,7 @@ namespace DMOrders.Controls.CustomRows
 
             var nameLabel = new Label
             {
-                Text = Item.partner_display,
+                Text = Item.partner_display_name,
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 11,
                 TextColor = Colors.Black,
