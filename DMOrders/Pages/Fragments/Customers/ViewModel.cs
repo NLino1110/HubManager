@@ -55,16 +55,16 @@ namespace DMOrders.Pages.Fragments.Customers
         }
 
 
-        public ViewModel(string _FilterCode, string _FilterId, string _FilterName, FDays _FilterDays, FStatus _FilterStatus)
-        {
-            _itemsData = new ObservableCollection<res_partner>();            
-            FilterCode = _FilterCode;
-            FilterId = _FilterId;
-            FilterName = _FilterName;
-            FilterDays = _FilterDays;
-            FilterStatus = _FilterStatus;
-            LoadDataByTimer();
-        }        
+        //public ViewModel(string _FilterCode, string _FilterId, string _FilterName, FDays _FilterDays, FStatus _FilterStatus)
+        //{
+        //    _itemsData = new ObservableCollection<res_partner>();            
+        //    FilterCode = _FilterCode;
+        //    FilterId = _FilterId;
+        //    FilterName = _FilterName;
+        //    FilterDays = _FilterDays;
+        //    FilterStatus = _FilterStatus;
+        //    LoadDataByTimer();
+        //}        
 
         public ViewModel()
         {

@@ -466,14 +466,25 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
     private void ResetOriginalValues(object sender, EventArgs e)
     {
-        product_uom_qty_real = CurrentSaleOrderLine.product_uom_qty_real;
-        product_uom_qty = CurrentSaleOrderLine.product_uom_qty;
+        if (CurrentSaleOrderLine != null)
+        {
+            product_uom_qty_real = CurrentSaleOrderLine.product_uom_qty_real;
+            product_uom_qty = CurrentSaleOrderLine.product_uom_qty;
+        }
     }
 
     private void ApplyValueChanges(object sender, EventArgs e)
     {
-        CurrentSaleOrderLine.product_uom_qty_real = product_uom_qty_real;
-        CurrentSaleOrderLine.product_uom_qty = product_uom_qty;
+        if (CurrentSaleOrderLine != null)
+        {
+            CurrentSaleOrderLine.product_uom_qty_real = product_uom_qty_real;
+            CurrentSaleOrderLine.product_uom_qty = product_uom_qty;
+            CurrentSaleOrderLine = null;
+            ProductEditing = null;
+            product_uom_qty_real = 0;
+            product_uom_qty = 0;
+        }
+
         //var vmOrderLines = ((CrudViewModel)this.BindingContext).OrderLines;
         //var foundLine = vmOrderLines.Where(x => x.id == CurrentSaleOrderLine.id).FirstOrDefault();
         //foundLine = CurrentSaleOrderLine;

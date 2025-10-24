@@ -32,6 +32,90 @@ namespace DMOrders.Services.Database.Sqlite
             return await Database.DeleteAllAsync<res_partner>();
         }
 
+        private static AsyncTableQuery<res_partner> ApplySort(
+            AsyncTableQuery<res_partner> q, int filter_sort)
+        {
+            // 1: sequence ASC, 2: code ASC, 3: name ASC; default: id ASC
+            return filter_sort switch
+            {
+                1 => q.OrderBy(x => x.name),
+                //2 => q.OrderBy(x => x.code),
+                //3 => q.OrderBy(x => x.name),
+                _ => q.OrderBy(x => x.id)
+            };
+        }
+
+        private AsyncTableQuery<res_partner> BuildQuery(
+            string filter_code,
+            string filter_name,
+            string filter_vat,
+            int filter_days,
+            int filter_status,
+            int filter_sort)
+        {
+            Init();
+
+            var q = Database.Table<res_partner>();
+
+            // --- 1) Filtro por code (prioridad máxima, como tu método actual) ---
+            if (!string.IsNullOrWhiteSpace(filter_code))
+            {
+                var raw = filter_code.Trim();
+
+                // Si es numérico: buscar por id exacto (fallback lo haces fuera)
+                if (int.TryParse(raw, out var idCode))
+                {
+                    q = q.Where(x => x.id == idCode);
+                    // OJO: no aplicamos más filtros aquí para mantener tu comportamiento original.
+                    return ApplySort(q, filter_sort);
+                }                
+            }
+
+            // --- 2) Resto de filtros cuando NO hay filter_code ---
+            if (!string.IsNullOrWhiteSpace(filter_name))
+            {
+                var nameTerm = filter_name.Trim().ToLowerInvariant();
+                q = q.Where(x => x.name.ToLower().Contains(nameTerm));
+            }
+
+            if (filter_status == 1)
+                q = q.Where(x => x.active == true);
+            else if(filter_status == 2)
+                q = q.Where(x => x.active == false);
+
+            //if (filter_new == 1)
+            //    q = q.Where(x => x.is_new);
+
+            //if (filter_stock == 1)
+            //    q = q.Where(x => x.qty_available > 0);
+
+            // --- 3) Orden ---
+            q = ApplySort(q, filter_sort);
+
+            return q;
+        }
+
+        public async Task<(IList<res_partner> Items, int Total)> GetPagedAsync(
+            string filter_code,
+            string filter_name,
+            string filter_vat,
+            int filter_days,
+            int filter_status,
+            int filter_sort,
+            int page, int pageSize, CancellationToken ct = default)
+        {
+            var q = BuildQuery(filter_code, filter_name, filter_vat, filter_days, filter_status, filter_sort);
+
+            // COUNT(*) en SQLite, sin traer datos
+            var total = await q.CountAsync();
+
+            // LIMIT/OFFSET en SQLite (Skip/Take sobre AsyncTableQuery)
+            var offset = Math.Max(0, (page - 1) * pageSize);
+            var items = await q.Skip(offset).Take(pageSize).ToListAsync();
+
+            return (items, total);
+        }
+
         public async Task<List<res_partner>> GetItemsAsync()
         {
             await Init();

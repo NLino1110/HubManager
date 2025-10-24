@@ -105,8 +105,6 @@ namespace DMOrders.Services.Database.Sqlite
         }
 
 
-
-
         public async Task<(IList<product_product> Items, int Total)> GetPagedAsync(
             string filter_code, string filter_name, int filter_brand, int filter_new, int filter_stock, int filter_sort,
             int page, int pageSize, CancellationToken ct = default)

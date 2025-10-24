@@ -160,7 +160,7 @@ TextColor="#242322"
                 <Button Text="8" Grid.Row="2" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
                 <Button Text="9" Grid.Row="2" Grid.Column="2" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
                 <!-- Fila 4 -->
-                <Button Text="." Grid.Row="3" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
+                <Button Text="." Grid.Row="3" Grid.Column="0" FontAttributes="Bold" BackgroundColor="Gray" TextColor="WhiteSmoke"/>
                 <Button Text="0" Grid.Row="3" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
                 <Button Text="⌫" Grid.Row="3" Grid.Column="2" FontAttributes="Bold" FontSize="12" FontAutoScalingEnabled="True" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
             </Grid>
