@@ -15,7 +15,11 @@ namespace DMOrders.Services.Update
         int day { get; set; }
         int limit { get; set; }
 
+        int maxIndexExceeded { get; set; }
+
         public AppSession appSession => App.Session;
+
+        private string DbNameSqlite { get; set; }
         public ServerPuller() 
         {
             year = appSession.sync_date_since.Year;
@@ -31,7 +35,9 @@ namespace DMOrders.Services.Update
             //    day = appSession.CurrentUser.log_fec_sincro.Day;
             //}
 
-            limit = App.Session.odooConnection.DbLimitDefault;
+            maxIndexExceeded = 600;
+            limit = appSession.odooConnection.DbLimitDefault;
+            DbNameSqlite = appSession.odooConnection.DbNameSqlite;
         }
 
         public async Task<bool> Pull()

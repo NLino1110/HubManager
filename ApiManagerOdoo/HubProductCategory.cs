@@ -5,6 +5,7 @@ using DMSA.Models.Security;
 
 namespace ApiManager
 {
+    [Obsolete]
     public class HubProductCategory : HubBase
     {
         string[] fields_array = new[] {

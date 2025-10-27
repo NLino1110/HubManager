@@ -342,8 +342,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
         foreach (var orderLine in orderLinesList)
         {
             //orderLine.price_subtotal = 1;
-            orderLine.price_unit = 1;
-            orderLine.product_uom_qty = 1;
+            //orderLine.price_unit = 1;
+            //orderLine.product_uom_qty = 1;
 
             CurrentSaleOrder.order_line.Add(new OrderLineWrapper(orderLine));
         }

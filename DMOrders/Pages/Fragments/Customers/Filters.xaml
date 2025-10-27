@@ -33,7 +33,7 @@
                     <material:TextField
                             Grid.Row="1"
                         FontSize="11"
-                            x:Name="entryId"
+                            x:Name="entryVat"
                             Title="Identificación"
                             BorderThickness="0.4"                    
                         />

@@ -1,4 +1,5 @@
-﻿using SQLite;
+﻿using DMSA.Models.Odoo.DMCobranzas;
+using SQLite;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -62,6 +63,12 @@ namespace DMOrders.Services.Database.Sqlite
             await Init();
             await Database.InsertAllAsync(items, "OR REPLACE", true);
             return 0;
+        }
+
+        public async Task<int> UpdateAsync(T item)
+        {
+            await Init();
+            return await Database.UpdateAsync(item);
         }
 
         public async Task<int> Truncate()

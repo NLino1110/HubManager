@@ -1,4 +1,5 @@
 ﻿using DMSA.Models.Odoo.Base;
+using DMSA.Models.Odoo.Sales;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SQLite;
@@ -52,11 +53,11 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
         public JToken levels_ids { get; set; }
 
         [JsonIgnore]
-        public List<ProductPricelist> _levels_ids
+        public List<product_pricelist> _levels_ids
         {
             //get => GetIds(levels_ids);
             //set => levels_ids = SetIds(levels_ids, value);
-            get => Array.Empty<ProductPricelist>().ToList();
+            get => Array.Empty<product_pricelist>().ToList();
         }
 
         // --- Many2many: payment_method_ids -> pos.payment.method ---

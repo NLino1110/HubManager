@@ -36,11 +36,13 @@ public partial class Container : ContentView
 
     private void OnSearchButtonClicked(object? sender, EventArgs e)
     {
-        dataCustomers.LoadData(filterCustomer.getCode() , 
-            filterCustomer.getId(), 
-            filterCustomer.getName(), 
-            filterCustomer.getDays(), 
-            filterCustomer.getStatus());
+        Debug.WriteLine("OnSearchButtonClicked - Container Customers");
+        dataCustomers.LoadData(filterCustomer);
+        //dataCustomers.LoadData(filterCustomer.getCode() , 
+        //    filterCustomer.getId(), 
+        //    filterCustomer.getName(), 
+        //    filterCustomer.getDays(), 
+        //    filterCustomer.getStatus());
 
         //var label = new Label { Text = "Resultado de la búsqueda" };
         //var stackLayout = new StackLayout

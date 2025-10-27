@@ -1,5 +1,6 @@
 ﻿using DMSA.Models.Odoo.DMOrders.promotions;
 using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Sales;
 using InputKit.Shared;
 using System;
 using System.Collections.Generic;
@@ -39,7 +40,7 @@ namespace DMOrders.Services.Promotions
             DateTime? dateUtc = null,
             res_company? company = null,
             PosTarjetasCanal? targetSegment = null,
-            ProductPricelist? channel = null,
+            product_pricelist? channel = null,
             PromotionSelectionType? selectionType = null)
         {
             if (product is null) throw new ArgumentNullException(nameof(product));

@@ -47,8 +47,8 @@ namespace DMOrders.Services.Database.Sqlite
 
         private AsyncTableQuery<res_partner> BuildQuery(
             string filter_code,
-            string filter_name,
             string filter_vat,
+            string filter_name,            
             int filter_days,
             int filter_status,
             int filter_sort)
@@ -56,6 +56,10 @@ namespace DMOrders.Services.Database.Sqlite
             Init();
 
             var q = Database.Table<res_partner>();
+
+            //Excluimos los vendedores
+            q = q.Where(x => x.is_salesman == false);
+
 
             // --- 1) Filtro por code (prioridad máxima, como tu método actual) ---
             if (!string.IsNullOrWhiteSpace(filter_code))
@@ -68,7 +72,14 @@ namespace DMOrders.Services.Database.Sqlite
                     q = q.Where(x => x.id == idCode);
                     // OJO: no aplicamos más filtros aquí para mantener tu comportamiento original.
                     return ApplySort(q, filter_sort);
-                }                
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(filter_vat))
+            {
+                var raw = filter_vat.Trim();
+                q = q.Where(x => x.vat_doc != null && x.vat_doc.Contains(raw));
+                return ApplySort(q, filter_sort);                
             }
 
             // --- 2) Resto de filtros cuando NO hay filter_code ---
@@ -97,14 +108,14 @@ namespace DMOrders.Services.Database.Sqlite
 
         public async Task<(IList<res_partner> Items, int Total)> GetPagedAsync(
             string filter_code,
-            string filter_name,
             string filter_vat,
+            string filter_name,
             int filter_days,
             int filter_status,
             int filter_sort,
             int page, int pageSize, CancellationToken ct = default)
         {
-            var q = BuildQuery(filter_code, filter_name, filter_vat, filter_days, filter_status, filter_sort);
+            var q = BuildQuery(filter_code, filter_vat, filter_name, filter_days, filter_status, filter_sort);
 
             // COUNT(*) en SQLite, sin traer datos
             var total = await q.CountAsync();

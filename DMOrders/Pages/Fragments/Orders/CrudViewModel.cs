@@ -164,6 +164,8 @@ namespace DMOrders.Pages.Fragments.Orders
                     product_display = product.name,
                     product_code = product.code,
                     qty_to_deliver = 1,
+                    product_uom_qty_real = 1,
+                    product_uom_qty = 1,
                     uom_category_display = "UND",
                     price_subtotal = 5,
                     discount = 15,

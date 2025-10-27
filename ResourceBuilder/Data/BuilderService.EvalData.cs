@@ -142,7 +142,7 @@ namespace ResourceBuilder.Data
                     break;
                 case "res_partner":
                     {
-                        ApiManager.HubPartner hubPartner = new ApiManager.HubPartner(_appSession);
+                        ApiManager.HubResPartner hubPartner = new ApiManager.HubResPartner(_appSession);
                         ApiResponseOdooRpcT<res_partner[]>? responseAll = null;
 
                         if (!forUpdate)

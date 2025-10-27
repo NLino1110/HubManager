@@ -291,44 +291,44 @@ namespace DMOrders.Pages.Fragments.Orders.modals
             }
         }
 
-        public async Task __LoadData()
-        {
-            Debug.WriteLine($"[CatalogViewerModel] LoadData Initialized");
-            var stopwatch = Stopwatch.StartNew();
-            try
-            {
+        //public async Task __LoadData()
+        //{
+        //    Debug.WriteLine($"[CatalogViewerModel] LoadData Initialized");
+        //    var stopwatch = Stopwatch.StartNew();
+        //    try
+        //    {
                 
-                IsLoading = true;
-                var database = new ProductProductDb();
-                Debug.WriteLine(filter_code);
-                var allItems = await database.GetItemsAsync(filter_code, filter_name, filter_brand, filter_new, filter_stock, filter_sort);
-                IEnumerable<product_product> filtered = allItems;
+        //        IsLoading = true;
+        //        var database = new ProductProductDb();
+        //        Debug.WriteLine(filter_code);
+        //        var allItems = await database.GetItemsAsync(filter_code, filter_name, filter_brand, filter_new, filter_stock, filter_sort);
+        //        IEnumerable<product_product> filtered = allItems;
 
-                TotalItems = filtered.Count();
+        //        TotalItems = filtered.Count();
 
-                ItemsData = new ObservableCollection<product_product>(
-                    filtered.Skip((Page - 1) * PageSize).Take(PageSize));
+        //        ItemsData = new ObservableCollection<product_product>(
+        //            filtered.Skip((Page - 1) * PageSize).Take(PageSize));
 
-                Debug.WriteLine(ViewModesListSelectedIndex); 
+        //        Debug.WriteLine(ViewModesListSelectedIndex); 
 
-                if(ViewModesListSelectedIndex == 2)
-                {
-                    _selectedItem = ItemsData[0];
-                    OnPropertyChanged();
-                }
-            }
-            catch (Exception ex)
-            {
-                ItemsData = new ObservableCollection<product_product>();
-                Debug.WriteLine(ex);
-            }
-            finally
-            {
-                IsLoading = false;
-                stopwatch.Stop();
-                Debug.WriteLine($"[CatalogViewerModel] Carga completada en {stopwatch.ElapsedMilliseconds} ms | TotalItems: {TotalItems}, Page: {Page}, PageSize: {PageSize}, Filtro: {filter_code ?? filter_name ?? "sin filtro"}");
-            }
-        }
+        //        if(ViewModesListSelectedIndex == 2)
+        //        {
+        //            _selectedItem = ItemsData[0];
+        //            OnPropertyChanged();
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ItemsData = new ObservableCollection<product_product>();
+        //        Debug.WriteLine(ex);
+        //    }
+        //    finally
+        //    {
+        //        IsLoading = false;
+        //        stopwatch.Stop();
+        //        Debug.WriteLine($"[CatalogViewerModel] Carga completada en {stopwatch.ElapsedMilliseconds} ms | TotalItems: {TotalItems}, Page: {Page}, PageSize: {PageSize}, Filtro: {filter_code ?? filter_name ?? "sin filtro"}");
+        //    }
+        //}
 
         public ICommand NextPageCommand => new Command(async () =>
         {

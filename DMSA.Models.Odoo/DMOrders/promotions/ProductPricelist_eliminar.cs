@@ -10,9 +10,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace DMSA.Models.Odoo.DMOrders.promotions
-{
-    [Table("product_pricelist")]
-    public class ProductPricelist : OdooEntity
+{    
+    [Table("product_pricelist_eliminar")]
+    public class ProductPricelist_eliminar : OdooEntity
     {
         [Key]
         [PrimaryKey]

@@ -15,12 +15,17 @@
         <Grid Grid.Row="0" BackgroundColor="LightGray" Padding="10" HeightRequest="35">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="3*"/>
                 <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Label Text="Nombre" FontAttributes="Bold"/>
-            <Label Text="Precio" Grid.Column="1" FontAttributes="Bold"/>
-            <Label Text="Cantidad" Grid.Column="2" FontAttributes="Bold"/>
+            <Label Text="Id" Grid.Column="0" FontAttributes="Bold" FontSize="11" />
+            <Label Text="Ced./Ruc" Grid.Column="1" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Start"/>
+            <Label Text="Nombre" Grid.Column="2" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Start"/>
+            <Label Text="Email" Grid.Column="3" FontAttributes="Bold" FontSize="11"/>
+            <Label Text="Teléfono" Grid.Column="4" FontAttributes="Bold" FontSize="11"/>
         </Grid>
 
         <!--<ScrollView Grid.Row="1" BackgroundColor="WhiteSmoke">
@@ -50,8 +55,8 @@
                     </CollectionView>
             </VerticalStackLayout>
             </ScrollView>-->
-
-        <mpowerkit:FixedRefreshView Grid.Row="1"
+        <Grid Grid.Row="1">
+        <mpowerkit:FixedRefreshView 
                                             Refreshing="FixedRefreshView_Refreshing" 
                                             HorizontalOptions="Fill" 
                                             VerticalOptions="Fill"
@@ -79,11 +84,11 @@
                                   ColumnDefinitions="50,100,*,*,*, 20"
                                       Margin="20,0,20,0">
                                
-                                <Label Grid.Column="0" FontSize="10" Text="{Binding id}" />
-                                    <Label Grid.Column="1" FontSize="13" Text="{Binding vat}" />
-                                    <Label Grid.Column="2" FontSize="13" FontAttributes="Bold" Text="{Binding name}" />
-                                    <Label Grid.Column="3" FontSize="13" FontAttributes="Bold" Text="{Binding email}" />
-                                    <Label Grid.Column="4" FontSize="13" FontAttributes="Bold" Text="{Binding phone}" />
+                                    <Label Grid.Column="0" FontSize="11" Text="{Binding id}" VerticalOptions="Center" />
+                                    <Label Grid.Column="1" FontSize="11" Text="{Binding vat_doc}" VerticalOptions="Center"/>
+                                    <Label Grid.Column="2" FontSize="12" FontAttributes="Bold" Text="{Binding name}" VerticalOptions="Center"/>
+                                    <Label Grid.Column="3" FontSize="12" FontAttributes="Bold" Text="{Binding email}" VerticalOptions="Center"/>
+                                    <Label Grid.Column="4" FontSize="12" FontAttributes="Bold" Text="{Binding phone}" VerticalOptions="Center"/>
 
                                     <Button Grid.Column="5"
                                         HeightRequest="35"
@@ -113,9 +118,9 @@
                         </mpowerkit:VirtualizeListView.ItemTemplate>                        
                     </mpowerkit:VirtualizeListView>
                 </mpowerkit:FixedRefreshView>
-        
-        <Grid 
-            Grid.Row="1"
+            
+            <Grid 
+            
             BackgroundColor="#80000000"
             IsVisible="{Binding IsLoading}"
             VerticalOptions="Fill"
@@ -129,6 +134,7 @@
                 VerticalOptions="Center"
                 HorizontalOptions="Center" />
         </Grid>
+            </Grid>
 
         <StackLayout Grid.Row="2"  Orientation="Horizontal" HorizontalOptions="Center" Margin="0,2">
             <Button Text=""

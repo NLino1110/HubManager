@@ -144,7 +144,7 @@ namespace ResourceBuilder.Data
                     }
                 case "res_partner":
                     {
-                        ApiManager.HubPartner hubPartner = new ApiManager.HubPartner(_appSession);
+                        ApiManager.HubResPartner hubPartner = new ApiManager.HubResPartner(_appSession);
                         
                         //setHubPartner(_appSession);
                         var responseAll = await hubPartner.GetByWriteDate_dl(year, month, day);

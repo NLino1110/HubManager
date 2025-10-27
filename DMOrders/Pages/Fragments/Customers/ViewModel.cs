@@ -14,7 +14,16 @@ using System.Windows.Input;
 namespace DMOrders.Pages.Fragments.Customers
 {
     public partial class ViewModel : INotifyPropertyChanged
-    {        
+    {
+        private ResPartnerDb _db { get; set; }
+        private readonly SemaphoreSlim _loadLock = new(1, 1); // evita cargas simultáneas
+        private CancellationTokenSource _cts;
+        private string BuildFilterSignature() =>
+            $"{filters.getCode()}|{filters.getName()}|{filters.getDays()}|{filters.getStatus()}";
+
+        private string _lastFilterSignature;
+        public Filters filters { get; set; }
+
         private ObservableCollection<res_partner> _itemsData;
                 
         private res_partner _selectedItem;
@@ -29,12 +38,6 @@ namespace DMOrders.Pages.Fragments.Customers
         private int _page = 1;
 
         int company_id = 0;
-
-        private string FilterCode { get; set; }
-        private string FilterId { get; set; }
-        private string FilterName { get; set; }
-        private FDays FilterDays { get; set; }
-        private FStatus FilterStatus { get; set; }
 
         public bool CanGoNext => (_page * PageSize) < TotalItems;
         public bool CanGoPrevious => _page > 1;
@@ -66,11 +69,13 @@ namespace DMOrders.Pages.Fragments.Customers
         //    LoadDataByTimer();
         //}        
 
-        public ViewModel()
+        public ViewModel(Filters _filters)
         {
+            _db = new ResPartnerDb();
+            filters = _filters;
             _itemsData = new ObservableCollection<res_partner>();
             ItemTappedCommand = new Command<res_partner>(OnItemTapped);
-            LoadDataByTimer();
+            //LoadDataByTimer();
         }
 
         public void LoadDataByTimer()
@@ -213,72 +218,140 @@ namespace DMOrders.Pages.Fragments.Customers
                 Debug.WriteLine("_isLoading");
                 Debug.WriteLine(_isLoading);
             }
-        }
+        }        
 
         public async Task LoadData()
         {
-            if (IsLoading) return;
+            var signature = BuildFilterSignature();
+            var filtersChanged = signature != _lastFilterSignature;
+
+            Debug.WriteLine(signature);
+            Debug.WriteLine(_lastFilterSignature);
+
+            if (filtersChanged)
+            {
+                Page = 1;
+                _lastFilterSignature = signature;
+            }
+
+            _cts?.Cancel();
+            _cts = new CancellationTokenSource();
+            var ct = _cts.Token;
+
+            await _loadLock.WaitAsync(ct);
+            var stopwatch = Stopwatch.StartNew();
 
             try
             {
-                if(_itemsData == null)
-                    _itemsData = new ObservableCollection<res_partner>();
-                
-                _itemsData.Clear();
-
                 IsLoading = true;
 
-                var database = new ResPartnerDb();
+                // Llama paginado (NO vuelvas a traer todo)
+                var (items, total) = await _db.GetPagedAsync(
+                    filters.getCode(),
+                    filters.getVat(),
+                    filters.getName(), 
+                    filters.getDays(), 
+                    filters.getStatus(), 
+                    0, 
+                    Page, 
+                    PageSize, 
+                    ct);
 
-                // 🔹 Lo ideal: aplicar filtros y paginación en la consulta al DB
-                var allItems = await database.GetItemsAsync();
+                TotalItems = total;
 
-                // 🔹 Si tu método GetItemsAsync no soporta filtros, entonces:
-                // var allItemsList = (await database.GetItemsAsync()).ToList();
+                // Evita recrear la OC (menos churn de UI)
+                if (ItemsData == null)
+                    ItemsData = new ObservableCollection<res_partner>();
+                else
+                    ItemsData.Clear();
 
-                IEnumerable<res_partner> filtered = allItems; // ya viene filtrado si lo haces en DB
-
-                // Filtros en memoria solo si no puedes hacerlos en DB
-                if (!string.IsNullOrWhiteSpace(FilterCode) && int.TryParse(FilterCode, out int int_filterCode))
-                {
-                    filtered = filtered.Where(x => x.id == int_filterCode);
-                }
-                else if (!string.IsNullOrWhiteSpace(FilterId))
-                {
-                    filtered = filtered.Where(x => x.vat == FilterId);
-                }
-                else if (!string.IsNullOrWhiteSpace(FilterName))
-                {
-                    filtered = filtered.Where(x => x.name.Contains(FilterName, StringComparison.OrdinalIgnoreCase));
-                }
-
-                // Materializamos la lista para no volver a recorrerla varias veces
-                var filteredList = filtered.ToList();
-
-                TotalItems = filteredList.Count;
-
-                // Paginación en memoria solo si no la hace el DB
-                var paginated = filteredList
-                    .Skip((_page - 1) * _pageSize)
-                    .Take(_pageSize)
-                    .ToList();
+                foreach (var it in items)
+                    ItemsData.Add(it);
                 
-                _itemsData = new ObservableCollection<res_partner>(paginated);
-
-                OnPropertyChanged(nameof(ItemsData));
-                OnPropertyChanged(nameof(CanGoNext));
-                OnPropertyChanged(nameof(CanGoPrevious));
+            }
+            catch (OperationCanceledException ecx)
+            {
+                // ignorar: una nueva carga comenzó
+                Debug.WriteLine(ecx);
             }
             catch (Exception ex)
             {
-                _itemsData = new ObservableCollection<res_partner>();
+                ItemsData = new ObservableCollection<res_partner>();
                 Debug.WriteLine(ex);
             }
             finally
             {
                 IsLoading = false;
+                _loadLock.Release();
+                stopwatch.Stop();
+                Debug.WriteLine($"[CatalogViewerModel] Carga en {stopwatch.ElapsedMilliseconds} ms | TotalItems: {TotalItems}, Page: {Page}, PageSize: {PageSize}, Filtro: {filters.getCode() ?? filters.getName() ?? "sin filtro"}");
             }
         }
+
+        //public async Task ___LoadData()
+        //{
+        //    if (IsLoading) return;
+
+        //    try
+        //    {
+        //        if(_itemsData == null)
+        //            _itemsData = new ObservableCollection<res_partner>();
+                
+        //        _itemsData.Clear();
+
+        //        IsLoading = true;
+
+        //        var database = new ResPartnerDb();
+
+        //        // 🔹 Lo ideal: aplicar filtros y paginación en la consulta al DB
+        //        var allItems = await database.GetItemsAsync();
+
+        //        // 🔹 Si tu método GetItemsAsync no soporta filtros, entonces:
+        //        // var allItemsList = (await database.GetItemsAsync()).ToList();
+
+        //        IEnumerable<res_partner> filtered = allItems; // ya viene filtrado si lo haces en DB
+
+        //        // Filtros en memoria solo si no puedes hacerlos en DB
+        //        if (!string.IsNullOrWhiteSpace(filters.getCode()) && int.TryParse(filters.getCode(), out int int_filterCode))
+        //        {
+        //            filtered = filtered.Where(x => x.id == int_filterCode);
+        //        }
+        //        else if (!string.IsNullOrWhiteSpace(filters.getCode()))
+        //        {
+        //            filtered = filtered.Where(x => x.vat == filters.getCode());
+        //        }
+        //        else if (!string.IsNullOrWhiteSpace(filters.getName()))
+        //        {
+        //            filtered = filtered.Where(x => x.name.Contains(filters.getName(), StringComparison.OrdinalIgnoreCase));
+        //        }
+
+        //        // Materializamos la lista para no volver a recorrerla varias veces
+        //        var filteredList = filtered.ToList();
+
+        //        TotalItems = filteredList.Count;
+
+        //        // Paginación en memoria solo si no la hace el DB
+        //        var paginated = filteredList
+        //            .Skip((_page - 1) * _pageSize)
+        //            .Take(_pageSize)
+        //            .ToList();
+                
+        //        _itemsData = new ObservableCollection<res_partner>(paginated);
+
+        //        OnPropertyChanged(nameof(ItemsData));
+        //        OnPropertyChanged(nameof(CanGoNext));
+        //        OnPropertyChanged(nameof(CanGoPrevious));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _itemsData = new ObservableCollection<res_partner>();
+        //        Debug.WriteLine(ex);
+        //    }
+        //    finally
+        //    {
+        //        IsLoading = false;
+        //    }
+        //}
 
         public ICommand NextPageCommand => new Command(async () =>
         {

@@ -333,6 +333,51 @@ public partial class UpdateData : ContentPage
         }
     }
 
+
+    private async Task ProcAccountMove(ProgressBarAnimationBehaviorPage obj, string[] ListFiles)
+    {
+        var database = new AccountMoveDb();
+        //if (ListFiles.Length > 0)
+        //{
+        //    await database.Truncate();
+        //}
+        int fileIndex = 1;
+
+        foreach (var fileNameJson in ListFiles)
+        {
+            Debug.WriteLine("Procesando archivo de cache:");
+            Debug.WriteLine(fileNameJson);
+
+            //database = null;
+            //database = new FacNotaCreditoDetDb();
+            obj.SetTitle($"Proc. {Path.GetFileName(fileNameJson)} ({fileIndex}/{ListFiles.Length})");
+
+            //string jsonFileItem = File.ReadAllText(Path.Combine(DeviceStorageJson, ZipFileName.Replace(".zip", ".json")));
+            string jsonFileItem = File.ReadAllText(fileNameJson);
+            var listObjects = JsonConvert.DeserializeObject<AccountMoveOrigin>(jsonFileItem);
+
+            int totalItems = listObjects.account_move.Length;
+            int curIndex = 1;
+            double percentProcess = 0;
+
+            try
+            {
+                listObjects.account_move = FixAccountMove(listObjects.account_move);
+
+                await database.InsertBatchAsync(listObjects.account_move);                
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Debug.WriteLine(ex.Message);
+                Debug.WriteLine("Error: provocado por " + fileNameJson);
+                Debug.WriteLine("Error: " + listObjects.account_move);
+            }
+
+            fileIndex++;
+        }
+    }
+
     private account_move[] FixAccountMove(account_move[] account_Moves)
     {
         foreach (var amItem in account_Moves)
@@ -386,240 +431,7 @@ public partial class UpdateData : ContentPage
         return account_Moves;
     }
 
-    private async Task ProcAccountMove(ProgressBarAnimationBehaviorPage obj, string[] ListFiles)
-    {
-        var database = new AccountMoveDb();
-        //if (ListFiles.Length > 0)
-        //{
-        //    await database.Truncate();
-        //}
-        int fileIndex = 1;
 
-        foreach (var fileNameJson in ListFiles)
-        {
-            Debug.WriteLine("Procesando archivo de cache:");
-            Debug.WriteLine(fileNameJson);
-
-            //database = null;
-            //database = new FacNotaCreditoDetDb();
-            obj.SetTitle($"Proc. {Path.GetFileName(fileNameJson)} ({fileIndex}/{ListFiles.Length})");
-
-            //string jsonFileItem = File.ReadAllText(Path.Combine(DeviceStorageJson, ZipFileName.Replace(".zip", ".json")));
-            string jsonFileItem = File.ReadAllText(fileNameJson);
-            var listObjects = JsonConvert.DeserializeObject<AccountMoveOrigin>(jsonFileItem);
-
-            int totalItems = listObjects.account_move.Length;
-            int curIndex = 1;
-            double percentProcess = 0;
-
-            try
-            {
-                listObjects.account_move = FixAccountMove(listObjects.account_move);
-
-                await database.InsertBatchAsync(listObjects.account_move);
-                //await database.UpdateAllAsync(listObjects.FACNOTACREDITODET);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                Debug.WriteLine(ex.Message);
-                Debug.WriteLine("Error: provocado por " + fileNameJson);
-                Debug.WriteLine("Error: " + listObjects.account_move);
-            }
-
-            fileIndex++;
-        }
-    }
-
-    private async Task ProcAccountJournal(ProgressBarAnimationBehaviorPage obj, string[] ListFiles)
-    {
-        var database = new AccountJournalDb();
-        
-        //if (ListFiles.Length > 0)
-        //{
-        //    await database.Truncate();
-        //}
-
-        int fileIndex = 1;
-
-        foreach (var fileNameJson in ListFiles)
-        {
-            Debug.WriteLine("Procesando archivo de cache:");
-            Debug.WriteLine(fileNameJson);
-
-            obj.SetTitle($"Proc. {Path.GetFileName(fileNameJson)} ({fileIndex}/{ListFiles.Length})");
-
-            //string jsonFileItem = File.ReadAllText(Path.Combine(DeviceStorageJson, ZipFileName.Replace(".zip", ".json")));
-            string jsonFileItem = File.ReadAllText(fileNameJson);
-            var listObjects = JsonConvert.DeserializeObject<AccountJournalOrigin>(jsonFileItem);
-
-            int totalItems = listObjects.account_journal.Length;
-            int curIndex = 1;
-            double percentProcess = 0;
-
-            try
-            {
-                //listObjects.account_journal = FixAccountMove(listObjects.account_journal);
-                //await database.InsertBatchAsync(listObjects.account_journal);
-                //await database.UpdateAllAsync(listObjects.account_journal);
-                
-                List<string> accounts_journal_ids_list = new List<string>();
-                InboundPaymentMethodDb inboundPaymentMethodDb = new InboundPaymentMethodDb();
-                await inboundPaymentMethodDb.TruncateAsync();
-
-                foreach (var itemData in listObjects.account_journal)
-                {
-                    //Se evalúa si debe usarse en la app
-                    if (!itemData.use_mobile_app)
-                    {
-                        var isForApp = itemData.mobile_app_tag_ids.Where(i => i.code == App.Session.AppCodeOdoo).FirstOrDefault();
-                        if (isForApp != null)
-                        {
-
-                        }
-                        else
-                        {
-                            continue;
-                        }
-                    }
-
-                    //accountJournalDb.InsertAsync(itemData);
-                    itemData.BankAccountId = 0;
-                    if (itemData.bank_account_id.Count > 0)
-                    {
-                        itemData.BankAccountId = itemData.bank_account_id.FirstOrDefault().id;
-
-                        //Se agrega a la lista
-                        accounts_journal_ids_list.Add(itemData.bank_account_id.FirstOrDefault().id.ToString());
-                    }
-
-                    itemData.CompanyId = 0;
-                    if (itemData.company_id.Count > 0)
-                    {
-                        itemData.CompanyId = itemData.company_id.FirstOrDefault().id;
-                    }
-
-                    if (itemData.inbound_payment_method_line_ids.Count > 0)
-                    {
-                        itemData.inbound_payment_method_line_ids.ForEach(x => x.parent_id = itemData.id);
-                        await inboundPaymentMethodDb.InsertBatchAsync(itemData.inbound_payment_method_line_ids.ToArray());
-                    }
-
-                    //Solo se insertarán las cuentas que tengan habilitado su uso en las apps móviles
-                    await database.InsertAsync(itemData);
-                }
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                Debug.WriteLine(ex.Message);
-                Debug.WriteLine("Error: provocado por " + fileNameJson);
-                Debug.WriteLine("Error: " + listObjects.account_journal);
-            }
-
-            fileIndex++;
-        }
-    }
-
-    public void set_to_token(JToken token, int value)
-    {
-        if (token is JArray array && array.Count > 0)
-        {
-            array[0] = value;
-        }
-        else if (token is JValue)
-        {
-            token = new JArray { value };
-        }
-        else
-        {
-            token = new JArray { value };
-        }
-    }
-
-    public int get_from_token(JToken token)
-    {
-        if (token is JArray array && array.Count > 0)
-        {
-            return array[0].Type == JTokenType.Integer ? (int)array[0] : 0;
-        }
-
-        else if (token is JValue value && value.Type == JTokenType.Boolean)
-        {
-            return 0;
-        }
-        return 0;
-    }
-
-    private async Task ProcAccountMoveLine(ProgressBarAnimationBehaviorPage obj, string[] ListFiles)
-    {
-        var database = new AccountMoveLineDb();
-        //if (ListFiles.Length > 0)
-        //{
-        //    await database.Truncate();
-        //}
-        int fileIndex = 1;
-
-        foreach (var fileNameJson in ListFiles)
-        {
-            Debug.WriteLine("Procesando archivo de cache:");
-            Debug.WriteLine(fileNameJson);
-
-            //database = null;
-            //database = new FacNotaCreditoDetDb();
-            obj.SetTitle($"Proc. {Path.GetFileName(fileNameJson)} ({fileIndex}/{ListFiles.Length})");
-
-            //string jsonFileItem = File.ReadAllText(Path.Combine(DeviceStorageJson, ZipFileName.Replace(".zip", ".json")));
-            string jsonFileItem = File.ReadAllText(fileNameJson);
-            var listObjects = JsonConvert.DeserializeObject<AccountMoveLineOrigin>(jsonFileItem);
-
-            int totalItems = listObjects.account_move_line.Length;
-            int curIndex = 1;
-            double percentProcess = 0;
-
-            try
-            {
-                foreach (var amlItem in listObjects.account_move_line)
-                {
-                    amlItem.productId = get_from_token(amlItem.product_id);
-                    amlItem.accountId = get_from_token(amlItem.account_id);
-                    amlItem.moveId = get_from_token(amlItem.move_id);
-
-                    //if (amlItem.product_id != null && amlItem.product_id.Length > 0)
-                    //{
-                    //    amlItem.productId = amlItem.product_id[0].id;
-                    //}
-
-                    //if (amlItem.account_id != null && amlItem.account_id.Length > 0)
-                    //{
-                    //    amlItem.accountId = amlItem.account_id[0].id;
-                    //}
-
-                    //if (amlItem.move_id != null && amlItem.move_id.Length > 0)
-                    //{
-                    //    amlItem.moveId = amlItem.move_id[0].id;
-                    //}
-                }
-
-                await database.InsertBatchAsync(listObjects.account_move_line);
-                //await database.UpdateAllAsync(listObjects.FACNOTACREDITODET);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                Debug.WriteLine(ex.Message);
-                Debug.WriteLine("Error: provocado por " + fileNameJson);
-                Debug.WriteLine("Error: " + listObjects.account_move_line);
-                //Se inicia el intento de insersión individual
-
-                //TODO: Crear metodo para esta clase
-                //await TryIndividualInsertAsync(listObjects.account_move);
-            }
-
-            fileIndex++;
-        }
-    }
 
     private async Task UploadDataMode1(ProgressBarAnimationBehaviorPage obj,
         IToast toast,
@@ -1143,7 +955,9 @@ public partial class UpdateData : ContentPage
                                         var database = new AccountMoveLineDb();
                                         await database.Truncate();
                                     }
+
                                     await ProcAccountMoveLine(obj, ListFiles);
+                                    
                                     account_move_line_count++;
                                 }
                                 break;
@@ -1208,217 +1022,199 @@ public partial class UpdateData : ContentPage
         }
     }
 
-    private async Task OnlineSyncFacturas(ProgressBarAnimationBehaviorPage obj,
-        IToast toast,
-        ToastDuration duration,
-        double fontSize,
-        CancellationTokenSource cancellationTokenSource,
-        string fechaActualizaTablet
-        )
+
+    private async Task ProcAccountJournal(ProgressBarAnimationBehaviorPage obj, string[] ListFiles)
     {
+        var database = new AccountJournalDb();
 
-        obj.SetTitle($"Actualización en línea (facturas)...");
-
-        var database = new AccountMoveDb();
-
-        //string fechaActualizaTablet = "2021-01-01 00:00:00";
-        bool esActualizacion = false;
-
-        if ((await database.GetCount()) > 0)
-        {
-            esActualizacion = true;
-        }
-
-        obj.SetPercentProgress(0.10);
-
-        AppSession _appSession = App.Session;
-        //_appSession.EndPointServer = "http://192.168.204.32:8069";
-        //_appSession.CurrentUser = new User()
+        //if (ListFiles.Length > 0)
         //{
-        //    api_key = "110C6C7QU1YSWT6HW0MNXWL48L7802TG"
-        //};
+        //    await database.Truncate();
+        //}
 
-        DateTime dateTimeIni = DateTime.Now;
-        
-        //await ProcessFacHeaderOdoo(_appSession, apiRequest);
-        //await ProcessFacDetailOdoo(_appSession, apiRequest);
+        int fileIndex = 1;
 
-        await OnlineSyncAccountMove(_appSession);
-        await OnlineSyncAccountMoveLine(_appSession);
-
-        //TODO: Ya no se sincronizarán productos en linea
-        //await OnlineSyncProduct(_appSession, apiRequest);
-
-        //TODO: Eliminado brand para Odoo 18
-        //await OnlineSyncProductBrand(_appSession, apiRequest);
-        await OnlineSyncProductMarca(_appSession);
-        await OnlineSyncUsers(_appSession);
-
-        Debug.WriteLine("Importación en linea account.move terminada");
-    }
-
-    public async Task<bool> OnlineSyncPaymentHeader(AppSession _appSession, ApiRequestOdoo_v1 apiRequest)
-    {
-        JsonSerializerSettings settings = new JsonSerializerSettings();
-        //settings.DateFormatString = "yyyy-MM-dd HH:mm:ss";
-        settings.ContractResolver = new IncludeJsonIgnoreResolver();
-
-        DateTime dateIni = DateTime.Now.AddDays(-150);
-        DateTime dateEnd = DateTime.Now;
-
-        ApiManager.HubAccountPaymentHeader hubmanager = new ApiManager.HubAccountPaymentHeader(_appSession);
-        var resultCount = await hubmanager.GetCount(dateIni, dateEnd);
-
-        Debug.WriteLine(resultCount.result);
-
-        if (resultCount.result == 0)
+        foreach (var fileNameJson in ListFiles)
         {
-            return false;
-        }
+            Debug.WriteLine("Procesando archivo de cache:");
+            Debug.WriteLine(fileNameJson);
 
-        int limit = App.Session.odooConnection.DbLimitDefault;
-        int countTotal = resultCount.result / limit;
+            obj.SetTitle($"Proc. {Path.GetFileName(fileNameJson)} ({fileIndex}/{ListFiles.Length})");
 
-        var database = new AccountPaymentHeaderDb();
-        var databasePay = new AccountPaymentDb();
-        var databaseInvoLine = new AccountPaymentInvoiceLineDb();
+            //string jsonFileItem = File.ReadAllText(Path.Combine(DeviceStorageJson, ZipFileName.Replace(".zip", ".json")));
+            string jsonFileItem = File.ReadAllText(fileNameJson);
+            var listObjects = JsonConvert.DeserializeObject<AccountJournalOrigin>(jsonFileItem);
 
-        for (int indice = 0; indice <= countTotal; indice++)
-        {
-            apiRequest.index = indice;
+            int totalItems = listObjects.account_journal.Length;
+            int curIndex = 1;
+            double percentProcess = 0;
 
-            var responseAll = await hubmanager.GetItemsFull(1, dateIni, dateEnd, limit, indice);
-
-            if (responseAll.result != null && responseAll.result.Length > 0)
+            try
             {
-                //await database.InsertBatchAsync(responseAll.data);
+                //listObjects.account_journal = FixAccountMove(listObjects.account_journal);
+                //await database.InsertBatchAsync(listObjects.account_journal);
+                //await database.UpdateAllAsync(listObjects.account_journal);
 
-                //Iniciando inserción
-                foreach (var headerItem in responseAll.result)
+                List<string> accounts_journal_ids_list = new List<string>();
+                InboundPaymentMethodDb inboundPaymentMethodDb = new InboundPaymentMethodDb();
+                await inboundPaymentMethodDb.TruncateAsync();
+
+                foreach (var itemData in listObjects.account_journal)
                 {
-                    var foundHeader = await database.GetItemByGuidAsync(headerItem.guid);
-                    if (foundHeader != null)
+                    //Se evalúa si debe usarse en la app
+                    if (!itemData.use_mobile_app)
                     {
-                        Debug.WriteLine("Registro ya existe en la base de datos!, no se sincronizará");
-                        Debug.WriteLine(foundHeader.guid);
-                        Debug.WriteLine(foundHeader.recipe_name);
-                        continue;
-                    }
-
-                    string jsonHeaderItem = JsonConvert.SerializeObject(headerItem); //, settings);
-                    var newHeaderItem = JsonConvert.DeserializeObject<AccountPaymentHeader>(jsonHeaderItem);
-
-                    var itemFound = await database.GetItemByGuidAsync(newHeaderItem.guid);
-
-                    if (itemFound != null) continue;
-
-                    newHeaderItem.was_odoo_synced = true;
-                    int newHeaderId = await database.InsertAsync(newHeaderItem);
-
-                    //TODO: Podrian venir vacíos porque pudieron haberse borrado
-                    if (headerItem.payments != null)
-                    {
-                        foreach (var paymentItem in headerItem.payments)
+                        var isForApp = itemData.mobile_app_tag_ids.Where(i => i.code == App.Session.AppCodeOdoo).FirstOrDefault();
+                        if (isForApp != null)
                         {
-                            paymentItem.parent_id = newHeaderItem.id;
 
-                            string jsonPaymentItem = JsonConvert.SerializeObject(paymentItem, settings); //, settings);
-                            var newPaymentItem = JsonConvert.DeserializeObject<AccountPayment>(jsonPaymentItem, settings);
-
-                            int newPayId = await databasePay.InsertAsync(newPaymentItem);
-
-                            if (paymentItem.lines != null)
-                            {
-                                foreach (var lineItem in paymentItem.lines)
-                                {
-                                    lineItem.parent_payment_id = newPaymentItem.id;
-                                    string jsonLineItem = JsonConvert.SerializeObject(lineItem, settings); //, settings);
-                                    var newLineItem = JsonConvert.DeserializeObject<AccountPaymentInvoiceLine>(jsonLineItem, settings);
-                                    await databaseInvoLine.InsertAsync(newLineItem);
-                                }
-                            }
+                        }
+                        else
+                        {
+                            continue;
                         }
                     }
+
+                    //accountJournalDb.InsertAsync(itemData);
+                    itemData.BankAccountId = 0;
+                    if (itemData.bank_account_id.Count > 0)
+                    {
+                        itemData.BankAccountId = itemData.bank_account_id.FirstOrDefault().id;
+
+                        //Se agrega a la lista
+                        accounts_journal_ids_list.Add(itemData.bank_account_id.FirstOrDefault().id.ToString());
+                    }
+
+                    itemData.CompanyId = 0;
+                    if (itemData.company_id.Count > 0)
+                    {
+                        itemData.CompanyId = itemData.company_id.FirstOrDefault().id;
+                    }
+
+                    if (itemData.inbound_payment_method_line_ids.Count > 0)
+                    {
+                        itemData.inbound_payment_method_line_ids.ForEach(x => x.parent_id = itemData.id);
+                        await inboundPaymentMethodDb.InsertBatchAsync(itemData.inbound_payment_method_line_ids.ToArray());
+                    }
+
+                    //Solo se insertarán las cuentas que tengan habilitado su uso en las apps móviles
+                    await database.InsertAsync(itemData);
                 }
+
             }
-
-            Console.WriteLine("Página:" + indice);
-
-            //TODO: Se fuerza la salida para que no se quede ciclado en caso de que haya
-            // problemas de conexion con el servidor
-            // el objetivo es que el servidor no se sobrecargue
-
-            if (indice >= 600)
+            catch (Exception ex)
             {
-                Console.WriteLine("Página " + indice + ": Se terminará el proceso.");
-                break;
+                Console.WriteLine(ex.Message);
+                Debug.WriteLine(ex.Message);
+                Debug.WriteLine("Error: provocado por " + fileNameJson);
+                Debug.WriteLine("Error: " + listObjects.account_journal);
             }
+
+            fileIndex++;
         }
-
-        TimeSpan span = (DateTime.Now - dateIni);
-
-        Console.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
-            span.Days, span.Hours, span.Minutes, span.Seconds));
-
-        return true;
     }
 
-    public async Task<bool> OnlineSyncAccountPaymentDaily(AppSession _appSession, ApiRequestOdoo_v1 apiRequest)
+    private async Task ProcAccountMoveLine(ProgressBarAnimationBehaviorPage obj, string[] ListFiles)
     {
-        DateTime dateTimeIni = DateTime.Now;
+        var database = new AccountMoveLineDb();
+        //if (ListFiles.Length > 0)
+        //{
+        //    await database.Truncate();
+        //}
+        int fileIndex = 1;
 
-        ApiManager.HubAccountPaymentDaily hubmanager = new ApiManager.HubAccountPaymentDaily(_appSession);
-        var resultCount = await hubmanager.GetCountByUser();
-
-        Debug.WriteLine(resultCount.result);
-
-        if (resultCount.result == 0)
+        foreach (var fileNameJson in ListFiles)
         {
-            return false;
-        }
+            Debug.WriteLine("Procesando archivo de cache:");
+            Debug.WriteLine(fileNameJson);
 
-        int limit = App.Session.odooConnection.DbLimitDefault;
-        int countTotal = resultCount.result / limit;
+            //database = null;
+            //database = new FacNotaCreditoDetDb();
+            obj.SetTitle($"Proc. {Path.GetFileName(fileNameJson)} ({fileIndex}/{ListFiles.Length})");
 
-        var database = new AccountPaymentDailyDb();
+            //string jsonFileItem = File.ReadAllText(Path.Combine(DeviceStorageJson, ZipFileName.Replace(".zip", ".json")));
+            string jsonFileItem = File.ReadAllText(fileNameJson);
+            var listObjects = JsonConvert.DeserializeObject<AccountMoveLineOrigin>(jsonFileItem);
 
-        for (int indice = 0; indice <= countTotal; indice++)
-        {
-            apiRequest.index = indice;
+            int totalItems = listObjects.account_move_line.Length;
+            int curIndex = 1;
+            double percentProcess = 0;
 
-            var responseAll = await hubmanager.GetByUser(0);
-
-            if (responseAll != null && responseAll.result != null && responseAll.result.Length > 0)
+            try
             {
-                //await database.InsertBatchAsync(responseAll.data);
-
-                foreach(var itemPaymentDaily in responseAll.result)
+                foreach (var amlItem in listObjects.account_move_line)
                 {
-                    var foundItem = await database.GetItemAsync(itemPaymentDaily.company_id, itemPaymentDaily.closing_id);
-                    if(foundItem != null)
-                    {
-                        continue;
-                    }
-                    itemPaymentDaily.was_odoo_synced = true;
-                    await database.InsertAsync(itemPaymentDaily);
+                    amlItem.productId = get_from_token(amlItem.product_id);
+                    amlItem.accountId = get_from_token(amlItem.account_id);
+                    amlItem.moveId = get_from_token(amlItem.move_id);
+
+                    //if (amlItem.product_id != null && amlItem.product_id.Length > 0)
+                    //{
+                    //    amlItem.productId = amlItem.product_id[0].id;
+                    //}
+
+                    //if (amlItem.account_id != null && amlItem.account_id.Length > 0)
+                    //{
+                    //    amlItem.accountId = amlItem.account_id[0].id;
+                    //}
+
+                    //if (amlItem.move_id != null && amlItem.move_id.Length > 0)
+                    //{
+                    //    amlItem.moveId = amlItem.move_id[0].id;
+                    //}
                 }
+
+                await database.InsertBatchAsync(listObjects.account_move_line);
+                //await database.UpdateAllAsync(listObjects.FACNOTACREDITODET);
             }
-
-            Console.WriteLine("Página:" + indice);
-
-            if (indice >= 600)
+            catch (Exception ex)
             {
-                Console.WriteLine("Página " + indice + ": Se terminará el proceso.");
-                break;
+                Console.WriteLine(ex.Message);
+                Debug.WriteLine(ex.Message);
+                Debug.WriteLine("Error: provocado por " + fileNameJson);
+                Debug.WriteLine("Error: " + listObjects.account_move_line);
+                //Se inicia el intento de insersión individual
+
+                //TODO: Crear metodo para esta clase
+                //await TryIndividualInsertAsync(listObjects.account_move);
             }
+
+            fileIndex++;
+        }
+    }
+
+
+
+
+
+    public void set_to_token(JToken token, int value)
+    {
+        if (token is JArray array && array.Count > 0)
+        {
+            array[0] = value;
+        }
+        else if (token is JValue)
+        {
+            token = new JArray { value };
+        }
+        else
+        {
+            token = new JArray { value };
+        }
+    }
+
+    public int get_from_token(JToken token)
+    {
+        if (token is JArray array && array.Count > 0)
+        {
+            return array[0].Type == JTokenType.Integer ? (int)array[0] : 0;
         }
 
-        TimeSpan span = (DateTime.Now - dateTimeIni);
-
-        Console.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
-            span.Days, span.Hours, span.Minutes, span.Seconds));
-
-        return true;
+        else if (token is JValue value && value.Type == JTokenType.Boolean)
+        {
+            return 0;
+        }
+        return 0;
     }
 
     public async Task<bool> DownloadAccountMoveRefund(AppSession _appSession, ApiRequestOdoo_v1 apiRequest)
@@ -1528,466 +1324,9 @@ public partial class UpdateData : ContentPage
         return true;
     }
 
-    public async Task<bool> OnlineSyncAccountMove(AppSession _appSession)
-    {
-        DateTime dateTimeIni = DateTime.Now;
 
-        ApiManager.HubAccountMove hubmanager = new ApiManager.HubAccountMove(_appSession);
-        var resultCount = await hubmanager.GetHeaderCount(dateTimeIni.Year, dateTimeIni.Month, dateTimeIni.Day);
+    
 
-        Debug.WriteLine(resultCount.result);
-
-        if (resultCount.result == 0)
-        {
-            return false;
-        }
-
-        int limit = App.Session.odooConnection.DbLimitDefault;
-        int countTotal = resultCount.result / limit;
-
-        var database = new AccountMoveDb();
-
-        for (int indice = 0; indice <= countTotal; indice++)
-        {
-            var responseAll = await hubmanager.GetAccountMoves(dateTimeIni, limit, indice);
-
-            if (responseAll.result != null && responseAll.result.Length > 0)
-            {
-                responseAll.result = FixAccountMove(responseAll.result);
-                await database.InsertBatchAsync(responseAll.result);
-            }
-
-            Console.WriteLine("Página:" + indice);
-
-            //TODO: Se fuerza la salida para que no se quede ciclado en caso de que haya
-            // problemas de conexion con el servidor
-            // el objetivo es que el servidor no se sobrecargue
-
-            if (indice >= 600)
-            {
-                Console.WriteLine("Página " + indice + ": Se terminará el proceso.");
-                break;
-            }
-        }
-
-        TimeSpan span = (DateTime.Now - dateTimeIni);
-
-        Console.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
-            span.Days, span.Hours, span.Minutes, span.Seconds));
-
-        return true;
-    }
-
-    private async Task OnlineSyncBank(AppSession _appSession, ApiRequestOdoo_v1 apiRequest)
-    {
-        BankDb bankDb = new BankDb();
-        await bankDb.Truncate();
-
-        List<string> bank_ids_list = new List<string>();
-
-        //Se obtienen las cuentas para ser insertados en la base local
-        ApiManager.HubCuentas hubCuentas = new HubCuentas(App.Session);
-        //var cuentasDeLista = await hubCuentas.GetAll(String.Join(",", accounts_journal_ids_list.ToArray()));
-        var cuentasDeLista = await hubCuentas.GetAll();
-
-        if (cuentasDeLista != null && cuentasDeLista.result != null && cuentasDeLista.result.Length > 0)
-        {
-            foreach (var pbItem in cuentasDeLista.result)
-            {
-                pbItem.BankId = 0;
-                pbItem.PartnerId = 0;
-
-                if (pbItem.bank_id.Length > 0)
-                {
-                    pbItem.BankId = pbItem.bank_id.FirstOrDefault().id;
-                    bank_ids_list.Add(pbItem.BankId.ToString());
-                }
-
-                if (pbItem.partner_id.Length > 0)
-                {
-                    pbItem.PartnerId = pbItem.partner_id.FirstOrDefault().id;
-                }
-
-                if (pbItem.currency_id.Length > 0)
-                {
-                    pbItem.CurrencyId = pbItem.currency_id.FirstOrDefault().id;
-                }
-
-                if (pbItem.acc_holder_name.Trim().Equals("false"))
-                {
-                    pbItem.acc_holder_name = "-";
-                }
-            }
-
-            PartnerBankDb parnetBankDb = new PartnerBankDb();
-            await parnetBankDb.InsertBatchAsync(cuentasDeLista.result);
-
-            Debug.WriteLine(cuentasDeLista.result.Length);
-        }
-
-        //Se obtienen bancos para ser insertados en la base local
-
-        ApiManager.HubBancos hubBancos = new HubBancos(App.Session);
-        //var bancosDeLista = await hubBancos.GetAll(String.Join(",", bank_ids_list.ToArray()));
-        var bancosDeLista = await hubBancos.GetAll();
-
-        if (bancosDeLista != null && bancosDeLista.result != null && bancosDeLista.result.Length > 0)
-        {
-            await bankDb.InsertBatchAsync(bancosDeLista.result);
-        }
-    }
-
-    private async Task OnlineSyncJournal(AppSession _appSession, ApiRequestOdoo_v1 apiRequest)
-    {        
-        InboundPaymentMethodDb inboundPaymentMethodDb = new InboundPaymentMethodDb();
-        await inboundPaymentMethodDb.TruncateAsync();
-
-        //Se obtienen los diarios para ser insertados en la base local
-        ApiManager.HubJournal hubDiarios = new HubJournal(App.Session);
-
-        var ids = App.Session.CurrentUserFront.empresas.Select(e => e.id);
-        string strEmpresas = string.Join(",", ids);
-
-        var responsehubhubDiariosAll = await hubDiarios.GetAccountJournal(strEmpresas);
-
-        AccountJournalDb accountJournalDb = new AccountJournalDb();
-        BankDb bankDb = new BankDb();
-        await bankDb.Truncate();
-        //var res = accountJournalDb.GetItemsAsync();
-
-        //string[] accounts_journal_ids = new string[] { };
-        List<string> accounts_journal_ids_list = new List<string>();
-
-        if (responsehubhubDiariosAll!= null && responsehubhubDiariosAll.result != null)
-        {
-            //Debug.WriteLine(res.Count);
-            foreach (var itemData in responsehubhubDiariosAll.result)
-            {
-                //Se evalúa si debe usarse en la app
-                if (!itemData.use_mobile_app)
-                {
-                    var isForApp = itemData.mobile_app_tag_ids.Where(i => i.code == App.Session.AppCodeOdoo).FirstOrDefault();
-                    if (isForApp != null)
-                    {
-
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                }
-
-                //accountJournalDb.InsertAsync(itemData);
-                itemData.BankAccountId = 0;
-                if (itemData.bank_account_id.Count > 0)
-                {
-                    itemData.BankAccountId = itemData.bank_account_id.FirstOrDefault().id;
-
-                    //Se agrega a la lista
-                    accounts_journal_ids_list.Add(itemData.bank_account_id.FirstOrDefault().id.ToString());
-                }
-
-                itemData.CompanyId = 0;
-                if (itemData.company_id.Count > 0)
-                {
-                    itemData.CompanyId = itemData.company_id.FirstOrDefault().id;
-                }
-
-                if (itemData.inbound_payment_method_line_ids.Count > 0)
-                {
-                    itemData.inbound_payment_method_line_ids.ForEach(x => x.parent_id = itemData.id);
-                    await inboundPaymentMethodDb.InsertBatchAsync(itemData.inbound_payment_method_line_ids.ToArray());
-                }
-
-                //Solo se insertarán las cuentas que tengan habilitado su uso en las apps móviles
-                await accountJournalDb.InsertAsync(itemData);
-            }
-        }
-    }
-
-    [Obsolete("Debe ser eliminado, se migro a ServerPuller")]
-    private async Task OnlineSyncCompany(AppSession _appSession, ApiRequestOdoo_v1 apiRequest)
-    {
-        ApiManager.HubCompany hubCompany = new HubCompany(App.Session);
-        var dataList = await hubCompany.GetAll();
-
-        if (dataList != null && dataList.result != null && dataList.result.Length > 0)
-        {
-            var database = new CompanyDb();
-
-            foreach (var companyItem in dataList.result)
-            {
-                //if (companyItem.partner_id != null && companyItem.partner_id.Length > 0)
-                //{
-                //    companyItem.partner_id_ = companyItem.partner_id[0].id;
-                //}
-
-                //if (companyItem.check_journal_id != null && companyItem.check_journal_id.Length > 0)
-                //{
-                //    companyItem.check_journal_id_ = companyItem.check_journal_id[0].id;
-                //}
-
-                //if (companyItem.credit_note_journal_id != null && companyItem.credit_note_journal_id.Length > 0)
-                //{
-                //    companyItem.credit_note_journal_id_ = companyItem.credit_note_journal_id[0].id;
-                //}
-            }
-            await database.InsertBatchAsync(dataList.result);
-        }
-    }
-
-    private async Task OnlineSyncProductBrand(AppSession _appSession, ApiRequestOdoo_v1 apiRequest)
-    {
-        ApiManager.HubProductBrand hubProductBrand = new HubProductBrand(App.Session);
-        var dataList = await hubProductBrand.GetItems();
-
-        if (dataList != null && dataList.data != null && dataList.data.Length > 0)
-        {
-            var database = new ProductBrandDb();
-            await database.InsertBatchAsync(dataList.data);
-        }
-    }
-
-    private async Task<bool> OnlineSyncProductMarca(AppSession _appSession)
-    {
-        //ApiManager.HubProductMarca hubProductBrand = new HubProductMarca(App.Session);
-        //var dataList = await hubProductBrand.GetItems();
-
-        //if (dataList != null && dataList.result != null && dataList.result.Length > 0)
-        //{
-        //    var database = new ProductMarcaDb();
-        //    await database.InsertBatchAsync(dataList.result);
-        //}
-
-        DateTime dateTimeIni = DateTime.Now;
-
-        ApiManager.HubProductMarca hubmanager = new ApiManager.HubProductMarca(_appSession);
-        var resultCount = await hubmanager.GetCount(dateTimeIni.Year, dateTimeIni.Month, dateTimeIni.Day);
-
-        if (resultCount.result == 0)
-        {
-            return false;
-        }
-
-        int limit = App.Session.odooConnection.DbLimitDefault;
-        int countTotal = resultCount.result / limit;
-
-        var database = new ProductMarcaDb();
-
-        for (int indice = 0; indice <= countTotal; indice++)
-        {
-            var responseAll = await hubmanager.GetItems(dateTimeIni, limit, indice);
-
-            if (responseAll.result != null && responseAll.result.Length > 0)
-            {                
-                await database.InsertBatchAsync(responseAll.result);
-            }
-
-            Debug.WriteLine("Página:" + indice);
-
-            if (indice >= 600)
-            {
-                Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
-                break;
-            }
-        }
-
-        TimeSpan span = (DateTime.Now - dateTimeIni);
-
-        Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
-            span.Days, span.Hours, span.Minutes, span.Seconds));
-
-        return true;
-    }
-
-    private async Task OnlineSyncAccountModule(AppSession _appSession, ApiRequestOdoo_v1 apiRequest)
-    {
-        ApiManager.HubAccountModule hubAccountModule = new HubAccountModule(App.Session);
-        var dataList = await hubAccountModule.GetAll();
-
-        if (dataList!= null && dataList.data != null && dataList.data.Length > 0)
-        {
-            var database = new AccountModuleDb();
-            await database.InsertBatchAsync(dataList.data);
-        }
-    }
-
-    private async Task OnlineSyncAccountTypeModule(AppSession _appSession, ApiRequestOdoo_v1 apiRequest)
-    {
-        ApiManager.HubAccountTypeModule hubAccountModule = new HubAccountTypeModule(App.Session);
-        var dataList = await hubAccountModule.GetAll();
-
-        if (dataList != null && dataList.result != null && dataList.result.Length > 0)
-        {
-            var database = new AccountTypeModuleDb();
-
-            foreach (var user in dataList.result)
-            {
-                if (user.module_id != null && user.module_id.Length > 0)
-                {
-                    user._module_id = user.module_id[0].id;
-                }
-            }
-            await database.InsertBatchAsync(dataList.result);
-        }
-    }
-
-    private async Task OnlineSyncUsers(AppSession _appSession)
-    {
-        ApiManager.HubUser hubProductBrand = new HubUser(App.Session);
-        var dataList = await hubProductBrand.GetItems();
-
-        if (dataList!= null && dataList.result != null && dataList.result.Length > 0)
-        {
-            var database = new UserDb();
-            foreach (var user in dataList.result)
-            {
-                //if (user.company_id != null && user.company_id.Length > 0)
-                //{
-                //    user._company_id = user.company_id[0].id;
-                //}
-
-                //if (user.partner_id != null && user.partner_id.Length > 0)
-                //{
-                //    user._partner_id = user.partner_id[0].id;
-                //    user.partner_name = user.partner_id[0].name;
-                //}
-
-                //if (user.sale_team_id != null && user.sale_team_id.Length > 0)
-                //{
-                //    user._sale_team_id = user.sale_team_id[0].id;
-                //}
-            }
-
-            await database.InsertBatchAsync(dataList.result);
-        }
-    }
-
-    public async Task<bool> OnlineSyncProduct(AppSession _appSession, ApiRequestOdoo_v1 apiRequest)
-    {
-        DateTime dateTimeIni = DateTime.Now;
-
-        ApiManager.HubProductTemplate hubmanager = new ApiManager.HubProductTemplate(_appSession);
-        var resultCount = await hubmanager.GetCount();
-
-        Debug.WriteLine(resultCount.result);
-
-        if (resultCount.result == 0)
-        {
-            return false;
-        }
-
-        int limit = App.Session.odooConnection.DbLimitDefault;
-        int countTotal = resultCount.result / limit;
-
-        var database = new ProductTemplateDb();
-
-        for (int indice = 0; indice <= countTotal; indice++)
-        {
-            apiRequest.index = indice;
-
-            var responseAll = await hubmanager.GetItems(limit, indice);
-
-            if (responseAll != null && responseAll.result != null && responseAll.result.Length > 0)
-            {
-                await database.InsertBatchAsync(responseAll.result);
-            }
-
-            Console.WriteLine("Página:" + indice);
-
-            //TODO: Se fuerza la salida para que no se quede ciclado en caso de que haya
-            // problemas de conexion con el servidor
-            // el objetivo es que el servidor no se sobrecargue
-
-            if (indice >= 600)
-            {
-                Console.WriteLine("Página " + indice + ": Se terminará el proceso.");
-                break;
-            }
-        }
-
-        TimeSpan span = (DateTime.Now - dateTimeIni);
-
-        Console.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
-            span.Days, span.Hours, span.Minutes, span.Seconds));
-
-        return true;
-    }
-
-    public async Task<bool> OnlineSyncAccountMoveLine(AppSession _appSession)
-    {
-        DateTime dateTimeIni = DateTime.Now;
-
-        Console.WriteLine("Iniciando proceso:" + " " + DateTime.Now.ToString());
-
-        ApiManager.HubAccountMoveLine hubmanager = new ApiManager.HubAccountMoveLine(_appSession);
-
-        var resultCount = await hubmanager.GetDetailCount(dateTimeIni);
-
-        Debug.WriteLine(resultCount.result);
-
-        if (resultCount.result == 0)
-        {
-            return false;
-        }
-
-        int limit = App.Session.odooConnection.DbLimitDefault;
-        int countTotal = resultCount.result / limit;
-
-        var databaseDet = new AccountMoveLineDb();
-
-        for (int indice = 0; indice <= countTotal; indice++)
-        {
-
-            var responseAll = await hubmanager.GetAccountMoveLines(dateTimeIni);
-
-            if (responseAll.result != null && responseAll.result.Length > 0)
-            {
-                foreach (var amlItem in responseAll.result)
-                {
-                    amlItem.productId = get_from_token(amlItem.product_id);
-                    amlItem.accountId = get_from_token(amlItem.account_id);
-                    amlItem.moveId = get_from_token(amlItem.move_id);
-
-                    //if (amlItem.product_id != null && amlItem.product_id.Length > 0)
-                    //{
-                    //    amlItem.productId = amlItem.product_id[0].id;
-                    //}
-
-                    //if (amlItem.account_id != null && amlItem.account_id.Length > 0)
-                    //{
-                    //    amlItem.accountId = amlItem.account_id[0].id;
-                    //}
-
-                    //if (amlItem.move_id != null && amlItem.move_id.Length > 0)
-                    //{
-                    //    amlItem.moveId = amlItem.move_id[0].id;
-                    //}
-                }
-
-                await databaseDet.InsertBatchAsync(responseAll.result);
-            }
-
-            Console.WriteLine("Página:" + indice);
-
-            //TODO: Se fuerza la salida para que no se quede ciclado en caso de que haya
-            // problemas de conexion con el servidor
-            // el objetivo es que el servidor no se sobrecargue
-
-            if (indice >= 600)
-            {
-                Console.WriteLine("Página " + indice + ": Se terminará el proceso.");
-                break;
-            }
-        }
-
-        TimeSpan span = (DateTime.Now - dateTimeIni);
-
-        Console.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
-            span.Days, span.Hours, span.Minutes, span.Seconds));
-
-        return true;
-    }
     
     private async void DeleteTables(object sender, EventArgs e)
     {
@@ -2196,11 +1535,11 @@ public partial class UpdateData : ContentPage
 
         DateTime dateTimeIni = DateTime.Now;
 
-        ApiRequestOdoo_v1 apiRequest = new ApiRequestOdoo_v1();
-        apiRequest.uid = App.Session.CurrentUser.uid;
-        apiRequest.password = App.Session.CurrentUser.password;
-        apiRequest.databasename = App.Session.CurrentUser.databasename;
-        apiRequest.dateIni = DateTime.Parse(fechaActualizaTablet);
+        //ApiRequestOdoo_v1 apiRequest = new ApiRequestOdoo_v1();
+        //apiRequest.uid = App.Session.CurrentUser.uid;
+        //apiRequest.password = App.Session.CurrentUser.password;
+        //apiRequest.databasename = App.Session.CurrentUser.databasename;
+        //apiRequest.dateIni = DateTime.Parse(fechaActualizaTablet);
 
         ////
 
@@ -2310,7 +1649,7 @@ public partial class UpdateData : ContentPage
 
             //Si no se selecciona el modo cache, utilizaremos el modo tradicional
             // es mucho mas lento pero obtiene los datos más actualizados
-            await OnlineSyncFacturas(obj, toast, duration, fontSize, cancellationTokenSource, fechaActualizaTablet);
+            //await OnlineSyncFacturas(obj, toast, duration, fontSize, cancellationTokenSource, fechaActualizaTablet);
         }
 
         obj.SetTotalPercentProgress(0.30);
@@ -2329,14 +1668,22 @@ public partial class UpdateData : ContentPage
             // medio del api
 
             //await OnlineSyncJournal(_appSession, apiRequest);
-            await OnlineSyncBank(_appSession, apiRequest);
+            //await OnlineSyncBank(_appSession, apiRequest);
             //await OnlineSyncAccountModule(_appSession, apiRequest);
-            await OnlineSyncAccountTypeModule(_appSession, apiRequest);
+            //await OnlineSyncAccountTypeModule(_appSession, apiRequest);
             //await OnlineSyncCompany(_appSession, apiRequest);
 
             ServerPuller serverPuller = new ServerPuller();
-            await serverPuller.OnlineSyncProductCategory();
-            await serverPuller.OnlineSyncMacroProductSubCategory();
+
+            await serverPuller.OnlineSyncProductPricelist();
+            await serverPuller.OnlineSyncProductPricelistItem();
+
+            await serverPuller.OnlineSyncCategoria();
+            await serverPuller.OnlineSyncSubcategoria();
+            await serverPuller.OnlineSyncProductLinea();
+            await serverPuller.OnlineSyncProductGrupoTipo();
+            await serverPuller.OnlineCalificacionCrediticia();
+
             await serverPuller.OnlineSyncProductProduct();
             await serverPuller.OnlineSyncResPartner();
             await serverPuller.OnlineSyncStockWarehouse(false);
@@ -2347,9 +1694,9 @@ public partial class UpdateData : ContentPage
 
         if(chkUpdateUserData.IsChecked)
         {
-            await OnlineSyncPaymentHeader(_appSession, apiRequest);
-            await OnlineSyncAccountPaymentDaily(_appSession, apiRequest);
-            await DownloadAccountMoveRefund(_appSession, apiRequest);
+            //await OnlineSyncPaymentHeader(_appSession, apiRequest);
+            //await OnlineSyncAccountPaymentDaily(_appSession, apiRequest);
+            //await DownloadAccountMoveRefund(_appSession, apiRequest);
         }
 
         //await RefreshVat();

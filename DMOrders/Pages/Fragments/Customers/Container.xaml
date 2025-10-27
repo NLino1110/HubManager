@@ -22,6 +22,6 @@
         <pages:Info Grid.Row="4" Grid.Column="0" x:Name="info" 
              MaximumWidthRequest="250" MinimumWidthRequest="250"/>
 
-        <pages:DataGrid Grid.Row="0" Grid.Column="2" Grid.RowSpan="5" x:Name="dataCustomers" ViewParent="{x:Reference CustomerContainer}" />
+        <pages:DataGrid Grid.Row="0" Grid.Column="2" Grid.RowSpan="5" x:Name="dataCustomers" ViewParent="{x:Reference CustomerContainer}" FiltersView="{x:Reference filterCustomer}"/>
     </Grid>
 </ContentView>

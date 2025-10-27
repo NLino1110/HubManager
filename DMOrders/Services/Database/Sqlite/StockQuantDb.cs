@@ -5,6 +5,7 @@ namespace DMOrders.Services.Database.Sqlite
     {
         public StockQuantDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
+
         }
 
         public async Task<DMSA.Models.Odoo.Native.stock_quant> GetItem(int id)

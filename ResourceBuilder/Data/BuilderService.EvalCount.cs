@@ -98,7 +98,7 @@ namespace ResourceBuilder.Data
                     break;
                 case "res_partner":
                     {
-                        ApiManager.HubPartner hubPartner = new ApiManager.HubPartner(_appSession);
+                        ApiManager.HubResPartner hubPartner = new ApiManager.HubResPartner(_appSession);
                        
                         //setHubPartner(_appSession);
                         ApiResponseOdooRpc? resultCount = null;

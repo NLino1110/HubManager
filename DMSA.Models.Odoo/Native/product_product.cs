@@ -85,12 +85,9 @@ namespace DMSA.Models.Odoo.Native
         [JsonProperty("name")]
         public string name { get; set; }
 
-        [JsonProperty("sequence")]
-        public int sequence { get; set; }
-
-        [JsonProperty("detailed_type")]
-        public string detailed_type { get; set; }
-
+        //[JsonProperty("sequence")]
+        //public int sequence { get; set; }
+        
         [JsonProperty("type")]
         public string type { get; set; }
 
@@ -130,37 +127,55 @@ namespace DMSA.Models.Odoo.Native
         [JsonProperty("website_url")]
         public string website_url { get; set; }
 
-        //[Ignore]
-        //[JsonProperty("macro_product_line_id")]
-        //public JToken macro_product_line_id { get; set; }
 
-        //[JsonIgnore]
-        //public int _macro_product_line_id
-        //{
-        //    get => GetId(macro_product_line_id);
-        //    set => macro_product_line_id = SetId(macro_product_line_id, value);
-        //}
+        [Ignore]
+        [JsonProperty("general_linea_id")]
+        public JToken general_linea_id { get; set; }
 
-        //[Ignore]
-        //[JsonProperty("macro_product_group_brand_id")]
-        //public JToken macro_product_group_brand_id { get; set; }
+        [JsonIgnore]
+        public int _general_linea_id
+        {
+            get => GetId(general_linea_id);
+            set => general_linea_id = SetId(general_linea_id, value);
+        }
 
-        //[JsonIgnore]
-        //public int _macro_product_group_brand_id
-        //{
-        //    get => GetId(macro_product_group_brand_id);
-        //    set => macro_product_group_brand_id = SetId(macro_product_group_brand_id, value);
-        //}
+        [Ignore]
+        [JsonProperty("general_categoria_id")]
+        public JToken general_categoria_id { get; set; }
 
-        //[Ignore]
-        //[JsonProperty("marco_product_subcategory_id")]
-        //public JToken marco_product_subcategory_id { get; set; }
+        [JsonIgnore]
+        public int _general_categoria_id
+        {
+            get => GetId(general_categoria_id);
+            set => general_categoria_id = SetId(general_categoria_id, value);
+        }
 
-        //[JsonIgnore]
-        //public int _marco_product_subcategory_id
-        //{
-        //    get => GetId(marco_product_subcategory_id);
-        //    set => marco_product_subcategory_id = SetId(marco_product_subcategory_id, value);
-        //}
+        [Ignore]
+        [JsonProperty("general_subcategoria_id")]
+        public JToken general_subcategoria_id { get; set; }
+
+        [JsonIgnore]
+        public int _general_subcategoria_id
+        {
+            get => GetId(general_subcategoria_id);
+            set => general_subcategoria_id = SetId(general_subcategoria_id, value);
+        }
+
+        [Ignore]
+        [JsonProperty("general_grupor_tipo_id")]
+        public JToken general_grupor_tipo_id { get; set; }
+
+        [JsonIgnore]
+        public int _general_grupor_tipo_id
+        {
+            get => GetId(general_grupor_tipo_id);
+            set => general_grupor_tipo_id = SetId(general_grupor_tipo_id, value);
+        }
+
+        [JsonProperty("general_registro_sanitario")]
+        public string general_registro_sanitario { get; set; }
+
+        [JsonProperty("sale_ok")]
+        public bool sale_ok { get; set; }
     }
 }

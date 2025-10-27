@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace DMOrders.Services.Database.Sqlite
 {
+    [Obsolete]
     public class MailActivityPlanTemplateDb
     {
         SQLiteAsyncConnection Database;

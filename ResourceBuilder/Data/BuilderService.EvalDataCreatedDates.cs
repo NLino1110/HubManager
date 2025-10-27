@@ -103,7 +103,7 @@ namespace ResourceBuilder.Data
                     }
                 case "res_partner":
                     {
-                        ApiManager.HubPartner hubPartner = new ApiManager.HubPartner(_appSession);
+                        ApiManager.HubResPartner hubPartner = new ApiManager.HubResPartner(_appSession);
                         
                         //setHubPartner(_appSession);
                         //apiRequest.limit = 0;

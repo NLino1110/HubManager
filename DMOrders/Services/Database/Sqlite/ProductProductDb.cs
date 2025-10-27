@@ -97,7 +97,7 @@ namespace DMOrders.Services.Database.Sqlite
             // 1: sequence ASC, 2: code ASC, 3: name ASC; default: id ASC
             return filter_sort switch
             {
-                1 => q.OrderBy(x => x.sequence),
+                1 => q.OrderBy(x => x.id),
                 2 => q.OrderBy(x => x.code),
                 3 => q.OrderBy(x => x.name),
                 _ => q.OrderBy(x => x.id)
@@ -121,77 +121,77 @@ namespace DMOrders.Services.Database.Sqlite
             return (items, total);
         }
 
-        [Obsolete]
-        public async Task<List<product_product>> GetItemsAsync(string filter_code, 
-            string filter_name, 
-            int filter_brand, 
-            int filter_new, 
-            int filter_stock, 
-            int filter_sort)
-        {
-            await Init();
+        //[Obsolete]
+        //public async Task<List<product_product>> GetItemsAsync(string filter_code, 
+        //    string filter_name, 
+        //    int filter_brand, 
+        //    int filter_new, 
+        //    int filter_stock, 
+        //    int filter_sort)
+        //{
+        //    await Init();
 
-            var filtered = await Database.Table<product_product>()
-                .Take(30)
-                .ToListAsync();
+        //    var filtered = await Database.Table<product_product>()
+        //        .Take(30)
+        //        .ToListAsync();
 
-            if (!string.IsNullOrWhiteSpace(filter_code))
-            {
-                if (int.TryParse(filter_code, out var intFilterCode))
-                {
-                    filtered = await Database.Table<product_product>()                    
-                    .Where(x => x.id == intFilterCode)
-                    .ToListAsync();
+        //    if (!string.IsNullOrWhiteSpace(filter_code))
+        //    {
+        //        if (int.TryParse(filter_code, out var intFilterCode))
+        //        {
+        //            filtered = await Database.Table<product_product>()                    
+        //            .Where(x => x.id == intFilterCode)
+        //            .ToListAsync();
 
-                    if(filtered.Count == 0)
-                    {
-                        filtered = await Database.Table<product_product>()                    
-                        .Where(x => x.code.Contains(filter_code, StringComparison.OrdinalIgnoreCase))
-                        .ToListAsync();
-                    }
+        //            if(filtered.Count == 0)
+        //            {
+        //                filtered = await Database.Table<product_product>()                    
+        //                .Where(x => x.code.Contains(filter_code, StringComparison.OrdinalIgnoreCase))
+        //                .ToListAsync();
+        //            }
 
-                    return filtered;
-                }
-                else
-                {
-                    var term = filter_code.Trim().ToLowerInvariant();
+        //            return filtered;
+        //        }
+        //        else
+        //        {
+        //            var term = filter_code.Trim().ToLowerInvariant();
 
-                    return await Database.Table<product_product>()
-                        .Where(x => x.code.ToLower().Contains(term))
-                        .ToListAsync();
-                }
-            }
-            else
-            {
-                if (!string.IsNullOrWhiteSpace(filter_name))
-                {
-                    filtered = await Database.Table<product_product>()
-                    .Where(x => x.name.ToLower().Contains(filter_name.ToLower()))
-                    .ToListAsync();
-                }
+        //            return await Database.Table<product_product>()
+        //                .Where(x => x.code.ToLower().Contains(term))
+        //                .ToListAsync();
+        //        }
+        //    }
+        //    else
+        //    {
+        //        if (!string.IsNullOrWhiteSpace(filter_name))
+        //        {
+        //            filtered = await Database.Table<product_product>()
+        //            .Where(x => x.name.ToLower().Contains(filter_name.ToLower()))
+        //            .ToListAsync();
+        //        }
 
-                if (filter_brand > 0)
-                {
-                    filtered = await Database.Table<product_product>()
-                    .Where(x => x._general_marca_id == filter_brand)
-                    .ToListAsync();
-                }
+        //        if (filter_brand > 0)
+        //        {
+        //            filtered = await Database.Table<product_product>()
+        //            .Where(x => x._general_marca_id == filter_brand)
+        //            .ToListAsync();
+        //        }
 
-                if(filter_sort > 0)
-                {   
-                    if(filter_sort == 1)
-                        filtered = filtered.OrderBy(x=>x.sequence).ToList();
-                    else if(filter_sort == 2)
-                        filtered = filtered.OrderBy(x=>x.code).ToList();
-                    else if(filter_sort == 3)
-                        filtered = filtered.OrderBy(x=>x.name).ToList();                    
-                }
+        //        if(filter_sort > 0)
+        //        {   
+        //            if(filter_sort == 1)
+        //                filtered = filtered.OrderBy(x=>x.code).ToList();
+        //            else if(filter_sort == 2)
+        //                filtered = filtered.OrderBy(x=>x.code).ToList();
+        //            else if(filter_sort == 3)
+        //                filtered = filtered.OrderBy(x=>x.name).ToList();                    
+        //        }
 
-                return filtered;
-            }
+        //        return filtered;
+        //    }
 
-            return filtered;
-        }
+        //    return filtered;
+        //}
 
         public async Task<product_product> GetItem(int id)
         {

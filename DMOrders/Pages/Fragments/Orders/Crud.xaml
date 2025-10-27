@@ -298,7 +298,7 @@ TextColor="#242322"
             Glyph="{x:Static uranium:MaterialSharp.New_label}" />
         </Button.ImageSource>
 </Button>-->
-                    <Button Text="Guardar" Clicked="ButtonSave_Clicked" BackgroundColor="Orange" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0">
+                    <Button Text="Guardar" Clicked="ButtonSave_Clicked" BackgroundColor="LimeGreen" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0">
                         <Button.ImageSource>
                             <FontImageSource 
             Size="30"

@@ -24,7 +24,7 @@ namespace DMOrders.Services.Update
             DateTime dateIni = appSession.sync_date_since;
             DateTime dateEnd = DateTime.Now;
 
-            ApiManager.HubPartner hubmanager = new ApiManager.HubPartner(appSession);
+            ApiManager.HubResPartner hubmanager = new ApiManager.HubResPartner(appSession);
             var resultCount = await hubmanager.GetCount();
 
             Debug.WriteLine(resultCount.result);

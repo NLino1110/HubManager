@@ -64,7 +64,7 @@ public partial class Filters : ContentView
     private void btnClear_Clicked(object sender, EventArgs e)
     {
         entryCode.Text = "";
-        entryId.Text = "";
+        entryVat.Text = "";
         entryName.Text = "";
     }
 
@@ -73,9 +73,9 @@ public partial class Filters : ContentView
         return entryCode.Text;
     }
 
-    internal string getId()
+    internal string getVat()
     {
-        return entryId.Text;
+        return entryVat.Text;
     }
 
     internal string getName()
@@ -83,13 +83,23 @@ public partial class Filters : ContentView
         return entryName.Text;
     }
 
-    internal FDays getDays()
+    //internal FDays getDays()
+    //{
+    //    return (FDays) ddfDays.SelectedItem;
+    //}
+
+    //internal FStatus getStatus()
+    //{
+    //    return (FStatus) ddfStatus.SelectedItem;
+    //}
+
+    internal int getDays()
     {
-        return (FDays) ddfDays.SelectedItem;
+        return ((FDays)ddfDays.SelectedItem).id;
     }
 
-    internal FStatus getStatus()
+    internal int getStatus()
     {
-        return (FStatus) ddfStatus.SelectedItem;
+        return ((FStatus)ddfStatus.SelectedItem).id;
     }
 }

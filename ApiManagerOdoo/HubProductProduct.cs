@@ -29,7 +29,8 @@ namespace ApiManager
 {
     public class HubProductProduct : HubBase
     {
-        string[] fields_array = new[] { "id",
+        string[] fields_array = new[] { 
+                "id",
                 "default_code",
                 "code",
                 "partner_ref",
@@ -62,7 +63,6 @@ namespace ApiManager
                 "sale_ok",
                 "purchase_ok",                
                 "image_256",
-
                 "cod_marca",
                 "cod_linea",
                 "cod_sublinea",
@@ -76,7 +76,8 @@ namespace ApiManager
                 "general_linea_id",
                 "general_categoria_id",
                 "general_subcategoria_id",
-                "general_grupor_tipo_id"
+                "general_grupor_tipo_id",
+                "general_registro_sanitario"
                 };
 
         public HubProductProduct(AppSession _setAppSession) : base(_setAppSession)

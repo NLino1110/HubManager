@@ -1,3 +1,5 @@
+using DMOrders.Services.Database.Sqlite;
+using DMSA.Models.Odoo.Dictionaries;
 using DMSA.Models.Odoo.Native;
 using Spinner.MAUI;
 using System.Collections.ObjectModel;
@@ -11,6 +13,7 @@ public partial class Info : ContentView
     //public ObservableCollection<ISpinnerItem> Seconds { get; set; }
     private res_partner data;
 
+
     public Info()
 	{
 		InitializeComponent();
@@ -19,15 +22,66 @@ public partial class Info : ContentView
     public async Task FillData(res_partner _data)
     {
         data = _data;
-        tipIden.Text = "Cedula/Ruc";
-        vat.Text = data.vat;
+        
+        if(string.IsNullOrEmpty( _data.doc_type_identification_name ) )
+        {
+            TipoIdentificacion tipoIdentificacion = new TipoIdentificacion();
+            _data.doc_type_identification_name = tipoIdentificacion[_data._doc_type_identification_id];
+        }
+
+        tipIden.Text = _data.doc_type_identification_name;
+        vat.Text = data.vat_doc;
         telephone.Text = data.phone;
-        channel.Text = "Canal";
-        seller.Text = "Vendedor";
+
+        if(data._product_pricelist_id > 0)
+        {
+
+        }
+
+        channel.Text = data.display_channel_name; //RELLENAR
+
+        if(string.IsNullOrEmpty(data.display_seller_name))
+        {
+            if(data._adic_comercial_id > 0)
+            {
+                ResPartnerDb resPartnerDb = new ResPartnerDb();
+                var seller = await resPartnerDb.GetItemsAsync(data._company_id, data._adic_comercial_id);
+                if (seller != null)
+                {
+                    data.display_seller_name = seller.name;
+                }
+            }
+            else
+            {
+                data.display_seller_name = "No asignado";
+            }
+            
+        }
+
+        seller.Text = data.display_seller_name; //RELLENAR
         status.Text = data.active ? "Activo" : "Inactivo";
-        calif.Text = "666";                
-        cupo.Text = data.credit.ToString();
-        obs.Text = "Obs";
-        days.Text = "0 dias";
+
+        if (string.IsNullOrEmpty(data.display_ranking_credit))
+        {
+            if (data._calificacion_crediticia_id > 0)
+            {
+                CalificacionCrediticiaDb calificacionDb = new CalificacionCrediticiaDb(App.Session.odooConnection.DbNameSqlite);
+                var calificacion = await calificacionDb.GetItem(data._calificacion_crediticia_id);
+                if (seller != null)
+                {
+                    data.display_ranking_credit = calificacion.name;
+                }
+            }
+            else
+            {
+                data.display_ranking_credit = "No asignado";
+            }
+        }
+
+
+        calif.Text = data.display_ranking_credit;
+        cupo.Text = data.facturacion_cupo_maximo.ToString();
+        obs.Text = data.misc_comentarios;
+        days.Text = data.facturacion_dias_credito_limite.ToString();
     }
 }

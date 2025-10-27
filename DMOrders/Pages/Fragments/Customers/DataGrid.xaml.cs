@@ -31,11 +31,26 @@ namespace DMOrders.Pages.Fragments.Customers
         public static readonly BindableProperty ViewParentProperty =
             BindableProperty.Create(nameof(ViewParent), typeof(ContentView), typeof(DataGrid));
 
+        public static readonly BindableProperty FiltersViewProperty =
+        BindableProperty.Create(
+            nameof(FiltersView),
+            typeof(Filters),
+            typeof(DataGrid),
+            default(Filters),
+            validateValue: (bindable, value) => value is null || value is Filters, // opcional
+            propertyChanged: OnFiltersChanged);
+
+        public Filters FiltersView
+        {
+            get => (Filters)GetValue(FiltersViewProperty);
+            set => SetValue(FiltersViewProperty, value);
+        }
+
         public ICommand EditCommand { get; set; }
         public DataGrid()
         {
             InitializeComponent();
-            BindingContext = new ViewModel();
+            BindingContext = new ViewModel(FiltersView);
 
             EditCommand = new Command(AddProcess);
             
@@ -56,6 +71,20 @@ namespace DMOrders.Pages.Fragments.Customers
             //_dataGrid1.RowTappedCommand = rowTappedCommand;                                    
         }
 
+        private static void OnFiltersChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            var view = (DataGrid)bindable;
+            view.ApplyFilters();
+        }
+
+        private void ApplyFilters()
+        {
+            if (BindingContext is ViewModel vm)
+            {
+                vm.filters = FiltersView;
+                vm.LoadDataByTimer();
+            }
+        }
         private async void AddProcess(object obj)
         {
             SelectedItem = (res_partner)obj;
@@ -228,20 +257,26 @@ namespace DMOrders.Pages.Fragments.Customers
             OnTapGestureRecognizerTapped(this, null);
         }
 
-        internal void LoadData(string Code, string Id, string Name, FDays Days, FStatus Status)
+        internal void LoadData(Filters _filters)
         {
-            filterCode = Code;
-            filterId = Id;
-            filterName = Name;
-            filterDays = Days;
-            filterStatus = Status;
-
-            OnTapGestureRecognizerTapped(this, null);
-            //MainViewModelCustomers mainViewModelCustomers = new MainViewModelCustomers(Name);            
-            //BindingContext = mainViewModelCustomers;
-
-            //Debug.WriteLine("Tap:" + sender.ToString());
+            FiltersView = _filters;
+            OnTapGestureRecognizerTapped(this, null);            
         }
+
+        //internal void LoadData(string Code, string Id, string Name, FDays Days, FStatus Status)
+        //{
+        //    filterCode = Code;
+        //    filterId = Id;
+        //    filterName = Name;
+        //    filterDays = Days;
+        //    filterStatus = Status;
+
+        //    OnTapGestureRecognizerTapped(this, null);
+        //    //MainViewModelCustomers mainViewModelCustomers = new MainViewModelCustomers(Name);            
+        //    //BindingContext = mainViewModelCustomers;
+
+        //    //Debug.WriteLine("Tap:" + sender.ToString());
+        //}
 
         private async void FixedRefreshView_Refreshing(object sender, EventArgs e)
         {

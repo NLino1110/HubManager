@@ -422,7 +422,7 @@ namespace ResourceBuilder.Data
             apiRequest.databasename = appSetting.profile.Odoo.Database;
             apiRequest.dateIni = DateTime.Parse(fechaActualizaTablet);
 
-            ApiManager.HubPartner hubPartner = new ApiManager.HubPartner(_appSession);            
+            ApiManager.HubResPartner hubPartner = new ApiManager.HubResPartner(_appSession);            
             var resultCount = await hubPartner.GetCount();
 
             Debug.WriteLine(resultCount.result);

@@ -15,13 +15,15 @@ using RestSharp;
 
 namespace ApiManager
 {
-    public class HubPartner : HubBase
+    public class HubResPartner : HubBase
     {
         string[] fields_array = new[] {
                 //"id_sequence",
                 "id",
                 "company_id",
                 "vat",
+                "vat_doc",
+                "doc_type_identification_id",
                 "name",
                 "display_name",
                 "email",
@@ -50,10 +52,23 @@ namespace ApiManager
                 "state_id",
                 "country_id",
                 //"contact_address_complete",
-                "active"
-        };
+                "active",
+                "product_pricelist_id",
+                "adic_comercial_id",
+                //"adic_comercial_secundarios_ids",
+                "adic_lunes",
+                "adic_martes",
+                "adic_miercoles",
+                "adic_jueves",
+                "adic_viernes",
+                "adic_sabado",
+                "adic_domingo",
+                "is_salesman",
+                "sale_available",
+                "calificacion_crediticia_id"
+    };
 
-        public HubPartner(AppSession _setAppSession) : base(_setAppSession)
+        public HubResPartner(AppSession _setAppSession) : base(_setAppSession)
         {
             EndPointApi = "/connect/get_res_partner";
             EndPointApi = "/web/dataset/call_kw";

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace DMSA.Models.Odoo.Native
 {
+    [Obsolete]
     public class product_category : OdooEntity
     {
         [PrimaryKey]
