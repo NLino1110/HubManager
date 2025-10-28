@@ -28,11 +28,7 @@ public partial class Container : ContentView
 
     private void OnSearchButtonClicked(object? sender, EventArgs e)
     {
-        dataOrders.LoadData(filterOrders.getSelectedPartner(),
-            filterOrders.getDocNumber(),
-            filterOrders.getDateStart(),
-            filterOrders.getDateEnd(),
-            filterOrders.getStatus());
+        dataOrders.LoadData(filterOrders);
         
         //var label = new Label { Text = "Resultado de la búsqueda" };
         //var stackLayout = new StackLayout

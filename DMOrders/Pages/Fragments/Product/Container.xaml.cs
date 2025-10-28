@@ -7,7 +7,7 @@ public partial class Container : ContentView
 	public Container()
 	{
 		InitializeComponent();
-        //filterCustomer.OnSearchButtonClicked += OnSearchButtonClicked;
+        filterProducts.OnSearchButtonClicked += OnSearchButtonClicked;
 
         if (App.Session.CurrentUser != null)
         {
@@ -28,28 +28,7 @@ public partial class Container : ContentView
 
     private void OnSearchButtonClicked(object? sender, EventArgs e)
     {
-        //dataCustomers.LoadData(filterCustomer.getCode() , 
-        //    filterCustomer.getId(), 
-        //    filterCustomer.getName(), 
-        //    filterCustomer.getDays(), 
-        //    filterCustomer.getStatus());
-
-        //var label = new Label { Text = "Resultado de la búsqueda" };
-        //var stackLayout = new StackLayout
-        //{
-        //    Children = { label }
-        //};
-
-        //Customers customers = new Customers();
-
-        //ScrollViewContent.Content = customers;
-
-        // Desactivar el botón btnNew
-        //pagingFragment.DisableNewButton();
-
-        // Ejecutar lógica de PagingFragment si es necesario
-        //pagingFragment.ExecuteSearch();
-
+        dataProducts.LoadData(filterProducts);
     }
 
     public void LoadInfo(product_product _data)

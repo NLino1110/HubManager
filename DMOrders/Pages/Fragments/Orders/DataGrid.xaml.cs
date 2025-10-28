@@ -16,13 +16,7 @@ namespace DMOrders.Pages.Fragments.Orders
     //[XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class DataGrid : ContentView
     {
-        res_partner selectedItemData { get; set; }
-
-        string filterCode = "";
-        string filterId = "";
-        string filterName = "";
-        FDays filterDays = null;
-        FStatus filterStatus = null;
+        //res_partner selectedItemData { get; set; }
 
         public ICommand EditCommand { get; set; }
 
@@ -35,41 +29,27 @@ namespace DMOrders.Pages.Fragments.Orders
         public static readonly BindableProperty ViewParentProperty =
             BindableProperty.Create(nameof(ViewParent), typeof(ContentView), typeof(DataGrid));
 
+        public static readonly BindableProperty FiltersViewProperty =
+        BindableProperty.Create(
+            nameof(FiltersView),
+            typeof(Filters),
+            typeof(DataGrid),
+            default(Filters),
+            validateValue: (bindable, value) => value is null || value is Filters, // opcional
+            propertyChanged: OnFiltersChanged);
+
+        public Filters FiltersView
+        {
+            get => (Filters)GetValue(FiltersViewProperty);
+            set => SetValue(FiltersViewProperty, value);
+        }
+
         public DataGrid()
         {
             InitializeComponent();
-            BindingContext = new ListViewModel();
-
-            //IDispatcherTimer timer;
-
-            //timer = Dispatcher.CreateTimer();
-            //timer.Interval = TimeSpan.FromMilliseconds(1000);
-            //timer.IsRepeating = false;
-
-            //timer.Tick += (s, e) =>
-            //{
-            //UpdateParticles();
-            //canvasView.InvalidateSurface();
-            //OnTapGestureRecognizerTapped(this, null);
-            //};
-            //timer.Start();
-
-            //_dataGrid1.RowTappedCommand = rowTappedCommand;
-            
-            EditCommand = new Command(EditItem);
-            //EditCommand = new RelayCommand<ActivityHeader>(EditItem);
+            BindingContext = new ListViewModel(FiltersView);            
+            EditCommand = new Command(EditItem);            
         }
-
-        //protected override void OnSizeAllocated(double width, double height)
-        //{
-        //    base.OnSizeAllocated(width, height);
-
-        //    //if (_dataGrid1 != null)
-        //    //{
-        //    //    _dataGrid1.HeightRequest = height;
-        //    //    _dataGrid1.WidthRequest = width;
-        //    //}
-        //}
 
         private void Current_MainDisplayInfoChanged(object sender, DisplayInfoChangedEventArgs e)
         {
@@ -82,10 +62,6 @@ namespace DMOrders.Pages.Fragments.Orders
             }
         }
 
-        ////protected override bool OnBackButtonPressed()
-        ////{
-        ////    return true;
-        ////}
 
         private void OnContentViewTapped(object sender, EventArgs e)
         {
@@ -94,13 +70,8 @@ namespace DMOrders.Pages.Fragments.Orders
 
         void OnTapGestureRecognizerTapped(object sender, TappedEventArgs args)
         {
-            ListViewModel mainViewModelCliAprob = new ListViewModel();
-            BindingContext = mainViewModelCliAprob;
-
-            //MainThread.BeginInvokeOnMainThread(() =>
-            //{
-            //    InvalidateMeasure();
-            //});
+            var viewModel = (ListViewModel)BindingContext;
+            viewModel.LoadDataByTimer();
 
             Debug.WriteLine("Tap:" + sender.ToString());
         }
@@ -192,15 +163,7 @@ namespace DMOrders.Pages.Fragments.Orders
 
         private async void BtnClose_Clicked(object sender, EventArgs e)
         {
-            ////bool answer = await DisplayAlert("Salir", "¿Está seguro que desea cerrar la sessión? ",
-            ////"Cerrar Sesión",
-            ////"Cancelar");
-
-            //////Debug.WriteLine("Answer: " + answer);
-            ////if (!answer)
-            ////{
-            ////    return;
-            ////}
+            
         }
 
         private async void _dataGrid1_ItemRowTap(object sender, TappedEventArgs e)
@@ -215,31 +178,32 @@ namespace DMOrders.Pages.Fragments.Orders
             ////    await ShowConfirmClient(cliente);
             ////}
         }
-
-        private async Task ShowConfirmClient(ClienteAprobacion cliente)
-        {
-            //ConfirmClient obj = new ConfirmClient();
-            //obj.selectedCustomer = cliente;
-            //obj.BindingContextObj = ((MainViewModelCliAprob) BindingContext);
-            //await Navigation.PushModalAsync(obj, false);
-        }
-
+                
         private void btnBuscar_Clicked(object sender, EventArgs e)
         {
             ((ListViewModel)this.BindingContext).LoadData();
 
-            //OnTapGestureRecognizerTapped(this, null);
         }
 
-        internal void LoadData(res_partner ResPartner, string DocNumber, DateTime? dateStart, DateTime? dateEnd, FStatus Status)
+        internal void LoadData(Filters _filters)
         {
-            //filterCode = Code;
-            //filterId = Id;
-            //filterName = Name;
-            //filterDays = Days;
-            //filterStatus = Status;
+            FiltersView = _filters;
+            OnTapGestureRecognizerTapped(this, null);
+        }
 
-            ((ListViewModel)this.BindingContext).LoadData();
+        private static void OnFiltersChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            var view = (DataGrid)bindable;
+            view.ApplyFilters();
+        }
+
+        private void ApplyFilters()
+        {
+            if (BindingContext is ListViewModel vm)
+            {
+                vm.filters = FiltersView;
+                //vm.LoadDataByTimer();
+            }
         }
 
         private async void MyCollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)

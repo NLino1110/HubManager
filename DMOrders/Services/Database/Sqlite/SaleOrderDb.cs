@@ -107,6 +107,97 @@ namespace DMOrders.Services.Database.Sqlite
 
             Database = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
             var result = await Database.CreateTableAsync<sale_order>();
-        }    
+        }
+
+
+
+        private AsyncTableQuery<sale_order> BuildQuery(
+            string filter_code,
+            int filter_partner,
+            DateTime? filter_datestart,
+            DateTime? filter_dateend,
+            int filter_status,
+            int filter_sort)
+        {
+            Init();
+
+            var q = Database.Table<sale_order>();
+
+            // --- 1) Filtro por code (prioridad máxima, como tu método actual) ---
+            if (!string.IsNullOrWhiteSpace(filter_code))
+            {
+                var raw = filter_code.Trim();
+
+                // Si es numérico: buscar por id exacto (fallback lo haces fuera)
+                if (int.TryParse(raw, out var idCode))
+                {
+                    q = q.Where(x => x.id == idCode);
+                    // OJO: no aplicamos más filtros aquí para mantener tu comportamiento original.
+                    return ApplySort(q, filter_sort);
+                }                
+            }
+
+            // --- 2) Resto de filtros cuando NO hay filter_code ---
+            if (filter_partner > 0)
+            {                
+                q = q.Where(x => x._partner_id == filter_partner);
+            }
+
+            if (filter_datestart != null && filter_dateend != null)
+                q = q.Where(x => x.date_order >= filter_datestart && x.date_order <= filter_dateend);
+
+            //if (filter_new == 1)
+            //    q = q.Where(x => x.is_new);
+
+            if (filter_status == 1)
+                q = q.Where(x => x.is_synchronized);
+            else if (filter_status == 2)
+                q = q.Where(x => !x.is_synchronized);
+
+            // --- 3) Orden ---
+            q = ApplySort(q, filter_sort);
+
+            return q;
+        }
+
+        private static AsyncTableQuery<sale_order> ApplySort(
+            AsyncTableQuery<sale_order> q, int filter_sort)
+        {
+            // 1: sequence ASC, 2: code ASC, 3: name ASC; default: id ASC
+            return filter_sort switch
+            {
+                1 => q.OrderBy(x => x.id),
+                2 => q.OrderBy(x => x._partner_id),
+                3 => q.OrderBy(x => x.date_order),
+                _ => q.OrderBy(x => x.is_synchronized)
+            };
+        }
+
+
+        public async Task<(IList<sale_order> Items, int Total)> GetPagedAsync(
+            string filter_code,
+            int filter_partner,
+            DateTime? filter_datestart,
+            DateTime? filter_dateend,
+            int filter_status,
+            int filter_sort,
+            int page, int pageSize, CancellationToken ct = default)
+        {
+            var q = BuildQuery(filter_code,
+            filter_partner,
+            filter_datestart,
+            filter_dateend,
+            filter_status,
+            filter_sort);
+
+            // COUNT(*) en SQLite, sin traer datos
+            var total = await q.CountAsync();
+
+            // LIMIT/OFFSET en SQLite (Skip/Take sobre AsyncTableQuery)
+            var offset = Math.Max(0, (page - 1) * pageSize);
+            var items = await q.Skip(offset).Take(pageSize).ToListAsync();
+
+            return (items, total);
+        }
     }
 }

@@ -1,17 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DMSA.Models.Odoo.Base;
+﻿using DMSA.Models.Odoo.Base;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SQLite;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace DMSA.Models.Odoo.Native
 {
     [Table("product_product")]
-    public class product_product: OdooEntity
+    public class product_product: OdooEntity, INotifyPropertyChanged
     {
         [PrimaryKey]
         [JsonProperty("id")]
@@ -177,5 +179,30 @@ namespace DMSA.Models.Odoo.Native
 
         [JsonProperty("sale_ok")]
         public bool sale_ok { get; set; }
+
+
+
+        [JsonIgnore]
+        private bool _isSelected;
+        [Ignore]
+        [JsonIgnore]
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected != value)
+                {
+                    _isSelected = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

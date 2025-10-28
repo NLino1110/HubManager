@@ -20,9 +20,9 @@ public partial class Filters : ContentView
 
     FStatus[] Status { get; set; }
     public ObservableCollection<product_marca> Brands { get; set; } = new();
-    public ObservableCollection<product_category> Product_Categories { get; set; } = new();
+    public ObservableCollection<product_categoria> Product_Categories { get; set; } = new();
     product_marca selected_brand { get; set; }
-    product_category selected_product_category { get; set; }
+    product_categoria selected_product_category { get; set; }
     public Filters()
 	{
 		InitializeComponent();
@@ -80,16 +80,16 @@ public partial class Filters : ContentView
 
         Product_Categories =
         [
-            new product_category { id = 0, name = "No seleccionada" },
-            new product_category { id = -1, name = "🔍 Buscar..." },
-            new product_category { id = 1, name = "Categoria 1" },
-            new product_category { id = 2, name = "Categoria 2" },
-            new product_category { id = 3, name = "Categoria 3" },
-            new product_category { id = 4, name = "Categoria 4" },
-            new product_category { id = 5, name = "Categoria 5" },
-            new product_category { id = 6, name = "Categoria 6" },
-            new product_category { id = 7, name = "Categoria 7" },
-            new product_category { id = 8, name = "Categoria 8" },
+            new product_categoria { id = 0, name = "No seleccionada" },
+            new product_categoria { id = -1, name = "🔍 Buscar..." },
+            new product_categoria { id = 1, name = "Categoria 1" },
+            new product_categoria { id = 2, name = "Categoria 2" },
+            new product_categoria { id = 3, name = "Categoria 3" },
+            new product_categoria { id = 4, name = "Categoria 4" },
+            new product_categoria { id = 5, name = "Categoria 5" },
+            new product_categoria { id = 6, name = "Categoria 6" },
+            new product_categoria { id = 7, name = "Categoria 7" },
+            new product_categoria { id = 8, name = "Categoria 8" },
         ];
 
         ddfCategory.ItemsSource = Product_Categories;
@@ -146,7 +146,7 @@ public partial class Filters : ContentView
 
     private async void DdfCategory_SelectedItemChanged(object? sender, object e)
     {
-        product_category new_selected_product_category = (product_category)e;
+        product_categoria new_selected_product_category = (product_categoria) e;
 
         if (new_selected_product_category != null && (new_selected_product_category.id == -1 || new_selected_product_category.id == 0))
         {
@@ -175,7 +175,7 @@ public partial class Filters : ContentView
             ddfCategory.IsEnabled = false;
             Debug.WriteLine("Clear");
             ddfCategory.ItemsSource = null;
-            var nsBrand = new product_category { id = 0, name = "No seleccionada" };
+            var nsBrand = new product_categoria { id = 0, name = "No seleccionada" };
             Product_Categories[0] = nsBrand;
             ddfCategory.ItemsSource = Product_Categories;
             ddfCategory.SelectedItem = nsBrand;
@@ -208,12 +208,12 @@ public partial class Filters : ContentView
         //if (!isWindows)
             //returnResultPopup.Size = popupSizeConstants.Large;
 
-        var result = await PopupExtensions.ShowPopupAsync(App.Current.MainPage, returnResultPopup);
+        var result = await PopupExtensions.ShowPopupAsync<product_marca>(App.Current.MainPage, returnResultPopup);
         //var result = await this.ShowPopupAsync(returnResultPopup);
 
-        if (result != null)
+        if (result.Result != null)
         {
-            selected_product_brand = (product_marca) result;
+            selected_product_brand = result.Result;
             //_inputResPartner.Text = Sel_Res_Partner.id.ToString() + " - " + Sel_Res_Partner.name;
             //_res_partnerItem = resPartner;
         }
@@ -221,9 +221,9 @@ public partial class Filters : ContentView
         return selected_product_brand;
     }
 
-    async Task<product_category> PopupProductCategory(object sender, EventArgs e)
+    async Task<product_categoria> PopupProductCategory(object sender, EventArgs e)
     {
-        product_category selected_product_category = null;
+        product_categoria selected_product_category = null;
 
         var popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
         popupSizeConstants.CalculateSizes(DeviceDisplay.Current);
@@ -236,41 +236,15 @@ public partial class Filters : ContentView
         //if (!isWindows)
         //returnResultPopup.Size = popupSizeConstants.Large;
 
-        var result = await PopupExtensions.ShowPopupAsync(App.Current.MainPage, returnResultPopup);        
+        var result = await PopupExtensions.ShowPopupAsync<product_categoria>(App.Current.MainPage, returnResultPopup);        
 
-        if (result != null)
+        if (result.Result != null)
         {
-            selected_product_category = (product_category)result;            
+            selected_product_category = result.Result;            
         }
 
         return selected_product_category;
     }
-
-
-    //private void RefreshSelectedItem<T>(
-    //DropdownField dropdownField,
-    //IList<T> listSource,
-    //T newSelectedItem,
-    //Action<T> assignSelectedModel,
-    //Action<IList<T>>? updateListCallback = null)
-    //{
-    //    dropdownField.IsEnabled = false;
-    //    // Detach ItemsSource to force UI refresh
-    //    dropdownField.ItemsSource = null;
-
-    //    // Update list content if needed
-    //    if (updateListCallback != null)
-    //        updateListCallback(listSource);
-
-    //    // Reassign ItemsSource and select item
-    //    dropdownField.ItemsSource = listSource.ToList();
-    //    dropdownField.SelectedItem = newSelectedItem;
-
-    //    // Update selected model
-    //    assignSelectedModel?.Invoke(newSelectedItem);
-
-    //    dropdownField.IsEnabled = true;
-    //}
 
     private void DdfDays_SelectedItemChanged(object? sender, object e)
     {
@@ -288,22 +262,36 @@ public partial class Filters : ContentView
         //entryCode.Text = "";
         //entryId.Text = "";
         //entryName.Text = "";
-    }    
-
-    //internal FDays getDays()
-    //{
-    //    return (FDays) ddfDays.SelectedItem;
-    //}
-
-    internal FStatus getStatus()
-    {
-        return (FStatus) ddfStatus.SelectedItem;
     }
 
-    private void Chip_DestroyClicked(object sender, EventArgs e)
+    internal int getStatus()
     {
-        //chipMarca.Text = "   MARCA 222";
-        //chipMarca.BackgroundColor = Colors.Pink;
-        //Debug.WriteLine("Chip_DestroyClicked Debug");        
+        return ((FStatus) ddfStatus.SelectedItem).id;
+    }
+
+    internal string getCode()
+    {
+        return TextCode.Text;
+    }
+
+    internal string getName()
+    {
+        return TextDescription.Text;
+    }
+
+    internal int getBrand()
+    {
+        if (ddfBrands.SelectedItem != null)
+            selected_brand = (product_marca) ddfBrands.SelectedItem;
+
+        return selected_brand.id;
+    }
+
+    internal int getCategory()
+    {
+        if (ddfCategory.SelectedItem != null)
+            selected_product_category = (product_categoria)ddfCategory.SelectedItem;
+
+        return selected_product_category.id;
     }
 }

@@ -4,6 +4,7 @@ using DMOrders.Controls;
 using DMOrders.Models.Filters;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Native;
+using MPowerKit.VirtualizeListView;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
@@ -50,7 +51,10 @@ public partial class CatalogViewerInner : ContentView
     public static readonly BindableProperty ViewParentProperty =
         BindableProperty.Create(nameof(ViewParent), typeof(ContentView), typeof(DataGrid));
 
-    private int span_columns = 4;
+    private int SpanColumns = 4;
+    //public static readonly BindableProperty SpanColumnsProperty =
+    //    BindableProperty.Create(nameof(SpanColumns), typeof(ContentView), typeof(DataGrid));
+
     double swipeThreshold = 50; // Distancia mínima para considerar un swipe
     double panX = 0;
 
@@ -391,29 +395,50 @@ public partial class CatalogViewerInner : ContentView
             if (vm.ViewModesListSelectedIndex == 0)
             {
                 vm.PageSize = 40;
-                span_columns = 1;
+                SpanColumns = 1;
                 SelectButtonUnique.IsVisible = false;
                 GridTitleSearch.IsVisible = true;
             }
             else if (vm.ViewModesListSelectedIndex == 1)
             {
                 vm.PageSize = 40;
-                span_columns = 4;
+                SpanColumns = 4;
                 SelectButtonUnique.IsVisible = false;
                 GridTitleSearch.IsVisible = false;
             }
             else if (vm.ViewModesListSelectedIndex == 2)
             {
                 vm.PageSize = 1;
-                span_columns = 1;
+                SpanColumns = 1;
                 SelectButtonUnique.IsVisible = true;
                 GridTitleSearch.IsVisible = false;
             }
-
-            (MyCollectionView.ItemsLayout as GridItemsLayout).Span = span_columns;
+                        
+            //(listViewProduct.ItemsLayout as GridLayout).Span = SpanColumns;
+            if (listViewProduct.ItemsLayout is MPowerKit.VirtualizeListView.GridLayout gridLayout)
+            {
+                Debug.WriteLine("gridLayout.Span");
+                Debug.WriteLine(gridLayout.Span);
+                //gridLayout.Span = SpanColumns;
+                //
+                //listViewProduct.Handler?.UpdateValue(nameof(listViewProduct.ItemsLayout));
+                //var items = listViewProduct.ItemsSource;
+                //listViewProduct.ItemsSource = null;
+                
+                //TODO: Bug, no vuelve a verse los datos luego de cambiar esta propiedad.
+                listViewProduct.ItemsLayout = new MPowerKit.VirtualizeListView.GridLayout
+                {
+                    Span = SpanColumns,
+                    HorizontalItemSpacing = 1,
+                    VerticalItemSpacing = 1
+                };
+                //listViewProduct.InvalidateMeasure();
+                //listViewProduct.ItemsSource = items;
+            }
+            //(MyCollectionView.ItemsLayout as GridItemsLayout).Span = span_columns;
 
             Debug.WriteLine(vm.PageSize);
-            Debug.WriteLine(span_columns);
+            Debug.WriteLine(SpanColumns);
             //await Task.Delay(500);
             await vm.LoadData();
         }

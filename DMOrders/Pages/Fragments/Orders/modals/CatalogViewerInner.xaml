@@ -6,18 +6,20 @@
             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
             xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
             xmlns:converters="clr-namespace:DMOrders.Converters"             
-             xmlns:local="clr-namespace:DMOrders.Pages.Fragments.Orders.modals"       
+            xmlns:local="clr-namespace:DMOrders.Pages.Fragments.Orders.modals"       
             xmlns:customrows="clr-namespace:DMOrders.Controls.CustomRows"
-             xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
-             xmlns:controls="clr-namespace:DMOrders.Controls"
-             ZIndex="1000"
-             x:Name="Root">
+            xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
+            xmlns:controls="clr-namespace:DMOrders.Controls"
+            xmlns:mpowerkit="clr-namespace:MPowerKit.VirtualizeListView;assembly=MPowerKit.VirtualizeListView"
+            xmlns:odoo="clr-namespace:DMSA.Models.Odoo.Native;assembly=DMSA.Models.Odoo" 
+            ZIndex="1000"
+            x:Name="Root">
     <ContentView.Resources>
         <ResourceDictionary>
             <converters:InverseBooleanConverter x:Key="InverseBoolConverter" />
         </ResourceDictionary>
 
-        <DataTemplate x:Key="RowTemplate">
+        <!--<DataTemplate x:Key="RowTemplate">
             <customrows:ProductRow Item="{Binding .}" ActionButton="{Binding Source={x:Reference Root}, Path=ItemPickedCommand}" ShowSelectButton="True"/>
         </DataTemplate>
 
@@ -32,7 +34,63 @@
         <local:ProductTemplateSelector x:Key="ProductTemplateSelector"
                                    ViewerTemplate="{StaticResource ViewerTemplate}"
                                    RowTemplate="{StaticResource RowTemplate}"
-                                   GridTemplate="{StaticResource GridTemplate}" />
+                                   GridTemplate="{StaticResource GridTemplate}" />-->
+
+        <DataTemplate x:Key="RowTemplate">
+            <mpowerkit:VirtualizeListViewCell BackgroundColor="WhiteSmoke">
+                <customrows:ProductRow 
+            Item="{Binding .}" 
+            ActionButton="{Binding Source={x:Reference Root}, Path=ItemPickedCommand}" 
+            ShowSelectButton="True"/>
+                <mpowerkit:VirtualizeListViewCell.Triggers>
+                    <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="True">
+                        <Setter Property="BackgroundColor" Value="LightBlue"/>
+                    </DataTrigger>
+                    <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="False">
+                        <Setter Property="BackgroundColor" Value="WhiteSmoke"/>
+                    </DataTrigger>
+                </mpowerkit:VirtualizeListViewCell.Triggers>
+            </mpowerkit:VirtualizeListViewCell>
+        </DataTemplate>
+
+        <DataTemplate x:Key="GridTemplate">
+            <mpowerkit:VirtualizeListViewCell BackgroundColor="WhiteSmoke">
+                <customrows:ProductCanvasRow 
+            Item="{Binding .}" 
+            ActionButton="{Binding Source={x:Reference Root}, Path=ItemPickedCommand}" 
+            ShowSelectButton="True"/>
+                <mpowerkit:VirtualizeListViewCell.Triggers>
+                    <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="True">
+                        <Setter Property="BackgroundColor" Value="LightBlue"/>
+                    </DataTrigger>
+                    <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="False">
+                        <Setter Property="BackgroundColor" Value="WhiteSmoke"/>
+                    </DataTrigger>
+                </mpowerkit:VirtualizeListViewCell.Triggers>
+            </mpowerkit:VirtualizeListViewCell>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ViewerTemplate">
+            <mpowerkit:VirtualizeListViewCell BackgroundColor="WhiteSmoke">
+                <customrows:ProductViewerRow Item="{Binding .}"/>
+                <mpowerkit:VirtualizeListViewCell.Triggers>
+                    <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="True">
+                        <Setter Property="BackgroundColor" Value="LightBlue"/>
+                    </DataTrigger>
+                    <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="False">
+                        <Setter Property="BackgroundColor" Value="WhiteSmoke"/>
+                    </DataTrigger>
+                </mpowerkit:VirtualizeListViewCell.Triggers>
+            </mpowerkit:VirtualizeListViewCell>
+        </DataTemplate>
+
+        <local:ProductTemplateSelector x:Key="ProductTemplateSelector"
+    ViewerTemplate="{StaticResource ViewerTemplate}"
+    RowTemplate="{StaticResource RowTemplate}"
+    GridTemplate="{StaticResource GridTemplate}" />
+
+
+
     </ContentView.Resources>
     <Grid RowDefinitions="Auto,Auto,*,Auto" BackgroundColor="WhiteSmoke">
         
@@ -211,17 +269,10 @@
                 <Label Grid.Column="4" Text="Pre. Base" FontAttributes="Bold" HorizontalTextAlignment="End"></Label>
                 <Label Grid.Column="6" Text="" HorizontalTextAlignment="End"></Label>
             </Grid>
-            <ActivityIndicator 
-                Grid.Row="1"
-                IsRunning="{Binding IsLoading}"
-                IsVisible="{Binding IsLoading}"
-                HorizontalOptions="Center"
-                VerticalOptions="Fill"
-                Color="DarkGray"
-                WidthRequest="60"
-                HeightRequest="60"/>
-
-            <CollectionView
+            
+            
+            
+            <!--<CollectionView
                     Grid.Row="1"
                     x:Name="MyCollectionView"
                     ItemsSource="{Binding ItemsData}"
@@ -235,7 +286,58 @@
                 <CollectionView.ItemsLayout>
                     <GridItemsLayout Orientation="Vertical" Span="4" />
                 </CollectionView.ItemsLayout>
-            </CollectionView>            
+            </CollectionView>-->
+
+            <Grid Grid.Row="1">
+                <mpowerkit:FixedRefreshView                    
+                HorizontalOptions="Fill" 
+                VerticalOptions="Fill"
+                IsPullToRefreshEnabled="False" IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
+                    <mpowerkit:VirtualizeListView 
+                x:Name="listViewProduct"
+                ItemsSource="{Binding ItemsData}"                
+                Padding="0"
+                BackgroundColor="Gray" 
+                        ItemTemplate="{StaticResource ProductTemplateSelector}">
+                        <mpowerkit:VirtualizeListView.ItemsLayout>
+                            <mpowerkit:GridLayout HorizontalItemSpacing="1" Span="4" VerticalItemSpacing="1" />
+                        </mpowerkit:VirtualizeListView.ItemsLayout>
+                        <!--<mpowerkit:VirtualizeListView.ItemTemplate>
+                            <DataTemplate>
+                                <mpowerkit:VirtualizeListViewCell BackgroundColor="WhiteSmoke">
+                                    <mpowerkit:VirtualizeListViewCell.Triggers>
+                                        <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="BackgroundColor" Value="LightBlue"/>
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="False">
+                                            <Setter Property="BackgroundColor" Value="WhiteSmoke"/>
+                                        </DataTrigger>
+                                    </mpowerkit:VirtualizeListViewCell.Triggers>
+                                    
+                                    <customrows:ProductCanvasRow Item="{Binding .}" ActionButton="{Binding Source={x:Reference Root}, Path=ItemPickedCommand}" ShowSelectButton="True"/>
+
+                                </mpowerkit:VirtualizeListViewCell>
+                            </DataTemplate>
+                        </mpowerkit:VirtualizeListView.ItemTemplate>-->
+                    </mpowerkit:VirtualizeListView>
+                </mpowerkit:FixedRefreshView>
+
+                <Grid
+                    BackgroundColor="#80000000"
+                    IsVisible="{Binding IsLoading}"
+                    VerticalOptions="Fill"
+                    HorizontalOptions="Fill"
+                    ZIndex="10">
+                    <ActivityIndicator 
+                        IsRunning="{Binding IsLoading}" 
+                        Color="MediumVioletRed"
+                        WidthRequest="100"
+                        HeightRequest="100"
+                        VerticalOptions="Center"
+                        HorizontalOptions="Center" />
+                </Grid>
+            </Grid>
+
         </Grid>
 
         <Grid Grid.Row="3" ColumnDefinitions="*,Auto">

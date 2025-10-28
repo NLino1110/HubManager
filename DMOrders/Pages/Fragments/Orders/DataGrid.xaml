@@ -18,7 +18,7 @@
                 <Label Text="Listado de ordenes creadas por el usuario..." TextColor="DimGray" BackgroundColor="LightYellow" Padding="5"></Label>
                 <CollectionView 
                     x:Name="MyCollectionView"
-                    ItemsSource="{Binding Orders}" 
+                    ItemsSource="{Binding ItemsData}" 
                                 EmptyView="No existen resultados..." 
                                 HorizontalOptions="Fill" 
                                 SelectionMode="Single"
@@ -29,9 +29,7 @@
                             <customrows:SaleOrderRow
                                 Item="{x:Binding .}" 
                                 EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
-                                SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"
-                                LongPressCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=LongPressCommand}"
-                                TapCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=TapCommand}"/>                                
+                                SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"/>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>

@@ -613,14 +613,14 @@ public partial class Login : ContentPage
             };
 
 #if !DEBUG
-        if (!App.Session.isTestMode)
-        {
-            if (user.username.Length <= 3 || user.codclave.Length <= 3)
-            {
-                await Toast.Make("Datos incorrectos, verifique usuario y contraseña.").Show();
-                return;
-            }
-        }
+        //if (!App.Session.isTestMode)
+        //{
+        //    if (user.username.Length <= 3 || user.codclave.Length <= 3)
+        //    {
+        //        await Toast.Make("Datos incorrectos, verifique usuario y contraseña.").Show();
+        //        return;
+        //    }
+        //}
 #endif
 
             BtnTryLogin.IsEnabled = false;

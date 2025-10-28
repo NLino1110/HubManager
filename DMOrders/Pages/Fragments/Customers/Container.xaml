@@ -17,7 +17,7 @@
         <pages:Filters x:Name="filterCustomer" Grid.Row="2" Grid.Column="0" 
              MaximumWidthRequest="250" MinimumWidthRequest="250"/>
 
-        <Label Grid.Row="3" Grid.Column="0" BackgroundColor="{StaticResource ActiveRowColor}" Text="Informacion" FontSize="12" FontAttributes="Bold" HorizontalTextAlignment="Center"/>
+        <Label Grid.Row="3" Grid.Column="0" BackgroundColor="{StaticResource ActiveRowColor}" Text="Información" FontSize="12" FontAttributes="Bold" HorizontalTextAlignment="Center"/>
 
         <pages:Info Grid.Row="4" Grid.Column="0" x:Name="info" 
              MaximumWidthRequest="250" MinimumWidthRequest="250"/>

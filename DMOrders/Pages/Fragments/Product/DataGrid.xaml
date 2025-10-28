@@ -6,7 +6,9 @@
              xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
              xmlns:converters="clr-namespace:DMOrders.Converters"
              xmlns:customrows="clr-namespace:DMOrders.Controls.CustomRows"
+             xmlns:mpowerkit="clr-namespace:MPowerKit.VirtualizeListView;assembly=MPowerKit.VirtualizeListView"
              x:Class="DMOrders.Pages.Fragments.Product.DataGrid"
+             xmlns:odoo="clr-namespace:DMSA.Models.Odoo.Native;assembly=DMSA.Models.Odoo" 
              x:Name="ProductDataGrid">
 
     <Grid RowDefinitions="Auto,*,Auto">
@@ -20,31 +22,82 @@
             <Label Text="Precio" Grid.Column="1" FontAttributes="Bold"/>
             <Label Text="Cantidad" Grid.Column="2" FontAttributes="Bold"/>
         </Grid>
-        
-        <CollectionView Grid.Row="1"
-            x:Name="MyCollectionView"                    
+
+
+        <Grid Grid.Row="1">
+            <mpowerkit:FixedRefreshView                    
+                        HorizontalOptions="Fill" 
+                        VerticalOptions="Fill"
+                        IsPullToRefreshEnabled="False">
+                <mpowerkit:VirtualizeListView 
+                        x:Name="listViewProduct"
+                        ItemsSource="{Binding ItemsData}"
+                        ItemTapCommand="{Binding ItemTappedCommand}"
+                        Padding="0"
+                        BackgroundColor="Gray"
+                        ItemTapped="listViewProduct_ItemTapped">
+                    <mpowerkit:VirtualizeListView.ItemsLayout>
+                        <mpowerkit:GridLayout HorizontalItemSpacing="1" Span="4" VerticalItemSpacing="1" />
+                    </mpowerkit:VirtualizeListView.ItemsLayout>
+                    <mpowerkit:VirtualizeListView.ItemTemplate>
+                        <DataTemplate>
+                            <mpowerkit:VirtualizeListViewCell BackgroundColor="WhiteSmoke">
+                                <mpowerkit:VirtualizeListViewCell.Triggers>
+                                    <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="LightBlue"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="False">
+                                        <Setter Property="BackgroundColor" Value="WhiteSmoke"/>
+                                    </DataTrigger>
+                                </mpowerkit:VirtualizeListViewCell.Triggers>
+                                <customrows:ProductCanvasRow Item="{x:Binding .}">
+                                </customrows:ProductCanvasRow>
+                            </mpowerkit:VirtualizeListViewCell>
+                        </DataTemplate>
+                    </mpowerkit:VirtualizeListView.ItemTemplate>
+                </mpowerkit:VirtualizeListView>
+            </mpowerkit:FixedRefreshView>
+
+            <Grid
+                BackgroundColor="#80000000"
+                IsVisible="{Binding IsLoading}"
+                VerticalOptions="Fill"
+                HorizontalOptions="Fill"
+                ZIndex="10">
+                <ActivityIndicator 
+            IsRunning="{Binding IsLoading}" 
+            Color="MediumVioletRed"
+            WidthRequest="100"
+            HeightRequest="100"
+            VerticalOptions="Center"
+            HorizontalOptions="Center" />
+            </Grid>
+        </Grid>
+
+        <!--<CollectionView Grid.Row="1"
+            x:Name="ProductCollectionView"                    
             ItemsSource="{Binding ItemsData}"
                         EmptyView="Datos no encontrados..." 
                         HorizontalOptions="Fill" 
                         SelectionMode="Single"
                         SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-                        SelectionChanged="MyCollectionView_SelectionChanged">
+                        SelectionChanged="ProductCollectionView_SelectionChanged">
             <CollectionView.ItemsLayout>
                 <GridItemsLayout Orientation="Vertical" Span="4" />
             </CollectionView.ItemsLayout>
 
             <CollectionView.ItemTemplate>
                 <DataTemplate>
+                    --><!--<customrows:ProductCanvasRow Item="{x:Binding .}"></customrows:ProductCanvasRow>--><!--
                     <customrows:ProductCanvasRow
                         Item="{x:Binding .}" 
                         ActionButton="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
-                        SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"
+                        SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference ProductCollectionView}}"
                         ShowSelectButton="False">
-
                     </customrows:ProductCanvasRow>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
-        </CollectionView>
+        </CollectionView>-->
             
 
         <StackLayout Grid.Row="2"  Orientation="Horizontal" HorizontalOptions="Center" Margin="0,2">

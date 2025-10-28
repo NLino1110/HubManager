@@ -53,20 +53,23 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto"
                     FontSize="12" 
                     FontAttributes="Bold"
                     TextColor="#242322"
-                       HorizontalTextAlignment="Start"></Label>
+                       HorizontalTextAlignment="Start"
+                       VerticalTextAlignment="Center"></Label>
 
                 <Label Text="Stock:" Grid.Row="2" Grid.Column="0"/>
                 <Label Grid.Row="2" Grid.Column="1" Text="{Binding Path=ProductEditing.qty_available, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
     FontSize="12" 
     FontAttributes="Bold"
     TextColor="#242322"
-                       HorizontalTextAlignment="Start"></Label>
+                       HorizontalTextAlignment="Start"
+                       VerticalTextAlignment="Center"></Label>
                 <Label Text="Precio: $" Grid.Row="3" Grid.Column="0"/>
                 <Label Grid.Row="3" Grid.Column="1" Text="{Binding Path=ProductEditing.list_price, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
 FontSize="12" 
 FontAttributes="Bold"
 TextColor="#242322"
-                       HorizontalTextAlignment="Start"></Label>
+                       HorizontalTextAlignment="Start"
+                       VerticalTextAlignment="Center"></Label>
             </Grid>
 
             <Border Grid.Row="1" Stroke="LightGrey" Padding="3" Margin="0,0,0,0">
@@ -210,19 +213,20 @@ TextColor="#242322"
             <Grid BackgroundColor="LightGray" 
                   Grid.Row="1" 
                   Grid.Column="1" 
-                  ColumnDefinitions="Auto,*,*,*,*,*,*,*,*,*" 
+                  ColumnDefinitions="Auto,1.5*,*,*,*,*,*,*,*,*,*" 
                   RowDefinitions="Auto" 
                   HorizontalOptions="Fill">
                 <Label Grid.Column="0" FontAttributes="Bold" Text="No" Padding="0,0,5,0"></Label>
-                <Label Grid.Column="1" Text="ARTICULO"></Label>
-                <Label Grid.Column="2" Text="UNIDAD"></Label>
-                <Label Grid.Column="3" Text="CANTIDAD"></Label>
-                <Label Grid.Column="4" Text="PRECIO"></Label>
-                <Label Grid.Column="5" Text="SUBTOTAL"></Label>
-                <Label Grid.Column="6" Text="%DESC."></Label>
-                <Label Grid.Column="7" Text="$DESC."></Label>
-                <Label Grid.Column="8" Text="IMPUESTO"></Label>
-                <Label Grid.Column="9" Text="TOTAL"></Label>
+                <Label Grid.Column="1" FontAttributes="Bold" Text="ARTICULO"></Label>
+                <Label Grid.Column="2" FontAttributes="Bold" Text="UNIDAD"></Label>
+                <Label Grid.Column="3" FontAttributes="Bold" Text="CNTREAL"></Label>
+                <Label Grid.Column="4" FontAttributes="Bold" Text="CNTDSP"></Label>
+                <Label Grid.Column="5" FontAttributes="Bold" Text="PRECIO"></Label>
+                <Label Grid.Column="6" FontAttributes="Bold" Text="SUBTOTAL"></Label>
+                <Label Grid.Column="7" FontAttributes="Bold" Text="%DESC."></Label>
+                <Label Grid.Column="8" FontAttributes="Bold" Text="$DESC."></Label>
+                <Label Grid.Column="9" FontAttributes="Bold" Text="IMP."></Label>
+                <Label Grid.Column="10" FontAttributes="Bold" Text="TOTAL"></Label>
             </Grid>
 
             <Grid RowDefinitions="*" ColumnDefinitions="*" Grid.Row="2" HorizontalOptions="Fill">

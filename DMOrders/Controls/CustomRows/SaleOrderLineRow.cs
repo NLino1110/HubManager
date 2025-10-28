@@ -47,6 +47,8 @@ namespace DMOrders.Controls.CustomRows
                 ColumnDefinitions =
                 {
                     new ColumnDefinition { Width = GridLength.Auto},
+                    //new ColumnDefinition { Width = GridLength.Star},
+                    new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star)},
                     new ColumnDefinition { Width = GridLength.Star},
                     new ColumnDefinition { Width = GridLength.Star},
                     new ColumnDefinition { Width = GridLength.Star},
@@ -196,7 +198,18 @@ namespace DMOrders.Controls.CustomRows
                 HorizontalOptions = LayoutOptions.Center
             };
             grid.Children.Add(taxLabel);
-            Grid.SetColumn(taxLabel, 9);            
+            Grid.SetColumn(taxLabel, 9);
+
+            var totalLabel = new Label
+            {
+                Text = "$ 0",
+                FontAttributes = FontAttributes.Bold,
+                FontSize = 14,
+                TextColor = Colors.Black,
+                HorizontalOptions = LayoutOptions.Center
+            };
+            grid.Children.Add(totalLabel);
+            Grid.SetColumn(totalLabel, 10);
 
             var cell = CreateCell(grid, padding: new Thickness(4), backgroundColor: Colors.Transparent);
             AddCell(cell, region: "left", row: 0, column: 0);
@@ -214,7 +227,7 @@ namespace DMOrders.Controls.CustomRows
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 12,
                 HorizontalOptions = LayoutOptions.Center,
-                IsVisible = true,
+                IsVisible = false,
                 ImageSource = new FontImageSource
                 {
                     FontFamily = "FontAwesome5Solid",
@@ -224,7 +237,7 @@ namespace DMOrders.Controls.CustomRows
                     Glyph = "\uf303"
                 },
                 Padding = new Thickness(3),
-                Margin = new Thickness(2),
+                Margin = new Thickness(2),                
             };
 
             buttonEdit.SetBinding(Button.CommandProperty, new Binding("EditCommand", source: new RelativeBindingSource(RelativeBindingSourceMode.FindAncestor, typeof(SaleOrderLineRow))));

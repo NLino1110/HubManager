@@ -43,7 +43,9 @@ namespace DMOrders.Services.Database.Sqlite
             int filter_brand,
             int filter_new,
             int filter_stock,
-            int filter_sort)
+            int filter_sort,
+            int filter_category, 
+            int filter_status)
         {
             Init();
 
@@ -107,9 +109,10 @@ namespace DMOrders.Services.Database.Sqlite
 
         public async Task<(IList<product_product> Items, int Total)> GetPagedAsync(
             string filter_code, string filter_name, int filter_brand, int filter_new, int filter_stock, int filter_sort,
+            int filter_category, int filter_status,
             int page, int pageSize, CancellationToken ct = default)
         {
-            var q = BuildQuery(filter_code, filter_name, filter_brand, filter_new, filter_stock, filter_sort);
+            var q = BuildQuery(filter_code, filter_name, filter_brand, filter_new, filter_stock, filter_sort, filter_category, filter_status);
 
             // COUNT(*) en SQLite, sin traer datos
             var total = await q.CountAsync();

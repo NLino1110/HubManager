@@ -85,8 +85,6 @@ namespace DMOrders.Controls.CustomRows
             infoGrid.Add(_priceBaseLabel, 0, 3);
             infoGrid.Add(_unitLabel, 1, 3);
 
-            
-
             // Enlaza labels a las propiedades del Item (así no tienes que “repintar” manual)
             _nameLabel.SetBinding(Label.TextProperty, new Binding("Item.name", source: this));
             _codeLabel.SetBinding(Label.TextProperty, new Binding("Item.default_code", source: this, stringFormat: "Código: {0}"));

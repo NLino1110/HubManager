@@ -11,6 +11,7 @@ namespace DMSA.Models.Odoo.Dictionaries
     {
         private readonly Dictionary<int, string> _data = new()
         {
+            { 0,  "No asignado" },
             { 6,  "Cédula" },
             { 7,  "RUC" },
             { 8,  "Consumidor Final" },

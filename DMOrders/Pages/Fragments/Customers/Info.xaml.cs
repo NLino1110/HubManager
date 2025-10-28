@@ -22,8 +22,9 @@ public partial class Info : ContentView
     public async Task FillData(res_partner _data)
     {
         data = _data;
-        
-        if(string.IsNullOrEmpty( _data.doc_type_identification_name ) )
+
+        clienteTitulo.Text = "DATOS CLIENTE - " + data.id;
+        if (string.IsNullOrEmpty( _data.doc_type_identification_name ) )
         {
             TipoIdentificacion tipoIdentificacion = new TipoIdentificacion();
             _data.doc_type_identification_name = tipoIdentificacion[_data._doc_type_identification_id];
@@ -35,7 +36,16 @@ public partial class Info : ContentView
 
         if(data._product_pricelist_id > 0)
         {
-
+            var productPricelistDb = new ProductPricelistDb(App.Session.odooConnection.DbNameSqlite);
+            var productPricelist = await productPricelistDb.GetItem(data._product_pricelist_id);
+            if (productPricelist != null)
+            {
+                data.display_channel_name = productPricelist.name;
+            }
+        }
+        else
+        {
+            data.display_channel_name = "No asignado";
         }
 
         channel.Text = data.display_channel_name; //RELLENAR

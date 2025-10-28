@@ -19,42 +19,7 @@
             </uranium:ExpanderView.Header>
             <StackLayout>
                 <Grid ColumnDefinitions="*" RowSpacing="0" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto, Auto">
-                    <!--<material:TextField
-                Grid.Row="0"
-                FontSize="11"
-                x:Name="entryCode"
-                Title="Cod. Cliente"
-                BorderThickness="0.4"
-                Keyboard="Numeric"                
-                Margin="0"
-                Padding="0"                
-                />
-
-            <material:TextField
-                    Grid.Row="1"
-                FontSize="11"
-                    x:Name="entryId"
-                    Title="Identificación"
-                    BorderThickness="0.4"                    
-                />
-
-            <material:TextField
-                    Grid.Row="2"
-                FontSize="11"
-                    x:Name="entryName"
-                    Title="Nombre"
-                    BorderThickness="0.4"                    
-            />-->
-
-                    <!--<material:DropdownField x:Name="ddfDays"
-                                    FontSize="11"
-                        Title="Día Visita" 
-                        AllowClear="False" 
-                        StyleClass="ControlPreview"
-                                    BorderThickness="0.4"                                    
-                                    Grid.Row="3">                
-            </material:DropdownField>-->
-
+                    
                     <material:DropdownField x:Name="ddfStatus"
                             Title="Estado" 
                             FontSize="11"
@@ -62,13 +27,6 @@
                             StyleClass="ControlPreview"
                             BorderThickness="0.4"
                             Grid.Row="0">                        
-                        <!--<material:DropdownField.ItemsSource>
-            <x:Array Type="{x:Type x:String}">
-                <x:String>Option 1</x:String>
-                <x:String>Option 2</x:String>
-                <x:String>Option 3</x:String>
-            </x:Array>
-        </material:DropdownField.ItemsSource>-->
                     </material:DropdownField>
 
                     <material:TextField
@@ -87,76 +45,6 @@
                         x:Name="TextDescription"
                         Title="Descripción"
                         BorderThickness="0.4"/>
-
-
-                    
-
-                    <!--<material:TextField
-                        Grid.Row="3"
-                        FontSize="11"
-                        x:Name="TextBrand"
-                        Title="Marca"
-                        Text="No seleccionada..."
-                        BorderThickness="0.4"
-                        Margin="0"
-                        Padding="0"
-                        IsReadOnly="True">
-                        <material:TextField.Icon>
-                            <FontImageSource Size="18" FontFamily="MaterialRounded" Glyph="{x:Static uranium:MaterialRounded.Health_and_beauty}"  />
-                        </material:TextField.Icon>
-                        <material:TextField.Attachments>
-                            <Button
-                                BackgroundColor="DodgerBlue"
-                                x:Name="btnSearchBrand"
-                                Text=""
-                                WidthRequest="30"
-                                HeightRequest="30"
-                                Margin="0"
-                                Padding="0">
-                                <Button.ImageSource>
-                                    <FontImageSource
-                                        Size="18"
-                                        FontFamily="MaterialSharp"
-                                        Glyph="{x:Static uranium:MaterialSharp.Search}" />
-                                </Button.ImageSource>
-                            </Button>
-                        </material:TextField.Attachments>
-                    </material:TextField>-->
-
-                    <!--<material:TextField
-                        Grid.Row="4"
-                        FontSize="11"
-                        x:Name="TextCategory"
-                        Title="Categoria"
-                        Text="No seleccionada..."
-                        BorderThickness="0.4"
-                        Margin="0"
-                        Padding="0"
-                        IsReadOnly="True">
-                        <material:TextField.Icon>
-                            <FontImageSource
-                                Size="18"
-                                FontFamily="MaterialSharp"
-                                Glyph="{x:Static uranium:MaterialSharp.Category}" />
-                        </material:TextField.Icon>
-                        <material:TextField.Attachments>
-                            <Button
-                                    BackgroundColor="DodgerBlue"
-                                    x:Name="btnSearchCategory"
-                                    Text=""
-                                    WidthRequest="30"
-                                    HeightRequest="30"
-                                    Margin="0"
-                                    Padding="0">
-                                <Button.ImageSource>
-                                    <FontImageSource
-                                        Size="18"
-                                        FontFamily="MaterialSharp"
-                                        Glyph="{x:Static uranium:MaterialSharp.Search}" />
-                                </Button.ImageSource>
-                            </Button>
-                        </material:TextField.Attachments>
-                    </material:TextField>-->
 
                     <material:DropdownField 
                             x:Name="ddfBrands"                        

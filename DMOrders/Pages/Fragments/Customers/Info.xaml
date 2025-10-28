@@ -15,8 +15,8 @@
             RowSpacing="0"
             Padding="0"
             RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
-            
-            <Label Grid.Row="1" FontAttributes="Bold" Text="DATOS CLIENTE - #" TextColor="{StaticResource OnTertiaryContainer}" />
+
+                <Label Grid.Row="1" Grid.ColumnSpan="2" FontAttributes="Bold" Text="DATOS CLIENTE - #" x:Name="clienteTitulo" TextColor="{StaticResource OnTertiaryContainer}" />
                 <Label Grid.Row="2" Grid.Column="0" Text="Tipo Ident:" Padding="3" Margin="0" FontSize="11"/>
                 <Label Grid.Row="2" Grid.Column="1" x:Name="tipIden" Text="-" Margin="0" FontSize="11"/>
                 <Label Grid.Row="3" Grid.Column="0" Text="Identificación:" Padding="3" FontSize="11"/>

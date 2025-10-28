@@ -9,15 +9,8 @@
     
     <Grid ColumnDefinitions="Auto,1,*" RowDefinitions="Auto,Auto,Auto,*">
         <BoxView Grid.Row="0" Grid.Column="1" Grid.RowSpan="5" WidthRequest="1" Color="LightGrey"/>
-
-        <!--<pages:PagingFragment x:Name="pagingFragment" Grid.Row="0" Grid.Column="2" />-->
-
         <BoxView Grid.Row="1" Grid.ColumnSpan="3" HeightRequest="1" Color="LightGrey"/>
-
         <pages:Filters x:Name="filterOrders" Grid.Row="2" Grid.Column="0"/>
-        
-        <!--<pages:Info x:Name="info" Grid.Row="3" Grid.Column="0" />-->
-
-        <pages:DataGrid x:Name="dataOrders" Grid.Row="0" Grid.Column="2" Grid.RowSpan="4"/>
+        <pages:DataGrid x:Name="dataOrders" Grid.Row="0" Grid.Column="2" Grid.RowSpan="4" FiltersView="{x:Reference filterOrders}"/>
     </Grid>
 </ContentView>

@@ -53,12 +53,10 @@ namespace DMOrders.Pages.Fragments.Orders.modals
 
         private string filter_code;
         private string filter_name;
-        private int filter_brand;
-        private int filter_category;
+        private int filter_brand;        
         private int filter_new;
         private int filter_stock;
-        private int filter_sort;
-        private FStatus FilterStatus;
+        private int filter_sort;        
 
         public bool CanGoNext => (_page * PageSize) < TotalItems;
         public bool CanGoPrevious => _page > 1;
@@ -102,7 +100,6 @@ namespace DMOrders.Pages.Fragments.Orders.modals
             }
         }
 
-        //product_brand selected_brand { get; set; }
         public ObservableCollection<product_brand> Brands { get; set; } = new();
 
         private string _lastFilterSignature;
@@ -115,8 +112,7 @@ namespace DMOrders.Pages.Fragments.Orders.modals
         {
             _db = new ProductProductDb();
             InitViewModes();
-            RefreshCommand = new Command(async () => await CmdRefresh());
-            //_ = LoadData();
+            RefreshCommand = new Command(async () => await CmdRefresh());            
         }
 
         private void InitViewModes()
@@ -251,7 +247,7 @@ namespace DMOrders.Pages.Fragments.Orders.modals
 
                 // Llama paginado (NO vuelvas a traer todo)
                 var (items, total) = await _db.GetPagedAsync(
-                    filter_code, filter_name, filter_brand, filter_new, filter_stock, filter_sort,
+                    filter_code, filter_name, filter_brand, filter_new, filter_stock, filter_sort,0,0,
                     Page, PageSize, ct);
 
                 TotalItems = total;
@@ -290,45 +286,6 @@ namespace DMOrders.Pages.Fragments.Orders.modals
                 Debug.WriteLine($"[CatalogViewerModel] Carga en {stopwatch.ElapsedMilliseconds} ms | TotalItems: {TotalItems}, Page: {Page}, PageSize: {PageSize}, Filtro: {filter_code ?? filter_name ?? "sin filtro"}");
             }
         }
-
-        //public async Task __LoadData()
-        //{
-        //    Debug.WriteLine($"[CatalogViewerModel] LoadData Initialized");
-        //    var stopwatch = Stopwatch.StartNew();
-        //    try
-        //    {
-                
-        //        IsLoading = true;
-        //        var database = new ProductProductDb();
-        //        Debug.WriteLine(filter_code);
-        //        var allItems = await database.GetItemsAsync(filter_code, filter_name, filter_brand, filter_new, filter_stock, filter_sort);
-        //        IEnumerable<product_product> filtered = allItems;
-
-        //        TotalItems = filtered.Count();
-
-        //        ItemsData = new ObservableCollection<product_product>(
-        //            filtered.Skip((Page - 1) * PageSize).Take(PageSize));
-
-        //        Debug.WriteLine(ViewModesListSelectedIndex); 
-
-        //        if(ViewModesListSelectedIndex == 2)
-        //        {
-        //            _selectedItem = ItemsData[0];
-        //            OnPropertyChanged();
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ItemsData = new ObservableCollection<product_product>();
-        //        Debug.WriteLine(ex);
-        //    }
-        //    finally
-        //    {
-        //        IsLoading = false;
-        //        stopwatch.Stop();
-        //        Debug.WriteLine($"[CatalogViewerModel] Carga completada en {stopwatch.ElapsedMilliseconds} ms | TotalItems: {TotalItems}, Page: {Page}, PageSize: {PageSize}, Filtro: {filter_code ?? filter_name ?? "sin filtro"}");
-        //    }
-        //}
 
         public ICommand NextPageCommand => new Command(async () =>
         {

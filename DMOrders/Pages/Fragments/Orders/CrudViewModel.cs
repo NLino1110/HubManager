@@ -148,7 +148,8 @@ namespace DMOrders.Pages.Fragments.Orders
             if (existingLine != null)
             {
                 // Si existe, aumentar la cantidad
-                existingLine.qty_to_deliver += 1;
+                existingLine.product_uom_qty_real += 1;
+                existingLine.product_uom_qty += 1;
 
                 // Recalcular totales (si aplica)
                 existingLine.price_total = existingLine.qty_to_deliver * (decimal)product.list_price;

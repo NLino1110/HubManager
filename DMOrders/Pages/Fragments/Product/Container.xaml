@@ -14,12 +14,12 @@
 
         <BoxView Grid.Row="1" Grid.ColumnSpan="3" HeightRequest="1" Color="LightGrey"/>
 
-        <pages:Filters x:Name="filterActivities" Grid.Row="2" Grid.Column="0" 
+        <pages:Filters x:Name="filterProducts" Grid.Row="2" Grid.Column="0" 
              MaximumWidthRequest="250" MinimumWidthRequest="250"/>
 
         <pages:Info x:Name="info" Grid.Row="3" Grid.Column="0" 
              MaximumWidthRequest="250" MinimumWidthRequest="250"/>
 
-        <pages:DataGrid Grid.Row="0" Grid.Column="2" Grid.RowSpan="4" ViewParent="{x:Reference ProductContainer}"/>
+        <pages:DataGrid x:Name="dataProducts" Grid.Row="0" Grid.Column="2" Grid.RowSpan="4" ViewParent="{x:Reference ProductContainer}" FiltersView="{x:Reference filterProducts}"/>
     </Grid>
 </ContentView>

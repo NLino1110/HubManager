@@ -1,9 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 using DMOrders.Controls.CustomRows;
 using DMOrders.Models.Filters;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.Native;
+using Microsoft.Maui;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -19,7 +22,16 @@ namespace DMOrders.Pages.Fragments.Product
 {
     public partial class ProductListViewModel : INotifyPropertyChanged
     {
+        private ProductProductDb _db { get; set; }
         private ObservableCollection<product_product> _itemsData;
+
+        private readonly SemaphoreSlim _loadLock = new(1, 1); // evita cargas simultáneas
+        private CancellationTokenSource _cts;
+        private string BuildFilterSignature() =>
+            $"{filters.getCode()}|{filters.getName()}|{filters.getBrand()}|{filters.getCategory()}|{filters.getStatus()}";
+
+        private string _lastFilterSignature;
+        public Filters filters { get; set; }
 
         private product_product _selectedItem;
         private bool _isRefreshing;        
@@ -27,17 +39,8 @@ namespace DMOrders.Pages.Fragments.Product
         private bool _paginationEnabled = false;        
 
         private int _totalItems = 0;
-        private int _pageSize = 14;
+        private int _pageSize = 24;
         private int _page = 1;
-
-        int company_id = 0;
-
-        private string FilterCode { get; set; }
-        private string FilterId { get; set; }
-        private string FilterName { get; set; }
-        private int FilterBrand { get; set; }
-        private int FilterCategory { get; set; }
-        private FStatus FilterStatus { get; set; }
 
         public bool CanGoNext => (_page * PageSize) < TotalItems;
         public bool CanGoPrevious => _page > 1;
@@ -54,6 +57,19 @@ namespace DMOrders.Pages.Fragments.Product
                 OnPropertyChanged(nameof(TotalPages));
                 OnPropertyChanged(nameof(CanGoNext));
                 OnPropertyChanged(nameof(CanGoPrevious));
+            }
+        }
+
+        private bool _isLoading;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                _isLoading = value;
+                OnPropertyChanged(nameof(IsLoading));
+                Debug.WriteLine("_isLoading");
+                Debug.WriteLine(_isLoading);
             }
         }
 
@@ -81,23 +97,28 @@ namespace DMOrders.Pages.Fragments.Product
             }
         }
 
-        [Obsolete]
-        public ProductListViewModel(string _FilterCode, string _FilterName, int _FilterBrand, int _FilterCategory, FStatus _FilterStatus)
+        public ProductListViewModel(Filters _filters)
         {
-            FilterCode = _FilterCode;            
-            FilterName = _FilterName;
-            FilterBrand = _FilterBrand;
-            FilterCategory = _FilterCategory;
-            FilterStatus = _FilterStatus;
+            _db = new ProductProductDb();
 
-            LoadDataByTimer();
-
+            filters = _filters;
+            _itemsData = new ObservableCollection<product_product>();
+            ItemTappedCommand = new Command<product_product>(OnItemTapped);
         }
 
-        public ProductListViewModel()
+        public ICommand ItemTappedCommand { get; }
+        public void OnItemTapped(product_product tappedItem)
         {
-            LoadDataByTimer();
+            foreach (var res_partner_item in _itemsData)
+                res_partner_item.IsSelected = false;
 
+            tappedItem.IsSelected = true;
+            WeakReferenceMessenger.Default.Send(new ItemSelectedMessage(tappedItem));
+        }
+
+        public class ItemSelectedMessage : ValueChangedMessage<product_product>
+        {
+            public ItemSelectedMessage(product_product value) : base(value) { }
         }
 
         public ObservableCollection<product_product> ItemsData
@@ -200,71 +221,143 @@ namespace DMOrders.Pages.Fragments.Product
             timer.Start();
         }
 
-        private async Task LoadData()
+        public async Task LoadData()
         {
+            var signature = BuildFilterSignature();
+            var filtersChanged = signature != _lastFilterSignature;
+
+            Debug.WriteLine(signature);
+            Debug.WriteLine(_lastFilterSignature);
+
+            if (filtersChanged)
+            {
+                Page = 1;
+                _lastFilterSignature = signature;
+            }
+
+            _cts?.Cancel();
+            _cts = new CancellationTokenSource();
+            var ct = _cts.Token;
+
+            await _loadLock.WaitAsync(ct);
+            var stopwatch = Stopwatch.StartNew();
+
             try
             {
-                var database = new ProductProductDb();
-                var allItems = await database.GetItemsAsync();
-                IEnumerable<product_product> filtered = null;
+                IsLoading = true;
 
-                //Filtro por ID/Code
-                if (!string.IsNullOrWhiteSpace(FilterCode))
-                {
-                    int int_filterCode;
+                // Llama paginado (NO vuelvas a traer todo)
+                //filter_code, filter_name, filter_brand, filter_new, filter_stock, filter_sort,
+                var (items, total) = await _db.GetPagedAsync(
+                    filters.getCode(),
+                    filters.getName(),
+                    filters.getBrand(),
+                    0,
+                    0,
+                    filters.getCategory(),
+                    filters.getStatus(),
+                    0,
+                    Page,
+                    PageSize,
+                    ct);
 
-                    if (int.TryParse(FilterCode, out int_filterCode))
-                    {
-                        filtered = allItems.Where(x => x.id == int_filterCode);
-                    }
-                }
+                TotalItems = total;
+
+                // Evita recrear la OC (menos churn de UI)
+                if (ItemsData == null)
+                    ItemsData = new ObservableCollection<product_product>();
                 else
+                    ItemsData.Clear();
+
+                foreach (var it in items)
                 {
-                    //Filtro por VAT
-                    if (FilterCategory > 0)
-                    {
-                        filtered = allItems.Where(x => x._categ_id == FilterCategory);
-                    }
-                    else
-                    {
-                        //Filtro por nombre
-                        if (string.IsNullOrWhiteSpace(FilterName))
-                        {
-                            FilterName = "";
-                        }
-
-                        filtered = string.IsNullOrWhiteSpace(FilterName)
-                            ? allItems.Where(x=> !x.image_256.Contains("false"))
-                            : allItems.Where(x => x.name.Contains(FilterName, StringComparison.OrdinalIgnoreCase));
-
-                        filtered = allItems;
-                    }
+                    ItemsData.Add(it);
                 }
-
-                Debug.WriteLine("Filtro actual:" + FilterName);
-
-                string userSearch = "";
-
-                //if (int.TryParse(str_codagencia, out company_id)) { }
-
-                TotalItems = filtered.Count();
-
-                var paginated = filtered
-                    .Skip((_page - 1) * _pageSize)
-                    .Take(_pageSize);
-
-                _itemsData = [.. paginated];
-                OnPropertyChanged(nameof(ItemsData));
-                OnPropertyChanged(nameof(CanGoNext));
-                OnPropertyChanged(nameof(CanGoPrevious));
-
+            }
+            catch (OperationCanceledException ecx)
+            {
+                // ignorar: una nueva carga comenzó
+                Debug.WriteLine(ecx);
             }
             catch (Exception ex)
             {
-                _itemsData = new ObservableCollection<product_product>();
-                Debug.WriteLine(ex.ToString());
+                ItemsData = new ObservableCollection<product_product>();
+                Debug.WriteLine(ex);
+            }
+            finally
+            {
+                IsLoading = false;
+                _loadLock.Release();
+                stopwatch.Stop();
+                //Debug.WriteLine($"[CatalogViewerModel] Carga en {stopwatch.ElapsedMilliseconds} ms | TotalItems: {TotalItems}, Page: {Page}, PageSize: {PageSize}, Filtro: {filters.getCode() ?? filters.getName() ?? "sin filtro"}");
             }
         }
+
+        //private async Task LoadData()
+        //{
+        //    try
+        //    {
+        //        var database = new ProductProductDb();
+        //        var allItems = await database.GetItemsAsync();
+        //        IEnumerable<product_product> filtered = null;
+
+        //        //Filtro por ID/Code
+        //        if (!string.IsNullOrWhiteSpace(FilterCode))
+        //        {
+        //            int int_filterCode;
+
+        //            if (int.TryParse(FilterCode, out int_filterCode))
+        //            {
+        //                filtered = allItems.Where(x => x.id == int_filterCode);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            //Filtro por VAT
+        //            if (FilterCategory > 0)
+        //            {
+        //                filtered = allItems.Where(x => x._categ_id == FilterCategory);
+        //            }
+        //            else
+        //            {
+        //                //Filtro por nombre
+        //                if (string.IsNullOrWhiteSpace(FilterName))
+        //                {
+        //                    FilterName = "";
+        //                }
+
+        //                filtered = string.IsNullOrWhiteSpace(FilterName)
+        //                    ? allItems.Where(x=> !x.image_256.Contains("false"))
+        //                    : allItems.Where(x => x.name.Contains(FilterName, StringComparison.OrdinalIgnoreCase));
+
+        //                filtered = allItems;
+        //            }
+        //        }
+
+        //        Debug.WriteLine("Filtro actual:" + FilterName);
+
+        //        string userSearch = "";
+
+        //        //if (int.TryParse(str_codagencia, out company_id)) { }
+
+        //        TotalItems = filtered.Count();
+
+        //        var paginated = filtered
+        //            .Skip((_page - 1) * _pageSize)
+        //            .Take(_pageSize);
+
+        //        _itemsData = [.. paginated];
+        //        OnPropertyChanged(nameof(ItemsData));
+        //        OnPropertyChanged(nameof(CanGoNext));
+        //        OnPropertyChanged(nameof(CanGoPrevious));
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _itemsData = new ObservableCollection<product_product>();
+        //        Debug.WriteLine(ex.ToString());
+        //    }
+        //}
 
         public ICommand NextPageCommand => new Command(async () =>
         {

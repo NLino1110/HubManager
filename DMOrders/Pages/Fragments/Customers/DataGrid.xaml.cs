@@ -280,11 +280,11 @@ namespace DMOrders.Pages.Fragments.Customers
 
         private async void FixedRefreshView_Refreshing(object sender, EventArgs e)
         {
-            await Task.Delay(5000);
+            //await Task.Delay(5000);
 
             //FillItems();
 
-            (sender as FixedRefreshView).IsRefreshing = false;
+            //(sender as FixedRefreshView).IsRefreshing = false;
         }
 
         private async void Button_Clicked(object sender, EventArgs e)
@@ -292,7 +292,7 @@ namespace DMOrders.Pages.Fragments.Customers
             Button button = (sender as Button);
             SelectedItem = (res_partner) button.BindingContext;
 
-            var viewModel = (ViewModel)BindingContext;
+            var viewModel = (ViewModel) BindingContext;
             viewModel.OnItemTapped(SelectedItem);
 
             if (SelectedItem != null)

@@ -33,10 +33,25 @@ namespace DMOrders.Pages.Fragments.Product
         public static readonly BindableProperty ViewParentProperty =
             BindableProperty.Create(nameof(ViewParent), typeof(ContentView), typeof(DataGrid));
 
+        public static readonly BindableProperty FiltersViewProperty =
+        BindableProperty.Create(
+            nameof(FiltersView),
+            typeof(Filters),
+            typeof(DataGrid),
+            default(Filters),
+            validateValue: (bindable, value) => value is null || value is Filters, // opcional
+            propertyChanged: OnFiltersChanged);
+
+        public Filters FiltersView
+        {
+            get => (Filters)GetValue(FiltersViewProperty);
+            set => SetValue(FiltersViewProperty, value);
+        }
+
         public DataGrid()
         {
             InitializeComponent();
-            BindingContext = new ProductListViewModel();
+            BindingContext = new ProductListViewModel(FiltersView);
 
             //IDispatcherTimer timer;
 
@@ -69,6 +84,22 @@ namespace DMOrders.Pages.Fragments.Product
         //    //}
         //}
 
+
+        private static void OnFiltersChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            var view = (DataGrid)bindable;
+            view.ApplyFilters();
+        }
+
+        private void ApplyFilters()
+        {
+            if (BindingContext is ProductListViewModel vm)
+            {
+                vm.filters = FiltersView;
+                //vm.LoadDataByTimer();
+            }
+        }
+
         private void Current_MainDisplayInfoChanged(object sender, DisplayInfoChangedEventArgs e)
         {
             if (e.DisplayInfo.Orientation == DisplayOrientation.Landscape)
@@ -92,13 +123,8 @@ namespace DMOrders.Pages.Fragments.Product
 
         void OnTapGestureRecognizerTapped(object sender, TappedEventArgs args)
         {
-            ProductListViewModel productListViewModel = new ProductListViewModel();
-            BindingContext = productListViewModel;
-
-            //MainThread.BeginInvokeOnMainThread(() =>
-            //{
-            //    InvalidateMeasure();
-            //});
+            var viewModel = (ProductListViewModel)BindingContext;
+            viewModel.LoadDataByTimer();
 
             Debug.WriteLine("Tap:" + sender.ToString());
         }
@@ -239,22 +265,13 @@ namespace DMOrders.Pages.Fragments.Product
             OnTapGestureRecognizerTapped(this, null);
         }
 
-        internal void LoadData(string Code, string Id, string Name, FDays Days, FStatus Status)
+        internal void LoadData(Filters _filters)
         {
-            filterCode = Code;
-            filterId = Id;
-            filterName = Name;
-            filterDays = Days;
-            filterStatus = Status;
-
+            FiltersView = _filters;
             OnTapGestureRecognizerTapped(this, null);
-            //MainViewModelCustomers mainViewModelCustomers = new MainViewModelCustomers(Name);            
-            //BindingContext = mainViewModelCustomers;
-
-            //Debug.WriteLine("Tap:" + sender.ToString());
         }
 
-        private async void MyCollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void ProductCollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             //BUG: Crash sino se hace esta validación
             if (e.CurrentSelection.Count == 0) return;
@@ -296,6 +313,18 @@ namespace DMOrders.Pages.Fragments.Product
             //{
             //    layout.Span = span;
             //}
+        }
+
+        private void listViewProduct_ItemTapped(object sender, object e)
+        {
+            if (e == null) return;
+
+            Debug.WriteLine(ViewParent);
+            Debug.WriteLine(e.ToString());
+
+            var customerContainer = (Product.Container) ViewParent;
+            product_product selectedProduct = (product_product) e;
+            customerContainer.LoadInfo(selectedProduct);
         }
     }
 }
