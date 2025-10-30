@@ -1,4 +1,5 @@
 ﻿
+using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
@@ -11,7 +12,9 @@ using DMOrders.Services.Helpers;
 using DMOrders.Services.Update.Pusher;
 using DMOrders.Shared;
 using DMSA.Models.Odoo.DMOrders;
+using DMSA.Models.Odoo.DMOrders.promotions;
 using DMSA.Models.Odoo.Native;
+using Microsoft.Maui.Controls.Shapes;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -378,10 +381,35 @@ public partial class Crud : ContentPage, IBackButtonHandler
         {
             Content = view,
             BackgroundColor = Colors.Black.WithAlpha(0.4f), // fondo semi-transparente
-            CanBeDismissedByTappingOutsideOfPopup = true
+            CanBeDismissedByTappingOutsideOfPopup = true,
+            Padding = new Thickness(0),
+            Margin = new Thickness(0)
         };
 
-        var result = await PopupExtensions.ShowPopupAsync<product_marca>(App.Current.MainPage, popup);
+        view.ClosePopupAction = (promo) => PopupExtensions.ClosePopupAsync(Application.Current.Windows[0].Page, promo);
+
+        var result = await PopupExtensions.ShowPopupAsync<List<PromotionBenefit>>(App.Current.Windows[0].Page, popup, new PopupOptions
+        {
+            Shape = new RoundRectangle
+            {
+                CornerRadius = new CornerRadius(0),
+                Stroke = Colors.Gray,
+                StrokeThickness = 0.1,                
+            },
+            Shadow = new Shadow
+            {
+                Brush = Brush.Black,
+                Offset = new Point(5, 5),
+                Opacity = 0.5f,
+                Radius = 0
+            },
+        });
+
+        if (result is List<PromotionBenefit> selected)
+        {
+            // Usar la promoción seleccionada
+            Debug.WriteLine(selected);
+        }
 
         if (result.Result != null)
         {

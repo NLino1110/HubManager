@@ -4,14 +4,34 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="DMOrders.Pages.Fragments.Orders.modals.PromocionesViewer"
+    xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
     BackgroundColor="Transparent"
-    Padding="10">
+    Padding="10"
+    x:Name="Root">
 
     <VerticalStackLayout
         WidthRequest="800"
-        Spacing="10"
-        BackgroundColor="Transparent">
+        Spacing="0"
+        BackgroundColor="WhiteSmoke"
+        Padding="5">
 
+        <Grid 
+            BackgroundColor="#80000000"
+            IsVisible="{Binding IsLoading}"
+            VerticalOptions="Fill"
+            HorizontalOptions="Fill"
+            ZIndex="10">
+                        <ActivityIndicator 
+                IsRunning="{Binding IsLoading}" 
+                Color="MediumVioletRed"
+                WidthRequest="100"
+                HeightRequest="100"
+                VerticalOptions="Center"
+                HorizontalOptions="Center" />
+        </Grid>
+        
+        
         <!-- Título -->
         <Label
             Text="PROMOCIONES APLICABLES AL PEDIDO"
@@ -23,7 +43,7 @@
         <!-- Cabecera de la tabla -->
         <HorizontalStackLayout
             BackgroundColor="#DDDDDD"
-            Padding="4">
+            Padding="0,0,0,0">
 
             <Label Text="Nº" WidthRequest="40" FontAttributes="Bold" FontSize="12" />
             <Label Text="CÓDIGO" WidthRequest="100" FontAttributes="Bold" FontSize="12" />
@@ -35,33 +55,45 @@
         </HorizontalStackLayout>
 
         <!-- Lista principal -->
-        <Frame BorderColor="#CCCCCC" HasShadow="False" Padding="0" HeightRequest="200">
-            <CollectionView x:Name="ListaDetallesPromocion"
-                            ItemsSource="{Binding Promociones}">
+        <Border StrokeThickness="1" StrokeLineCap="Flat" Padding="0" HeightRequest="200">
+            <CollectionView 
+                x:Name="ListaDetallesPromocion" 
+                ItemsSource="{Binding ItemsData, Source={x:Reference Root}}"                
+                EmptyView="No hay datos de promociones..."
+                SelectionMode="Single"
+                HorizontalOptions="Fill">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <HorizontalStackLayout Padding="4">
-                            <Label Text="{Binding Numero}" WidthRequest="40" />
-                            <Label Text="{Binding Codigo}" WidthRequest="100" />
-                            <Label Text="{Binding Descripcion}" WidthRequest="100" />
-                            <Label Text="{Binding TipoPromocion}" WidthRequest="100" />
-                            <Label Text="{Binding Cantidad}" WidthRequest="80" HorizontalTextAlignment="Center" />
-                            <Label Text="{Binding Estado}" WidthRequest="100" HorizontalTextAlignment="Center" />
+                        <HorizontalStackLayout Padding="10">
+                            <Label Text="{Binding id}" WidthRequest="40" />
+                            <Label Text="{Binding name}" WidthRequest="150" />
+                            <Label Text="{Binding descripcion}" WidthRequest="100" />
+                            <Label Text="{Binding _selection_type_id}" WidthRequest="80" HorizontalTextAlignment="Center" />
+                            <Label Text="{Binding _selection_type_id}" WidthRequest="80" HorizontalTextAlignment="Center" />
+                            <Label Text="{Binding code}" WidthRequest="100" />
+                            <Label Text="{Binding state}" WidthRequest="100" HorizontalTextAlignment="Center" />
                         </HorizontalStackLayout>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-        </Frame>
+        </Border>
 
         <!-- Controles inferiores -->
-        <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
-            <Button Text="APLICAR"
-                    WidthRequest="130"
-                    HeightRequest="30"
-                    BackgroundColor="#4CAF50"
-                    FontSize="14"
-                    FontAttributes="Bold" />
-
+        <HorizontalStackLayout Spacing="10" VerticalOptions="Center" Margin="5,5,5,5">
+            <Button Text="Aplicar" 
+                    BackgroundColor="#4CAF50" 
+                    TextColor="White" 
+                    HeightRequest="40"
+                    WidthRequest="120"
+                    Padding="0">
+                <Button.ImageSource>
+                    <FontImageSource 
+                        Size="25"
+                        FontFamily="MaterialSharp"
+                        Glyph="{x:Static uranium:MaterialSharp.Check_circle}" />
+                </Button.ImageSource>
+            </Button>
+            
             <ImageButton Source="buscar.png"
                          WidthRequest="30"
                          HeightRequest="30"
@@ -74,15 +106,13 @@
 
             <Label Text="ARTICULOS SELECCIONABLES"
                    FontAttributes="Bold"
-                   HorizontalOptions="CenterAndExpand"
-                   HorizontalTextAlignment="Center"
-                   FontSize="15" />
+                   HorizontalOptions="Fill"
+                   VerticalTextAlignment="Center"
+                   FontSize="15"/>
         </HorizontalStackLayout>
 
         <!-- Cabecera de selección -->
-        <HorizontalStackLayout
-            BackgroundColor="#DDDDDD"
-            Padding="4">
+        <HorizontalStackLayout BackgroundColor="#DDDDDD">
 
             <Label Text="Nº" WidthRequest="40" FontAttributes="Bold" FontSize="12" />
             <Label Text="CODIGO" WidthRequest="100" FontAttributes="Bold" FontSize="12" />
@@ -94,8 +124,9 @@
         </HorizontalStackLayout>
 
         <!-- Lista de selección -->
-        <Frame BorderColor="#CCCCCC" HasShadow="False" Padding="0" HeightRequest="250">
+        <Border StrokeThickness="1" StrokeLineCap="Flat" HeightRequest="200">
             <CollectionView x:Name="ListaDetallesSeleccion"
+                            EmptyView="No hay datos para mostrar..."
                             ItemsSource="{Binding Selecciones}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
@@ -111,24 +142,31 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-        </Frame>
+        </Border>
 
         <!-- Botones finales -->
-        <HorizontalStackLayout HorizontalOptions="Fill" Padding="10" Spacing="10">
-            <Button Text="CONTINUAR"
-                    WidthRequest="130"
-                    HeightRequest="30"
-                    BackgroundColor="#4CAF50"
-                    FontAttributes="Bold"
-                    FontSize="14"
-                    HorizontalOptions="Start" />
+        <HorizontalStackLayout HorizontalOptions="Fill" Spacing="10" Margin="5,5,5,5">
+            <Button Text="Continuar" 
+                BackgroundColor="#4CAF50" 
+                TextColor="White" 
+                HeightRequest="40"
+                WidthRequest="120"
+                Padding="0"
+                    Clicked="OnCloseButtonClicked">
+                <Button.ImageSource>
+                    <FontImageSource 
+                        Size="25"
+                        FontFamily="MaterialSharp"
+                        Glyph="{x:Static uranium:MaterialSharp.Arrow_circle_right}" />
+                </Button.ImageSource>
+            </Button>
 
             <Label Text="TOTAL: 0.00"
                    FontAttributes="Bold"
                    FontSize="16"
-                   HorizontalOptions="EndAndExpand"
-                   HorizontalTextAlignment="End" />
+                   HorizontalOptions="Fill"
+                   HorizontalTextAlignment="End" 
+                   VerticalTextAlignment="Center"/>
         </HorizontalStackLayout>
-
     </VerticalStackLayout>
 </ContentView>

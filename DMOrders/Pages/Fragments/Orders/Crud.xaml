@@ -22,7 +22,7 @@
         <BackButtonBehavior IsEnabled="{StaticResource IsBackButtonEnabled}" IsVisible="{StaticResource IsBackButtonEnabled}"/>
     </Shell.BackButtonBehavior>
 
-    <Grid ColumnDefinitions="Auto,*">
+    <Grid ColumnDefinitions="Auto,*">        
         <modals:CatalogViewerInner x:Name="SearchProductView" 
                    IsVisible="False" 
                    Grid.Row="0" 

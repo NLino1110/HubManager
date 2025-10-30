@@ -32,7 +32,7 @@
                 <mpowerkit:VirtualizeListView 
                         x:Name="listViewProduct"
                         ItemsSource="{Binding ItemsData}"
-                        ItemTapCommand="{Binding ItemTappedCommand}"
+                        ItemTapCommand="{Binding ItemTappedCommand}"                    
                         Padding="0"
                         BackgroundColor="Gray"
                         ItemTapped="listViewProduct_ItemTapped">
