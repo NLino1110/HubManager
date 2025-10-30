@@ -135,7 +135,15 @@ namespace DMSA.Models.Odoo.Native
         [JsonIgnore]
         public bool is_imported { get; set; }
         [JsonIgnore]
-        public bool date_imported { get; set; }
+        public DateTime date_imported { get; set; }
+                
+        public int sale_channel { get; set; }
+
+        [JsonIgnore]
+        public int erp_id { get; set; }
+
+        [JsonProperty("id_referencia")]
+        public string id_referencia { get; set; }
 
         [Ignore]
         [JsonIgnore]

@@ -11,12 +11,12 @@
              x:Class="DMOrders.Pages.Fragments.Orders.DataGrid"
              x:Name="ActivitiesDataGrid">
 
-    <Grid RowDefinitions="*,Auto">
-
-        <ScrollView Grid.Row="0" BackgroundColor="WhiteSmoke">
-            <VerticalStackLayout>
-                <Label Text="Listado de ordenes creadas por el usuario..." TextColor="DimGray" BackgroundColor="LightYellow" Padding="5"></Label>
-                <CollectionView 
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Label Grid.Row="0" Text="Listado de ordenes creadas por el usuario..." TextColor="DimGray" BackgroundColor="LightYellow" Padding="5"></Label>
+        
+        <Grid Grid.Row="1">
+            
+            <CollectionView 
                     x:Name="MyCollectionView"
                     ItemsSource="{Binding ItemsData}" 
                                 EmptyView="No existen resultados..." 
@@ -24,19 +24,36 @@
                                 SelectionMode="Single"
                                 SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
                                 SelectionChanged="MyCollectionView_SelectionChanged">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <customrows:SaleOrderRow
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <customrows:SaleOrderRow
                                 Item="{x:Binding .}" 
                                 EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
                                 SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"/>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-            </VerticalStackLayout>
-        </ScrollView>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
 
-        <StackLayout Grid.Row="1"  Orientation="Horizontal" HorizontalOptions="Center" Margin="0,2">
+
+            <Grid 
+    
+    BackgroundColor="#80000000"
+    IsVisible="{Binding IsLoading}"
+    VerticalOptions="Fill"
+    HorizontalOptions="Fill"
+    ZIndex="10">
+                <ActivityIndicator 
+        IsRunning="{Binding IsLoading}" 
+        Color="MediumVioletRed"
+        WidthRequest="100"
+        HeightRequest="100"
+        VerticalOptions="Center"
+        HorizontalOptions="Center" />
+            </Grid>
+
+        </Grid>
+
+        <StackLayout Grid.Row="2"  Orientation="Horizontal" HorizontalOptions="Center" Margin="0,2">
             <Button Text=""
             Command="{Binding PreviousPageCommand}"
             IsEnabled="{Binding CanGoPrevious}" >

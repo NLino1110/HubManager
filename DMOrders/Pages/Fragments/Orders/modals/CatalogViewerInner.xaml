@@ -292,13 +292,14 @@
                 <mpowerkit:FixedRefreshView                    
                 HorizontalOptions="Fill" 
                 VerticalOptions="Fill"
-                IsPullToRefreshEnabled="False" IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
+                IsPullToRefreshEnabled="False">
                     <mpowerkit:VirtualizeListView 
                 x:Name="listViewProduct"
                 ItemsSource="{Binding ItemsData}"                
-                Padding="0"
+                Padding="0"                        
                 BackgroundColor="Gray" 
-                        ItemTemplate="{StaticResource ProductTemplateSelector}">
+                        ItemTemplate="{StaticResource ProductTemplateSelector}"
+                        IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
                         <mpowerkit:VirtualizeListView.ItemsLayout>
                             <mpowerkit:GridLayout HorizontalItemSpacing="1" Span="4" VerticalItemSpacing="1" />
                         </mpowerkit:VirtualizeListView.ItemsLayout>

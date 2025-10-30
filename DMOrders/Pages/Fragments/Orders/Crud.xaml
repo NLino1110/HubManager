@@ -34,10 +34,19 @@
         <Grid Grid.Row="0" 
               Grid.Column="0" 
               Padding="10"
-RowDefinitions="Auto,Auto,Auto,Auto,Auto" 
+RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" 
               WidthRequest="220">
 
-            <Grid Grid.Row="0" 
+            <Button Grid.Row="0" Text="" Clicked="ButtonClose_Clicked" BackgroundColor="Gray" TextColor="White" HeightRequest="50" WidthRequest="50" Padding="0">
+                <Button.ImageSource>
+                    <FontImageSource 
+    Size="30"
+    FontFamily="MaterialSharp"
+    Glyph="{x:Static uranium:MaterialSharp.Arrow_back}"/>
+                </Button.ImageSource>
+            </Button>
+            
+            <Grid Grid.Row="1" 
                     ColumnDefinitions="*,*" 
                     RowSpacing="4" 
                     RowDefinitions="Auto,Auto,Auto,Auto"
@@ -58,21 +67,21 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto"
 
                 <Label Text="Stock:" Grid.Row="2" Grid.Column="0"/>
                 <Label Grid.Row="2" Grid.Column="1" Text="{Binding Path=ProductEditing.qty_available, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
-    FontSize="12" 
-    FontAttributes="Bold"
-    TextColor="#242322"
+                        FontSize="12" 
+                        FontAttributes="Bold"
+                        TextColor="#242322"
                        HorizontalTextAlignment="Start"
                        VerticalTextAlignment="Center"></Label>
                 <Label Text="Precio: $" Grid.Row="3" Grid.Column="0"/>
                 <Label Grid.Row="3" Grid.Column="1" Text="{Binding Path=ProductEditing.list_price, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
-FontSize="12" 
-FontAttributes="Bold"
-TextColor="#242322"
+                        FontSize="12"
+                        FontAttributes="Bold"
+                        TextColor="#242322"
                        HorizontalTextAlignment="Start"
                        VerticalTextAlignment="Center"></Label>
             </Grid>
 
-            <Border Grid.Row="1" Stroke="LightGrey" Padding="3" Margin="0,0,0,0">
+            <Border Grid.Row="2" Stroke="LightGrey" Padding="3" Margin="0,0,0,0">
                 <VerticalStackLayout>
                     <Label Text="Cant. sol." 
                            BackgroundColor="SlateGray" 
@@ -131,7 +140,7 @@ TextColor="#242322"
                 </VerticalStackLayout>
             </Border>
 
-            <Button Grid.Row="2" Text="" BackgroundColor="LimeGreen" 
+            <Button Grid.Row="3" Text="" BackgroundColor="LimeGreen" 
                     TextColor="White" 
                     FontAttributes="Bold" 
                     Margin="5"
@@ -144,7 +153,7 @@ TextColor="#242322"
                 </Button.ImageSource>
             </Button>
 
-            <Grid Grid.Row="3" ColumnDefinitions="Auto,Auto,Auto" RowDefinitions="Auto,Auto,Auto,Auto" Padding="5" RowSpacing="2" ColumnSpacing="2">
+            <Grid Grid.Row="4" ColumnDefinitions="Auto,Auto,Auto" RowDefinitions="Auto,Auto,Auto,Auto" Padding="5" RowSpacing="2" ColumnSpacing="2">
                 <!-- Fila 1 -->
                 <Button Text="1" Grid.Row="0" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked">
 
@@ -168,7 +177,7 @@ TextColor="#242322"
                 <Button Text="⌫" Grid.Row="3" Grid.Column="2" FontAttributes="Bold" FontSize="12" FontAutoScalingEnabled="True" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
             </Grid>
 
-            <Button Grid.Row="4"
+            <Button Grid.Row="5"
               Text="" 
               HorizontalOptions="Fill" 
               BackgroundColor="Gray" 
@@ -186,19 +195,21 @@ TextColor="#242322"
         </Grid>
 
         <Grid RowDefinitions="Auto,Auto,*,Auto" Grid.Column="1">
+            <Grid Grid.Row="0"
+              ColumnDefinitions="*,*,Auto"
+              Margin="10">
 
-            <HorizontalStackLayout Grid.Row="0" Grid.Column="1" HorizontalOptions="Fill" Spacing="50" Margin="10">
-                <VerticalStackLayout HorizontalOptions="Fill">
+                <VerticalStackLayout Grid.Column="0">
                     <Label Text="{Binding Path=PartnerDisplayName, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
                            FontSize="16" 
                            FontAttributes="Bold"
                            TextColor="#242322"></Label>
                     <Label Text="{Binding Path=PartnerDisplayAddress, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
-                           FontSize="16" 
+                           FontSize="11" 
                            FontAttributes="Bold"
                            TextColor="#4d4947"></Label>
                 </VerticalStackLayout>
-                <VerticalStackLayout HorizontalOptions="End">
+                <VerticalStackLayout Grid.Column="1">
                     <Label Text="CANAL VTA" 
                            FontSize="16" 
                            FontAttributes="Bold"
@@ -208,7 +219,37 @@ TextColor="#242322"
                            FontAttributes="Bold"
                            TextColor="#4d4947"></Label>
                 </VerticalStackLayout>
-            </HorizontalStackLayout>
+
+                <HorizontalStackLayout Grid.Column="2" HorizontalOptions="Fill" Spacing="10">
+                    <Button Text="" Clicked="ButtonAddNew_Clicked" BackgroundColor="MediumPurple" TextColor="White" HeightRequest="50" WidthRequest="50" Padding="0">
+                        <Button.ImageSource>
+                            <FontImageSource 
+                                Size="30"
+                                FontFamily="MaterialSharp"
+                                Glyph="{x:Static uranium:MaterialSharp.Add}"/>
+                        </Button.ImageSource>
+                    </Button>
+
+                    <Button Text="Guardar" Clicked="ButtonSave_Clicked" BackgroundColor="LimeGreen" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0">
+                        <Button.ImageSource>
+                            <FontImageSource 
+Size="30"
+FontFamily="MaterialSharp"
+Glyph="{x:Static uranium:MaterialSharp.Save}" />
+                        </Button.ImageSource>
+                    </Button>
+                    <Button x:Name="btnSend" Text="Enviar" Clicked="ButtonSync_Clicked" BackgroundColor="DeepSkyBlue" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0">
+                        <Button.ImageSource>
+                            <FontImageSource 
+Size="30"
+FontFamily="MaterialSharp"
+Glyph="{x:Static uranium:MaterialSharp.Send}" />
+                        </Button.ImageSource>
+                    </Button>
+
+                </HorizontalStackLayout>
+                
+            </Grid>
             <!--<Label Grid.Row="1" Grid.Column="0" Text="TITULO CABECERAS" HorizontalOptions="Center"></Label>-->
             <Grid BackgroundColor="LightGray" 
                   Grid.Row="1" 
@@ -216,17 +257,17 @@ TextColor="#242322"
                   ColumnDefinitions="Auto,1.5*,*,*,*,*,*,*,*,*,*" 
                   RowDefinitions="Auto" 
                   HorizontalOptions="Fill">
-                <Label Grid.Column="0" FontAttributes="Bold" Text="No" Padding="0,0,5,0"></Label>
-                <Label Grid.Column="1" FontAttributes="Bold" Text="ARTICULO"></Label>
-                <Label Grid.Column="2" FontAttributes="Bold" Text="UNIDAD"></Label>
-                <Label Grid.Column="3" FontAttributes="Bold" Text="CNTREAL"></Label>
-                <Label Grid.Column="4" FontAttributes="Bold" Text="CNTDSP"></Label>
-                <Label Grid.Column="5" FontAttributes="Bold" Text="PRECIO"></Label>
-                <Label Grid.Column="6" FontAttributes="Bold" Text="SUBTOTAL"></Label>
-                <Label Grid.Column="7" FontAttributes="Bold" Text="%DESC."></Label>
-                <Label Grid.Column="8" FontAttributes="Bold" Text="$DESC."></Label>
-                <Label Grid.Column="9" FontAttributes="Bold" Text="IMP."></Label>
-                <Label Grid.Column="10" FontAttributes="Bold" Text="TOTAL"></Label>
+                <Label Grid.Column="0" FontAttributes="Bold" Text="No" Padding="0,0,5,0" FontSize="11" ></Label>
+                <Label Grid.Column="1" FontAttributes="Bold" Text="ARTICULO" FontSize="11"></Label>
+                <Label Grid.Column="2" FontAttributes="Bold" Text="UNIDAD" FontSize="11"></Label>
+                <Label Grid.Column="3" FontAttributes="Bold" Text="CNTREAL" FontSize="11"></Label>
+                <Label Grid.Column="4" FontAttributes="Bold" Text="CNTDSP" FontSize="11"></Label>
+                <Label Grid.Column="5" FontAttributes="Bold" Text="PRECIO" FontSize="11"></Label>
+                <Label Grid.Column="6" FontAttributes="Bold" Text="SUBTOTAL" FontSize="11"></Label>
+                <Label Grid.Column="7" FontAttributes="Bold" Text="%DESC." FontSize="11"></Label>
+                <Label Grid.Column="8" FontAttributes="Bold" Text="$DESC." FontSize="11"></Label>
+                <Label Grid.Column="9" FontAttributes="Bold" Text="IMP." FontSize="11"></Label>
+                <Label Grid.Column="10" FontAttributes="Bold" Text="TOTAL" FontSize="11"></Label>
             </Grid>
 
             <Grid RowDefinitions="*" ColumnDefinitions="*" Grid.Row="2" HorizontalOptions="Fill">
@@ -256,7 +297,7 @@ TextColor="#242322"
                 <HorizontalStackLayout Grid.Row="0" 
                                        Grid.Column="0"
                                VerticalOptions="Start" 
-                               HorizontalOptions="Center" 
+                               HorizontalOptions="End" 
                                Margin="0,0,0,10" 
                                        Spacing="10">
                     
@@ -269,66 +310,82 @@ TextColor="#242322"
                     FontSize="12"
                     FontAttributes="Bold"
                     HorizontalTextAlignment="Center"
-                    Padding="3"/>
+                    Padding="3" IsVisible="False"/>
                         </uranium:ExpanderView.Header>
                         <StackLayout>
-                            <material:EditorField x:Name="fieldNote" Title="Description" Text="{Binding Note, Mode=TwoWay}" />
+                            <material:EditorField x:Name="fieldNote" Title="Observac." Text="{Binding Note, Mode=TwoWay}" />
                         </StackLayout>
                     </uranium:ExpanderView>
-
-
-                    <Button Text="" Clicked="ButtonClose_Clicked" BackgroundColor="Gray" TextColor="White" HeightRequest="50" WidthRequest="50" Padding="0">
-                        <Button.ImageSource>
-                            <FontImageSource 
-                        Size="30"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.Arrow_back}"/>
-                        </Button.ImageSource>
-                    </Button>
-
-                    <Button Text="" Clicked="ButtonAddNew_Clicked" BackgroundColor="MediumPurple" TextColor="White" HeightRequest="50" WidthRequest="50" Padding="0">
-                        <Button.ImageSource>
-                            <FontImageSource 
-                        Size="30"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.Add}"/>
-                        </Button.ImageSource>
-                    </Button>
-                    <!--<Button Text="Agregar" Clicked="ButtonNew_Clicked" BackgroundColor="Green" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0">
-    <Button.ImageSource>
-        <FontImageSource 
-            Size="30"
-            FontFamily="MaterialSharp"
-            Glyph="{x:Static uranium:MaterialSharp.New_label}" />
-        </Button.ImageSource>
-</Button>-->
-                    <Button Text="Guardar" Clicked="ButtonSave_Clicked" BackgroundColor="LimeGreen" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0">
-                        <Button.ImageSource>
-                            <FontImageSource 
-            Size="30"
-            FontFamily="MaterialSharp"
-            Glyph="{x:Static uranium:MaterialSharp.Save}" />
-                        </Button.ImageSource>
-                    </Button>
-                    <Button x:Name="btnSend" Text="Enviar" Clicked="ButtonSync_Clicked" BackgroundColor="DeepSkyBlue" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0">
-                        <Button.ImageSource>
-                            <FontImageSource 
-            Size="30"
-            FontFamily="MaterialSharp"
-            Glyph="{x:Static uranium:MaterialSharp.Send}" />
-                        </Button.ImageSource>
-                    </Button>
                     
                 </HorizontalStackLayout>
 
-                <VerticalStackLayout Grid.Column="2" HorizontalOptions="End" Margin="0" BackgroundColor="LightGray" WidthRequest="200">
-                    <Label Text="SUBTOTAL:" FontSize="10" FontAttributes="Bold"></Label>
-                    <Label Text="DESCUENTO:" FontSize="10" FontAttributes="Bold"></Label>
+                <Grid Grid.Column="2"
+                     ColumnDefinitions="*,*"                    
+                     RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                     RowSpacing="4" 
+                     ColumnSpacing="15"
+                     BackgroundColor="GhostWhite"
+                      Padding="10"
+                      Margin="20">
+                    <Label Text="Subtotal:" Grid.Row="1" Grid.Column="0" FontSize="11"/>
+                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding Subtotal, StringFormat='${0:N2}'}" 
+                         FontSize="11" 
+                         FontAttributes="Bold"
+                         TextColor="#242322"
+                            HorizontalTextAlignment="Start"
+                            VerticalTextAlignment="Center"></Label>
+                    
+                    <Label Text="Descuento:" Grid.Row="2" Grid.Column="0" FontSize="11"></Label>
+                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding Descuento, StringFormat='${0:N2}'}" 
+                     FontSize="11" 
+                     FontAttributes="Bold"
+                     TextColor="#242322"
+                        HorizontalTextAlignment="Start"
+                        VerticalTextAlignment="Center"></Label>
+
+                    <Label Text="Neto:" Grid.Row="3" Grid.Column="0" FontSize="11"></Label>
+                    <Label Grid.Row="3" Grid.Column="1" Text="{Binding Neto, StringFormat='${0:N2}'}" 
+                     FontSize="11" 
+                     FontAttributes="Bold"
+                     TextColor="#242322"
+                        HorizontalTextAlignment="Start"
+                        VerticalTextAlignment="Center"></Label>
+
+                    <Label Text="Impuesto:" Grid.Row="4" Grid.Column="0" FontSize="11"></Label>
+                    <Label Grid.Row="4" Grid.Column="1" Text="{Binding Impuesto, StringFormat='${0:N2}'}" 
+                     FontSize="11" 
+                     FontAttributes="Bold"
+                     TextColor="#242322"
+                        HorizontalTextAlignment="Start"
+                        VerticalTextAlignment="Center"></Label>
+
+                    <Label Text="Comp. Solidaria:" Grid.Row="5" Grid.Column="0" FontSize="11"></Label>
+                    <Label Grid.Row="5" Grid.Column="1" Text="{Binding CompSolidaria, StringFormat='${0:N2}'}" 
+                     FontSize="11" 
+                     FontAttributes="Bold"
+                     TextColor="#242322"
+                        HorizontalTextAlignment="Start"
+                        VerticalTextAlignment="Center"></Label>
+
+                    <Label Text="Total:" Grid.Row="6" Grid.Column="0" FontSize="11"></Label>
+                    <Label Grid.Row="6" Grid.Column="1" Text="{Binding Total, StringFormat='${0:N2}'}" 
+                     FontSize="11" 
+                     FontAttributes="Bold"
+                     TextColor="#242322"
+                        HorizontalTextAlignment="Start"
+                        VerticalTextAlignment="Center"></Label>
+
+
+                </Grid>
+                <!--<VerticalStackLayout Grid.Column="2" HorizontalOptions="End" Margin="0" BackgroundColor="LightGray" WidthRequest="200">
+                    <Label Text="Subtotal:" FontSize="10" FontAttributes="Bold"></Label>
+                    <Label FontSize="10" FontAttributes="Bold" Text="{Binding Subtotal}"></Label>
+                    
                     <Label Text="NETO:" FontSize="10" FontAttributes="Bold"></Label>
                     <Label Text="IMPUESTO:" FontSize="10" FontAttributes="Bold"></Label>
                     <Label Text="COMP.SOLIDARIA:" FontSize="10" FontAttributes="Bold"></Label>
                     <Label Text="TOTAL:" FontSize="10" FontAttributes="Bold"></Label>
-                </VerticalStackLayout>
+                </VerticalStackLayout>-->
             </Grid>
 
         </Grid>

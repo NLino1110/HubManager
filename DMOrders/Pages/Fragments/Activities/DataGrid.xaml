@@ -30,9 +30,9 @@
             <Label Text="ESTADO" Grid.Column="5" FontAttributes="Bold" Padding="10,0,10,0" TextColor="GhostWhite"/>
             <Label Text="-" Grid.Column="6" FontAttributes="Bold" Padding="10,0,10,0" TextColor="GhostWhite"/>
         </Grid>
-        <ScrollView Grid.Row="1" BackgroundColor="WhiteSmoke">
-            <VerticalStackLayout>                
-                <CollectionView 
+
+        <Grid Grid.Row="1">
+            <CollectionView 
                     x:Name="MyCollectionView"
                     ItemsSource="{Binding Activities}" 
                                 EmptyView="No hay tareas diarias ingresadas..." 
@@ -49,10 +49,24 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-            </VerticalStackLayout>
-        </ScrollView>
+            
+                <Grid
+                    BackgroundColor="#80000000"
+                    IsVisible="{Binding IsLoading}"
+                    VerticalOptions="Fill"
+                    HorizontalOptions="Fill"
+                    ZIndex="10">
+                    <ActivityIndicator 
+                        IsRunning="{Binding IsLoading}" 
+                        Color="MediumVioletRed"
+                        WidthRequest="100"
+                        HeightRequest="100"
+                        VerticalOptions="Center"
+                        HorizontalOptions="Center" />
+                </Grid>
+                </Grid>
 
-        <StackLayout Grid.Row="2"  Orientation="Horizontal" HorizontalOptions="Center" Margin="0,2">
+                <StackLayout Grid.Row="2"  Orientation="Horizontal" HorizontalOptions="Center" Margin="0,2">
             <Button Text=""
                 Command="{Binding PreviousPageCommand}"
                 IsEnabled="{Binding CanGoPrevious}">

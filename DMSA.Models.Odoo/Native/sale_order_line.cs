@@ -7,7 +7,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DMSA.Models.Odoo.Native
 {
-
     public class OrderLineWrapper : List<object>
     {
         public OrderLineWrapper(sale_order_line line)
@@ -49,8 +48,6 @@ namespace DMSA.Models.Odoo.Native
         [JsonIgnore]
         public decimal _product_uom_qty { get; set; }
 
-
-
         [JsonProperty("product_uom_qty")]
         public decimal product_uom_qty
         {
@@ -64,7 +61,6 @@ namespace DMSA.Models.Odoo.Native
                 }
             }
         }
-
 
         [Ignore]
         [JsonIgnore]
@@ -82,11 +78,6 @@ namespace DMSA.Models.Odoo.Native
                 } 
             }
         }
-
-        //[JsonProperty("product_qty")]
-        //public decimal product_qty { get; set; }
-
-        //[JsonProperty("qty_to_deliver")]        
 
         [JsonProperty("price_unit")]
         public decimal price_unit { get; set; }
@@ -123,11 +114,14 @@ namespace DMSA.Models.Odoo.Native
         [JsonProperty("discount")]
         public decimal discount { get; set; }
 
+        [JsonProperty("amount_discount")]
+        public decimal amount_discount { get; set; }
+
         [JsonProperty("price_tax")]
         public decimal price_tax { get; set; }
 
         [JsonProperty("price_subtotal")]
-        public decimal price_subtotal { get; set; }
+        public decimal price_subtotal { get; set; }        
 
         [JsonProperty("price_total")]
         public decimal price_total { get; set; }

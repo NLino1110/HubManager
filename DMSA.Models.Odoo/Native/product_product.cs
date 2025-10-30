@@ -2,13 +2,8 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SQLite;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DMSA.Models.Odoo.Native
 {
@@ -77,6 +72,8 @@ namespace DMSA.Models.Odoo.Native
 
         [JsonProperty("list_price")]
         public float list_price { get; set; }
+        [JsonProperty("standard_price")]
+        public float standard_price { get; set; }
 
         [JsonProperty("base_unit_count")]
         public float base_unit_count { get; set; }

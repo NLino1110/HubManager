@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentView
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="DMOrders.Pages.Fragments.Orders.modals.PromocionesViewer"
+    BackgroundColor="Transparent"
+    Padding="10">
+
+    <VerticalStackLayout
+        WidthRequest="800"
+        Spacing="10"
+        BackgroundColor="Transparent">
+
+        <!-- Título -->
+        <Label
+            Text="PROMOCIONES APLICABLES AL PEDIDO"
+            FontSize="15"
+            HorizontalOptions="Center"
+            HorizontalTextAlignment="Center"
+            FontAttributes="Bold" />
+
+        <!-- Cabecera de la tabla -->
+        <HorizontalStackLayout
+            BackgroundColor="#DDDDDD"
+            Padding="4">
+
+            <Label Text="Nº" WidthRequest="40" FontAttributes="Bold" FontSize="12" />
+            <Label Text="CÓDIGO" WidthRequest="100" FontAttributes="Bold" FontSize="12" />
+            <Label Text="└DESCRIP." WidthRequest="100" FontAttributes="Bold" FontSize="12" />
+            <Label Text="TIPO PROMO." WidthRequest="100" FontAttributes="Bold" FontSize="12" />
+            <Label Text="CANTIDAD" WidthRequest="80" HorizontalTextAlignment="Center" FontAttributes="Bold" FontSize="12" />
+            <Label Text="." WidthRequest="50" HorizontalTextAlignment="Center" FontAttributes="Bold" FontSize="12" />
+            <Label Text="ESTADO" WidthRequest="100" HorizontalTextAlignment="Center" FontAttributes="Bold" FontSize="12" />
+        </HorizontalStackLayout>
+
+        <!-- Lista principal -->
+        <Frame BorderColor="#CCCCCC" HasShadow="False" Padding="0" HeightRequest="200">
+            <CollectionView x:Name="ListaDetallesPromocion"
+                            ItemsSource="{Binding Promociones}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <HorizontalStackLayout Padding="4">
+                            <Label Text="{Binding Numero}" WidthRequest="40" />
+                            <Label Text="{Binding Codigo}" WidthRequest="100" />
+                            <Label Text="{Binding Descripcion}" WidthRequest="100" />
+                            <Label Text="{Binding TipoPromocion}" WidthRequest="100" />
+                            <Label Text="{Binding Cantidad}" WidthRequest="80" HorizontalTextAlignment="Center" />
+                            <Label Text="{Binding Estado}" WidthRequest="100" HorizontalTextAlignment="Center" />
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Frame>
+
+        <!-- Controles inferiores -->
+        <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
+            <Button Text="APLICAR"
+                    WidthRequest="130"
+                    HeightRequest="30"
+                    BackgroundColor="#4CAF50"
+                    FontSize="14"
+                    FontAttributes="Bold" />
+
+            <ImageButton Source="buscar.png"
+                         WidthRequest="30"
+                         HeightRequest="30"
+                         BackgroundColor="Transparent" />
+
+            <Entry x:Name="FiltroArtPromo"
+                   Placeholder="Buscar..."
+                   WidthRequest="200"
+                   FontSize="14" />
+
+            <Label Text="ARTICULOS SELECCIONABLES"
+                   FontAttributes="Bold"
+                   HorizontalOptions="CenterAndExpand"
+                   HorizontalTextAlignment="Center"
+                   FontSize="15" />
+        </HorizontalStackLayout>
+
+        <!-- Cabecera de selección -->
+        <HorizontalStackLayout
+            BackgroundColor="#DDDDDD"
+            Padding="4">
+
+            <Label Text="Nº" WidthRequest="40" FontAttributes="Bold" FontSize="12" />
+            <Label Text="CODIGO" WidthRequest="100" FontAttributes="Bold" FontSize="12" />
+            <Label Text="DESCRIP." WidthRequest="100" FontAttributes="Bold" FontSize="12" />
+            <Label Text="UNIDAD" WidthRequest="100" FontAttributes="Bold" FontSize="12" />
+            <Label Text="STOCK" WidthRequest="100" FontAttributes="Bold" FontSize="12" />
+            <Label Text="PRECIO" WidthRequest="100" FontAttributes="Bold" FontSize="12" />
+            <Label Text="CANTIDAD" WidthRequest="100" FontAttributes="Bold" FontSize="12" />
+        </HorizontalStackLayout>
+
+        <!-- Lista de selección -->
+        <Frame BorderColor="#CCCCCC" HasShadow="False" Padding="0" HeightRequest="250">
+            <CollectionView x:Name="ListaDetallesSeleccion"
+                            ItemsSource="{Binding Selecciones}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <HorizontalStackLayout Padding="4">
+                            <Label Text="{Binding Numero}" WidthRequest="40" />
+                            <Label Text="{Binding Codigo}" WidthRequest="100" />
+                            <Label Text="{Binding Descripcion}" WidthRequest="100" />
+                            <Label Text="{Binding Unidad}" WidthRequest="100" />
+                            <Label Text="{Binding Stock}" WidthRequest="100" />
+                            <Label Text="{Binding Precio}" WidthRequest="100" />
+                            <Label Text="{Binding Cantidad}" WidthRequest="100" />
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Frame>
+
+        <!-- Botones finales -->
+        <HorizontalStackLayout HorizontalOptions="Fill" Padding="10" Spacing="10">
+            <Button Text="CONTINUAR"
+                    WidthRequest="130"
+                    HeightRequest="30"
+                    BackgroundColor="#4CAF50"
+                    FontAttributes="Bold"
+                    FontSize="14"
+                    HorizontalOptions="Start" />
+
+            <Label Text="TOTAL: 0.00"
+                   FontAttributes="Bold"
+                   FontSize="16"
+                   HorizontalOptions="EndAndExpand"
+                   HorizontalTextAlignment="End" />
+        </HorizontalStackLayout>
+
+    </VerticalStackLayout>
+</ContentView>

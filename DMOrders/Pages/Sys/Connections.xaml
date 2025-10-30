@@ -37,6 +37,7 @@
                             <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="15">
                                 <material:TextField Title="DB Limit Default" BorderThickness="0.4" Text="{Binding SelectedConnection.DbLimitDefault}"/>
                                 <material:TextField Title="Tolerancy Days" BorderThickness="0.4" Text="{Binding SelectedConnection.DataToleranceDays}"/>
+                                <material:TextField Title="Sale Channel" BorderThickness="0.4" Text="{Binding SelectedConnection.sale_channel_default}"/>                                
                             </HorizontalStackLayout>
                             <material:TextField Title="Company Id" BorderThickness="0.4" Text="{Binding SelectedConnection.CompanyId}" Grid.Row="1" Grid.Column="1"/>
                             <material:TextField Title="Center Id" BorderThickness="0.4" Text="{Binding SelectedConnection.res_center_default}" Grid.Row="2" Grid.Column="1"/>

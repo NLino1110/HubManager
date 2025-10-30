@@ -166,6 +166,7 @@ namespace DMOrders.Services.Database.Sqlite
             // 1: sequence ASC, 2: code ASC, 3: name ASC; default: id ASC
             return filter_sort switch
             {
+                0 => q.OrderByDescending(x => x.date_order),
                 1 => q.OrderBy(x => x.id),
                 2 => q.OrderBy(x => x._partner_id),
                 3 => q.OrderBy(x => x.date_order),

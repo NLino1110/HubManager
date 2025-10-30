@@ -388,6 +388,67 @@ public partial class CatalogViewerInner : ContentView
     {
         var vm = BindingContext as CatalogViewerModel;
         var selector = Resources["ProductTemplateSelector"] as ProductTemplateSelector;
+
+        if (selector == null || vm == null)
+            return;
+
+        selector.ViewMode = vm.ViewModesListSelectedIndex;
+
+        switch (vm.ViewModesListSelectedIndex)
+        {
+            case 0:
+                vm.PageSize = 40;
+                SpanColumns = 1;
+                SelectButtonUnique.IsVisible = false;
+                GridTitleSearch.IsVisible = true;
+                break;
+
+            case 1:
+                vm.PageSize = 40;
+                SpanColumns = 4;
+                SelectButtonUnique.IsVisible = false;
+                GridTitleSearch.IsVisible = false;
+                break;
+
+            case 2:
+                vm.PageSize = 1;
+                SpanColumns = 1;
+                SelectButtonUnique.IsVisible = true;
+                GridTitleSearch.IsVisible = false;
+                break;
+        }
+
+        //// ⚠️ Importante: congelar temporalmente el binding
+        //var items = listViewProduct.ItemsSource;
+
+        // Crear un nuevo layout con el nuevo Span
+        var newLayout = new MPowerKit.VirtualizeListView.GridLayout
+        {
+            Span = SpanColumns,
+            HorizontalItemSpacing = 1,
+            VerticalItemSpacing = 1
+        };
+
+        // Reasignar el layout y la plantilla
+        listViewProduct.ItemsLayout = newLayout;
+        listViewProduct.ItemTemplate = (DataTemplate)Resources["ProductTemplateSelector"];
+
+        //// Reasignar el ItemsSource para forzar el refresco
+        //listViewProduct.ItemsSource = null;
+        //listViewProduct.ItemsSource = items;
+
+        // Forzar una ligera pausa para que el UI se estabilice
+        await Task.Delay(30);
+
+        // Forzar recarga desde el ViewModel
+        await vm.PublicRefresh();
+    }
+
+
+    private async Task SetViewModeWin(int ViewMode)
+    {
+        var vm = BindingContext as CatalogViewerModel;
+        var selector = Resources["ProductTemplateSelector"] as ProductTemplateSelector;
         if (selector != null && vm != null)
         {
             selector.ViewMode = vm.ViewModesListSelectedIndex;
@@ -413,28 +474,8 @@ public partial class CatalogViewerInner : ContentView
                 SelectButtonUnique.IsVisible = true;
                 GridTitleSearch.IsVisible = false;
             }
-                        
-            //(listViewProduct.ItemsLayout as GridLayout).Span = SpanColumns;
-            if (listViewProduct.ItemsLayout is MPowerKit.VirtualizeListView.GridLayout gridLayout)
-            {
-                Debug.WriteLine("gridLayout.Span");
-                Debug.WriteLine(gridLayout.Span);
-                //gridLayout.Span = SpanColumns;
-                //
-                //listViewProduct.Handler?.UpdateValue(nameof(listViewProduct.ItemsLayout));
-                //var items = listViewProduct.ItemsSource;
-                //listViewProduct.ItemsSource = null;
-                
-                //TODO: Bug, no vuelve a verse los datos luego de cambiar esta propiedad.
-                listViewProduct.ItemsLayout = new MPowerKit.VirtualizeListView.GridLayout
-                {
-                    Span = SpanColumns,
-                    HorizontalItemSpacing = 1,
-                    VerticalItemSpacing = 1
-                };
-                //listViewProduct.InvalidateMeasure();
-                //listViewProduct.ItemsSource = items;
-            }
+
+            (listViewProduct.ItemsLayout as GridLayout).Span = SpanColumns;            
             //(MyCollectionView.ItemsLayout as GridItemsLayout).Span = span_columns;
 
             Debug.WriteLine(vm.PageSize);
@@ -443,6 +484,7 @@ public partial class CatalogViewerInner : ContentView
             await vm.LoadData();
         }
     }
+
 
     private void btnClear_Clicked(object sender, EventArgs e)
     {

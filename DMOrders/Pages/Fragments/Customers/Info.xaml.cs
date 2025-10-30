@@ -77,7 +77,7 @@ public partial class Info : ContentView
             {
                 CalificacionCrediticiaDb calificacionDb = new CalificacionCrediticiaDb(App.Session.odooConnection.DbNameSqlite);
                 var calificacion = await calificacionDb.GetItem(data._calificacion_crediticia_id);
-                if (seller != null)
+                if (calificacion != null)
                 {
                     data.display_ranking_credit = calificacion.name;
                 }

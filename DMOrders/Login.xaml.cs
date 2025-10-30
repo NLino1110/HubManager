@@ -968,7 +968,7 @@ public partial class Login : ContentPage
         {
             App.Session.res_Company = SelCompany;
             //App.Session.res_Store = (res_store) ddAgency.SelectedItem;
-            App.Session.res_center = (res_center)ddAgency.SelectedItem;            
+            App.Session.res_center = (res_center) ddAgency.SelectedItem;            
             App.Current.MainPage = new MainPageTab();
         }
     }

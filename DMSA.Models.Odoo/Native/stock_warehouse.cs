@@ -101,5 +101,16 @@ namespace DMSA.Models.Odoo.Native
         public JToken pos_type_id { get; set; }
         [Ignore]
         public JToken buy_pull_id { get; set; }
+
+        [JsonIgnore]
+        public int _center_id
+        {
+            get => GetId(center_id);
+            set => center_id = SetId(center_id, value);
+        }
+
+        [Ignore]
+        [JsonProperty("center_id")]
+        public JToken center_id { get; set; }
     }
 }

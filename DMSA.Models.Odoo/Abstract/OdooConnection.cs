@@ -87,6 +87,10 @@ namespace DMSA.Models.Odoo.Abstract
         [Column("data_tolerance_days")]
         public int DataToleranceDays { get; set; }
 
+        [Required]
+        [Column("sale_channel_default")]
+        public int sale_channel_default { get; set; }
+
         public List<OdooConnection> LoadDefault()
         {
             List<OdooConnection> defaultSettings = new List<OdooConnection>();
@@ -104,7 +108,8 @@ namespace DMSA.Models.Odoo.Abstract
                     DbLimitDefault = 300,
                     IsProduction = false,
                     IsTestMode = true,
-                    DataToleranceDays = 365
+                    DataToleranceDays = 365,
+                    sale_channel_default = 8
             }
             );
 
@@ -122,7 +127,8 @@ namespace DMSA.Models.Odoo.Abstract
                 DbLimitDefault = 300,
                 IsProduction = false,
                 IsTestMode = true,
-                DataToleranceDays = 365
+                DataToleranceDays = 365,
+                sale_channel_default = 8
             }
             );
 
@@ -141,7 +147,8 @@ namespace DMSA.Models.Odoo.Abstract
                 DbLimitDefault = 300,
                 IsProduction = true,
                 IsTestMode = true,
-                DataToleranceDays = 365
+                DataToleranceDays = 365,
+                sale_channel_default = 8
             }
             );
 
@@ -160,7 +167,8 @@ namespace DMSA.Models.Odoo.Abstract
                 DbLimitDefault = 300,
                 IsProduction = true,
                 IsTestMode = true,
-                DataToleranceDays = 365
+                DataToleranceDays = 365,
+                sale_channel_default = 8
             }
             );
 

@@ -17,10 +17,7 @@ namespace DMOrders.Pages.Fragments.Activities
 
         private ProjectTask _selectedItem;
 
-        public Filters filters { get; set; }
-        //public FStatus FilterStatus { get; set; }
-        //public DateTime? FilterDateStart { get; set; }
-        //public DateTime? FilterDateEnd { get; set; }
+        public Filters filters { get; set; }       
 
         public ProjectTask SelectedItem
         {
@@ -42,14 +39,14 @@ namespace DMOrders.Pages.Fragments.Activities
             }
         }
 
-        private bool _isBusy;
-        public bool IsBusy
+        private bool _isLoading;
+        public bool IsLoading
         {
-            get => _isBusy;
+            get => _isLoading;
             set
             {
-                _isBusy = value;
-                OnPropertyChanged(nameof(IsBusy));
+                _isLoading = value;
+                OnPropertyChanged(nameof(IsLoading));
             }
         }
 
@@ -63,11 +60,11 @@ namespace DMOrders.Pages.Fragments.Activities
 
         public async Task LoadData()
         {
-            if (IsBusy) return;
+            if (IsLoading) return;
 
             try
             {
-                IsBusy = true;
+                IsLoading = true;
                 ProjectTaskDb activityHeaderDb = new ProjectTaskDb();
 
                 var items = await activityHeaderDb.GetItemsAsync(App.Session.res_Company.id, App.Session.CurrentUserFront.uid, filters.getStatus().id, filters.getDateStart(), filters.getDateEnd());
@@ -89,7 +86,7 @@ namespace DMOrders.Pages.Fragments.Activities
             }
             finally
             {
-                IsBusy = false;
+                IsLoading = false;
             }
         }
 
@@ -106,7 +103,7 @@ namespace DMOrders.Pages.Fragments.Activities
             {
                 try
                 {
-                    if (IsBusy) return; // Previene cargas simultáneas
+                    if (IsLoading) return; // Previene cargas simultáneas
                     await LoadData();
                 }
                 catch (Exception ex)

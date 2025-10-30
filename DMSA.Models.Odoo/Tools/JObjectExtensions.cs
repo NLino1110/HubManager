@@ -46,6 +46,33 @@
                 }
             }
         }
+
+        public static void RenamePropertyFromOrderLineItems(JObject jObject, string sourceProperty, string targetProperty)
+        {
+            if (jObject.TryGetValue("order_line", out var orderLinesToken) && orderLinesToken is JArray orderLinesArray)
+            {
+                foreach (var item in orderLinesArray)
+                {
+                    // Verifica que sea un array tipo [0, 0, { sale_order_line }]
+                    if (item is JArray innerArray && innerArray.Count > 2 && innerArray[2] is JObject lineObj)
+                    {
+                        // Si existe la propiedad destino, se elimina para evitar duplicados
+                        if (lineObj[targetProperty] != null)
+                        {
+                            lineObj.Remove(targetProperty);
+                        }
+
+                        // Si existe la propiedad origen, se renombra
+                        if (lineObj[sourceProperty] != null)
+                        {
+                            lineObj[targetProperty] = lineObj[sourceProperty];
+                            lineObj.Remove(sourceProperty);
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
 }

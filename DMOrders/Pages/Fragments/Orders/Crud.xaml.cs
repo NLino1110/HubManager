@@ -4,6 +4,7 @@ using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Mvvm.Input;
 using DMOrders.Controls;
+using DMOrders.Controls.Tools;
 using DMOrders.Pages.Fragments.Orders.modals;
 using DMOrders.Services.Database.Sqlite;
 using DMOrders.Services.Helpers;
@@ -69,6 +70,10 @@ public partial class Crud : ContentPage, IBackButtonHandler
             {
                 _CurrentPartner = value;
                 OnPropertyChanged(nameof(CurrentPartner));
+
+                OnPropertyChanged(nameof(PartnerDisplayName));
+                OnPropertyChanged(nameof(PartnerDisplayAddress));
+                OnPropertyChanged(nameof(PartnerDisplayStatus));
             }
         }
     }
@@ -118,9 +123,19 @@ public partial class Crud : ContentPage, IBackButtonHandler
         }
     }
 
-    public string PartnerDisplayName => CurrentSaleOrder?.partner_display_name ?? string.Empty;
-    public string PartnerDisplayAddress => CurrentSaleOrder?.partner_display_address ?? string.Empty;
-    public string PartnerDisplayStatus => CurrentSaleOrder?.partner_display_status ?? string.Empty;
+    public string PartnerDisplayName =>
+    CurrentSaleOrder?.partner_display_name
+    ?? CurrentPartner?.display_name
+    ?? string.Empty;
+
+    public string PartnerDisplayAddress =>
+        CurrentSaleOrder?.partner_display_address
+        ?? CurrentPartner?.street
+        ?? string.Empty;
+
+    public string PartnerDisplayStatus =>
+    CurrentSaleOrder?.partner_display_status
+    ?? (CurrentPartner != null ? (CurrentPartner.active ? "Activo" : "Inactivo") : string.Empty);
 
     protected override void OnAppearing()
     {
@@ -273,6 +288,15 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
         bool isNew = CurrentSaleOrder == null;
 
+        int warehouseId = 0;
+
+        StockWareHouseDb stockWareHouseDb = new StockWareHouseDb(App.Session.odooConnection.DbNameSqlite);
+        var warehouseList = await stockWareHouseDb.GetByResCenter(App.Session.res_center.id);
+        if(warehouseList != null && warehouseList.Count > 0 )
+        {
+            warehouseId = warehouseList[0].id;
+        }
+
         if (isNew)
         {
             targetOrder = new sale_order
@@ -280,7 +304,10 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 _partner_id = _CurrentPartner.id,
                 _company_id = CurrentCompany.id,
                 date_order = DateTime.Now,
-                //note = fieldNote.Text
+                _center_id = App.Session.res_center.id,
+                _warehouse_id = warehouseId,
+                sale_channel = App.Session.odooConnection.sale_channel_default,
+                id_referencia = "M001-RC29102025"
             };
 
             if (await saleOrderDb.InsertAsync(targetOrder) <= 0)
@@ -293,8 +320,11 @@ public partial class Crud : ContentPage, IBackButtonHandler
         {
             targetOrder = CurrentSaleOrder;
             targetOrder.write_date = DateTime.Now;
-            //targetOrder.note = fieldNote.Text;
-
+            targetOrder._center_id = App.Session.res_center.id;
+            targetOrder._warehouse_id = warehouseId;
+            targetOrder.sale_channel = App.Session.odooConnection.sale_channel_default;
+            targetOrder.id_referencia = "M001-RC29102025";
+            
             if (await saleOrderDb.UpdateAsync(targetOrder) <= 0)
             {
                 await Toast.Make("Error al actualizar la orden").Show();
@@ -326,13 +356,53 @@ public partial class Crud : ContentPage, IBackButtonHandler
         //    await Toast.Make("Error al guardar líneas").Show();
         //}
 
+
+        var applyPromo = await ApplyPromo(targetOrder);
+
+        if(applyPromo.Count > 0)
+        {
+            
+        }
+
         //await Navigation.PopAsync();
         await Navigation.PopModalAsync();
         //SendBackButtonPressed();
     }
 
+    private async Task<List<string>> ApplyPromo(sale_order saleOrder)
+    {
+        //Evaluar las posibles promociones
+        var view = new PromocionesViewer(saleOrder);
+
+        var popup = new Popup
+        {
+            Content = view,
+            BackgroundColor = Colors.Black.WithAlpha(0.4f), // fondo semi-transparente
+            CanBeDismissedByTappingOutsideOfPopup = true
+        };
+
+        var result = await PopupExtensions.ShowPopupAsync<product_marca>(App.Current.MainPage, popup);
+
+        if (result.Result != null)
+        {
+            
+        }
+
+        return new List<string>();
+    }
+
     private async void ButtonSync_Clicked(object sender, EventArgs e)
     {
+        var leave = await DisplayAlert("Enviar datos", "¿Desea enviar esta orden al ERP?", "Si", "No");
+
+        if (!leave)
+        {
+            return;
+        }
+
+        await UITools.ShowLoadingPopup(this);
+        await UITools.SetNotifyLoadingPopup("Preparando orden...");
+        
         ServerPusher serverPusher = new ServerPusher();
 
         var orderLinesList = ((CrudViewModel)this.BindingContext).OrderLines.ToList();
@@ -341,14 +411,19 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
         foreach (var orderLine in orderLinesList)
         {
-            //orderLine.price_subtotal = 1;
-            //orderLine.price_unit = 1;
-            //orderLine.product_uom_qty = 1;
-
             CurrentSaleOrder.order_line.Add(new OrderLineWrapper(orderLine));
         }
 
-        await serverPusher.SendSaleOrder(CurrentSaleOrder);
+        await UITools.SetNotifyLoadingPopup("Sincronizando orden...");
+        bool sendOk = await serverPusher.SendSaleOrder(CurrentSaleOrder);
+
+        await UITools.HideLoadingPopup();
+
+        if(sendOk)
+        {
+            await DisplayAlert("Envío de datos", "Envío correcto", "Aceptar");
+            await Navigation.PopModalAsync();
+        }
     }
 
     private async void EditItem(object obj)

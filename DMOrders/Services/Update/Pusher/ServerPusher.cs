@@ -46,7 +46,7 @@ namespace DMOrders.Services.Update.Pusher
             return true;
         }
                 
-        public async Task SendSaleOrder(sale_order sale_Order)
+        public async Task<bool> SendSaleOrder(sale_order sale_Order)
         {   
             //object[] _args_ = new object[] {
             //    sale_Order
@@ -62,18 +62,22 @@ namespace DMOrders.Services.Update.Pusher
                 Debug.WriteLine(resultTask.error.data.message);
                 Debug.WriteLine(resultTask.error.data.debug);
                 await Toast.Make("Error:" + resultTask.error.data.message).Show();
-                return;
+                return false;
             }
 
             if (resultTask != null && resultTask.result !=null)
             {
                 await Toast.Make("Datos enviados correctamente").Show();
 
+                sale_Order.erp_id = resultTask.result;
                 sale_Order.is_synchronized = true;
                 sale_Order.date_synchronized = DateTime.Now;
                 SaleOrderDb saleOrderDb = new SaleOrderDb();
                 await saleOrderDb.UpdateAsync(sale_Order);
-            }            
+                return true;
+            }
+
+            return false;
         }
 
         public async Task SendAllSaleOrders(ProgressBarAnimationBehaviorPage obj)

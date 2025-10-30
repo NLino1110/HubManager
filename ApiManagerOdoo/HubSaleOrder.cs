@@ -167,19 +167,27 @@ namespace ApiManager
             JObjectExtensions.RemoveProperty(newJObject, "is_imported");
             JObjectExtensions.RemoveProperty(newJObject, "date_imported");
             JObjectExtensions.RemoveProperty(newJObject, "partner_display");
+            JObjectExtensions.RemoveProperty(newJObject, "partner_display_name");
+            JObjectExtensions.RemoveProperty(newJObject, "partner_display_address");
+            JObjectExtensions.RemoveProperty(newJObject, "partner_display_status");
             JObjectExtensions.RemoveProperty(newJObject, "partner_invoice_id");
             JObjectExtensions.RemoveProperty(newJObject, "partner_shipping_id");
             JObjectExtensions.RemoveProperty(newJObject, "pricelist_id");
             JObjectExtensions.RemoveProperty(newJObject, "payment_term_id");
             JObjectExtensions.RemoveProperty(newJObject, "team_id");
             JObjectExtensions.RemoveProperty(newJObject, "user_id");
-            JObjectExtensions.RemoveProperty(newJObject, "warehouse_id");
+            JObjectExtensions.RemoveProperty(newJObject, "erp_id");
 
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_order_id");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_product_uom_category_id");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "product_code");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "product_display");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "uom_category_display");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "ordinal");
+
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_product_uom_qty");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_qty_to_deliver");
+            //JObjectExtensions.RenamePropertyFromOrderLineItems(newJObject, "_product_uom_qty", "product_uom_qty");
 
             //if (newJObject["partner_id"] != null)
             //{

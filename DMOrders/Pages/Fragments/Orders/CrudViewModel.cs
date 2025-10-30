@@ -29,6 +29,7 @@ namespace DMOrders.Pages.Fragments.Orders
             {
                 _order_lines = value;
                 OnPropertyChanged();
+                UpdateTotals();
             }
         }
 
@@ -44,6 +45,96 @@ namespace DMOrders.Pages.Fragments.Orders
                 }
             }
         }
+
+        public decimal Subtotal
+        {
+            get
+            {
+                decimal tmp_Subtotal = 0;
+                if(OrderLines != null)
+                    foreach(var orderLine in OrderLines)
+                    {
+                        if (orderLine.price_unit == 0)
+                            orderLine.price_unit = (decimal) 5.5;
+
+                        orderLine.price_subtotal = orderLine.product_uom_qty * orderLine.price_unit;
+                        //orderLine.discount_amount = orderLine.price_subtotal * (orderLine.discount / 100);
+                        tmp_Subtotal += orderLine.product_uom_qty * orderLine.price_unit;
+                    }
+                return tmp_Subtotal;
+            }
+        }
+
+        /// <summary>
+        /// Descuento total aplicado sobre todas las líneas
+        /// </summary>
+        public decimal Descuento
+        {
+            get
+            {
+                decimal tmp_Descuento = 0;
+                if (OrderLines != null)
+                {
+                    foreach (var orderLine in OrderLines)
+                    {
+                        if (orderLine.discount > 0)
+                        {
+                            orderLine.amount_discount = orderLine.price_subtotal * (orderLine.discount / 100);
+                            tmp_Descuento += orderLine.amount_discount;
+                        }
+                    }
+                }
+                return tmp_Descuento;
+            }
+        }
+
+        /// <summary>
+        /// Neto = Subtotal - Descuento
+        /// </summary>
+        public decimal Neto => Subtotal - Descuento;
+
+        /// <summary>
+        /// Impuesto total (suma de los impuestos de cada línea)
+        /// </summary>
+        public decimal Impuesto
+        {
+            get
+            {
+                decimal tmp_Impuesto = 0;
+                if (OrderLines != null)
+                {
+                    foreach (var orderLine in OrderLines)
+                    {
+                        tmp_Impuesto += orderLine.price_tax;
+                    }
+                }
+                return tmp_Impuesto;
+            }
+        }
+
+        /// <summary>
+        /// Contribución solidaria (si aplica en las líneas)
+        /// </summary>
+        public decimal CompSolidaria
+        {
+            get
+            {
+                decimal tmp_Comp = 0;
+                if (OrderLines != null)
+                {
+                    foreach (var orderLine in OrderLines)
+                    {
+                        tmp_Comp += orderLine.price_unit;
+                    }
+                }
+                return tmp_Comp;
+            }
+        }
+
+        /// <summary>
+        /// Total general = Neto + Impuesto + Comp. Solidaria
+        /// </summary>
+        public decimal Total => Neto + Impuesto + CompSolidaria;
 
         public sale_order_line SelectedItem
         {
@@ -120,6 +211,8 @@ namespace DMOrders.Pages.Fragments.Orders
                     line.product_display = product.display_name;
                     OrderLines.Add(line);
                 }
+
+                UpdateTotals();
             }
         }
 
@@ -154,7 +247,7 @@ namespace DMOrders.Pages.Fragments.Orders
                 // Recalcular totales (si aplica)
                 existingLine.price_total = existingLine.qty_to_deliver * (decimal)product.list_price;
                 existingLine.price_subtotal = existingLine.price_total; // o el cálculo que corresponda
-                OnPropertyChanged(nameof(OrderLines));
+                OnPropertyChanged(nameof(OrderLines));                
             }
             else
             {
@@ -176,8 +269,19 @@ namespace DMOrders.Pages.Fragments.Orders
 
                 OrderLines.Add(line);
             }
+
+            UpdateTotals();
         }
 
+        private void UpdateTotals()
+        {
+            OnPropertyChanged(nameof(Subtotal));
+            OnPropertyChanged(nameof(Descuento));
+            OnPropertyChanged(nameof(Neto));
+            OnPropertyChanged(nameof(Impuesto));
+            OnPropertyChanged(nameof(CompSolidaria));
+            OnPropertyChanged(nameof(Total));
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = "")

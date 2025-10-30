@@ -219,6 +219,13 @@ namespace DMOrders.Pages.Fragments.Orders.modals
             IsRefreshing = false;
         }
 
+        public async Task PublicRefresh()
+        {
+            IsRefreshing = true;
+            await LoadData();
+            IsRefreshing = false;
+        }
+
 
         private readonly SemaphoreSlim _loadLock = new(1, 1); // evita cargas simultáneas
         private CancellationTokenSource _cts;
