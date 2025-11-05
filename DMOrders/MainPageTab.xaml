@@ -25,8 +25,6 @@
         </ControlTemplate>
     </ContentPage.Resources>
     <Grid>
-        <!-- Contenido principal -->
-
         <material:TabView x:Name="tabViewMain" 
                           VerticalOptions="Fill" 
                           HorizontalOptions="Fill" 
@@ -74,21 +72,18 @@
                 <material:TabItem Title="Artículos">
                     <material:TabItem.Content>
                         <pagesProducts:Container x:Name="tabProducts"></pagesProducts:Container>
-                    <!--<Label>Hola</Label>-->
                     </material:TabItem.Content>
                 </material:TabItem>
 
                 <material:TabItem Title="Pedidos">
                     <material:TabItem.Content>
                         <pagesOrders:Container x:Name="tabOrders"></pagesOrders:Container>
-                    <!--<Label>Hola</Label>-->
                 </material:TabItem.Content>
                 </material:TabItem>
 
                 <material:TabItem Title="Actividades">
                     <material:TabItem.Content>
                         <pagesActivities:Container x:Name="tabActivities"></pagesActivities:Container>
-                    <!--<Label>Hola</Label>-->
                 </material:TabItem.Content>
                 </material:TabItem>
             </material:TabView>
@@ -103,35 +98,35 @@
                      TranslationY="0">
             <Grid RowDefinitions="Auto,Auto">
                 <Grid HeightRequest="33"
-    BackgroundColor="Gray"
-    ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto,Auto" 
-      ColumnSpacing="10" Grid.Row="0">
+                        BackgroundColor="Gray"
+                        ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto,Auto" 
+                        ColumnSpacing="10" Grid.Row="0">
                     <Grid.Shadow>
                         <Shadow Brush="Black"
-    Radius="20"
-    Opacity="0.2" />
+                            Radius="20"
+                            Opacity="0.2" />
                     </Grid.Shadow>
 
                     <Image Grid.Column="0" Source="logo_macronegocios.png" WidthRequest="60"/>
 
                     <Label Grid.Column="1"
-           x:Name="lblCompany"
-           Text="Opciones"
-           VerticalOptions="Center"
-           Padding="0"
-           FontSize="12"
-           FontAttributes="Bold"
-           TextColor="{StaticResource OnPrimary}"/>
+                       x:Name="lblCompany"
+                       Text="Opciones"
+                       VerticalOptions="Center"
+                       Padding="0"
+                       FontSize="12"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource OnPrimary}"/>
 
                     <Label Grid.Column="2"                           
-        x:Name="lblStore"
-           BackgroundColor="LightGray"
-        Text="..."
-        VerticalOptions="Center"
-        Padding="5,0,5,0"
-        FontAttributes="None"
-        FontSize="10"
-        TextColor="DimGray"/>
+                        x:Name="lblStore"
+                        BackgroundColor="LightGray"
+                        Text="..."
+                        VerticalOptions="Center"
+                        Padding="5,0,5,0"
+                        FontAttributes="None"
+                        FontSize="10"
+                        TextColor="DimGray"/>
 
                     <Image
                     x:Name="imageDebug"
@@ -152,13 +147,13 @@
                     </Image>
 
                     <Image 
-        Grid.Column="4"
-         BackgroundColor="Transparent"
-         HorizontalOptions="Start"
-         VerticalOptions="Center"
-         HeightRequest="15"
-         WidthRequest="15"
-         Margin="10">
+                        Grid.Column="4"
+                        BackgroundColor="Transparent"
+                        HorizontalOptions="Start"
+                        VerticalOptions="Center"
+                        HeightRequest="15"
+                        WidthRequest="15"
+                        Margin="10">
                         <Image.Source>
                             <FontImageSource FontFamily="FontAwesome5Solid"
 										Color="DimGray"
@@ -169,13 +164,13 @@
                     </Image>
 
                     <Label Grid.Column="5"                           
-        x:Name="lblUser"       
-        Text="..."
-           TextColor="Pink"
-        VerticalOptions="Center"
-        Padding="5,0,5,0"
-        FontAttributes="None"
-        FontSize="10"/>
+                        x:Name="lblUser"       
+                        Text="..."
+                        TextColor="Pink"
+                        VerticalOptions="Center"
+                        Padding="5,0,5,0"
+                        FontAttributes="None"
+                        FontSize="10"/>
 
                     <Label Grid.Column="6"                           
         x:Name="lblUserName"
@@ -204,7 +199,42 @@
 
                 </Grid>
                 <Grid ColumnDefinitions="*,*" Grid.Row="1">
-                    <TableView Intent="Menu" Margin="0" BackgroundColor="White" Grid.Column="0">
+                    <CollectionView
+                        x:Name="MenuCollection"
+                        ItemsSource="{Binding MenuItems}"
+                        SelectionMode="Single"
+                        SelectionChanged="OnMenuItemSelected"
+                        BackgroundColor="White"
+                        Margin="0">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Padding="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Image Grid.Column="0"
+                                           HeightRequest="20"
+                                           WidthRequest="20"
+                                           Margin="10"
+                                           VerticalOptions="Center">
+                                        <Image.Source>
+                                            <FontImageSource FontFamily="FontAwesome5Solid"
+                                         Glyph="{Binding Icon}"
+                                         Color="DimGray"
+                                         Size="20" />
+                                        </Image.Source>
+                                    </Image>
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                        <Label Text="{Binding Title}" FontAttributes="Bold" />
+                                        <Label Text="{Binding Description}" FontSize="12" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    
+                    <TableView Intent="Menu" Margin="0" BackgroundColor="White" Grid.Column="0" IsVisible="True">                        
                         <TableRoot>
                             <TableSection>
                                 <ViewCell Tapped="ViewCell_Add_Task">
@@ -214,17 +244,17 @@
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
                                         <Image Grid.Column="0"
-    BackgroundColor="Transparent"
-    VerticalOptions="Center"
-    HeightRequest="15"
-    WidthRequest="15"
-    Margin="10">
+                                            BackgroundColor="Transparent"
+                                            VerticalOptions="Center"
+                                            HeightRequest="15"
+                                            WidthRequest="15"
+                                            Margin="10">
                                             <Image.Source>
                                                 <FontImageSource FontFamily="FontAwesome5Solid"
-            Color="DimGray"
-            Size="20"
-            FontAutoScalingEnabled="True"
-            Glyph="&#xf279;" />
+                                                    Color="DimGray"
+                                                    Size="20"
+                                                    FontAutoScalingEnabled="True"
+                                                    Glyph="&#xf279;" />
                                             </Image.Source>
                                         </Image>
 
@@ -263,7 +293,7 @@
                                     </Grid>
                                 </ViewCell>
 
-                                <ViewCell Tapped="ViewCell_Tapped_Exit">
+                                <ViewCell Tapped="ViewCell_Tapped_Exit_Regular">
                                     <Grid Padding="3">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
@@ -333,7 +363,5 @@
                 <TapGestureRecognizer Tapped="OnTogglePanelTapped"/>
             </ContentView.GestureRecognizers>
         </ContentView>
-    </Grid>
-    
-    <!--</ScrollView>-->
+    </Grid>    
 </ContentPage>

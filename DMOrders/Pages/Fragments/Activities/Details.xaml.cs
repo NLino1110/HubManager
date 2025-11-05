@@ -29,7 +29,6 @@ public partial class Details : ContentPage, IBackButtonHandler
         
         var returnResultPopup = new PopupAccountAnalyticLine(popupSizeConstants, CurrentProjectTask, ItemForEdit);
         returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;        
-
         var result = await this.ShowPopupAsync(returnResultPopup);
 
         if (result != null)
@@ -40,6 +39,8 @@ public partial class Details : ContentPage, IBackButtonHandler
         {
             // stackAccountInfo.IsVisible = false;
         }
+
+        await ((DetailsViewModel) BindingContext).PublicLoadActivities();
     }
 
     private void ViewObj_Disappearing(object? sender, EventArgs e)
@@ -127,6 +128,8 @@ public partial class Details : ContentPage, IBackButtonHandler
         {
            // stackAccountInfo.IsVisible = false;
         }
+
+        await ((DetailsViewModel)BindingContext).PublicLoadActivities();
     }
 
     private async void ButtonSave_Clicked(object sender, EventArgs e)

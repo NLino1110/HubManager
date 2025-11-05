@@ -82,7 +82,9 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
             ItemsData ??= new ObservableCollection<PromotionBenefit>();
             ItemsData.Clear();
 
-            PromotionBenefitDb dataDb = new PromotionBenefitDb();
+            string DbNameSqlite = App.Session.odooConnection.DbNameSqlite;
+
+            PromotionBenefitDb dataDb = new PromotionBenefitDb(DbNameSqlite);
             var items = await dataDb.GetItemsAsync();
 
             foreach (var it in items)

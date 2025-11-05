@@ -1,4 +1,4 @@
-﻿using ApiManager;
+﻿using ApiManagerOdoo.promotions;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.General.Requests;
 using DMSA.Models.Odoo.DMOrders.promotions;
@@ -15,11 +15,11 @@ namespace DMOrders.Services.Update
 {
     public partial class ServerPuller
     {
-        public async Task<bool> OnlinePromotionProducts(PromotionBenefit promotionBenfit, bool force)
+        public async Task<bool> LoyaltyFilters(PromotionBenefit promotionBenfit, bool force)
         {
             var stopwatch = Stopwatch.StartNew();
 
-            ApiManager.HubPromotionProduct hubmanager = new ApiManager.HubPromotionProduct(App.Session);
+            var hubmanager = new HubLoyaltyFilters(App.Session);
             var resultCount = await hubmanager.GetCount(promotionBenfit.id);
 
             if (resultCount.result == 0)
@@ -29,7 +29,177 @@ namespace DMOrders.Services.Update
 
             int countTotal = resultCount.result / limit; // App.Session.odooConnection.DbLimitDefault;
 
-            var database = new PromotionProductDb();
+            var database = new LoyaltyFiltersDb(DbNameSqlite);
+
+            for (int indice = 0; indice <= countTotal; indice++)
+            {
+                Debug.WriteLine("Página:" + indice);
+
+                var responseAll = await hubmanager.GetItemsByParentId(promotionBenfit.id, limit, indice);
+
+                if (responseAll.result != null && responseAll.result.Length > 0)
+                {
+                    await database.InsertBatchAsync(responseAll.result);
+                }
+
+                if (indice >= 600)
+                {
+                    Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
+                    break;
+                }
+            }
+
+            stopwatch.Stop();
+
+            Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+                stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
+            return true;
+        }
+
+        public async Task<bool> LoyaltyFiltersDetail(PromotionBenefit promotionBenfit, bool force)
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            var hubmanager = new HubLoyaltyFiltersDetail(App.Session);
+            var resultCount = await hubmanager.GetCount(promotionBenfit.id);
+
+            if (resultCount.result == 0)
+            {
+                return false;
+            }
+
+            int countTotal = resultCount.result / limit; // App.Session.odooConnection.DbLimitDefault;
+
+            var database = new LoyaltyFiltersDetailsDb(DbNameSqlite);
+
+            for (int indice = 0; indice <= countTotal; indice++)
+            {
+                Debug.WriteLine("Página:" + indice);
+
+                var responseAll = await hubmanager.GetItemsByParentId(promotionBenfit.id, limit, indice);
+
+                if (responseAll.result != null && responseAll.result.Length > 0)
+                {
+                    await database.InsertBatchAsync(responseAll.result);
+                }
+
+                if (indice >= 600)
+                {
+                    Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
+                    break;
+                }
+            }
+
+            stopwatch.Stop();
+
+            Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+                stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
+            return true;
+        }
+
+        public async Task<bool> PaymentMethod(PromotionBenefit promotionBenfit, bool force)
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            var hubmanager = new HubPosPaymentMethod(App.Session);
+            var resultCount = await hubmanager.GetCount(year, month, day);
+
+            if (resultCount.result == 0)
+            {
+                return false;
+            }
+
+            int countTotal = resultCount.result / limit; // App.Session.odooConnection.DbLimitDefault;
+
+            var database = new PosPaymentMethodDb(DbNameSqlite);
+            DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since);
+
+            for (int indice = 0; indice <= countTotal; indice++)
+            {
+                Debug.WriteLine("Página:" + indice);
+
+                var responseAll = await hubmanager.GetItems(lastDate.Value, limit, indice);
+
+                if (responseAll.result != null && responseAll.result.Length > 0)
+                {
+                    await database.InsertBatchAsync(responseAll.result);
+                }
+
+                if (indice >= 600)
+                {
+                    Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
+                    break;
+                }
+            }
+
+            stopwatch.Stop();
+
+            Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+                stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
+            return true;
+        }
+
+        public async Task<bool> PosTarjetasCanal(PromotionBenefit promotionBenfit, bool force)
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            var hubmanager = new HubPosTarjetasCanal(App.Session);
+            var resultCount = await hubmanager.GetCount(year, month, day);
+
+            if (resultCount.result == 0)
+            {
+                return false;
+            }
+
+            int countTotal = resultCount.result / limit; // App.Session.odooConnection.DbLimitDefault;
+
+            var database = new PosTarjetasCanalDb(DbNameSqlite);
+            DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since);
+
+            for (int indice = 0; indice <= countTotal; indice++)
+            {
+                Debug.WriteLine("Página:" + indice);
+
+                var responseAll = await hubmanager.GetItems(lastDate.Value, limit, indice);
+
+                if (responseAll.result != null && responseAll.result.Length > 0)
+                {
+                    await database.InsertBatchAsync(responseAll.result);
+                }
+
+                if (indice >= 600)
+                {
+                    Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
+                    break;
+                }
+            }
+
+            stopwatch.Stop();
+
+            Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+                stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
+            return true;
+        }
+
+        public async Task<bool> OnlinePromotionProducts(PromotionBenefit promotionBenfit, bool force)
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            HubPromotionProduct hubmanager = new HubPromotionProduct(App.Session);
+            var resultCount = await hubmanager.GetCount(promotionBenfit.id);
+
+            if (resultCount.result == 0)
+            {
+                return false;
+            }
+
+            int countTotal = resultCount.result / limit; // App.Session.odooConnection.DbLimitDefault;
+
+            var database = new PromotionProductDb(DbNameSqlite);
 
             for (int indice = 0; indice <= countTotal; indice++)
             {
@@ -61,7 +231,7 @@ namespace DMOrders.Services.Update
         {
             var stopwatch = Stopwatch.StartNew();
 
-            ApiManager.HubPromotionProductDetail hubmanager = new ApiManager.HubPromotionProductDetail(App.Session);
+            HubPromotionProductDetail hubmanager = new HubPromotionProductDetail(App.Session);
             var resultCount = await hubmanager.GetCount(promotionBenfit.id);
 
             if (resultCount.result == 0)
@@ -71,7 +241,7 @@ namespace DMOrders.Services.Update
 
             int countTotal = resultCount.result / App.Session.odooConnection.DbLimitDefault;
 
-            var database = new PromotionProductDetailDb();
+            var database = new PromotionProductDetailDb(DbNameSqlite);
 
             for (int indice = 0; indice <= countTotal; indice++)
             {
@@ -99,23 +269,92 @@ namespace DMOrders.Services.Update
             return true;
         }
 
-        public async Task<bool> OnlinePromotionProductsDetail(PromotionBenefit promotionBenfit, bool force)
+        //public async Task<bool> OnlinePromotionProductsDetail(PromotionBenefit promotionBenfit, bool force)
+        //{
+        //    return true;
+        //}
+
+        public async Task<bool> PromoCenter(PromotionBenefit promotionBenfit, bool force)
         {
+            var stopwatch = Stopwatch.StartNew();
+
+            var hubmanager = new HubPromoCenters(App.Session);
+            var resultCount = await hubmanager.GetCount(promotionBenfit.id);
+
+            if (resultCount.result == 0)
+            {
+                return false;
+            }
+
+            int countTotal = resultCount.result / App.Session.odooConnection.DbLimitDefault;
+
+            var database = new PromoCentersDb(DbNameSqlite);
+
+            for (int indice = 0; indice <= countTotal; indice++)
+            {
+                Debug.WriteLine("Página:" + indice);
+
+                var responseAll = await hubmanager.GetItemsByParentId(promotionBenfit.id, limit, indice);
+
+                if (responseAll.result != null && responseAll.result.Length > 0)
+                {
+                    await database.InsertBatchAsync(responseAll.result);
+                }
+
+                if (indice >= 600)
+                {
+                    Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
+                    break;
+                }
+            }
+
+            stopwatch.Stop();
+
+            Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+                stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
             return true;
         }
 
-        public async Task<bool> OnlineProductPriceList(PromotionBenefit promotionBenfit, bool force)
+        public async Task<bool> PromoRules(PromotionBenefit promotionBenfit, bool force)
         {
-            return true;
-        }
+            var stopwatch = Stopwatch.StartNew();
 
-        public async Task<bool> OnlinePromoCenter(PromotionBenefit promotionBenfit, bool force)
-        {
-            return true;
-        }
+            var hubmanager = new HubPromoRules(App.Session);
+            var resultCount = await hubmanager.GetCount(promotionBenfit.id);
 
-        public async Task<bool> OnlinePromoRules(PromotionBenefit promotionBenfit, bool force)
-        {
+            if (resultCount.result == 0)
+            {
+                return false;
+            }
+
+            int countTotal = resultCount.result / App.Session.odooConnection.DbLimitDefault;
+
+            var database = new PromoRulesDb(DbNameSqlite);
+
+            for (int indice = 0; indice <= countTotal; indice++)
+            {
+                Debug.WriteLine("Página:" + indice);
+
+                var responseAll = await hubmanager.GetItemsByParentId(promotionBenfit.id, limit, indice);
+
+                if (responseAll.result != null && responseAll.result.Length > 0)
+                {
+                    await database.InsertBatchAsync(responseAll.result);
+                }
+
+                if (indice >= maxIndexExceeded)
+                {
+                    Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
+                    break;
+                }
+            }
+
+            stopwatch.Stop();
+
+            Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+                stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
             return true;
         }
 
@@ -125,7 +364,7 @@ namespace DMOrders.Services.Update
 
             var stopwatch = Stopwatch.StartNew();
 
-            ApiManager.HubPromotionBenefit hubmanager = new ApiManager.HubPromotionBenefit(App.Session);
+            HubPromotionBenefit hubmanager = new HubPromotionBenefit(App.Session);
             var resultCount = await hubmanager.GetCount(current_datetime.Year, current_datetime.Month, current_datetime.Day);
 
             if (resultCount.result == 0)
@@ -135,7 +374,7 @@ namespace DMOrders.Services.Update
 
             int countTotal = resultCount.result / App.Session.odooConnection.DbLimitDefault;
 
-            var database = new PromotionBenefitDb();
+            var database = new PromotionBenefitDb(DbNameSqlite);
 
             for (int indice = 0; indice <= countTotal; indice++)
             {
@@ -149,8 +388,13 @@ namespace DMOrders.Services.Update
 
                     foreach (var item in responseAll.result)
                     {
+                        await LoyaltyFilters(item, true);
+                        await LoyaltyFiltersDetail(item, true);
+                        await PaymentMethod(item, true);
+                        await PosTarjetasCanal(item, true);
+                        await PromoRules(item, true);
                         await OnlinePromotionProducts(item, true);
-                        await OnlinePromotionProductDetail(item, true);
+                        await OnlinePromotionProductDetail(item, true);                        
                     }
                 }
 

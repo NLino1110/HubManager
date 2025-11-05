@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DMSA.Models.Odoo.DMOrders.promotions
+namespace DMSA.Models.Odoo.DMOrders.promotions.@abstract
 {
     public sealed class PromotionEvalItem
     {

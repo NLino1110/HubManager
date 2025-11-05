@@ -53,6 +53,11 @@ namespace DMOrders.Pages.Fragments.Activities
             SyncCommand = new Command(OnSync);
         }
 
+        public async Task PublicLoadActivities()
+        {
+            await LoadActivities();
+        }
+
         private async Task LoadActivities()
         {
             var companyDb = new CompanyDb();

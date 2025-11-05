@@ -1502,20 +1502,20 @@ public partial class UpdateData : ContentPage
         //var resourceBytes = await hubStatic.GetBytesFromUrlAsync("tmp/android/json/data_groups_info.json");
 
         //Evaluar estado actual de los datos para proponer un modo u otro de actualización
-        if (await SuggestCacheMode())
-        {
-            if (!chkUpdateBig.IsChecked || !chkUpdateFacDet.IsChecked || !chkCacheMode.IsChecked)
-            {
-                bool answerChange = await DisplayAlert("Cambiar modo de Actualización", "Se sugiere cambiar a modo cache ya que actualmente no tiene información. " +
-            " Sino cambia el modo y procede a actualizar, el proceso podría ser muy lento.", "Cambiar", "No Cambiar");
-                if (answerChange)
-                {
-                    chkUpdateBig.IsChecked = true;
-                    chkUpdateFacDet.IsChecked = true;
-                    chkCacheMode.IsChecked = true;
-                }
-            }
-        }
+        //if (await SuggestCacheMode())
+        //{
+        //    if (!chkUpdateBig.IsChecked || !chkUpdateFacDet.IsChecked || !chkCacheMode.IsChecked)
+        //    {
+        //        bool answerChange = await DisplayAlert("Cambiar modo de Actualización", "Se sugiere cambiar a modo cache ya que actualmente no tiene información. " +
+        //    " Sino cambia el modo y procede a actualizar, el proceso podría ser muy lento.", "Cambiar", "No Cambiar");
+        //        if (answerChange)
+        //        {
+        //            chkUpdateBig.IsChecked = true;
+        //            chkUpdateFacDet.IsChecked = true;
+        //            chkCacheMode.IsChecked = true;
+        //        }
+        //    }
+        //}
 
         bool answer = await DisplayAlert("Actualizar datos de la aplicación?", "Este proceso realiza una sincronización de los datos hacia su dispositivo.", "Actualizar", "Cancelar");
         //Debug.WriteLine("Answer: " + answer);

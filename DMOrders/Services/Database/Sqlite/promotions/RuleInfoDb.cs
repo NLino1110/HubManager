@@ -1,4 +1,4 @@
-﻿using DMSA.Models.Odoo.DMOrders.promotions;
+﻿using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
 using DMSA.Models.Odoo.Native;
 using Microsoft.Data.Sqlite;
 using SQLite;
@@ -11,19 +11,11 @@ using System.Threading.Tasks;
 
 namespace DMOrders.Services.Database.Sqlite
 {
-    public class RuleInfoDb
+    public class RuleInfoDb : SqliteDbBase<RuleInfo>
     {
-        SQLiteAsyncConnection Database;
-
-        public RuleInfoDb()
+        public RuleInfoDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
 
-        }
-
-        public async Task<int>  GetCount()
-        {
-            await Init();
-            return (await Database.Table<RuleInfo>().ToListAsync()).Count;
         }
 
         public async Task<List<RuleInfo>> GetItemsAsync()
@@ -36,36 +28,6 @@ namespace DMOrders.Services.Database.Sqlite
         {
             await Init();
             return await Database.Table<RuleInfo>().Where(x=>x.Id == id).FirstOrDefaultAsync();
-        }
-
-        public async Task<int> InsertAsync(RuleInfo item)
-        {
-            await Init();
-            await Database.InsertAsync(item);
-            return 0;
-        }
-
-        public async Task<int> InsertBatchAsync(RuleInfo[] items)
-        {
-            await Init();
-            await Database.InsertAllAsync(items, "OR REPLACE",true);            
-            return 0;
-        }
-
-        public async Task<int> Truncate()
-        {
-            await Init();
-
-            return await Database.DeleteAllAsync<RuleInfo>();
-        }
-
-        async Task Init()
-        {
-            if (Database is not null)
-                return;
-
-            Database = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
-            var result = await Database.CreateTableAsync<RuleInfo>();
-        }    
+        }  
     }
 }

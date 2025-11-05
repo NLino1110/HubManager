@@ -14,6 +14,7 @@ namespace DMOrders.Services.Update
         int month { get; set; }
         int day { get; set; }
         int limit { get; set; }
+        DateTime? sync_date_since => new DateTime(year, month, day);
 
         int maxIndexExceeded { get; set; }
 

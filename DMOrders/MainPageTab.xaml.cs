@@ -1,18 +1,9 @@
-using CommunityToolkit.Maui.Markup;
-using CommunityToolkit.Maui.Sample.ViewModels.Views;
-using CommunityToolkit.Mvvm.ComponentModel;
-using DMOrders.Controls;
-using DMOrders.Pages;
 using DMOrders.Pages.Fragments.Activities;
 using DMOrders.Pages.Sys;
 using DMOrders.Services.Database.Sqlite;
-using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.DMOrders.tareas;
-using DMSA.Models.Odoo.Native;
-using Microsoft.Maui.Layouts;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-
 namespace DMOrders;
 
 public partial class MainPageTab : ContentPage
@@ -24,17 +15,23 @@ public partial class MainPageTab : ContentPage
     false;
 #endif
 
-    readonly PopupSizeConstants popupSizeConstants;
-    readonly CsharpBindingPopupViewModel csharpBindingPopupViewModel;
-
     bool isExpanded = false;
+
+    public class MenuItemModel
+    {
+        public string Icon { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public Func<Task> Action { get; set; }
+    }
+
+    public ObservableCollection<MenuItemModel> MenuItems { get; set; }
+
     public MainPageTab()
 	{
-		InitializeComponent();        
+		InitializeComponent();
 
         NavigationPage.SetHasNavigationBar(this, false);
-
-        //tabViewMain.SelectedTab = tabViewMain.Tabs[1];
 
         if (App.Session.res_Company != null)
             lblCompany.Text = App.Session.res_Company.name;
@@ -50,42 +47,24 @@ public partial class MainPageTab : ContentPage
 
         imageDebug.IsVisible = IsDebug;
 
-        //var floatingButtonsLayout = new AbsoluteLayout();
+        MenuItems = new ObservableCollection<MenuItemModel>
+        {
+            new() { Icon = "\uf279", Title = "Nueva actividad", Description = "Seguimiento de proceso.", Action = async () => ViewCell_Add_Task(null, EventArgs.Empty) },
+            new() { Icon = "\uf0c7", Title = "Actualización", Description = "Sincronizar los datos principales.", Action = async () => ViewCell_Tapped_Update(null, EventArgs.Empty) },
+            new() { Icon = "\uf2f5", Title = "Salir", Description = "Volver a ingresar credenciales.", Action = async () => ViewCell_Tapped_Exit_Regular(null, EventArgs.Empty) },
+            new() { Icon = "\uf7d9", Title = "Configuraciones", Description = "Modificar rutas y entorno.", Action = async () => ShowSettings(null, EventArgs.Empty) },
+        };
 
-        //floatingButtonsLayout.BackgroundColor = Colors.Aqua;
-        //floatingButtonsLayout.WidthRequest = 100;
+        BindingContext = this;
+    }
 
-        //var button1 = new Button
-        //{
-        //    CornerRadius = 80,
-        //    Text = "+"
-        //};
-
-        //AbsoluteLayout.SetLayoutFlags(button1, AbsoluteLayoutFlags.PositionProportional);
-        //AbsoluteLayout.SetLayoutBounds(button1, new Rect(1, 1, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
-        //floatingButtonsLayout.Children.Add(button1);
-
-        //var button2 = new Button
-        //{
-        //    CornerRadius = 80,
-        //    Text = "-"
-        //};
-
-        //AbsoluteLayout.SetLayoutFlags(button2, AbsoluteLayoutFlags.PositionProportional);
-        //AbsoluteLayout.SetLayoutBounds(button2, new Rect(2, 0.9, AbsoluteLayout.AutoSize, AbsoluteLayout.AutoSize));
-        //floatingButtonsLayout.Children.Add(button2);
-
-        //MainContent.Children.Add(floatingButtonsLayout);
-        //if (popupSizeConstants == null)
-        //{
-        //    this.popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
-        //}
-        //else
-        //{
-        //    this.popupSizeConstants = popupSizeConstants;
-        //}
-        //this.csharpBindingPopupViewModel = csharpBindingPopupViewModel;
-
+    private void OnMenuItemSelected(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.CurrentSelection.FirstOrDefault() is MenuItemModel item)
+        {
+            item.Action?.Invoke();
+            ((CollectionView)sender).SelectedItem = null; // deselecciona
+        }
     }
 
     //protected override void OnSizeAllocated(double width, double height)
@@ -115,43 +94,6 @@ public partial class MainPageTab : ContentPage
         }
 
         isExpanded = !isExpanded;
-    }
-
-    //private async void BtnTopTools_OnClicked_Clicked(object sender, EventArgs e)
-    //{
-    //    var fntSrc = (FontImageSource) btnTopTools.ImageSource;
-
-    //    int unicodevalue = char.ConvertToUtf32(fntSrc.Glyph, 0);
-
-    //    if (unicodevalue == 61641)
-    //    {
-    //        await btnTopTools.RotateTo(90, 200);
-    //        btnTopTools.Rotation = 0;
-    //        fntSrc.Glyph = "\uf00d";
-    //        TopTools.IsVisible = true;
-    //    }
-    //    else
-    //    {
-    //        await btnTopTools.RotateTo(-90, 200);
-    //        btnTopTools.Rotation = 0;
-    //        fntSrc.Glyph = "\uf0c9";
-    //        TopTools.IsVisible = false;
-    //    }
-    //}
-
-    private async void btnSave_Clicked(object sender, EventArgs e)
-    {
-    }
-
-    private async void btnExit_Clicked(object sender, EventArgs e)
-    {
-        //SendBackButtonPressed();
-        App.Current.MainPage = new Login(null);
-    }
-
-    private async void ViewCell_Add_Sale(object sender, EventArgs e)
-    {
-
     }
 
     private async void ViewCell_Add_Task(object sender, EventArgs e)
@@ -197,8 +139,8 @@ public partial class MainPageTab : ContentPage
     }
 
     private void viewAddTask_Disappearing(object? sender, EventArgs e)
-    {
-        Debug.WriteLine("viewAddTask_Disappearing");
+    {        
+        tabActivities.ReloadData();
     }
 
     private async void ViewCell_Tapped_Update(object sender, EventArgs e)
@@ -208,45 +150,28 @@ public partial class MainPageTab : ContentPage
         await Navigation.PushModalAsync(obj);
     }
 
-    private async void ViewCell_Tapped_Exit(object sender, EventArgs e)
+    private async void ViewCell_Tapped_Exit_Regular(object sender, EventArgs e)
     {
         //App.Current.MainPage = new DMOrders.AppShellStart();
-        App.Current.MainPage = new Login();
+        //App.Current.MainPage = new Login();
+        App.Current.Windows[0].Page = new Login();
+    }
+
+    private async Task ViewCell_Tapped_Exit()
+    {
+        //ViewCell_Tapped_Exit_Regular(new object { }, null);
+        //await MainThread.InvokeOnMainThreadAsync(() =>
+        //{
+            App.Current.Windows[0].Page = new Login();
+        //});
     }
 
     private async void ShowSettings(object sender, EventArgs e)
     {
-        Debug.WriteLine("SettingsPage");
-        //SettingsPage objPage = new SettingsPage();
-        Connections objPage = new Connections();
-        //objPage.Disappearing += ObjSettingPage_Disappearing;
+        Debug.WriteLine("SettingsPage");        
+        Connections objPage = new Connections();        
         await Navigation.PushModalAsync(objPage);
     }        
-
-    private void TabView_ActiveTabChanged(object sender, int e)
-    {
-        Debug.WriteLine(sender);
-        Debug.WriteLine(e);
-    }
-
-    //private async void btnUpdate_Clicked(object sender, EventArgs e)
-    //{
-    //    BtnTopTools_OnClicked_Clicked(sender, e);
-
-    //    UpdateData obj = new UpdateData();
-
-    //    //obj.Sel_Company_Id = new res_company()
-    //    //{
-    //    //    id = se.id,
-    //    //    name = se.name
-    //    //};
-
-    //    obj.Disappearing += UpdateData_Disappearing;
-
-    //    //await Navigation.PushAsync(obj, false);
-
-    //    await Navigation.PushModalAsync(obj);
-    //}
 
     private void UpdateData_Disappearing(object? sender, EventArgs e)
     {

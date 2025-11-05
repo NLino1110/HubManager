@@ -25,7 +25,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace ApiManager
+namespace ApiManagerOdoo.promotions
 {
     public class HubPromotionBenefit : HubBase
     {
@@ -81,8 +81,8 @@ namespace ApiManager
 
             var kwargs = new
             {
-                limit = limit,
-                offset = (index * limit),
+                limit,
+                offset = index * limit,
                 fields = fields_array
             };
 
@@ -97,8 +97,8 @@ namespace ApiManager
         {
             var kwargs = new
             {
-                limit = limit,
-                offset = (index * limit),
+                limit,
+                offset = index * limit,
                 fields = fields_array
             };
 
@@ -113,8 +113,8 @@ namespace ApiManager
         {
             var kwargs = new
             {
-                limit = limit,
-                offset = (index * limit),
+                limit,
+                offset = index * limit,
                 fields = fields_array
             };
 

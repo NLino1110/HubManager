@@ -11,19 +11,11 @@ using System.Threading.Tasks;
 
 namespace DMOrders.Services.Database.Sqlite
 {
-    public class PosPaymentMethodDb
-    {
-        SQLiteAsyncConnection Database;
-
-        public PosPaymentMethodDb()
+    public class PosPaymentMethodDb : SqliteDbBase<PosPaymentMethod>
+    {        
+        public PosPaymentMethodDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
 
-        }
-
-        public async Task<int>  GetCount()
-        {
-            await Init();
-            return (await Database.Table<PosPaymentMethod>().ToListAsync()).Count;
         }
 
         public async Task<List<PosPaymentMethod>> GetItemsAsync()
@@ -36,36 +28,6 @@ namespace DMOrders.Services.Database.Sqlite
         {
             await Init();
             return await Database.Table<PosPaymentMethod>().Where(x=>x.Id == id).FirstOrDefaultAsync();
-        }
-
-        public async Task<int> InsertAsync(PosPaymentMethod item)
-        {
-            await Init();
-            await Database.InsertAsync(item);
-            return 0;
-        }
-
-        public async Task<int> InsertBatchAsync(PosPaymentMethod[] items)
-        {
-            await Init();
-            await Database.InsertAllAsync(items, "OR REPLACE",true);            
-            return 0;
-        }
-
-        public async Task<int> Truncate()
-        {
-            await Init();
-
-            return await Database.DeleteAllAsync<PosPaymentMethod>();
-        }
-
-        async Task Init()
-        {
-            if (Database is not null)
-                return;
-
-            Database = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
-            var result = await Database.CreateTableAsync<PosPaymentMethod>();
-        }    
+        } 
     }
 }

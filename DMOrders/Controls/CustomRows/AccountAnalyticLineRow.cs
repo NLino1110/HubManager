@@ -58,8 +58,8 @@ namespace DMOrders.Controls.CustomRows
             _labelCompany.SetBinding(Label.TextProperty, new Binding("res_company_display"));
             _labelReason.SetBinding(Label.TextProperty, new Binding("motivo_display")); // ← si tu modelo no tiene esto, deja "res_company_display"
             _labelPartner.SetBinding(Label.TextProperty, new Binding("res_partner_display"));
-            _labelStartDate.SetBinding(Label.TextProperty, new Binding("hour_start", converter: new HourDecimalToTimeSpanConverter(), stringFormat: "{0:hh\\:mm}"));
-            _labelEndDate.SetBinding(Label.TextProperty, new Binding("hour_end", converter: new HourDecimalToTimeSpanConverter(), stringFormat: "{0:hh\\:mm}"));
+            _labelStartDate.SetBinding(Label.TextProperty, new Binding("hour_start", converter: new HourDecimalToTimeSpanConverter(), stringFormat: "{0:HH\\:mm}"));
+            _labelEndDate.SetBinding(Label.TextProperty, new Binding("hour_end", converter: new HourDecimalToTimeSpanConverter(), stringFormat: "{0:HH\\:mm}"));
             _labelStandby.SetBinding(Label.TextProperty, new Binding("duration", converter: new HourDecimalToTimeSpanConverter(), stringFormat: "{0:hh\\:mm}"));
 
             // Bloque de 2 líneas: company / reason
@@ -68,7 +68,7 @@ namespace DMOrders.Controls.CustomRows
                 Spacing = 0,
                 Children = { _labelCompany, _labelReason },
                 VerticalOptions = LayoutOptions.Center
-            };            
+            };
 
             // Colocar en columnas (una sola vez)
             Grid.SetColumn(_labelId, 0); leftGrid.Children.Add(_labelId);

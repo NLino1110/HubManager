@@ -74,7 +74,7 @@
                                 <ColumnDefinition Width="auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <controls:CheckBoxEx x:Name="chkCacheMode" CheckBoxColor="#ACCAEB" TextColor="Black" IsChecked="False" Grid.Column="0" Grid.Row="0" LabelText="Modo cache (datos permitidos)"></controls:CheckBoxEx>
+                            <controls:CheckBoxEx x:Name="chkCacheMode" CheckBoxColor="#ACCAEB" TextColor="Black" IsChecked="False" Grid.Column="0" Grid.Row="0" LabelText="Modo cache (datos permitidos)" IsVisible="False"></controls:CheckBoxEx>
                             <controls:CheckBoxEx x:Name="chkUpdateBig" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" Grid.Column="0" Grid.Row="1" LabelText="Actualizar Facturas (Cabeceras)"></controls:CheckBoxEx>
                             <controls:CheckBoxEx x:Name="chkUpdateFacDet" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" Grid.Column="0" Grid.Row="2" LabelText="Actualizar Facturas (Detalles)"></controls:CheckBoxEx>
                             <controls:CheckBoxEx x:Name="chkUpdateSmall" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" Grid.Column="0" Grid.Row="3" LabelText="Actualizar Parámetros (Cuentas, bancos, módulos, etc.)"></controls:CheckBoxEx>

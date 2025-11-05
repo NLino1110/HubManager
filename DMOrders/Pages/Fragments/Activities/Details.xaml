@@ -52,9 +52,6 @@
                HorizontalTextAlignment="Center"
                FontAttributes="Bold"
                FontSize="15" />
-            
-            
-
         </Grid>
 
         <CollectionView 
@@ -69,15 +66,15 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <customrows:AccountAnalyticLineRow 
-                Item="{Binding .}" 
-                SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"
+                        Item="{Binding .}" 
+                        SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"
                         EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=EditCommand}"/>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
         <HorizontalStackLayout Grid.Row="2" HorizontalOptions="Center" Margin="0,0,0,10" Spacing="10">
-            <Button Text="" Clicked="ButtonClose_Clicked" BackgroundColor="Gray" TextColor="White" HeightRequest="50" WidthRequest="50" Padding="0" IsVisible="False">
+            <Button Text="" Clicked="ButtonClose_Clicked" BackgroundColor="Gray" TextColor="White" HeightRequest="43" WidthRequest="43" Padding="0" IsVisible="False">
                 <Button.ImageSource>
                     <FontImageSource 
                         Size="30"
@@ -86,7 +83,7 @@
                         />
                 </Button.ImageSource>
             </Button>
-            <Button Text="Nuevo" Clicked="ButtonNew_Clicked" BackgroundColor="Green" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0">
+            <Button Text="Nuevo" Clicked="ButtonNew_Clicked" BackgroundColor="Green" TextColor="White" HeightRequest="43" WidthRequest="120" Padding="0">
                 <Button.ImageSource>
                     <FontImageSource 
                         Size="30"
@@ -94,7 +91,7 @@
                         Glyph="{x:Static uranium:MaterialSharp.New_label}" />
                     </Button.ImageSource>
             </Button>
-            <Button Text="Guardar" Clicked="ButtonSave_Clicked" BackgroundColor="Orange" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0" IsVisible="False">
+            <Button Text="Guardar" Clicked="ButtonSave_Clicked" BackgroundColor="Orange" TextColor="White" HeightRequest="43" WidthRequest="120" Padding="0" IsVisible="False">
                 <Button.ImageSource>
                     <FontImageSource 
                         Size="30"
@@ -102,7 +99,7 @@
                         Glyph="{x:Static uranium:MaterialSharp.Save}" />
                 </Button.ImageSource>
             </Button>
-            <Button Text="Enviar" Clicked="ButtonSync_Clicked" BackgroundColor="DeepSkyBlue" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0">
+            <Button Text="Enviar" Clicked="ButtonSync_Clicked" BackgroundColor="DeepSkyBlue" TextColor="White" HeightRequest="43" WidthRequest="120" Padding="0">
                 <Button.ImageSource>
                     <FontImageSource 
                         Size="30"

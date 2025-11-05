@@ -11,20 +11,14 @@ using System.Threading.Tasks;
 
 namespace DMOrders.Services.Database.Sqlite
 {
-    public class PosTarjetasCanalDb
+    public class PosTarjetasCanalDb : SqliteDbBase<PosTarjetasCanal>
     {
-        SQLiteAsyncConnection Database;
 
-        public PosTarjetasCanalDb()
+        public PosTarjetasCanalDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
 
         }
 
-        public async Task<int>  GetCount()
-        {
-            await Init();
-            return (await Database.Table<PosTarjetasCanal>().ToListAsync()).Count;
-        }
 
         public async Task<List<PosTarjetasCanal>> GetItemsAsync()
         {
@@ -38,34 +32,5 @@ namespace DMOrders.Services.Database.Sqlite
             return await Database.Table<PosTarjetasCanal>().Where(x=>x.id == id).FirstOrDefaultAsync();
         }
 
-        public async Task<int> InsertAsync(LoyaltyFiltersDetail item)
-        {
-            await Init();
-            await Database.InsertAsync(item);
-            return 0;
-        }
-
-        public async Task<int> InsertBatchAsync(LoyaltyFiltersDetail[] items)
-        {
-            await Init();
-            await Database.InsertAllAsync(items, "OR REPLACE",true);            
-            return 0;
-        }
-
-        public async Task<int> Truncate()
-        {
-            await Init();
-
-            return await Database.DeleteAllAsync<PosTarjetasCanal>();
-        }
-
-        async Task Init()
-        {
-            if (Database is not null)
-                return;
-
-            Database = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
-            var result = await Database.CreateTableAsync<PosTarjetasCanal>();
-        }    
     }
 }

@@ -52,4 +52,9 @@ public partial class Container : ContentView
     {
         //info.FillData(_data);
     }
+
+    public void ReloadData()
+    {
+        dataActivities.LoadData(filterActivities);
+    }
 }

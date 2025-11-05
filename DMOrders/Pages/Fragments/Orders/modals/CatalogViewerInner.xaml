@@ -94,7 +94,7 @@
     </ContentView.Resources>
     <Grid RowDefinitions="Auto,Auto,*,Auto" BackgroundColor="WhiteSmoke">
         
-        <Grid BackgroundColor="Black" RowDefinitions="Auto" ColumnDefinitions="Auto,*" Grid.Row="0">
+        <Grid BackgroundColor="Black" RowDefinitions="Auto" ColumnDefinitions="Auto,*,Auto" Grid.Row="0">
             <Button Grid.Row="0" Text="" 
                     Grid.Column="0" 
                     TextColor="GhostWhite"
@@ -114,8 +114,20 @@
                    FontAttributes="Bold"
                    HorizontalOptions="Center"
                    VerticalOptions="Center">
-
             </Label>
+            <Button Grid.Row="0" Text="" 
+                Grid.Column="2" 
+                TextColor="GhostWhite"
+                BackgroundColor="Transparent"
+                Clicked="OnCloseClicked">
+                <Button.ImageSource>
+                    <FontImageSource
+                        Color="White"
+                        Size="18"
+                        FontFamily="MaterialSharp"
+                        Glyph="{x:Static uranium:MaterialSharp.Close}" />
+                </Button.ImageSource>
+            </Button>
         </Grid>
 
         <!-- Grid Parametros -->

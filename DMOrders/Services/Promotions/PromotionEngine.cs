@@ -1,4 +1,5 @@
 ﻿using DMSA.Models.Odoo.DMOrders.promotions;
+using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Sales;
 using InputKit.Shared;

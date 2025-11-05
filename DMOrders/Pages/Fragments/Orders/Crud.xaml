@@ -22,7 +22,7 @@
         <BackButtonBehavior IsEnabled="{StaticResource IsBackButtonEnabled}" IsVisible="{StaticResource IsBackButtonEnabled}"/>
     </Shell.BackButtonBehavior>
 
-    <Grid ColumnDefinitions="Auto,*">        
+    <Grid ColumnDefinitions="Auto,*">
         <modals:CatalogViewerInner x:Name="SearchProductView" 
                    IsVisible="False" 
                    Grid.Row="0" 
@@ -37,7 +37,7 @@
 RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" 
               WidthRequest="220">
 
-            <Button Grid.Row="0" Text="" Clicked="ButtonClose_Clicked" BackgroundColor="Gray" TextColor="White" HeightRequest="50" WidthRequest="50" Padding="0">
+            <Button Grid.Row="0" Text="" Clicked="ButtonClose_Clicked" BackgroundColor="Gray" TextColor="White" HeightRequest="43" WidthRequest="43" Padding="0">
                 <Button.ImageSource>
                     <FontImageSource 
     Size="30"
@@ -221,16 +221,16 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
                 </VerticalStackLayout>
 
                 <HorizontalStackLayout Grid.Column="2" HorizontalOptions="Fill" Spacing="10">
-                    <Button Text="" Clicked="ButtonAddNew_Clicked" BackgroundColor="MediumPurple" TextColor="White" HeightRequest="50" WidthRequest="50" Padding="0">
+                    <Button Text="" Clicked="ButtonAddNew_Clicked" BackgroundColor="DarkSlateGray" TextColor="White" HeightRequest="45" WidthRequest="45" Padding="0">
                         <Button.ImageSource>
                             <FontImageSource 
-                                Size="30"
+                                Size="28"
                                 FontFamily="MaterialSharp"
-                                Glyph="{x:Static uranium:MaterialSharp.Add}"/>
+                                Glyph="{x:Static uranium:MaterialSharp.Shopping_cart_checkout}"/>
                         </Button.ImageSource>
                     </Button>
 
-                    <Button Text="Guardar" Clicked="ButtonSave_Clicked" BackgroundColor="LimeGreen" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0">
+                    <Button Text="Guardar" Clicked="ButtonSave_Clicked" BackgroundColor="LimeGreen" TextColor="White" HeightRequest="45" WidthRequest="120" Padding="0">
                         <Button.ImageSource>
                             <FontImageSource 
 Size="30"
@@ -238,12 +238,12 @@ FontFamily="MaterialSharp"
 Glyph="{x:Static uranium:MaterialSharp.Save}" />
                         </Button.ImageSource>
                     </Button>
-                    <Button x:Name="btnSend" Text="Enviar" Clicked="ButtonSync_Clicked" BackgroundColor="DeepSkyBlue" TextColor="White" HeightRequest="50" WidthRequest="120" Padding="0">
+                    <Button x:Name="btnSend" Text="Enviar" Clicked="ButtonSync_Clicked" BackgroundColor="DeepSkyBlue" TextColor="White" HeightRequest="45" WidthRequest="120" Padding="0">
                         <Button.ImageSource>
                             <FontImageSource 
 Size="30"
 FontFamily="MaterialSharp"
-Glyph="{x:Static uranium:MaterialSharp.Send}" />
+Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                         </Button.ImageSource>
                     </Button>
 

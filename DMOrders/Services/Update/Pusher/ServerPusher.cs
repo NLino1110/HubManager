@@ -20,6 +20,7 @@ namespace DMOrders.Services.Update.Pusher
         int day { get; set; }
         int limit { get; set; }
 
+        DateTime? sync_date_since => new DateTime(year, month, day);
         public AppSession appSession => App.Session;
         public ServerPusher() 
         {
@@ -208,7 +209,7 @@ namespace DMOrders.Services.Update.Pusher
                 item.date_synchronized = DateTime.Now;
                 item.id_sync = resultTask.result;
                 AccountAnalyticLineDb projectTaskDb = new AccountAnalyticLineDb();
-                //await projectTaskDb.UpdateAsync(item);
+                await projectTaskDb.UpdateAsync(item);
             }
         }
 

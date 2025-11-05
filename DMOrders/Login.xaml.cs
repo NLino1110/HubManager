@@ -128,7 +128,8 @@ public partial class Login : ContentPage
         var serverPuller = new ServerPuller();
         var pullResult = await serverPuller.Pull();
 
-        //await serverPuller.PullPromotions();
+        if(true)
+            await serverPuller.PullPromotions();
         
         if (!pullResult)
         {

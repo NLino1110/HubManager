@@ -25,7 +25,7 @@ using UraniumUI.Material.Controls;
 
 namespace DMOrders.Controls
 {    
-    [XamlCompilation(XamlCompilationOptions.Skip)]
+    [XamlCompilation(XamlCompilationOptions.Compile)]
     public class PopupAccountAnalyticLine : Popup<AccountAnalyticLine>, INotifyPropertyChanged
     {
         public IDialogService DialogService { get; private set; }
@@ -81,7 +81,6 @@ namespace DMOrders.Controls
             }
         }
 
-
         IDispatcherTimer timer_eventController;
 
         double lastParentHeight = 0;
@@ -100,8 +99,11 @@ namespace DMOrders.Controls
             isWindows = DeviceInfo.Current.Platform == DevicePlatform.WinUI;
 
             popupSizeConstants.CalculateSizes(DeviceDisplay.Current);
-            DesiredSize = popupSizeConstants.Medium;
+            DesiredSize = new Size(100,100); // popupSizeConstants.Tiny;
             
+            WidthRequest = 600;
+            HeightRequest = 400;
+
             BackgroundColor = Colors.GhostWhite;
             
             Title = "NUEVA ACTIVIDAD";
@@ -178,6 +180,12 @@ namespace DMOrders.Controls
             //timer_eventController.Start();
         }
 
+        protected override void OnSizeAllocated(double width, double height)
+        {
+            //base.OnSizeAllocated(width, height);
+            //base.OnSizeAllocated(500, 500);
+        }
+
         private void BuildBody(Grid gridContent)
         {
             _pickerPlanningSlot = new Picker
@@ -206,6 +214,7 @@ namespace DMOrders.Controls
                 Title = "Hora Inicio",
                 Margin = new Thickness(5, 2, 15, 2),
                 Time = DateTime.Now.TimeOfDay,
+                Format = "HH:mm",
                 Icon = new FontImageSource
                 {
                     FontFamily = "MaterialSharp",
@@ -222,6 +231,7 @@ namespace DMOrders.Controls
                 Title = "Hora Fin",
                 Margin = new Thickness(5, 2, 15, 2),
                 Time = DateTime.Now.TimeOfDay.Add(new TimeSpan(1, 0, 0)),
+                Format = "HH:mm",
                 Icon = new FontImageSource
                 {
                     FontFamily = "MaterialSharp",
@@ -275,7 +285,7 @@ namespace DMOrders.Controls
             _inputResPartner = new TextField
             {
                 Title = "Cliente",
-                Text = "<NO SELECCIONADO>",
+                Text = "Seleccione un cliente...",
                 Margin = new Thickness(5, 2, 15, 2),
                 VerticalOptions = LayoutOptions.Center,
                 HorizontalOptions = LayoutOptions.Fill,
@@ -306,7 +316,7 @@ namespace DMOrders.Controls
                 //JustifyContent = FlexJustify.SpaceBetween,
                 //AlignItems = FlexAlignItems.Center,
                 //AlignContent = FlexAlignContent.Center,                
-                Wrap = FlexWrap.NoWrap,
+                Wrap = FlexWrap.NoWrap,                
                 Margin = new Thickness(5, 0, 0, 5),
             };
 
@@ -341,7 +351,7 @@ namespace DMOrders.Controls
         {
             var popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
             popupSizeConstants.CalculateSizes(DeviceDisplay.Current);
-            DesiredSize = popupSizeConstants.Medium;
+            //DesiredSize = popupSizeConstants.Medium;
 
             var returnResultPopup = new PopupSelectPartner(popupSizeConstants);
             
@@ -380,7 +390,8 @@ namespace DMOrders.Controls
 
             _btnSaveTop = new Button
             {
-                //Text = "",
+                Text = "  Guardar",
+                TextColor = Colors.GhostWhite,
                 BackgroundColor = Colors.SeaGreen,
                 HorizontalOptions = LayoutOptions.End,
                 Margin = new Thickness(0,0,15,0),
@@ -404,8 +415,9 @@ namespace DMOrders.Controls
             {
                 //Text = Title,
                 //Margin = new Thickness(15, 15, 0, 15),
+                TextColor = Colors.DarkGray,
                 FontAttributes = FontAttributes.Bold,
-                FontSize = 13,
+                FontSize = 15,
                 VerticalOptions = LayoutOptions.Start,
                 HorizontalOptions = LayoutOptions.Start,
             };
@@ -618,7 +630,7 @@ namespace DMOrders.Controls
         private void OnPageSizeChanged(object sender, EventArgs e)
         {
             var popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
-            DesiredSize = popupSizeConstants.Large;
+            //DesiredSize = popupSizeConstants.Large;
 
             var orientation = DeviceDisplay.MainDisplayInfo.Orientation;
             if (orientation == DisplayOrientation.Portrait)
@@ -696,11 +708,11 @@ namespace DMOrders.Controls
                         {
                             _pickerPlanningReason.SelectedItem = motivo_selected;
                         }
-                        var time_start = TimeSpan.FromHours((double)analyticLine.hour_start);
-                        _timePickerStart.Time = time_start;
+                        var time_start = TimeSpan.FromHours((double)analyticLine.hour_start);                        
+                        _timePickerStart.TimePickerView.Time = time_start;
+                        //_timePickerStart.TimePickerView.SetValue(TimePickerField.TimeProperty, time_start);
                         var time_end = TimeSpan.FromHours((double)analyticLine.hour_end);
-                        _timePickerEnd.Time = time_end;
-
+                        _timePickerEnd.TimePickerView.Time = time_end;
                     }
                 }
                 catch (Exception ex)
@@ -816,9 +828,8 @@ namespace DMOrders.Controls
 
                 
                 analyticLine.hour_start = (decimal)hour_start;
-
-                
                 analyticLine.hour_end = (decimal)hour_end;
+                analyticLine.duration = analyticLine.hour_end - analyticLine.hour_start;
 
                 AccountAnalyticLineDb accountAnalyticLineDb = new AccountAnalyticLineDb();
                 if (isNew)

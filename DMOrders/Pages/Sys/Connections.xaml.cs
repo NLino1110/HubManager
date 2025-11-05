@@ -4,8 +4,6 @@ namespace DMOrders.Pages.Sys;
 
 public partial class Connections : TabbedPage
 {
-    
-
     public Connections()
 	{
 		InitializeComponent();
