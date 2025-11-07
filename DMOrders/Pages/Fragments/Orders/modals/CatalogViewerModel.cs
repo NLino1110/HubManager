@@ -110,7 +110,7 @@ namespace DMOrders.Pages.Fragments.Orders.modals
 
         public CatalogViewerModel()
         {
-            _db = new ProductProductDb();
+            _db = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
             InitViewModes();
             RefreshCommand = new Command(async () => await CmdRefresh());            
         }

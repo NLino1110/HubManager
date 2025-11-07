@@ -1,5 +1,4 @@
 ﻿using ApiManager;
-using DMCobranzas.Settings.Sqlite;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
 using System;
@@ -17,6 +16,7 @@ using System.Reflection;
 using DMSA.Models.Odoo.Tools;
 using Parlot.Fluent;
 using DMSA.Models.Odoo.DMCobranzas;
+using DMCobranzas.Services.Database.Sqlite;
 
 namespace DMCobranzas.Models
 {

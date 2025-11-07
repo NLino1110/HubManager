@@ -61,13 +61,14 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                 ItemsSource="{Binding ItemsData, Source={x:Reference Root}}"                
                 EmptyView="No hay datos de promociones..."
                 SelectionMode="Single"
-                HorizontalOptions="Fill">
+                HorizontalOptions="Fill"                
+                SelectionChanged="detail_SelectionChanged">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <HorizontalStackLayout Padding="10">
                             <Label Text="{Binding id}" WidthRequest="40" />
                             <Label Text="{Binding name}" WidthRequest="150" />
-                            <Label Text="{Binding descripcion}" WidthRequest="100" />
+                            <Label Text="{Binding description}" WidthRequest="100" />
                             <Label Text="{Binding _selection_type_id}" WidthRequest="80" HorizontalTextAlignment="Center" />
                             <Label Text="{Binding _selection_type_id}" WidthRequest="80" HorizontalTextAlignment="Center" />
                             <Label Text="{Binding code}" WidthRequest="100" />
@@ -127,7 +128,7 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
         <Border StrokeThickness="1" StrokeLineCap="Flat" HeightRequest="200">
             <CollectionView x:Name="ListaDetallesSeleccion"
                             EmptyView="No hay datos para mostrar..."
-                            ItemsSource="{Binding Selecciones}">
+                            ItemsSource="{Binding promoGifts}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <HorizontalStackLayout Padding="4">

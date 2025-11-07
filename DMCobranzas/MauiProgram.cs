@@ -40,7 +40,7 @@ namespace DMCobranzas
                 .UseMauiCommunityToolkit();
             
             App.Session = new AppSession();
-            Debug.WriteLine(App.Session.odooConnection.IsProduction);
+            //Debug.WriteLine(App.Session.odooConnection.IsProduction);
 
             App.Session.AppVersion = AppInfo.Current.VersionString;
 

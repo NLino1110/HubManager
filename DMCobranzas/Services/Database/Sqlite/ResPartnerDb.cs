@@ -1,0 +1,126 @@
+﻿using DMCobranzas.Models;
+using DMCobranzas.Settings;
+using DMSA.Models.Odoo.Native;
+using Microsoft.Data.Sqlite;
+using SQLite;
+using SQLiteNetExtensions.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DMCobranzas.Services.Database.Sqlite
+{
+    public class ResPartnerDb
+    {
+        SQLiteAsyncConnection Database;
+        
+        public ResPartnerDb()
+        {
+
+        }
+
+        public async Task<int> GetCount()
+        {
+            return await Database.Table<res_partner>().CountAsync();
+        }
+
+        public async Task<int> Truncate()
+        {
+            await Init();
+            //Database.Table<account_move>().Delete();
+            //Database.DeleteAll<account_move>();
+            return await Database.DeleteAllAsync<res_partner>();
+        }
+
+        public async Task<List<res_partner>> GetItemsAsync()
+        {
+            await Init();
+            return await Database.Table<res_partner>().ToListAsync();
+            //return Database.Table<account_journal>().ToList();
+        }
+
+        public async Task<res_partner> GetItemsAsync(int company_id, int partner_id)
+        {
+            await Init();
+            return await Database.Table<res_partner>().Where(x=> (x._company_id == company_id || x._company_id == 0) && 
+            x.id == partner_id).FirstOrDefaultAsync();
+        }
+
+        public async Task<List<res_partner>> GetItemsBySearchAsync(int company_id, string TextSearch, int limit)
+        {
+            await Init();
+            int findCode = 0;
+
+            int.TryParse(TextSearch, out findCode);
+
+            if (findCode > 0)
+            {
+                return await Database.Table<res_partner>().Where(y =>
+                (y._company_id == company_id || y._company_id == 0) && 
+                y.id == findCode 
+                ).Take(limit).ToListAsync();
+            }
+            else
+            {
+                if(TextSearch.Length < 3)
+                {
+                    //Sin texto para buscar
+                    //await Database.Table<res_partner>().Where(x => x.id == -1).ToListAsync();
+                    await Database.Table<res_partner>().Take(0).ToListAsync();
+                }
+
+                return await Database.Table<res_partner>().Where(y =>
+                (y._company_id == company_id || y._company_id == 0) && (
+                y.id == findCode ||
+                y.name.Contains(TextSearch) ||
+                y.email.Contains(TextSearch) ||
+                y.vat.Contains(TextSearch))
+                ).Take(limit).ToListAsync();
+            }
+            //return Database.Table<account_journal>().ToList();
+        }
+
+        //public async Task<List<res_partner>> GetItemsByPartnerForPaymentAsync(res_partner res_Partner)
+        //{
+        //    await Init();
+        //    return await Database.Table<account_move>().Where(x=>
+        //    x._partner_id == res_Partner.id &&
+        //    x.move_type == "out_invoice" && 
+        //    x.amount_residual > 0).ToListAsync();
+        //    //return Database.Table<account_journal>().ToList();
+        //}
+
+        public async Task<res_partner> GetItem(int id_sequence)
+        {
+            await Init();
+            return await Database.Table<res_partner>().Where(i => i.id == id_sequence).FirstOrDefaultAsync();
+        }
+
+        public async Task<int> InsertAsync(res_partner item)
+        {
+            await Init();
+            await Database.InsertAsync(item);
+            return 0;
+        }
+
+        public async Task<int> InsertBatchAsync(res_partner[] items)
+        {
+            await Init();
+            //await Database.InsertAllAsync(items, "OR REPLACE");
+            await Database.InsertAllAsync(items);
+            return 0;
+        }
+
+        async Task Init()
+        {
+            if (Database is not null)
+                return;
+
+            Database = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
+            var result = await Database.CreateTableAsync<res_partner>();
+        }
+    
+    }
+}

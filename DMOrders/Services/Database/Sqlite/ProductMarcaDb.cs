@@ -10,19 +10,11 @@ using System.Threading.Tasks;
 
 namespace DMOrders.Services.Database.Sqlite
 {
-    public class ProductMarcaDb
+    public class ProductMarcaDb : SqliteDbBase<product_marca>
     {
-        SQLiteAsyncConnection Database;
-
-        public ProductMarcaDb()
+        public ProductMarcaDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
 
-        }
-
-        public async Task<int>  GetCount()
-        {
-            await Init();
-            return (await Database.Table<product_marca>().ToListAsync()).Count;
         }
 
         public async Task<List<product_marca>> GetItemsAsync()
@@ -60,42 +52,10 @@ namespace DMOrders.Services.Database.Sqlite
             return result;
         }
 
-
-
         public async Task<product_marca> GetItem(int id)
         {
             await Init();
             return await Database.Table<product_marca>().Where(x=>x.id == id).FirstOrDefaultAsync();
-        }
-
-        public async Task<int> InsertAsync(product_marca item)
-        {
-            await Init();
-            await Database.InsertAsync(item);
-            return 0;
-        }
-
-        public async Task<int> InsertBatchAsync(product_marca[] items)
-        {
-            await Init();
-            await Database.InsertAllAsync(items, "OR REPLACE",true);            
-            return 0;
-        }
-
-        public async Task<int> Truncate()
-        {
-            await Init();
-
-            return await Database.DeleteAllAsync<product_marca>();
-        }
-
-        async Task Init()
-        {
-            if (Database is not null)
-                return;
-
-            Database = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
-            var result = await Database.CreateTableAsync<product_marca>();
-        }    
+        } 
     }
 }

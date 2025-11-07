@@ -14,7 +14,7 @@ namespace DMSA.Models.Odoo.Native
     [Table("res_partner")]
     public class res_partner : OdooEntity, INotifyPropertyChanged
     {
-        //[PrimaryKey]
+        [PrimaryKey]
         //[AutoIncrement]
         //[JsonIgnore]
         //public int id_sequence { get; set; }

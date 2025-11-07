@@ -2,12 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SQLite;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DMSA.Models.Odoo.DMOrders.promotions
 {
@@ -123,6 +118,7 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
         [JsonProperty("open_session_ids")]
         public JToken open_session_ids { get; set; } // pos.session (compute)
 
+        [Ignore]
         [JsonIgnore]
         public int[] _open_session_ids
         {
@@ -134,12 +130,18 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
         [JsonProperty("config_ids")]
         public JToken config_ids { get; set; } // pos.config
 
+        [Ignore]
         [JsonIgnore]
         public int[] _config_ids
         {
             get => GetIds(config_ids);
             set => config_ids = SetIds(config_ids, value);
         }
+
+        [Column("create_date")]
+        public DateTime create_date { get; set; }
+        [Column("write_date")]
+        public DateTime write_date { get; set; }
     }
 
 }

@@ -99,7 +99,7 @@ namespace DMOrders.Pages.Fragments.Product
 
         public ProductListViewModel(Filters _filters)
         {
-            _db = new ProductProductDb();
+            _db = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
 
             filters = _filters;
             _itemsData = new ObservableCollection<product_product>();

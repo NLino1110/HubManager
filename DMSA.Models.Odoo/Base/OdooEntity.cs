@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DMSA.Models.Odoo.Base
 {    
@@ -70,6 +71,65 @@ namespace DMSA.Models.Odoo.Base
                 ja.Add(v);
 
             return ja;
+        }
+
+        protected string SetIdsJson(JToken token)
+        {
+            try
+            {
+                if (token == null || token.Type == JTokenType.Null)
+                    return "[]";
+
+                if (token.Type == JTokenType.Array)
+                {
+                    var ids = token
+                        .Where(t => t.Type == JTokenType.Integer)
+                        .Select(t => (int)t)
+                        .Where(v => v > 0)
+                        .ToArray();
+
+                    return JsonConvert.SerializeObject(ids);
+                }
+
+                // Si no es un array, intentamos convertir un solo valor
+                if (token.Type == JTokenType.Integer)
+                {
+                    var singleId = (int)token;
+                    return JsonConvert.SerializeObject(new[] { singleId });
+                }
+
+                // Si ya es una cadena JSON
+                if (token.Type == JTokenType.String)
+                {
+                    var s = token.ToString();
+                    if (s.TrimStart().StartsWith("["))
+                        return s;
+                    return JsonConvert.SerializeObject(new[] { s });
+                }
+
+                // Fallback genérico
+                return JsonConvert.SerializeObject(new int[0]);
+            }
+            catch
+            {
+                return "[]";
+            }
+        }
+
+        protected JToken GetIdsFromJson(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+                return new JArray();
+
+            try
+            {
+                var ids = JsonConvert.DeserializeObject<int[]>(json);
+                return new JArray(ids ?? Array.Empty<int>());
+            }
+            catch
+            {
+                return new JArray();
+            }
         }
     }
 

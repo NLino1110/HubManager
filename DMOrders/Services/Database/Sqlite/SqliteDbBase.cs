@@ -1,10 +1,4 @@
-﻿using DMSA.Models.Odoo.DMCobranzas;
-using SQLite;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SQLite;
 
 namespace DMOrders.Services.Database.Sqlite
 {
@@ -30,6 +24,19 @@ namespace DMOrders.Services.Database.Sqlite
 
             //Database = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
             Database = new SQLiteAsyncConnection(DatabasePath, Constants.Flags);
+
+            //try
+            //{
+            //    await Database.ExecuteAsync("PRAGMA journal_mode=WAL;");
+            //    await Database.ExecuteAsync("PRAGMA synchronous=NORMAL;");
+            //    await Database.ExecuteAsync("PRAGMA temp_store=MEMORY;");
+            //    await Database.ExecuteAsync("PRAGMA foreign_keys=ON;"); // por si usas claves foráneas
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine($"Error aplicando PRAGMAs en SQLite: {ex.Message}");
+            //}
+
             await Database.CreateTableAsync<T>();
         }
 
@@ -83,7 +90,7 @@ namespace DMOrders.Services.Database.Sqlite
             try
             {
                 // Ejecutar consulta directa en SQLite
-                string sql = $"SELECT MAX(WriteDate) FROM {tableName}";
+                string sql = $"SELECT MAX(write_date) FROM {tableName}";
                 var result = await Database.ExecuteScalarAsync<DateTime?>(sql);
 
                 // Si no hay resultados, usar el valor por defecto o fecha actual - 3 días
@@ -102,14 +109,32 @@ namespace DMOrders.Services.Database.Sqlite
         public async Task<int> InsertAsync(T item)
         {
             await Init();
-            await Database.InsertAsync(item);
-            return 0;
+            return await Database.InsertAsync(item);
         }
 
         public async Task<int> InsertBatchAsync(IEnumerable<T> items)
         {
             await Init();
-            await Database.InsertAllAsync(items, "OR REPLACE", true);
+            await Database.InsertAllAsync(items, "OR REPLACE", true);            
+            return 0;
+        }
+
+        public async Task<int> InsertBatchControlAsync(IEnumerable<T> items)
+        {
+            await Init();
+
+            foreach (var item in items)
+            {
+                try
+                {
+                    await Database.InsertOrReplaceAsync(item);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error insertando {typeof(T).Name}: {ex.Message}");
+                }
+            }
+
             return 0;
         }
 

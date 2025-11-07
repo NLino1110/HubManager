@@ -10,26 +10,11 @@ using System.Threading.Tasks;
 
 namespace DMOrders.Services.Database.Sqlite
 {
-    public class ResPartnerDb
-    {
-        SQLiteAsyncConnection Database;
-        
-        public ResPartnerDb()
+    public class ResPartnerDb : SqliteDbBase<res_partner>
+    {        
+        public ResPartnerDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
 
-        }
-
-        public async Task<int> GetCount()
-        {
-            return await Database.Table<res_partner>().CountAsync();
-        }
-
-        public async Task<int> Truncate()
-        {
-            await Init();
-            //Database.Table<account_move>().Delete();
-            //Database.DeleteAll<account_move>();
-            return await Database.DeleteAllAsync<res_partner>();
         }
 
         private static AsyncTableQuery<res_partner> ApplySort(
@@ -188,82 +173,6 @@ namespace DMOrders.Services.Database.Sqlite
         {
             await Init();
             return await Database.Table<res_partner>().Where(i => i.id == id).FirstOrDefaultAsync();
-        }
-
-        public async Task<int> InsertAsync(res_partner item)
-        {
-            await Init();
-            await Database.InsertAsync(item);
-            return 0;
-        }
-
-        public async Task<int> InsertBatchAsync(res_partner[] items)
-        {
-            ICollection<res_partner>? conflicts = null;
-
-            await Init();
-            await Database.InsertAllAsync(items, "OR REPLACE");
-
-            //try
-            //{
-            //    await Database.InsertAllAsync(items);
-            //    return items.Length;
-            //}
-            //catch (SQLite.SQLiteException ex) when (IsUniqueConstraint(ex))
-            //{
-            //    int inserted = 0;
-
-            //    await Database.ExecuteAsync("BEGIN");
-            //    try
-            //    {
-            //        foreach (var p in items)
-            //        {
-            //            try
-            //            {
-            //                // Insert normal (sin OR REPLACE) para que dispare UNIQUE si ya existe
-            //                await Database.InsertAsync(p);
-            //                inserted++;
-            //            }
-            //            catch (SQLite.SQLiteException exItem) when (IsUniqueConstraint(exItem))
-            //            {
-            //                // Registrar el conflictivo
-            //                conflicts?.Add(p);
-            //                // Continúa con el siguiente
-            //            }
-            //        }
-
-            //        await Database.ExecuteAsync("COMMIT");
-            //    }
-            //    catch
-            //    {
-            //        await Database.ExecuteAsync("ROLLBACK");
-            //        throw;
-            //    }
-
-            //    return inserted; // Cantidad realmente insertada
-            //}
-
-            return 0;
-        }
-
-        static bool IsUniqueConstraint(SQLite.SQLiteException ex)
-        {
-            // sqlite-net expone Result y el mensaje trae el detalle de UNIQUE
-            // Cubrimos ambos por seguridad.
-            var isConstraint = ex.Result == SQLite3.Result.Constraint;
-            var mentionsUnique = ex.Message?.IndexOf("UNIQUE", StringComparison.OrdinalIgnoreCase) >= 0
-                              || ex.Message?.IndexOf("constraint failed", StringComparison.OrdinalIgnoreCase) >= 0;
-            return isConstraint && mentionsUnique;
-        }
-
-        async Task Init()
-        {
-            if (Database is not null)
-                return;
-
-            Database = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
-            var result = await Database.CreateTableAsync<res_partner>();
-            await Database.ExecuteAsync("CREATE UNIQUE INDEX IF NOT EXISTS idx_partner_unique ON res_partner (id, _company_id)");
         }
     
     }

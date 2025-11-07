@@ -1,13 +1,4 @@
 ﻿using DMSA.Models.Odoo.DMOrders.promotions;
-using DMSA.Models.Odoo.Native;
-using Microsoft.Data.Sqlite;
-using SQLite;
-using SQLiteNetExtensions.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DMOrders.Services.Database.Sqlite
 {
@@ -18,10 +9,10 @@ namespace DMOrders.Services.Database.Sqlite
 
         }
 
-        public async Task<List<PromotionBenefit>> GetItemsAsync()
+        public async Task<List<PromotionBenefit>> GetItemsAsync(string state)
         {
             await Init();
-            return await Database.Table<PromotionBenefit>().ToListAsync();
+            return await Database.Table<PromotionBenefit>().Where(x=> x.state == state).ToListAsync();
         }
 
         public async Task<PromotionBenefit> GetItem(int id)
@@ -29,6 +20,21 @@ namespace DMOrders.Services.Database.Sqlite
             await Init();
             return await Database.Table<PromotionBenefit>().Where(x=>x.id == id).FirstOrDefaultAsync();
         }
-  
+
+        internal async Task<IEnumerable<PromotionBenefit>> SearchAll(int companyId, DateTime nowUtc)
+        {
+            await Init();
+
+            var query = Database.Table<PromotionBenefit>()
+                                .Where(x => x._company_id == companyId &&
+                                            x.start_datetime <= nowUtc &&
+                                            x.end_datetime >= nowUtc);            
+
+            var result = await query.ToListAsync();
+
+            return result;
+        }
+
+
     }
 }

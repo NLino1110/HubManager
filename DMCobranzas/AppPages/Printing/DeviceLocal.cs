@@ -30,6 +30,11 @@ namespace DMCobranzas.AppPages.Printing
 
         IReadOnlyList<AdvertisementRecord> IDevice.AdvertisementRecords => throw new NotImplementedException();
 
+        public void ClearServices()
+        {
+            throw new NotImplementedException();
+        }
+
         public void Dispose()
         {
             throw new NotImplementedException();
@@ -50,6 +55,11 @@ namespace DMCobranzas.AppPages.Printing
             throw new NotImplementedException();
         }
 
+        public Task<int> RequestMtuAsync(int requestValue, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool UpdateConnectionInterval(ConnectionInterval interval)
         {
             throw new NotImplementedException();
@@ -61,6 +71,11 @@ namespace DMCobranzas.AppPages.Printing
         }
 
         public Task<bool> UpdateRssiAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> UpdateRssiAsync(CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

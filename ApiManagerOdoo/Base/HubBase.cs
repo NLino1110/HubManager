@@ -277,14 +277,14 @@ namespace ApiManagerOdoo.Base
             object[] combinedArgs = new object[] {
                     //_args_,
                     _custom_args
-                };
+            };
 
             var apiRequestRpc = new ApiRequestOdooRpc_v2();
             apiRequestRpc.method = "call";
             apiRequestRpc.id = 1;
             apiRequestRpc._params = new Params_v2();            
             apiRequestRpc._params.model = modelName;
-            apiRequestRpc._params.method = _method_name;            
+            apiRequestRpc._params.method = _method_name;
             apiRequestRpc._params.args = combinedArgs;
             apiRequestRpc._params.kwargs = kargs;
             apiRequestRpc._params.db = "local";

@@ -94,11 +94,9 @@ namespace DMSA.Models.Odoo.Native
             {
                 if (_qty_to_deliver == value) return;
                 _qty_to_deliver = value;
-                OnPropertyChanged(nameof(qty_to_deliver));
-                
+                OnPropertyChanged(nameof(qty_to_deliver));                
             }
         }
-
 
         [Ignore]
         [JsonProperty("product_uom_category_id")]
@@ -121,7 +119,7 @@ namespace DMSA.Models.Odoo.Native
         public decimal price_tax { get; set; }
 
         [JsonProperty("price_subtotal")]
-        public decimal price_subtotal { get; set; }        
+        public decimal price_subtotal { get; set; }
 
         [JsonProperty("price_total")]
         public decimal price_total { get; set; }
@@ -136,6 +134,12 @@ namespace DMSA.Models.Odoo.Native
         [Ignore]
         [JsonIgnore]
         public string uom_category_display { get; set; }
+
+        [JsonIgnore]
+        public bool? is_gift { get; set; }
+
+        [JsonIgnore]
+        public string? promotion_data { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
         void OnPropertyChanged(string n) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));

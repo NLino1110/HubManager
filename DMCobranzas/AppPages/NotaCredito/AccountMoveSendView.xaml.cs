@@ -1,7 +1,6 @@
 using DMCobranzas.Models;
 using System.Collections.Generic;
 using System.Linq;
-using DMCobranzas.Settings.Sqlite;
 //using Foundation;
 using System.Diagnostics;
 using System.Windows.Input;
@@ -17,6 +16,7 @@ using CommunityToolkit.Maui.Sample.Models;
 using DMCobranzas.Controls.Modals;
 using DMCobranzas.Controls;
 using DMSA.Models.Odoo.DMCobranzas;
+using DMCobranzas.Services.Database.Sqlite;
 
 namespace DMCobranzas.AppPages.NotaCredito;
 

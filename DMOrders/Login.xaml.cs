@@ -93,7 +93,7 @@ public partial class Login : ContentPage
 
             LoadEnvironment();
 
-            CompanyDb companyDb = new CompanyDb();
+            CompanyDb companyDb = new CompanyDb(App.Session.odooConnection.DbNameSqlite);
             SelCompany = (await companyDb.GetItemsAsync()).Where(x => x.id == SelConnection.CompanyId).FirstOrDefault();
 
             if (SelCompany == null)
@@ -102,7 +102,7 @@ public partial class Login : ContentPage
                 return;
             }
 
-            var storesDb = new ResCenterDb();
+            var storesDb = new ResCenterDb(App.Session.odooConnection.DbNameSqlite);
 
             var storesItems = (await Task.Run(async () => await storesDb.GetItemsAsync()))
                               .Where(s => s.company_id == SelCompany.id && s.type_center == "M")
@@ -128,8 +128,8 @@ public partial class Login : ContentPage
         var serverPuller = new ServerPuller();
         var pullResult = await serverPuller.Pull();
 
-        if(true)
-            await serverPuller.PullPromotions();
+        //if(true)
+        //    await serverPuller.PullPromotions();
         
         if (!pullResult)
         {
@@ -333,7 +333,7 @@ public partial class Login : ContentPage
 
     public async Task<bool> SetDataSessionOnLine(User resultUser, DateTime currentDate)
     {
-        var database = new UserAccessDb();
+        var database = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
 
         ApiManager.HubUser hubUser = new ApiManager.HubUser(App.Session);
         var resultValidacion = await hubUser.ValidaSincronizacionAsync(resultUser, currentDate);
@@ -430,7 +430,7 @@ public partial class Login : ContentPage
 
         int[] _companyIds = _empresas.Select(x => x.id).ToArray();
 
-        CompanyDb companyDb = new CompanyDb();
+        CompanyDb companyDb = new CompanyDb(App.Session.odooConnection.DbNameSqlite);
         var listCompany = (await companyDb.GetItemsAsync()).Where(x => _companyIds.Contains(x.id));
         bool areEqual = _empresas.ToList().SequenceEqual(listCompany, new CompanyComparer());
 
@@ -458,73 +458,10 @@ public partial class Login : ContentPage
         ddCompany.SelectedItem = OdooConnectionItems.FirstOrDefault();
         Debug.WriteLine("Conexiones cargadas!!");
     }
-
-    private async Task __PrepareConnections()
-    {
-        var connectionsDb = new OdooConnectionDb();
-        var filtered = (await connectionsDb.GetItemsAsync())
-                        .Where(c => c.Active)
-                        .ToList();
-
-        // Asegura que todo cambio de UI vaya en el hilo principal
-        MainThread.BeginInvokeOnMainThread(() =>
-        {
-            // No reasignes ItemDisplayBinding aquí.
-            // No reemplaces la instancia de la colección.
-            OdooConnectionItems.Clear();
-            foreach (var c in filtered)
-                OdooConnectionItems.Add(c);
-
-            // Limpia selección antes de reasignar
-            ddCompany.SelectedItem = null;
-
-            // (Opcional si ya se asignó en el constructor)
-            // ddCompany.ItemsSource = OdooConnectionItems;
-
-            ddCompany.SelectedItemChanged += async (s, e) =>
-            {
-                if (ddCompany.SelectedItem == null)
-                    return;
-
-                SelConnection = (OdooConnection)ddCompany.SelectedItem;
-                App.Session.odooConnection = SelConnection;
-                App.Session.CurrentUser = new User
-                {
-                    username = App.Session.odooConnection.Username,
-                    password = App.Session.odooConnection.Password,
-                    databasename = App.Session.odooConnection.DbName,
-                };
-
-                LoadEnvironment();
-
-                CompanyDb companyDb = new CompanyDb();
-                SelCompany = (await companyDb.GetItemsAsync()).Where(x => x.id == SelConnection.CompanyId).FirstOrDefault();
-
-                if (SelCompany == null)
-                {
-                    await Toast.Make("Error: No se encontró la empresa asociada a la conexión.").Show();
-                    return;
-                }
-
-                var storesDb = new ResCenterDb();
-
-                var storesItems = (await Task.Run(async () => await storesDb.GetItemsAsync()))
-                                  .Where(s => s.company_id == SelCompany.id && s.type_center == "M")
-                                  .ToArray();
-                ddAgency.ItemsSource = storesItems;
-                ddAgency.ItemDisplayBinding = new Binding("name");
-                ddAgency.SelectedItem = storesItems.FirstOrDefault();
-            };
-
-            ddCompany.SelectedItem = OdooConnectionItems.FirstOrDefault();
-        });
-
-        Debug.WriteLine("Conexiones cargadas!!");
-    }
-
+        
     public async Task<bool> SetDataSessionOffLine(User resultUser, user_access userFound, DateTime currentDate)
     {
-        var database = new UserAccessDb();
+        var database = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
         res_company[] _empresas = new res_company[0];
 
         //if(userFound.companies!= null && userFound.companies != "")
@@ -626,7 +563,7 @@ public partial class Login : ContentPage
 
             BtnTryLogin.IsEnabled = false;
 
-            var database = new UserAccessDb();
+            var database = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
             var hubUser = new ApiManager.HubUser(App.Session);
             User resultUser = null;
 
@@ -752,7 +689,7 @@ public partial class Login : ContentPage
 
             BtnTryLogin.IsEnabled = false;
 
-            var database = new UserAccessDb();
+            var database = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
             var hubUser = new ApiManager.HubUser(App.Session);
             User resultUser = null;
 
@@ -901,7 +838,7 @@ public partial class Login : ContentPage
 
             User user = App.Session.CurrentUser;
 
-            var database = new UserAccessDb();
+            var database = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
             var hubUser = new ApiManager.HubUser(App.Session);
             User resultUser = null;
 

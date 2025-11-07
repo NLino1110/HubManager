@@ -2,12 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SQLite;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DMSA.Models.Odoo.DMOrders.promotions
 {
@@ -38,6 +33,11 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
             get => GetIds(promotion_type_ids);
             set => promotion_type_ids = SetIds(promotion_type_ids, value);
         }
+
+        [Column("create_date")]
+        public DateTime create_date { get; set; }
+        [Column("write_date")]
+        public DateTime write_date { get; set; }
     }
 
 }

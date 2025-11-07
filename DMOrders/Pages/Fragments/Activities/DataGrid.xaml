@@ -34,7 +34,7 @@
         <Grid Grid.Row="1">
             <CollectionView 
                     x:Name="MyCollectionView"
-                    ItemsSource="{Binding Activities}" 
+                    ItemsSource="{Binding ItemsData}" 
                                 EmptyView="No hay tareas diarias ingresadas..." 
                                 HorizontalOptions="Fill" 
                                 SelectionMode="Single"

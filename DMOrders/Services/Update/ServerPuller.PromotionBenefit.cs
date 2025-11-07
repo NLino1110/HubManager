@@ -99,7 +99,7 @@ namespace DMOrders.Services.Update
             return true;
         }
 
-        public async Task<bool> PaymentMethod(PromotionBenefit promotionBenfit, bool force)
+        public async Task<bool> PaymentMethod(bool force)
         {
             var stopwatch = Stopwatch.StartNew();
 
@@ -142,7 +142,7 @@ namespace DMOrders.Services.Update
             return true;
         }
 
-        public async Task<bool> PosTarjetasCanal(PromotionBenefit promotionBenfit, bool force)
+        public async Task<bool> PosTarjetasCanal(bool force)
         {
             var stopwatch = Stopwatch.StartNew();
 
@@ -360,6 +360,9 @@ namespace DMOrders.Services.Update
 
         public async Task<bool> OnlinePromotionBenefit(bool force)
         {
+            await PaymentMethod(true);
+            await PosTarjetasCanal(true);
+
             DateTime current_datetime = DateTime.Now;
 
             var stopwatch = Stopwatch.StartNew();
@@ -390,15 +393,15 @@ namespace DMOrders.Services.Update
                     {
                         await LoyaltyFilters(item, true);
                         await LoyaltyFiltersDetail(item, true);
-                        await PaymentMethod(item, true);
-                        await PosTarjetasCanal(item, true);
+                        
                         await PromoRules(item, true);
+                        await PromoCenter(item, true);
                         await OnlinePromotionProducts(item, true);
                         await OnlinePromotionProductDetail(item, true);                        
                     }
                 }
 
-                if (indice >= 600)
+                if (indice >= maxIndexExceeded)
                 {
                     Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
                     break;

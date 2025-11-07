@@ -71,7 +71,7 @@ namespace DMOrders.Pages.Fragments.Customers
 
         public ViewModel(Filters _filters)
         {
-            _db = new ResPartnerDb();
+            _db = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
             filters = _filters;
             _itemsData = new ObservableCollection<res_partner>();
             ItemTappedCommand = new Command<res_partner>(OnItemTapped);

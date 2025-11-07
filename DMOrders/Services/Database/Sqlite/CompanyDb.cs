@@ -10,19 +10,11 @@ using System.Threading.Tasks;
 
 namespace DMOrders.Services.Database.Sqlite
 {
-    public class CompanyDb
+    public class CompanyDb : SqliteDbBase<res_company>
     {
-        SQLiteAsyncConnection Database;
-
-        public CompanyDb()
+        public CompanyDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
 
-        }
-
-        public async Task<int> GetCount()
-        {
-            await Init();
-            return (await Database.Table<res_company>().ToListAsync()).Count;
         }
 
         public async Task<List<res_company>> GetItemsAsync()
@@ -36,31 +28,6 @@ namespace DMOrders.Services.Database.Sqlite
         {
             await Init();
             return await Database.Table<res_company>().Where(i => i.id == id).FirstOrDefaultAsync();
-        }
-
-        public async Task<int> InsertAsync(res_company item)
-        {
-            await Init();
-
-            await Database.InsertOrReplaceAsync(item);
-
-            return 0;
-        }
-
-        public async Task<int> InsertBatchAsync(res_company[] items)
-        {
-            await Init();
-            await Database.InsertAllAsync(items, "OR REPLACE");
-            return 0;
-        }
-
-        async Task Init()
-        {
-            if (Database is not null)
-                return;
-
-            Database = new SQLiteAsyncConnection(Constants.DatabasePath);
-            var result = await Database.CreateTableAsync<res_company>();
         }
     }
 }

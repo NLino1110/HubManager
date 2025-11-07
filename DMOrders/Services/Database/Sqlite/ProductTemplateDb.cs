@@ -10,19 +10,11 @@ using System.Threading.Tasks;
 
 namespace DMOrders.Services.Database.Sqlite
 {
-    public class ProductTemplateDb
+    public class ProductTemplateDb : SqliteDbBase<product_template>
     {
-        SQLiteAsyncConnection Database;
-
-        public ProductTemplateDb()
+        public ProductTemplateDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
 
-        }
-
-        public async Task<int>  GetCount()
-        {
-            await Init();
-            return (await Database.Table<product_template>().ToListAsync()).Count;
         }
 
         public async Task<List<product_template>> GetItemsAsync()
@@ -35,36 +27,6 @@ namespace DMOrders.Services.Database.Sqlite
         {
             await Init();
             return await Database.Table<product_template>().Where(x=>x.id == id).FirstOrDefaultAsync();
-        }
-
-        public async Task<int> InsertAsync(product_template item)
-        {
-            await Init();
-            await Database.InsertAsync(item);
-            return 0;
-        }
-
-        public async Task<int> InsertBatchAsync(product_template[] items)
-        {
-            await Init();
-            await Database.InsertAllAsync(items, "OR REPLACE", true);            
-            return 0;
-        }
-
-        public async Task<int> Truncate()
-        {
-            await Init();
-
-            return await Database.DeleteAllAsync<product_template>();
-        }
-
-        async Task Init()
-        {
-            if (Database is not null)
-                return;
-
-            Database = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
-            var result = await Database.CreateTableAsync<product_template>();
-        }    
+        }   
     }
 }

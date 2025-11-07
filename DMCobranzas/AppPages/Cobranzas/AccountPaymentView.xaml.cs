@@ -1,4 +1,3 @@
-using DMCobranzas.Settings.Sqlite;
 using System.Diagnostics;
 using System.Windows.Input;
 using DMSA.Models.Odoo.Native;
@@ -7,6 +6,7 @@ using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Maui.Sample.Models;
 using DMSA.Models.Odoo.DMCobranzas;
 using CommunityToolkit.Maui.Extensions;
+using DMCobranzas.Services.Database.Sqlite;
 
 namespace DMCobranzas.Controls.Modals.TabbedPages;
 

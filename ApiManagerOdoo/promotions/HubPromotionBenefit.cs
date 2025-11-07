@@ -52,7 +52,9 @@ namespace ApiManagerOdoo.promotions
             "loyalty_company_id",
             "promotion_product_ids",
             "product_promotion_ids",
-            "promotion_rules_ids"
+            "promotion_rules_ids",
+            "customers_included_ids",
+            "customers_excluded_ids"
         };
 
         public HubPromotionBenefit(AppSession _setAppSession) : base(_setAppSession)
@@ -67,7 +69,8 @@ namespace ApiManagerOdoo.promotions
 
             object[] _custom_args = new object[] {
                 //new object[] { "write_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
-                 new object[] { "end_datetime", ">=", $"{year}-{month:00}-{day:00} 00:00:00" }
+                 new object[] { "end_datetime", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
+                 //new object[] { "state", "=", "authorized" },
             };
             return await GetCount(args, _custom_args);
         }
@@ -125,7 +128,8 @@ namespace ApiManagerOdoo.promotions
                 },
                 new object[] {                    
                     "active", "=", true
-                }
+                },
+                //new object[] { "state", "=", "authorized" },
             };
             return await SearchRead<ApiResponseOdooRpcT<PromotionBenefit[]>>(args, _custom_args, kwargs, true);
         }

@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace DMOrders.Services.Database.Sqlite
 {
+    [Obsolete]
     public class AppSettingsDb
     {
         SQLiteAsyncConnection Database;

@@ -2,7 +2,6 @@ using ApiManager;
 
 using DMCobranzas.Models;
 using DMCobranzas.Settings.helpers;
-using DMCobranzas.Settings.Sqlite;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Views;
@@ -19,6 +18,7 @@ using Microsoft.Maui.Controls.Internals;
 using System.Data.Common;
 using DMSA.Models.Odoo.DMCobranzas;
 using CommunityToolkit.Maui.Extensions;
+using DMCobranzas.Services.Database.Sqlite;
 
 namespace DMCobranzas.Controls.Modals;
 

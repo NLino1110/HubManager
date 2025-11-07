@@ -1,255 +1,304 @@
-﻿using DMSA.Models.Odoo.DMOrders.promotions;
+﻿using DMOrders.Services.Database.Sqlite;
+using DMSA.Models.Odoo.DMOrders.promotions;
 using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
-using DMSA.Models.Odoo.Native;
-using DMSA.Models.Odoo.Sales;
-using InputKit.Shared;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace DMOrders.Services.Promotions
 {
-    public sealed class PromotionEvalResult
+    public class PromotionRepository : IPromotionRepository
     {
-        public DateTime NowUtc { get; set; }
-        public List<PromotionEvalItem> Items { get; set; } = new();
-        public PromotionEvalItem? Best { get; set; }
+        public async Task<IEnumerable<PromotionBenefit>> Search(int companyId, DateTime nowUtc)
+        {
+            // Usas tu clase PromotionBenefitDb (ya implementada en tu base)
+            var db = new PromotionBenefitDb(App.Session.odooConnection.DbNameSqlite);
+
+            // Llamas al método que ya tienes para buscar promociones
+            var promos = await db.SearchAll(companyId, nowUtc);
+
+            var productPromoDb = new PromotionProductDetailDb(App.Session.odooConnection.DbNameSqlite);
+            var promoRulesDb = new PromoRulesDb(App.Session.odooConnection.DbNameSqlite);
+            var promoCentersDb = new PromoCentersDb(App.Session.odooConnection.DbNameSqlite);
+
+            // Asegura listas inicializadas
+            foreach (var promo in promos)
+            {
+                // 1️⃣ Cargar productos asociados a la promoción
+                promo._product_promotion_ids = await productPromoDb.GetItemsByParent(promo.id);
+
+                // 2️⃣ Cargar reglas de la promoción
+                promo._promotion_rules_ids = await promoRulesDb.GetItemsByParent(promo.id);
+
+                // 3️⃣ Cargar centros asociados (si aplica)
+                promo._centers_ids = await promoCentersDb.GetItemsByParent(promo.id);
+
+                // 4️⃣ Cargar clientes excluidos (IDs)
+                //promo.customers_excluded_ids_json = await promoDb.GetExcludedCustomers(promo.id);
+
+                // 5️⃣ Normaliza campos comunes
+                promo._company_id = promo._company_id > 0 ? promo._company_id : companyId;
+                promo.start_datetime ??= DateTime.MinValue;
+                promo.end_datetime ??= DateTime.MaxValue;
+                promo.state ??= "authorized";
+                promo.active = promo.active;
+
+            }
+
+            return promos;
+        }
     }
 
+
+    // Interfaz que debe implementar tu repo SQLite (devuelve promociones ya filtradas por company/fecha/cliente)
     public interface IPromotionRepository
     {
-        /// Devuelve promociones ya filtradas por compañía/fecha/estado/cliente (si aplica).
-        IEnumerable<PromotionBenefit> Search(
-            long companyId,
-            DateTime nowUtc,
-            long? partnerId);
+        Task<IEnumerable<PromotionBenefit>> Search(int companyId, DateTime nowUtc);
     }
-
-    public sealed class PromotionEngine
+        
+    /// <summary>
+    /// Motor ligero de promociones que trabaja con tus modelos existentes.
+    /// Requiere un IPromotionRepository que devuelva promociones con sus detalles cargados.
+    /// </summary>
+    public sealed class PromotionEngineLite
     {
         private readonly IPromotionRepository _repo;
 
-        public PromotionEngine(IPromotionRepository repo) => _repo = repo;
+        public PromotionEngineLite(IPromotionRepository repo) => _repo = repo;
 
-        public PromotionEvalResult EvaluatePromotions(
-            product_product product,
-            int qty,
-            res_partner? partner = null,
-            PosPaymentMethod? paymentMethod = null,
-            DateTime? dateUtc = null,
-            res_company? company = null,
-            PosTarjetasCanal? targetSegment = null,
-            product_pricelist? channel = null,
-            PromotionSelectionType? selectionType = null)
+        /// <summary>
+        /// Evalúa promociones aplicables para un producto + cantidad en el contexto dado.
+        /// - product: objeto product_product (puede ser null si la evaluación es por pedido).
+        /// - qty: cantidad (si aplica).
+        /// - partner: cliente (opcional).
+        /// - companyId: id de la compañía (obligatorio, se usa para filtrar en repo).
+        /// - dateUtc: fecha a considerar (opcional).
+        /// </summary>
+        public async Task<PromotionEvalResult> EvaluatePromotions(
+            int product_id,
+            int qty,            
+            int companyId,
+            DateTime? dateUtc = null)
         {
-            if (product is null) throw new ArgumentNullException(nameof(product));
-            if (qty <= 0) throw new ArgumentOutOfRangeException(nameof(qty), "qty debe ser > 0");
-            if (company is null) throw new ArgumentNullException(nameof(company));
+            if (qty <= 0)
+                throw new ArgumentOutOfRangeException(nameof(qty), "qty debe ser > 0");
 
             var nowUtc = (dateUtc ?? DateTime.UtcNow).AddTicks(-(dateUtc ?? DateTime.UtcNow).Ticks % TimeSpan.TicksPerMinute);
 
-            // 1) Buscar promos candidatas base (estado/fecha/compañía/cliente)
-            var candidatas = _repo.Search(company.id, nowUtc, partner?.id)
-                .Where(p => p.active && p.state == "authorized")
-                .Where(p => (p.start_datetime == null || p.start_datetime <= nowUtc)
-                         && (p.end_datetime == null || p.end_datetime >= nowUtc))
-                .Where(p => p._company_id == company.id);
+            // 1) pedir candidatas al repo
+            var candidates = (await _repo.Search(companyId, nowUtc))
+                .Where(p => p != null)
+                .Where(p => p.active)
+                //.Where(p => string.Equals(p.state ?? string.Empty, "authorized", StringComparison.OrdinalIgnoreCase))
+                // fechas de vigencia de la cabecera (start_datetime / end_datetime)
+                .Where(p =>
+                    (p.start_datetime == null || p.start_datetime <= nowUtc) &&
+                    (p.end_datetime == null || p.end_datetime >= nowUtc))
+                .ToList();
 
-            // Nota: inclusión/exclusión de partner se asume ya considerada en repo.Search; si no:
-            //if (partner != null)
-            //{
-            //    candidatas = candidatas.Where(p =>
-            //        (!p.CustomersIncludedIds.Any() || p.CustomersIncludedIds.Contains(partner.Id)) &&
-            //        (!p.CustomersExcludedIds.Any() || !p.CustomersExcludedIds.Contains(partner.Id)));
-            //}
+            var results = new List<PromotionEvalItem>();
 
-            var items = new List<PromotionEvalItem>();
-
-            foreach (var promo in candidatas)
+            foreach (var promo in candidates)
             {
-                var reasons = new List<string>();
+                var baseReasons = new List<string>();
+                baseReasons.Add("Promoción activa y dentro de vigencia.");
 
-                // (A) Segmento por parámetro opcional
-                if (targetSegment != null)
-                {
-                    if (promo._target_segment_id != targetSegment.id)
-                        continue;
-                    reasons.Add("Coincide el segmento objetivo.");
-                }
-
-                // (B) Canal (pricelist) en centers.levels_ids si se pasó channel
-                if (channel != null)
-                {
-                    if (promo._centers_ids != null && promo._centers_ids.Any())
-                    {
-                        var inAny = promo._centers_ids.Any(c => c._levels_ids.Contains(channel));
-                        if (!inAny) continue;
-                        reasons.Add("Canal permitido en centers.levels_ids.");
-                    }
-                    else
-                    {
-                        reasons.Add("La promoción no define centers; no restringe canal.");
-                    }
-                }
-
-                // (C) Producto perteneciente a la promo (si hay detalle explícito)
-                var productOk = true;
+                // Si la promoción tiene detalles de productos explícitos:
+                bool productMatches = true;
                 if (promo._product_promotion_ids != null && promo._product_promotion_ids.Any())
                 {
-                    productOk = promo._product_promotion_ids.Any(d =>
-                        (d.product != null && d.product.id == product.id) ||
-                        true);
-
-                        //(d.ProductTemplate != null && d.ProductTemplate.Id == product.Template.Id));
-                    if (!productOk) continue;
-                    reasons.Add("Producto incluido en la promoción.");
-                }
-
-                // (D) Filtros de lealtad
-                if (promo._loyalty_filters_ids != null && promo._loyalty_filters_ids.Any())
-                {
-                    if (!MatchLoyaltyFilters(promo, product, nowUtc, reasons))
-                        continue;
-                }
-
-                // (E) Reglas activas
-                var rules = (promo._promotion_rules_ids ?? new()).Where(r => r.state);
-                var anyRuleOk = false;
-
-                foreach (var rule in rules)
-                {
-                    var rr = new List<string>(reasons);
-
-                    // Vigencia
-                    if (!rule.unlimited_time)
+                    if (product_id == 0)
                     {
-                        var startOk = rule.start_date == null || rule.start_date <= nowUtc.Date;
-                        var endOk = rule.end_date == null || rule.end_date >= nowUtc.Date;
-                        if (!startOk || !endOk) continue;
-                        rr.Add("Dentro de la vigencia de la regla.");
+                        productMatches = false;
                     }
                     else
                     {
-                        rr.Add("Regla sin vigencia (unlimited_time).");
-                    }
-
-                    // Método de pago
-                    if (paymentMethod != null && rule._payment_method_id != null)
-                    {
-                        if (rule._payment_method_id != paymentMethod.Id) continue;
-                        rr.Add("Coincide el método de pago.");
-                    }
-
-                    // Selection type (si se pasó)
-                    if (selectionType != null)
-                    {
-                        var selOk = rule._selection_type_id != null
-                            ? rule._selection_type_id == selectionType.Id
-                            : (promo._selection_type_id == selectionType.Id);
-                        if (!selOk) continue;
-                        rr.Add("Coincide el tipo de selección.");
-                    }
-
-                    // Cantidad mínima
-                    if (!MatchQtyAgainstRule(rule, qty, rr))
-                        continue;
-
-                    var discount = rule.discount;
-                    var item = new PromotionEvalItem
-                    {
-                        Promotion = new PromotionHeader
+                        // promo._product_promotion_ids normalmente será List<PromotionProductDetail>
+                        // intentamos comparar por product id (prop name típico: product / product_id)
+                        productMatches = promo._product_promotion_ids.Any(d =>
                         {
-                            Id = promo.id,
-                            Code = promo.code,
-                            Name = promo.name,
-                            TypeId = promo._promotion_type_id,
-                            TypeName = "" //promo.PromotionType?.Name
-                        },
-                        Rule = new RuleInfo
-                        {
-                            Id = rule.id,
-                            Discount = discount,
-                            UnlimitedTime = rule.unlimited_time,
-                            StartDate = rule.start_date,
-                            EndDate = rule.end_date,
-                            PaymentMethodId = rule._payment_method_id,
-                            SelectionTypeId = rule._selection_type_id
-                        },
-                        Discount = discount,
-                        Reasons = rr
-                    };
+                            try
+                            {
+                                // Intentamos leer 'product' o 'product_id' dentro de detail
+                                // La clase PromotionProductDetail en tu proyecto debería tener .product?.id o .product_id
+                                dynamic det = d;
+                                if (det == null) return false;
 
-                    items.Add(item);
-                    anyRuleOk = true;
+                                // si det.product es un objeto con id
+                                try
+                                {
+                                    var prodObj = det.product;
+                                    if (prodObj != null)
+                                    {
+                                        // prodObj puede ser JToken o una entidad; manejar ambos
+                                        if (prodObj is Newtonsoft.Json.Linq.JToken jtok)
+                                        {
+                                            var id = (int?)(jtok["id"]?.Value<int?>());
+                                            return id == product_id;
+                                        }
+                                        else
+                                        {
+                                            // si es un objeto con .id
+                                            int id = (int)prodObj.id;
+                                            return id == product_id;
+                                        }
+                                    }
+                                }
+                                catch { }
+
+                                // fallback: det.product_id (int)
+                                try
+                                {
+                                    int pid = (int)det.product_id;
+                                    return pid == product_id;
+                                }
+                                catch { }
+
+                                return false;
+                            }
+                            catch
+                            {
+                                return false;
+                            }
+                        });
+                    }
+
+                    if (!productMatches) continue;
+                    baseReasons.Add("Producto incluido en detalle de la promoción.");
                 }
 
-                // Si no hay reglas, podrías considerar la cabecera como aplicable (no implementado)
-                _ = anyRuleOk;
-            }
+                // Obtener reglas de la promoción (si existen)
+                // En tus modelos originales pones promo._promotion_rules_ids -> en tu modelo devuelve empty list.
+                // Aquí intentamos leer una propiedad dinámica que contenga reglas (si existe).
+                List<PromoRules> rules = TryExtractRules(promo);
 
-            var best = items.OrderByDescending(i => i.Discount).FirstOrDefault();
+                // Si no hay reglas, tratamos la cabecera como posible (pero normalmente quieres reglas)
+                if (rules == null || !rules.Any())
+                {
+                    // considerar la cabecera como aplicable sin reglas — añadimos un resultado simple
+                    results.Add(new PromotionEvalItem
+                    {
+                        Promotion = new PromotionHeader { Id = promo.id, Code = promo.code ?? "", Name = promo.name ?? "" },
+                        Discount = 0,
+                        Reasons = new List<string>(baseReasons) { "Promoción sin reglas explícitas (cabecera aplicable)." }
+                    });
+                    continue;
+                }
+
+                // Evaluar reglas
+                foreach (var r in rules.Where(rr => rr.state))
+                {
+                    var reasons = new List<string>(baseReasons);
+
+                    // tiempo de la regla
+                    if (!r.unlimited_time)
+                    {
+                        if (r.start_date.HasValue && nowUtc.Date < r.start_date.Value.Date) continue;
+                        if (r.end_date.HasValue && nowUtc.Date > r.end_date.Value.Date) continue;
+                        reasons.Add("Dentro de vigencia de la regla.");
+                    }
+                    else reasons.Add("Regla sin vigencia (unlimited_time).");
+
+                    // cantidad mínima
+                    //if (r.value.HasValue)
+                    //{
+                    //    if (qty < r.value.Value) continue;
+                    //    reasons.Add($"Cumple cantidad mínima: {r.value.Value}");
+                    //}
+
+                    if (r.value > 0)
+                    {
+                        if (qty < r.value) continue;
+                        reasons.Add($"Cumple cantidad mínima: {r.value}");
+                    }
+
+                    // aquí podrías incluir chequeos de método de pago, selección, etc. si los pasas como parámetros.
+
+                    // Si llegamos acá, la regla aplica:
+                    results.Add(new PromotionEvalItem
+                    {
+                        Promotion = new PromotionHeader { Id = promo.id, Code = promo.code ?? "", Name = promo.name ?? "" },
+                        Rule = new RuleInfo
+                        {
+                            Id = r.id,
+                            Discount = r.discount,
+                            UnlimitedTime = r.unlimited_time,
+                            StartDate = r.start_date,
+                            EndDate = r.end_date,
+                            PaymentMethodId = r._payment_method_id,
+                            SelectionTypeId = r._selection_type_id,
+                            MinQuantity = r.minimum_value
+                        },
+                        Discount = r.discount,
+                        Reasons = reasons
+                    });
+                }
+            }
 
             return new PromotionEvalResult
             {
                 NowUtc = nowUtc,
-                Items = items,
-                Best = best
+                Items = results
             };
         }
 
-        // ----------------------------
-        // Auxiliares
-        // ----------------------------
-        private static bool MatchLoyaltyFilters(PromotionBenefit promo, product_product product, DateTime nowUtc, List<string> reasonsOut)
+        /// <summary>
+        /// Intenta extraer reglas desde el objeto PromotionBenefit:
+        /// - si el modelo tiene una lista de reglas (por convención: _promotion_rules_ids o promotion_rules), la intenta mapear a PromoRule.
+        /// - si no encuentra nada devuelve una lista vacía.
+        /// </summary>
+        private static List<PromoRules> TryExtractRules(PromotionBenefit promo)
         {
-            var anyMatch = false;
-            var excluded = false;
-
-            foreach (var filt in promo._loyalty_filters_ids)
+            // 1) si en tu PromotionBenefit ya tienes una propiedad _promotion_rules_ids que contenga objetos,
+            //    conviértelo aquí. En tus modelos mostrabas _promotion_rules_ids que devolvía empty list; si en BD tienes otra tabla
+            //    tu repository idealmente ya debería poblar las reglas directamente en algún campo custom en el objeto.
+            try
             {
-                var details = filt._detail_ids ?? new LoyaltyFiltersDetail[] { };
-                foreach (var det in details)
+                // primer intento: reflexión para ver si existe una propiedad 'promotion_rules_ids' o '_promotion_rules_ids' con datos
+                var t = promo.GetType();
+
+                var prop = t.GetProperty("_promotion_rules_ids") ?? t.GetProperty("promotion_rules_ids") ?? null;
+                if (prop == null) return new List<PromoRules>();
+
+                var value = prop.GetValue(promo);
+                if (value == null) return new List<PromoRules>();
+
+                // si value es IEnumerable<PromoRule> ya: cast
+                if (value is IEnumerable<PromoRules> listDirect) return listDirect.ToList();
+
+                // si value is IEnumerable<object> intentar mapear dinámicamente
+                if (value is System.Collections.IEnumerable enumerable)
                 {
-                    var matched = false;
+                    var outList = new List<PromoRules>();
+                    foreach (var it in enumerable)
+                    {
+                        try
+                        {
+                            dynamic d = it;
+                            var rule = new PromoRules();
+                            // mapear campos comúnmente usados (defensivo)
+                            try { rule.id = (int)((object)d.id); } catch { }
+                            try { rule.discount = Convert.ToDouble(d.discount); } catch { }
+                            try { rule.unlimited_time = (bool)d.unlimited_time; } catch { }
+                            try { rule.start_date = (DateTime?)d.start_date; } catch { }
+                            try { rule.end_date = (DateTime?)d.end_date; } catch { }
+                            try { rule._payment_method_id = d._payment_method_id; } catch { }
+                            try { rule._selection_type_id = d._selection_type_id; } catch { }
+                            try { rule.minimum_value = d.minimum_value; } catch { }
+                            try { rule.state = (bool?)d.state ?? true; } catch { }
 
-                    //if (filt.marca && product.Marca != null && !string.IsNullOrEmpty(det.filter_name))
-                    //{
-                    //    if (product.Marca.Name == det.filter_name) matched = true;
-                    //}
+                            outList.Add(rule);
+                        }
+                        catch { /* ignoramos mapeos inválidos */ }
+                    }
 
-                    //if (!matched && filt.categoria && product.Categoria != null && !string.IsNullOrEmpty(det.filter_name))
-                    //{
-                    //    if (product.Categoria.Name == det.filter_name) matched = true;
-                    //}
-
-                    if (!matched) continue;
-
-                    // Ventana del detalle (si aplica, se asume Date-only)
-                    if (det.start_date != null && nowUtc.Date < det.start_date.Value.Date) continue;
-                    if (det.end_date != null && nowUtc.Date > det.end_date.Value.Date) continue;
-
-                    if (det.exclude) { excluded = true; continue; }
-
-                    anyMatch = true;
-                    reasonsOut.Add($"Coincide filtro de lealtad: {det.filter_name}");
+                    return outList;
                 }
             }
+            catch
+            {
+                // no podemos extraer reglas — devolvemos vacío
+            }
 
-            if (excluded) return false;
-            // Si hay filtros configurados, exigimos al menos un match positivo
-            var hasAnyFilterConfigured = promo._loyalty_filters_ids.Any(f => (f._detail_ids?.Any() ?? false));
-            return hasAnyFilterConfigured ? anyMatch : true;
-        }
-
-        private static bool MatchQtyAgainstRule(PromoRules rule, int qty, List<string> reasonsOut)
-        {
-            // Usa el primer campo de cantidad que exista
-            int? need = 1; // rule.minimum_value ?? rule.qty ?? rule.MinUnits;
-            if (need.HasValue && qty < need.Value) return false;
-            if (need.HasValue) reasonsOut.Add($"Cumple cantidad mínima: {need.Value}");
-            return true;
+            return new List<PromoRules>();
         }
     }
 }

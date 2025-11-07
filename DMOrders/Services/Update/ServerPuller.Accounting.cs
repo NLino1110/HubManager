@@ -546,9 +546,9 @@ namespace DMOrders.Services.Update
 
             if (dataList != null && dataList.result != null && dataList.result.Length > 0)
             {
-                var database = new UserDb();
-                foreach (var user in dataList.result)
-                {
+                var database = new UserDb(App.Session.odooConnection.DbNameSqlite);
+                //foreach (var user in dataList.result)
+                //{
                     //if (user.company_id != null && user.company_id.Length > 0)
                     //{
                     //    user._company_id = user.company_id[0].id;
@@ -564,7 +564,7 @@ namespace DMOrders.Services.Update
                     //{
                     //    user._sale_team_id = user.sale_team_id[0].id;
                     //}
-                }
+                //}
 
                 await database.InsertBatchAsync(dataList.result);
             }

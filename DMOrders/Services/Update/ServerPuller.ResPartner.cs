@@ -19,13 +19,16 @@ namespace DMOrders.Services.Update
     {
         public async Task<bool> OnlineSyncResPartner()
         {
+            //int limit = 20; // limit / 3;
+
             var stopwatch = Stopwatch.StartNew();
 
-            DateTime dateIni = appSession.sync_date_since;
-            DateTime dateEnd = DateTime.Now;
+            var database = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
 
+            DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since);
+            
             ApiManager.HubResPartner hubmanager = new ApiManager.HubResPartner(appSession);
-            var resultCount = await hubmanager.GetCount();
+            var resultCount = await hubmanager.GetCount(lastDate.Value.Year, lastDate.Value.Month, lastDate.Value.Day);
 
             Debug.WriteLine(resultCount.result);
 
@@ -34,17 +37,16 @@ namespace DMOrders.Services.Update
                 return false;
             }
 
-            int countTotal = resultCount.result / 300;
-
-            var database = new ResPartnerDb();
-
+            int countTotal = resultCount.result / limit;
+            
             for (int indice = 0; indice <= countTotal; indice++)
             {
-                var responseAll = await hubmanager.GetByCreateDateRange(limit, indice, dateIni, dateEnd);
+                var responseAll = await hubmanager.GetByWriteDate(lastDate.Value, limit, indice);
 
                 if (responseAll != null && responseAll.result != null && responseAll.result.Length > 0)
                 {
                     await database.InsertBatchAsync(responseAll.result);
+                    //await database.InsertBatchControlAsync(responseAll.result);
                 }
 
                 Console.WriteLine("Página:" + indice);

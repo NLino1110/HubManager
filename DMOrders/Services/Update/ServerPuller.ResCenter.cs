@@ -16,7 +16,7 @@ namespace DMOrders.Services.Update
     {
         public async Task OnlineSyncResCenter(bool force)
         {
-            var database = new ResCenterDb();
+            var database = new ResCenterDb(App.Session.odooConnection.DbNameSqlite);
             if (await database.GetCount() > 0)
             {
                 //Ya se ha sincronizado previamente

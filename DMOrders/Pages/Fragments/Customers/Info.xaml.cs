@@ -54,7 +54,7 @@ public partial class Info : ContentView
         {
             if(data._adic_comercial_id > 0)
             {
-                ResPartnerDb resPartnerDb = new ResPartnerDb();
+                ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
                 var seller = await resPartnerDb.GetItemsAsync(data._company_id, data._adic_comercial_id);
                 if (seller != null)
                 {

@@ -73,7 +73,7 @@ namespace DMOrders.Services.Update.Pusher
                 sale_Order.erp_id = resultTask.result;
                 sale_Order.is_synchronized = true;
                 sale_Order.date_synchronized = DateTime.Now;
-                SaleOrderDb saleOrderDb = new SaleOrderDb();
+                SaleOrderDb saleOrderDb = new SaleOrderDb(App.Session.odooConnection.DbNameSqlite);
                 await saleOrderDb.UpdateAsync(sale_Order);
                 return true;
             }
@@ -83,7 +83,7 @@ namespace DMOrders.Services.Update.Pusher
 
         public async Task SendAllSaleOrders(ProgressBarAnimationBehaviorPage obj)
         {           
-            SaleOrderDb saleOrderDb = new SaleOrderDb();
+            SaleOrderDb saleOrderDb = new SaleOrderDb(App.Session.odooConnection.DbNameSqlite);
             var listOrders = await saleOrderDb.GetItemsAsync(App.Session.res_Company.id, false);
             
             if(listOrders == null || listOrders.Count == 0)
@@ -116,7 +116,7 @@ namespace DMOrders.Services.Update.Pusher
                 projectTask.is_synchronized = true;
                 projectTask.date_synchronized = DateTime.Now;
                 projectTask.id_sync = existingTasks.result[0].id;
-                ProjectTaskDb projectTaskDb = new ProjectTaskDb();
+                ProjectTaskDb projectTaskDb = new ProjectTaskDb(App.Session.odooConnection.DbNameSqlite);
                 await projectTaskDb.UpdateAsync(projectTask);
 
                 return projectTask.id_sync;
@@ -138,7 +138,7 @@ namespace DMOrders.Services.Update.Pusher
                 projectTask.is_synchronized = true;
                 projectTask.date_synchronized = DateTime.Now;
                 projectTask.id_sync = resultTask.result;
-                ProjectTaskDb projectTaskDb = new ProjectTaskDb();
+                ProjectTaskDb projectTaskDb = new ProjectTaskDb(App.Session.odooConnection.DbNameSqlite);
                 await projectTaskDb.UpdateAsync(projectTask);
                 return projectTask.id_sync;
             }
@@ -161,7 +161,7 @@ namespace DMOrders.Services.Update.Pusher
 
             //Debug.WriteLine(projectTask.id_sync);
 
-            AccountAnalyticLineDb projectTaskDb = new AccountAnalyticLineDb();
+            AccountAnalyticLineDb projectTaskDb = new AccountAnalyticLineDb(App.Session.odooConnection.DbNameSqlite);
             var items = await projectTaskDb.GetItemsAsync(projectTask);
             foreach(var item in items)
             {
@@ -172,7 +172,7 @@ namespace DMOrders.Services.Update.Pusher
 
         public async Task SendAllProjectTask(ProgressBarAnimationBehaviorPage obj)
         {
-            ProjectTaskDb saleOrderDb = new ProjectTaskDb();
+            ProjectTaskDb saleOrderDb = new ProjectTaskDb(App.Session.odooConnection.DbNameSqlite);
             var listOrders = await saleOrderDb.GetItemsAsync(App.Session.res_Company.id, false);
 
             if (listOrders == null || listOrders.Count == 0)
@@ -208,14 +208,14 @@ namespace DMOrders.Services.Update.Pusher
                 item.is_synchronized = true;
                 item.date_synchronized = DateTime.Now;
                 item.id_sync = resultTask.result;
-                AccountAnalyticLineDb projectTaskDb = new AccountAnalyticLineDb();
+                AccountAnalyticLineDb projectTaskDb = new AccountAnalyticLineDb(App.Session.odooConnection.DbNameSqlite);
                 await projectTaskDb.UpdateAsync(item);
             }
         }
 
         public async Task SendAllAccountAnalyticLine(ProgressBarAnimationBehaviorPage obj)
         {
-            AccountAnalyticLineDb accountAnalyticLineDb = new AccountAnalyticLineDb();
+            AccountAnalyticLineDb accountAnalyticLineDb = new AccountAnalyticLineDb(App.Session.odooConnection.DbNameSqlite);
             var listItems = await accountAnalyticLineDb.GetItemsAsync(App.Session.res_Company.id, false);
 
             if (listItems == null || listItems.Count == 0)

@@ -3,12 +3,7 @@ using DMSA.Models.Odoo.Json.Converters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SQLite;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DMSA.Models.Odoo.DMOrders.promotions
 {
@@ -182,6 +177,15 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
             set => general_grupor_tipo_id = SetIds(general_grupor_tipo_id, value);
         }
 
+        [Column("general_grupor_tipo_id")]
+        public string general_grupor_tipo_id_json
+        {
+            get => general_grupor_tipo_id?.ToString(Formatting.None);
+            set => general_grupor_tipo_id = string.IsNullOrEmpty(value)
+                ? null
+                : JToken.Parse(value);
+        }
+
         [Ignore]
         [JsonProperty("general_tipo_marca_id")]
         public JToken general_tipo_marca_id { get; set; }
@@ -218,6 +222,11 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
             get => GetIds(detail_ids);
             set => detail_ids = SetIds(detail_ids, value);
         }
+
+        [Column("create_date")]
+        public DateTime create_date { get; set; }
+        [Column("write_date")]
+        public DateTime write_date { get; set; }
     }
 
 }

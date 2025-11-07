@@ -1,12 +1,9 @@
 ﻿using DMSA.Models.Odoo.Base;
 using DMSA.Models.Odoo.Json.Converters;
-using DMSA.Models.Odoo.Native;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SQLite;
-using System;
 using System.ComponentModel.DataAnnotations;
-
 
 namespace DMSA.Models.Odoo.DMOrders.promotions
 {
@@ -167,6 +164,14 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
             set => customers_included_ids = SetIds(customers_included_ids, value);
         }
 
+        [JsonIgnore]
+        public string customers_included_ids_json
+        {
+            get => SetIdsJson(customers_included_ids);
+            //set => customers_included_ids = GetIdsFromJson(value);
+            set { }
+        }
+
         [Ignore]
         [JsonProperty("customers_excluded_ids")]
         public JToken customers_excluded_ids { get; set; }
@@ -178,7 +183,14 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
             get => GetIds(customers_excluded_ids);
             set => customers_excluded_ids = SetIds(customers_excluded_ids, value);
         }
-                
+       
+        [JsonIgnore]
+        public string customers_excluded_ids_json
+        {
+            get => SetIdsJson(customers_excluded_ids);            
+            set { }
+        }
+
         [Ignore]
         //[JsonProperty("promotion_product_ids")]
         public JToken promotion_product_ids { get; set; }
@@ -211,12 +223,7 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
 
         [Ignore]
         [JsonIgnore]
-        public List<PromoRules> _promotion_rules_ids
-        {
-            //get => GetIds(promotion_rules_ids);
-            //set => promotion_rules_ids = SetIds(promotion_rules_ids, value);
-            get => Array.Empty<PromoRules>().ToList();
-        }
+        public List<PromoRules> _promotion_rules_ids { get; set; }        
 
         [Ignore]
         [JsonProperty("changes_ids")]
@@ -249,12 +256,7 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
 
         [Ignore]
         [JsonIgnore]
-        public List<PromoCenters> _centers_ids
-        {
-            //get => GetIds(centers_ids);
-            //set => centers_ids = SetIds(centers_ids, value);
-            get => Array.Empty<PromoCenters>().ToList();
-        }
+        public List<PromoCenters> _centers_ids { get; set; }        
 
         [Ignore]
         [JsonProperty("log_ids")]
@@ -267,6 +269,9 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
             get => GetIds(log_ids);
             set => log_ids = SetIds(log_ids, value);
         }
+
+        public DateTime create_date { get; set; }
+        public DateTime write_date { get; set; }
     }
 
 }

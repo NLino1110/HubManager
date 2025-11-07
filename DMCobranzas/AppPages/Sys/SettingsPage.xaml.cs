@@ -1,7 +1,6 @@
 ﻿
 using DMCobranzas.AppPages.Sys;
 using DMCobranzas.Services;
-using DMCobranzas.Settings.Sqlite;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Views;
@@ -21,6 +20,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using CommunityToolkit.Maui.Extensions;
+using DMCobranzas.Services.Database.Sqlite;
 
 namespace DMCobranzas.AppPages;
 

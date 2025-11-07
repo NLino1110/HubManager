@@ -172,7 +172,7 @@ namespace DMOrders.Pages.Fragments.Orders
             {
                 OnPropertyChanged(nameof(Note));
 
-                SaleOrderLineDb saleOrderLinesDb = new SaleOrderLineDb();
+                var saleOrderLinesDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
                 //_ = saleOrderLinesDb.GetItemsAsync(CurrentSaleOrder.id).ContinueWith(task =>
                 //{
                 //    if (task.IsCompletedSuccessfully)
@@ -206,9 +206,11 @@ namespace DMOrders.Pages.Fragments.Orders
                 var orderLines = await saleOrderLinesDb.GetItemsAsync(CurrentSaleOrder.id);
                 foreach (var line in orderLines)
                 {
-                    var product = await new ProductProductDb().GetItem(line.product_id);
+                    var product = await new ProductProductDb(App.Session.odooConnection.DbNameSqlite).GetItem(line.product_id);
                     line.product_code = product.code;
-                    line.product_display = product.display_name;
+                    line.product_display = product.name; //product.display_name;
+                    //line.uom_category_display = product._uom_id;
+                    line.uom_category_display = "UND";
                     OrderLines.Add(line);
                 }
 

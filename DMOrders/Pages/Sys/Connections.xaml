@@ -106,6 +106,7 @@
             <Label Text="Cuando está activado, la aplicación trabajará sin conexión a servidor." 
                    FontSize="Small" TextColor="Gray"/>
 
+            <Label x:Name="lblDbPath" />
         </VerticalStackLayout>
     </ContentPage>
 </TabbedPage>

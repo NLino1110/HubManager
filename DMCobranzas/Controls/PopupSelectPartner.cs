@@ -12,7 +12,6 @@ using DMCobranzas.Models;
 using System.Diagnostics;
 using DMSA.Models.Odoo.Native;
 using System.Collections.ObjectModel;
-using DMCobranzas.Settings.Sqlite;
 using DMSA.Models.Odoo.General.Responses;
 using System.Windows.Input;
 using System.ComponentModel;
@@ -20,6 +19,7 @@ using System.Runtime.CompilerServices;
 using DMCobranzas.Settings.helpers;
 using Microsoft.Maui.Platform;
 using Microsoft.Maui.Layouts;
+using DMCobranzas.Services.Database.Sqlite;
 
 namespace DMCobranzas.Controls
 {

@@ -3,7 +3,6 @@ using DMCobranzas;
 using DMCobranzas.Controls;
 using DMCobranzas.Models;
 using DMCobranzas.Settings.helpers;
-using DMCobranzas.Settings.Sqlite;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Sample.Models;
@@ -24,6 +23,8 @@ using static System.Net.Mime.MediaTypeNames;
 using Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;
 using DMSA.Models.Odoo.DMCobranzas;
 using CommunityToolkit.Maui.Extensions;
+using DMCobranzas.Services.Database;
+using DMCobranzas.Services.Database.Sqlite;
 
 namespace DMCobranzas.AppPages.NotaCredito;
 

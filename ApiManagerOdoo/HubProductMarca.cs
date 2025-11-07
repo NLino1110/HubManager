@@ -32,7 +32,9 @@ namespace ApiManager
             "id",
             "name",
             "active",
-            "clave_externa"
+            "clave_externa",
+            "create_date",
+            "write_date"
         };
 
         public HubProductMarca(AppSession _setAppSession) : base(_setAppSession)
@@ -46,7 +48,7 @@ namespace ApiManager
             object[] args = new object[] { };
 
             object[] _custom_args = new object[] {
-                //new object[] { "write_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },                
+                new object[] { "write_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },                
             };
             return await GetCount(args, _custom_args);
         }

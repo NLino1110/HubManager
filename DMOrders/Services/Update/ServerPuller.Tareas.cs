@@ -15,7 +15,7 @@ namespace DMOrders.Services.Update
 {
     public partial class ServerPuller
     {
-        public async Task<bool> OnlineMotivoActividadDiaria(bool force)
+        public async Task<bool> MotivoActividadDiaria(bool force)
         {            
             DateTime current_datetime = DateTime.Now.AddYears(-App.Session.odooConnection.DataToleranceDays);
 
@@ -31,7 +31,7 @@ namespace DMOrders.Services.Update
 
             int countTotal = resultCount.result / App.Session.odooConnection.DbLimitDefault;
 
-            var database = new MotivoActividadDiariaDb();
+            var database = new MotivoActividadDiariaDb(App.Session.odooConnection.DbNameSqlite);
 
             for (int indice = 0; indice <= countTotal; indice++)
             {

@@ -3,19 +3,11 @@ using SQLite;
 
 namespace DMOrders.Services.Database.Sqlite
 {
-    public class AccountAnalyticLineDb
+    public class AccountAnalyticLineDb : SqliteDbBase<AccountAnalyticLine>
     {
-        SQLiteAsyncConnection Database;
-
-        public AccountAnalyticLineDb()
+        public AccountAnalyticLineDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
 
-        }
-
-        public async Task<int>  GetCount()
-        {
-            await Init();
-            return (await Database.Table<AccountAnalyticLine>().ToListAsync()).Count;
         }
 
         public async Task<List<AccountAnalyticLine>> GetItemsAsync(ProjectTask parent)
@@ -48,42 +40,6 @@ namespace DMOrders.Services.Database.Sqlite
         {
             await Init();
             return await Database.Table<AccountAnalyticLine>().Where(x=>x.id == id).FirstOrDefaultAsync();
-        }
-
-        public async Task<int> InsertAsync(AccountAnalyticLine item)
-        {
-            await Init();
-            await Database.InsertAsync(item);
-            return 0;
-        }
-
-        public async Task<int> InsertBatchAsync(AccountAnalyticLine[] items)
-        {
-            await Init();
-            await Database.InsertAllAsync(items, "OR REPLACE",true);            
-            return 0;
-        }
-
-        public async Task<int> UpdateAsync(AccountAnalyticLine item)
-        {
-            await Init();
-            return await Database.UpdateAsync(item);
-        }
-
-        public async Task<int> Truncate()
-        {
-            await Init();
-
-            return await Database.DeleteAllAsync<AccountAnalyticLine>();
-        }
-
-        async Task Init()
-        {
-            if (Database is not null)
-                return;
-
-            Database = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
-            var result = await Database.CreateTableAsync<AccountAnalyticLine>();
-        }    
+        } 
     }
 }

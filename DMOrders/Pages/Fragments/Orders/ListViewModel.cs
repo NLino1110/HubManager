@@ -45,8 +45,6 @@ namespace DMOrders.Pages.Fragments.Orders
         private int _pageSize = 14;
         private int _page = 1;
 
-        int company_id = 0;
-
         public bool CanGoNext => (_page * PageSize) < TotalItems;
         public bool CanGoPrevious => _page > 1;
 
@@ -86,7 +84,6 @@ namespace DMOrders.Pages.Fragments.Orders
                 OnPropertyChanged(nameof(CanGoPrevious));
             }
         }
-
 
         public int TotalItems
         {
@@ -128,10 +125,9 @@ namespace DMOrders.Pages.Fragments.Orders
             }
         }
 
-
         public ListViewModel(Filters _filters)
         {
-            _db = new SaleOrderDb();
+            _db = new SaleOrderDb(App.Session.odooConnection.DbNameSqlite);
 
             filters = _filters;
             _itemsData = new ObservableCollection<sale_order>();
@@ -201,7 +197,7 @@ namespace DMOrders.Pages.Fragments.Orders
 
                 foreach (var it in items)
                 {
-                    ResPartnerDb resPartnerDb = new ResPartnerDb();
+                    ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
                     var partnerItem = await resPartnerDb.GetItemsAsync(it._company_id, it._partner_id);
                     
                     if (partnerItem != null)

@@ -100,7 +100,7 @@ public partial class MainPageTab : ContentPage
     {
         Debug.WriteLine("EditItem");
         
-        ProjectTaskDb projectTaskDb = new ProjectTaskDb();
+        ProjectTaskDb projectTaskDb = new ProjectTaskDb(App.Session.odooConnection.DbNameSqlite);
         string nameTodayTask = DateTime.Now.ToString("yyyy-MM-dd");
         var foundTodayTasks = await projectTaskDb.GetItemByNameAsync(App.Session.res_Company.id, nameTodayTask);
         

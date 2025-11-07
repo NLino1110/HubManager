@@ -3,7 +3,6 @@ using DMCobranzas.AppPages;
 using DMCobranzas.Models;
 using DMCobranzas.Services;
 using DMCobranzas.Settings.helpers;
-using DMCobranzas.Settings.Sqlite;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Markup;
@@ -22,6 +21,8 @@ using System.Diagnostics;
 using System.Threading;
 using System.Timers;
 using DMSA.Models.Odoo.DMApps;
+using DMCobranzas.Services.Database;
+using DMCobranzas.Services.Database.Sqlite;
 //using DMCobranzas;
 
 namespace DMCobranzas;
@@ -49,22 +50,22 @@ public partial class Login : ContentPage
 
             lblAppVersion.Text = "Versión " + App.Session.AppVersion;
 
-            if (App.Session.odooConnection.IsProduction)
-            {
-                txtEnvironment.Text = "Producción";
-            }
-            else
-            {
-#if DEBUG
-                txtEnvironment.Text += " + DEBUG";
-#endif
-            }
+//            if (App.Session.odooConnection.IsProduction)
+//            {
+//                txtEnvironment.Text = "Producción";
+//            }
+//            else
+//            {
+//#if DEBUG
+//                txtEnvironment.Text += " + DEBUG";
+//#endif
+//            }
 
-            if (App.Session.odooConnection.IsTestMode)
-            {
-                EntryUserName.Text = "admin";
-                EntryPassword.Text = "admin";
-            }
+            //if (App.Session.odooConnection.IsTestMode)
+            //{
+            //    EntryUserName.Text = "admin";
+            //    EntryPassword.Text = "admin";
+            //}
 
             Debug.WriteLine(txtEnvironment.Text);
             Debug.WriteLine(lblAppVersion.Text);

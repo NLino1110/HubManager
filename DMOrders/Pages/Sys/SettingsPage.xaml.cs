@@ -177,8 +177,8 @@ public partial class SettingsPage : ContentPage //, IDisposable //, INotifyPrope
         //await database_solicitudesNC.Drop();
         //await database_solicitudesNC.TruncateAsync();
 
-        UserAccessDb database_CobUsuarios = new UserAccessDb();
-        await database_CobUsuarios.Drop();
+        UserAccessDb database_CobUsuarios = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
+        await database_CobUsuarios.Truncate();
 
         CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 

@@ -27,8 +27,8 @@ namespace ApiManagerOdoo.promotions
             object[] args = new object[] { };
 
             object[] _custom_args = new object[] {
-                //new object[] { "write_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
-                 new object[] { "end_datetime", ">=", $"{year}-{month:00}-{day:00} 00:00:00" }
+                new object[] { "write_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
+                 //new object[] { "end_datetime", ">=", $"{year}-{month:00}-{day:00} 00:00:00" }
             };
             return await GetCount(args, _custom_args);
         }

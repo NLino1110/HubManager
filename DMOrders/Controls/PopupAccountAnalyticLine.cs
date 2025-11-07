@@ -675,7 +675,7 @@ namespace DMOrders.Controls
 
                     ObservableCollection<MotivoActividadDiaria> lplanning_reason = new ObservableCollection<MotivoActividadDiaria>();
 
-                    MotivoActividadDiariaDb motivoActividadDiariaDb = new MotivoActividadDiariaDb();
+                    MotivoActividadDiariaDb motivoActividadDiariaDb = new MotivoActividadDiariaDb(App.Session.odooConnection.DbNameSqlite);
                     lplanning_reason = new ObservableCollection<MotivoActividadDiaria>((await motivoActividadDiariaDb.GetItemsAsync()).OrderBy(i => i.name));
 
                     _pickerPlanningReason.ItemsSource = lplanning_reason;
@@ -683,7 +683,7 @@ namespace DMOrders.Controls
                     //_pickerPlanningReason.SelectedItem = 0;
 
                     ObservableCollection<res_company> lcompany = new ObservableCollection<res_company>();
-                    CompanyDb companyDb = new CompanyDb();
+                    CompanyDb companyDb = new CompanyDb(App.Session.odooConnection.DbNameSqlite);
                     lcompany = new ObservableCollection<res_company>((await companyDb.GetItemsAsync()).OrderBy(i => i.name));
 
                     //_pickerCompany.ItemsSource = lcompany;
@@ -694,7 +694,7 @@ namespace DMOrders.Controls
                         Title = "EDITANDO ACTIVIDAD";
                         _inputReview.Text = analyticLine.name;
 
-                        ResPartnerDb resPartnerDb = new ResPartnerDb();
+                        ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
                         Sel_Res_Partner = await resPartnerDb.GetItemsAsync(analyticLine.company_id, analyticLine.partner_id);
                         if (Sel_Res_Partner != null)
                         {
@@ -831,7 +831,7 @@ namespace DMOrders.Controls
                 analyticLine.hour_end = (decimal)hour_end;
                 analyticLine.duration = analyticLine.hour_end - analyticLine.hour_start;
 
-                AccountAnalyticLineDb accountAnalyticLineDb = new AccountAnalyticLineDb();
+                AccountAnalyticLineDb accountAnalyticLineDb = new AccountAnalyticLineDb(App.Session.odooConnection.DbNameSqlite);
                 if (isNew)
                 {
                     await accountAnalyticLineDb.InsertAsync(analyticLine);

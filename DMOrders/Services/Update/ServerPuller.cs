@@ -50,7 +50,7 @@ namespace DMOrders.Services.Update
                 await OnlineSyncResCenter(false);
                 await OnlineSyncStockWarehouse(false);
 
-                await OnlineMotivoActividadDiaria(true);
+                await MotivoActividadDiaria(true);
             }
             catch (Exception ex)
             {
@@ -78,7 +78,7 @@ namespace DMOrders.Services.Update
 
         private async Task OnlineSyncCompany(bool force)
         {
-            var database = new CompanyDb();
+            var database = new CompanyDb(App.Session.odooConnection.DbNameSqlite);
             if( await database.GetCount() > 0)
             {
                 //var listCmp = await database.GetItemsAsync();
@@ -112,36 +112,5 @@ namespace DMOrders.Services.Update
                 await database.InsertBatchAsync(dataList.result);
             }
         }
-
-        private async Task OnlineSyncStores()
-        {
-
-            int index = 0;
-            int limit = 1000;
-            DateTime dateIni = DateTime.Now.AddDays(-1000);
-
-            ApiManager.HubStore hubStore = new HubStore(App.Session);
-            ApiResponseOdooRpcT<res_store[]> dataList = await hubStore.GetByCreateDate(limit, index, dateIni.Year, dateIni.Month, dateIni.Day);
-
-            if (dataList != null && dataList.result !=null && dataList.result.Length > 0)
-            {
-                //TODO: Temporal, eliminar cuando se haya corregido en ODOO
-                foreach (var store in dataList.result)
-                {
-                    if (store.id < 50)
-                    {
-                        store.company_id = 1;
-                    }
-                    else
-                    {
-                        store.company_id = 2;
-                    }
-                }
-
-                var database = new StoreDb();
-                await database.InsertBatchAsync(dataList.result);
-            }
-        }
-
     }
 }

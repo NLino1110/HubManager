@@ -104,7 +104,7 @@ namespace ApiManagerOdoo.promotions
             object[] args = new object[] { };
 
             object[] _custom_args = new object[] {
-                 new object[] { "loyalty_id", "=", parent_id }
+                 new object[] { "parent_id", "=", parent_id }
             };
             return await GetCount(args, _custom_args);
         }
@@ -120,7 +120,7 @@ namespace ApiManagerOdoo.promotions
 
             object[] args = new object[] { };
             object[] _custom_args = new object[] {
-                new object[] { "promo_id", "=", id }
+                new object[] { "parent_id", "=", id }
             };
             return await SearchRead<ApiResponseOdooRpcT<LoyaltyFiltersDetail[]>>(args, _custom_args, kwargs, true);
         }

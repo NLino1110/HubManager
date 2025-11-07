@@ -1,4 +1,6 @@
+using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Abstract;
+using Microsoft.Maui.Controls;
 
 namespace DMOrders.Pages.Sys;
 
@@ -8,6 +10,21 @@ public partial class Connections : TabbedPage
 	{
 		InitializeComponent();
         BindingContext = new OdooConnectionsViewModel();
+
+        IDispatcherTimer timer;
+
+        timer = Dispatcher.CreateTimer();
+        timer.IsRepeating = false;
+        timer.Interval = TimeSpan.FromMilliseconds(500);
+        timer.Tick += async (s, e) =>
+        {
+            AppSettingsDb appSettingsDb = new AppSettingsDb();
+            await appSettingsDb.InitDefault();
+            var appSettingItems = await appSettingsDb.GetItemsAsync();
+            lblDbPath.Text = appSettingsDb.GetDbPath();
+            timer.Stop();
+        };
+        timer.Start();
     }
 
     private async void btnClose_Clicked(object sender, EventArgs e)

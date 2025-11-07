@@ -423,7 +423,7 @@ namespace ResourceBuilder.Data
             apiRequest.dateIni = DateTime.Parse(fechaActualizaTablet);
 
             ApiManager.HubResPartner hubPartner = new ApiManager.HubResPartner(_appSession);            
-            var resultCount = await hubPartner.GetCount();
+            var resultCount = await hubPartner.GetCount(1,1,1);
 
             Debug.WriteLine(resultCount.result);
 

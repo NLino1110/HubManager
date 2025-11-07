@@ -3,23 +3,20 @@ using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
-using CommunityToolkit.Mvvm.Input;
-using DMOrders.Controls;
 using DMOrders.Controls.Tools;
 using DMOrders.Pages.Fragments.Orders.modals;
 using DMOrders.Services.Database.Sqlite;
-using DMOrders.Services.Helpers;
+using DMOrders.Services.Promotions;
 using DMOrders.Services.Update.Pusher;
 using DMOrders.Shared;
-using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.DMOrders.promotions;
+using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
 using DMSA.Models.Odoo.Native;
 using Microsoft.Maui.Controls.Shapes;
-using Newtonsoft.Json;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using UraniumUI.Material.Controls;
 
 namespace DMOrders.Pages.Fragments.Orders;
 
@@ -140,6 +137,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
     CurrentSaleOrder?.partner_display_status
     ?? (CurrentPartner != null ? (CurrentPartner.active ? "Activo" : "Inactivo") : string.Empty);
 
+
+    private ObservableCollection<PromotionEvalResult> AppliedPromotionResults;
     protected override void OnAppearing()
     {
         base.OnAppearing();
@@ -204,7 +203,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         }
         else
         {
-            ResPartnerDb resPartnerDb = new ResPartnerDb();
+            ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
             var CurrentPartner = await resPartnerDb.GetItemsAsync(CurrentCompany.id , CurrentSaleOrder._partner_id);
             if(CurrentPartner != null)
             {
@@ -284,8 +283,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
     {
         var viewModel = (CrudViewModel)this.BindingContext;
         var orderLines = viewModel.OrderLines;
-        var saleOrderDb = new SaleOrderDb();
-        var saleOrderLineDb = new SaleOrderLineDb();
+        var saleOrderDb = new SaleOrderDb(App.Session.odooConnection.DbNameSqlite);
+        var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
 
         sale_order targetOrder;
 
@@ -374,8 +373,16 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
     private async Task<List<string>> ApplyPromo(sale_order saleOrder)
     {
-        //Evaluar las posibles promociones
+        await EvalPromotions(saleOrder);
+        
+        if(AppliedPromotionResults.Count == 0)
+        {
+            await Toast.Make("No hay promociones aplicables").Show();
+            return new List<string>();
+        }
+
         var view = new PromocionesViewer(saleOrder);
+        view.ItemsData = AppliedPromotionResults;
 
         var popup = new Popup
         {
@@ -418,6 +425,85 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
         return new List<string>();
     }
+
+    //public async Task EvalPromotions(sale_order saleOrder)
+    //{
+    //    try
+    //    {
+    //        AppliedPromotionBenefits ??= new ObservableCollection<PromotionBenefit>();
+    //        AppliedPromotionBenefits.Clear();
+
+    //        string DbNameSqlite = App.Session.odooConnection.DbNameSqlite;
+
+    //        PromotionBenefitDb dataDb = new PromotionBenefitDb(DbNameSqlite);
+    //        var items = await dataDb.GetItemsAsync("authorized");
+
+    //        foreach (var it in items)
+    //            AppliedPromotionBenefits.Add(it);
+
+    //        Debug.WriteLine($"Promociones cargadas: {AppliedPromotionBenefits.Count}");
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Debug.WriteLine($"Error cargando promociones: {ex}");
+    //    }
+    //    finally
+    //    {
+
+    //    }
+    //}
+
+    public async Task EvalPromotions(sale_order saleOrder)
+    {
+        try
+        {
+            AppliedPromotionResults ??= new ObservableCollection<PromotionEvalResult>();
+            AppliedPromotionResults.Clear();
+
+            string dbNameSqlite = App.Session.odooConnection.DbNameSqlite;
+
+            var repo = new PromotionRepository();            
+            // 2️⃣ Crear el motor de promociones
+            var engine = new PromotionEngineLite(repo);
+
+            var databaseLines = new SaleOrderLineDb(dbNameSqlite);
+            var _order_lines = await databaseLines.GetItemsByParent(saleOrder);
+
+            // 3️⃣ Iterar productos de la orden
+            foreach (var line in _order_lines)
+            {
+                var product_id = line.product_id;
+                var qty = (int)line.product_uom_qty;
+                var partner = saleOrder._partner_id;
+                var company_id = saleOrder._company_id;
+
+                // 4️⃣ Evaluar promociones
+                var result = await engine.EvaluatePromotions(
+                    product_id: product_id,
+                    qty: qty,
+                    companyId: company_id
+                );
+
+                if (result.Best != null)
+                {
+                    //Debug.WriteLine($"Promo aplicada: {result.Best.Promotion.Name} ({result.Best.Discount}%) al producto {product.name}");
+                    // Opcional: agregar a tu lista de promociones aplicadas
+                    var benefit = (await repo.Search(company_id, DateTime.UtcNow))
+                                      .FirstOrDefault(p => p.id == result.Best.Promotion.Id);
+
+                    if (benefit != null)
+                        AppliedPromotionResults.Add(result);
+                }
+            }
+
+            Debug.WriteLine($"Promociones aplicadas: {AppliedPromotionResults.Count}");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error evaluando promociones: {ex}");
+        }
+    }
+
 
     private async void ButtonSync_Clicked(object sender, EventArgs e)
     {
@@ -482,7 +568,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
     private async Task LoadDetailInfo(sale_order_line SaleOrderLine)
     {
         //SaleOrderLine.qty_to_deliver = 6;
-        ProductProductDb productProductDb = new ProductProductDb();
+        ProductProductDb productProductDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
         ProductEditing = await productProductDb.GetItem(SaleOrderLine.product_id);
         //OnPropertyChanged(nameof(ProductEditing));
 

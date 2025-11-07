@@ -32,7 +32,7 @@ namespace DMOrders.Controls
             }
 
             await SetWorkingStatus();
-            ProductMarcaDb dbItemsDb = new ProductMarcaDb();
+            ProductMarcaDb dbItemsDb = new ProductMarcaDb(App.Session.odooConnection.DbNameSqlite);
             resultItemsSearch = new ObservableCollection<product_marca>((await dbItemsDb.GetItemsAsync()).Where(data=>data.name.Contains(TextForSearch.ToUpper())));
             
             _collectionViewSearch.ItemsSource = resultItemsSearch;            

@@ -1,8 +1,8 @@
 ﻿using DMSA.Models.Odoo.Base;
+using DMSA.Models.Odoo.Json.Converters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SQLite;
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace DMSA.Models.Odoo.DMOrders.promotions
@@ -116,6 +116,7 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
         [JsonProperty("product_promotion_ids")]
         public JToken product_promotion_ids { get; set; } // promotion.product (bonus_id)
 
+        [Ignore]
         [JsonIgnore]
         public int[] _product_promotion_ids
         {
@@ -130,6 +131,7 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
         [JsonProperty("general_marca_id")]
         public JToken general_marca_id { get; set; }
 
+        [Ignore]
         [JsonIgnore]
         public int[] _general_marca_id
         {
@@ -141,6 +143,7 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
         [JsonProperty("general_linea_id")]
         public JToken general_linea_id { get; set; }
 
+        [Ignore]
         [JsonIgnore]
         public int[] _general_linea_id
         {
@@ -152,6 +155,7 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
         [JsonProperty("general_categoria_id")]
         public JToken general_categoria_id { get; set; }
 
+        [Ignore]
         [JsonIgnore]
         public int[] _general_categoria_id
         {
@@ -163,6 +167,7 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
         [JsonProperty("general_subcategoria_id")]
         public JToken general_subcategoria_id { get; set; }
 
+        [Ignore]
         [JsonIgnore]
         public int[] _general_subcategoria_id
         {
@@ -174,6 +179,7 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
         [JsonProperty("general_grupor_tipo_id")]
         public JToken general_grupor_tipo_id { get; set; }
 
+        [Ignore]
         [JsonIgnore]
         public int[] _general_grupor_tipo_id
         {
@@ -181,10 +187,20 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
             set => general_grupor_tipo_id = SetIds(general_grupor_tipo_id, value);
         }
 
+        [Column("general_grupor_tipo_id")]
+        public string general_grupor_tipo_id_json
+        {
+            get => general_grupor_tipo_id?.ToString(Formatting.None);
+            set => general_grupor_tipo_id = string.IsNullOrEmpty(value)
+                ? null
+                : JToken.Parse(value);
+        }
+
         [Ignore]
         [JsonProperty("general_tipo_marca_id")]
         public JToken general_tipo_marca_id { get; set; }
 
+        [Ignore]
         [JsonIgnore]
         public int[] _general_tipo_marca_id
         {
@@ -231,11 +247,13 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
         [JsonProperty("count_products")]
         public int count_products { get; set; }
 
-        // Fechas tipo Date en Odoo → DateTime? (usar .Date al comparar)
+        
         [JsonProperty("start_date")]
+        [JsonConverter(typeof(OdooNullableDateTimeConverter))]
         public DateTime? start_date { get; set; }
 
         [JsonProperty("end_date")]
+        [JsonConverter(typeof(OdooNullableDateTimeConverter))]
         public DateTime? end_date { get; set; }
 
         [JsonProperty("unlimited_time")]
@@ -246,6 +264,11 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
 
         [JsonProperty("type")]
         public string type { get; set; } = "normal"; // 'normal' | 'change'
+
+        [Column("create_date")]
+        public DateTime create_date { get; set; }
+        [Column("write_date")]
+        public DateTime write_date { get; set; }
     }
 
 }

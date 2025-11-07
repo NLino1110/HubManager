@@ -49,9 +49,9 @@ public partial class Filters : ContentView
         //entryName.Text = "";
     }    
 
-    internal FStatus getStatus()
+    internal int getStatus()
     {
-        return (FStatus) ddfStatus.SelectedItem;
+        return ((FStatus)ddfStatus.SelectedItem).id;
     }
 
     internal DateTime? getDateStart()

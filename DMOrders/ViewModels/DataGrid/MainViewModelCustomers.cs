@@ -175,7 +175,7 @@ namespace DMOrders.ViewModels.DataGrid
 
                 if (int.TryParse(str_codagencia, out codagencia)) { }
 
-                var database = new ResPartnerDb();
+                var database = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
                 
                 //ItemsData = (await database.GetItemsAsync()).Where(x=>x.name.Contains(FilterName)).ToList();
 

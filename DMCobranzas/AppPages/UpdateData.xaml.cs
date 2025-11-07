@@ -1,4 +1,3 @@
-using DMCobranzas.Settings.Sqlite;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using Newtonsoft.Json;
@@ -30,6 +29,8 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using DMSA.Models.Odoo.Origin;
 using DMSA.Models.Odoo.DMCobranzas;
+using DMCobranzas.Services.Database;
+using DMCobranzas.Services.Database.Sqlite;
 
 namespace DMCobranzas.AppPages;
 
@@ -1729,8 +1730,7 @@ public partial class UpdateData : ContentPage
 
         //TODO: Ya no se sincronizarán productos en linea
         //await OnlineSyncProduct(_appSession, apiRequest);
-
-        await OnlineSyncProductBrand(_appSession, apiRequest);
+                
         await OnlineSyncUsers(_appSession, apiRequest);
 
         Debug.WriteLine("Importación en linea account.move terminada");
@@ -2216,17 +2216,7 @@ public partial class UpdateData : ContentPage
         }
     }
 
-    private async Task OnlineSyncProductBrand(AppSession _appSession, ApiRequestOdoo_v1 apiRequest)
-    {
-        ApiManager.HubProductBrand hubProductBrand = new HubProductBrand(App.Session);
-        var dataList = await hubProductBrand.GetItems();
-
-        if (dataList != null && dataList.data != null && dataList.data.Length > 0)
-        {
-            var database = new ProductBrandDb();
-            await database.InsertBatchAsync(dataList.data);
-        }
-    }
+    
 
     private async Task OnlineSyncAccountModule(AppSession _appSession, ApiRequestOdoo_v1 apiRequest)
     {

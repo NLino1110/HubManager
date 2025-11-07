@@ -84,24 +84,24 @@ namespace ApiManager
             return await SearchRead<ApiResponseOdooRpcT<res_center[]>>( args, _custom_args, kwargs);
         }
 
-        public async Task<object?> GetByWriteDate_dl(int year, int month, int day)
-        {            
-            var kwargs = new
-            {
-                fields = new[] { "id", "write_date" }
-            };
+        //public async Task<object?> GetByWriteDate_dl(int year, int month, int day)
+        //{            
+        //    var kwargs = new
+        //    {
+        //        fields = new[] { "id", "write_date" }
+        //    };
 
-            object[] args = new object[] { };
-            object[] _custom_args = new object[] {
-                new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
-            };
+        //    object[] args = new object[] { };
+        //    object[] _custom_args = new object[] {
+        //        new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
+        //    };
 
-            //return await SearchRead<ApiResponseOdooRpcT<product_template[]>>(apiRequestOdoo_V1, args, _custom_args, kwargs);
+        //    //return await SearchRead<ApiResponseOdooRpcT<product_template[]>>(apiRequestOdoo_V1, args, _custom_args, kwargs);
 
-            var method = typeof(HubStore).GetMethod(nameof(SearchRead), BindingFlags.NonPublic | BindingFlags.Instance);
-            var generic = method.MakeGenericMethod(_type);
-            return await (Task<object?>)generic.Invoke(this, new object[] {year, month, day });
-        }
+        //    var method = typeof(HubStore).GetMethod(nameof(SearchRead), BindingFlags.NonPublic | BindingFlags.Instance);
+        //    var generic = method.MakeGenericMethod(_type);
+        //    return await (Task<object?>)generic.Invoke(this, new object[] {year, month, day });
+        //}
 
         public async Task<ApiResponseOdooRpcT<res_center[]>?> GetByCreateDate_dl(int year, int month, int day)
         {            

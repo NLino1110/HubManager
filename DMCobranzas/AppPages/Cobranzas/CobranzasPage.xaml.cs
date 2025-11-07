@@ -6,7 +6,6 @@ using DMCobranzas.Models;
 using DMCobranzas.Models.Specials;
 using DMCobranzas.Services.ApiHub;
 using DMCobranzas.Settings.helpers;
-using DMCobranzas.Settings.Sqlite;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Sample;
 using CommunityToolkit.Maui.Sample.Models;
@@ -31,6 +30,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Xml.Linq;
 using DMSA.Models.Odoo.DMCobranzas;
+using DMCobranzas.Services.Database.Sqlite;
 
 namespace DMCobranzas.AppPages;
 

@@ -12,19 +12,11 @@ using System.Threading.Tasks;
 
 namespace DMOrders.Services.Database.Sqlite
 {
-    public class ProjectTaskDb
+    public class ProjectTaskDb : SqliteDbBase<ProjectTask>
     {
-        SQLiteAsyncConnection Database;
-
-        public ProjectTaskDb()
+        public ProjectTaskDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
 
-        }
-
-        public async Task<int>  GetCount()
-        {
-            await Init();
-            return (await Database.Table<ProjectTask>().ToListAsync()).Count;
         }
 
         public async Task<List<ProjectTask>> GetItemsAsync()
@@ -79,40 +71,65 @@ namespace DMOrders.Services.Database.Sqlite
             return await Database.Table<ProjectTask>().Where(x=>x.id == id).FirstOrDefaultAsync();
         }
 
-        public async Task<int> InsertAsync(ProjectTask item)
+        private AsyncTableQuery<ProjectTask> BuildQuery(            
+            DateTime? filter_datestart,
+            DateTime? filter_dateend,
+            int filter_status,
+            int filter_sort)
         {
-            await Init();
-            await Database.InsertAsync(item);
-            return 0;
+            Init();
+
+            var q = Database.Table<ProjectTask>();
+
+            if (filter_datestart != null && filter_dateend != null)
+                q = q.Where(x => x.date_assign >= filter_datestart && x.date_assign <= filter_dateend);
+
+            if (filter_status == 1)
+                q = q.Where(x => x.is_synchronized);
+            else if (filter_status == 2)
+                q = q.Where(x => !x.is_synchronized);
+
+            // --- 3) Orden ---
+            q = ApplySort(q, filter_sort);
+
+            return q;
         }
 
-        public async Task<int> InsertBatchAsync(ProjectTask[] items)
+        private static AsyncTableQuery<ProjectTask> ApplySort(
+            AsyncTableQuery<ProjectTask> q, int filter_sort)
         {
-            await Init();
-            await Database.InsertAllAsync(items, "OR REPLACE",true);            
-            return 0;
+            // 1: sequence ASC, 2: code ASC, 3: name ASC; default: id ASC
+            return filter_sort switch
+            {
+                0 => q.OrderByDescending(x => x.date_assign),
+                1 => q.OrderBy(x => x.id),                
+                _ => q.OrderBy(x => x.is_synchronized)
+            };
         }
 
-        public async Task<int> UpdateAsync(ProjectTask item)
+        public async Task<(IList<ProjectTask> Items, int Total)> GetPagedAsync(            
+            DateTime? filter_datestart,
+            DateTime? filter_dateend,
+            int filter_status,
+            int filter_sort,
+            int page, 
+            int pageSize, 
+            CancellationToken ct = default)
         {
-            await Init();
-            return await Database.UpdateAsync(item);
+            var q = BuildQuery(
+            filter_datestart,
+            filter_dateend,
+            filter_status,
+            filter_sort);
+
+            // COUNT(*) en SQLite, sin traer datos
+            var total = await q.CountAsync();
+
+            // LIMIT/OFFSET en SQLite (Skip/Take sobre AsyncTableQuery)
+            var offset = Math.Max(0, (page - 1) * pageSize);
+            var items = await q.Skip(offset).Take(pageSize).ToListAsync();
+
+            return (items, total);
         }
-
-        public async Task<int> Truncate()
-        {
-            await Init();
-
-            return await Database.DeleteAllAsync<ProjectTask>();
-        }
-
-        async Task Init()
-        {
-            if (Database is not null)
-                return;
-
-            Database = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
-            var result = await Database.CreateTableAsync<ProjectTask>();
-        }    
     }
 }

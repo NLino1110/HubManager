@@ -1,13 +1,4 @@
 ﻿using DMSA.Models.Odoo.DMOrders.promotions;
-using DMSA.Models.Odoo.Native;
-using Microsoft.Data.Sqlite;
-using SQLite;
-using SQLiteNetExtensions.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DMOrders.Services.Database.Sqlite
 {
@@ -30,6 +21,12 @@ namespace DMOrders.Services.Database.Sqlite
         {
             await Init();
             return await Database.Table<PromotionProductDetail>().Where(x=>x.id == id).FirstOrDefaultAsync();
+        }
+
+        public async Task<List<PromotionProductDetail>> GetItemsByParent(int parentId)
+        {
+            await Init();
+            return await Database.Table<PromotionProductDetail>().Where(x => x._parent_id == parentId).ToListAsync();
         }
     }
 }

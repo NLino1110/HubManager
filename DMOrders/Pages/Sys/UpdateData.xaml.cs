@@ -3,22 +3,11 @@ using CommunityToolkit.Maui.Core;
 using Newtonsoft.Json;
 using RestSharp;
 using System.IO.Compression;
-using static System.Net.Mime.MediaTypeNames;
-using System.Threading.Tasks;
-using System.Threading;
 using System.Diagnostics;
-using CommunityToolkit.Maui.Views;
-using CommunityToolkit.Maui.Markup;
-using ApiManager;
 using DMSA.Models.Security;
-using DMSA.Models.General;
 using Newtonsoft.Json.Serialization;
 using System.Reflection;
-using Newtonsoft.Json.Schema;
 using DMSA.Models.General.Requests;
-using DMSA.Models.General.Responses;
-using System.Net;
-using System.Text.Json.Nodes;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Tools;
 using DMSA.Models.Odoo.Update;
@@ -27,8 +16,6 @@ using Newtonsoft.Json.Linq;
 using DMOrders.Services.Helpers;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Origin;
-using DMSA.Models.Odoo.General.Responses;
-using DMOrders.Controls;
 using DMOrders.Services.Update;
 using DMSA.Models.Odoo.DMCobranzas;
 
@@ -214,7 +201,7 @@ public partial class UpdateData : ContentPage
 
     private async Task ProcPartner(ProgressBarAnimationBehaviorPage obj, string[] ListFiles)
     {
-        var database = new ResPartnerDb();
+        var database = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
         //if (ListFiles.Length > 0)
         //{
         //    await database.Truncate();
@@ -291,7 +278,7 @@ public partial class UpdateData : ContentPage
 
     private async Task ProcProducts(ProgressBarAnimationBehaviorPage obj, string[] ListFiles)
     {
-        var database = new ProductTemplateDb();
+        var database = new ProductTemplateDb(App.Session.odooConnection.DbNameSqlite);
         //if (ListFiles.Length > 0)
         //{
         //    await database.Truncate();
@@ -965,7 +952,7 @@ public partial class UpdateData : ContentPage
                                 {
                                     if (res_partner_count == 0)
                                     {
-                                        var database = new ResPartnerDb();
+                                        var database = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
                                         await database.Truncate();
                                     }
                                     await ProcPartner(obj, ListFiles);
@@ -987,7 +974,7 @@ public partial class UpdateData : ContentPage
                                 {
                                     if (product_template_count == 0)
                                     {
-                                        var database = new ProductTemplateDb();
+                                        var database = new ProductTemplateDb(App.Session.odooConnection.DbNameSqlite);
                                         await database.Truncate();
                                     }
                                     await ProcProducts(obj, ListFiles);
@@ -998,7 +985,7 @@ public partial class UpdateData : ContentPage
                                 {
                                     if (product_product_count == 0)
                                     {
-                                        var database = new ProductProductDb();
+                                        var database = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
                                         await database.Truncate();
                                     }
                                     await serverPuller.ProcProductProduct(obj, ListFiles);
@@ -1323,11 +1310,7 @@ public partial class UpdateData : ContentPage
 
         return true;
     }
-
-
-    
-
-    
+        
     private async void DeleteTables(object sender, EventArgs e)
     {
         bool answer = await DisplayAlert("Borrar los datos de cache?",
@@ -1370,8 +1353,8 @@ public partial class UpdateData : ContentPage
         //await database_solicitudesNC.Drop();
         //await database_solicitudesNC.TruncateAsync();
 
-        UserAccessDb database_CobUsuarios = new UserAccessDb();
-        await database_CobUsuarios.Drop();
+        UserAccessDb database_CobUsuarios = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
+        await database_CobUsuarios.Truncate();
 
         CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
@@ -1557,67 +1540,7 @@ public partial class UpdateData : ContentPage
         bool launchSalesUpdate = true;
 
         obj.SetTotalPercentProgress(0.10);
-        //Actualización por Cache
-        if (chkUpdateBig.IsChecked || chkUpdateFacDet.IsChecked)
-        {            
-            //TODO: Se desactiva siempre la actualización por Cache
-            //chkCacheMode.IsChecked = false;
 
-            //Modo con cache de datos
-            // es más veloz pero hay que asegurarse de que el cache esté actualizado
-            if (chkCacheMode.IsChecked)
-            {
-                if (await ServerOnlineStatus_Resources())
-                {
-                    BoxViewServerStatusResBuilder.Color = Colors.LawnGreen;
-                    lblServerStatusResources.Text = "Servidor Recursos";
-
-                    //await LaunchCacheMode(obj, toast, duration, fontSize, cancellationTokenSource);
-                    await LaunchCacheModeByChunks(obj, toast, duration, fontSize, cancellationTokenSource);
-                }
-                else
-                {
-                    toast = Toast.Make("Servidor de recursos no disponible", duration, fontSize);
-                    await toast.Show(cancellationTokenSource.Token);
-
-                    BoxViewServerStatusResBuilder.Color = Colors.SaddleBrown;
-                    lblServerStatusResources.Text = "Servidor Recursos (x)";
-
-                    launchSalesUpdate = false;
-                }
-            }
-
-            //Sinó se realiza la actualización por cache, se hará la actualización en linea
-            // esta actualización lleva muchisimo tiempo
-
-            //Luego de realizar la actualización por cache debe realizarse la actualización en línea
-            // debe obtenerse esta fecha de la base de datos para
-            // saber cual es la ultima fecha existente en los registros
-            fechaActualizaTablet = await GetLastDate();//"2023-09-04 00:00:00";
-
-            Debug.WriteLine("Última fecha...");
-            Debug.WriteLine(fechaActualizaTablet);
-
-            if (fechaActualizaTablet == null || fechaActualizaTablet == "2021-01-01 00:00:00")
-            {
-                //No se encontraron datos y esto provocará una demora en la actualización
-                // Mostras mensaje aquí                
-                //Debug.WriteLine("Se debe cambiar la lógica porque en caso de que no existan datos la variable no tendrá 2021-01-01 00:00:00");
-                fechaActualizaTablet = "2021-01-01 00:00:00";
-
-                bool answerContinue = await DisplayAlert("Error de actualización", "Al parecer no se han insertado datos, por favor verifique su conexión de datos. Desea proceder con la actualización en línea (ACTUALIZACION LENTA)?", "Continuar", "Cancelar");
-                //Debug.WriteLine("Answer: " + answer);
-                if (!answerContinue)
-                {
-                    //Se procede a cerrar
-                    await Navigation.PopModalAsync();
-                    return;
-                }
-            }
-
-            //else
-            
-        }
 
         if (await ServerOnlineStatus_Odoo())
         {
@@ -1638,65 +1561,97 @@ public partial class UpdateData : ContentPage
             await Navigation.PopModalAsync();
             //return;
         }
-                
-        if (launchSalesUpdate)
+
+        ServerPuller serverPuller = new ServerPuller();
+
+        //Actualización por Cache
+        if (chkGroup1.IsChecked)
         {
-            // Si es que ayer es menor que la fecha del registro
-            //if(DateTime.Today.AddDays(-1).Date < App.Session.CurrentUser.log_fec_sincro_nc.Date)
+            await serverPuller.PullPromotions();
+
+            //TODO: Se desactiva siempre la actualización por Cache
+            //chkCacheMode.IsChecked = false;
+
+            //Modo con cache de datos
+            // es más veloz pero hay que asegurarse de que el cache esté actualizado
+            //if (chkCacheMode.IsChecked)
             //{
-            //    fechaActualizaTablet = App.Session.CurrentUser.log_fec_sincro_nc.ToString("yyyy-MM-dd 00:00:00");
+            //    if (await ServerOnlineStatus_Resources())
+            //    {
+            //        BoxViewServerStatusResBuilder.Color = Colors.LawnGreen;
+            //        lblServerStatusResources.Text = "Servidor Recursos";
+
+            //        //await LaunchCacheMode(obj, toast, duration, fontSize, cancellationTokenSource);
+            //        await LaunchCacheModeByChunks(obj, toast, duration, fontSize, cancellationTokenSource);
+            //    }
+            //    else
+            //    {
+            //        toast = Toast.Make("Servidor de recursos no disponible", duration, fontSize);
+            //        await toast.Show(cancellationTokenSource.Token);
+
+            //        BoxViewServerStatusResBuilder.Color = Colors.SaddleBrown;
+            //        lblServerStatusResources.Text = "Servidor Recursos (x)";
+
+            //        launchSalesUpdate = false;
+            //    }
             //}
 
-            //Si no se selecciona el modo cache, utilizaremos el modo tradicional
-            // es mucho mas lento pero obtiene los datos más actualizados
-            //await OnlineSyncFacturas(obj, toast, duration, fontSize, cancellationTokenSource, fechaActualizaTablet);
-        }
+            //Sinó se realiza la actualización por cache, se hará la actualización en linea
+            // esta actualización lleva muchisimo tiempo
 
+            //Luego de realizar la actualización por cache debe realizarse la actualización en línea
+            // debe obtenerse esta fecha de la base de datos para
+            // saber cual es la ultima fecha existente en los registros
+            fechaActualizaTablet = await GetLastDate();//"2023-09-04 00:00:00";
+
+            Debug.WriteLine("Última fecha...");
+            Debug.WriteLine(fechaActualizaTablet);
+
+            if (fechaActualizaTablet == null || fechaActualizaTablet == "2021-01-01 00:00:00")
+            {
+                //No se encontraron datos y esto provocará una demora en la actualización
+                // Mostras mensaje aquí                
+                //Debug.WriteLine("Se debe cambiar la lógica porque en caso de que no existan datos la variable no tendrá 2021-01-01 00:00:00");
+                fechaActualizaTablet = "2021-01-01 00:00:00";
+
+                bool answerContinue = await DisplayAlert("Error de actualización", "Al parecer no se han insertado datos, por favor verifique su conexión de datos. Desea proceder con la actualización en línea?", "Continuar", "Cancelar");
+                //Debug.WriteLine("Answer: " + answer);
+                if (!answerContinue)
+                {
+                    //Se procede a cerrar
+                    await Navigation.PopModalAsync();
+                    return;
+                }
+            }            
+        }
+        
         obj.SetTotalPercentProgress(0.30);
 
-        //Actualización en linea
-        if (chkUpdateSmall.IsChecked)
-        {
-            //Modulos, Tipos de Modulos, Bancos, Cuentas bancarias, etc
-
-            //YA NO SE USARÁ
-            //await LaunchMode2(obj, toast, duration, fontSize, cancellationTokenSource);
-
-            //TODO: Ya no se usará la actualizacion en linea de AccountJournal
-            // se estima que serán muchos datos, por lo cual se pasó a modo cache
-            // y el AccountJournal no tiene fecha de creación en la devolución de datos por 
-            // medio del api
-
-            //await OnlineSyncJournal(_appSession, apiRequest);
-            //await OnlineSyncBank(_appSession, apiRequest);
-            //await OnlineSyncAccountModule(_appSession, apiRequest);
-            //await OnlineSyncAccountTypeModule(_appSession, apiRequest);
-            //await OnlineSyncCompany(_appSession, apiRequest);
-
-            ServerPuller serverPuller = new ServerPuller();
-
-            await serverPuller.OnlineSyncProductPricelist();
-            await serverPuller.OnlineSyncProductPricelistItem();
-
+        if (chkGroup2.IsChecked)
+        {   
+            
+            await serverPuller.ProductMarca();            
             await serverPuller.OnlineSyncCategoria();
             await serverPuller.OnlineSyncSubcategoria();
             await serverPuller.OnlineSyncProductLinea();
             await serverPuller.OnlineSyncProductGrupoTipo();
-            await serverPuller.OnlineCalificacionCrediticia();
-
-            await serverPuller.OnlineSyncProductProduct();
-            await serverPuller.OnlineSyncResPartner();
-            await serverPuller.OnlineSyncStockWarehouse(false);
-            await serverPuller.OnlineSyncStockLocation();
-            await serverPuller.OnlineSyncStockQuant();
+            await serverPuller.OnlineCalificacionCrediticia();            
             obj.SetTotalPercentProgress(0.80);
         }
 
-        if(chkUpdateUserData.IsChecked)
+        if(chkGroup3.IsChecked)
         {
-            //await OnlineSyncPaymentHeader(_appSession, apiRequest);
-            //await OnlineSyncAccountPaymentDaily(_appSession, apiRequest);
-            //await DownloadAccountMoveRefund(_appSession, apiRequest);
+            await serverPuller.OnlineSyncResPartner();
+        }
+
+        if(chkGroup4.IsChecked)
+        {
+            await serverPuller.OnlineSyncProductPricelist();
+            await serverPuller.OnlineSyncProductPricelistItem();
+            await serverPuller.OnlineSyncStockWarehouse(false);
+            await serverPuller.OnlineSyncStockLocation();
+            await serverPuller.OnlineSyncStockQuant();
+            await serverPuller.OnlineSyncProductProduct();
         }
 
         //await RefreshVat();
@@ -1705,33 +1660,33 @@ public partial class UpdateData : ContentPage
 
         obj.SetTitle("Finalizado...");
 
-        ApiManager.HubUser hubUser = new ApiManager.HubUser(App.Session);
-        var responseValSync = await hubUser.ValidaSincronizacionAsync(App.Session.CurrentUser, DateTime.Now);
-        if (responseValSync != null && responseValSync.success)
-        {
-            var responseSync = await hubUser.actualizaFechaSincroNotaCredito(App.Session.CurrentUser, DateTime.Now);
+        //ApiManager.HubUser hubUser = new ApiManager.HubUser(App.Session);
+        //var responseValSync = await hubUser.ValidaSincronizacionAsync(App.Session.CurrentUser, DateTime.Now);
+        //if (responseValSync != null && responseValSync.success)
+        //{
+        //    var responseSync = await hubUser.actualizaFechaSincroNotaCredito(App.Session.CurrentUser, DateTime.Now);
 
-            if (responseSync.success)
-            {
-                var database = new UserAccessDb();
-                var foundUser = await database.GetItemAsync(App.Session.CurrentUser.uid);
-                if (foundUser != null)
-                {                   
+        //    if (responseSync.success)
+        //    {
+        //        var database = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
+        //        var foundUser = await database.GetItemAsync(App.Session.CurrentUser.uid);
+        //        if (foundUser != null)
+        //        {                   
 
-                    foundUser.log_fec_sincro = responseValSync.data[0].datetime;
-                    foundUser.log_fec_sincro_nc = responseSync.current_datetime;
+        //            foundUser.log_fec_sincro = responseValSync.data[0].datetime;
+        //            foundUser.log_fec_sincro_nc = responseSync.current_datetime;
 
-                    App.Session.CurrentUser.log_fec_sincro = foundUser.log_fec_sincro;
-                    App.Session.CurrentUser.log_fec_sincro_nc = foundUser.log_fec_sincro_nc;
+        //            App.Session.CurrentUser.log_fec_sincro = foundUser.log_fec_sincro;
+        //            App.Session.CurrentUser.log_fec_sincro_nc = foundUser.log_fec_sincro_nc;
 
-                    //    await database.InsertAsync(itemInsert);
-                    //}
-                    //else
-                    //{
-                    await database.UpdateAsync(foundUser);
-                }
-            }
-        }
+        //            //    await database.InsertAsync(itemInsert);
+        //            //}
+        //            //else
+        //            //{
+        //            await database.UpdateAsync(foundUser);
+        //        }
+        //    }
+        //}
 
         TimeSpan span = (DateTime.Now - dtInitialize);
 

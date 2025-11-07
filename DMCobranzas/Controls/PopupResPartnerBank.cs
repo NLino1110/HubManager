@@ -11,11 +11,11 @@ using DMCobranzas.Models;
 using System.Diagnostics;
 using DMSA.Models.Odoo.Native;
 using System.Collections.ObjectModel;
-using DMCobranzas.Settings.Sqlite;
 using DMSA.Models.Odoo.General.Responses;
 using Microsoft.Maui.Layouts;
 using Microsoft.Maui.Graphics;
 using System.ComponentModel;
+using DMCobranzas.Services.Database.Sqlite;
 
 namespace DMCobranzas.Controls
 {

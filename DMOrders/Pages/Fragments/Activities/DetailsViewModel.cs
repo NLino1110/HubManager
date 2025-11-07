@@ -60,11 +60,11 @@ namespace DMOrders.Pages.Fragments.Activities
 
         private async Task LoadActivities()
         {
-            var companyDb = new CompanyDb();
-            var motivoDb = new MotivoActividadDiariaDb();
-            var resPartnerDb = new ResPartnerDb();
+            var companyDb = new CompanyDb(App.Session.odooConnection.DbNameSqlite);
+            var motivoDb = new MotivoActividadDiariaDb(App.Session.odooConnection.DbNameSqlite);
+            var resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
 
-            var accountAnalyticDb = new AccountAnalyticLineDb();
+            var accountAnalyticDb = new AccountAnalyticLineDb(App.Session.odooConnection.DbNameSqlite);
             var items = (await accountAnalyticDb.GetItemsAsync(ParentProjectTask));
             foreach(var item in items)
             {

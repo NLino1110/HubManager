@@ -4,7 +4,6 @@ using static DMCobranzas.DetailModal;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using DMCobranzas.Settings;
-using DMCobranzas.Settings.Sqlite;
 using System.Diagnostics;
 using DMCobranzas.Models;
 using DMCobranzas.Services.ApiHub;
@@ -13,6 +12,7 @@ using CommunityToolkit.Maui.Sample.ViewModels.Views;
 using DMCobranzas.Settings.helpers;
 using CommunityToolkit.Maui.Sample;
 using CommunityToolkit.Maui.Views;
+using DMCobranzas.Services.Database.Sqlite;
 
 namespace DMCobranzas;
 

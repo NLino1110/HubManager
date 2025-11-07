@@ -30,7 +30,7 @@ namespace DMOrders.Services.Update
 
             if (dataList != null && dataList.result !=null && dataList.result.Length > 0)
             {
-                var database = new StockLocationDb();
+                var database = new StockLocationDb(App.Session.odooConnection.DbNameSqlite);
                 await database.InsertBatchAsync(dataList.result);
             }
         }
