@@ -13,7 +13,8 @@ namespace ApiManagerOdoo.promotions
             "times_inv",
             "create_date",
             "write_date",
-            "bank_terms_apply"
+            "bank_terms_apply",
+            "levels_ids"
         };
 
         public HubPromoCenters(AppSession _setAppSession) : base(_setAppSession)

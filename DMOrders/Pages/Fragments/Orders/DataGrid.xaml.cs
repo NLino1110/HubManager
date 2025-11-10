@@ -19,6 +19,7 @@ namespace DMOrders.Pages.Fragments.Orders
         //res_partner selectedItemData { get; set; }
 
         public ICommand EditCommand { get; set; }
+        public ICommand DeleteCommand { get; set; }
 
         public ContentView ViewParent
         {
@@ -48,7 +49,8 @@ namespace DMOrders.Pages.Fragments.Orders
         {
             InitializeComponent();
             BindingContext = new ListViewModel(FiltersView);            
-            EditCommand = new Command(EditItem);            
+            EditCommand = new Command(EditItem);
+            DeleteCommand = new Command(DeleteItem);
         }
 
         private void Current_MainDisplayInfoChanged(object sender, DisplayInfoChangedEventArgs e)
@@ -222,6 +224,20 @@ namespace DMOrders.Pages.Fragments.Orders
             viewObj.Disappearing += ViewObj_Disappearing;
             await viewObj.PrepareForm();
             await Navigation.PushModalAsync(viewObj);
+        }
+
+        private async void DeleteItem(object obj)
+        {
+            //App.Current.Windows[0].Handler.PlatformView.Focus();
+
+            var leave = await Application.Current.Windows[0].Page.DisplayAlert("Atención", "Desea eliminar la orden seleccionada?", "Si", "No");
+
+            if (!leave)
+            {
+                return;
+            }
+
+            ((ListViewModel)BindingContext).RemoveOrder((sale_order)obj);
         }
 
         private void ViewObj_Disappearing(object? sender, EventArgs e)

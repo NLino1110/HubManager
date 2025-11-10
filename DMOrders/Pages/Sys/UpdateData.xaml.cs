@@ -418,8 +418,6 @@ public partial class UpdateData : ContentPage
         return account_Moves;
     }
 
-
-
     private async Task UploadDataMode1(ProgressBarAnimationBehaviorPage obj,
         IToast toast,
         ToastDuration duration,
@@ -731,7 +729,6 @@ public partial class UpdateData : ContentPage
         return null;
     }
 
-
     private async Task LaunchCacheModeByChunks(ProgressBarAnimationBehaviorPage obj,
         IToast toast,
         ToastDuration duration,
@@ -1009,7 +1006,6 @@ public partial class UpdateData : ContentPage
         }
     }
 
-
     private async Task ProcAccountJournal(ProgressBarAnimationBehaviorPage obj, string[] ListFiles)
     {
         var database = new AccountJournalDb();
@@ -1170,10 +1166,6 @@ public partial class UpdateData : ContentPage
         }
     }
 
-
-
-
-
     public void set_to_token(JToken token, int value)
     {
         if (token is JArray array && array.Count > 0)
@@ -1310,7 +1302,7 @@ public partial class UpdateData : ContentPage
 
         return true;
     }
-        
+    
     private async void DeleteTables(object sender, EventArgs e)
     {
         bool answer = await DisplayAlert("Borrar los datos de cache?",
@@ -1647,11 +1639,15 @@ public partial class UpdateData : ContentPage
         if(chkGroup4.IsChecked)
         {
             await serverPuller.OnlineSyncProductPricelist();
-            await serverPuller.OnlineSyncProductPricelistItem();
+            await serverPuller.OnlineSyncProductPricelistItem();            
+            await serverPuller.OnlineSyncProductProduct();
+        }
+
+        if (chkGroup5.IsChecked)
+        {            
             await serverPuller.OnlineSyncStockWarehouse(false);
             await serverPuller.OnlineSyncStockLocation();
             await serverPuller.OnlineSyncStockQuant();
-            await serverPuller.OnlineSyncProductProduct();
         }
 
         //await RefreshVat();

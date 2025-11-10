@@ -469,10 +469,15 @@ public partial class Crud : ContentPage, IBackButtonHandler
             var databaseLines = new SaleOrderLineDb(dbNameSqlite);
             var _order_lines = await databaseLines.GetItemsByParent(saleOrder);
 
+            var productDb = new ProductProductDb(dbNameSqlite);
+
             // 3️⃣ Iterar productos de la orden
             foreach (var line in _order_lines)
             {
-                var product_id = line.product_id;
+                //var product_id = line.product_id;
+                var product_template_id = await productDb.GetItem(line.product_id);
+                var product_id = product_template_id._product_tmpl_id;
+
                 var qty = (int)line.product_uom_qty;
                 var partner = saleOrder._partner_id;
                 var company_id = saleOrder._company_id;
@@ -489,7 +494,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
                     //Debug.WriteLine($"Promo aplicada: {result.Best.Promotion.Name} ({result.Best.Discount}%) al producto {product.name}");
                     // Opcional: agregar a tu lista de promociones aplicadas
                     var benefit = (await repo.Search(company_id, DateTime.UtcNow))
-                                      .FirstOrDefault(p => p.id == result.Best.Promotion.Id);
+                                      .FirstOrDefault(p => p.id == result.Best.Promotion.id);
 
                     if (benefit != null)
                         AppliedPromotionResults.Add(result);

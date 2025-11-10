@@ -135,8 +135,21 @@ namespace DMSA.Models.Odoo.Native
         [JsonIgnore]
         public string uom_category_display { get; set; }
 
+        //[Ignore]
         [JsonIgnore]
-        public bool? is_gift { get; set; }
+        public bool is_gift { get; set; }
+
+        //[JsonIgnore]
+        //public bool? is_gift
+        //{
+        //    get => _is_gift;
+        //    set
+        //    {
+        //        if (_is_gift == value) return;
+        //        _is_gift = value;
+        //        OnPropertyChanged(nameof(is_gift));
+        //    }
+        //}
 
         [JsonIgnore]
         public string? promotion_data { get; set; }

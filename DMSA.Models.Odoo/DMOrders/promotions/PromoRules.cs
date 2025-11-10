@@ -12,7 +12,7 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
     {
         [Key]
         [PrimaryKey]
-        [AutoIncrement]
+        //[AutoIncrement]
         [NotNull]
         [JsonProperty("id")]
         public int id { get; set; }

@@ -262,6 +262,17 @@ namespace DMOrders.Pages.Fragments.Orders
             timer.Start();
         }
 
+        public async Task RemoveOrder(sale_order order)
+        {
+            await _db.DeleteAsync(order);
+            ItemsData.Remove(order);
+            TotalItems--;
+            OnPropertyChanged(nameof(TotalItems));
+            OnPropertyChanged(nameof(CanGoNext));
+            OnPropertyChanged(nameof(CanGoPrevious));
+        }
+
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected void OnPropertyChanged([CallerMemberName] string name = "") =>

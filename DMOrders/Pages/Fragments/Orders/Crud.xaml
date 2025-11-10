@@ -292,8 +292,29 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                 </CollectionView>
             </Grid>
 
-            <Grid Grid.Row="3" Grid.Column="3" HorizontalOptions="Fill" ColumnDefinitions="*,Auto">
-                
+            <Grid RowDefinitions="*" ColumnDefinitions="*" Grid.Row="3" Grid.Column="0" HorizontalOptions="Fill">
+                <CollectionView
+                    x:Name="PromoBenefits"
+                    ItemsSource="{Binding ItemsDataBenefits}" 
+                    EmptyView="No hay promociones aplicables..."
+                    SelectionMode="Single"                    
+                    HorizontalOptions="Start">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <HorizontalStackLayout Padding="10">
+                                <Label Text="{Binding id}" WidthRequest="20" />
+                                <Label Text="{Binding name}" WidthRequest="90" />
+                                <Label Text="{Binding description}" WidthRequest="90" />
+                                <Label Text="{Binding _selection_type_id}" WidthRequest="80" HorizontalTextAlignment="Center" />                                
+                                <Label Text="{Binding code}" WidthRequest="20" />
+                                <Label Text="{Binding state}" WidthRequest="30" HorizontalTextAlignment="Center" />
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+
+            <Grid Grid.Row="3" Grid.Column="3" HorizontalOptions="Fill" ColumnDefinitions="*,Auto">                
                 <HorizontalStackLayout Grid.Row="0" 
                                        Grid.Column="0"
                                VerticalOptions="Start" 

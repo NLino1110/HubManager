@@ -1,6 +1,8 @@
 ﻿using DMOrders.Models; // Asegúrate de que aquí esté la definición de tu modelo Activity
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.DMOrders;
+using DMSA.Models.Odoo.DMOrders.promotions;
+using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
 using DMSA.Models.Odoo.Native;
 using Microsoft.Maui.Controls.Shapes;
 using System.Collections.ObjectModel;
@@ -30,6 +32,48 @@ namespace DMOrders.Pages.Fragments.Orders
                 _order_lines = value;
                 OnPropertyChanged();
                 UpdateTotals();
+            }
+        }
+
+        public ObservableCollection<PromotionBenefit> ItemsDataBenefits
+        {
+            get => _ItemsDataBenefits;
+            set
+            {
+                _ItemsDataBenefits = value;
+                OnPropertyChanged(nameof(ItemsDataBenefits));
+            }
+        }
+
+        private ObservableCollection<PromotionBenefit> _ItemsDataBenefits;
+
+        private ObservableCollection<PromotionEvalResult> _appliedPromotionResults;
+
+        private ObservableCollection<PromotionEvalResult> AppliedPromotionResults
+        {
+            get => _appliedPromotionResults;
+            set
+            {
+                _appliedPromotionResults = value;
+
+                if (_ItemsDataBenefits != null)
+                    _ItemsDataBenefits.Clear();
+                else
+                    _ItemsDataBenefits = new ObservableCollection<PromotionBenefit>();
+
+                foreach (var promo in _appliedPromotionResults)
+                {
+                    if (promo.Items != null)
+                    {
+                        foreach (var benefit in promo.Items)
+                        {
+                            _ItemsDataBenefits.Add(benefit.Promotion);
+                        }
+                    }
+                }
+
+                OnPropertyChanged(nameof(AppliedPromotionResults));
+                OnPropertyChanged(nameof(ItemsDataBenefits));
             }
         }
 

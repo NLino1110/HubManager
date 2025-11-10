@@ -20,6 +20,15 @@ namespace DMOrders.Controls.CustomRows
         public static readonly BindableProperty EditCommandProperty =
             BindableProperty.Create(nameof(EditCommand), typeof(ICommand), typeof(SaleOrderRow), null);
 
+        public ICommand DeleteCommand
+        {
+            get => (ICommand)GetValue(DeleteCommandProperty);
+            set => SetValue(DeleteCommandProperty, value);
+        }
+
+        public static readonly BindableProperty DeleteCommandProperty =
+            BindableProperty.Create(nameof(DeleteCommand), typeof(ICommand), typeof(SaleOrderRow), null);
+
         public SaleOrderRow()
         {
             
@@ -213,9 +222,10 @@ namespace DMOrders.Controls.CustomRows
                 Margin = new Thickness(2),
             };
 
+            buttonDelete.SetBinding(Button.CommandProperty, new Binding("DeleteCommand", source: new RelativeBindingSource(RelativeBindingSourceMode.FindAncestor, typeof(SaleOrderRow))));
+            buttonDelete.SetBinding(Button.CommandParameterProperty, new Binding("Item", source: this));
             //buttonDelete.SetBinding(Button.IsVisibleProperty, new Binding("IsSynchronized", source: new RelativeBindingSource(RelativeBindingSourceMode.FindAncestor, typeof(SaleOrderRow))));
 
-            
             var stackLayout = new StackLayout
             {
                 Orientation = StackOrientation.Horizontal,

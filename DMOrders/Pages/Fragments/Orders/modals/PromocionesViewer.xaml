@@ -58,7 +58,7 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
         <Border StrokeThickness="1" StrokeLineCap="Flat" Padding="0" HeightRequest="200">
             <CollectionView 
                 x:Name="ListaDetallesPromocion" 
-                ItemsSource="{Binding ItemsData, Source={x:Reference Root}}"                
+                ItemsSource="{Binding ItemsDataBenefits, Source={x:Reference Root}}"                
                 EmptyView="No hay datos de promociones..."
                 SelectionMode="Single"
                 HorizontalOptions="Fill"                

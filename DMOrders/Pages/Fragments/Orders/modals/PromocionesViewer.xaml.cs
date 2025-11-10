@@ -11,18 +11,48 @@ namespace DMOrders.Pages.Fragments.Orders.modals;
 public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
 {
     private sale_order SaleOrder { get; set; }
-    private PromotionEvalResult selectedBromotionBenefit { get; set; }
+    private PromotionBenefit selectedBromotionBenefit { get; set; }
     public ObservableCollection<PromotionEvalResult> ItemsData
     {
         get => _itemsData;
         set
         {
             _itemsData = value;
+
+            if(_ItemsDataBenefits != null)
+                _ItemsDataBenefits.Clear();
+            else
+                _ItemsDataBenefits = new ObservableCollection<PromotionBenefit>();
+
+            foreach (var promo in _itemsData)
+            {
+                if (promo.Items != null)
+                {
+                    foreach (var benefit in promo.Items)
+                    {
+                        _ItemsDataBenefits.Add(benefit.Promotion);
+                    }
+                }
+            }
+
             OnPropertyChanged(nameof(ItemsData));
+            OnPropertyChanged(nameof(ItemsDataBenefits));
         }
     }
 
     private ObservableCollection<PromotionEvalResult> _itemsData;
+
+    public ObservableCollection<PromotionBenefit> ItemsDataBenefits
+    {
+        get => _ItemsDataBenefits;
+        set
+        {
+            _ItemsDataBenefits = value;
+            OnPropertyChanged(nameof(ItemsDataBenefits));
+        }
+    }
+
+    private ObservableCollection<PromotionBenefit> _ItemsDataBenefits;
 
     public ObservableCollection<product_product> promoGifts
     {
@@ -57,10 +87,8 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
     public PromocionesViewer(sale_order SaleOrderParam)
 	{
 		InitializeComponent();
-        BindingContext = this;
-        
+        BindingContext = this;        
         SaleOrder = SaleOrderParam;
-
         //LoadDataByTimer();
     }
 
@@ -68,11 +96,9 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
     {   
         if (e.CurrentSelection != null && e.CurrentSelection.Count > 0)
         {
-            selectedBromotionBenefit = (PromotionEvalResult) e.CurrentSelection[0];
+            selectedBromotionBenefit = (PromotionBenefit) e.CurrentSelection[0];
             //await LoadDetailInfo(selectedBromotionBenefit);
-            //promoGifts.Clear();
-
-            
+            //promoGifts.Clear();            
             //Debug.WriteLine(selectedBromotionBenefit.name);
         }
     }
@@ -146,6 +172,5 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
     private void OnCloseButtonClicked(object sender, EventArgs e)
     {
         ClosePopupAction?.Invoke(ItemsData.ToList());
-    }
-   
+    }   
 }

@@ -9,6 +9,8 @@ namespace DMOrders.Controls.CustomRows
 
     public class SaleOrderLineRow : RowAdvance<sale_order_line>
     {
+        public bool IsGift => Item.is_gift;
+
         public ICommand EditCommand
         {
             get => (ICommand)GetValue(EditCommandProperty);
@@ -217,6 +219,30 @@ namespace DMOrders.Controls.CustomRows
 
         protected override void BuildToolGridContent(Grid toolGrid)
         {
+            var buttonGift = new Button
+            {
+                HeightRequest = 23,
+                WidthRequest = 23,
+                BackgroundColor = Colors.Transparent,
+                Text = "",
+                TextColor = Colors.DodgerBlue,
+                FontAttributes = FontAttributes.Bold,
+                FontSize = 12,
+                HorizontalOptions = LayoutOptions.Center,
+                ImageSource = new FontImageSource
+                {
+                    FontFamily = "FontAwesome5Solid",
+                    Color = Colors.DodgerBlue,
+                    Size = 10,
+                    FontAutoScalingEnabled = true,
+                    Glyph = "\uf06b"
+                },
+                Padding = new Thickness(3),
+                Margin = new Thickness(2),
+            };
+
+            buttonGift.SetBinding(Button.IsVisibleProperty, new Binding("is_gift"));
+
             var buttonEdit = new Button
             {
                 HeightRequest = 35,
@@ -276,6 +302,7 @@ namespace DMOrders.Controls.CustomRows
                 BackgroundColor = Colors.Transparent
             };
 
+            stackLayout.Children.Add(buttonGift);
             stackLayout.Children.Add(buttonEdit);
             stackLayout.Children.Add(buttonDelete);
 

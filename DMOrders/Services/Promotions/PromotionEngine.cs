@@ -2,6 +2,8 @@
 using DMSA.Models.Odoo.DMOrders.promotions;
 using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
 using Newtonsoft.Json.Linq;
+using System.Globalization;
+using System.Runtime.InteropServices;
 
 namespace DMOrders.Services.Promotions
 {
@@ -23,7 +25,7 @@ namespace DMOrders.Services.Promotions
             foreach (var promo in promos)
             {
                 // 1️⃣ Cargar productos asociados a la promoción
-                promo._product_promotion_ids = await productPromoDb.GetItemsByParent(promo.id);
+                promo._product_promotion_ids = await productPromoDb.GetItemsByPromo(promo.id);
 
                 // 2️⃣ Cargar reglas de la promoción
                 promo._promotion_rules_ids = await promoRulesDb.GetItemsByParent(promo.id);
@@ -40,7 +42,6 @@ namespace DMOrders.Services.Promotions
                 promo.end_datetime ??= DateTime.MaxValue;
                 promo.state ??= "authorized";
                 promo.active = promo.active;
-
             }
 
             return promos;
@@ -119,35 +120,13 @@ namespace DMOrders.Services.Promotions
                             {
                                 // Intentamos leer 'product' o 'product_id' dentro de detail
                                 // La clase PromotionProductDetail en tu proyecto debería tener .product?.id o .product_id
-                                dynamic det = d;
+                                PromotionProductDetail det = d;
                                 if (det == null) return false;
-
-                                // si det.product es un objeto con id
-                                try
-                                {
-                                    var prodObj = det.product;
-                                    if (prodObj != null)
-                                    {
-                                        // prodObj puede ser JToken o una entidad; manejar ambos
-                                        if (prodObj is Newtonsoft.Json.Linq.JToken jtok)
-                                        {
-                                            var id = (int?)(jtok["id"]?.Value<int?>());
-                                            return id == product_id;
-                                        }
-                                        else
-                                        {
-                                            // si es un objeto con .id
-                                            int id = (int)prodObj.id;
-                                            return id == product_id;
-                                        }
-                                    }
-                                }
-                                catch { }
 
                                 // fallback: det.product_id (int)
                                 try
                                 {
-                                    int pid = (int)det.product_id;
+                                    int pid = det._product_id;
                                     return pid == product_id;
                                 }
                                 catch { }
@@ -176,7 +155,7 @@ namespace DMOrders.Services.Promotions
                     // considerar la cabecera como aplicable sin reglas — añadimos un resultado simple
                     results.Add(new PromotionEvalItem
                     {
-                        Promotion = new PromotionHeader { Id = promo.id, Code = promo.code ?? "", Name = promo.name ?? "" },
+                        Promotion = promo,
                         Discount = 0,
                         Reasons = new List<string>(baseReasons) { "Promoción sin reglas explícitas (cabecera aplicable)." }
                     });
@@ -204,10 +183,39 @@ namespace DMOrders.Services.Promotions
                     //    reasons.Add($"Cumple cantidad mínima: {r.value.Value}");
                     //}
 
-                    if (r.value > 0)
+                    //1   BONIFICACION PARCIAL
+                    //2   BONIFICACIONES
+                    //3   CUPON
+                    //4   N X N
+                    //5   SORTEO
+                    //6   DESCUENTOS
+                    //7   FIDELIZACION
+
+                    if (promo._promotion_type_id == 2) // es regalo
                     {
-                        if (qty < r.value) continue;
-                        reasons.Add($"Cumple cantidad mínima: {r.value}");
+                        if (r.value > 0)
+                        {
+                            if (qty < r.value) continue;
+                            reasons.Add($"Cumple cantidad mínima: {r.value}");
+                        }
+                    }
+
+                    if (promo._promotion_type_id == 4) // es NXN
+                    {
+                        if (r.value > 0)
+                        {
+                            if (qty < r.value) continue;
+                            reasons.Add($"Cumple cantidad mínima: {r.value}");
+                        }
+                    }
+
+                    if (promo._promotion_type_id == 6) // es descuento
+                    {
+                        if (r.minimum_value > 0)
+                        {
+                            if (qty < r.minimum_value) continue;
+                            reasons.Add($"Cumple cantidad mínima: {r.minimum_value}");
+                        }
                     }
 
                     // aquí podrías incluir chequeos de método de pago, selección, etc. si los pasas como parámetros.
@@ -215,7 +223,7 @@ namespace DMOrders.Services.Promotions
                     // Si llegamos acá, la regla aplica:
                     results.Add(new PromotionEvalItem
                     {
-                        Promotion = new PromotionHeader { Id = promo.id, Code = promo.code ?? "", Name = promo.name ?? "" },
+                        Promotion = promo,
                         Rule = new RuleInfo
                         {
                             Id = r.id,

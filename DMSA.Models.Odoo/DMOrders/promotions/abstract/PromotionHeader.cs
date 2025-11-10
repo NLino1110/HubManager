@@ -1,11 +1,12 @@
 ﻿namespace DMSA.Models.Odoo.DMOrders.promotions.@abstract
 {
-    public sealed class PromotionHeader
-    {
-        public long Id { get; set; }
-        public string Code { get; set; } = "";
-        public string Name { get; set; } = "";
-    }
+    //[Obsolete]
+    //public sealed class PromotionHeader
+    //{
+    //    public long Id { get; set; }
+    //    public string Code { get; set; } = "";
+    //    public string Name { get; set; } = "";
+    //}
 
     //public sealed class PromotionHeader
     //{

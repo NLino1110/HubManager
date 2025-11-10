@@ -41,7 +41,7 @@ namespace DMOrders.Services.Database.Sqlite
                 // Si es numérico: buscar por id exacto (fallback lo haces fuera)
                 if (int.TryParse(raw, out var idCode))
                 {
-                    q = q.Where(x => x.id == idCode);
+                    q = q.Where(x => x.id == idCode || x.code.ToLower().Contains(filter_code.ToLower()));
                     // OJO: no aplicamos más filtros aquí para mantener tu comportamiento original.
                     return ApplySort(q, filter_sort);
                 }
@@ -111,6 +111,11 @@ namespace DMOrders.Services.Database.Sqlite
             await Init();
             return await Database.Table<product_product>().Where(x=>x.id == id).FirstOrDefaultAsync();
         }
- 
+
+        internal async Task<product_product> GetByProductTemplate(int product_template_id)
+        {
+            await Init();
+            return await Database.Table<product_product>().Where(x => x._product_tmpl_id == product_template_id).FirstOrDefaultAsync();
+        }
     }
 }

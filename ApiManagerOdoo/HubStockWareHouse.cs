@@ -55,7 +55,7 @@ namespace ApiManager
                 "sam_loc_id",
                 "pos_type_id",
                 "buy_pull_id",
-
+                "center_id",
         };
 
         public HubStockWareHouse(AppSession _setAppSession) : base(_setAppSession)

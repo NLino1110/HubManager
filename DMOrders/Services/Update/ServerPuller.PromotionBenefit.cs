@@ -397,7 +397,7 @@ namespace DMOrders.Services.Update
                         await PromoRules(item, true);
                         await PromoCenter(item, true);
                         await OnlinePromotionProducts(item, true);
-                        await OnlinePromotionProductDetail(item, true);                        
+                        await OnlinePromotionProductDetail(item, true);
                     }
                 }
 

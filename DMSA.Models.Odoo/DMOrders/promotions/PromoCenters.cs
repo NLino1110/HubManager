@@ -12,7 +12,7 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
     {
         [Key]
         [PrimaryKey]
-        [AutoIncrement]
+        //[AutoIncrement]
         [NotNull]
         [JsonProperty("id")]
         public int id { get; set; }
@@ -49,9 +49,16 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
             set { }
         }
 
-        //[Ignore]
-        //[JsonProperty("levels_ids")]
-        //public JToken levels_ids { get; set; }
+        [Ignore]
+        [JsonProperty("levels_ids")]
+        public JToken levels_ids { get; set; }
+
+        [JsonIgnore]
+        public string levels_ids_json
+        {
+            get => SetIdsJson(levels_ids);
+            set { }
+        }
 
         //[JsonIgnore]
         //public List<product_pricelist> _levels_ids

@@ -149,5 +149,11 @@ namespace DMOrders.Services.Database.Sqlite
             await Init();
             return await Database.DeleteAllAsync<T>();
         }
+
+        public async Task<int> DeleteAsync(T item)
+        {
+            await Init();
+            return await Database.DeleteAsync(item);
+        }
     }
 }

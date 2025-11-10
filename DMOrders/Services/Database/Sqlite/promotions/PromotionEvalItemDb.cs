@@ -1,4 +1,5 @@
-﻿using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
+﻿using DMSA.Models.Odoo.DMOrders.promotions;
+using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
 using DMSA.Models.Odoo.Native;
 using Microsoft.Data.Sqlite;
 using SQLite;
@@ -25,7 +26,7 @@ namespace DMOrders.Services.Database.Sqlite
             return await Database.Table<PromotionEvalItem>().ToListAsync();
         }
 
-        public async Task<PromotionEvalItem> GetItem(PromotionHeader id)
+        public async Task<PromotionEvalItem> GetItem(PromotionBenefit id)
         {
             await Init();
             return await Database.Table<PromotionEvalItem>().Where(x=>x.Promotion == id).FirstOrDefaultAsync();
