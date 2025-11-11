@@ -55,6 +55,27 @@ namespace DMOrders.Services.Database.Sqlite
             }
 
             return count;
-        }  
+        }
+
+        public async Task<int> InsertAsyncAutoOrdinal(sale_order_line item)
+        {
+            await Init();
+
+            // Obtiene todas las líneas del mismo pedido (_order_id)
+            var lastLine = await Database.Table<sale_order_line>()
+                .Where(i => i._order_id == item._order_id)
+                .OrderByDescending(i => i.ordinal)
+                .FirstOrDefaultAsync();
+
+            // Si no hay líneas anteriores, el ordinal empieza en 1
+            int lastOrdinal = lastLine?.ordinal ?? 0;
+
+            // Asigna el siguiente número
+            item.ordinal = lastOrdinal + 1;
+
+            // Inserta la nueva línea
+            return await Database.InsertAsync(item);
+        }
+
     }
 }

@@ -128,17 +128,32 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
         <Border StrokeThickness="1" StrokeLineCap="Flat" HeightRequest="200">
             <CollectionView x:Name="ListaDetallesSeleccion"
                             EmptyView="No hay datos para mostrar..."
-                            ItemsSource="{Binding promoGifts}">
+                            ItemsSource="{Binding promoGifts}"
+                            SelectionMode="Single"
+                            HorizontalOptions="Fill">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <HorizontalStackLayout Padding="4">
-                            <Label Text="{Binding Numero}" WidthRequest="40" />
-                            <Label Text="{Binding Codigo}" WidthRequest="100" />
-                            <Label Text="{Binding Descripcion}" WidthRequest="100" />
-                            <Label Text="{Binding Unidad}" WidthRequest="100" />
-                            <Label Text="{Binding Stock}" WidthRequest="100" />
-                            <Label Text="{Binding Precio}" WidthRequest="100" />
-                            <Label Text="{Binding Cantidad}" WidthRequest="100" />
+                        <HorizontalStackLayout Padding="10" Margin="10">
+                            <Label Text="{Binding code}" WidthRequest="100" VerticalTextAlignment="Center"/>
+                            <Label Text="{Binding name}" WidthRequest="400" VerticalTextAlignment="Center"/>
+                            <Label Text="{Binding _uom_id}" WidthRequest="50" VerticalTextAlignment="Center"/>
+                            <Label Text="{Binding qty_available}" WidthRequest="50" VerticalTextAlignment="Center"/>
+                            <Label Text="{Binding list_price}" WidthRequest="50" VerticalTextAlignment="Center"/>
+                            <Label Text="{Binding base_unit_count}" WidthRequest="50" VerticalTextAlignment="Center"/>
+                            <Button Text="" 
+                                BackgroundColor="DodgerBlue" 
+                                TextColor="White" 
+                                HeightRequest="30"
+                                WidthRequest="30"
+                                Padding="0"
+                                Clicked="AddGift">
+                                <Button.ImageSource>
+                                    <FontImageSource 
+                                        Size="25"
+                                        FontFamily="MaterialSharp"
+                                        Glyph="{x:Static uranium:MaterialSharp.Add}" />
+                                </Button.ImageSource>
+                            </Button>
                         </HorizontalStackLayout>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

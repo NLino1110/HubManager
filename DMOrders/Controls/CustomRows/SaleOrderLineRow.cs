@@ -1,4 +1,6 @@
-﻿using DMOrders.Controls.Base;
+﻿using CommunityToolkit.Maui.Converters;
+using DMOrders.Controls.Base;
+using DMOrders.Converters;
 using DMSA.Models.Odoo.Native;
 using SkiaSharp;
 using System.Windows.Input;
@@ -241,7 +243,19 @@ namespace DMOrders.Controls.CustomRows
                 Margin = new Thickness(2),
             };
 
-            buttonGift.SetBinding(Button.IsVisibleProperty, new Binding("is_gift"));
+            //buttonGift.SetBinding(Button.IsVisibleProperty, new Binding("is_gift"));
+            var opacityConverter = new BoolToOpacityConverter();
+            var inverseBool = new InverseBooleanConverter();
+
+            buttonGift.SetBinding(VisualElement.OpacityProperty,
+                new Binding("is_gift", converter: opacityConverter));
+
+            buttonGift.SetBinding(InputView.InputTransparentProperty,
+                new Binding("is_gift", converter: inverseBool));
+
+            // opcional: deshabilitar cuando no visible para seguridad
+            buttonGift.SetBinding(VisualElement.IsEnabledProperty,
+                new Binding("is_gift", converter: opacityConverter));
 
             var buttonEdit = new Button
             {

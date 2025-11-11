@@ -122,8 +122,7 @@ namespace DMOrders.Services.Promotions
                                 // La clase PromotionProductDetail en tu proyecto debería tener .product?.id o .product_id
                                 PromotionProductDetail det = d;
                                 if (det == null) return false;
-
-                                // fallback: det.product_id (int)
+                                                                
                                 try
                                 {
                                     int pid = det._product_id;
@@ -153,12 +152,12 @@ namespace DMOrders.Services.Promotions
                 if (rules == null || !rules.Any())
                 {
                     // considerar la cabecera como aplicable sin reglas — añadimos un resultado simple
-                    results.Add(new PromotionEvalItem
-                    {
-                        Promotion = promo,
-                        Discount = 0,
-                        Reasons = new List<string>(baseReasons) { "Promoción sin reglas explícitas (cabecera aplicable)." }
-                    });
+                    //results.Add(new PromotionEvalItem
+                    //{
+                    //    Promotion = promo,
+                    //    Discount = 0,
+                    //    Reasons = new List<string>(baseReasons) { "Promoción sin reglas explícitas (cabecera aplicable)." }
+                    //});
                     continue;
                 }
 
@@ -224,17 +223,18 @@ namespace DMOrders.Services.Promotions
                     results.Add(new PromotionEvalItem
                     {
                         Promotion = promo,
-                        Rule = new RuleInfo
-                        {
-                            Id = r.id,
-                            Discount = r.discount,
-                            UnlimitedTime = r.unlimited_time,
-                            StartDate = r.start_date,
-                            EndDate = r.end_date,
-                            PaymentMethodId = r._payment_method_id,
-                            SelectionTypeId = r._selection_type_id,
-                            MinQuantity = r.minimum_value
-                        },
+                        //Rule = new RuleInfo
+                        //{
+                        //    Id = r.id,
+                        //    Discount = r.discount,
+                        //    UnlimitedTime = r.unlimited_time,
+                        //    StartDate = r.start_date,
+                        //    EndDate = r.end_date,
+                        //    PaymentMethodId = r._payment_method_id,
+                        //    SelectionTypeId = r._selection_type_id,
+                        //    MinQuantity = r.minimum_value
+                        //},
+                        RuleSet = r,
                         Discount = r.discount,
                         Reasons = reasons
                     });

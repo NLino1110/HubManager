@@ -226,19 +226,25 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
                             <FontImageSource 
                                 Size="28"
                                 FontFamily="MaterialSharp"
-                                Glyph="{x:Static uranium:MaterialSharp.Shopping_cart_checkout}"/>
+                                Glyph="{x:Static uranium:MaterialSharp.Add_business}"/>
                         </Button.ImageSource>
                     </Button>
 
                     <Button Text="Guardar" Clicked="ButtonSave_Clicked" BackgroundColor="LimeGreen" TextColor="White" HeightRequest="45" WidthRequest="120" Padding="0">
                         <Button.ImageSource>
                             <FontImageSource 
-Size="30"
-FontFamily="MaterialSharp"
-Glyph="{x:Static uranium:MaterialSharp.Save}" />
+                            Size="30"
+                            FontFamily="MaterialSharp"
+                            Glyph="{x:Static uranium:MaterialSharp.Save_as}" />
                         </Button.ImageSource>
                     </Button>
-                    <Button x:Name="btnSend" Text="Enviar" Clicked="ButtonSync_Clicked" BackgroundColor="DeepSkyBlue" TextColor="White" HeightRequest="45" WidthRequest="120" Padding="0">
+                    
+                    <Button x:Name="btnSend" Text="" Clicked="ButtonSync_Clicked" 
+                            BackgroundColor="DodgerBlue" 
+                            TextColor="White" 
+                            HeightRequest="43" 
+                            WidthRequest="43" 
+                            Padding="0">
                         <Button.ImageSource>
                             <FontImageSource 
 Size="30"
@@ -292,40 +298,39 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                 </CollectionView>
             </Grid>
 
-            <Grid RowDefinitions="*" ColumnDefinitions="*" Grid.Row="3" Grid.Column="0" HorizontalOptions="Fill">
+            <Grid Grid.Row="3" Grid.Column="3" HorizontalOptions="Fill" ColumnDefinitions="*,*,Auto">
                 <CollectionView
-                    x:Name="PromoBenefits"
-                    ItemsSource="{Binding ItemsDataBenefits}" 
-                    EmptyView="No hay promociones aplicables..."
-                    SelectionMode="Single"                    
-                    HorizontalOptions="Start">
+                        Grid.Row="0" 
+                        Grid.Column="0"
+                        x:Name="PromoBenefits"
+                        ItemsSource="{Binding ItemsDataBenefits}" 
+                        EmptyView="No hay promociones aplicables..."
+                        SelectionMode="Single"                    
+                        HorizontalOptions="Fill">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <HorizontalStackLayout Padding="10">
                                 <Label Text="{Binding id}" WidthRequest="20" />
                                 <Label Text="{Binding name}" WidthRequest="90" />
                                 <Label Text="{Binding description}" WidthRequest="90" />
-                                <Label Text="{Binding _selection_type_id}" WidthRequest="80" HorizontalTextAlignment="Center" />                                
+                                <Label Text="{Binding _selection_type_id}" WidthRequest="80" HorizontalTextAlignment="Center" />
                                 <Label Text="{Binding code}" WidthRequest="20" />
                                 <Label Text="{Binding state}" WidthRequest="30" HorizontalTextAlignment="Center" />
                             </HorizontalStackLayout>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-            </Grid>
-
-            <Grid Grid.Row="3" Grid.Column="3" HorizontalOptions="Fill" ColumnDefinitions="*,Auto">                
+                
                 <HorizontalStackLayout Grid.Row="0" 
-                                       Grid.Column="0"
+                                Grid.Column="1"
                                VerticalOptions="Start" 
                                HorizontalOptions="End" 
                                Margin="0,0,0,10" 
-                                       Spacing="10">
+                                Spacing="10">
                     
                     <uranium:ExpanderView IsExpanded="True" WidthRequest="250">
                         <uranium:ExpanderView.Header>
-                            <Label 
-                    Grid.Row="0" 
+                            <Label                     
                     BackgroundColor="Transparent" 
                     Text="Observaciones"
                     FontSize="12"

@@ -234,14 +234,12 @@ namespace DMOrders.Controls.CustomRows
             };
             
             stackLayout.Children.Add(buttonEdit);
-            stackLayout.Children.Add(buttonDelete);
-            
+            stackLayout.Children.Add(buttonDelete);            
 
             toolGrid.Children.Add(stackLayout);
             Grid.SetRow(stackLayout, 0);
             Grid.SetRowSpan(stackLayout, 2);
             Grid.SetColumn(stackLayout, 4);
-
 
             var buttonEditDummy = new Button
             {

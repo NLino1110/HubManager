@@ -281,6 +281,126 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
     private async void ButtonSave_Clicked(object sender, EventArgs e)
     {
+        sale_order targetOrder = await SaveOrder();
+        //var viewModel = (CrudViewModel)this.BindingContext;
+        //var orderLines = viewModel.OrderLines;
+        //var saleOrderDb = new SaleOrderDb(App.Session.odooConnection.DbNameSqlite);
+        //var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
+
+        //sale_order targetOrder;
+
+        //bool isNew = CurrentSaleOrder == null;
+
+        //int warehouseId = 0;
+
+        //StockWareHouseDb stockWareHouseDb = new StockWareHouseDb(App.Session.odooConnection.DbNameSqlite);
+        //var warehouseList = await stockWareHouseDb.GetByResCenter(App.Session.res_center.id);
+        //if(warehouseList != null && warehouseList.Count > 0 )
+        //{
+        //    warehouseId = warehouseList[0].id;
+        //}
+
+        //if (isNew)
+        //{
+        //    targetOrder = new sale_order
+        //    {
+        //        _partner_id = _CurrentPartner.id,
+        //        _company_id = CurrentCompany.id,
+        //        date_order = DateTime.Now,
+        //        _center_id = App.Session.res_center.id,
+        //        _warehouse_id = warehouseId,
+        //        sale_channel = App.Session.odooConnection.sale_channel_default,
+        //        id_referencia = "M001-RC29102025"
+        //    };
+
+        //    if (await saleOrderDb.InsertAsync(targetOrder) <= 0)
+        //    {
+        //        await Toast.Make("Error al crear la orden").Show();
+        //        return;
+        //    }
+        //}
+        //else
+        //{
+        //    targetOrder = CurrentSaleOrder;
+        //    targetOrder.write_date = DateTime.Now;
+        //    targetOrder._center_id = App.Session.res_center.id;
+        //    targetOrder._warehouse_id = warehouseId;
+        //    targetOrder.sale_channel = App.Session.odooConnection.sale_channel_default;
+        //    targetOrder.id_referencia = "M001-RC29102025";
+
+        //    if (await saleOrderDb.UpdateAsync(targetOrder) <= 0)
+        //    {
+        //        await Toast.Make("Error al actualizar la orden").Show();
+        //        return;
+        //    }
+
+        //    // Eliminar líneas anteriores antes de insertar las nuevas
+        //    await saleOrderLineDb.DeleteItemOfParent(targetOrder);
+        //}
+
+        //int ordinal = 1;
+        //// Asignar el ID de la orden a las líneas y guardar
+        //foreach (var orderLine in orderLines)
+        //{
+        //    orderLine._order_id = targetOrder.id;
+        //    orderLine.ordinal = ordinal;
+        //    await saleOrderLineDb.InsertAsync(orderLine);
+        //    ordinal++;
+        //}
+
+        //await Toast.Make(isNew ? "Orden creada" : "Orden actualizada").Show();
+
+        //if (await saleOrderLineDb.InsertBatchAsync(orderLines.ToArray()) > 0)
+        //{
+        //    await Toast.Make(isNew ? "Orden creada" : "Orden actualizada").Show();
+        //}
+        //else
+        //{
+        //    await Toast.Make("Error al guardar líneas").Show();
+        //}
+
+        if (targetOrder != null)
+        {
+            var applyPromo = await ApplyPromo(targetOrder);
+
+            if (applyPromo.Count > 0)
+            {
+
+            }
+        }
+
+        //await Navigation.PopAsync();
+        await Navigation.PopModalAsync();
+        //SendBackButtonPressed();
+    }
+
+    public static string ObtenerIniciales(string nombreCompleto)
+    {
+        var partes = nombreCompleto
+            .Trim()
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        if (partes.Length == 0)
+            return "";
+
+        string inicialApellido = partes[0][0].ToString();
+        string inicialNombre = partes.Length > 2 ? partes[2][0].ToString() : partes[1][0].ToString();
+
+        return (inicialApellido + inicialNombre).ToUpper();
+    }
+
+    public static string GenerarCodigo(string nombreCompleto, int secuencial, bool esMovil = true)
+    {
+        string iniciales = ObtenerIniciales(nombreCompleto);
+        string prefijo = esMovil ? "M" : "W";
+        string secuencialFormateado = secuencial.ToString("D3");
+        string fecha = DateTime.Now.ToString("ddMMyyyy");
+
+        return $"{prefijo}{secuencialFormateado}-{iniciales}{fecha}";
+    }
+
+    private async Task<sale_order> SaveOrder()
+    {
         var viewModel = (CrudViewModel)this.BindingContext;
         var orderLines = viewModel.OrderLines;
         var saleOrderDb = new SaleOrderDb(App.Session.odooConnection.DbNameSqlite);
@@ -294,7 +414,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
         StockWareHouseDb stockWareHouseDb = new StockWareHouseDb(App.Session.odooConnection.DbNameSqlite);
         var warehouseList = await stockWareHouseDb.GetByResCenter(App.Session.res_center.id);
-        if(warehouseList != null && warehouseList.Count > 0 )
+        if (warehouseList != null && warehouseList.Count > 0)
         {
             warehouseId = warehouseList[0].id;
         }
@@ -315,7 +435,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
             if (await saleOrderDb.InsertAsync(targetOrder) <= 0)
             {
                 await Toast.Make("Error al crear la orden").Show();
-                return;
+                return null;
             }
         }
         else
@@ -326,11 +446,11 @@ public partial class Crud : ContentPage, IBackButtonHandler
             targetOrder._warehouse_id = warehouseId;
             targetOrder.sale_channel = App.Session.odooConnection.sale_channel_default;
             targetOrder.id_referencia = "M001-RC29102025";
-            
+
             if (await saleOrderDb.UpdateAsync(targetOrder) <= 0)
             {
                 await Toast.Make("Error al actualizar la orden").Show();
-                return;
+                return null;
             }
 
             // Eliminar líneas anteriores antes de insertar las nuevas
@@ -349,26 +469,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
         await Toast.Make(isNew ? "Orden creada" : "Orden actualizada").Show();
 
-        //if (await saleOrderLineDb.InsertBatchAsync(orderLines.ToArray()) > 0)
-        //{
-        //    await Toast.Make(isNew ? "Orden creada" : "Orden actualizada").Show();
-        //}
-        //else
-        //{
-        //    await Toast.Make("Error al guardar líneas").Show();
-        //}
-
-
-        var applyPromo = await ApplyPromo(targetOrder);
-
-        if(applyPromo.Count > 0)
-        {
-            
-        }
-
-        //await Navigation.PopAsync();
-        await Navigation.PopModalAsync();
-        //SendBackButtonPressed();
+        return targetOrder;
     }
 
     private async Task<List<string>> ApplyPromo(sale_order saleOrder)
@@ -425,33 +526,6 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
         return new List<string>();
     }
-
-    //public async Task EvalPromotions(sale_order saleOrder)
-    //{
-    //    try
-    //    {
-    //        AppliedPromotionBenefits ??= new ObservableCollection<PromotionBenefit>();
-    //        AppliedPromotionBenefits.Clear();
-
-    //        string DbNameSqlite = App.Session.odooConnection.DbNameSqlite;
-
-    //        PromotionBenefitDb dataDb = new PromotionBenefitDb(DbNameSqlite);
-    //        var items = await dataDb.GetItemsAsync("authorized");
-
-    //        foreach (var it in items)
-    //            AppliedPromotionBenefits.Add(it);
-
-    //        Debug.WriteLine($"Promociones cargadas: {AppliedPromotionBenefits.Count}");
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        Debug.WriteLine($"Error cargando promociones: {ex}");
-    //    }
-    //    finally
-    //    {
-
-    //    }
-    //}
 
     public async Task EvalPromotions(sale_order saleOrder)
     {
@@ -512,7 +586,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
     private async void ButtonSync_Clicked(object sender, EventArgs e)
     {
-        var leave = await DisplayAlert("Enviar datos", "¿Desea enviar esta orden al ERP?", "Si", "No");
+        var leave = await DisplayAlert("Enviar", "¿Desea enviar esta orden al ERP? Los cambios realizados serán almacenados.", "Si", "No");
 
         if (!leave)
         {
@@ -520,8 +594,17 @@ public partial class Crud : ContentPage, IBackButtonHandler
         }
 
         await UITools.ShowLoadingPopup(this);
-        await UITools.SetNotifyLoadingPopup("Preparando orden...");
         
+        bool orderHasChanges = true;
+
+        if(orderHasChanges)
+        {
+            await UITools.SetNotifyLoadingPopup("Almacenando orden...");
+            await SaveOrder();            
+        }
+
+        await UITools.SetNotifyLoadingPopup("Preparando orden...");
+
         ServerPusher serverPusher = new ServerPusher();
 
         var orderLinesList = ((CrudViewModel)this.BindingContext).OrderLines.ToList();

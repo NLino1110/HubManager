@@ -93,13 +93,52 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
     }
 
     private async void detail_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {   
+    {
+        if (promoGifts != null)
+            promoGifts.Clear();
+        else
+            promoGifts = new ObservableCollection<product_product>();
+
         if (e.CurrentSelection != null && e.CurrentSelection.Count > 0)
         {
             selectedBromotionBenefit = (PromotionBenefit) e.CurrentSelection[0];
             //await LoadDetailInfo(selectedBromotionBenefit);
             //promoGifts.Clear();            
             //Debug.WriteLine(selectedBromotionBenefit.name);
+
+            var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
+
+            if (selectedBromotionBenefit._promotion_type_id == 2) // es regalo
+            {
+                foreach(var itemResult in _itemsData)
+                {
+                    foreach(var itemEval in itemResult.Items)
+                    {
+                        if(itemEval.Promotion.id == selectedBromotionBenefit.id)
+                        {
+                            if(itemEval.RuleSet == null || itemEval.RuleSet._product_id <= 0)
+                                continue;
+
+                            var productGift = await productDb.GetByProductTemplate(itemEval.RuleSet._product_id);
+                            promoGifts.Add(productGift);                            
+                            break;
+                        }
+                    }
+                }
+
+                OnPropertyChanged(nameof(promoGifts));
+            }
+
+            if (selectedBromotionBenefit._promotion_type_id == 4) // es NXN
+            {
+                
+            }
+
+            if (selectedBromotionBenefit._promotion_type_id == 6) // es descuento
+            {
+                
+            }
+
         }
     }
 
@@ -163,6 +202,38 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
     //        //IsFinishedAnalysis = true;
     //    }
     //}
+
+    private async void AddGift(object sender, EventArgs e)
+    {        
+        //Debug.WriteLine(sender);
+        Button button = (Button) sender;
+        product_product product = (product_product)button.BindingContext;
+        Debug.WriteLine(product.name);
+        var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
+        
+        int ordinal = 0;
+
+        var line = new sale_order_line
+        {
+            _order_id = SaleOrder.id,
+            ordinal = ordinal,
+            product_id = product.id,
+            product_display = product.name,
+            product_code = product.code,
+            qty_to_deliver = 1,
+            product_uom_qty_real = 1,
+            product_uom_qty = 1,
+            uom_category_display = "UND",
+            price_subtotal = 0, //(decimal) product.list_price,
+            discount = 100,
+            price_tax = 0,
+            price_total = 0, //(decimal)product.list_price,
+            is_gift = true,
+            promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(selectedBromotionBenefit)
+        };
+
+        await saleOrderLineDb.InsertAsyncAutoOrdinal(line);        
+    }
 
     public event PropertyChangedEventHandler PropertyChanged;
     private void OnPropertyChanged(string property) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));

@@ -1,15 +1,11 @@
 
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Extensions;
-using CommunityToolkit.Maui.Views;
-using CommunityToolkit.Mvvm.Input;
 using DMOrders.Controls;
-using DMOrders.Services.Helpers;
+using DMOrders.Controls.Tools;
 using DMOrders.Services.Update.Pusher;
 using DMOrders.Shared;
-using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.DMOrders.tareas;
-using DMSA.Models.Odoo.Native;
 using System.Diagnostics;
 using System.Windows.Input;
 
@@ -142,20 +138,10 @@ public partial class Details : ContentPage, IBackButtonHandler
     private async void ButtonSync_Clicked(object sender, EventArgs e)
     {
         ServerPusher serverPusher = new ServerPusher();
-
-        //var orderLinesList = ((CrudViewModel)this.BindingContext).OrderLines.ToList();
-        //CurrentSaleOrder.order_line = new List<OrderLineWrapper>();
-        //CurrentSaleOrder._center_id = App.Session.odooConnection.res_center_default;
-
-        //foreach (var orderLine in orderLinesList)
-        //{
-        //    //orderLine.price_subtotal = 1;
-        //    orderLine.price_unit = 1;
-        //    orderLine.product_uom_qty = 1;
-
-        //    CurrentSaleOrder.order_line.Add(new OrderLineWrapper(orderLine));
-        //}
-
+        await UITools.ShowLoadingPopup(this);
+        await UITools.SetNotifyLoadingPopup("Enviando tarea...");
         await serverPusher.SendProjectTask(CurrentProjectTask);
+        await ((DetailsViewModel)BindingContext).PublicLoadActivities();
+        await UITools.HideLoadingPopup();        
     }
 }
