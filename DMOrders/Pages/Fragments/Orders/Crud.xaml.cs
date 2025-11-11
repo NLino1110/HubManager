@@ -458,17 +458,24 @@ public partial class Crud : ContentPage, IBackButtonHandler
         }
 
         int ordinal = 1;
+        
+        targetOrder.order_line = new List<OrderLineWrapper>();
+
         // Asignar el ID de la orden a las líneas y guardar
         foreach (var orderLine in orderLines)
         {
             orderLine._order_id = targetOrder.id;
             orderLine.ordinal = ordinal;
             await saleOrderLineDb.InsertAsync(orderLine);
+
+
+            //Datos referenciales
+            targetOrder.order_line.Add(new OrderLineWrapper(orderLine));
+            
             ordinal++;
         }
 
-        await Toast.Make(isNew ? "Orden creada" : "Orden actualizada").Show();
-
+        await Toast.Make(isNew ? "Orden creada" : "Orden actualizada").Show();        
         return targetOrder;
     }
 

@@ -305,7 +305,7 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                         x:Name="PromoBenefits"
                         ItemsSource="{Binding ItemsDataBenefits}" 
                         EmptyView="No hay promociones aplicables..."
-                        SelectionMode="Single"                    
+                        SelectionMode="Single"
                         HorizontalOptions="Fill">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
@@ -377,29 +377,29 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                         HorizontalTextAlignment="Start"
                         VerticalTextAlignment="Center"></Label>
 
-                    <Label Text="Impuesto:" Grid.Row="4" Grid.Column="0" FontSize="11"></Label>
+                    <Label Text="Impuesto:" Grid.Row="4" Grid.Column="0" FontSize="11" IsVisible="False"></Label>
                     <Label Grid.Row="4" Grid.Column="1" Text="{Binding Impuesto, StringFormat='${0:N2}'}" 
                      FontSize="11" 
                      FontAttributes="Bold"
                      TextColor="#242322"
                         HorizontalTextAlignment="Start"
-                        VerticalTextAlignment="Center"></Label>
+                        VerticalTextAlignment="Center" IsVisible="False"></Label>
 
-                    <Label Text="Comp. Solidaria:" Grid.Row="5" Grid.Column="0" FontSize="11"></Label>
+                    <Label Text="Comp. Solidaria:" Grid.Row="5" Grid.Column="0" FontSize="11" IsVisible="False"></Label>
                     <Label Grid.Row="5" Grid.Column="1" Text="{Binding CompSolidaria, StringFormat='${0:N2}'}" 
                      FontSize="11" 
                      FontAttributes="Bold"
                      TextColor="#242322"
                         HorizontalTextAlignment="Start"
-                        VerticalTextAlignment="Center"></Label>
+                        VerticalTextAlignment="Center" IsVisible="False"></Label>
 
-                    <Label Text="Total:" Grid.Row="6" Grid.Column="0" FontSize="11"></Label>
+                    <Label Text="Total:" Grid.Row="6" Grid.Column="0" FontSize="11" IsVisible="False"></Label>
                     <Label Grid.Row="6" Grid.Column="1" Text="{Binding Total, StringFormat='${0:N2}'}" 
                      FontSize="11" 
                      FontAttributes="Bold"
                      TextColor="#242322"
                         HorizontalTextAlignment="Start"
-                        VerticalTextAlignment="Center"></Label>
+                        VerticalTextAlignment="Center" IsVisible="False"></Label>
 
 
                 </Grid>

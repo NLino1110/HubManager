@@ -24,6 +24,7 @@ namespace DMOrders.Services.Database.Sqlite
             await Init();
             return await Database.Table<sale_order_line>()
                 .Where(x => x._order_id == order_id)
+                .OrderBy(x=>x.is_gift)
                 .ToListAsync();
         }
 

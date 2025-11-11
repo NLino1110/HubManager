@@ -41,6 +41,9 @@ namespace DMSA.Models.Odoo.Native
         [Column("clave_externa")]
         public string? clave_externa { get; set; }
 
+        [Column("fiscal_country_codes")]
+        public string? fiscal_country_codes { get; set; }
+
         [Column("create_date")]
         public DateTime? create_date { get; set; }
                

@@ -209,6 +209,21 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
         Button button = (Button) sender;
         product_product product = (product_product)button.BindingContext;
         Debug.WriteLine(product.name);
+
+        foreach (var itemLine in SaleOrder.order_line)
+        {
+            if (itemLine[2] != null)
+            {
+                var lineObject = (sale_order_line)itemLine[2];
+                if( lineObject.product_id == product.id )
+                {
+                    // ya existe la linea
+                    await Application.Current.Windows[0].Page.DisplayAlert("Información", "El producto seleccionado ya se encuentra en el pedido.", "OK");
+                    return;
+                }
+            }
+        }
+
         var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
         
         int ordinal = 0;

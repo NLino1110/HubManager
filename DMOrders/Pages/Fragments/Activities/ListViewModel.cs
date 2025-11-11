@@ -221,39 +221,6 @@ namespace DMOrders.Pages.Fragments.Activities
             }
         }
 
-
-        //public async Task ___LoadData()
-        //{
-        //    if (IsLoading) return;
-
-        //    try
-        //    {
-        //        IsLoading = true;
-        //        ProjectTaskDb activityHeaderDb = new ProjectTaskDb(App.Session.odooConnection.DbNameSqlite);
-
-        //        var items = await activityHeaderDb.GetItemsAsync(App.Session.res_Company.id, App.Session.CurrentUserFront.uid, filters.getStatus().id, filters.getDateStart(), filters.getDateEnd());
-        //        foreach(var item in items)
-        //        {
-        //            item.display_username = App.Session.CurrentUserFront.nombres;
-        //        }
-        //        Activities = new ObservableCollection<ProjectTask>(items);
-        //        OnPropertyChanged(nameof(Activities));                
-
-        //        //OnPropertyChanged(nameof(Activities));
-        //        //OnPropertyChanged(nameof(CanGoNext));
-        //        //OnPropertyChanged(nameof(CanGoPrevious));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        //_itemsData = new ObservableCollection<res_partner>();
-        //        Debug.WriteLine(ex);
-        //    }
-        //    finally
-        //    {
-        //        IsLoading = false;
-        //    }
-        //}
-
         public void LoadDataByTimer()
         {
             // Usamos el dispatcher global de la app para garantizar ejecución en UI

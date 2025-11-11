@@ -10,14 +10,22 @@
              xmlns:odoo="clr-namespace:DMSA.Models.Odoo.Native;assembly=DMSA.Models.Odoo" 
              x:Class="DMOrders.Pages.Fragments.Customers.DataGrid"
              x:Name="CustomerDataGrid">
-    <Grid RowDefinitions="Auto,*,Auto">        
-        
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <converters:DiasSemanaConverter x:Key="DiasSemanaConverter" />
+        </ResourceDictionary>
+    </ContentView.Resources>
+    <Grid RowDefinitions="Auto,*,Auto">
+
         <Grid Grid.Row="0" BackgroundColor="LightGray" Padding="10" HeightRequest="35">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="3*"/>
                 <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -26,6 +34,9 @@
             <Label Text="Nombre" Grid.Column="2" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Start"/>
             <Label Text="Email" Grid.Column="3" FontAttributes="Bold" FontSize="11"/>
             <Label Text="Teléfono" Grid.Column="4" FontAttributes="Bold" FontSize="11"/>
+            <Label Text="Activo" Grid.Column="5" FontAttributes="Bold" FontSize="11"/>
+            <Label Text="Canal" Grid.Column="6" FontAttributes="Bold" FontSize="11"/>
+            <Label Text="Días" Grid.Column="7" FontAttributes="Bold" FontSize="11"/>
         </Grid>
 
         <!--<ScrollView Grid.Row="1" BackgroundColor="WhiteSmoke">
@@ -81,7 +92,7 @@
                                     <Grid Grid.Column="0"
                                   VerticalOptions="Center"
                                   ColumnSpacing="10"
-                                  ColumnDefinitions="50,100,*,*,*, 20"
+                                  ColumnDefinitions="50,100,*,*,*,*,*,*, 20"
                                       Margin="20,0,20,0">
                                
                                     <Label Grid.Column="0" FontSize="11" Text="{Binding id}" VerticalOptions="Center" />
@@ -89,8 +100,28 @@
                                     <Label Grid.Column="2" FontSize="12" FontAttributes="Bold" Text="{Binding name}" VerticalOptions="Center"/>
                                     <Label Grid.Column="3" FontSize="12" FontAttributes="Bold" Text="{Binding email}" VerticalOptions="Center"/>
                                     <Label Grid.Column="4" FontSize="12" FontAttributes="Bold" Text="{Binding phone}" VerticalOptions="Center"/>
+                                    <Label Grid.Column="5" FontSize="12" FontAttributes="Bold" Text="{Binding active}" VerticalOptions="Center"/>
+                                    <Label Grid.Column="6" FontSize="12" FontAttributes="Bold" Text="{Binding _product_pricelist_id}" VerticalOptions="Center"/>
+                                    <Label Grid.Column="7"
+                                       FontSize="10"
+                                       FontAttributes="Bold"
+                                       VerticalOptions="Center"
+                                           MaxLines="2"
+                                           MaximumWidthRequest="88">
+                                        <Label.Text>
+                                            <MultiBinding Converter="{StaticResource DiasSemanaConverter}">
+                                                <Binding Path="adic_lunes"/>
+                                                <Binding Path="adic_martes"/>
+                                                <Binding Path="adic_miercoles"/>
+                                                <Binding Path="adic_jueves"/>
+                                                <Binding Path="adic_viernes"/>
+                                                <Binding Path="adic_sabado"/>
+                                                <Binding Path="adic_domingo"/>
+                                            </MultiBinding>
+                                        </Label.Text>
+                                    </Label>
 
-                                    <Button Grid.Column="5"
+                                    <Button Grid.Column="8"
                                         HeightRequest="35"
                                         WidthRequest="35"
                                         BackgroundColor="DodgerBlue"

@@ -56,19 +56,7 @@ namespace DMOrders.Pages.Fragments.Customers
                 OnPropertyChanged(nameof(CanGoPrevious));
             }
         }
-
-
-        //public ViewModel(string _FilterCode, string _FilterId, string _FilterName, FDays _FilterDays, FStatus _FilterStatus)
-        //{
-        //    _itemsData = new ObservableCollection<res_partner>();            
-        //    FilterCode = _FilterCode;
-        //    FilterId = _FilterId;
-        //    FilterName = _FilterName;
-        //    FilterDays = _FilterDays;
-        //    FilterStatus = _FilterStatus;
-        //    LoadDataByTimer();
-        //}        
-
+        
         public ViewModel(Filters _filters)
         {
             _db = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
@@ -287,71 +275,6 @@ namespace DMOrders.Pages.Fragments.Customers
                 Debug.WriteLine($"[CatalogViewerModel] Carga en {stopwatch.ElapsedMilliseconds} ms | TotalItems: {TotalItems}, Page: {Page}, PageSize: {PageSize}, Filtro: {filters.getCode() ?? filters.getName() ?? "sin filtro"}");
             }
         }
-
-        //public async Task ___LoadData()
-        //{
-        //    if (IsLoading) return;
-
-        //    try
-        //    {
-        //        if(_itemsData == null)
-        //            _itemsData = new ObservableCollection<res_partner>();
-                
-        //        _itemsData.Clear();
-
-        //        IsLoading = true;
-
-        //        var database = new ResPartnerDb();
-
-        //        // 🔹 Lo ideal: aplicar filtros y paginación en la consulta al DB
-        //        var allItems = await database.GetItemsAsync();
-
-        //        // 🔹 Si tu método GetItemsAsync no soporta filtros, entonces:
-        //        // var allItemsList = (await database.GetItemsAsync()).ToList();
-
-        //        IEnumerable<res_partner> filtered = allItems; // ya viene filtrado si lo haces en DB
-
-        //        // Filtros en memoria solo si no puedes hacerlos en DB
-        //        if (!string.IsNullOrWhiteSpace(filters.getCode()) && int.TryParse(filters.getCode(), out int int_filterCode))
-        //        {
-        //            filtered = filtered.Where(x => x.id == int_filterCode);
-        //        }
-        //        else if (!string.IsNullOrWhiteSpace(filters.getCode()))
-        //        {
-        //            filtered = filtered.Where(x => x.vat == filters.getCode());
-        //        }
-        //        else if (!string.IsNullOrWhiteSpace(filters.getName()))
-        //        {
-        //            filtered = filtered.Where(x => x.name.Contains(filters.getName(), StringComparison.OrdinalIgnoreCase));
-        //        }
-
-        //        // Materializamos la lista para no volver a recorrerla varias veces
-        //        var filteredList = filtered.ToList();
-
-        //        TotalItems = filteredList.Count;
-
-        //        // Paginación en memoria solo si no la hace el DB
-        //        var paginated = filteredList
-        //            .Skip((_page - 1) * _pageSize)
-        //            .Take(_pageSize)
-        //            .ToList();
-                
-        //        _itemsData = new ObservableCollection<res_partner>(paginated);
-
-        //        OnPropertyChanged(nameof(ItemsData));
-        //        OnPropertyChanged(nameof(CanGoNext));
-        //        OnPropertyChanged(nameof(CanGoPrevious));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _itemsData = new ObservableCollection<res_partner>();
-        //        Debug.WriteLine(ex);
-        //    }
-        //    finally
-        //    {
-        //        IsLoading = false;
-        //    }
-        //}
 
         public ICommand NextPageCommand => new Command(async () =>
         {

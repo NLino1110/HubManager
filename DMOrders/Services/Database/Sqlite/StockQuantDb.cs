@@ -13,9 +13,9 @@ namespace DMOrders.Services.Database.Sqlite
             return await GetItemAsync(x => x.id == id);
         }
 
-        public async Task<List<DMSA.Models.Odoo.Native.stock_quant>> GetItemsAsync(int id)
+        public async Task<List<DMSA.Models.Odoo.Native.stock_quant>> GetItemsAsync(int product_id)
         {
-            return await GetItemsAsync(x => x.id == id);
+            return await GetItemsAsync(x => x._product_id == product_id);
         }
     }
 }

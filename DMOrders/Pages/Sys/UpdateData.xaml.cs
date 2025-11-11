@@ -320,7 +320,6 @@ public partial class UpdateData : ContentPage
         }
     }
 
-
     private async Task ProcAccountMove(ProgressBarAnimationBehaviorPage obj, string[] ListFiles)
     {
         var database = new AccountMoveDb();
@@ -1644,10 +1643,13 @@ public partial class UpdateData : ContentPage
         }
 
         if (chkGroup5.IsChecked)
-        {            
+        {
             await serverPuller.OnlineSyncStockWarehouse(false);
             await serverPuller.OnlineSyncStockLocation();
             await serverPuller.OnlineSyncStockQuant();
+            await serverPuller.UomUom(true);
+            //
+            //await serverPuller.FixInventory();
         }
 
         //await RefreshVat();

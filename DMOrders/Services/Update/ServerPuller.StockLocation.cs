@@ -16,15 +16,6 @@ namespace DMOrders.Services.Update
     {
         public async Task OnlineSyncStockLocation()
         {
-            //ApiRequestOdoo_v1 apiRequest = new ApiRequestOdoo_v1();
-            //apiRequest.uid = App.Session.CurrentUser.uid;
-            //apiRequest.password = App.Session.CurrentUser.codclave;
-            //apiRequest.databasename = "";
-
-            //apiRequest.index = 0;
-            //apiRequest.limit = 1000;
-            //apiRequest.dateIni = DateTime.Now.AddDays(-1000);
-
             ApiManager.HubStockLocation hubManagerInstance = new HubStockLocation(App.Session);
             ApiResponseOdooRpcT<stock_location[]> dataList = await hubManagerInstance.GetByCreateDate(limit, 0, year, month, day);
 

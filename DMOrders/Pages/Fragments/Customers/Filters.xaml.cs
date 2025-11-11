@@ -83,16 +83,6 @@ public partial class Filters : ContentView
         return entryName.Text;
     }
 
-    //internal FDays getDays()
-    //{
-    //    return (FDays) ddfDays.SelectedItem;
-    //}
-
-    //internal FStatus getStatus()
-    //{
-    //    return (FStatus) ddfStatus.SelectedItem;
-    //}
-
     internal int getDays()
     {
         return ((FDays)ddfDays.SelectedItem).id;

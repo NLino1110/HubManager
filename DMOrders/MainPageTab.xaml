@@ -29,7 +29,8 @@
                           VerticalOptions="Fill" 
                           HorizontalOptions="Fill" 
                           Margin="0,0,0,30" 
-                          CachingStrategy="CacheOnLayout">
+                          CachingStrategy="CacheOnLayout"
+                          SelectedTabChanged="tabViewMain_SelectedTabChanged">
                 <!--<material:TabItem Title="Custom Tab One">
                     <material:TabItem.HeaderTemplate>
                         <DataTemplate>

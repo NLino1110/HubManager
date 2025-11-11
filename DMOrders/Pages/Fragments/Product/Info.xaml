@@ -26,7 +26,8 @@
                        MaxLines="3"
                        HorizontalOptions="Center"                   
                        TextColor="{StaticResource OnTertiaryContainer}"
-                       MaximumWidthRequest="240"/>
+                       MaximumWidthRequest="240"
+                       MinimumHeightRequest="70"/>
                 <Label Grid.Row="2" Grid.Column="0" Text="Codigo:" FontSize="11" Padding="3" Margin="0"/>
                 <Label Grid.Row="2" Grid.Column="1" x:Name="lblCode" Text="-" FontSize="11" Padding="3" Margin="0"/>
                 <Label Grid.Row="3" Grid.Column="0" Text="Marca:" FontSize="11" Padding="3"/>

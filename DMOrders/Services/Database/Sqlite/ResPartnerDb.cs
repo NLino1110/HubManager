@@ -45,7 +45,6 @@ namespace DMOrders.Services.Database.Sqlite
             //Excluimos los vendedores
             q = q.Where(x => x.is_salesman == false);
 
-
             // --- 1) Filtro por code (prioridad máxima, como tu método actual) ---
             if (!string.IsNullOrWhiteSpace(filter_code))
             {
@@ -84,6 +83,27 @@ namespace DMOrders.Services.Database.Sqlite
 
             //if (filter_stock == 1)
             //    q = q.Where(x => x.qty_available > 0);
+
+            if(filter_days == 1)
+                q = q.Where(x => x.adic_lunes);
+
+            if (filter_days == 2)
+                q = q.Where(x => x.adic_martes);
+
+            if (filter_days == 3)
+                q = q.Where(x => x.adic_miercoles);
+
+            if (filter_days == 4)
+                q = q.Where(x => x.adic_jueves);
+
+            if (filter_days == 5)
+                q = q.Where(x => x.adic_viernes);
+
+            if (filter_days == 6)
+                q = q.Where(x => x.adic_sabado);
+
+            if (filter_days == 7)
+                q = q.Where(x => x.adic_domingo);
 
             // --- 3) Orden ---
             q = ApplySort(q, filter_sort);

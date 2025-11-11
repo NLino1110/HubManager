@@ -177,4 +177,22 @@ public partial class MainPageTab : ContentPage
     {
         //throw new NotImplementedException();
     }
+
+    private void tabViewMain_SelectedTabChanged(object sender, UraniumUI.Material.Controls.TabItem e)
+    {
+        Debug.WriteLine(sender);
+        Debug.WriteLine(e);
+
+        if(e.Title.ToLower() == "clientes")
+        {
+
+        }
+
+        if (e.Title.ToLower() == "artículos")
+        {
+            //var viewContent = (DMOrders.Pages.Fragments.Product.Container) tabProducts.Content;
+            var viewContent = (DMOrders.Pages.Fragments.Product.Container) e.Content;
+            Debug.WriteLine(viewContent);
+        }
+    }
 }
