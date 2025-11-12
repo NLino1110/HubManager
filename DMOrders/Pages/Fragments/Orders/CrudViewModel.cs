@@ -279,36 +279,72 @@ namespace DMOrders.Pages.Fragments.Orders
             await Task.Delay(1000);
         }
 
-        private async Task<decimal> getPriceWithPricelist(product_product product, product_pricelist product_Pricelist)
+        public class PriceCalculationResult
         {
+            public decimal Price { get; set; }                 // Precio final (con IVA)
+            public decimal PriceWithoutIva { get; set; }       // Precio sin IVA
+            public decimal DiscountAmount { get; set; }         // Valor del descuento
+            public decimal DiscountPercent { get; set; }       // Porcentaje del descuento
+            public decimal TotalLine { get; set; }             // Total multiplicado por cantidad
+        }
+
+        private async Task<PriceCalculationResult> getPriceWithPricelist(
+            product_product product,
+            product_pricelist product_Pricelist,
+            decimal quantity)
+        {
+            var accountTaxDb = new AccountTaxDb(App.Session.odooConnection.DbNameSqlite);
+            var tax_sale = await accountTaxDb.GetItem(product._taxes_id);
+
             var priceListProductsDb = new ProductPricelistItemDb(App.Session.odooConnection.DbNameSqlite);
 
-            decimal price_list_value = 0;
+            decimal list_price = (decimal) product.list_price;
+            decimal price_list_value = list_price;
+            decimal discount_percent = 0m;
 
-            var priceListItem = await priceListProductsDb.GetItemAsync(x=> x._product_tmpl_id == product._product_tmpl_id && x._pricelist_id == product_Pricelist.id);
+            var priceListItem = await priceListProductsDb.GetItemAsync(x =>
+                x._product_tmpl_id == product._product_tmpl_id &&
+                x._pricelist_id == product_Pricelist.id);
 
-            if(priceListItem != null)
+            if (priceListItem != null)
             {
                 switch (priceListItem.compute_price)
                 {
                     case "fixed":
                         price_list_value = priceListItem.fixed_price;
+                        discount_percent = ((list_price - price_list_value) / list_price) * 100;
                         break;
+
                     case "percentage":
-                        price_list_value = (decimal) product.list_price - ((decimal) product.list_price * (priceListItem.percent_price / 100));
+                        price_list_value = list_price - (list_price * (priceListItem.percent_price / 100));
+                        discount_percent = priceListItem.percent_price;
                         break;
+
                     default:
-                        price_list_value = (decimal)product.list_price;
+                        price_list_value = list_price;
+                        discount_percent = 0;
                         break;
                 }
             }
-            else
-            {
-                price_list_value = (decimal) product.list_price;
-            }
 
-            return price_list_value;
+            // IVA (ya incluido en el precio de lista)
+            decimal iva_tax = (decimal) tax_sale.amount; //15m;
+            decimal factor_iva = 1 + (iva_tax / 100m);
+
+            decimal price_without_iva = price_list_value / factor_iva;
+            decimal discount_value = list_price - price_without_iva;
+            decimal total_line = price_list_value * quantity;
+
+            return new PriceCalculationResult
+            {
+                Price = price_list_value,
+                PriceWithoutIva = price_without_iva,
+                DiscountAmount = discount_value,
+                DiscountPercent = discount_percent,
+                TotalLine = total_line
+            };
         }
+
 
         private async void OnAddLine(product_product product)
         {
@@ -323,15 +359,20 @@ namespace DMOrders.Pages.Fragments.Orders
                 existingLine.product_uom_qty_real += 1;
                 existingLine.product_uom_qty += 1;
 
-                product.list_price = (float) (await getPriceWithPricelist(product, CurrentPriceList));
-                // Recalcular totales (si aplica)
-                existingLine.price_total = existingLine.qty_to_deliver * (decimal) product.list_price;
-                existingLine.price_subtotal = existingLine.price_total; // o el cálculo que corresponda
-                OnPropertyChanged(nameof(OrderLines));                
+                var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, existingLine.product_uom_qty);
+
+                //product.list_price = (float) priceCalc.Price;
+                existingLine.price_total = priceCalc.TotalLine;
+                existingLine.price_unit = priceCalc.Price;
+                existingLine.price_subtotal = priceCalc.Price;
+                existingLine.discount = priceCalc.DiscountPercent;
+                existingLine.amount_discount = priceCalc.DiscountAmount;
+                OnPropertyChanged(nameof(OrderLines));
             }
             else
             {
-                product.list_price = (float) (await getPriceWithPricelist(product, CurrentPriceList));
+                var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, 1);
+
                 // Si no existe, agregar una nueva línea
                 var line = new sale_order_line
                 {
@@ -342,11 +383,12 @@ namespace DMOrders.Pages.Fragments.Orders
                     product_uom_qty_real = 1,
                     product_uom_qty = 1,
                     uom_category_display = "UND",
-                    price_subtotal = (decimal) product.list_price,
-                    discount = 15,
-                    amount_discount = 15,
+                    price_subtotal = priceCalc.Price,
+                    discount = priceCalc.DiscountPercent,
+                    amount_discount = priceCalc.DiscountAmount,
                     price_tax = 8,
-                    price_total = (decimal) product.list_price,
+                    price_unit = priceCalc.Price,
+                    price_total = priceCalc.TotalLine,
                 };
 
                 OrderLines.Add(line);
