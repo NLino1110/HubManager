@@ -7,6 +7,27 @@ using System.Runtime.InteropServices;
 
 namespace DMOrders.Services.Promotions
 {
+    public static class OperatorEvaluator
+    {
+        private static readonly Dictionary<string, Func<decimal, decimal, bool>> _operators = new()
+        {
+            { "equal_to", (a, b) => a == b || a >= b},
+            { "not_equal_to", (a, b) => a != b },
+            { "less_than", (a, b) => a < b },
+            { "greater_than", (a, b) => a > b },
+            { "less_than_or_equal", (a, b) => a <= b },
+            { "greater_than_or_equal", (a, b) => a >= b },
+        };
+
+        public static bool Evaluate(string op, decimal left, decimal right)
+        {
+            if (_operators.TryGetValue(op, out var func))
+                return func(left, right);
+
+            throw new InvalidOperationException($"Operador no soportado: {op}");
+        }
+    }
+
     public class PromotionRepository : IPromotionRepository
     {
         public async Task<IEnumerable<PromotionBenefit>> Search(int companyId, DateTime nowUtc)
@@ -61,9 +82,24 @@ namespace DMOrders.Services.Promotions
     /// </summary>
     public sealed class PromotionEngineLite
     {
+        private decimal qty;
+        private decimal totalProductAmount;
+        private decimal totalOrder;
+
         private readonly IPromotionRepository _repo;
 
         public PromotionEngineLite(IPromotionRepository repo) => _repo = repo;
+
+        decimal GetVariableValue(string variableName)
+        {
+            return variableName switch
+            {
+                "qty_product_unts" => qty,
+                "total_product_amount" => totalProductAmount,
+                "total_order" => totalOrder,
+                _ => throw new InvalidOperationException($"Variable no reconocida: {variableName}")
+            };
+        }
 
         /// <summary>
         /// Evalúa promociones aplicables para un producto + cantidad en el contexto dado.
@@ -75,12 +111,16 @@ namespace DMOrders.Services.Promotions
         /// </summary>
         public async Task<PromotionEvalResult> EvaluatePromotions(
             int product_id,
-            int qty,            
+            int qty,
+            decimal totalProductAmount, 
+            decimal totalOrder,
             int companyId,
             DateTime? dateUtc = null)
         {
             if (qty <= 0)
                 throw new ArgumentOutOfRangeException(nameof(qty), "qty debe ser > 0");
+
+            this.qty = qty;
 
             var nowUtc = (dateUtc ?? DateTime.UtcNow).AddTicks(-(dateUtc ?? DateTime.UtcNow).Ticks % TimeSpan.TicksPerMinute);
 
@@ -192,11 +232,47 @@ namespace DMOrders.Services.Promotions
 
                     if (promo._promotion_type_id == 2) // es regalo
                     {
-                        if (r.value > 0)
+                        //('qty_product_unts', 'CANT. PRODUCTO (UNIDADES)'),
+                        //('total_product_amount', 'TOTAL PRODUCTO (MONTO)'),
+                        //('total_order', 'TOTAL PEDIDO')
+
+                        //('less_than', '< (MENOR QUE)'),
+                        //('greater_than', '> (MAYOR QUE)'),
+                        //('less_than_or_equal', '<= (MENOR O IGUAL QUE)'),
+                        //('greater_than_or_equal', '>= (MAYOR O IGUAL QUE)'),
+                        //('equal_to', '= (IGUAL A)'),
+                        //('not_equal_to', '<> (DISTINTO DE)')
+
+                        decimal variableValue = GetVariableValue(r.variable);
+                        bool cumple = OperatorEvaluator.Evaluate(r.operator_, variableValue, r.value);
+
+                        if (cumple)
                         {
-                            if (qty < r.value) continue;
-                            reasons.Add($"Cumple cantidad mínima: {r.value}");
+                            reasons.Add($"Cumple {r.variable} {r.operator_} {r.value}");
                         }
+                        else
+                        {
+                            reasons.Add($"No cumple {r.variable} {r.operator_} {r.value}");
+                            continue;
+                        }
+
+                        if (r.minimum_value != 0 && variableValue < r.minimum_value)
+                        {
+                            reasons.Add($"No cumple mínimo: {r.minimum_value}");
+                            continue;
+                        }
+
+                        if (r.maximum_value != 0 && variableValue > r.maximum_value)
+                        {
+                            reasons.Add($"No cumple máximo: {r.maximum_value}");
+                            continue;
+                        }
+
+                        //if (r.value > 0)
+                        //{
+                        //    if (qty < r.value) continue;
+                        //    reasons.Add($"Cumple cantidad mínima: {r.value}");
+                        //}
                     }
 
                     if (promo._promotion_type_id == 4) // es NXN
@@ -210,10 +286,37 @@ namespace DMOrders.Services.Promotions
 
                     if (promo._promotion_type_id == 6) // es descuento
                     {
-                        if (r.minimum_value > 0)
+                        //if (r.minimum_value > 0)
+                        //{
+                        //    if (qty < r.minimum_value) continue;
+                        //    reasons.Add($"Cumple cantidad mínima: {r.minimum_value}");
+                        //}
+
+                        decimal variableValue = GetVariableValue(r.variable);
+                        decimal value_for_eval = r.value;
+
+                        if(r.variable == "qty_product_unts")
+                        {                            
+                            r.operator_ = "greater_than_or_equal";
+                        }
+
+                        if (r.variable == "total_product_amount")
                         {
-                            if (qty < r.minimum_value) continue;
-                            reasons.Add($"Cumple cantidad mínima: {r.minimum_value}");
+                            r.operator_ = "greater_than_or_equal";
+                            value_for_eval = totalProductAmount;
+                        }
+
+                        if (r.variable == "total_order")
+                        {
+                            r.operator_ = "greater_than_or_equal";
+                            value_for_eval = totalOrder;
+                        }                        
+
+                        bool cumple = OperatorEvaluator.Evaluate(r.operator_, variableValue, value_for_eval);
+
+                        if(cumple)
+                        {
+
                         }
                     }
 
@@ -235,6 +338,7 @@ namespace DMOrders.Services.Promotions
                         //    MinQuantity = r.minimum_value
                         //},
                         RuleSet = r,
+                        ProductId = product_id,
                         Discount = r.discount,
                         Reasons = reasons
                     });

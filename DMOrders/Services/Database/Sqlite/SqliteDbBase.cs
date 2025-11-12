@@ -58,6 +58,13 @@ namespace DMOrders.Services.Database.Sqlite
             return (await Database.Table<T>().ToListAsync()).FirstOrDefault(predicate);
         }
 
+        [Obsolete("No usar en movil")]
+        public T GetItem(Func<T, bool> predicate)
+        {
+            Init().Wait(); // inicializa la base si no está lista
+            return Database.GetConnection().Table<T>().ToList().FirstOrDefault(predicate);
+        }
+
         //public async Task<DateTime?> GetLastWriteDateAsync(Func<T, bool>? predicate = null)
         //{
         //    await Init();

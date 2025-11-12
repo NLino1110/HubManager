@@ -4,6 +4,7 @@ using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.DMOrders.promotions;
 using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
 using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Sales;
 using Microsoft.Maui.Controls.Shapes;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -19,7 +20,8 @@ namespace DMOrders.Pages.Fragments.Orders
         public res_company CurrentCompany { get; set; }
         public res_partner _CurrentPartner { get; set; }
         public sale_order CurrentSaleOrder { get; set; }
-                
+        public product_pricelist CurrentPriceList { get; set; }
+
         private sale_order_line _selectedItem;
 
         private ObservableCollection<sale_order_line> _order_lines;
@@ -277,7 +279,38 @@ namespace DMOrders.Pages.Fragments.Orders
             await Task.Delay(1000);
         }
 
-        private void OnAddLine(product_product product)
+        private async Task<decimal> getPriceWithPricelist(product_product product, product_pricelist product_Pricelist)
+        {
+            var priceListProductsDb = new ProductPricelistItemDb(App.Session.odooConnection.DbNameSqlite);
+
+            decimal price_list_value = 0;
+
+            var priceListItem = await priceListProductsDb.GetItemAsync(x=> x._product_tmpl_id == product._product_tmpl_id && x._pricelist_id == product_Pricelist.id);
+
+            if(priceListItem != null)
+            {
+                switch (priceListItem.compute_price)
+                {
+                    case "fixed":
+                        price_list_value = priceListItem.fixed_price;
+                        break;
+                    case "percentage":
+                        price_list_value = (decimal) product.list_price - ((decimal) product.list_price * (priceListItem.percent_price / 100));
+                        break;
+                    default:
+                        price_list_value = (decimal)product.list_price;
+                        break;
+                }
+            }
+            else
+            {
+                price_list_value = (decimal) product.list_price;
+            }
+
+            return price_list_value;
+        }
+
+        private async void OnAddLine(product_product product)
         {
             if (product is null) return;
 
@@ -290,13 +323,15 @@ namespace DMOrders.Pages.Fragments.Orders
                 existingLine.product_uom_qty_real += 1;
                 existingLine.product_uom_qty += 1;
 
+                product.list_price = (float) (await getPriceWithPricelist(product, CurrentPriceList));
                 // Recalcular totales (si aplica)
-                existingLine.price_total = existingLine.qty_to_deliver * (decimal)product.list_price;
+                existingLine.price_total = existingLine.qty_to_deliver * (decimal) product.list_price;
                 existingLine.price_subtotal = existingLine.price_total; // o el cálculo que corresponda
                 OnPropertyChanged(nameof(OrderLines));                
             }
             else
             {
+                product.list_price = (float) (await getPriceWithPricelist(product, CurrentPriceList));
                 // Si no existe, agregar una nueva línea
                 var line = new sale_order_line
                 {
@@ -307,10 +342,11 @@ namespace DMOrders.Pages.Fragments.Orders
                     product_uom_qty_real = 1,
                     product_uom_qty = 1,
                     uom_category_display = "UND",
-                    price_subtotal = 5,
+                    price_subtotal = (decimal) product.list_price,
                     discount = 15,
+                    amount_discount = 15,
                     price_tax = 8,
-                    price_total = (decimal)product.list_price,
+                    price_total = (decimal) product.list_price,
                 };
 
                 OrderLines.Add(line);
@@ -319,7 +355,7 @@ namespace DMOrders.Pages.Fragments.Orders
             UpdateTotals();
         }
 
-        private void UpdateTotals()
+        public void UpdateTotals()
         {
             OnPropertyChanged(nameof(Subtotal));
             OnPropertyChanged(nameof(Descuento));

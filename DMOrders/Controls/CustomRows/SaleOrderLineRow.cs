@@ -151,7 +151,7 @@ namespace DMOrders.Controls.CustomRows
 
             var priceLabel = new Label
             {
-                Text = Item.price_unit.ToString(),
+                Text = Item.price_unit.ToString("F3"),
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
@@ -162,7 +162,7 @@ namespace DMOrders.Controls.CustomRows
             
             var subtotalLabel = new Label
             {
-                Text = Item.price_subtotal.ToString(),
+                Text = Item.price_subtotal.ToString("F3"),
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
@@ -184,7 +184,7 @@ namespace DMOrders.Controls.CustomRows
 
             var discountLabel = new Label
             {
-                Text = Item.discount.ToString(), //CALCULAR PORCENTAJE
+                Text = Item.discount.ToString("F3"), //CALCULAR PORCENTAJE
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
@@ -206,7 +206,7 @@ namespace DMOrders.Controls.CustomRows
 
             var totalLabel = new Label
             {
-                Text = "$ 0",
+                Text = Item.price_total.ToString("F3"),
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,

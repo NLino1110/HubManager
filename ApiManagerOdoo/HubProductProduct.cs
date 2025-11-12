@@ -1,29 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Net;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.Json;
-using System.Threading.Tasks;
-using ApiManagerOdoo.Base;
-using AppManagerOdoo.Tools;
-using CobranzasDMSA.Models;
-using DMSA.Models.Clientes;
-using DMSA.Models.General;
-using DMSA.Models.General.Requests;
-using DMSA.Models.General.Responses;
+﻿using ApiManagerOdoo.Base;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Security;
-using Newtonsoft.Json;
 
-//using Microsoft.AspNetCore.Components;
-//using Microsoft.Extensions.Configuration;
-//using Microsoft.Extensions.Logging;
-//using Microsoft.Extensions.Options;
-using RestSharp;
 
 namespace ApiManager
 {
@@ -77,7 +56,9 @@ namespace ApiManager
                 "general_categoria_id",
                 "general_subcategoria_id",
                 "general_grupor_tipo_id",
-                "general_registro_sanitario"
+                "general_registro_sanitario",
+                "taxes_id",
+                "supplier_taxes_id"
                 };
 
         public HubProductProduct(AppSession _setAppSession) : base(_setAppSession)

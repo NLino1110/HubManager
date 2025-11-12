@@ -12,6 +12,7 @@ using DMOrders.Shared;
 using DMSA.Models.Odoo.DMOrders.promotions;
 using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
 using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Sales;
 using Microsoft.Maui.Controls.Shapes;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -28,6 +29,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
     public res_company CurrentCompany { get; set; }
     public res_partner _CurrentPartner { get; set; }
     public sale_order _CurrentSaleOrder { get; set; }
+    public product_pricelist CurrentPriceList { get; set; }
     public ICommand EditCommand { get; set; }
     public ICommand DeleteCommand { get; set; }
 
@@ -91,6 +93,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 OnPropertyChanged(nameof(PartnerDisplayName));
                 OnPropertyChanged(nameof(PartnerDisplayAddress));
                 OnPropertyChanged(nameof(PartnerDisplayStatus));
+                OnPropertyChanged(nameof(PriceListDisplayName));
             }
         }
     }
@@ -137,6 +140,10 @@ public partial class Crud : ContentPage, IBackButtonHandler
     CurrentSaleOrder?.partner_display_status
     ?? (CurrentPartner != null ? (CurrentPartner.active ? "Activo" : "Inactivo") : string.Empty);
 
+    public string PriceListDisplayName =>
+        CurrentPriceList?.name
+        ?? CurrentPriceList?.clave_externa
+        ?? string.Empty;
 
     private ObservableCollection<PromotionEvalResult> AppliedPromotionResults;
     protected override void OnAppearing()
@@ -204,7 +211,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         else
         {
             ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
-            var CurrentPartner = await resPartnerDb.GetItemsAsync(CurrentCompany.id , CurrentSaleOrder._partner_id);
+            CurrentPartner = await resPartnerDb.GetItemsAsync(CurrentCompany.id , CurrentSaleOrder._partner_id);
             if(CurrentPartner != null)
             {
                 Title = CurrentPartner.name;
@@ -219,6 +226,18 @@ public partial class Crud : ContentPage, IBackButtonHandler
             ((CrudViewModel)this.BindingContext).CurrentSaleOrder = CurrentSaleOrder;
             await ((CrudViewModel)this.BindingContext).LoadData();
         }
+
+        var PriceListDb = new ProductPricelistDb(App.Session.odooConnection.DbNameSqlite);
+        CurrentPriceList = await PriceListDb.GetItem(CurrentPartner._product_pricelist_id);
+
+        if (CurrentPriceList == null || CurrentPartner._product_pricelist_id == 0)
+        {
+            await DisplayAlert("Alerta", "El cliente no tiene lista de precio asignada, no se puede continuar", "Aceptar");
+            await Navigation.PopModalAsync();
+        }
+
+        ((CrudViewModel)this.BindingContext).CurrentPriceList = CurrentPriceList;
+        OnPropertyChanged(nameof(PriceListDisplayName));
     }
 
     public async Task<bool> OnBackButtonPressedAsync()
@@ -282,83 +301,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
     private async void ButtonSave_Clicked(object sender, EventArgs e)
     {
         sale_order targetOrder = await SaveOrder();
-        //var viewModel = (CrudViewModel)this.BindingContext;
-        //var orderLines = viewModel.OrderLines;
-        //var saleOrderDb = new SaleOrderDb(App.Session.odooConnection.DbNameSqlite);
-        //var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
-
-        //sale_order targetOrder;
-
-        //bool isNew = CurrentSaleOrder == null;
-
-        //int warehouseId = 0;
-
-        //StockWareHouseDb stockWareHouseDb = new StockWareHouseDb(App.Session.odooConnection.DbNameSqlite);
-        //var warehouseList = await stockWareHouseDb.GetByResCenter(App.Session.res_center.id);
-        //if(warehouseList != null && warehouseList.Count > 0 )
-        //{
-        //    warehouseId = warehouseList[0].id;
-        //}
-
-        //if (isNew)
-        //{
-        //    targetOrder = new sale_order
-        //    {
-        //        _partner_id = _CurrentPartner.id,
-        //        _company_id = CurrentCompany.id,
-        //        date_order = DateTime.Now,
-        //        _center_id = App.Session.res_center.id,
-        //        _warehouse_id = warehouseId,
-        //        sale_channel = App.Session.odooConnection.sale_channel_default,
-        //        id_referencia = "M001-RC29102025"
-        //    };
-
-        //    if (await saleOrderDb.InsertAsync(targetOrder) <= 0)
-        //    {
-        //        await Toast.Make("Error al crear la orden").Show();
-        //        return;
-        //    }
-        //}
-        //else
-        //{
-        //    targetOrder = CurrentSaleOrder;
-        //    targetOrder.write_date = DateTime.Now;
-        //    targetOrder._center_id = App.Session.res_center.id;
-        //    targetOrder._warehouse_id = warehouseId;
-        //    targetOrder.sale_channel = App.Session.odooConnection.sale_channel_default;
-        //    targetOrder.id_referencia = "M001-RC29102025";
-
-        //    if (await saleOrderDb.UpdateAsync(targetOrder) <= 0)
-        //    {
-        //        await Toast.Make("Error al actualizar la orden").Show();
-        //        return;
-        //    }
-
-        //    // Eliminar líneas anteriores antes de insertar las nuevas
-        //    await saleOrderLineDb.DeleteItemOfParent(targetOrder);
-        //}
-
-        //int ordinal = 1;
-        //// Asignar el ID de la orden a las líneas y guardar
-        //foreach (var orderLine in orderLines)
-        //{
-        //    orderLine._order_id = targetOrder.id;
-        //    orderLine.ordinal = ordinal;
-        //    await saleOrderLineDb.InsertAsync(orderLine);
-        //    ordinal++;
-        //}
-
-        //await Toast.Make(isNew ? "Orden creada" : "Orden actualizada").Show();
-
-        //if (await saleOrderLineDb.InsertBatchAsync(orderLines.ToArray()) > 0)
-        //{
-        //    await Toast.Make(isNew ? "Orden creada" : "Orden actualizada").Show();
-        //}
-        //else
-        //{
-        //    await Toast.Make("Error al guardar líneas").Show();
-        //}
-
+        
         if (targetOrder != null)
         {
             var applyPromo = await ApplyPromo(targetOrder);
@@ -482,10 +425,40 @@ public partial class Crud : ContentPage, IBackButtonHandler
     private async Task<List<string>> ApplyPromo(sale_order saleOrder)
     {
         await EvalPromotions(saleOrder);
-        
+
+        bool ShowPromoPopup = false;
+
         if(AppliedPromotionResults.Count == 0)
         {
             await Toast.Make("No hay promociones aplicables").Show();
+            return new List<string>();
+        }
+
+        foreach(var promoResult in AppliedPromotionResults)
+        {
+            foreach(var promoResItem in promoResult.Items)
+            {
+                if(promoResItem.Promotion._promotion_type_id == 2) //REGALO
+                {
+                    ShowPromoPopup = true;
+                    break;
+                }
+
+                if (promoResItem.Promotion._promotion_type_id == 4) // es NXN
+                {                    
+                    //throw new NotImplementedException("Requiere implementación de promocion NXN");
+                }
+
+                if (promoResItem.Promotion._promotion_type_id == 6)
+                {
+                    await ApplyDiscount(saleOrder, promoResItem);
+                }
+            }
+        }
+
+        //No se muestra Popup si no hay elemento que elegir
+        if(!ShowPromoPopup)
+        {
             return new List<string>();
         }
 
@@ -534,10 +507,43 @@ public partial class Crud : ContentPage, IBackButtonHandler
         return new List<string>();
     }
 
+    private async Task ApplyDiscount(sale_order saleOrder, PromotionEvalItem promoResItem)
+    {   
+        double discountPercentage = promoResItem.Discount;
+        int productTemplateId = promoResItem.ProductId;
+        var orderLines = saleOrder.order_line;
+
+        var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
+
+        var productTarget = await productDb.GetByProductTemplate(productTemplateId);
+
+        var lineToDiscount = orderLines
+                .Select(line => line.Count > 2 ? line[2] as sale_order_line : null)
+                .FirstOrDefault(l => l != null && l.product_id == productTarget.id);
+
+        if (lineToDiscount != null)
+        {
+            decimal originalPrice = lineToDiscount.price_unit;
+            decimal discountAmount = originalPrice * (decimal)(discountPercentage / 100);
+            lineToDiscount.price_unit = originalPrice - discountAmount;
+            lineToDiscount.discount = (decimal) discountPercentage;
+            lineToDiscount.amount_discount = discountAmount;
+            lineToDiscount.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject( promoResItem );
+
+            var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
+            int updated = await saleOrderLineDb.UpdateAsync(lineToDiscount);
+
+            Debug.WriteLine($"Descuento aplicado: {discountPercentage}% al producto ID {productTemplateId}");
+        }
+    }
+
     public async Task EvalPromotions(sale_order saleOrder)
     {
         try
         {
+            decimal totalOrder = saleOrder.amount_total;
+            decimal totalProductAmount = 0m;
+
             AppliedPromotionResults ??= new ObservableCollection<PromotionEvalResult>();
             AppliedPromotionResults.Clear();
 
@@ -567,6 +573,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 var result = await engine.EvaluatePromotions(
                     product_id: product_id,
                     qty: qty,
+                    totalProductAmount: totalProductAmount,
+                    totalOrder: totalOrder,
                     companyId: company_id
                 );
 
@@ -767,6 +775,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
             ProductEditing = null;
             product_uom_qty_real = 0;
             product_uom_qty = 0;
+
+            ((CrudViewModel)BindingContext).UpdateTotals();
         }
 
         //var vmOrderLines = ((CrudViewModel)this.BindingContext).OrderLines;

@@ -117,5 +117,22 @@ namespace DMOrders.Services.Database.Sqlite
             await Init();
             return await Database.Table<product_product>().Where(x => x._product_tmpl_id == product_template_id).FirstOrDefaultAsync();
         }
+
+        internal async Task<int[]> GetAllTaxesIdsAsync()
+        {
+            await Init();
+            
+            var products = await Database.Table<product_product>()
+                .Where(x => x._taxes_id != 0)                
+                .ToListAsync();
+
+            var taxesIds = products
+                .Select(x => x._taxes_id)
+                .Distinct()
+                .ToArray();
+
+            return taxesIds;
+        }
+
     }
 }

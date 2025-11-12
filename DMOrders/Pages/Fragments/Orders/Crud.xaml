@@ -210,7 +210,7 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
                            TextColor="#4d4947"></Label>
                 </VerticalStackLayout>
                 <VerticalStackLayout Grid.Column="1">
-                    <Label Text="CANAL VTA" 
+                    <Label Text="{Binding Path=PriceListDisplayName, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
                            FontSize="16" 
                            FontAttributes="Bold"
                            TextColor="#242322"></Label>

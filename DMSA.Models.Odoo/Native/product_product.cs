@@ -176,8 +176,17 @@ namespace DMSA.Models.Odoo.Native
 
         [JsonProperty("sale_ok")]
         public bool sale_ok { get; set; }
+                
+        [Ignore]
+        [JsonProperty("taxes_id")]
+        public JToken taxes_id { get; set; }
 
-
+        [JsonIgnore]
+        public int _taxes_id
+        {
+            get => GetId(taxes_id);
+            set => taxes_id = SetId(taxes_id, value);
+        }
 
         [JsonIgnore]
         private bool _isSelected;

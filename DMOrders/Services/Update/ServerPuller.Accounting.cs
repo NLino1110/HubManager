@@ -20,6 +20,53 @@ namespace DMOrders.Services.Update
 {
     public partial class ServerPuller
     {
+        public async Task<bool> OnlineAccountTaxes()
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            var productProductDb = new ProductProductDb(DbNameSqlite);
+
+            var idstaxes = await productProductDb.GetAllTaxesIdsAsync();
+            
+            //string idsTaxesStr = string.Join(",", idstaxes.Distinct());
+
+            ApiManager.HubAccountTax hubmanager = new ApiManager.HubAccountTax(App.Session);
+            var resultCount = await hubmanager.GetCount(idstaxes);
+
+            if (resultCount.result == 0)
+            {
+                return false;
+            }
+
+            int countTotal = resultCount.result / limit;
+
+            var database = new AccountTaxDb(DbNameSqlite);
+
+            for (int indice = 0; indice <= countTotal; indice++)
+            {
+                Debug.WriteLine("Página:" + indice);
+
+                var responseAll = await hubmanager.GetAll(idstaxes);
+
+                if (responseAll.result != null && responseAll.result.Length > 0)
+                {
+                    await database.InsertBatchAsync(responseAll.result);
+                }
+
+                if (indice >= maxIndexExceeded)
+                {
+                    Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
+                    break;
+                }
+            }
+
+            stopwatch.Stop();
+
+            Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+                stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
+            return true;
+        }
 
         public async Task<bool> OnlineCalificacionCrediticia()
         {

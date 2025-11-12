@@ -1619,14 +1619,15 @@ public partial class UpdateData : ContentPage
         obj.SetTotalPercentProgress(0.30);
 
         if (chkGroup2.IsChecked)
-        {   
-            
-            await serverPuller.ProductMarca();            
-            await serverPuller.OnlineSyncCategoria();
-            await serverPuller.OnlineSyncSubcategoria();
-            await serverPuller.OnlineSyncProductLinea();
-            await serverPuller.OnlineSyncProductGrupoTipo();
-            await serverPuller.OnlineCalificacionCrediticia();            
+        {
+            //await serverPuller.ProductMarca();            
+            //await serverPuller.OnlineSyncCategoria();
+            //await serverPuller.OnlineSyncSubcategoria();
+            //await serverPuller.OnlineSyncProductLinea();
+            //await serverPuller.OnlineSyncProductGrupoTipo();
+            //await serverPuller.OnlineCalificacionCrediticia();
+
+            await serverPuller.OnlineAccountTaxes();
             obj.SetTotalPercentProgress(0.80);
         }
 
@@ -1637,8 +1638,8 @@ public partial class UpdateData : ContentPage
 
         if(chkGroup4.IsChecked)
         {
-            await serverPuller.OnlineSyncProductPricelist();
-            await serverPuller.OnlineSyncProductPricelistItem();            
+            //await serverPuller.OnlineSyncProductPricelist();
+            //await serverPuller.OnlineSyncProductPricelistItem();
             await serverPuller.OnlineSyncProductProduct();
         }
 

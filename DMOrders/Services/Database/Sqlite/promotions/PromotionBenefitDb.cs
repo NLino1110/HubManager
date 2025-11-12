@@ -28,7 +28,8 @@ namespace DMOrders.Services.Database.Sqlite
             var query = Database.Table<PromotionBenefit>()
                                 .Where(x => x._company_id == companyId &&
                                             x.start_datetime <= nowUtc &&
-                                            x.end_datetime >= nowUtc);            
+                                            x.end_datetime >= nowUtc &&
+                                            x.active);            
 
             var result = await query.ToListAsync();
 

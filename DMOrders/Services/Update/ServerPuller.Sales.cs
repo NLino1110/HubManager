@@ -73,7 +73,7 @@ namespace DMOrders.Services.Update
 
                 if (resultCount.result == 0)
                 {
-                    return false;
+                    continue;
                 }
 
                 int countTotal = resultCount.result / limit;
@@ -95,11 +95,7 @@ namespace DMOrders.Services.Update
                         break;
                     }
                 }
-            }
-
-
-            
-            
+            }            
 
             stopwatch.Stop();
 

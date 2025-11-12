@@ -77,7 +77,7 @@
 
                             <controls:CheckBoxEx x:Name="chkCacheMode" CheckBoxColor="#ACCAEB" TextColor="Black" IsChecked="False" Grid.Column="0" Grid.Row="0" LabelText="Modo cache (datos permitidos)" IsVisible="False"></controls:CheckBoxEx>
                             <controls:CheckBoxEx x:Name="chkGroup1" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" Grid.Column="0" Grid.Row="1" LabelText="Promociones"></controls:CheckBoxEx>
-                        <controls:CheckBoxEx x:Name="chkGroup2" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" Grid.Column="0" Grid.Row="2" LabelText="Productos, marcas, ..."></controls:CheckBoxEx>
+                        <controls:CheckBoxEx x:Name="chkGroup2" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" Grid.Column="0" Grid.Row="2" LabelText="Marcas, categorías ..."></controls:CheckBoxEx>
                         <controls:CheckBoxEx x:Name="chkGroup3" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" Grid.Column="0" Grid.Row="3" LabelText="Clientes"></controls:CheckBoxEx>
                         <controls:CheckBoxEx x:Name="chkGroup4" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" Grid.Column="0" Grid.Row="4" LabelText="Precios"></controls:CheckBoxEx>
                         <controls:CheckBoxEx x:Name="chkGroup5" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" Grid.Column="0" Grid.Row="5" LabelText="Stock"></controls:CheckBoxEx>
