@@ -13,5 +13,11 @@ namespace DMSA.Models.Odoo.Native
     //    public string street { get; set; }
     //    public string street2 { get; set; }
     //    public string city { get; set; }
+
+    //[Column("create_date")]
+    //public DateTime? create_date { get; set; }
+
+    //[Column("write_date")]
+    //public DateTime? write_date { get; set; }
     //}
 }

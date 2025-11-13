@@ -86,8 +86,14 @@ namespace DMSA.Models.Odoo.Native
         public Invoice_Line_Ids[] invoice_line_ids { get; set; }
         [Ignore]
         public Printer_Ids[] printer_id { get; set; }
-        public DateTime write_date { get; set; }
-        public DateTime create_date { get; set; }
+        [JsonProperty("create_date")]
+        [Column("create_date")]
+        public DateTime? create_date { get; set; }
+
+
+        [JsonProperty("write_date")]
+        [Column("write_date")]
+        public DateTime? write_date { get; set; }
     }
 
     public class Partner_Id

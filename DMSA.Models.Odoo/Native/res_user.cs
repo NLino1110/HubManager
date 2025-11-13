@@ -51,6 +51,12 @@ namespace DMSA.Models.Odoo.Native
             get => GetId(sale_team_id);
             set => sale_team_id = SetId(sale_team_id, value);
         }
+
+        [Column("create_date")]
+        public DateTime? create_date { get; set; }
+
+        [Column("write_date")]
+        public DateTime? write_date { get; set; }
     }
 
     public class Sale_Team_Id

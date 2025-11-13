@@ -109,10 +109,14 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
         [JsonProperty("is_fixed")]
         public string is_fixed { get; set; } = "no"; // 'no' | 'si'
 
+        [JsonProperty("create_date")]
         [Column("create_date")]
-        public DateTime create_date { get; set; }
+        public DateTime? create_date { get; set; }
+
+
+        [JsonProperty("write_date")]
         [Column("write_date")]
-        public DateTime write_date { get; set; }
+        public DateTime? write_date { get; set; }
     }
 
 }

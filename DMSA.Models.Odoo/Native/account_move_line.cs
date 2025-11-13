@@ -1,4 +1,5 @@
 ﻿using DMSA.Models.Odoo.Base;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SQLite;
 using System;
@@ -77,7 +78,15 @@ namespace DMSA.Models.Odoo.Native
         public JToken product_id { get; set; }
         [Ignore]
         public JToken analytic_line_ids { get; set; }
-        public DateTime write_date {  get; set; }
-        public DateTime create_date { get; set; }
+        
+        
+        [JsonProperty("create_date")]
+        [Column("create_date")]
+        public DateTime? create_date { get; set; }
+
+        
+        [JsonProperty("write_date")]
+        [Column("write_date")]
+        public DateTime? write_date { get; set; }
     }    
 }

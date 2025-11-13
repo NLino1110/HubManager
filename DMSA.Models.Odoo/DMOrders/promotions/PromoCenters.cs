@@ -106,9 +106,13 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
         // Si aún no tienes GetIds/SetIds, dime y te paso una implementación segura.
         // ----------------------------------------------------------------------
 
+        [JsonProperty("create_date")]
         [Column("create_date")]
-        public DateTime create_date { get; set; }
+        public DateTime? create_date { get; set; }
+
+
+        [JsonProperty("write_date")]
         [Column("write_date")]
-        public DateTime write_date { get; set; }
+        public DateTime? write_date { get; set; }
     }
 }

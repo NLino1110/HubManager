@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 
 namespace DMSA.Models.Odoo.Native
 {
+    [Obsolete]
     public class account_move_old
     {
         [PrimaryKey]

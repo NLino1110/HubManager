@@ -27,8 +27,12 @@ namespace DMSA.Models.Odoo.Native
         public double net_weight { get; set; }
         public double forecast_weight { get; set; }                
         public string display_name { get; set; }
-        public DateTime create_date { get; set; }
+        
+        [Column("create_date")]
+        public DateTime? create_date { get; set; }
 
+        [Column("write_date")]
+        public DateTime? write_date { get; set; }
 
         [Ignore]
         public JToken location_id { get; set; }
@@ -61,7 +65,7 @@ namespace DMSA.Models.Odoo.Native
         public JToken create_uid { get; set; }        
         [Ignore]
         public JToken write_uid { get; set; }
-        public DateTime write_date { get; set; }
+        
         [Ignore]
         public JToken valuation_in_account_id { get; set; }
         [Ignore]

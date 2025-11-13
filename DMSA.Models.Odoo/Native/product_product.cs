@@ -57,10 +57,12 @@ namespace DMSA.Models.Odoo.Native
         public string display_name { get; set; }
 
         [JsonProperty("create_date")]
-        public DateTime create_date { get; set; }
+        [Column("create_date")]
+        public DateTime? create_date { get; set; }
 
         [JsonProperty("write_date")]
-        public DateTime write_date { get; set; }
+        [Column("write_date")]
+        public DateTime? write_date { get; set; }
 
         [JsonProperty("qty_available")]
         public float qty_available { get; set; }

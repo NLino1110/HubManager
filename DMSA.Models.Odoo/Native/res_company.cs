@@ -40,6 +40,12 @@ namespace DMSA.Models.Odoo.Native
             get => GetId(partner_id);
             set => partner_id = SetId(partner_id, value);
         }
+
+        [Column("create_date")]
+        public DateTime? create_date { get; set; }
+
+        [Column("write_date")]
+        public DateTime? write_date { get; set; }
     }
 
     public class journal_base

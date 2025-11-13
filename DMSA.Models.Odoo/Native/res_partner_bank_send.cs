@@ -23,5 +23,11 @@ namespace DMSA.Models.Odoo.Native
         public int currency_id { get; set; }
         public object[] bank_account_id { get; set; }
         public object[] company_id { get; set; }
+
+        [Column("create_date")]
+        public DateTime? create_date { get; set; }
+
+        [Column("write_date")]
+        public DateTime? write_date { get; set; }
     }
 }

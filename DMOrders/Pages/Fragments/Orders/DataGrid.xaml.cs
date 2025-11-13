@@ -16,8 +16,6 @@ namespace DMOrders.Pages.Fragments.Orders
     //[XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class DataGrid : ContentView
     {
-        //res_partner selectedItemData { get; set; }
-
         public ICommand EditCommand { get; set; }
         public ICommand DeleteCommand { get; set; }
 
@@ -63,7 +61,6 @@ namespace DMOrders.Pages.Fragments.Orders
                 Shell.SetNavBarIsVisible(this, false);
             }
         }
-
 
         private void OnContentViewTapped(object sender, EventArgs e)
         {
@@ -218,8 +215,7 @@ namespace DMOrders.Pages.Fragments.Orders
             Debug.WriteLine("EditItem");
             Crud viewObj = new Crud();
             viewObj.CurrentSaleOrder = (sale_order) obj;
-            viewObj.CurrentCompany = App.Session.res_Company;
-            //objPage.Sel_AccountMoveSendHeader = (AccountMoveSendHeader)obj;
+            viewObj.CurrentCompany = App.Session.res_Company;            
             //objPage.editionMode = true;
             viewObj.Disappearing += ViewObj_Disappearing;
             await viewObj.PrepareForm();

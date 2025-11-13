@@ -49,6 +49,12 @@ namespace DMSA.Models.Odoo.Native
         {
             get => string.Concat(acc_number, "-", acc_holder_name, "-", bank_name);
         }
+
+        [Column("create_date")]
+        public DateTime? create_date { get; set; }
+
+        [Column("write_date")]
+        public DateTime? write_date { get; set; }
     }
 
     //public class Partner_Id

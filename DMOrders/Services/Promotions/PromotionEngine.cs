@@ -9,20 +9,26 @@ namespace DMOrders.Services.Promotions
 {
     public static class OperatorEvaluator
     {
-        private static readonly Dictionary<string, Func<decimal, decimal, bool>> _operators = new()
+        private static readonly Dictionary<string, Func<decimal, decimal, decimal, bool>> _operators = new()
         {
-            { "equal_to", (a, b) => a == b || a >= b},
-            { "not_equal_to", (a, b) => a != b },
-            { "less_than", (a, b) => a < b },
-            { "greater_than", (a, b) => a > b },
-            { "less_than_or_equal", (a, b) => a <= b },
-            { "greater_than_or_equal", (a, b) => a >= b },
+            { "equal_to", (a, b, _) => a == b },
+            { "not_equal_to", (a, b, _) => a != b },
+            { "less_than", (a, b, _) => a < b },
+            { "greater_than", (a, b, _) => a > b },
+            { "less_than_or_equal", (a, b, _) => a <= b },
+            { "greater_than_or_equal", (a, b, _) => a >= b },
+            { "between_included", (a, b, c) => a >= b && a <= c }, 
+            { "between_excluded", (a, b, c) => a > b && a < c }
+
+            //between_included, between_excluded
+            //SON CUSTOM, NO EXISTEN EN APLICACION ODOO
         };
 
-        public static bool Evaluate(string op, decimal left, decimal right)
+        public static bool Evaluate(string op, decimal left, decimal right, decimal maximum)
         {
             if (_operators.TryGetValue(op, out var func))
-                return func(left, right);
+                return func(left, right, maximum);
+
 
             throw new InvalidOperationException($"Operador no soportado: {op}");
         }
@@ -204,6 +210,8 @@ namespace DMOrders.Services.Promotions
                 // Evaluar reglas
                 foreach (var r in rules.Where(rr => rr.state))
                 {
+                    bool cumple = false;
+
                     var reasons = new List<string>(baseReasons);
                     int allowed_gifts = 0;
 
@@ -245,7 +253,7 @@ namespace DMOrders.Services.Promotions
                         //('not_equal_to', '<> (DISTINTO DE)')
 
                         decimal variableValue = GetVariableValue(r.variable);
-                        bool cumple = OperatorEvaluator.Evaluate(r.operator_, variableValue, r.value);
+                        cumple = OperatorEvaluator.Evaluate(r.operator_, variableValue, r.value, 0);
 
                         if (cumple)
                         {
@@ -296,11 +304,12 @@ namespace DMOrders.Services.Promotions
                         //}
 
                         decimal variableValue = GetVariableValue(r.variable);
-                        decimal value_for_eval = r.value;
+                        decimal value_for_eval = r.minimum_value;
+                        decimal value_for_eval_max = r.maximum_value;
 
-                        if(r.variable == "qty_product_unts")
-                        {                            
-                            r.operator_ = "greater_than_or_equal";
+                        if (r.variable == "qty_product_unts")
+                        {
+                            r.operator_ = "between_included";
                         }
 
                         if (r.variable == "total_product_amount")
@@ -315,37 +324,40 @@ namespace DMOrders.Services.Promotions
                             value_for_eval = totalOrder;
                         }                        
 
-                        bool cumple = OperatorEvaluator.Evaluate(r.operator_, variableValue, value_for_eval);
+                        cumple = OperatorEvaluator.Evaluate(r.operator_, variableValue, value_for_eval, value_for_eval_max);
 
                         if(cumple)
                         {
-
+                            reasons.Add($"Aplica descuento: {product_id}, {r.discount} %");                            
                         }
                     }
 
                     // aquí podrías incluir chequeos de método de pago, selección, etc. si los pasas como parámetros.
 
-                    // Si llegamos acá, la regla aplica:
-                    results.Add(new PromotionEvalItem
+                    if (cumple)
                     {
-                        Promotion = promo,
-                        //Rule = new RuleInfo
-                        //{
-                        //    Id = r.id,
-                        //    Discount = r.discount,
-                        //    UnlimitedTime = r.unlimited_time,
-                        //    StartDate = r.start_date,
-                        //    EndDate = r.end_date,
-                        //    PaymentMethodId = r._payment_method_id,
-                        //    SelectionTypeId = r._selection_type_id,
-                        //    MinQuantity = r.minimum_value
-                        //},
-                        RuleSet = r,
-                        ProductId = product_id,
-                        Discount = r.discount,
-                        Reasons = reasons,
-                        AllowedGifts = allowed_gifts
-                    });
+                        // Si llegamos acá, la regla aplica:
+                        results.Add(new PromotionEvalItem
+                        {
+                            Promotion = promo,
+                            //Rule = new RuleInfo
+                            //{
+                            //    Id = r.id,
+                            //    Discount = r.discount,
+                            //    UnlimitedTime = r.unlimited_time,
+                            //    StartDate = r.start_date,
+                            //    EndDate = r.end_date,
+                            //    PaymentMethodId = r._payment_method_id,
+                            //    SelectionTypeId = r._selection_type_id,
+                            //    MinQuantity = r.minimum_value
+                            //},
+                            RuleSet = r,
+                            ProductId = product_id,
+                            Discount = r.discount,
+                            Reasons = reasons,
+                            AllowedGifts = allowed_gifts
+                        });
+                    }
                 }
             }
 

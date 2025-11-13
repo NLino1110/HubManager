@@ -22,8 +22,11 @@ namespace DMSA.Models.Odoo.Native
         public bool purchase_ok { get; set; }
         public bool trade_ok { get; set; }
 
-        public DateTime write_date { get; set; }
-        public DateTime create_date  { get; set; }
+        [Column("create_date")]
+        public DateTime? create_date { get; set; }
+
+        [Column("write_date")]
+        public DateTime? write_date { get; set; }
 
         //[JsonIgnore]
         //public int _categ_id { get; set; }

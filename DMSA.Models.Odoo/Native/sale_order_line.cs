@@ -231,6 +231,7 @@ namespace DMSA.Models.Odoo.Native
         //    }
         //}
 
+
         [JsonIgnore]
         public string? promotion_data { get; set; }
 

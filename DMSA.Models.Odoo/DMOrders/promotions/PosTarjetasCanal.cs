@@ -25,10 +25,14 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
         [JsonProperty("name_tech")]
         public string name_tech { get; set; }
 
+        [JsonProperty("create_date")]
         [Column("create_date")]
-        public DateTime create_date { get; set; }
+        public DateTime? create_date { get; set; }
+
+
+        [JsonProperty("write_date")]
         [Column("write_date")]
-        public DateTime write_date { get; set; }
+        public DateTime? write_date { get; set; }
     }
 
 }

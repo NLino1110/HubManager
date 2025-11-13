@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using CobranzasDMSA_Odoo.Models;
+﻿using CobranzasDMSA_Odoo.Models;
+using Newtonsoft.Json;
 using SQLite;
 using SQLiteNetExtensions.Attributes;
 
@@ -22,8 +17,14 @@ namespace DMSA.Models.Odoo.Native
         public bool use_mobile_app { get; set; }
         public bool credit_card { get; set; }
         public bool credit_note { get; set; }
-        public DateTime write_date { get; set; }
-        public DateTime create_date { get; set; }
+        [JsonProperty("create_date")]
+        [Column("create_date")]
+        public DateTime? create_date { get; set; }
+
+
+        [JsonProperty("write_date")]
+        [Column("write_date")]
+        public DateTime? write_date { get; set; }
 
         [Ignore]
         public mobile_app_tag[] mobile_app_tag_ids { get; set; }

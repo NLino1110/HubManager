@@ -73,8 +73,11 @@ namespace DMSA.Models.Odoo.Native
         [Ignore]
         [JsonIgnore]
         public string doc_type_identification_name { get; set; }
-        public DateTime write_date { get; set; }
-        public DateTime create_date { get; set; }
+        [Column("create_date")]
+        public DateTime? create_date { get; set; }
+
+        [Column("write_date")]
+        public DateTime? write_date { get; set; }
         public DateTime? birthdate { get; set; }
         
         [Ignore]

@@ -111,10 +111,14 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
         [JsonProperty("template_file_name")]
         public string template_file_name { get; set; }
 
+        [JsonProperty("create_date")]
         [Column("create_date")]
-        public DateTime create_date { get; set; }
+        public DateTime? create_date { get; set; }
+
+
+        [JsonProperty("write_date")]
         [Column("write_date")]
-        public DateTime write_date { get; set; }
+        public DateTime? write_date { get; set; }
     }
 
 }

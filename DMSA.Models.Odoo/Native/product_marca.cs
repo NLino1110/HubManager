@@ -12,9 +12,11 @@ namespace DMSA.Models.Odoo.Native
         public string clave_externa { get; set; }
 
         [JsonProperty("create_date")]
-        public DateTime create_date { get; set; }
+        [Column("create_date")]
+        public DateTime? create_date { get; set; }
 
         [JsonProperty("write_date")]
-        public DateTime write_date { get; set; }
+        [Column("write_date")]
+        public DateTime? write_date { get; set; }
     }
 }
