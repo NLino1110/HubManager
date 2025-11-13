@@ -69,9 +69,9 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                             <Label Text="{Binding id}" WidthRequest="40" />
                             <Label Text="{Binding name}" WidthRequest="150" />
                             <Label Text="{Binding description}" WidthRequest="100" />
-                            <Label Text="{Binding _selection_type_id}" WidthRequest="80" HorizontalTextAlignment="Center" />
-                            <Label Text="{Binding _selection_type_id}" WidthRequest="80" HorizontalTextAlignment="Center" />
-                            <Label Text="{Binding code}" WidthRequest="100" />
+                            <!--<Label Text="{Binding _selection_type_id}" WidthRequest="80" HorizontalTextAlignment="Center" />
+                            <Label Text="{Binding _selection_type_id}" WidthRequest="80" HorizontalTextAlignment="Center" />-->
+                            <!--<Label Text="{Binding code}" WidthRequest="100" />-->
                             <Label Text="{Binding state}" WidthRequest="100" HorizontalTextAlignment="Center" />
                         </HorizontalStackLayout>
                     </DataTemplate>
@@ -133,13 +133,14 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                             HorizontalOptions="Fill">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <HorizontalStackLayout Padding="10" Margin="10">
-                            <Label Text="{Binding code}" WidthRequest="100" VerticalTextAlignment="Center"/>
-                            <Label Text="{Binding name}" WidthRequest="400" VerticalTextAlignment="Center"/>
-                            <Label Text="{Binding _uom_id}" WidthRequest="50" VerticalTextAlignment="Center"/>
-                            <Label Text="{Binding qty_available}" WidthRequest="50" VerticalTextAlignment="Center"/>
-                            <Label Text="{Binding list_price}" WidthRequest="50" VerticalTextAlignment="Center"/>
-                            <Label Text="{Binding base_unit_count}" WidthRequest="50" VerticalTextAlignment="Center"/>
+                        <HorizontalStackLayout Padding="10" Margin="10,0,10,0">
+                            <Label Text="{Binding id}" WidthRequest="50" VerticalTextAlignment="Center" FontSize="12"/>
+                            <Label Text="{Binding code}" WidthRequest="100" VerticalTextAlignment="Center" FontSize="12"/>
+                            <Label Text="{Binding name}" WidthRequest="350" VerticalTextAlignment="Center" FontSize="12"/>
+                            <Label Text="{Binding _uom_id}" WidthRequest="50" VerticalTextAlignment="Center" FontSize="12"/>
+                            <Label Text="{Binding qty_available}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="12"/>
+                            <Label Text="{Binding list_price}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="12"/>
+                            <Label Text="{Binding qty_gift}" WidthRequest="50" VerticalTextAlignment="Center" FontSize="12"/>
                             <Button Text="" 
                                 BackgroundColor="DodgerBlue" 
                                 TextColor="White" 

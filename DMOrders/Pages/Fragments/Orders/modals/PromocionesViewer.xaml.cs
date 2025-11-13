@@ -119,7 +119,12 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                             if(itemEval.RuleSet == null || itemEval.RuleSet._product_id <= 0)
                                 continue;
 
+                            //TODO: Evaluar la cantidad de regalos permitidos
                             var productGift = await productDb.GetByProductTemplate(itemEval.RuleSet._product_id);
+                            int qty_gift = 0;
+                            qty_gift = itemEval.AllowedGifts;
+                            productGift.qty_gift = qty_gift;
+                            productGift.promotionEvalItem = itemEval;
                             promoGifts.Add(productGift);                            
                             break;
                         }
@@ -208,7 +213,8 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
         //Debug.WriteLine(sender);
         Button button = (Button) sender;
         product_product product = (product_product)button.BindingContext;
-        Debug.WriteLine(product.name);
+
+        var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
 
         foreach (var itemLine in SaleOrder.order_line)
         {
@@ -217,15 +223,22 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                 var lineObject = (sale_order_line)itemLine[2];
                 if( lineObject.product_id == product.id )
                 {
-                    // ya existe la linea
-                    await Application.Current.Windows[0].Page.DisplayAlert("Información", "El producto seleccionado ya se encuentra en el pedido.", "OK");
-                    return;
+                    if(lineObject.product_uom_qty_real == product.qty_gift)
+                    {
+                        await Application.Current.Windows[0].Page.DisplayAlert("Información", "Cantidad máxima alcanzada en pedido.", "OK");
+                        return;
+                    }
+                    else
+                    {
+                        lineObject.product_uom_qty_real++;
+                        lineObject.product_uom_qty = lineObject.product_uom_qty_real;
+                        await saleOrderLineDb.UpdateAsync(lineObject);
+                        return;
+                    }
                 }
             }
         }
 
-        var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
-        
         int ordinal = 0;
 
         var line = new sale_order_line
@@ -244,10 +257,11 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
             price_tax = 0,
             price_total = 0,
             is_gift = true,
-            promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(selectedBromotionBenefit)
+            promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(product.promotionEvalItem)
         };
 
-        await saleOrderLineDb.InsertAsyncAutoOrdinal(line);        
+        await saleOrderLineDb.InsertAsyncAutoOrdinal(line);
+        SaleOrder.order_line.Add(new OrderLineWrapper(line));
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

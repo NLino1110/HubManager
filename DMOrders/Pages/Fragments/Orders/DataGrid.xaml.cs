@@ -243,6 +243,7 @@ namespace DMOrders.Pages.Fragments.Orders
         private void ViewObj_Disappearing(object? sender, EventArgs e)
         {
             Debug.WriteLine("ViewObj_Disappearing");
+            ((ListViewModel)this.BindingContext).LoadData();
         }
     }
 }

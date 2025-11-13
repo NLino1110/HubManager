@@ -205,6 +205,7 @@ namespace DMOrders.Services.Promotions
                 foreach (var r in rules.Where(rr => rr.state))
                 {
                     var reasons = new List<string>(baseReasons);
+                    int allowed_gifts = 0;
 
                     // tiempo de la regla
                     if (!r.unlimited_time)
@@ -267,6 +268,8 @@ namespace DMOrders.Services.Promotions
                             reasons.Add($"No cumple máximo: {r.maximum_value}");
                             continue;
                         }
+
+                        allowed_gifts = (int)Math.Floor((double)qty / r.value);
 
                         //if (r.value > 0)
                         //{
@@ -340,7 +343,8 @@ namespace DMOrders.Services.Promotions
                         RuleSet = r,
                         ProductId = product_id,
                         Discount = r.discount,
-                        Reasons = reasons
+                        Reasons = reasons,
+                        AllowedGifts = allowed_gifts
                     });
                 }
             }

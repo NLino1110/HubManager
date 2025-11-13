@@ -1,4 +1,5 @@
 ﻿using DMSA.Models.Odoo.Base;
+using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SQLite;
@@ -216,6 +217,14 @@ namespace DMSA.Models.Odoo.Native
                 }
             }
         }
+
+        [Ignore]
+        [JsonIgnore]
+        public int qty_gift { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
+        public PromotionEvalItem promotionEvalItem { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)

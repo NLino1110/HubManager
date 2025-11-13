@@ -189,6 +189,12 @@ namespace ApiManager
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_qty_to_deliver");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "is_gift");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "promotion_data");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_discount");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_amount_discount");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_price_tax");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_price_subtotal");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_price_total");                
+                
             //JObjectExtensions.RenamePropertyFromOrderLineItems(newJObject, "_product_uom_qty", "product_uom_qty");
 
             //if (newJObject["partner_id"] != null)

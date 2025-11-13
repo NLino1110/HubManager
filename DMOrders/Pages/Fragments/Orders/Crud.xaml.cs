@@ -411,7 +411,6 @@ public partial class Crud : ContentPage, IBackButtonHandler
             orderLine.ordinal = ordinal;
             await saleOrderLineDb.InsertAsync(orderLine);
 
-
             //Datos referenciales
             targetOrder.order_line.Add(new OrderLineWrapper(orderLine));
             
@@ -652,7 +651,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
     private async void DeleteItem(object obj)
     {        
         Debug.WriteLine("DeleteItem");
-        ((CrudViewModel)this.BindingContext).OrderLines.Remove((sale_order_line) obj);
+        //((CrudViewModel)this.BindingContext).OrderLines.Remove((sale_order_line) obj);
+        ((CrudViewModel)this.BindingContext).RemoveOrderLine((sale_order_line)obj); 
     }
 
     private async void detail_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -775,6 +775,12 @@ public partial class Crud : ContentPage, IBackButtonHandler
             //////////////////////////////
             var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
             var product_item = await productDb.GetItemAsync(x => x.id == CurrentSaleOrderLine.product_id);
+
+            if(product_item == null)
+            {
+                Debug.WriteLine("Error: no se encontró el producto para actualizar la línea de orden.");
+                return;
+            }
 
             ((CrudViewModel)BindingContext).UpdateOrderLine(CurrentSaleOrderLine, product_item);
             //////////////////////////////

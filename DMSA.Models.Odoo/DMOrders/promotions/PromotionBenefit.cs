@@ -270,6 +270,10 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
             set => log_ids = SetIds(log_ids, value);
         }
 
+        [Ignore]
+        [JsonIgnore]
+        public int qty_total_gift { get; set; }
+
         public DateTime create_date { get; set; }
         public DateTime write_date { get; set; }
     }

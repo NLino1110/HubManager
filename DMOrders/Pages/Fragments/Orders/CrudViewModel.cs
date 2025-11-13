@@ -8,6 +8,7 @@ using DMSA.Models.Odoo.Sales;
 using Microsoft.Maui.Controls.Shapes;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -402,7 +403,6 @@ namespace DMOrders.Pages.Fragments.Orders
             if (sale_Order_Line != null)
             {                
                 var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, sale_Order_Line.product_uom_qty);
-                                
                 sale_Order_Line.price_total = priceCalc.TotalLine;
                 sale_Order_Line.price_unit = priceCalc.Price;
                 sale_Order_Line.price_subtotal = priceCalc.Price;
@@ -412,6 +412,43 @@ namespace DMOrders.Pages.Fragments.Orders
             }
 
             UpdateTotals();
+        }
+
+        public async void RemoveOrderLine(sale_order_line sale_Order_Line) //, product_product product)
+        {
+            if (sale_Order_Line != null)
+            {
+                if (!sale_Order_Line.is_gift)
+                {
+                    //Se buscan los regalos asociados a la línea seleccionada
+                    // para eliminarlos también
+                    var giftList = OrderLines.Where(x => x.is_gift).ToList();
+
+                    if (giftList != null)
+                    {
+                        foreach (var itemGift in giftList)
+                        {
+                            if (itemGift.promotion_data != null)
+                            {
+                                PromotionEvalItem promotionEvalItem = Newtonsoft.Json.JsonConvert.DeserializeObject<PromotionEvalItem>(itemGift.promotion_data);
+                                Debug.WriteLine(promotionEvalItem);
+
+                                if (promotionEvalItem != null)
+                                {
+                                    if (sale_Order_Line.product_id == promotionEvalItem.ProductId)
+                                    {
+                                        OrderLines.Remove(itemGift);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                //Se borra linea seleccionada
+                OrderLines.Remove(sale_Order_Line);
+                UpdateTotals();
+            }
         }
 
         public void UpdateTotals()

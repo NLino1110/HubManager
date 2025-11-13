@@ -5,6 +5,7 @@
         public PromotionBenefit Promotion { get; set; } = new();
         public PromoRules? RuleSet { get; set; }
         public int ProductId { get; set; }
+        public int AllowedGifts { get; set; }
         public double Discount { get; set; }
         public List<string> Reasons { get; set; } = new();
     }
