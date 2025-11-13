@@ -765,18 +765,26 @@ public partial class Crud : ContentPage, IBackButtonHandler
         }
     }
 
-    private void ApplyValueChanges(object sender, EventArgs e)
+    private async void ApplyValueChanges(object sender, EventArgs e)
     {
         if (CurrentSaleOrderLine != null)
         {
             CurrentSaleOrderLine.product_uom_qty_real = product_uom_qty_real;
             CurrentSaleOrderLine.product_uom_qty = product_uom_qty;
+
+            //////////////////////////////
+            var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
+            var product_item = await productDb.GetItemAsync(x => x.id == CurrentSaleOrderLine.product_id);
+
+            ((CrudViewModel)BindingContext).UpdateOrderLine(CurrentSaleOrderLine, product_item);
+            //////////////////////////////
+
             CurrentSaleOrderLine = null;
             ProductEditing = null;
             product_uom_qty_real = 0;
             product_uom_qty = 0;
-
-            ((CrudViewModel)BindingContext).UpdateTotals();
+            
+            //((CrudViewModel)BindingContext).UpdateTotals();
         }
 
         //var vmOrderLines = ((CrudViewModel)this.BindingContext).OrderLines;

@@ -113,6 +113,18 @@ namespace DMSA.Models.Odoo.Native
         }
 
         [Ignore]
+        [JsonIgnore]
+        public string uom_display { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
+        public string marca_display { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
+        public string categoria_display { get; set; }
+
+        [Ignore]
         [JsonProperty("general_marca_id")]
         public JToken general_marca_id { get; set; }
 

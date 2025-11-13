@@ -239,10 +239,10 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
             product_uom_qty_real = 1,
             product_uom_qty = 1,
             uom_category_display = "UND",
-            price_subtotal = 0, //(decimal) product.list_price,
+            price_subtotal = 0,
             discount = 100,
             price_tax = 0,
-            price_total = 0, //(decimal)product.list_price,
+            price_total = 0,
             is_gift = true,
             promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(selectedBromotionBenefit)
         };

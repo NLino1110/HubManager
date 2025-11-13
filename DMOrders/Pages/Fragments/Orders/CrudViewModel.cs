@@ -397,6 +397,23 @@ namespace DMOrders.Pages.Fragments.Orders
             UpdateTotals();
         }
 
+        public async void UpdateOrderLine(sale_order_line sale_Order_Line,  product_product product)
+        {           
+            if (sale_Order_Line != null)
+            {                
+                var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, sale_Order_Line.product_uom_qty);
+                                
+                sale_Order_Line.price_total = priceCalc.TotalLine;
+                sale_Order_Line.price_unit = priceCalc.Price;
+                sale_Order_Line.price_subtotal = priceCalc.Price;
+                sale_Order_Line.discount = priceCalc.DiscountPercent;
+                sale_Order_Line.amount_discount = priceCalc.DiscountAmount;
+                //OnPropertyChanged(nameof(OrderLines));
+            }
+
+            UpdateTotals();
+        }
+
         public void UpdateTotals()
         {
             OnPropertyChanged(nameof(Subtotal));

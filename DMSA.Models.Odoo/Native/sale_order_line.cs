@@ -79,8 +79,23 @@ namespace DMSA.Models.Odoo.Native
             }
         }
 
+        [Ignore]
+        [JsonIgnore]
+        private decimal _price_unit { get; set; }
+
         [JsonProperty("price_unit")]
-        public decimal price_unit { get; set; }
+        public decimal price_unit
+        {
+            get => _price_unit;
+            set
+            {
+                if (_price_unit != value)
+                {
+                    _price_unit = value;
+                    OnPropertyChanged(nameof(price_unit));
+                }
+            }
+        }
 
         [Ignore]
         [JsonIgnore]
@@ -109,20 +124,85 @@ namespace DMSA.Models.Odoo.Native
             set => product_uom_category_id = SetId(product_uom_category_id, value);
         }
 
+        [Ignore]
+        [JsonIgnore]
+        public decimal _discount { get; set; }
+
         [JsonProperty("discount")]
-        public decimal discount { get; set; }
+        public decimal discount
+        {
+            get => _discount;
+            set
+            {
+                if (_discount == value) return;
+                _discount = value;
+                OnPropertyChanged(nameof(discount));
+            }
+        }
+
+        [Ignore]
+        [JsonIgnore]
+        public decimal _amount_discount { get; set; }
 
         [JsonProperty("amount_discount")]
-        public decimal amount_discount { get; set; }
+        public decimal amount_discount
+        {
+            get => _amount_discount;
+            set
+            {
+                if (_amount_discount == value) return;
+                _amount_discount = value;
+                OnPropertyChanged(nameof(amount_discount));
+            }
+        }
+
+        [Ignore]
+        [JsonIgnore]
+        public decimal _price_tax { get; set; }
 
         [JsonProperty("price_tax")]
-        public decimal price_tax { get; set; }
+        public decimal price_tax
+        {
+            get => _price_tax;
+            set
+            {
+                if (_price_tax == value) return;
+                _price_tax = value;
+                OnPropertyChanged(nameof(price_tax));
+            }
+        }
+
+        [Ignore]
+        [JsonIgnore]
+        public decimal _price_subtotal { get; set; }
 
         [JsonProperty("price_subtotal")]
-        public decimal price_subtotal { get; set; }
+        public decimal price_subtotal
+        {
+            get => _price_subtotal;
+            set
+            {
+                if (_price_subtotal == value) return;
+                _price_subtotal = value;
+                OnPropertyChanged(nameof(price_subtotal));
+            }
+        }
+
+        [Ignore]
+        [JsonIgnore]
+        public decimal _price_total { get; set; }
 
         [JsonProperty("price_total")]
-        public decimal price_total { get; set; }
+        public decimal price_total
+        {
+            get => _price_total;
+            set
+            {
+                if (_price_total == value) return;
+                _price_total = value;
+                OnPropertyChanged(nameof(price_total));
+            }
+        }
 
         [Ignore]
         [JsonIgnore]

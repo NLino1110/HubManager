@@ -151,67 +151,76 @@ namespace DMOrders.Controls.CustomRows
 
             var priceLabel = new Label
             {
-                Text = Item.price_unit.ToString("F3"),
+                //Text = Item.price_unit.ToString("F3"),
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
                 HorizontalOptions = LayoutOptions.Center
             };
+
+            priceLabel.SetBinding(Label.TextProperty, new Binding("price_unit", stringFormat: "{0:F3}"));
+
             grid.Children.Add(priceLabel);
             Grid.SetColumn(priceLabel, 5);
             
             var subtotalLabel = new Label
             {
-                Text = Item.price_subtotal.ToString("F3"),
+                //Text = Item.price_subtotal.ToString("F3"),
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
                 HorizontalOptions = LayoutOptions.Center
             };
+
+            subtotalLabel.SetBinding(Label.TextProperty, new Binding("price_subtotal", stringFormat: "{0:F3}"));
             grid.Children.Add(subtotalLabel);
             Grid.SetColumn(subtotalLabel, 6);                    
 
             var discountPercentLabel = new Label
             {
-                Text = Item.discount.ToString(),
+                //Text = Item.discount.ToString(),
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
                 HorizontalOptions = LayoutOptions.Center
             };
+            discountPercentLabel.SetBinding(Label.TextProperty, new Binding("discount", stringFormat: "{0:F3}"));
             grid.Children.Add(discountPercentLabel);
             Grid.SetColumn(discountPercentLabel, 7);            
 
             var discountLabel = new Label
             {
-                Text = Item.discount.ToString("F3"), //CALCULAR PORCENTAJE
+                //Text = Item.discount.ToString("F3"), //CALCULAR PORCENTAJE
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
                 HorizontalOptions = LayoutOptions.Center
             };
+            discountLabel.SetBinding(Label.TextProperty, new Binding("discount", stringFormat: "{0:F3}"));
             grid.Children.Add(discountLabel);
             Grid.SetColumn(discountLabel, 8);            
 
             var taxLabel = new Label
             {
-                Text = Item.price_tax.ToString(), //CALCULAR PORCENTAJE
+                //Text = Item.price_tax.ToString(), //CALCULAR PORCENTAJE
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
                 HorizontalOptions = LayoutOptions.Center
             };
+            taxLabel.SetBinding(Label.TextProperty, new Binding("price_tax", stringFormat: "{0:F3}"));
             grid.Children.Add(taxLabel);
             Grid.SetColumn(taxLabel, 9);
 
             var totalLabel = new Label
             {
-                Text = Item.price_total.ToString("F3"),
+                //Text = Item.price_total.ToString("F3"),
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
                 HorizontalOptions = LayoutOptions.Center
             };
+            totalLabel.SetBinding(Label.TextProperty, new Binding("price_total", stringFormat: "{0:F3}"));
             grid.Children.Add(totalLabel);
             Grid.SetColumn(totalLabel, 10);
 
