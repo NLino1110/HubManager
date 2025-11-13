@@ -184,7 +184,7 @@ namespace DMOrders.Controls.CustomRows
                 TextColor = Colors.Black,
                 HorizontalOptions = LayoutOptions.Center
             };
-            discountPercentLabel.SetBinding(Label.TextProperty, new Binding("discount", stringFormat: "{0:F3}"));
+            discountPercentLabel.SetBinding(Label.TextProperty, new Binding("discount", stringFormat: "{0:N0}"));
             grid.Children.Add(discountPercentLabel);
             Grid.SetColumn(discountPercentLabel, 7);            
 
@@ -196,7 +196,7 @@ namespace DMOrders.Controls.CustomRows
                 TextColor = Colors.Black,
                 HorizontalOptions = LayoutOptions.Center
             };
-            discountLabel.SetBinding(Label.TextProperty, new Binding("discount", stringFormat: "{0:F3}"));
+            discountLabel.SetBinding(Label.TextProperty, new Binding("amount_discount", stringFormat: "{0:F3}"));
             grid.Children.Add(discountLabel);
             Grid.SetColumn(discountLabel, 8);            
 

@@ -287,6 +287,7 @@ namespace DMOrders.Pages.Fragments.Orders
             public decimal DiscountAmount { get; set; }         // Valor del descuento
             public decimal DiscountPercent { get; set; }       // Porcentaje del descuento
             public decimal TotalLine { get; set; }             // Total multiplicado por cantidad
+            public decimal PriceTax { get; set; }
         }
 
         private async Task<PriceCalculationResult> getPriceWithPricelist(
@@ -302,6 +303,7 @@ namespace DMOrders.Pages.Fragments.Orders
             decimal list_price = (decimal) product.list_price;
             decimal price_list_value = list_price;
             decimal discount_percent = 0m;
+            decimal discount_value = 0m;
 
             var priceListItem = await priceListProductsDb.GetItemAsync(x =>
                 x._product_tmpl_id == product._product_tmpl_id &&
@@ -314,16 +316,26 @@ namespace DMOrders.Pages.Fragments.Orders
                     case "fixed":
                         price_list_value = priceListItem.fixed_price;
                         discount_percent = ((list_price - price_list_value) / list_price) * 100;
+                        if (discount_percent < 2)
+                            discount_percent = 0;
+
+                        if (discount_percent > 0)
+                            discount_value = list_price - price_list_value;
+
                         break;
 
                     case "percentage":
                         price_list_value = list_price - (list_price * (priceListItem.percent_price / 100));
                         discount_percent = priceListItem.percent_price;
+                        if (discount_percent > 0)
+                            discount_value = list_price * (discount_percent / 100m);
+
                         break;
 
                     default:
                         price_list_value = list_price;
                         discount_percent = 0;
+                        discount_value = 0;
                         break;
                 }
             }
@@ -332,8 +344,7 @@ namespace DMOrders.Pages.Fragments.Orders
             decimal iva_tax = (decimal) tax_sale.amount; //15m;
             decimal factor_iva = 1 + (iva_tax / 100m);
 
-            decimal price_without_iva = price_list_value / factor_iva;
-            decimal discount_value = list_price - price_without_iva;
+            decimal price_without_iva = price_list_value / factor_iva;            
             decimal total_line = price_list_value * quantity;
 
             return new PriceCalculationResult
@@ -387,7 +398,7 @@ namespace DMOrders.Pages.Fragments.Orders
                     price_subtotal = priceCalc.Price,
                     discount = priceCalc.DiscountPercent,
                     amount_discount = priceCalc.DiscountAmount,
-                    price_tax = 8,
+                    price_tax = priceCalc.PriceTax,
                     price_unit = priceCalc.Price,
                     price_total = priceCalc.TotalLine,
                 };

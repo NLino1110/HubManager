@@ -322,7 +322,7 @@ namespace DMOrders.Services.Promotions
                         {
                             r.operator_ = "greater_than_or_equal";
                             value_for_eval = totalOrder;
-                        }                        
+                        }
 
                         cumple = OperatorEvaluator.Evaluate(r.operator_, variableValue, value_for_eval, value_for_eval_max);
 

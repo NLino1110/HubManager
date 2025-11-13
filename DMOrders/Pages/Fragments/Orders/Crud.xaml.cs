@@ -603,7 +603,6 @@ public partial class Crud : ContentPage, IBackButtonHandler
         }
     }
 
-
     private async void ButtonSync_Clicked(object sender, EventArgs e)
     {
         var leave = await DisplayAlert("Enviar", "¿Desea enviar esta orden al ERP? Los cambios realizados serán almacenados.", "Si", "No");

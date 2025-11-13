@@ -373,7 +373,8 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                         HorizontalTextAlignment="Start"
                         VerticalTextAlignment="Center"></Label>
 
-                    <Label Text="Neto:" Grid.Row="3" Grid.Column="0" FontSize="11"></Label>
+                    <!--<Label Text="Neto:" Grid.Row="3" Grid.Column="0" FontSize="11"></Label>-->
+                    <Label Text="Total:" Grid.Row="3" Grid.Column="0" FontSize="11"></Label>
                     <Label Grid.Row="3" Grid.Column="1" Text="{Binding Neto, StringFormat='${0:N2}'}" 
                      FontSize="11" 
                      FontAttributes="Bold"
