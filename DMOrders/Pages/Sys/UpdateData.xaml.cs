@@ -747,6 +747,11 @@ public partial class UpdateData : ContentPage
             //await serverPuller.FixInventory();
         }
 
+        if(chkGroup6.IsChecked)
+        {
+            await serverPuller.SyncSaleOrders();
+        }
+
         //await RefreshVat();
 
         obj.SetTotalPercentProgress(1);

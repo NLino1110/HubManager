@@ -155,5 +155,8 @@ namespace DMSA.Models.Odoo.Native
         [Ignore]
         [JsonIgnore]
         public string partner_display_status { get; set; } = "-";
+
+        [JsonProperty("state")]
+        public string? state { get; set; }
     }
 }

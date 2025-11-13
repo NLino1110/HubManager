@@ -156,5 +156,18 @@ namespace DMOrders.Services.Database.Sqlite
 
             return (items, total);
         }
+
+        internal async Task<int[]> GetIdsForSync()
+        {
+            await Init();
+
+            DateTime dateToCompare = DateTime.Now.AddMonths(-3);
+
+            var records = await Database.Table<sale_order>()
+                .Where(x => x.write_date >= dateToCompare && x.is_synchronized && x.erp_id != 0 )
+                .ToListAsync();
+
+            return records.Select(x => x.erp_id).ToArray();
+        }
     }
 }

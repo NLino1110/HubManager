@@ -11,7 +11,7 @@ namespace DMOrders.Services.Promotions
     {
         private static readonly Dictionary<string, Func<decimal, decimal, decimal, bool>> _operators = new()
         {
-            { "equal_to", (a, b, _) => a == b },
+            { "equal_to", (a, b, _) => a >= b },
             { "not_equal_to", (a, b, _) => a != b },
             { "less_than", (a, b, _) => a < b },
             { "greater_than", (a, b, _) => a > b },

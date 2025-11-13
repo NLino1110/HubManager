@@ -94,6 +94,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 OnPropertyChanged(nameof(PartnerDisplayAddress));
                 OnPropertyChanged(nameof(PartnerDisplayStatus));
                 OnPropertyChanged(nameof(PriceListDisplayName));
+                OnPropertyChanged(nameof(IdReferencia));
             }
         }
     }
@@ -143,6 +144,10 @@ public partial class Crud : ContentPage, IBackButtonHandler
     public string PriceListDisplayName =>
         CurrentPriceList?.name
         ?? CurrentPriceList?.clave_externa
+        ?? string.Empty;
+
+    public string IdReferencia =>
+        CurrentSaleOrder?.id_referencia    
         ?? string.Empty;
 
     private ObservableCollection<PromotionEvalResult> AppliedPromotionResults;
@@ -372,7 +377,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 _center_id = App.Session.res_center.id,
                 _warehouse_id = warehouseId,
                 sale_channel = App.Session.odooConnection.sale_channel_default,
-                id_referencia = "M001-RC29102025"
+                id_referencia = "M001-RC29102025",
+                state = "draft"
             };
 
             if (await saleOrderDb.InsertAsync(targetOrder) <= 0)

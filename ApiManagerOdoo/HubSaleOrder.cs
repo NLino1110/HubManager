@@ -1,10 +1,13 @@
 ﻿using ApiManagerOdoo.Base;
+using DMSA.Models.Odoo.General.Requests;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Tools;
 using DMSA.Models.Security;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
 
 namespace ApiManager
 {
@@ -13,42 +16,8 @@ namespace ApiManager
         string[] fields_array = new[] {
                 "id",
                 "name",
-                "complete_name",
-                "active",
-                "usage",
-                "comment",
-                "posx",
-                "posy",
-                "posz",
-                "parent_path",
-                "scrap_location",
-                "return_location",
-                "replenish_location",
-                "cyclic_inventory_frequency",
-                "barcode",
-                "net_weight",
-                "forecast_weight",
-                "display_name",
-                "create_date",
-                "location_id",
-                "child_ids",
-                "child_internal_location_ids",
                 "company_id",
-                "removal_strategy_id",
-                "putaway_rule_ids",
-                "quant_ids",
-                "last_inventory_date",
-                "next_inventory_date",
-                "warehouse_view_ids",
-                "warehouse_id",
-                "storage_category_id",
-                "outgoing_move_line_ids",
-                "incoming_move_line_ids",
-                "create_uid",
-                "write_uid",
-                "write_date",
-                "valuation_in_account_id",
-                "valuation_out_account_id",
+                "state"
         };
 
         public HubSaleOrder(AppSession _setAppSession) : base(_setAppSession)
@@ -63,6 +32,36 @@ namespace ApiManager
             object[] _custom_args = new object[] {
             };
             return await GetCount(args, _custom_args);
+        }
+
+        public async Task<ApiResponseOdooRpcT<sale_order[]>?> GetById(int id)
+        {
+            var kwargs = new
+            {
+                limit = 300,
+                offset = 0,
+                fields = fields_array
+            };
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] {"id", "=", id },
+            };
+            return await SearchRead<ApiResponseOdooRpcT<sale_order[]>>(args, _custom_args, kwargs);
+        }
+
+        public async Task<ApiResponseOdooRpcT<sale_order[]>?> GetByIds(int[] ids)
+        {
+            var kwargs = new
+            {
+                limit = 300,
+                offset = 0,
+                fields = fields_array
+            };
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] {"id", "in", ids },
+            };
+            return await SearchRead<ApiResponseOdooRpcT<sale_order[]>>(args, _custom_args, kwargs, true);
         }
 
         public async Task<ApiResponseOdooRpc?> GetCountByCreateDate(int year, int month, int day)
