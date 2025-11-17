@@ -43,15 +43,13 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
         <!-- Cabecera de la tabla -->
         <HorizontalStackLayout
             BackgroundColor="#DDDDDD"
-            Padding="0,0,0,0">
-
-            <Label Text="Nº" WidthRequest="40" FontAttributes="Bold" FontSize="12" />
-            <Label Text="CÓDIGO" WidthRequest="100" FontAttributes="Bold" FontSize="12" />
-            <Label Text="└DESCRIP." WidthRequest="100" FontAttributes="Bold" FontSize="12" />
-            <Label Text="TIPO PROMO." WidthRequest="100" FontAttributes="Bold" FontSize="12" />
-            <Label Text="CANTIDAD" WidthRequest="80" HorizontalTextAlignment="Center" FontAttributes="Bold" FontSize="12" />
-            <Label Text="." WidthRequest="50" HorizontalTextAlignment="Center" FontAttributes="Bold" FontSize="12" />
-            <Label Text="ESTADO" WidthRequest="100" HorizontalTextAlignment="Center" FontAttributes="Bold" FontSize="12" />
+            Padding="10,4,10,4">
+            <Label Text="Nº" WidthRequest="40" FontAttributes="Bold" FontSize="11" />
+            <Label Text="CÓDIGO" WidthRequest="100" FontAttributes="Bold" FontSize="11" />
+            <Label Text="└DESCRIP." WidthRequest="100" FontAttributes="Bold" FontSize="11" />
+            <Label Text="TIPO PROMO." WidthRequest="100" FontAttributes="Bold" FontSize="11" />
+            <Label Text="CANTIDAD" WidthRequest="80" HorizontalTextAlignment="Start" FontAttributes="Bold" FontSize="11" />
+            <Label Text="ESTADO" WidthRequest="100" HorizontalTextAlignment="Start" FontAttributes="Bold" FontSize="11" />
         </HorizontalStackLayout>
 
         <!-- Lista principal -->
@@ -66,13 +64,15 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <HorizontalStackLayout Padding="10">
-                            <Label Text="{Binding id}" WidthRequest="40" />
-                            <Label Text="{Binding name}" WidthRequest="150" />
-                            <Label Text="{Binding description}" WidthRequest="100" />
+                            <Label Text="{Binding Promotion.id}" WidthRequest="40" FontSize="11"/>
+                            <Label Text="{Binding Promotion.code}" WidthRequest="100" FontSize="11"/>
+                            <Label Text="{Binding Promotion.description}" WidthRequest="100" FontSize="11"/>
+                            <Label Text="-" WidthRequest="100" HorizontalTextAlignment="Start" FontSize="11"/>
                             <!--<Label Text="{Binding _selection_type_id}" WidthRequest="80" HorizontalTextAlignment="Center" />
                             <Label Text="{Binding _selection_type_id}" WidthRequest="80" HorizontalTextAlignment="Center" />-->
                             <!--<Label Text="{Binding code}" WidthRequest="100" />-->
-                            <Label Text="{Binding state}" WidthRequest="100" HorizontalTextAlignment="Center" />
+                            <Label Text="{Binding TotalTimesAllowed}" WidthRequest="80" HorizontalTextAlignment="Start" FontSize="11"/>
+                            <Label Text="{Binding Promotion.state}" WidthRequest="100" HorizontalTextAlignment="Start" FontSize="11"/>
                         </HorizontalStackLayout>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
@@ -114,15 +114,17 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
         </HorizontalStackLayout>
 
         <!-- Cabecera de selección -->
-        <HorizontalStackLayout BackgroundColor="#DDDDDD">
+        <HorizontalStackLayout BackgroundColor="#DDDDDD"
+                               Padding="10,4,10,4">
 
-            <Label Text="Nº" WidthRequest="40" FontAttributes="Bold" FontSize="12" />
-            <Label Text="CODIGO" WidthRequest="100" FontAttributes="Bold" FontSize="12" />
-            <Label Text="DESCRIP." WidthRequest="100" FontAttributes="Bold" FontSize="12" />
-            <Label Text="UNIDAD" WidthRequest="100" FontAttributes="Bold" FontSize="12" />
-            <Label Text="STOCK" WidthRequest="100" FontAttributes="Bold" FontSize="12" />
-            <Label Text="PRECIO" WidthRequest="100" FontAttributes="Bold" FontSize="12" />
-            <Label Text="CANTIDAD" WidthRequest="100" FontAttributes="Bold" FontSize="12" />
+            <Label Text="Nº" WidthRequest="40" FontAttributes="Bold" FontSize="11" />
+            <Label Text="CODIGO" WidthRequest="100" FontAttributes="Bold" FontSize="11" />
+            <Label Text="DESCRIP." WidthRequest="350" FontAttributes="Bold" FontSize="11" />
+            <Label Text="UNIDAD" WidthRequest="60" FontAttributes="Bold" FontSize="11" />
+            <Label Text="STOCK" WidthRequest="60" FontAttributes="Bold" FontSize="11" />
+            <!--<Label Text="PRECIO" WidthRequest="60" FontAttributes="Bold" FontSize="11" />-->
+            <Label Text="CANTIDAD" WidthRequest="60" FontAttributes="Bold" FontSize="11" />
+            <Label Text="-" WidthRequest="60" FontAttributes="Bold" FontSize="11" />
         </HorizontalStackLayout>
 
         <!-- Lista de selección -->
@@ -135,13 +137,13 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <HorizontalStackLayout Padding="10" Margin="10,0,10,0">
-                            <Label Text="{Binding id}" WidthRequest="50" VerticalTextAlignment="Center" FontSize="12"/>
-                            <Label Text="{Binding code}" WidthRequest="100" VerticalTextAlignment="Center" FontSize="12"/>
-                            <Label Text="{Binding name}" WidthRequest="350" VerticalTextAlignment="Center" FontSize="12"/>
-                            <Label Text="{Binding _uom_id}" WidthRequest="50" VerticalTextAlignment="Center" FontSize="12"/>
-                            <Label Text="{Binding qty_available}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="12"/>
-                            <Label Text="{Binding list_price}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="12"/>
-                            <Label Text="{Binding qty_gift}" WidthRequest="50" VerticalTextAlignment="Center" FontSize="12"/>
+                            <Label Text="{Binding id}" WidthRequest="40" VerticalTextAlignment="Center" FontSize="11"/>
+                            <Label Text="{Binding code}" WidthRequest="100" VerticalTextAlignment="Center" FontSize="11"/>
+                            <Label Text="{Binding name}" WidthRequest="350" VerticalTextAlignment="Center" FontSize="11"/>
+                            <Label Text="{Binding _uom_id}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="11"/>
+                            <Label Text="{Binding qty_available}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="11"/>
+                            <!--<Label Text="{Binding list_price}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="12"/>-->
+                            <Label Text="{Binding qty_gift}" WidthRequest="50" VerticalTextAlignment="Center" FontSize="11"/>
                             <Button Text="" 
                                 BackgroundColor="DodgerBlue" 
                                 TextColor="White" 

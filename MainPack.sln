@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientAgree", "ClientAgree\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiManager", "ApiManager\ApiManager.csproj", "{E48FE762-BCCF-7520-BCF8-83EBA6855640}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMSA.Sync.Core", "DMSA.Sync.Core\DMSA.Sync.Core.csproj", "{BBD46A9D-C53E-4E40-A27C-E31A2FCD83A3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +95,10 @@ Global
 		{E48FE762-BCCF-7520-BCF8-83EBA6855640}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E48FE762-BCCF-7520-BCF8-83EBA6855640}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E48FE762-BCCF-7520-BCF8-83EBA6855640}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBD46A9D-C53E-4E40-A27C-E31A2FCD83A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBD46A9D-C53E-4E40-A27C-E31A2FCD83A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBD46A9D-C53E-4E40-A27C-E31A2FCD83A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBD46A9D-C53E-4E40-A27C-E31A2FCD83A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

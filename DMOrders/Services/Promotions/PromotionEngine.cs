@@ -107,42 +107,68 @@ namespace DMOrders.Services.Promotions
             };
         }
 
-        private async Task<bool> ExistsInPromoCenter(List<PromoCenters> centers, int pricelist_id)
+        //private async Task<bool> ExistsInPromoCenter(List<PromoCenters> centers, int pricelist_id)
+        //{
+        //    if(centers == null || centers.Count == 0)
+        //        return true; // si no hay centros definidos, aplica a todos
+
+        //    foreach(var center in centers)
+        //    {
+        //        if(!center.levels_ids_json.Equals(string.Empty))
+        //        {                    
+        //            int[] levels = JArray.Parse(center.levels_ids_json).ToObject<int[]>();                    
+        //            if (levels.Contains(pricelist_id))
+        //                return true;
+        //        }
+        //    }
+
+        //    return false;
+        //}
+
+        //private async Task<int> TotalTimesPromoCenter(List<PromoCenters> centers, int pricelist_id)
+        //{
+        //    int TotalTimes = 0;
+        //    if (centers == null || centers.Count == 0)
+        //        return 0;
+
+        //    foreach (var center in centers)
+        //    {
+        //        if (!center.levels_ids_json.Equals(string.Empty))
+        //        {
+        //            int[] levels = JArray.Parse(center.levels_ids_json).ToObject<int[]>();
+        //            if (levels.Contains(pricelist_id))
+        //                TotalTimes += center.times_inv;
+        //        }
+        //    }
+
+        //    return TotalTimes;
+        //}
+
+        private async Task<(bool exists, int totalTimes)> CheckPromoCenterAsync( List<PromoCenters> centers, int pricelist_id)
         {
-            if(centers == null || centers.Count == 0)
-                return true; // si no hay centros definidos, aplica a todos
+            bool exists = false;
+            int totalTimes = 0;
 
-            foreach(var center in centers)
-            {
-                if(!center.levels_ids_json.Equals(string.Empty))
-                {                    
-                    int[] levels = JArray.Parse(center.levels_ids_json).ToObject<int[]>();                    
-                    if (levels.Contains(pricelist_id))
-                        return true;
-                }
-            }
-
-            return false;
-        }
-
-        private async Task<int> TotalTimesPromoCenter(List<PromoCenters> centers, int pricelist_id)
-        {
-            int TotalTimes = 0;
             if (centers == null || centers.Count == 0)
-                return 0;
+                return (true, 0); // aplica a todos, y no suma tiempos
 
             foreach (var center in centers)
             {
-                if (!center.levels_ids_json.Equals(string.Empty))
+                if (!string.IsNullOrEmpty(center.levels_ids_json))
                 {
                     int[] levels = JArray.Parse(center.levels_ids_json).ToObject<int[]>();
+
                     if (levels.Contains(pricelist_id))
-                        TotalTimes += center.times_inv;
+                    {
+                        exists = true;
+                        totalTimes += center.times_inv;
+                    }
                 }
             }
 
-            return TotalTimes;
+            return (exists, totalTimes);
         }
+
 
         /// <summary>
         /// Evalúa promociones aplicables para un producto + cantidad en el contexto dado.
@@ -184,8 +210,9 @@ namespace DMOrders.Services.Promotions
 
             foreach (var promo in candidates)
             {
-                bool inCenter = await ExistsInPromoCenter(promo._centers_ids, pricelist_id);
 
+                var (inCenter, TotalTimesAllowed) = await CheckPromoCenterAsync(promo._centers_ids, pricelist_id);
+                
                 Debug.WriteLine("inCenter");
                 Debug.WriteLine(inCenter);
 
@@ -381,9 +408,6 @@ namespace DMOrders.Services.Promotions
 
                     if (cumple)
                     {
-                        
-                        int TotalTimesAllowed = await TotalTimesPromoCenter(promo._centers_ids, pricelist_id);
-
                         // Si llegamos acá, la regla aplica:
                         results.Add(new PromotionEvalItem
                         {

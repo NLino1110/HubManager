@@ -11,7 +11,7 @@ namespace DMOrders.Pages.Fragments.Orders.modals;
 public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
 {
     private sale_order SaleOrder { get; set; }
-    private PromotionBenefit selectedBromotionBenefit { get; set; }
+    private PromotionEvalItem selectedPromoEvalItem { get; set; }
     public ObservableCollection<PromotionEvalResult> ItemsData
     {
         get => _itemsData;
@@ -22,7 +22,8 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
             if(_ItemsDataBenefits != null)
                 _ItemsDataBenefits.Clear();
             else
-                _ItemsDataBenefits = new ObservableCollection<PromotionBenefit>();
+                _ItemsDataBenefits = new ObservableCollection<PromotionEvalItem>();
+                //_ItemsDataBenefits = new ObservableCollection<PromotionBenefit>();
 
             foreach (var promo in _itemsData)
             {
@@ -30,7 +31,9 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                 {
                     foreach (var benefit in promo.Items)
                     {
-                        _ItemsDataBenefits.Add(benefit.Promotion);
+                        //_ItemsDataBenefits.Add(benefit.Promotion);
+
+                        _ItemsDataBenefits.Add(benefit);
                     }
                 }
             }
@@ -42,7 +45,19 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
 
     private ObservableCollection<PromotionEvalResult> _itemsData;
 
-    public ObservableCollection<PromotionBenefit> ItemsDataBenefits
+    //public ObservableCollection<PromotionBenefit> ItemsDataBenefits
+    //{
+    //    get => _ItemsDataBenefits;
+    //    set
+    //    {
+    //        _ItemsDataBenefits = value;
+    //        OnPropertyChanged(nameof(ItemsDataBenefits));
+    //    }
+    //}
+
+    //private ObservableCollection<PromotionBenefit> _ItemsDataBenefits;
+
+    public ObservableCollection<PromotionEvalItem> ItemsDataBenefits
     {
         get => _ItemsDataBenefits;
         set
@@ -52,7 +67,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
         }
     }
 
-    private ObservableCollection<PromotionBenefit> _ItemsDataBenefits;
+    private ObservableCollection<PromotionEvalItem> _ItemsDataBenefits;
 
     public ObservableCollection<product_product> promoGifts
     {
@@ -101,18 +116,18 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
 
         if (e.CurrentSelection != null && e.CurrentSelection.Count > 0)
         {
-            selectedBromotionBenefit = (PromotionBenefit) e.CurrentSelection[0];
+            selectedPromoEvalItem = (PromotionEvalItem) e.CurrentSelection[0];
             
             var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
 
-            if (selectedBromotionBenefit._promotion_type_id == 2) // es regalo
+            if (selectedPromoEvalItem.PromotionTypeId == 2) // es regalo
             {
                 foreach(var itemResult in _itemsData)
                 {
                     foreach(var itemEval in itemResult.Items)
                     {
-                        if(itemEval.Promotion.id == selectedBromotionBenefit.id)
-                        {
+                        //if(itemEval.Promotion.id == selectedPromoEvalItem.id)
+                        //{
                             if(itemEval.RuleSet == null || itemEval.RuleSet._product_id <= 0)
                                 continue;
 
@@ -122,19 +137,19 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                             productGift.qty_gift = qty_gift;
                             productGift.promotionEvalItem = itemEval;
                             promoGifts.Add(productGift);                            
-                        }
+                        //}
                     }
                 }
 
                 OnPropertyChanged(nameof(promoGifts));
             }
 
-            if (selectedBromotionBenefit._promotion_type_id == 4) // es NXN
+            if (selectedPromoEvalItem.PromotionTypeId == 4) // es NXN
             {
                 
             }
 
-            if (selectedBromotionBenefit._promotion_type_id == 6) // es descuento
+            if (selectedPromoEvalItem.PromotionTypeId == 6) // es descuento
             {
                 
             }
