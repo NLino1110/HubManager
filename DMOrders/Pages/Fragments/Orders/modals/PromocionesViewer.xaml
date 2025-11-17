@@ -86,7 +86,8 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                     TextColor="White" 
                     HeightRequest="40"
                     WidthRequest="120"
-                    Padding="0">
+                    Padding="0" 
+                    IsVisible="False">
                 <Button.ImageSource>
                     <FontImageSource 
                         Size="25"
@@ -147,7 +148,7 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                                 HeightRequest="30"
                                 WidthRequest="30"
                                 Padding="0"
-                                Clicked="AddGift">
+                                Clicked="AddGiftAndSave">
                                 <Button.ImageSource>
                                     <FontImageSource 
                                         Size="25"
@@ -163,6 +164,20 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
 
         <!-- Botones finales -->
         <HorizontalStackLayout HorizontalOptions="Fill" Spacing="10" Margin="5,5,5,5">
+            <Button Text="Aplicar" 
+                BackgroundColor="#4CAF50" 
+                TextColor="White" 
+                HeightRequest="40"
+                WidthRequest="120"
+                Padding="0"
+                Clicked="OnCloseButtonClicked">
+                <Button.ImageSource>
+                    <FontImageSource 
+            Size="25"
+            FontFamily="MaterialSharp"
+            Glyph="{x:Static uranium:MaterialSharp.Arrow_circle_right}" />
+                </Button.ImageSource>
+            </Button>
             <Button Text="Continuar" 
                 BackgroundColor="#4CAF50" 
                 TextColor="White" 

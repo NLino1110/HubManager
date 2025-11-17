@@ -154,12 +154,13 @@ namespace ApiManager
             var serialized = JsonConvert.SerializeObject(sale_Order, settings);
 
             var newJObject = JObject.Parse(serialized);
-
+                        
             JObjectExtensions.RenameProperty(newJObject, "_partner_id", "partner_id");
             JObjectExtensions.RenameProperty(newJObject, "_company_id", "company_id");
             JObjectExtensions.RenameProperty(newJObject, "_warehouse_id", "warehouse_id");
             JObjectExtensions.RenameProperty(newJObject, "_currency_id", "currency_id");
             JObjectExtensions.RenameProperty(newJObject, "_center_id", "center_id");
+            JObjectExtensions.RenameProperty(newJObject, "_pricelist_id", "pricelist_id");
 
             JObjectExtensions.RemoveProperty(newJObject, "is_synchronized");
             JObjectExtensions.RemoveProperty(newJObject, "date_synchronized");
@@ -171,7 +172,7 @@ namespace ApiManager
             JObjectExtensions.RemoveProperty(newJObject, "partner_display_status");
             JObjectExtensions.RemoveProperty(newJObject, "partner_invoice_id");
             JObjectExtensions.RemoveProperty(newJObject, "partner_shipping_id");
-            JObjectExtensions.RemoveProperty(newJObject, "pricelist_id");
+            //JObjectExtensions.RemoveProperty(newJObject, "pricelist_id");
             JObjectExtensions.RemoveProperty(newJObject, "payment_term_id");
             JObjectExtensions.RemoveProperty(newJObject, "team_id");
             JObjectExtensions.RemoveProperty(newJObject, "user_id");
@@ -192,8 +193,12 @@ namespace ApiManager
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_amount_discount");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_price_tax");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_price_subtotal");
-            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_price_total");                
-                
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_price_total");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_virtual_price_no_tax");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "virtual_price_no_tax");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_virtual_iva_percentage");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "virtual_iva_percentage");
+
             //JObjectExtensions.RenamePropertyFromOrderLineItems(newJObject, "_product_uom_qty", "product_uom_qty");
 
             //if (newJObject["partner_id"] != null)

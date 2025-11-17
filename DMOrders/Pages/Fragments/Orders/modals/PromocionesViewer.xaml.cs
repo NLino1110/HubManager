@@ -102,10 +102,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
         if (e.CurrentSelection != null && e.CurrentSelection.Count > 0)
         {
             selectedBromotionBenefit = (PromotionBenefit) e.CurrentSelection[0];
-            //await LoadDetailInfo(selectedBromotionBenefit);
-            //promoGifts.Clear();            
-            //Debug.WriteLine(selectedBromotionBenefit.name);
-
+            
             var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
 
             if (selectedBromotionBenefit._promotion_type_id == 2) // es regalo
@@ -119,14 +116,12 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                             if(itemEval.RuleSet == null || itemEval.RuleSet._product_id <= 0)
                                 continue;
 
-                            //TODO: Evaluar la cantidad de regalos permitidos
                             var productGift = await productDb.GetByProductTemplate(itemEval.RuleSet._product_id);
                             int qty_gift = 0;
                             qty_gift = itemEval.AllowedGifts;
                             productGift.qty_gift = qty_gift;
                             productGift.promotionEvalItem = itemEval;
                             promoGifts.Add(productGift);                            
-                            break;
                         }
                     }
                 }
@@ -262,12 +257,77 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
 
         await saleOrderLineDb.InsertAsyncAutoOrdinal(line);
         SaleOrder.order_line.Add(new OrderLineWrapper(line));
+
+        OrderLines.Add(line);
+    }
+
+    private async void AddGiftAndSave(object sender, EventArgs e)
+    {
+        bool ShouldSaveToo = false;
+                
+        Button button = (Button)sender;
+        product_product product = (product_product)button.BindingContext;
+
+        var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
+
+        foreach (var itemLine in SaleOrder.order_line)
+        {
+            if (itemLine[2] != null)
+            {
+                var lineObject = (sale_order_line)itemLine[2];
+                if (lineObject.product_id == product.id)
+                {
+                    if (lineObject.product_uom_qty_real == product.qty_gift)
+                    {
+                        await Application.Current.Windows[0].Page.DisplayAlert("Información", "Cantidad máxima alcanzada en pedido.", "OK");
+                        return;
+                    }
+                    else
+                    {
+                        lineObject.product_uom_qty_real++;
+                        lineObject.product_uom_qty = lineObject.product_uom_qty_real;
+                        if(ShouldSaveToo)
+                            await saleOrderLineDb.UpdateAsync(lineObject);
+                        return;
+                    }
+                }
+            }
+        }
+
+        int ordinal = 0;
+
+        var line = new sale_order_line
+        {
+            _order_id = SaleOrder.id,
+            ordinal = ordinal,
+            product_id = product.id,
+            product_display = product.name,
+            product_code = product.code,
+            qty_to_deliver = 1,
+            product_uom_qty_real = 1,
+            product_uom_qty = 1,
+            uom_category_display = "UND",
+            price_subtotal = 0,
+            discount = 100,
+            price_tax = 0,
+            price_total = 0,
+            is_gift = true,
+            promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(product.promotionEvalItem)
+        };
+
+        if (ShouldSaveToo)
+            await saleOrderLineDb.InsertAsyncAutoOrdinal(line);
+
+        SaleOrder.order_line.Add(new OrderLineWrapper(line));
+
+        OrderLines.Add(line);
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
     private void OnPropertyChanged(string property) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
 
     public Action<List<PromotionEvalResult>> ClosePopupAction { get; set; }
+    public ObservableCollection<sale_order_line> OrderLines { get; internal set; }
 
     private void OnCloseButtonClicked(object sender, EventArgs e)
     {

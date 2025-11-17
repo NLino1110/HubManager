@@ -97,6 +97,9 @@ namespace DMSA.Models.Odoo.Native
         [Ignore]
         [JsonProperty("pricelist_id")]
         public JToken pricelist_id { get; set; }
+                
+        [JsonProperty("_pricelist_id")]
+        public int _pricelist_id { get; set; }
 
         [Ignore]
         [JsonProperty("payment_term_id")]

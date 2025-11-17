@@ -231,9 +231,40 @@ namespace DMSA.Models.Odoo.Native
         //    }
         //}
 
-
         [JsonIgnore]
         public string? promotion_data { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
+        public decimal _virtual_price_no_tax { get; set; }
+                
+        [JsonIgnore]
+        public decimal virtual_price_no_tax
+        {
+            get => _virtual_price_no_tax;
+            set
+            {
+                if (_virtual_price_no_tax == value) return;
+                _virtual_price_no_tax = value;
+                OnPropertyChanged(nameof(virtual_price_no_tax));
+            }
+        }
+
+        [Ignore]
+        [JsonIgnore]
+        public decimal _virtual_iva_percentage { get; set; }
+                
+        [JsonIgnore]
+        public decimal virtual_iva_percentage
+        {
+            get => _virtual_iva_percentage;
+            set
+            {
+                if (_virtual_iva_percentage == value) return;
+                _virtual_iva_percentage = value;
+                OnPropertyChanged(nameof(virtual_iva_percentage));
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         void OnPropertyChanged(string n) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));

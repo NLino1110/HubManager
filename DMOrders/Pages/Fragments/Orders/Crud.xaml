@@ -72,8 +72,9 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
                         TextColor="#242322"
                        HorizontalTextAlignment="Start"
                        VerticalTextAlignment="Center"></Label>
-                <Label Text="Precio: $" Grid.Row="3" Grid.Column="0"/>
-                <Label Grid.Row="3" Grid.Column="1" Text="{Binding Path=ProductEditing.list_price, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+                <Label Text="Precio:" Grid.Row="3" Grid.Column="0"/>
+
+                <Label Grid.Row="3" Grid.Column="1" Text="{Binding Path=ProductEditing.list_price, Source={RelativeSource AncestorType={x:Type ContentPage}}, StringFormat='${0:N3}'}" 
                         FontSize="12"
                         FontAttributes="Bold"
                         TextColor="#242322"
@@ -234,6 +235,15 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
                         </Button.ImageSource>
                     </Button>
 
+                    <Button Text="" Clicked="ButtonPromo_Clicked" BackgroundColor="DeepPink" TextColor="White" HeightRequest="45" WidthRequest="45" Padding="0">
+                        <Button.ImageSource>
+                            <FontImageSource 
+                                Size="28"
+                                FontFamily="MaterialSharp"
+                                Glyph="{x:Static uranium:MaterialSharp.Price_change}"/>
+                        </Button.ImageSource>
+                    </Button>
+
                     <Button Text="Guardar" Clicked="ButtonSave_Clicked" BackgroundColor="LimeGreen" TextColor="White" HeightRequest="45" WidthRequest="120" Padding="0">
                         <Button.ImageSource>
                             <FontImageSource 
@@ -358,7 +368,7 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                       Padding="10"
                       Margin="20">
                     <Label Text="Subtotal:" Grid.Row="1" Grid.Column="0" FontSize="11"/>
-                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding Subtotal, StringFormat='${0:N2}'}" 
+                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding Subtotal, StringFormat='${0:N3}'}" 
                          FontSize="11" 
                          FontAttributes="Bold"
                          TextColor="#242322"
@@ -366,46 +376,46 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                             VerticalTextAlignment="Center"></Label>
                     
                     <Label Text="Descuento:" Grid.Row="2" Grid.Column="0" FontSize="11"></Label>
-                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding Descuento, StringFormat='${0:N2}'}" 
+                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding Descuento, StringFormat='${0:N3}'}" 
                      FontSize="11" 
                      FontAttributes="Bold"
                      TextColor="#242322"
                         HorizontalTextAlignment="Start"
                         VerticalTextAlignment="Center"></Label>
 
-                    <!--<Label Text="Neto:" Grid.Row="3" Grid.Column="0" FontSize="11"></Label>-->
-                    <Label Text="Total:" Grid.Row="3" Grid.Column="0" FontSize="11"></Label>
-                    <Label Grid.Row="3" Grid.Column="1" Text="{Binding Neto, StringFormat='${0:N2}'}" 
+                    <Label Text="Neto:" Grid.Row="3" Grid.Column="0" FontSize="11" IsVisible="False"></Label>
+                    <!--<Label Text="Total:" Grid.Row="3" Grid.Column="0" FontSize="11"></Label>-->
+                    <Label Grid.Row="3" Grid.Column="1" Text="{Binding Neto, StringFormat='${0:N3}'}" 
+                     FontSize="11" 
+                     FontAttributes="Bold"
+                     TextColor="#242322"
+                        HorizontalTextAlignment="Start"
+                        VerticalTextAlignment="Center"
+                           IsVisible="False"></Label>
+
+                    <Label Text="Impuesto:" Grid.Row="4" Grid.Column="0" FontSize="11"></Label>
+                    <Label Grid.Row="4" Grid.Column="1" Text="{Binding Impuesto, StringFormat='${0:N3}'}" 
                      FontSize="11" 
                      FontAttributes="Bold"
                      TextColor="#242322"
                         HorizontalTextAlignment="Start"
                         VerticalTextAlignment="Center"></Label>
-
-                    <Label Text="Impuesto:" Grid.Row="4" Grid.Column="0" FontSize="11" IsVisible="False"></Label>
-                    <Label Grid.Row="4" Grid.Column="1" Text="{Binding Impuesto, StringFormat='${0:N2}'}" 
-                     FontSize="11" 
-                     FontAttributes="Bold"
-                     TextColor="#242322"
-                        HorizontalTextAlignment="Start"
-                        VerticalTextAlignment="Center" IsVisible="False"></Label>
 
                     <Label Text="Comp. Solidaria:" Grid.Row="5" Grid.Column="0" FontSize="11" IsVisible="False"></Label>
-                    <Label Grid.Row="5" Grid.Column="1" Text="{Binding CompSolidaria, StringFormat='${0:N2}'}" 
+                    <Label Grid.Row="5" Grid.Column="1" Text="{Binding CompSolidaria, StringFormat='${0:N3}'}" 
                      FontSize="11" 
                      FontAttributes="Bold"
                      TextColor="#242322"
                         HorizontalTextAlignment="Start"
                         VerticalTextAlignment="Center" IsVisible="False"></Label>
 
-                    <Label Text="Total:" Grid.Row="6" Grid.Column="0" FontSize="11" IsVisible="False"></Label>
-                    <Label Grid.Row="6" Grid.Column="1" Text="{Binding Total, StringFormat='${0:N2}'}" 
+                    <Label Text="Total:" Grid.Row="6" Grid.Column="0" FontSize="11"></Label>
+                    <Label Grid.Row="6" Grid.Column="1" Text="{Binding Total, StringFormat='${0:N3}'}" 
                      FontSize="11" 
                      FontAttributes="Bold"
                      TextColor="#242322"
                         HorizontalTextAlignment="Start"
-                        VerticalTextAlignment="Center" IsVisible="False"></Label>
-
+                        VerticalTextAlignment="Center"></Label>
 
                 </Grid>
                 <!--<VerticalStackLayout Grid.Column="2" HorizontalOptions="End" Margin="0" BackgroundColor="LightGray" WidthRequest="200">

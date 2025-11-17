@@ -43,52 +43,38 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
         }
 
         [JsonIgnore]
+        [Column("res_center_id_json")]
         public string res_center_id_json
         {
             get => SetIdsJson(res_center_id);            
             set { }
         }
 
+        //[Ignore]
+        //[JsonProperty("levels_ids")]
+        //public JToken levels_ids { get; set; }
+
+        //[JsonIgnore]
+        //public string levels_ids_json
+        //{
+        //    get => SetIdsJson(levels_ids);
+        //    set { }
+        //}
+
         [Ignore]
         [JsonProperty("levels_ids")]
-        public JToken levels_ids { get; set; }
-
-        [JsonIgnore]
-        public string levels_ids_json
+        public JToken levels_ids
         {
-            get => SetIdsJson(levels_ids);
-            set { }
+            get => string.IsNullOrEmpty(levels_ids_json)
+                ? null
+                : JToken.Parse(levels_ids_json);
+
+            set => levels_ids_json = value?.ToString(Newtonsoft.Json.Formatting.None);
         }
 
-        //[JsonIgnore]
-        //public List<product_pricelist> _levels_ids
-        //{
-        //    //get => GetIds(levels_ids);
-        //    //set => levels_ids = SetIds(levels_ids, value);
-        //    get => Array.Empty<product_pricelist>().ToList();
-        //}
-
-        //[Ignore]
-        //[JsonProperty("payment_method_ids")]
-        //public JToken payment_method_ids { get; set; }
-
-        //[JsonIgnore]
-        //public int[] _payment_method_ids
-        //{
-        //    get => GetIds(payment_method_ids);
-        //    set => payment_method_ids = SetIds(payment_method_ids, value);
-        //}
-
-        //[Ignore]
-        //[JsonProperty("pos_plazos_banco_ids")]
-        //public JToken pos_plazos_banco_ids { get; set; }
-
-        //[JsonIgnore]
-        //public int[] _pos_plazos_banco_ids
-        //{
-        //    get => GetIds(pos_plazos_banco_ids);
-        //    set => pos_plazos_banco_ids = SetIds(pos_plazos_banco_ids, value);
-        //}
+        [JsonIgnore]
+        [Column("levels_ids_json")]
+        public string levels_ids_json { get; set; }
 
         // --- Campos simples ---
         [JsonProperty("times_inv")]
@@ -96,15 +82,6 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
 
         [JsonProperty("bank_terms_apply")]
         public bool bank_terms_apply { get; set; } = false;
-
-        // ----------------------------------------------------------------------
-        // Nota: Se asume que OdooEntity implementa:
-        //   int    GetId(JToken token)
-        //   JToken SetId(JToken token, int id)
-        //   int[]  GetIds(JToken token)          // para Many2many
-        //   JToken SetIds(JToken token, int[] v) // para Many2many
-        // Si aún no tienes GetIds/SetIds, dime y te paso una implementación segura.
-        // ----------------------------------------------------------------------
 
         [JsonProperty("create_date")]
         [Column("create_date")]

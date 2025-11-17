@@ -101,12 +101,14 @@ namespace DMOrders.Pages.Fragments.Orders
                 if(OrderLines != null)
                     foreach(var orderLine in OrderLines)
                     {
-                        if (orderLine.price_unit == 0)
-                            orderLine.price_unit = (decimal) 5.5;
+                        //if (orderLine.virtual_price_no_tax == 0)
+                        //    orderLine.virtual_price_no_tax = (decimal) 5.5;
 
-                        orderLine.price_subtotal = orderLine.product_uom_qty * orderLine.price_unit;
-                        //orderLine.discount_amount = orderLine.price_subtotal * (orderLine.discount / 100);
-                        tmp_Subtotal += orderLine.product_uom_qty * orderLine.price_unit;
+                        ////orderLine.price_subtotal = orderLine.product_uom_qty * orderLine.virtual_price_no_tax;
+                        //////orderLine.discount_amount = orderLine.price_subtotal * (orderLine.discount / 100);
+                        ////tmp_Subtotal += orderLine.product_uom_qty * orderLine.virtual_price_no_tax;
+                        //tmp_Subtotal += orderLine.price_subtotal;
+                        tmp_Subtotal += orderLine.price_total;
                     }
                 return tmp_Subtotal;
             }
@@ -152,6 +154,7 @@ namespace DMOrders.Pages.Fragments.Orders
                 {
                     foreach (var orderLine in OrderLines)
                     {
+                        //tmp_Impuesto += (orderLine.virtual_price_no_tax * orderLine._virtual_iva_percentage) / 100;
                         tmp_Impuesto += orderLine.price_tax;
                     }
                 }
@@ -179,9 +182,9 @@ namespace DMOrders.Pages.Fragments.Orders
         }
 
         /// <summary>
-        /// Total general = Neto + Impuesto + Comp. Solidaria
+        /// Total general = Neto + Impuesto
         /// </summary>
-        public decimal Total => Neto + Impuesto + CompSolidaria;
+        public decimal Total => Subtotal + Impuesto;
 
         public sale_order_line SelectedItem
         {
@@ -288,6 +291,7 @@ namespace DMOrders.Pages.Fragments.Orders
             public decimal DiscountPercent { get; set; }       // Porcentaje del descuento
             public decimal TotalLine { get; set; }             // Total multiplicado por cantidad
             public decimal PriceTax { get; set; }
+            public decimal IvaPercentage { get; set; }
         }
 
         private async Task<PriceCalculationResult> getPriceWithPricelist(
@@ -345,7 +349,7 @@ namespace DMOrders.Pages.Fragments.Orders
             decimal factor_iva = 1 + (iva_tax / 100m);
 
             decimal price_without_iva = price_list_value / factor_iva;            
-            decimal total_line = price_list_value * quantity;
+            decimal total_line = (price_list_value * quantity) - discount_value;
 
             return new PriceCalculationResult
             {
@@ -353,7 +357,8 @@ namespace DMOrders.Pages.Fragments.Orders
                 PriceWithoutIva = price_without_iva,
                 DiscountAmount = discount_value,
                 DiscountPercent = discount_percent,
-                TotalLine = total_line
+                TotalLine = total_line,
+                IvaPercentage = iva_tax
             };
         }
 
@@ -379,6 +384,8 @@ namespace DMOrders.Pages.Fragments.Orders
                 existingLine.price_subtotal = priceCalc.Price;
                 existingLine.discount = priceCalc.DiscountPercent;
                 existingLine.amount_discount = priceCalc.DiscountAmount;
+                existingLine.virtual_price_no_tax = priceCalc.PriceWithoutIva;
+                existingLine.virtual_iva_percentage = priceCalc.IvaPercentage;
                 OnPropertyChanged(nameof(OrderLines));
             }
             else
@@ -401,6 +408,8 @@ namespace DMOrders.Pages.Fragments.Orders
                     price_tax = priceCalc.PriceTax,
                     price_unit = priceCalc.Price,
                     price_total = priceCalc.TotalLine,
+                    virtual_price_no_tax = priceCalc.PriceWithoutIva,
+                    virtual_iva_percentage = priceCalc.IvaPercentage
                 };
 
                 OrderLines.Add(line);
@@ -412,13 +421,16 @@ namespace DMOrders.Pages.Fragments.Orders
         public async void UpdateOrderLine(sale_order_line sale_Order_Line,  product_product product)
         {           
             if (sale_Order_Line != null)
-            {                
+            {
                 var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, sale_Order_Line.product_uom_qty);
                 sale_Order_Line.price_total = priceCalc.TotalLine;
                 sale_Order_Line.price_unit = priceCalc.Price;
                 sale_Order_Line.price_subtotal = priceCalc.Price;
                 sale_Order_Line.discount = priceCalc.DiscountPercent;
                 sale_Order_Line.amount_discount = priceCalc.DiscountAmount;
+                sale_Order_Line.virtual_price_no_tax = priceCalc.PriceWithoutIva;
+                sale_Order_Line.virtual_iva_percentage = priceCalc.IvaPercentage;
+                sale_Order_Line.promotion_data = "";
                 //OnPropertyChanged(nameof(OrderLines));
             }
 

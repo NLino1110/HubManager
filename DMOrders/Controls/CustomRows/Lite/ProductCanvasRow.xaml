@@ -56,7 +56,8 @@
             Text="{Binding list_price, StringFormat='Precio: {0:C}'}"
             FontSize="12"
             TextColor="DarkGreen"
-            InputTransparent="True" />
+            InputTransparent="True" 
+            IsVisible="False"/>
 
         <!-- Stock -->
         <Label
@@ -75,7 +76,8 @@
             Text="{Binding list_price, StringFormat='PVP Base: {0:C}'}"
             FontSize="12"
             TextColor="DarkGreen"
-            InputTransparent="True" />
+            InputTransparent="True"
+            IsVisible="False"/>
 
         <!-- Unidad -->
         <Label

@@ -2,6 +2,7 @@
 using DMSA.Models.Odoo.DMOrders.promotions;
 using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 
@@ -75,7 +76,6 @@ namespace DMOrders.Services.Promotions
         }
     }
 
-
     // Interfaz que debe implementar tu repo SQLite (devuelve promociones ya filtradas por company/fecha/cliente)
     public interface IPromotionRepository
     {
@@ -107,6 +107,43 @@ namespace DMOrders.Services.Promotions
             };
         }
 
+        private async Task<bool> ExistsInPromoCenter(List<PromoCenters> centers, int pricelist_id)
+        {
+            if(centers == null || centers.Count == 0)
+                return true; // si no hay centros definidos, aplica a todos
+
+            foreach(var center in centers)
+            {
+                if(!center.levels_ids_json.Equals(string.Empty))
+                {                    
+                    int[] levels = JArray.Parse(center.levels_ids_json).ToObject<int[]>();                    
+                    if (levels.Contains(pricelist_id))
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        private async Task<int> TotalTimesPromoCenter(List<PromoCenters> centers, int pricelist_id)
+        {
+            int TotalTimes = 0;
+            if (centers == null || centers.Count == 0)
+                return 0;
+
+            foreach (var center in centers)
+            {
+                if (!center.levels_ids_json.Equals(string.Empty))
+                {
+                    int[] levels = JArray.Parse(center.levels_ids_json).ToObject<int[]>();
+                    if (levels.Contains(pricelist_id))
+                        TotalTimes += center.times_inv;
+                }
+            }
+
+            return TotalTimes;
+        }
+
         /// <summary>
         /// Evalúa promociones aplicables para un producto + cantidad en el contexto dado.
         /// - product: objeto product_product (puede ser null si la evaluación es por pedido).
@@ -121,7 +158,9 @@ namespace DMOrders.Services.Promotions
             decimal totalProductAmount, 
             decimal totalOrder,
             int companyId,
-            DateTime? dateUtc = null)
+            int pricelist_id,
+            DateTime? dateUtc = null
+            )
         {
             if (qty <= 0)
                 throw new ArgumentOutOfRangeException(nameof(qty), "qty debe ser > 0");
@@ -145,6 +184,11 @@ namespace DMOrders.Services.Promotions
 
             foreach (var promo in candidates)
             {
+                bool inCenter = await ExistsInPromoCenter(promo._centers_ids, pricelist_id);
+
+                Debug.WriteLine("inCenter");
+                Debug.WriteLine(inCenter);
+
                 var baseReasons = new List<string>();
                 baseReasons.Add("Promoción activa y dentro de vigencia.");
 
@@ -192,6 +236,7 @@ namespace DMOrders.Services.Promotions
                 // Obtener reglas de la promoción (si existen)
                 // En tus modelos originales pones promo._promotion_rules_ids -> en tu modelo devuelve empty list.
                 // Aquí intentamos leer una propiedad dinámica que contenga reglas (si existe).
+                // CAMBIAS POR LOS DEL DATO YA OBTENIDO TryExtractRules ya no es necesario
                 List<PromoRules> rules = TryExtractRules(promo);
 
                 // Si no hay reglas, tratamos la cabecera como posible (pero normalmente quieres reglas)
@@ -336,25 +381,18 @@ namespace DMOrders.Services.Promotions
 
                     if (cumple)
                     {
+                        
+                        int TotalTimesAllowed = await TotalTimesPromoCenter(promo._centers_ids, pricelist_id);
+
                         // Si llegamos acá, la regla aplica:
                         results.Add(new PromotionEvalItem
                         {
                             Promotion = promo,
-                            //Rule = new RuleInfo
-                            //{
-                            //    Id = r.id,
-                            //    Discount = r.discount,
-                            //    UnlimitedTime = r.unlimited_time,
-                            //    StartDate = r.start_date,
-                            //    EndDate = r.end_date,
-                            //    PaymentMethodId = r._payment_method_id,
-                            //    SelectionTypeId = r._selection_type_id,
-                            //    MinQuantity = r.minimum_value
-                            //},
                             RuleSet = r,
                             ProductId = product_id,
                             Discount = r.discount,
                             Reasons = reasons,
+                            TotalTimesAllowed= TotalTimesAllowed,
                             AllowedGifts = allowed_gifts
                         });
                     }

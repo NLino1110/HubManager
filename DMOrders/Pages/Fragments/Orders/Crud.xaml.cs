@@ -309,6 +309,32 @@ public partial class Crud : ContentPage, IBackButtonHandler
         
         if (targetOrder != null)
         {
+            //var applyPromo = await ApplyPromo(targetOrder);
+
+            //if (applyPromo.Count > 0)
+            //{
+
+            //}
+        }
+
+        //await Navigation.PopAsync();
+        await Navigation.PopModalAsync();
+        //SendBackButtonPressed();
+    }
+
+    private async void ButtonPromo_Clicked(object sender, EventArgs e)
+    {
+        var leave = await DisplayAlert("Atención", "Se guardarán los cambios antes de aplicar las promociones. ¿Desea continuar?", "Si", "No");
+
+        if (!leave)
+        {
+            return;
+        }
+
+        sale_order targetOrder = await SaveOrder();
+
+        if (targetOrder != null)
+        {
             var applyPromo = await ApplyPromo(targetOrder);
 
             if (applyPromo.Count > 0)
@@ -316,10 +342,6 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
             }
         }
-
-        //await Navigation.PopAsync();
-        await Navigation.PopModalAsync();
-        //SendBackButtonPressed();
     }
 
     public static string ObtenerIniciales(string nombreCompleto)
@@ -378,6 +400,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 _warehouse_id = warehouseId,
                 sale_channel = App.Session.odooConnection.sale_channel_default,
                 id_referencia = "M001-RC29102025",
+                _pricelist_id = CurrentPriceList.id,
                 state = "draft"
             };
 
@@ -395,6 +418,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
             targetOrder._warehouse_id = warehouseId;
             targetOrder.sale_channel = App.Session.odooConnection.sale_channel_default;
             targetOrder.id_referencia = "M001-RC29102025";
+            targetOrder._pricelist_id = CurrentPriceList.id;
 
             if (await saleOrderDb.UpdateAsync(targetOrder) <= 0)
             {
@@ -469,6 +493,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
         var view = new PromocionesViewer(saleOrder);
         view.ItemsData = AppliedPromotionResults;
+        view.OrderLines = ((CrudViewModel)this.BindingContext).OrderLines;
 
         var popup = new Popup
         {
@@ -528,17 +553,28 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
         if (lineToDiscount != null)
         {
-            decimal originalPrice = lineToDiscount.price_unit;
-            decimal discountAmount = originalPrice * (decimal)(discountPercentage / 100);
-            lineToDiscount.price_unit = originalPrice - discountAmount;
-            lineToDiscount.discount = (decimal) discountPercentage;
-            lineToDiscount.amount_discount = discountAmount;
-            lineToDiscount.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject( promoResItem );
+            if (lineToDiscount.promotion_data != Newtonsoft.Json.JsonConvert.SerializeObject(promoResItem))
+            {
+                decimal originalPrice = lineToDiscount.price_unit;
+                decimal virtual_price_no_tax = lineToDiscount.virtual_price_no_tax;
 
-            var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
-            int updated = await saleOrderLineDb.UpdateAsync(lineToDiscount);
+                decimal discountAmount = (virtual_price_no_tax * lineToDiscount.product_uom_qty_real) * (decimal)(discountPercentage / 100);                
+                lineToDiscount.discount = (decimal)discountPercentage;
+                lineToDiscount.amount_discount = discountAmount;
+                lineToDiscount.price_subtotal = virtual_price_no_tax * lineToDiscount.product_uom_qty_real;
+                lineToDiscount.price_total = ((virtual_price_no_tax) * lineToDiscount.product_uom_qty_real) - discountAmount;
+                lineToDiscount.price_tax = (lineToDiscount.price_total * lineToDiscount.virtual_iva_percentage) / 100;
+                lineToDiscount.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(promoResItem);
 
-            Debug.WriteLine($"Descuento aplicado: {discountPercentage}% al producto ID {productTemplateId}");
+                var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
+                int updated = await saleOrderLineDb.UpdateAsync(lineToDiscount);
+
+                Debug.WriteLine($"Descuento aplicado: {discountPercentage}% al producto ID {productTemplateId}");
+            }
+            else
+            {
+                Debug.WriteLine($"Descuento de promoción ya ha sido aplicado");
+            }
         }
     }
 
@@ -580,7 +616,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
                     qty: qty,
                     totalProductAmount: totalProductAmount,
                     totalOrder: totalOrder,
-                    companyId: company_id
+                    companyId: company_id,
+                    pricelist_id: CurrentPriceList.id
                 );
 
                 if (result.Best != null)
@@ -766,7 +803,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         if (CurrentSaleOrderLine != null)
         {
             product_uom_qty_real = CurrentSaleOrderLine.product_uom_qty_real;
-            product_uom_qty = CurrentSaleOrderLine.product_uom_qty;
+            product_uom_qty = CurrentSaleOrderLine.product_uom_qty;            
         }
     }
 
@@ -794,13 +831,9 @@ public partial class Crud : ContentPage, IBackButtonHandler
             ProductEditing = null;
             product_uom_qty_real = 0;
             product_uom_qty = 0;
-            
-            //((CrudViewModel)BindingContext).UpdateTotals();
-        }
 
-        //var vmOrderLines = ((CrudViewModel)this.BindingContext).OrderLines;
-        //var foundLine = vmOrderLines.Where(x => x.id == CurrentSaleOrderLine.id).FirstOrDefault();
-        //foundLine = CurrentSaleOrderLine;
-        //foundLine.product_uom_qty_real = product_uom_qty_real;
+            //((CrudViewModel)BindingContext).UpdateTotals();                        
+            OrderLinesCl.SelectedItem = null;
+        }
     }
 }

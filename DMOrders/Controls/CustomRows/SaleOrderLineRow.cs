@@ -122,8 +122,7 @@ namespace DMOrders.Controls.CustomRows
             Grid.SetColumn(productUnd, 2);
 
             var qty_real = new Label
-            {
-                //Text = Item.qty_to_deliver.ToString(),
+            {                
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
@@ -136,8 +135,7 @@ namespace DMOrders.Controls.CustomRows
             Grid.SetColumn(qty_real, 3);
 
             var qty = new Label
-            {
-                //Text = Item.qty_to_deliver.ToString(),
+            {                
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
@@ -149,6 +147,20 @@ namespace DMOrders.Controls.CustomRows
             grid.Children.Add(qty);
             Grid.SetColumn(qty, 4);
 
+            //var priceLabel = new Label
+            //{
+            //    //Text = Item.price_unit.ToString("F3"),
+            //    FontAttributes = FontAttributes.Bold,
+            //    FontSize = 14,
+            //    TextColor = Colors.Black,
+            //    HorizontalOptions = LayoutOptions.Center
+            //};
+
+            //priceLabel.SetBinding(Label.TextProperty, new Binding("price_unit", stringFormat: "{0:F3}"));
+
+            //grid.Children.Add(priceLabel);
+            //Grid.SetColumn(priceLabel, 5);
+
             var priceLabel = new Label
             {
                 //Text = Item.price_unit.ToString("F3"),
@@ -158,14 +170,13 @@ namespace DMOrders.Controls.CustomRows
                 HorizontalOptions = LayoutOptions.Center
             };
 
-            priceLabel.SetBinding(Label.TextProperty, new Binding("price_unit", stringFormat: "{0:F3}"));
+            priceLabel.SetBinding(Label.TextProperty, new Binding("virtual_price_no_tax", stringFormat: "{0:F3}"));
 
             grid.Children.Add(priceLabel);
             Grid.SetColumn(priceLabel, 5);
-            
+
             var subtotalLabel = new Label
-            {
-                //Text = Item.price_subtotal.ToString("F3"),
+            {                
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
@@ -189,8 +200,7 @@ namespace DMOrders.Controls.CustomRows
             Grid.SetColumn(discountPercentLabel, 7);            
 
             var discountLabel = new Label
-            {
-                //Text = Item.discount.ToString("F3"), //CALCULAR PORCENTAJE
+            {                
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
@@ -201,8 +211,7 @@ namespace DMOrders.Controls.CustomRows
             Grid.SetColumn(discountLabel, 8);            
 
             var taxLabel = new Label
-            {
-                //Text = Item.price_tax.ToString(), //CALCULAR PORCENTAJE
+            {                
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
