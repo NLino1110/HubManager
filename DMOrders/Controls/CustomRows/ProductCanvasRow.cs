@@ -68,7 +68,7 @@ namespace DMOrders.Controls.CustomRows
             };
             _codeLabel = new Label { FontSize = 12, TextColor = Colors.Gray, InputTransparent = true };
             _priceLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, InputTransparent = true };
-            _priceBaseLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, InputTransparent = true };
+            _priceBaseLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, InputTransparent = true, IsVisible = false };
             _stockLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, HorizontalTextAlignment = TextAlignment.End, InputTransparent = true };
             _unitLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, HorizontalTextAlignment = TextAlignment.End, InputTransparent = true };
 

@@ -167,7 +167,7 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
         <!-- Botones finales -->
         <HorizontalStackLayout HorizontalOptions="Fill" Spacing="10" Margin="5,5,5,5">
             <Button Text="Aplicar" 
-                BackgroundColor="#4CAF50" 
+                BackgroundColor="HotPink" 
                 TextColor="White" 
                 HeightRequest="40"
                 WidthRequest="120"
@@ -177,7 +177,7 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                     <FontImageSource 
             Size="25"
             FontFamily="MaterialSharp"
-            Glyph="{x:Static uranium:MaterialSharp.Arrow_circle_right}" />
+            Glyph="{x:Static uranium:MaterialSharp.Data_saver_on}" />
                 </Button.ImageSource>
             </Button>
             <Button Text="Continuar" 

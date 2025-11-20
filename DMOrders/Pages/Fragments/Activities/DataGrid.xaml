@@ -15,20 +15,20 @@
         <Grid Grid.Row="0" BackgroundColor="Gray" Padding="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="2.7*"/>
-                <ColumnDefinition Width="1.6*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Label Text="ID" FontAttributes="Bold" Padding="10,0,10,0" TextColor="GhostWhite"/>
-            <Label Text="VENDEDOR" Grid.Column="1" FontAttributes="Bold" Padding="10,0,0,0" TextColor="GhostWhite"/>
-            <Label Text="FECHA REP." Grid.Column="2" FontAttributes="Bold" Padding="0,0,10,0" TextColor="GhostWhite"/>
-            <Label Text="FECHA SINC." Grid.Column="3" FontAttributes="Bold" Padding="10,0,10,0" TextColor="GhostWhite"/>
-            <Label Text="USUARIO" Grid.Column="4" FontAttributes="Bold" Padding="10,0,10,0" TextColor="GhostWhite"/>
-            <Label Text="ESTADO" Grid.Column="5" FontAttributes="Bold" Padding="10,0,10,0" TextColor="GhostWhite"/>
-            <Label Text="-" Grid.Column="6" FontAttributes="Bold" Padding="10,0,10,0" TextColor="GhostWhite"/>
+            <Label Text="ID" FontAttributes="Bold" WidthRequest="40" TextColor="GhostWhite"/>
+            <Label Text="VENDEDOR" Grid.Column="1" FontAttributes="Bold" WidthRequest="420" TextColor="GhostWhite"/>
+            <Label Text="FECHA REP." Grid.Column="2" FontAttributes="Bold" WidthRequest="170" TextColor="GhostWhite"/>
+            <Label Text="FECHA SINC." Grid.Column="3" FontAttributes="Bold" WidthRequest="170" TextColor="GhostWhite"/>
+            <Label Text="USUARIO" Grid.Column="4" FontAttributes="Bold" WidthRequest="170"  TextColor="GhostWhite"/>
+            <Label Text="ESTADO" Grid.Column="5" FontAttributes="Bold" WidthRequest="170" TextColor="GhostWhite"/>
+            <Label Text="-" Grid.Column="6" FontAttributes="Bold" TextColor="GhostWhite"/>
         </Grid>
 
         <Grid Grid.Row="1">

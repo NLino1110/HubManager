@@ -29,6 +29,8 @@
                    Grid.Column="0" 
                    Grid.ColumnSpan="2"
                    ItemPickedCommand="{Binding BindingContext.AddLineCommand,
+                Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                   CurrentPriceList="{Binding CurrentPriceList,
                 Source={RelativeSource AncestorType={x:Type ContentPage}}}"></modals:CatalogViewerInner>
         
         <Grid Grid.Row="0" 
@@ -213,6 +215,10 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
                            FontSize="12" 
                            FontAttributes="None"
                            TextColor="#4d4947"></Label>
+                    <Label Text="{Binding Path=IdPrimaryKey, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+                           FontSize="12" 
+                           FontAttributes="None"
+                           TextColor="#4d4947"></Label>
                 </VerticalStackLayout>
                 <VerticalStackLayout Grid.Column="1">
                     <Label Text="{Binding Path=PriceListDisplayName, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
@@ -274,20 +280,21 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
             <Grid BackgroundColor="LightGray" 
                   Grid.Row="1" 
                   Grid.Column="1" 
-                  ColumnDefinitions="Auto,1.5*,*,*,*,*,*,*,*,*,*" 
+                  ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" 
                   RowDefinitions="Auto" 
                   HorizontalOptions="Fill">
-                <Label Grid.Column="0" FontAttributes="Bold" Text="No" Padding="0,0,5,0" FontSize="11" ></Label>
-                <Label Grid.Column="1" FontAttributes="Bold" Text="ARTICULO" FontSize="11"></Label>
-                <Label Grid.Column="2" FontAttributes="Bold" Text="UNIDAD" FontSize="11"></Label>
-                <Label Grid.Column="3" FontAttributes="Bold" Text="CNTREAL" FontSize="11"></Label>
-                <Label Grid.Column="4" FontAttributes="Bold" Text="CNTDSP" FontSize="11"></Label>
-                <Label Grid.Column="5" FontAttributes="Bold" Text="PRECIO" FontSize="11"></Label>
-                <Label Grid.Column="6" FontAttributes="Bold" Text="SUBTOTAL" FontSize="11"></Label>
-                <Label Grid.Column="7" FontAttributes="Bold" Text="%DESC." FontSize="11"></Label>
-                <Label Grid.Column="8" FontAttributes="Bold" Text="$DESC." FontSize="11"></Label>
-                <Label Grid.Column="9" FontAttributes="Bold" Text="IMP." FontSize="11"></Label>
-                <Label Grid.Column="10" FontAttributes="Bold" Text="TOTAL" FontSize="11"></Label>
+                <Label Grid.Column="0" FontAttributes="Bold" Text="No" WidthRequest="50" FontSize="11" ></Label>
+                <Label Grid.Column="1" FontAttributes="Bold" Text="ARTICULO" WidthRequest="140" FontSize="11"></Label>
+                <Label Grid.Column="2" FontAttributes="Bold" Text="UNIDAD" WidthRequest="90" FontSize="11"></Label>
+                <Label Grid.Column="3" FontAttributes="Bold" Text="CNTREAL" WidthRequest="95" FontSize="11"></Label>
+                <Label Grid.Column="4" FontAttributes="Bold" Text="CNTDSP" WidthRequest="150" FontSize="11"></Label>
+                <Label Grid.Column="5" FontAttributes="Bold" Text="PRECIO" WidthRequest="90" FontSize="11"></Label>
+                <Label Grid.Column="6" FontAttributes="Bold" Text="PRE+IVA" WidthRequest="90" FontSize="11"></Label>
+                <Label Grid.Column="7" FontAttributes="Bold" Text="SUBTOT(SI)" WidthRequest="100" FontSize="11"></Label>
+                <Label Grid.Column="8" FontAttributes="Bold" Text="%DESC." WidthRequest="90" FontSize="11"></Label>
+                <Label Grid.Column="9" FontAttributes="Bold" Text="$DESC." WidthRequest="100" FontSize="11"></Label>
+                <Label Grid.Column="10" FontAttributes="Bold" Text="IMP." WidthRequest="100" FontSize="11"></Label>
+                <Label Grid.Column="11" FontAttributes="Bold" Text="TOTAL" WidthRequest="100" FontSize="11"></Label>                
             </Grid>
 
             <Grid RowDefinitions="*" ColumnDefinitions="*" Grid.Row="2" HorizontalOptions="Fill">
@@ -320,7 +327,8 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                         ItemsSource="{Binding ItemsDataBenefits}" 
                         EmptyView="No hay promociones aplicables..."
                         SelectionMode="Single"
-                        HorizontalOptions="Fill">
+                        HorizontalOptions="Fill"
+                    IsVisible="False">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <HorizontalStackLayout Padding="10">
@@ -372,7 +380,7 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                          FontSize="11" 
                          FontAttributes="Bold"
                          TextColor="#242322"
-                            HorizontalTextAlignment="Start"
+                            HorizontalTextAlignment="End"
                             VerticalTextAlignment="Center"></Label>
                     
                     <Label Text="Descuento:" Grid.Row="2" Grid.Column="0" FontSize="11"></Label>
@@ -380,7 +388,7 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                      FontSize="11" 
                      FontAttributes="Bold"
                      TextColor="#242322"
-                        HorizontalTextAlignment="Start"
+                        HorizontalTextAlignment="End"
                         VerticalTextAlignment="Center"></Label>
 
                     <Label Text="Neto:" Grid.Row="3" Grid.Column="0" FontSize="11" IsVisible="False"></Label>
@@ -389,7 +397,7 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                      FontSize="11" 
                      FontAttributes="Bold"
                      TextColor="#242322"
-                        HorizontalTextAlignment="Start"
+                        HorizontalTextAlignment="End"
                         VerticalTextAlignment="Center"
                            IsVisible="False"></Label>
 
@@ -398,7 +406,7 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                      FontSize="11" 
                      FontAttributes="Bold"
                      TextColor="#242322"
-                        HorizontalTextAlignment="Start"
+                        HorizontalTextAlignment="End"
                         VerticalTextAlignment="Center"></Label>
 
                     <Label Text="Comp. Solidaria:" Grid.Row="5" Grid.Column="0" FontSize="11" IsVisible="False"></Label>
@@ -406,15 +414,15 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                      FontSize="11" 
                      FontAttributes="Bold"
                      TextColor="#242322"
-                        HorizontalTextAlignment="Start"
+                        HorizontalTextAlignment="End"
                         VerticalTextAlignment="Center" IsVisible="False"></Label>
 
-                    <Label Text="Total:" Grid.Row="6" Grid.Column="0" FontSize="11"></Label>
+                    <Label Text="Total:" Grid.Row="6" Grid.Column="0" FontSize="15"></Label>
                     <Label Grid.Row="6" Grid.Column="1" Text="{Binding Total, StringFormat='${0:N3}'}" 
-                     FontSize="11" 
+                     FontSize="15" 
                      FontAttributes="Bold"
                      TextColor="#242322"
-                        HorizontalTextAlignment="Start"
+                        HorizontalTextAlignment="End"
                         VerticalTextAlignment="Center"></Label>
 
                 </Grid>

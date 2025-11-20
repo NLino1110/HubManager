@@ -1,10 +1,12 @@
 ﻿using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Sales;
 using Microsoft.Data.Sqlite;
 using Microsoft.Maui;
 using SQLite;
 using SQLiteNetExtensions.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,13 +15,16 @@ namespace DMOrders.Services.Database.Sqlite
 {
     public class ProductProductDb : SqliteDbBase<product_product>
     {
+        private Dictionary<int, decimal> cachedProductsWithPrices =
+    new Dictionary<int, decimal>();
+
         public ProductProductDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
-
+            Debug.WriteLine("Creacion de instancia ProductProductDb");
         }
 
         // En tu repositorio/capa de datos
-        private AsyncTableQuery<product_product> BuildQuery(
+        private async Task<AsyncTableQuery<product_product>> BuildQuery(
             string filter_code,
             string filter_name,
             int filter_brand,
@@ -27,7 +32,8 @@ namespace DMOrders.Services.Database.Sqlite
             int filter_stock,
             int filter_sort,
             int filter_category, 
-            int filter_status)
+            int filter_status,
+            int filter_pricelist)
         {
             Init();
 
@@ -69,11 +75,37 @@ namespace DMOrders.Services.Database.Sqlite
             if (filter_stock == 1)
                 q = q.Where(x => x.qty_available > 0);
 
+            if (filter_pricelist > 0)
+            {
+                await PreloadPricelistCache(filter_pricelist);
+                
+                var productTemplateIds = cachedProductsWithPrices.Keys.ToArray();
+                q = q.Where(p => productTemplateIds.Contains(p._product_tmpl_id));
+            }
+
             // --- 3) Orden ---
             q = ApplySort(q, filter_sort);
 
             return q;
         }
+
+        public async Task PreloadPricelistCache(int pricelistId)
+        {
+            if (cachedProductsWithPrices.Count > 0)
+                return;
+
+            var items = await Database.Table<product_pricelist_item>()
+                .Where(x => x._pricelist_id == pricelistId)
+                .ToArrayAsync();
+
+            cachedProductsWithPrices = items
+                .GroupBy(i => i._product_tmpl_id)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.First().fixed_price // o price, price_discount, amount, etc.
+                );
+        }
+
 
         private static AsyncTableQuery<product_product> ApplySort(
             AsyncTableQuery<product_product> q, int filter_sort)
@@ -92,9 +124,15 @@ namespace DMOrders.Services.Database.Sqlite
         public async Task<(IList<product_product> Items, int Total)> GetPagedAsync(
             string filter_code, string filter_name, int filter_brand, int filter_new, int filter_stock, int filter_sort,
             int filter_category, int filter_status,
+            int filter_pricelist,
             int page, int pageSize, CancellationToken ct = default)
         {
-            var q = BuildQuery(filter_code, filter_name, filter_brand, filter_new, filter_stock, filter_sort, filter_category, filter_status);
+            if (filter_pricelist == -1)
+            {
+                return (new List<product_product>(), 0);
+            }
+
+            var q = await BuildQuery(filter_code, filter_name, filter_brand, filter_new, filter_stock, filter_sort, filter_category, filter_status, filter_pricelist);
 
             // COUNT(*) en SQLite, sin traer datos
             var total = await q.CountAsync();
@@ -102,6 +140,17 @@ namespace DMOrders.Services.Database.Sqlite
             // LIMIT/OFFSET en SQLite (Skip/Take sobre AsyncTableQuery)
             var offset = Math.Max(0, (page - 1) * pageSize);
             var items = await q.Skip(offset).Take(pageSize).ToListAsync();
+
+            if (filter_pricelist > 0)
+            {
+                foreach (var p in items)
+                {
+                    if (cachedProductsWithPrices.TryGetValue(p._product_tmpl_id, out var price))
+                    {
+                        p.list_price = (float) price;
+                    }
+                }
+            }
 
             return (items, total);
         }

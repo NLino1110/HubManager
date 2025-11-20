@@ -53,7 +53,7 @@ namespace ResourceBuilder.Data
                         if (responseAll != null && responseAll?.result != null && responseAll.result.Length > 0)
                         {
                             datesResult = responseAll.result
-                                .Select(m => m.create_date.Date)
+                                .Select(m => m.create_date.Value.Date)
                                 .Distinct() // Elimina duplicados
                                 .ToList();
                         }
@@ -68,7 +68,7 @@ namespace ResourceBuilder.Data
                         if (responseAll != null && responseAll?.result != null && responseAll.result.Length > 0)
                         {
                             datesResult = responseAll.result
-                                .Select(m => m.create_date.Date)
+                                .Select(m => m.create_date.Value.Date)
                                 .Distinct() // Elimina duplicados
                                 .ToList();
                         }
@@ -82,7 +82,7 @@ namespace ResourceBuilder.Data
                         if (responseAll != null && responseAll?.result != null && responseAll.result.Length > 0)
                         {
                             datesResult = responseAll.result
-                                .Select(m => m.create_date.Date)
+                                .Select(m => m.create_date.Value.Date)
                                 .Distinct() // Elimina duplicados
                                 .ToList();
                         }
@@ -95,7 +95,7 @@ namespace ResourceBuilder.Data
                         if (responseAll != null && responseAll?.result != null && responseAll.result.Length > 0)
                         {
                             datesResult = responseAll.result
-                                .Select(m => m.create_date.Date)
+                                .Select(m => m.create_date.Value.Date)
                                 .Distinct() // Elimina duplicados
                                 .ToList();
                         }
@@ -121,7 +121,7 @@ namespace ResourceBuilder.Data
                         if (responseAll != null && responseAll?.result != null && responseAll.result.Length > 0)
                         {
                             datesResult = responseAll.result
-                                .Select(m => m.create_date.Date)
+                                .Select(m => m.create_date.Value.Date)
                                 .Distinct() // Elimina duplicados
                                 .ToList();
                         }
@@ -135,7 +135,7 @@ namespace ResourceBuilder.Data
                         if (responseAll != null && responseAll?.result != null && responseAll.result.Length > 0)
                         {
                             datesResult = responseAll.result
-                                .Select(m => m.create_date.Date)
+                                .Select(m => m.create_date.Value.Date)
                                 .Distinct() // Elimina duplicados
                                 .ToList();
                         }

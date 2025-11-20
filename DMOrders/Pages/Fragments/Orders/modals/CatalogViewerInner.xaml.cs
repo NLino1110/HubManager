@@ -4,6 +4,7 @@ using DMOrders.Controls;
 using DMOrders.Models.Filters;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Sales;
 using MPowerKit.VirtualizeListView;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -33,6 +34,36 @@ public static class ViewExtensions
 }
 public partial class CatalogViewerInner : ContentView
 {
+    public product_pricelist CurrentPriceList
+    {
+        get => (product_pricelist)GetValue(CurrentPriceListProperty);
+        set => SetValue(CurrentPriceListProperty, value);
+    }
+
+    public static readonly BindableProperty CurrentPriceListProperty =
+        BindableProperty.Create(
+            propertyName: nameof(CurrentPriceList),
+            returnType: typeof(product_pricelist),
+            declaringType: typeof(CatalogViewerInner),
+            defaultValue: null,
+            propertyChanged: OnCurrentPriceListChanged);
+
+    private static void OnCurrentPriceListChanged(BindableObject bindable, object oldValue, object newValue)
+    {
+        var control = (CatalogViewerInner)bindable;
+
+        if (control.BindingContext == null || newValue == null)
+            return;
+
+        var vmType = control.BindingContext.GetType();
+        var propertyInfo = vmType.GetProperty(nameof(CurrentPriceList));
+
+        if (propertyInfo != null && propertyInfo.CanWrite)
+        {
+            propertyInfo.SetValue(control.BindingContext, newValue);
+        }
+    }
+
     public static readonly BindableProperty ItemPickedCommandProperty =
         BindableProperty.Create(nameof(ItemPickedCommand), typeof(ICommand), typeof(CatalogViewerInner), default(ICommand));
 
@@ -57,8 +88,7 @@ public partial class CatalogViewerInner : ContentView
 
     double swipeThreshold = 50; // Distancia mínima para considerar un swipe
     double panX = 0;
-
-    
+        
     public ObservableCollection<product_marca> Brands { get; set; } = new();
 
     FStatus[] newProducts { get; set; }
@@ -443,7 +473,6 @@ public partial class CatalogViewerInner : ContentView
         // Forzar recarga desde el ViewModel
         await vm.PublicRefresh();
     }
-
 
     private async Task SetViewModeWin(int ViewMode)
     {

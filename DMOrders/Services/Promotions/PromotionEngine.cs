@@ -192,6 +192,8 @@ namespace DMOrders.Services.Promotions
                 throw new ArgumentOutOfRangeException(nameof(qty), "qty debe ser > 0");
 
             this.qty = qty;
+            this.totalProductAmount = totalProductAmount;
+            this.totalOrder = totalOrder;
 
             var nowUtc = (dateUtc ?? DateTime.UtcNow).AddTicks(-(dateUtc ?? DateTime.UtcNow).Ticks % TimeSpan.TicksPerMinute);
 

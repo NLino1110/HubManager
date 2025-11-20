@@ -23,7 +23,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                 _ItemsDataBenefits.Clear();
             else
                 _ItemsDataBenefits = new ObservableCollection<PromotionEvalItem>();
-                //_ItemsDataBenefits = new ObservableCollection<PromotionBenefit>();
+            //_ItemsDataBenefits = new ObservableCollection<PromotionBenefit>();
 
             foreach (var promo in _itemsData)
             {
@@ -31,9 +31,13 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                 {
                     foreach (var benefit in promo.Items)
                     {
-                        //_ItemsDataBenefits.Add(benefit.Promotion);
+                        if (benefit?.Promotion?.id == null)
+                            continue;
 
-                        _ItemsDataBenefits.Add(benefit);
+                        if (!_ItemsDataBenefits.Any(x => x.Promotion?.id == benefit.Promotion.id))
+                        {
+                            _ItemsDataBenefits.Add(benefit);
+                        }
                     }
                 }
             }
@@ -119,25 +123,54 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
             selectedPromoEvalItem = (PromotionEvalItem) e.CurrentSelection[0];
             
             var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
-
+            
             if (selectedPromoEvalItem.PromotionTypeId == 2) // es regalo
             {
                 foreach(var itemResult in _itemsData)
                 {
                     foreach(var itemEval in itemResult.Items)
                     {
-                        //if(itemEval.Promotion.id == selectedPromoEvalItem.id)
+                        if (itemEval.Promotion.id != selectedPromoEvalItem.Promotion.id)
+                            continue;
                         //{
-                            if(itemEval.RuleSet == null || itemEval.RuleSet._product_id <= 0)
-                                continue;
+                        //if(itemEval.RuleSet == null || itemEval.RuleSet._product_id <= 0)
+                        //    continue;
 
-                            var productGift = await productDb.GetByProductTemplate(itemEval.RuleSet._product_id);
-                            int qty_gift = 0;
-                            qty_gift = itemEval.AllowedGifts;
-                            productGift.qty_gift = qty_gift;
-                            productGift.promotionEvalItem = itemEval;
-                            promoGifts.Add(productGift);                            
-                        //}
+                        if(itemEval.Promotion._selection_type_id == 1)
+                        {
+                            //Agregar automáticamente todos los regalos permitidos
+                            int productIdCompare = itemEval.RuleSet._product_id;
+                            var productGift = await productDb.GetByProductTemplate(productIdCompare);
+                            //int qty_gift = 0;
+                            //qty_gift = itemEval.AllowedGifts;
+
+                            if (productGift != null)
+                            {
+                                productGift.qty_gift = 0;
+                                productGift.promotionEvalItem = itemEval;
+                                promoGifts.Add(productGift);
+                            }
+                        }
+
+                        if(itemEval.Promotion._selection_type_id == 2)
+                        {
+                            int productIdCompare = itemEval.RuleSet._product_id;
+
+                            if (productIdCompare == 0)
+                                productIdCompare = itemEval.ProductId;
+
+                            var productGift = await productDb.GetByProductTemplate(productIdCompare);
+                            //int qty_gift = 0;
+                            //qty_gift = itemEval.AllowedGifts;
+
+                            if (productGift != null)
+                            {
+                                productGift.qty_gift = 0;
+                                productGift.promotionEvalItem = itemEval;
+                                promoGifts.Add(productGift);
+                            }
+                            //}
+                        }
                     }
                 }
 

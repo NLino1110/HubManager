@@ -56,10 +56,10 @@ namespace DMOrders.Controls.CustomRows
 
             labelName = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, FontSize = 12, BackgroundColor = Colors.Transparent };
             labelSellerName = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, FontSize = 12, BackgroundColor = Colors.Red };
-            labelPlanningDate = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, TextColor = Colors.SlateGray, FontSize = 12 };
-            labelWriteDate = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, TextColor = Colors.Gray, FontSize = 12 };
-            labelUser = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, TextColor = Colors.Green, FontSize = 12 };
-            labelState = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, TextColor = Colors.Green, FontSize = 12 };
+            labelPlanningDate = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, TextColor = Colors.Black, FontSize = 12 };
+            labelWriteDate = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, TextColor = Colors.Black, FontSize = 12 };
+            labelUser = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, TextColor = Colors.Black, FontSize = 12 };
+            labelState = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, TextColor = Colors.Black, FontSize = 12 };
 
             labelId.SetBinding(Label.TextProperty, new Binding(nameof(Item.id), source: Item));
             labelName.SetBinding(Label.TextProperty, new Binding(nameof(Item.display_username), source: Item));

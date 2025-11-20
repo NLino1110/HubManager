@@ -2,6 +2,7 @@
 using DMOrders.Models.Filters;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Sales;
 using Microsoft.Maui;
 using Microsoft.Maui.Controls;
 using System.Collections.ObjectModel;
@@ -14,6 +15,7 @@ namespace DMOrders.Pages.Fragments.Orders.modals
 {
     public partial class CatalogViewerModel : INotifyPropertyChanged
     {
+        public product_pricelist CurrentPriceList { get; set; }
         private ProductProductDb _db { get; set; }
         public ICommand CommandSelectListItem { get; set; }
         public class ViewModesList
@@ -114,6 +116,14 @@ namespace DMOrders.Pages.Fragments.Orders.modals
             InitViewModes();
             RefreshCommand = new Command(async () => await CmdRefresh());            
         }
+
+        //public CatalogViewerModel(product_pricelist product_Pricelist)
+        //{
+        //    _db = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
+        //    CurrentPriceList = product_Pricelist;
+        //    InitViewModes();
+        //    RefreshCommand = new Command(async () => await CmdRefresh());
+        //}
 
         private void InitViewModes()
         {
@@ -251,10 +261,14 @@ namespace DMOrders.Pages.Fragments.Orders.modals
             try
             {
                 IsLoading = true;
+                int pricelist_id = -1;
+                if(CurrentPriceList != null)
+                    pricelist_id = CurrentPriceList.id;
 
                 // Llama paginado (NO vuelvas a traer todo)
                 var (items, total) = await _db.GetPagedAsync(
-                    filter_code, filter_name, filter_brand, filter_new, filter_stock, filter_sort,0,0,
+                    filter_code, filter_name, filter_brand, filter_new, filter_stock, filter_sort,
+                    0,0, pricelist_id,
                     Page, PageSize, ct);
 
                 TotalItems = total;

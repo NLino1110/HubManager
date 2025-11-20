@@ -198,6 +198,7 @@ namespace ApiManager
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "virtual_price_no_tax");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_virtual_iva_percentage");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "virtual_iva_percentage");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "total_times_allowed");            
 
             //JObjectExtensions.RenamePropertyFromOrderLineItems(newJObject, "_product_uom_qty", "product_uom_qty");
 

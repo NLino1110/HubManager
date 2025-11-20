@@ -257,6 +257,7 @@ namespace DMOrders.Pages.Fragments.Product
                     filters.getCategory(),
                     filters.getStatus(),
                     0,
+                    0,
                     Page,
                     PageSize,
                     ct);

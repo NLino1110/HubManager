@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using MPowerKit.VirtualizeListView;
 using SkiaSharp.Views.Maui.Controls.Hosting;
 using System.Diagnostics;
+using System.Globalization;
 using UraniumUI;
 
 //[assembly: XamlCompilation(XamlCompilationOptions.Compile)]
@@ -60,6 +61,21 @@ namespace DMOrders
             //App.PushRelayGlobal = new PushRelay();
             //App.PushRelayGlobal.Name = "---";
             //App.PushRelayGlobal.Message = "ConnectCommand";
+
+            var culture = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+            culture.NumberFormat.NumberDecimalSeparator = ".";
+            culture.NumberFormat.CurrencyDecimalSeparator = ".";
+
+            culture.NumberFormat.PercentGroupSeparator = ",";
+            culture.NumberFormat.NumberGroupSeparator = ",";
+            culture.NumberFormat.CurrencyGroupSeparator = ",";
+
+            // Aplicar globalmente
+            CultureInfo.DefaultThreadCurrentCulture = culture;
+            CultureInfo.DefaultThreadCurrentUICulture = culture;
+
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
 
             return builder.Build();
         }

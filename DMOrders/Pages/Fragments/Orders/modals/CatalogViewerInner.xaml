@@ -273,16 +273,13 @@
             <Grid.GestureRecognizers>
                 <PanGestureRecognizer PanUpdated="OnPanUpdated" />
             </Grid.GestureRecognizers>
-            <Grid x:Name="GridTitleSearch" RowDefinitions="*" ColumnDefinitions="*,*,*,*,*,*,Auto" BackgroundColor="LightGray">
-                <Label Grid.Column="0" Text="Producto" FontAttributes="Bold" WidthRequest="100" HorizontalTextAlignment="Start"></Label>
-                <Label Grid.Column="1" Text="Unidad" FontAttributes="Bold" HorizontalTextAlignment="End"></Label>
-                <Label Grid.Column="2" Text="Precio" FontAttributes="Bold" HorizontalTextAlignment="End"></Label>
-                <Label Grid.Column="3" Text="Stock" FontAttributes="Bold" HorizontalTextAlignment="End"></Label>
-                <Label Grid.Column="4" Text="Pre. Base" FontAttributes="Bold" HorizontalTextAlignment="End"></Label>
-                <Label Grid.Column="6" Text="" HorizontalTextAlignment="End"></Label>
+            <Grid x:Name="GridTitleSearch" RowDefinitions="*" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto" BackgroundColor="LightGray">
+                <Label Grid.Column="0" Text="Producto" FontAttributes="Bold" WidthRequest="480" HorizontalTextAlignment="Start"></Label>
+                <Label Grid.Column="1" Text="Unidad" FontAttributes="Bold" WidthRequest="260" HorizontalTextAlignment="Start"></Label>
+                <Label Grid.Column="2" Text="Precio" FontAttributes="Bold" WidthRequest="270" HorizontalTextAlignment="Start"></Label>
+                <Label Grid.Column="3" Text="Stock" FontAttributes="Bold" WidthRequest="260" HorizontalTextAlignment="Start"></Label>
+                <Label Grid.Column="4" Text="Pre. Base" FontAttributes="Bold" WidthRequest="60" HorizontalTextAlignment="Start" IsVisible="False"></Label>                
             </Grid>
-            
-            
             
             <!--<CollectionView
                     Grid.Row="1"

@@ -95,6 +95,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 OnPropertyChanged(nameof(PartnerDisplayStatus));
                 OnPropertyChanged(nameof(PriceListDisplayName));
                 OnPropertyChanged(nameof(IdReferencia));
+                OnPropertyChanged(nameof(IdPrimaryKey));
             }
         }
     }
@@ -148,6 +149,10 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
     public string IdReferencia =>
         CurrentSaleOrder?.id_referencia    
+        ?? string.Empty;
+
+    public string IdPrimaryKey =>
+        CurrentSaleOrder?.id.ToString()
         ?? string.Empty;
 
     private ObservableCollection<PromotionEvalResult> AppliedPromotionResults;
@@ -242,6 +247,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         }
 
         ((CrudViewModel)this.BindingContext).CurrentPriceList = CurrentPriceList;
+        SearchProductView.CurrentPriceList = CurrentPriceList;
         OnPropertyChanged(nameof(PriceListDisplayName));
     }
 
@@ -481,6 +487,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 if (promoResItem.Promotion._promotion_type_id == 6)
                 {
                     await ApplyDiscount(saleOrder, promoResItem);
+                    ((CrudViewModel)BindingContext).UpdateTotals();
                 }
             }
         }
@@ -559,10 +566,12 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 decimal virtual_price_no_tax = lineToDiscount.virtual_price_no_tax;
 
                 decimal discountAmount = (virtual_price_no_tax * lineToDiscount.product_uom_qty_real) * (decimal)(discountPercentage / 100);                
-                lineToDiscount.discount = (decimal)discountPercentage;
-                lineToDiscount.amount_discount = discountAmount;
-                lineToDiscount.price_subtotal = virtual_price_no_tax * lineToDiscount.product_uom_qty_real;
                 lineToDiscount.price_total = ((virtual_price_no_tax) * lineToDiscount.product_uom_qty_real) - discountAmount;
+
+                lineToDiscount.discount = (decimal) discountPercentage;
+                lineToDiscount.amount_discount = discountAmount;
+
+                lineToDiscount.price_subtotal = (virtual_price_no_tax * lineToDiscount.product_uom_qty_real ) - discountAmount;
                 lineToDiscount.price_tax = (lineToDiscount.price_total * lineToDiscount.virtual_iva_percentage) / 100;
                 lineToDiscount.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(promoResItem);
 
@@ -609,6 +618,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 var qty = (int)line.product_uom_qty;
                 var partner = saleOrder._partner_id;
                 var company_id = saleOrder._company_id;
+                totalProductAmount = line.price_total;
 
                 // 4️⃣ Evaluar promociones
                 var result = await engine.EvaluatePromotions(
@@ -629,6 +639,16 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
                     if (benefit != null)
                         AppliedPromotionResults.Add(result);
+
+                    Debug.WriteLine("Aplicar la promocion automatica");
+                    foreach(var item in result.Items)
+                    {
+                        //Tipo automatico + bonificado
+                        if (item.Promotion._selection_type_id == 1 && item.Promotion._promotion_type_id == 2)
+                        {
+                            Debug.WriteLine(item.ProductId);
+                        }
+                    }                       
                 }
             }
 
@@ -832,7 +852,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
             product_uom_qty_real = 0;
             product_uom_qty = 0;
 
-            //((CrudViewModel)BindingContext).UpdateTotals();                        
+            //((CrudViewModel)BindingContext).UpdateTotals();
             OrderLinesCl.SelectedItem = null;
         }
     }

@@ -62,6 +62,7 @@ namespace DMOrders.Controls.CustomRows
                     new ColumnDefinition { Width = GridLength.Star},
                     new ColumnDefinition { Width = GridLength.Star},
                     new ColumnDefinition { Width = GridLength.Star},
+                    new ColumnDefinition { Width = GridLength.Star},
                     new ColumnDefinition { Width = GridLength.Auto},
 
                 },
@@ -83,6 +84,12 @@ namespace DMOrders.Controls.CustomRows
             Grid.SetColumn(idLabel, 0);
             Grid.SetRowSpan(idLabel, 2);
 
+            var stack = new HorizontalStackLayout
+            {
+                Spacing = 6,
+                HorizontalOptions = LayoutOptions.Start
+            };
+
             var codeLabel = new Label
             {
                 Text = Item.product_code,
@@ -90,10 +97,24 @@ namespace DMOrders.Controls.CustomRows
                 FontSize = 14,
                 TextColor = Colors.Green,
                 HorizontalOptions = LayoutOptions.Start
+            };            
+            
+            var skuLabel = new Label
+            {
+                Text = "(" + Item.product_id.ToString() + ")",
+                FontAttributes = FontAttributes.Bold,
+                FontSize = 10,
+                TextColor = Colors.DarkGray,
+                HorizontalOptions = LayoutOptions.Start,
+                VerticalOptions = LayoutOptions.Center
             };
-            grid.Children.Add(codeLabel);
-            Grid.SetRow(codeLabel, 0);
-            Grid.SetColumn(codeLabel, 1);
+
+            stack.Children.Add(codeLabel);
+            stack.Children.Add(skuLabel);
+
+            grid.Children.Add(stack);
+            Grid.SetRow(stack, 0);
+            Grid.SetColumn(stack, 1);
 
             var nameLabel = new Label
             {
@@ -167,25 +188,39 @@ namespace DMOrders.Controls.CustomRows
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
-                HorizontalOptions = LayoutOptions.Center
+                HorizontalOptions = LayoutOptions.End
             };
 
-            priceLabel.SetBinding(Label.TextProperty, new Binding("virtual_price_no_tax", stringFormat: "{0:F3}"));
+            priceLabel.SetBinding(Label.TextProperty, new Binding("virtual_price_no_tax", stringFormat: "{0:N3}"));
 
             grid.Children.Add(priceLabel);
             Grid.SetColumn(priceLabel, 5);
+
+            var priceUnitLabel = new Label
+            {                
+                FontAttributes = FontAttributes.Bold,
+                FontSize = 14,
+                TextColor = Colors.Black,
+                HorizontalOptions = LayoutOptions.End
+            };
+
+            priceUnitLabel.SetBinding(Label.TextProperty, new Binding("price_unit", stringFormat: "{0:N3}"));
+
+            grid.Children.Add(priceUnitLabel);
+            Grid.SetColumn(priceUnitLabel, 6);
+
 
             var subtotalLabel = new Label
             {                
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
-                HorizontalOptions = LayoutOptions.Center
+                HorizontalOptions = LayoutOptions.End
             };
 
-            subtotalLabel.SetBinding(Label.TextProperty, new Binding("price_subtotal", stringFormat: "{0:F3}"));
+            subtotalLabel.SetBinding(Label.TextProperty, new Binding("price_subtotal", stringFormat: "{0:N3}"));
             grid.Children.Add(subtotalLabel);
-            Grid.SetColumn(subtotalLabel, 6);                    
+            Grid.SetColumn(subtotalLabel, 7);                    
 
             var discountPercentLabel = new Label
             {
@@ -193,33 +228,33 @@ namespace DMOrders.Controls.CustomRows
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
-                HorizontalOptions = LayoutOptions.Center
+                HorizontalOptions = LayoutOptions.End
             };
             discountPercentLabel.SetBinding(Label.TextProperty, new Binding("discount", stringFormat: "{0:N0}"));
             grid.Children.Add(discountPercentLabel);
-            Grid.SetColumn(discountPercentLabel, 7);            
+            Grid.SetColumn(discountPercentLabel, 8);            
 
             var discountLabel = new Label
             {                
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
-                HorizontalOptions = LayoutOptions.Center
+                HorizontalOptions = LayoutOptions.End
             };
-            discountLabel.SetBinding(Label.TextProperty, new Binding("amount_discount", stringFormat: "{0:F3}"));
+            discountLabel.SetBinding(Label.TextProperty, new Binding("amount_discount", stringFormat: "{0:N3}"));
             grid.Children.Add(discountLabel);
-            Grid.SetColumn(discountLabel, 8);            
+            Grid.SetColumn(discountLabel, 9);            
 
             var taxLabel = new Label
-            {                
+            {
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
-                HorizontalOptions = LayoutOptions.Center
+                HorizontalOptions = LayoutOptions.End
             };
-            taxLabel.SetBinding(Label.TextProperty, new Binding("price_tax", stringFormat: "{0:F3}"));
+            taxLabel.SetBinding(Label.TextProperty, new Binding("price_tax", stringFormat: "{0:N3}"));
             grid.Children.Add(taxLabel);
-            Grid.SetColumn(taxLabel, 9);
+            Grid.SetColumn(taxLabel, 10);
 
             var totalLabel = new Label
             {
@@ -227,11 +262,11 @@ namespace DMOrders.Controls.CustomRows
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 14,
                 TextColor = Colors.Black,
-                HorizontalOptions = LayoutOptions.Center
+                HorizontalOptions = LayoutOptions.End
             };
-            totalLabel.SetBinding(Label.TextProperty, new Binding("price_total", stringFormat: "{0:F3}"));
+            totalLabel.SetBinding(Label.TextProperty, new Binding("price_total", stringFormat: "{0:N3}"));
             grid.Children.Add(totalLabel);
-            Grid.SetColumn(totalLabel, 10);
+            Grid.SetColumn(totalLabel, 11);
 
             var cell = CreateCell(grid, padding: new Thickness(4), backgroundColor: Colors.Transparent);
             AddCell(cell, region: "left", row: 0, column: 0);

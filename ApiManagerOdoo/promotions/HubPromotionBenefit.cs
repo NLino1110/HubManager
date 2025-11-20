@@ -54,7 +54,9 @@ namespace ApiManagerOdoo.promotions
             "product_promotion_ids",
             "promotion_rules_ids",
             "customers_included_ids",
-            "customers_excluded_ids"
+            "customers_excluded_ids",
+            "create_date",
+            "write_date"
         };
 
         public HubPromotionBenefit(AppSession _setAppSession) : base(_setAppSession)
