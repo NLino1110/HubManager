@@ -4,8 +4,7 @@
              x:Class="DMOrders.Pages.Fragments.Orders.Crud"
              xmlns:customrows="clr-namespace:DMOrders.Controls.CustomRows"  
              xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
-             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
-             xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"             
              xmlns:modals="clr-namespace:DMOrders.Pages.Fragments.Orders.modals"
              x:Name="RootPage"
              Title="Pedido Nuevo - Edicion">

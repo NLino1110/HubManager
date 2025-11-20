@@ -7,6 +7,15 @@ namespace DMOrders.Controls.CustomRows
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public class ProductCanvasRow : RowAdvance<product_product>
     {
+        public static readonly BindableProperty ShowPriceProperty =
+            BindableProperty.Create(nameof(ShowPrice), typeof(bool), typeof(ProductRow), false);
+
+        public bool ShowPrice
+        {
+            get => (bool)GetValue(ShowPriceProperty);
+            set => SetValue(ShowPriceProperty, value);
+        }
+
         public static readonly BindableProperty ShowSelectButtonProperty =
             BindableProperty.Create(nameof(ShowSelectButton), typeof(bool), typeof(ProductRow), false);
 

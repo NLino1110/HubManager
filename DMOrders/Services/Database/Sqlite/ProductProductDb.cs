@@ -79,7 +79,7 @@ namespace DMOrders.Services.Database.Sqlite
             {
                 await PreloadPricelistCache(filter_pricelist);
                 
-                var productTemplateIds = cachedProductsWithPrices.Keys.ToArray();
+                var productTemplateIds = cachedProductsWithPrices.Keys.ToList();
                 q = q.Where(p => productTemplateIds.Contains(p._product_tmpl_id));
             }
 
