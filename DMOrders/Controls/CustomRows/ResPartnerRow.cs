@@ -34,7 +34,7 @@ namespace DMOrders.Controls.CustomRows
 
             // Ajusta anchos según tu diseño real
             leftGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 0: Id
-            leftGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(8) }); // 1: separador
+            //leftGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(8) }); // 1: separador
             leftGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star }); // 2: Name/VAT
             leftGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star }); // 3: Email
             leftGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // 4: Phone
@@ -69,11 +69,11 @@ namespace DMOrders.Controls.CustomRows
             // ====== Posicionamiento (una sola vez) ======
             Grid.SetColumn(_id, 0); leftGrid.Children.Add(_id);
             // col 1 es separador visual (sin vista)
-            Grid.SetColumn(nameVat, 2); leftGrid.Children.Add(nameVat);
-            Grid.SetColumn(_email, 3); leftGrid.Children.Add(_email);
-            Grid.SetColumn(_phone, 4); leftGrid.Children.Add(_phone);
-            Grid.SetColumn(_visits, 5); leftGrid.Children.Add(_visits);
-            Grid.SetColumn(_city, 6); leftGrid.Children.Add(_city);
+            Grid.SetColumn(nameVat, 1); leftGrid.Children.Add(nameVat);
+            Grid.SetColumn(_email, 2); leftGrid.Children.Add(_email);
+            Grid.SetColumn(_phone, 3); leftGrid.Children.Add(_phone);
+            Grid.SetColumn(_visits, 4); leftGrid.Children.Add(_visits);
+            Grid.SetColumn(_city, 5); leftGrid.Children.Add(_city);
 
             // (Opcional) fila con altura fija para acelerar medición
             this.HeightRequest = 72; // ajusta a tu diseño
