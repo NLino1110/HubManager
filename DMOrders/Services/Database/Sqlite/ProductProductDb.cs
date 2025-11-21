@@ -78,9 +78,9 @@ namespace DMOrders.Services.Database.Sqlite
             if (filter_pricelist > 0)
             {
                 await PreloadPricelistCache(filter_pricelist);
-                
                 var productTemplateIds = cachedProductsWithPrices.Keys.ToList();
-                q = q.Where(p => productTemplateIds.Contains(p._product_tmpl_id));
+                //TODO: Se quita filtro porque se necesita que se muestren todos
+                //q = q.Where(p => productTemplateIds.Contains(p._product_tmpl_id));
             }
 
             // --- 3) Orden ---
@@ -148,6 +148,10 @@ namespace DMOrders.Services.Database.Sqlite
                     if (cachedProductsWithPrices.TryGetValue(p._product_tmpl_id, out var price))
                     {
                         p.list_price = (float) price;
+                    }
+                    else
+                    {
+                        p.list_price = 0;
                     }
                 }
             }

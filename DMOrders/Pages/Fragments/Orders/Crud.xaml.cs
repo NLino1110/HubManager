@@ -9,6 +9,7 @@ using DMOrders.Services.Database.Sqlite;
 using DMOrders.Services.Promotions;
 using DMOrders.Services.Update.Pusher;
 using DMOrders.Shared;
+using DMSA.Models.Odoo.Abstract;
 using DMSA.Models.Odoo.DMOrders.promotions;
 using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
 using DMSA.Models.Odoo.Native;
@@ -25,15 +26,15 @@ namespace DMOrders.Pages.Fragments.Orders;
 public partial class Crud : ContentPage, IBackButtonHandler
 {    
     private Entry _activeEntry;
-
     public res_company CurrentCompany { get; set; }
     public res_partner _CurrentPartner { get; set; }
     public sale_order _CurrentSaleOrder { get; set; }
     public product_pricelist CurrentPriceList { get; set; }
     public ICommand EditCommand { get; set; }
     public ICommand DeleteCommand { get; set; }
-
     public product_product _ProductEditing { get; set; }
+
+    public SaleOrderLineHeader OrdersLinesHeader { get; set; }
 
     public product_product ProductEditing
     {
@@ -174,6 +175,24 @@ public partial class Crud : ContentPage, IBackButtonHandler
         DeleteCommand = new Command(DeleteItem);
 
         SearchProductView.PropertyChanged += SearchProductView_PropertyChanged;
+
+        OrdersLinesHeader = new SaleOrderLineHeader
+        {
+            Number = "N°",
+            Product = "ARTICULO",
+            UOM = "UNIDAD",
+            QtyReal = "CNTREAL",
+            QtyDisp = "CNTDSP",
+            Price = "PRECIO",
+            PriceTax = "PRE+IVA",
+            SubTotalNt = "SUBTOT(SI)",
+            DiscountPercent = "%DESC.",
+            DiscountValue = "$DESC.",
+            Tax = "IMP.",
+            Total = "TOTAL"
+        };
+
+        OnPropertyChanged(nameof(OrdersLinesHeader));
     }
 
     private void SearchProductView_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -565,14 +584,13 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 decimal originalPrice = lineToDiscount.price_unit;
                 decimal virtual_price_no_tax = lineToDiscount.virtual_price_no_tax;
 
-                decimal discountAmount = (virtual_price_no_tax * lineToDiscount.product_uom_qty_real) * (decimal)(discountPercentage / 100);                
-                lineToDiscount.price_total = ((virtual_price_no_tax) * lineToDiscount.product_uom_qty_real) - discountAmount;
-
+                decimal discountAmount = (virtual_price_no_tax * lineToDiscount.product_uom_qty_real) * (decimal)(discountPercentage / 100);
                 lineToDiscount.discount = (decimal) discountPercentage;
                 lineToDiscount.amount_discount = discountAmount;
 
                 lineToDiscount.price_subtotal = (virtual_price_no_tax * lineToDiscount.product_uom_qty_real ) - discountAmount;
-                lineToDiscount.price_tax = (lineToDiscount.price_total * lineToDiscount.virtual_iva_percentage) / 100;
+                lineToDiscount.price_tax = (lineToDiscount.price_subtotal * lineToDiscount.virtual_iva_percentage) / 100;
+                lineToDiscount.price_total = lineToDiscount.price_subtotal + lineToDiscount.price_tax;
                 lineToDiscount.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(promoResItem);
 
                 var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
@@ -731,11 +749,11 @@ public partial class Crud : ContentPage, IBackButtonHandler
     }
 
     private async Task LoadDetailInfo(sale_order_line SaleOrderLine)
-    {
-        //SaleOrderLine.qty_to_deliver = 6;
+    {        
         ProductProductDb productProductDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
         ProductEditing = await productProductDb.GetItem(SaleOrderLine.product_id);
-        //OnPropertyChanged(nameof(ProductEditing));
+        ProductEditing.list_price = (float) SaleOrderLine.price_unit;
+        OnPropertyChanged(nameof(ProductEditing));
 
         product_uom_qty_real = SaleOrderLine.product_uom_qty_real;
         product_uom_qty = SaleOrderLine.product_uom_qty;        
@@ -831,6 +849,18 @@ public partial class Crud : ContentPage, IBackButtonHandler
     {
         if (CurrentSaleOrderLine != null)
         {
+            if ((decimal)ProductEditing.qty_available < product_uom_qty)
+            {
+                CurrentSaleOrderLine = null;
+                ProductEditing = null;
+                product_uom_qty_real = 0;
+                product_uom_qty = 0;                
+                OrderLinesCl.SelectedItem = null;
+
+                await DisplayAlert("Alerta", "La cantidad solicitada no puede ser mayor a la disponible en inventario.", "Aceptar");
+                return;
+            }
+
             CurrentSaleOrderLine.product_uom_qty_real = product_uom_qty_real;
             CurrentSaleOrderLine.product_uom_qty = product_uom_qty;
 
@@ -844,6 +874,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 return;
             }
 
+            product_item.list_price = (float) CurrentSaleOrderLine.price_unit;
             ((CrudViewModel)BindingContext).UpdateOrderLine(CurrentSaleOrderLine, product_item);
             //////////////////////////////
 

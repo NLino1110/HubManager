@@ -2,7 +2,8 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="DMOrders.Pages.Fragments.Orders.Crud"
-             xmlns:customrows="clr-namespace:DMOrders.Controls.CustomRows"  
+             xmlns:customrows="clr-namespace:DMOrders.Controls.CustomRows"
+             xmlns:customrowsheaders="clr-namespace:DMOrders.Controls.CustomRows.Headers"
              xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
              xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"             
              xmlns:modals="clr-namespace:DMOrders.Pages.Fragments.Orders.modals"
@@ -41,9 +42,9 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
             <Button Grid.Row="0" Text="" Clicked="ButtonClose_Clicked" BackgroundColor="Gray" TextColor="White" HeightRequest="43" WidthRequest="43" Padding="0">
                 <Button.ImageSource>
                     <FontImageSource 
-    Size="30"
-    FontFamily="MaterialSharp"
-    Glyph="{x:Static uranium:MaterialSharp.Arrow_back}"/>
+                        Size="30"
+                        FontFamily="MaterialSharp"
+                        Glyph="{x:Static uranium:MaterialSharp.Arrow_back}"/>
                 </Button.ImageSource>
             </Button>
             
@@ -276,7 +277,7 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                 
             </Grid>
             <!--<Label Grid.Row="1" Grid.Column="0" Text="TITULO CABECERAS" HorizontalOptions="Center"></Label>-->
-            <Grid BackgroundColor="LightGray" 
+            <!--<Grid BackgroundColor="LightGray" 
                   Grid.Row="1" 
                   Grid.Column="1" 
                   ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" 
@@ -286,7 +287,7 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                 <Label Grid.Column="1" FontAttributes="Bold" Text="ARTICULO" WidthRequest="140" FontSize="11"></Label>
                 <Label Grid.Column="2" FontAttributes="Bold" Text="UNIDAD" WidthRequest="90" FontSize="11"></Label>
                 <Label Grid.Column="3" FontAttributes="Bold" Text="CNTREAL" WidthRequest="95" FontSize="11"></Label>
-                <Label Grid.Column="4" FontAttributes="Bold" Text="CNTDSP" WidthRequest="150" FontSize="11"></Label>
+                <Label Grid.Column="4" FontAttributes="Bold" Text="CNTDSP" WidthRequest="200" FontSize="11"></Label>
                 <Label Grid.Column="5" FontAttributes="Bold" Text="PRECIO" WidthRequest="90" FontSize="11"></Label>
                 <Label Grid.Column="6" FontAttributes="Bold" Text="PRE+IVA" WidthRequest="90" FontSize="11"></Label>
                 <Label Grid.Column="7" FontAttributes="Bold" Text="SUBTOT(SI)" WidthRequest="100" FontSize="11"></Label>
@@ -294,7 +295,7 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                 <Label Grid.Column="9" FontAttributes="Bold" Text="$DESC." WidthRequest="100" FontSize="11"></Label>
                 <Label Grid.Column="10" FontAttributes="Bold" Text="IMP." WidthRequest="100" FontSize="11"></Label>
                 <Label Grid.Column="11" FontAttributes="Bold" Text="TOTAL" WidthRequest="100" FontSize="11"></Label>                
-            </Grid>
+            </Grid>-->
 
             <Grid RowDefinitions="*" ColumnDefinitions="*" Grid.Row="2" HorizontalOptions="Fill">
                 <CollectionView
@@ -305,6 +306,9 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                     SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
                     HorizontalOptions="Start"
                     SelectionChanged="detail_SelectionChanged">
+                    <CollectionView.Header>
+                        <customrowsheaders:SaleOrderLineRowHeader Item="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=OrdersLinesHeader}" HorizontalOptions="Fill" />
+                    </CollectionView.Header>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <customrows:SaleOrderLineRow                                 

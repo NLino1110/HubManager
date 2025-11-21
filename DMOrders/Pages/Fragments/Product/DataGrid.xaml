@@ -50,7 +50,7 @@
                                         <Setter Property="BackgroundColor" Value="WhiteSmoke"/>
                                     </DataTrigger>
                                 </mpowerkit:VirtualizeListViewCell.Triggers>
-                                <customrows:ProductCanvasRow Item="{x:Binding .}">
+                                <customrows:ProductCanvasRow Item="{x:Binding .}" ShowPrice="False">
                                 </customrows:ProductCanvasRow>
                             </mpowerkit:VirtualizeListViewCell>
                         </DataTemplate>

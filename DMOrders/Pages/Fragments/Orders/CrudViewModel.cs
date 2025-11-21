@@ -299,7 +299,7 @@ namespace DMOrders.Pages.Fragments.Orders
             public bool ExistsInPriceList { get; set; }
         }
 
-        private async Task<PriceCalculationResult> getPriceWithPricelist(
+        private async Task<PriceCalculationResult> getPriceWithPricelistWithSearch(
             product_product product,
             product_pricelist product_Pricelist,
             decimal quantity)
@@ -362,6 +362,48 @@ namespace DMOrders.Pages.Fragments.Orders
             decimal factor_iva = 1 + (iva_tax / 100m);
 
             decimal price_without_iva = price_list_value / factor_iva;            
+            decimal total_line = (price_list_value * quantity) - discount_value;
+
+            return new PriceCalculationResult
+            {
+                Price = price_list_value,
+                PriceWithoutIva = price_without_iva,
+                DiscountAmount = discount_value,
+                DiscountPercent = discount_percent,
+                TotalLine = total_line,
+                IvaPercentage = iva_tax,
+                PriceTax = (price_without_iva * quantity * iva_tax) / 100,
+                ExistsInPriceList = ExistsInPriceList
+            };
+        }
+
+        private async Task<PriceCalculationResult> getPriceWithPricelist(
+            product_product product,
+            product_pricelist product_Pricelist,
+            decimal quantity)
+        {
+            bool ExistsInPriceList = false;
+            var accountTaxDb = new AccountTaxDb(App.Session.odooConnection.DbNameSqlite);
+            var tax_sale = await accountTaxDb.GetItem(product._taxes_id);
+
+            //decimal list_price = (decimal) product.list_price;  // NO SE VA A USAR ESTE CAMPO
+            decimal price_list_value = 0m;
+            decimal discount_percent = 0m;
+            decimal discount_value = 0m;
+            
+            if (product.list_price > 0)
+            {               
+                price_list_value = (decimal) product.list_price;
+                discount_percent = 0;
+                discount_value = 0;
+                ExistsInPriceList = true;
+            }
+
+            // IVA (ya incluido en el precio de lista)
+            decimal iva_tax = (decimal)tax_sale.amount; //15m;
+            decimal factor_iva = 1 + (iva_tax / 100m);
+
+            decimal price_without_iva = price_list_value / factor_iva;
             decimal total_line = (price_list_value * quantity) - discount_value;
 
             return new PriceCalculationResult

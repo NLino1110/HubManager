@@ -36,8 +36,9 @@
                                    RowTemplate="{StaticResource RowTemplate}"
                                    GridTemplate="{StaticResource GridTemplate}" />-->
 
-        <DataTemplate x:Key="RowTemplate">
+        <DataTemplate x:Key="RowTemplate">            
             <mpowerkit:VirtualizeListViewCell BackgroundColor="WhiteSmoke">
+                
                 <customrows:ProductRow 
             Item="{Binding .}" 
             ActionButton="{Binding Source={x:Reference Root}, Path=ItemPickedCommand}" 
@@ -58,7 +59,7 @@
                 <customrows:ProductCanvasRow 
             Item="{Binding .}" 
             ActionButton="{Binding Source={x:Reference Root}, Path=ItemPickedCommand}" 
-            ShowSelectButton="True"/>
+            ShowSelectButton="True" ShowPrice="True"/>
                 <mpowerkit:VirtualizeListViewCell.Triggers>
                     <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="True">
                         <Setter Property="BackgroundColor" Value="LightBlue"/>
@@ -85,11 +86,9 @@
         </DataTemplate>
 
         <local:ProductTemplateSelector x:Key="ProductTemplateSelector"
-    ViewerTemplate="{StaticResource ViewerTemplate}"
-    RowTemplate="{StaticResource RowTemplate}"
-    GridTemplate="{StaticResource GridTemplate}" />
-
-
+            ViewerTemplate="{StaticResource ViewerTemplate}"
+            RowTemplate="{StaticResource RowTemplate}"
+            GridTemplate="{StaticResource GridTemplate}" />
 
     </ContentView.Resources>
     <Grid RowDefinitions="Auto,Auto,*,Auto" BackgroundColor="WhiteSmoke">
@@ -273,12 +272,12 @@
             <Grid.GestureRecognizers>
                 <PanGestureRecognizer PanUpdated="OnPanUpdated" />
             </Grid.GestureRecognizers>
-            <Grid x:Name="GridTitleSearch" RowDefinitions="*" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto" BackgroundColor="LightGray">
-                <Label Grid.Column="0" Text="Producto" FontAttributes="Bold" WidthRequest="480" HorizontalTextAlignment="Start"></Label>
-                <Label Grid.Column="1" Text="Unidad" FontAttributes="Bold" WidthRequest="260" HorizontalTextAlignment="Start"></Label>
-                <Label Grid.Column="2" Text="Precio" FontAttributes="Bold" WidthRequest="270" HorizontalTextAlignment="Start"></Label>
-                <Label Grid.Column="3" Text="Stock" FontAttributes="Bold" WidthRequest="260" HorizontalTextAlignment="Start"></Label>
-                <Label Grid.Column="4" Text="Pre. Base" FontAttributes="Bold" WidthRequest="60" HorizontalTextAlignment="Start" IsVisible="False"></Label>                
+            <Grid x:Name="GridTitleSearch" RowDefinitions="*" ColumnDefinitions="2*,*,*,*,*,Auto" BackgroundColor="LightGray">
+                <Label Grid.Column="0" Text="Producto" FontAttributes="Bold" HorizontalTextAlignment="Start"></Label>
+                <Label Grid.Column="1" Text="Unidad" FontAttributes="Bold" HorizontalTextAlignment="Start"></Label>
+                <Label Grid.Column="2" Text="Precio" FontAttributes="Bold"  HorizontalTextAlignment="Start"></Label>
+                <Label Grid.Column="3" Text="Stock" FontAttributes="Bold"  HorizontalTextAlignment="Start"></Label>
+                <Label Grid.Column="4" Text="Pre. Base" FontAttributes="Bold"  HorizontalTextAlignment="Start" IsVisible="False"></Label>                
             </Grid>
             
             <!--<CollectionView
@@ -308,27 +307,10 @@
                 Padding="0"                        
                 BackgroundColor="Gray" 
                         ItemTemplate="{StaticResource ProductTemplateSelector}"
-                        IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
+                        IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">                        
                         <mpowerkit:VirtualizeListView.ItemsLayout>
                             <mpowerkit:GridLayout HorizontalItemSpacing="1" Span="4" VerticalItemSpacing="1" />
-                        </mpowerkit:VirtualizeListView.ItemsLayout>
-                        <!--<mpowerkit:VirtualizeListView.ItemTemplate>
-                            <DataTemplate>
-                                <mpowerkit:VirtualizeListViewCell BackgroundColor="WhiteSmoke">
-                                    <mpowerkit:VirtualizeListViewCell.Triggers>
-                                        <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="True">
-                                            <Setter Property="BackgroundColor" Value="LightBlue"/>
-                                        </DataTrigger>
-                                        <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="False">
-                                            <Setter Property="BackgroundColor" Value="WhiteSmoke"/>
-                                        </DataTrigger>
-                                    </mpowerkit:VirtualizeListViewCell.Triggers>
-                                    
-                                    <customrows:ProductCanvasRow Item="{Binding .}" ActionButton="{Binding Source={x:Reference Root}, Path=ItemPickedCommand}" ShowSelectButton="True"/>
-
-                                </mpowerkit:VirtualizeListViewCell>
-                            </DataTemplate>
-                        </mpowerkit:VirtualizeListView.ItemTemplate>-->
+                        </mpowerkit:VirtualizeListView.ItemsLayout>                        
                     </mpowerkit:VirtualizeListView>
                 </mpowerkit:FixedRefreshView>
 
