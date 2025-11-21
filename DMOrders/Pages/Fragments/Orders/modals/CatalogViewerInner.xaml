@@ -274,8 +274,8 @@
             </Grid.GestureRecognizers>
             <Grid x:Name="GridTitleSearch" RowDefinitions="*" ColumnDefinitions="*,*,*,*" BackgroundColor="LightGray">
                 <Label Grid.Column="0" Text="Producto" FontAttributes="Bold" Padding="5,0,0,0" HorizontalTextAlignment="Start"></Label>
-                <Label Grid.Column="1" Text="Unidad" FontAttributes="Bold" Padding="0,0,40,0" HorizontalTextAlignment="End"></Label>
-                <Label Grid.Column="2" Text="Precio" FontAttributes="Bold" Padding="0,0,80,0" HorizontalTextAlignment="End"></Label>
+                <Label Grid.Column="1" Text="Unidad" FontAttributes="Bold" Padding="0,0,43,0" HorizontalTextAlignment="End"></Label>
+                <Label Grid.Column="2" Text="Precio" FontAttributes="Bold" Padding="0,0,83,0" HorizontalTextAlignment="End"></Label>
                 <Label Grid.Column="3" Text="Stock" FontAttributes="Bold" Padding="0,0,105,0" HorizontalTextAlignment="End"></Label>
                 <!--<Label Grid.Column="4" Text="Pre. Base" FontAttributes="Bold"  HorizontalTextAlignment="Start" IsVisible="False"></Label>-->
             </Grid>

@@ -307,7 +307,147 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                     HorizontalOptions="Start"
                     SelectionChanged="detail_SelectionChanged">
                     <CollectionView.Header>
-                        <customrowsheaders:SaleOrderLineRowHeader Item="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=OrdersLinesHeader}" HorizontalOptions="Fill" />
+                        <!--<customrowsheaders:SaleOrderLineRowHeader Item="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=OrdersLinesHeader}" HorizontalOptions="Fill" />-->
+                        <Grid
+                            ColumnSpacing="8"
+                            Padding="4"
+                            HorizontalOptions="Fill"
+                            BackgroundColor="LightGray">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="1.9*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <!-- idLabel -->
+                            <Label 
+                                Text="N°"
+                                FontAttributes="Bold"
+                                FontSize="11"
+                                TextColor="Black"
+                                HorizontalOptions="Start"
+                                Grid.Column="0"
+                                Padding="0"
+                                Margin="0"/>
+
+                            <!-- codeLabel -->
+                            <Label 
+                                Text="ARTICULO"
+                                FontAttributes="Bold"
+                                FontSize="11"
+                                TextColor="Black"
+                                HorizontalOptions="Start"
+                                Grid.Column="1"/>
+
+                            <!-- nameLabel -->
+                            <Label 
+                                Text="UNIDAD"
+                                FontAttributes="Bold"
+                                FontSize="11"
+                                TextColor="Black"
+                                HorizontalOptions="Start"
+                                Grid.Column="2"/>
+
+                            <!-- qty_real -->
+                            <Label 
+                                Text="CNTREAL"
+                                FontAttributes="Bold"
+                                FontSize="11"
+                                TextColor="Black"
+                                HorizontalOptions="Fill"
+                                Grid.Column="3"/>
+
+                            <!-- qty -->
+                            <Label 
+                                Text="CNTDSP"
+                                FontAttributes="Bold"
+                                FontSize="11"
+                                TextColor="Black"
+                                HorizontalOptions="Fill"
+                                Grid.Column="4"/>
+
+                            <!-- priceLabel -->
+                            <Label 
+                                Text="PRECIO"
+                                FontAttributes="Bold"
+                                FontSize="11"
+                                TextColor="Black"
+                                HorizontalOptions="End"
+                                Grid.Column="5"/>
+
+                            <!-- priceUnitLabel -->
+                            <Label 
+                                Text="PRE+IVA"
+                                FontAttributes="Bold"
+                                FontSize="11"
+                                TextColor="Black"
+                                HorizontalOptions="End"
+                                Grid.Column="6"/>
+
+                            <!-- subtotalLabel -->
+                            <Label 
+                                Text="SUBTOT(SI)"
+                                FontAttributes="Bold"
+                                FontSize="11"
+                                TextColor="Black"
+                                HorizontalOptions="End"
+                                Grid.Column="7"/>
+
+                            <!-- discountPercentLabel -->
+                            <Label 
+                                Text="%DESC."
+                                FontAttributes="Bold"
+                                FontSize="11"
+                                TextColor="Black"
+                                HorizontalOptions="End"
+                                Grid.Column="8"/>
+
+                            <!-- discountLabel -->
+                            <Label 
+                                Text="$DESC."
+                                FontAttributes="Bold"
+                                FontSize="11"
+                                TextColor="Black"
+                                HorizontalOptions="End"
+                                Grid.Column="9"/>
+
+                            <!-- taxLabel -->
+                            <Label 
+                                Text="IMP."
+                                FontAttributes="Bold"
+                                FontSize="11"
+                                TextColor="Black"
+                                HorizontalOptions="End"
+                                Grid.Column="10"/>
+
+                            <!-- totalLabel -->
+                            <Label 
+                                Text="TOTAL"
+                                FontAttributes="Bold"
+                                FontSize="11"
+                                TextColor="Black"
+                                HorizontalOptions="End"
+                                Grid.Column="11"/>
+                            
+                            <StackLayout Grid.Column="12" MinimumWidthRequest="70"></StackLayout>
+
+                        </Grid>
+
                     </CollectionView.Header>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
