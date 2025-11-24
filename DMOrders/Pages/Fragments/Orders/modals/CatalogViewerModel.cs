@@ -1,4 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 using DMOrders.Models.Filters;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Native;
@@ -15,6 +17,8 @@ namespace DMOrders.Pages.Fragments.Orders.modals
 {
     public partial class CatalogViewerModel : INotifyPropertyChanged
     {
+        public ICommand ItemTappedCommand { get; }
+
         public product_pricelist CurrentPriceList { get; set; }
         private ProductProductDb _db { get; set; }
         public ICommand CommandSelectListItem { get; set; }
@@ -114,7 +118,8 @@ namespace DMOrders.Pages.Fragments.Orders.modals
         {
             _db = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
             InitViewModes();
-            RefreshCommand = new Command(async () => await CmdRefresh());            
+            RefreshCommand = new Command(async () => await CmdRefresh());
+            ItemTappedCommand = new Command<product_product>(OnItemTapped);
         }
 
         //public CatalogViewerModel(product_pricelist product_Pricelist)
@@ -353,6 +358,21 @@ namespace DMOrders.Pages.Fragments.Orders.modals
         public void SetFilterSort(int _filter_sort)
         {
             filter_sort = _filter_sort;
+        }
+
+        public void OnItemTapped(product_product tappedItem)
+        {
+            foreach (var res_partner_item in _itemsData)
+                res_partner_item.IsSelected = false;
+
+            tappedItem.IsSelected = true;
+            SelectedItem = tappedItem;
+            WeakReferenceMessenger.Default.Send(new ItemSelectedMessage(tappedItem));
+        }
+
+        public class ItemSelectedMessage : ValueChangedMessage<product_product>
+        {
+            public ItemSelectedMessage(product_product value) : base(value) { }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -27,6 +27,8 @@ namespace DMOrders.Pages.Fragments.Orders
 
         private ObservableCollection<sale_order_line> _order_lines;
 
+        int decimalPositions = 4;
+
         public ObservableCollection<sale_order_line> OrderLines
         {
             get => _order_lines;
@@ -113,7 +115,7 @@ namespace DMOrders.Pages.Fragments.Orders
                         //tmp_Subtotal += orderLine.price_subtotal;
                         //tmp_Subtotal += orderLine.price_total - orderLine.amount_discount;
                         tmp_Subtotal += orderLine.price_subtotal;
-                        Debug.WriteLine($"Subtotal línea: {orderLine.price_subtotal} - {orderLine.amount_discount} = {orderLine.price_subtotal - orderLine.amount_discount}");
+                        Debug.WriteLine($"price_subtotal: {orderLine.price_subtotal}");
                     }
                 return tmp_Subtotal;
             }
@@ -296,7 +298,9 @@ namespace DMOrders.Pages.Fragments.Orders
             public decimal TotalLine { get; set; }             // Total multiplicado por cantidad
             public decimal PriceTax { get; set; }
             public decimal IvaPercentage { get; set; }
-            public bool ExistsInPriceList { get; set; }
+            public decimal PriceSubtotal { get; set; }
+            public decimal LineSubtotal { get; set; }
+            public bool ExistsInPriceList { get; set; }            
         }
 
         private async Task<PriceCalculationResult> getPriceWithPricelistWithSearch(
@@ -382,6 +386,7 @@ namespace DMOrders.Pages.Fragments.Orders
             product_pricelist product_Pricelist,
             decimal quantity)
         {
+            int decimalPositions = 4;
             bool ExistsInPriceList = false;
             var accountTaxDb = new AccountTaxDb(App.Session.odooConnection.DbNameSqlite);
             var tax_sale = await accountTaxDb.GetItem(product._taxes_id);
@@ -403,18 +408,32 @@ namespace DMOrders.Pages.Fragments.Orders
             decimal iva_tax = (decimal)tax_sale.amount; //15m;
             decimal factor_iva = 1 + (iva_tax / 100m);
 
-            decimal price_without_iva = price_list_value / factor_iva;
-            decimal total_line = (price_list_value * quantity) - discount_value;
+            decimal price_without_iva = Math.Round(price_list_value / factor_iva, 6);
+            decimal total_line = Math.Round((price_list_value * quantity) - discount_value, decimalPositions);
+
+            //return new PriceCalculationResult
+            //{
+            //    Price = price_list_value,
+            //    PriceWithoutIva = price_without_iva,
+            //    DiscountAmount = discount_value,
+            //    DiscountPercent = discount_percent,
+            //    TotalLine = total_line,
+            //    IvaPercentage = iva_tax,
+            //    PriceTax = (price_without_iva * quantity * iva_tax) / 100,
+            //    ExistsInPriceList = ExistsInPriceList
+            //};
 
             return new PriceCalculationResult
             {
-                Price = price_list_value,
+                Price = Math.Round(price_list_value, decimalPositions),
                 PriceWithoutIva = price_without_iva,
-                DiscountAmount = discount_value,
-                DiscountPercent = discount_percent,
+                DiscountAmount = Math.Round(discount_value, decimalPositions),
+                DiscountPercent = Math.Round(discount_percent, decimalPositions),
                 TotalLine = total_line,
-                IvaPercentage = iva_tax,
-                PriceTax = (price_without_iva * quantity * iva_tax) / 100,
+                IvaPercentage = Math.Round(iva_tax, decimalPositions),
+                PriceTax = Math.Round((price_without_iva * quantity * iva_tax) / 100, decimalPositions),
+                PriceSubtotal = (price_without_iva * quantity) - discount_value,
+                LineSubtotal = price_without_iva * quantity,
                 ExistsInPriceList = ExistsInPriceList
             };
         }
@@ -437,12 +456,13 @@ namespace DMOrders.Pages.Fragments.Orders
                 //product.list_price = (float) priceCalc.Price;
                 existingLine.price_total = priceCalc.TotalLine;
                 existingLine.price_unit = priceCalc.Price;
-                existingLine.price_subtotal = (priceCalc.PriceWithoutIva * existingLine.product_uom_qty) - priceCalc.DiscountAmount;
+                existingLine.price_subtotal = priceCalc.PriceSubtotal; //(priceCalc.PriceWithoutIva * existingLine.product_uom_qty) - priceCalc.DiscountAmount;
                 existingLine.discount = priceCalc.DiscountPercent;
                 existingLine.amount_discount = priceCalc.DiscountAmount;
                 existingLine.price_tax = priceCalc.PriceTax;
                 existingLine.virtual_price_no_tax = priceCalc.PriceWithoutIva;
                 existingLine.virtual_iva_percentage = priceCalc.IvaPercentage;
+                existingLine.virtual_line_subtotal = priceCalc.LineSubtotal;
                 OnPropertyChanged(nameof(OrderLines));
             }
             else
@@ -461,14 +481,15 @@ namespace DMOrders.Pages.Fragments.Orders
                         product_uom_qty_real = 1,
                         product_uom_qty = 1,
                         uom_category_display = "UND",
-                        price_subtotal = (priceCalc.PriceWithoutIva * 1) - priceCalc.DiscountAmount,
+                        price_subtotal = priceCalc.PriceSubtotal, // (priceCalc.PriceWithoutIva * 1) - priceCalc.DiscountAmount,
                         discount = priceCalc.DiscountPercent,
                         amount_discount = priceCalc.DiscountAmount,
                         price_tax = priceCalc.PriceTax,
                         price_unit = priceCalc.Price,
                         price_total = priceCalc.TotalLine,
                         virtual_price_no_tax = priceCalc.PriceWithoutIva,
-                        virtual_iva_percentage = priceCalc.IvaPercentage
+                        virtual_iva_percentage = priceCalc.IvaPercentage,
+                        virtual_line_subtotal = priceCalc.LineSubtotal
                     };
 
                     OrderLines.Add(line);
@@ -490,12 +511,13 @@ namespace DMOrders.Pages.Fragments.Orders
                 var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, sale_Order_Line.product_uom_qty);
                 sale_Order_Line.price_total = priceCalc.TotalLine;
                 sale_Order_Line.price_unit = priceCalc.Price;
-                sale_Order_Line.price_subtotal = (priceCalc.PriceWithoutIva * sale_Order_Line.product_uom_qty) - priceCalc.DiscountAmount;
+                sale_Order_Line.price_subtotal = priceCalc.PriceSubtotal; // (priceCalc.PriceWithoutIva * sale_Order_Line.product_uom_qty) - priceCalc.DiscountAmount;
                 sale_Order_Line.price_tax = priceCalc.PriceTax; //(priceCalc.PriceWithoutIva * sale_Order_Line.product_uom_qty * priceCalc.IvaPercentage) / 100;
                 sale_Order_Line.discount = priceCalc.DiscountPercent;
                 sale_Order_Line.amount_discount = priceCalc.DiscountAmount;
                 sale_Order_Line.virtual_price_no_tax = priceCalc.PriceWithoutIva;
                 sale_Order_Line.virtual_iva_percentage = priceCalc.IvaPercentage;
+                sale_Order_Line.virtual_line_subtotal = priceCalc.LineSubtotal;
                 sale_Order_Line.promotion_data = "";
                 //OnPropertyChanged(nameof(OrderLines));
             }

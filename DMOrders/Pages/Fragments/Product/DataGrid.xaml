@@ -12,7 +12,7 @@
              x:Name="ProductDataGrid">
 
     <Grid RowDefinitions="Auto,*,Auto">
-        <Grid Grid.Row="0" BackgroundColor="LightGray" Padding="10" HeightRequest="35" IsVisible="False">
+        <!--<Grid Grid.Row="0" BackgroundColor="LightGray" Padding="10" HeightRequest="35">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="2*"/>
@@ -21,10 +21,72 @@
             <Label Text="Nombre" FontAttributes="Bold"/>
             <Label Text="Precio" Grid.Column="1" FontAttributes="Bold"/>
             <Label Text="Cantidad" Grid.Column="2" FontAttributes="Bold"/>
+        </Grid>-->
+
+        <Grid Grid.Row="0"
+                VerticalOptions="Center"
+                ColumnSpacing="10"
+                ColumnDefinitions="Auto,480,*,*,*,*,*,*,*, 20"
+                RowDefinitions="*,*"
+                Margin="20,0,20,0"
+              HorizontalOptions="Fill">
+
+            <Label 
+    Grid.Row="0" 
+    Grid.Column="0" 
+    FontAttributes="Bold"
+    Text="No."
+    FontSize="12"
+    TextColor="Black" />
+            
+            <Label 
+    Grid.Row="0" 
+    Grid.Column="1" 
+    Grid.ColumnSpan="3" 
+    FontAttributes="Bold"
+    Text="DESCRIP"
+    FontSize="12"
+    TextColor="Black" />
+
+            <Label 
+    Grid.RowSpan="2"
+    Grid.Column="2" 
+                FontAttributes="Bold"
+    Text="UNIDAD"
+    FontSize="12"
+    TextColor="Black" 
+                BackgroundColor="Aqua"
+                HorizontalTextAlignment="Start"/>
+
+            <Label 
+    Grid.RowSpan="2"
+    Grid.Column="3" 
+                FontAttributes="Bold"
+    Text="MARCA"
+    FontSize="12"
+    TextColor="Black" />
+
+            <Label 
+                FontAttributes="Bold"
+    Text="LINEA"
+    Grid.RowSpan="2"
+    Grid.Column="4" 
+    FontSize="12"
+    TextColor="Black"/>
+
+            <Label 
+                FontAttributes="Bold"
+    Text="ESTADO"
+    Grid.RowSpan="2"
+    Grid.Column="5" 
+    FontSize="12"
+    TextColor="Black"/>
+
         </Grid>
 
 
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1">            
+            
             <mpowerkit:FixedRefreshView                    
                         HorizontalOptions="Fill" 
                         VerticalOptions="Fill"
@@ -35,10 +97,12 @@
                         ItemTapCommand="{Binding ItemTappedCommand}"                    
                         Padding="0"
                         BackgroundColor="Gray"
-                        ItemTapped="listViewProduct_ItemTapped">
-                    <mpowerkit:VirtualizeListView.ItemsLayout>
+                        ItemTapped="listViewProduct_ItemTapped">                   
+
+                    <!--<mpowerkit:VirtualizeListView.ItemsLayout>
                         <mpowerkit:GridLayout HorizontalItemSpacing="1" Span="4" VerticalItemSpacing="1" />
-                    </mpowerkit:VirtualizeListView.ItemsLayout>
+                    </mpowerkit:VirtualizeListView.ItemsLayout>-->
+                    
                     <mpowerkit:VirtualizeListView.ItemTemplate>
                         <DataTemplate>
                             <mpowerkit:VirtualizeListViewCell BackgroundColor="WhiteSmoke">
@@ -50,8 +114,81 @@
                                         <Setter Property="BackgroundColor" Value="WhiteSmoke"/>
                                     </DataTrigger>
                                 </mpowerkit:VirtualizeListViewCell.Triggers>
-                                <customrows:ProductCanvasRow Item="{x:Binding .}" ShowPrice="False">
-                                </customrows:ProductCanvasRow>
+                                
+                                
+                                <!--<customrows:ProductExtraRow Item="{x:Binding .}">
+                                </customrows:ProductExtraRow>-->
+
+                                <Grid Grid.Column="0"
+                                    VerticalOptions="Center"
+                                    ColumnSpacing="10"
+                                    ColumnDefinitions="Auto,500,*,*,*,*,*,*,*, 20"
+                                      RowDefinitions="*,*"
+                                        Margin="20,0,20,0">
+
+                                    <Label 
+                                        Grid.Row="0" 
+                                        Grid.Column="1"                                         
+                                        FontAttributes="Bold"
+                                        Text="{Binding default_code}"
+                                        FontSize="12"
+                                        TextColor="Black" />
+
+                                    <Label 
+                                        Grid.Column="1"
+                                        Grid.Row="2"
+                                        Grid.ColumnSpan="3" 
+                                        Text="{Binding name}"
+                                        FontSize="14"
+                                        TextColor="Black"
+                                        LineBreakMode="TailTruncation"
+                                        MaxLines="2" />
+
+                                    <Label 
+                                        Grid.Column="2"
+                                        Grid.Row="0"
+                                        Text="{Binding _uom_id}"
+                                        FontSize="14"
+                                        TextColor="Black"
+                                        BackgroundColor="Aqua"
+                                        HorizontalTextAlignment="Center"/>
+
+                                    <Label 
+                                        Grid.RowSpan="2"
+                                        Grid.Column="3" 
+                                        Text="{Binding marca_display}"
+                                        FontSize="12"
+                                        TextColor="DarkGreen" 
+                                        BackgroundColor="Aqua"/>
+
+                                    <Label 
+                                        Grid.RowSpan="2"
+                                        Grid.Column="4" 
+                                        Text="{Binding category_display}"
+                                        FontSize="12"
+                                        TextColor="Gray" />
+
+                                    <Label 
+                                        Grid.RowSpan="2"
+                                        Grid.Column="5" 
+                                        FontSize="12"
+                                        TextColor="Gray">
+                                        <Label.Triggers>
+                                            <DataTrigger 
+                                                TargetType="Label"
+                                                Binding="{Binding active}"
+                                                Value="True">
+                                                <Setter Property="Text" Value="Activo" />
+                                            </DataTrigger>
+                                            <DataTrigger 
+                                                    TargetType="Label"
+                                                    Binding="{Binding active}"
+                                                    Value="False">
+                                                <Setter Property="Text" Value="Inactivo" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Grid>
                             </mpowerkit:VirtualizeListViewCell>
                         </DataTemplate>
                     </mpowerkit:VirtualizeListView.ItemTemplate>

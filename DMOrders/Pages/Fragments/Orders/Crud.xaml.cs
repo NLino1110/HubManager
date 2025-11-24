@@ -33,8 +33,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
     public ICommand EditCommand { get; set; }
     public ICommand DeleteCommand { get; set; }
     public product_product _ProductEditing { get; set; }
-
-    public SaleOrderLineHeader OrdersLinesHeader { get; set; }
+    //public SaleOrderLineHeader OrdersLinesHeader { get; set; }
 
     public product_product ProductEditing
     {
@@ -73,7 +72,6 @@ public partial class Crud : ContentPage, IBackButtonHandler
             {
                 _CurrentPartner = value;
                 OnPropertyChanged(nameof(CurrentPartner));
-
                 OnPropertyChanged(nameof(PartnerDisplayName));
                 OnPropertyChanged(nameof(PartnerDisplayAddress));
                 OnPropertyChanged(nameof(PartnerDisplayStatus));
@@ -176,23 +174,23 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
         SearchProductView.PropertyChanged += SearchProductView_PropertyChanged;
 
-        OrdersLinesHeader = new SaleOrderLineHeader
-        {
-            Number = "N°",
-            Product = "ARTICULO",
-            UOM = "UNIDAD",
-            QtyReal = "CNTREAL",
-            QtyDisp = "CNTDSP",
-            Price = "PRECIO",
-            PriceTax = "PRE+IVA",
-            SubTotalNt = "SUBTOT(SI)",
-            DiscountPercent = "%DESC.",
-            DiscountValue = "$DESC.",
-            Tax = "IMP.",
-            Total = "TOTAL"
-        };
+        //OrdersLinesHeader = new SaleOrderLineHeader
+        //{
+        //    Number = "N°",
+        //    Product = "ARTICULO",
+        //    UOM = "UNIDAD",
+        //    QtyReal = "CNTREAL",
+        //    QtyDisp = "CNTDSP",
+        //    Price = "PRECIO",
+        //    PriceTax = "PRE+IVA",
+        //    SubTotalNt = "SUBTOT(SI)",
+        //    DiscountPercent = "%DESC.",
+        //    DiscountValue = "$DESC.",
+        //    Tax = "IMP.",
+        //    Total = "TOTAL"
+        //};
 
-        OnPropertyChanged(nameof(OrdersLinesHeader));
+        //OnPropertyChanged(nameof(OrdersLinesHeader));
     }
 
     private void SearchProductView_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -225,10 +223,13 @@ public partial class Crud : ContentPage, IBackButtonHandler
             {
                 Title += " [*]";
                 btnSend.IsVisible = false;
+
+                //Se muestra por defecto la búsqueda de productos
+                SearchProductView.IsVisible = true;
             }
             else
             {
-                Title += " [nuevo]";
+                Title += " []";
                 btnSend.IsVisible = true;
             }
 
@@ -426,6 +427,9 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 sale_channel = App.Session.odooConnection.sale_channel_default,
                 id_referencia = "M001-RC29102025",
                 _pricelist_id = CurrentPriceList.id,
+                amount_total = viewModel.Total,
+                amount_tax = viewModel.Impuesto,
+                amount_untaxed = viewModel.Subtotal,
                 state = "draft"
             };
 
@@ -444,6 +448,9 @@ public partial class Crud : ContentPage, IBackButtonHandler
             targetOrder.sale_channel = App.Session.odooConnection.sale_channel_default;
             targetOrder.id_referencia = "M001-RC29102025";
             targetOrder._pricelist_id = CurrentPriceList.id;
+            targetOrder.amount_total = viewModel.Total;
+            targetOrder.amount_tax = viewModel.Impuesto;
+            targetOrder.amount_untaxed = viewModel.Subtotal;
 
             if (await saleOrderDb.UpdateAsync(targetOrder) <= 0)
             {
@@ -591,6 +598,9 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 lineToDiscount.price_subtotal = (virtual_price_no_tax * lineToDiscount.product_uom_qty_real ) - discountAmount;
                 lineToDiscount.price_tax = (lineToDiscount.price_subtotal * lineToDiscount.virtual_iva_percentage) / 100;
                 lineToDiscount.price_total = lineToDiscount.price_subtotal + lineToDiscount.price_tax;
+
+                lineToDiscount.virtual_line_subtotal = virtual_price_no_tax * lineToDiscount.product_uom_qty_real;
+
                 lineToDiscount.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(promoResItem);
 
                 var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);

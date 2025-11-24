@@ -58,7 +58,7 @@ namespace ResourceBuilder.DBContext.PostgreSql
             string sshHost = "admin.dmujeres.ec";
             int sshPort = 22;
             string sshUser = "proyectos";
-            string sshPassword = "DM2003@m1ddl3w4r3";
+            string sshPassword = "MN@m2ddl2w4r3.26";
 
             // Crear cliente SSH
             _sshClient = new SshClient(sshHost, sshPort, sshUser, sshPassword);

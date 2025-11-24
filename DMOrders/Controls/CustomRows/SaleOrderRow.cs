@@ -115,13 +115,15 @@ namespace DMOrders.Controls.CustomRows
 
             var totalLabel = new Label
             {
-                Text = Item.amount_total.ToString(),
+                Text = Item.amount_total.ToString("C2"),
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 11,
                 TextColor = Colors.Black,
                 HorizontalOptions = LayoutOptions.End,
                 VerticalOptions = LayoutOptions.Center
             };
+
+            //totalLabel.SetBinding(Label.TextProperty, new Binding("amount_total", stringFormat: "{0:N4}"));
             grid.Children.Add(totalLabel);
             Grid.SetColumn(totalLabel, 4);
 

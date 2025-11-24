@@ -184,6 +184,10 @@ public partial class CatalogViewerInner : ContentView
         ddfSort.SelectedItem = sortProducts[0];
         ddfSort.SelectedItemChanged += DdfSort_SelectedItemChanged;
         filter_sort = sortProducts[0].id;
+
+
+        //_activeEntry = EntryCantidadSolicitada;
+        HighlightActiveEntry(_activeEntry);
     }
 
     private async void DdfBrands_SelectedItemChanged(object? sender, object e)
@@ -531,5 +535,162 @@ public partial class CatalogViewerInner : ContentView
         Confetti.TriggerAt(origin);
 
         //Confetti.TriggerCenter();
+    }
+
+
+    private Entry _activeEntry;
+
+    public decimal _product_uom_qty { get; set; }
+    public decimal _product_uom_qty_real { get; set; }
+
+    public decimal product_uom_qty
+    {
+        get => _product_uom_qty;
+        set
+        {
+            if (_product_uom_qty != value)
+            {
+                _product_uom_qty = value;
+                OnPropertyChanged(nameof(product_uom_qty));
+            }
+        }
+    }
+    public decimal product_uom_qty_real
+    {
+        get => _product_uom_qty_real;
+        set
+        {
+            if (_product_uom_qty_real != value)
+            {
+                _product_uom_qty_real = value;
+                OnPropertyChanged(nameof(product_uom_qty_real));
+            }
+        }
+    }
+
+
+
+    private void OnEntryTapped(object sender, EventArgs e)
+    {
+        if (sender is not Entry tappedEntry)
+            return;
+
+        // Si haces clic en el mismo, no hagas nada
+        if (_activeEntry == tappedEntry)
+            return;
+
+        // Cambiar estados visuales
+        HighlightActiveEntry(tappedEntry);
+        _activeEntry = tappedEntry;
+    }
+
+    private void HighlightActiveEntry(Entry active)
+    {
+        // Resalta el activo y apaga el otro
+        EntryCantidadSolicitada.BackgroundColor = active == EntryCantidadSolicitada
+            ? Colors.LightBlue
+            : Colors.LightGray;
+
+        EntryCantidadFinal.BackgroundColor = active == EntryCantidadFinal
+           ? Colors.LightBlue
+           : Colors.LightGray;
+    }
+
+    private void OnKeyClicked(object sender, EventArgs e)
+    {
+        if (_activeEntry is null) return;
+        if (sender is not Button btn) return;
+
+        var key = btn.Text;
+        var text = _activeEntry.Text ?? string.Empty;
+
+        switch (key)
+        {
+            case "⌫":
+                if (text.Length > 0)
+                    text = text[..^1]; // elimina el último carácter
+
+                // 👇 si quedó vacío, coloca "0"
+                if (string.IsNullOrEmpty(text))
+                    text = "0";
+                break;
+
+            case ".":
+                if (!text.Contains("."))
+                {
+                    text = text.Length == 0 ? "0." : text + ".";
+                }
+                break;
+
+            default:
+                if (key.Length == 1 && char.IsDigit(key[0]))
+                {
+                    if (text == "0")
+                        text = key; // reemplaza 0 inicial
+                    else
+                        text += key;
+                }
+                break;
+        }
+
+        _activeEntry.Text = text;
+    }
+
+    private void ResetOriginalValues(object sender, EventArgs e)
+    {
+        var vm = BindingContext as CatalogViewerModel;
+        var ProductEditing = vm.SelectedItem;
+
+        if (ProductEditing != null)
+        {
+            product_uom_qty_real = 0; // CurrentSaleOrderLine.product_uom_qty_real;
+            product_uom_qty = 0; // CurrentSaleOrderLine.product_uom_qty;
+            vm.SelectedItem = null;
+        }
+    }
+
+    private async void ApplyValueChanges(object sender, EventArgs e)
+    {
+        var vm = BindingContext as CatalogViewerModel;
+        var ProductEditing = vm.SelectedItem;
+
+        if (ProductEditing != null)
+        {
+            if ((decimal)ProductEditing.qty_available < product_uom_qty)
+            {
+                ProductEditing = null;
+                ProductEditing = null;
+                product_uom_qty_real = 0;
+                product_uom_qty = 0;
+                //OrderLinesCl.SelectedItem = null;
+
+                //await DisplayAlert("Alerta", "La cantidad solicitada no puede ser mayor a la disponible en inventario.", "Aceptar");
+                return;
+            }
+
+            //CurrentSaleOrderLine.product_uom_qty_real = product_uom_qty_real;
+            //CurrentSaleOrderLine.product_uom_qty = product_uom_qty;
+
+            //////////////////////////////
+            //var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
+            //var product_item = await productDb.GetItemAsync(x => x.id == CurrentSaleOrderLine.product_id);
+
+            //if (product_item == null)
+            //{
+            //    Debug.WriteLine("Error: no se encontró el producto para actualizar la línea de orden.");
+            //    return;
+            //}
+
+            //product_item.list_price = (float)CurrentSaleOrderLine.price_unit;
+            //((CrudViewModel)BindingContext).UpdateOrderLine(CurrentSaleOrderLine, product_item);
+            //////////////////////////////
+
+            //CurrentSaleOrderLine = null;
+            ProductEditing = null;
+            product_uom_qty_real = 0;
+            product_uom_qty = 0;
+                        
+            //OrderLinesCl.SelectedItem = null;
+        }
     }
 }

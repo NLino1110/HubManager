@@ -269,6 +269,23 @@ namespace DMSA.Models.Odoo.Native
             }
         }
 
+
+        [Ignore]
+        [JsonIgnore]
+        public decimal _virtual_line_subtotal { get; set; }
+
+        [JsonIgnore]
+        public decimal virtual_line_subtotal
+        {
+            get => _virtual_line_subtotal;
+            set
+            {
+                if (_virtual_line_subtotal == value) return;
+                _virtual_line_subtotal = value;
+                OnPropertyChanged(nameof(virtual_line_subtotal));
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         void OnPropertyChanged(string n) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
     }

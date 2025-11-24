@@ -39,6 +39,14 @@ namespace DMOrders.Services.Database.Sqlite
 
             var q = Database.Table<product_product>();
 
+            if (filter_pricelist > 0)
+            {
+                await PreloadPricelistCache(filter_pricelist);
+                var productTemplateIds = cachedProductsWithPrices.Keys.ToList();
+                //TODO: Se quita filtro porque se necesita que se muestren todos
+                //q = q.Where(p => productTemplateIds.Contains(p._product_tmpl_id));
+            }
+
             // --- 1) Filtro por code (prioridad máxima, como tu método actual) ---
             if (!string.IsNullOrWhiteSpace(filter_code))
             {
@@ -73,15 +81,7 @@ namespace DMOrders.Services.Database.Sqlite
             //    q = q.Where(x => x.is_new);
 
             if (filter_stock == 1)
-                q = q.Where(x => x.qty_available > 0);
-
-            if (filter_pricelist > 0)
-            {
-                await PreloadPricelistCache(filter_pricelist);
-                var productTemplateIds = cachedProductsWithPrices.Keys.ToList();
-                //TODO: Se quita filtro porque se necesita que se muestren todos
-                //q = q.Where(p => productTemplateIds.Contains(p._product_tmpl_id));
-            }
+                q = q.Where(x => x.qty_available > 0);            
 
             // --- 3) Orden ---
             q = ApplySort(q, filter_sort);

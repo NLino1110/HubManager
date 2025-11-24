@@ -89,11 +89,11 @@
             ViewerTemplate="{StaticResource ViewerTemplate}"
             RowTemplate="{StaticResource RowTemplate}"
             GridTemplate="{StaticResource GridTemplate}" />
-
     </ContentView.Resources>
-    <Grid RowDefinitions="Auto,Auto,*,Auto" BackgroundColor="WhiteSmoke">
+    
+    <Grid RowDefinitions="Auto,Auto,*,Auto" ColumnDefinitions="6*,*" BackgroundColor="WhiteSmoke">
         
-        <Grid BackgroundColor="Black" RowDefinitions="Auto" ColumnDefinitions="Auto,*,Auto" Grid.Row="0">
+        <Grid BackgroundColor="Black" RowDefinitions="Auto" ColumnDefinitions="Auto,*,Auto" Grid.Row="0" Grid.ColumnSpan="2">
             <Button Grid.Row="0" Text="" 
                     Grid.Column="0" 
                     TextColor="GhostWhite"
@@ -133,7 +133,9 @@
         <Grid BackgroundColor="WhiteSmoke" 
               RowDefinitions="Auto,Auto,Auto" 
               ColumnDefinitions="*,*,Auto" 
-              Grid.Row="1" ColumnSpacing="5" RowSpacing="0"
+              Grid.Row="1"               
+              ColumnSpacing="5" 
+              RowSpacing="0"              
               Padding="5">
 
             <material:TextField
@@ -265,8 +267,134 @@
             <!--<material:RadioButtonGroupView>
                 <material:RadioButton Text="Option 1" IsChecked="True" />
                 <material:RadioButton Text="Option 2" />
-            </material:RadioButtonGroupView>-->
+            </material:RadioButtonGroupView>-->        
+        
         </Grid>
+
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" Grid.Row="1" Grid.Column="1" Grid.RowSpan="2">
+
+            <Grid Grid.Row="0" 
+           ColumnDefinitions="*,*" 
+           RowSpacing="0" 
+           RowDefinitions="Auto,Auto,Auto,Auto"
+           Padding="0"
+                  Margin="5">
+
+                <Label Text="{Binding Path=SelectedItem.name}" 
+                      FontSize="10" 
+                      FontAttributes="Bold"
+                      TextColor="#242322" Grid.ColumnSpan="2"></Label>
+
+                <Label Text="Unidad Vta.:"  FontSize="10" Grid.Row="1" Grid.Column="0"/>
+                <Label Grid.Row="1" Grid.Column="1" Text="{Binding Path=SelectedItem._uom_id}" 
+               FontSize="10" 
+               FontAttributes="Bold"
+               TextColor="#242322"
+                  HorizontalTextAlignment="Start"
+                  VerticalTextAlignment="Center"></Label>
+
+                <Label Text="Stock:"  FontSize="10" Grid.Row="2" Grid.Column="0"/>
+                <Label Grid.Row="2" Grid.Column="1" Text="{Binding Path=SelectedItem.qty_available}" 
+                   FontSize="10" 
+                   FontAttributes="Bold"
+                   TextColor="#242322"
+                  HorizontalTextAlignment="Start"
+                  VerticalTextAlignment="Center"></Label>
+                <Label Text="Precio:"  FontSize="10" Grid.Row="3" Grid.Column="0"/>
+
+                <Label Grid.Row="3" Grid.Column="1" Text="{Binding Path=SelectedItem.list_price, StringFormat='${0:N3}'}" 
+                   FontSize="10"
+                   FontAttributes="Bold"
+                   TextColor="#242322"
+                  HorizontalTextAlignment="Start"
+                  VerticalTextAlignment="Center"></Label>
+            </Grid>
+
+
+            <Border Grid.Row="1" Stroke="LightGrey" Padding="0" Margin="5" HeightRequest="100">
+                <VerticalStackLayout>
+                    <Label  FontSize="10" Text="Cant. sol." 
+               BackgroundColor="SlateGray" 
+               TextColor="White" 
+               HorizontalTextAlignment="Center"></Label>
+                    <Entry  FontSize="10" x:Name="EntryCantidadSolicitada" IsReadOnly="True"
+                       Text="{Binding Path=product_uom_qty_real, 
+                        Mode=TwoWay,
+                        Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+               HorizontalTextAlignment="End"                           
+               FontAttributes="Bold">
+                        <Entry.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnEntryTapped" />
+                        </Entry.GestureRecognizers>
+                    </Entry>
+                    <Label  FontSize="10"  Text="Cant. fin." BackgroundColor="SlateGray" TextColor="White" HorizontalTextAlignment="Center"></Label>
+                    <Entry  FontSize="10"  x:Name="EntryCantidadFinal" IsReadOnly="True"
+               Text="{Binding Path=product_uom_qty, 
+                 Mode=TwoWay,
+                 Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+               HorizontalTextAlignment="End"
+               FontAttributes="Bold">
+                        <Entry.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnEntryTapped" />
+                        </Entry.GestureRecognizers>
+                    </Entry>
+                </VerticalStackLayout>
+            </Border>
+
+
+            <Button Grid.Row="2" Text="" BackgroundColor="LimeGreen" 
+        TextColor="White" 
+        FontAttributes="Bold" 
+        Margin="5"
+        Clicked="ApplyValueChanges">
+                <Button.ImageSource>
+                    <FontImageSource 
+Size="20"
+FontFamily="MaterialSharp"
+Glyph="{x:Static uranium:MaterialSharp.Check}" />
+                </Button.ImageSource>
+            </Button>
+
+            <Grid Grid.Row="3" ColumnDefinitions="Auto,Auto,Auto" RowDefinitions="Auto,Auto,Auto,Auto" Padding="2" RowSpacing="1" ColumnSpacing="1">
+                <Button Text="1" Grid.Row="0" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked">
+
+                </Button>
+
+                <Button Text="2" Grid.Row="0" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked">
+
+                </Button>
+                <Button Text="3" Grid.Row="0" Grid.Column="2" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
+                <Button Text="4" Grid.Row="1" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
+                <Button Text="5" Grid.Row="1" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
+                <Button Text="6" Grid.Row="1" Grid.Column="2" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
+                <Button Text="7" Grid.Row="2" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
+                <Button Text="8" Grid.Row="2" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
+                <Button Text="9" Grid.Row="2" Grid.Column="2" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
+
+                <Button Text="." Grid.Row="3" Grid.Column="0" FontAttributes="Bold" BackgroundColor="Gray" TextColor="WhiteSmoke"/>
+                <Button Text="0" Grid.Row="3" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
+                <Button Text="⌫" Grid.Row="3" Grid.Column="2" FontAttributes="Bold" FontSize="12" FontAutoScalingEnabled="True" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
+            </Grid>
+
+            <Button Grid.Row="4"
+  Text="" 
+  HorizontalOptions="Fill" 
+  BackgroundColor="Gray" 
+  TextColor="Black"
+  FontAttributes="Italic"
+  Margin="5"
+        Clicked="ResetOriginalValues">
+                <Button.ImageSource>
+                    <FontImageSource 
+            Size="20"
+            FontFamily="MaterialSharp"
+            Glyph="{x:Static uranium:MaterialSharp.Undo}" />
+                </Button.ImageSource>
+            </Button>
+
+
+        </Grid>
+
 
         <Grid RowDefinitions="Auto,*" Grid.Row="2">
             <Grid.GestureRecognizers>
@@ -276,8 +404,7 @@
                 <Label Grid.Column="0" Text="Producto" FontAttributes="Bold" Padding="5,0,0,0" HorizontalTextAlignment="Start"></Label>
                 <Label Grid.Column="1" Text="Unidad" FontAttributes="Bold" Padding="0,0,43,0" HorizontalTextAlignment="End"></Label>
                 <Label Grid.Column="2" Text="Precio" FontAttributes="Bold" Padding="0,0,83,0" HorizontalTextAlignment="End"></Label>
-                <Label Grid.Column="3" Text="Stock" FontAttributes="Bold" Padding="0,0,105,0" HorizontalTextAlignment="End"></Label>
-                <!--<Label Grid.Column="4" Text="Pre. Base" FontAttributes="Bold"  HorizontalTextAlignment="Start" IsVisible="False"></Label>-->
+                <Label Grid.Column="3" Text="Stock" FontAttributes="Bold" Padding="0,0,105,0" HorizontalTextAlignment="End"></Label>                
             </Grid>
             
             <!--<CollectionView
@@ -303,13 +430,14 @@
                 IsPullToRefreshEnabled="False">
                     <mpowerkit:VirtualizeListView 
                 x:Name="listViewProduct"
-                ItemsSource="{Binding ItemsData}"                
+                ItemsSource="{Binding ItemsData}"
+                        ItemTapCommand="{Binding ItemTappedCommand}"
                 Padding="0"                        
                 BackgroundColor="Gray" 
                         ItemTemplate="{StaticResource ProductTemplateSelector}"
-                        IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">                        
+                        IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
                         <mpowerkit:VirtualizeListView.ItemsLayout>
-                            <mpowerkit:GridLayout HorizontalItemSpacing="1" Span="4" VerticalItemSpacing="1" />
+                            <mpowerkit:GridLayout HorizontalItemSpacing="1" Span="4" VerticalItemSpacing="1" />                            
                         </mpowerkit:VirtualizeListView.ItemsLayout>                        
                     </mpowerkit:VirtualizeListView>
                 </mpowerkit:FixedRefreshView>
@@ -329,10 +457,11 @@
                         HorizontalOptions="Center" />
                 </Grid>
             </Grid>
+        </Grid>        
 
-        </Grid>
+        
 
-        <Grid Grid.Row="3" ColumnDefinitions="*,Auto">
+        <Grid Grid.Row="3" Grid.ColumnSpan="2" ColumnDefinitions="*,Auto">
             <StackLayout Orientation="Horizontal" HorizontalOptions="Start" Margin="0,2" Grid.Column="0">
                 <Button Text=""
                     Command="{Binding PreviousPageCommand}"
@@ -390,6 +519,6 @@
         </Grid>
         <controls:ConfettiOverlay x:Name="Confetti" 
                                   HorizontalOptions="Fill"
-                              VerticalOptions="Fill" Grid.RowSpan="4"/>
+                              VerticalOptions="Fill" Grid.RowSpan="4" Grid.ColumnSpan="2"/>
     </Grid>
 </ContentView>

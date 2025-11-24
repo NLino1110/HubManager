@@ -47,7 +47,7 @@ namespace DMOrders.Controls.CustomRows
 
             var priceLabel = new Label
             {
-                Text = $"Precio: {Item.list_price:C}",
+                Text = $"Precio: {Item.list_price:C4}",
                 FontSize = 12,
                 TextColor = Colors.DarkGreen
             };

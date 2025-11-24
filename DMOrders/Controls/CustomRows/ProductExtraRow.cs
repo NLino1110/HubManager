@@ -5,10 +5,10 @@ using System.Windows.Input;
 namespace DMOrders.Controls.CustomRows
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public class ProductRow : RowAdvance<product_product>
+    public class ProductExtraRow : RowAdvance<product_product>
     {
         public static readonly BindableProperty ShowSelectButtonProperty =
-            BindableProperty.Create(nameof(ShowSelectButton), typeof(bool), typeof(ProductRow), false);
+            BindableProperty.Create(nameof(ShowSelectButton), typeof(bool), typeof(ProductExtraRow), false);
 
         public bool ShowSelectButton
         {
@@ -17,7 +17,7 @@ namespace DMOrders.Controls.CustomRows
         }
 
         public static readonly BindableProperty ActionButtonProperty =
-            BindableProperty.Create(nameof(ActionButton), typeof(ICommand), typeof(ProductRow), null);
+            BindableProperty.Create(nameof(ActionButton), typeof(ICommand), typeof(ProductExtraRow), null);
 
         public ICommand ActionButton
         {
@@ -27,9 +27,12 @@ namespace DMOrders.Controls.CustomRows
 
         // ---------- cache de vistas (se crean una sola vez) ----------
         bool _built;
-        Label _nameLabel, _codeLabel, _priceLabel, 
-            //_priceBaseLabel, 
-            _stockLabel, _unitLabel;
+        Label _nameLabel, 
+            _codeLabel, 
+            _brand,
+            _brandLine,
+            _state,
+            _unitLabel;
         Button _btnSelect;
 
         protected override void BuildLeftGridContent(Grid leftGrid)
@@ -53,8 +56,9 @@ namespace DMOrders.Controls.CustomRows
                 {
                     new ColumnDefinition { Width = GridLength.Star },
                     new ColumnDefinition { Width = GridLength.Star },
+                    new ColumnDefinition { Width = GridLength.Star },                    
                     new ColumnDefinition { Width = GridLength.Star },
-                    //new ColumnDefinition { Width = GridLength.Star },
+                    new ColumnDefinition { Width = GridLength.Star },
                     new ColumnDefinition { Width = GridLength.Star },
                     new ColumnDefinition { Width = GridLength.Auto },
                 }
@@ -72,32 +76,30 @@ namespace DMOrders.Controls.CustomRows
             };
 
             _codeLabel = new Label { FontSize = 12, TextColor = Colors.Gray, InputTransparent = true };
-            _priceLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, HorizontalTextAlignment = TextAlignment.End, InputTransparent = true , VerticalTextAlignment = TextAlignment.Center };
-            //_priceBaseLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, HorizontalTextAlignment = TextAlignment.End, InputTransparent = true , VerticalTextAlignment = TextAlignment.Center, IsVisible = false };
-            _stockLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, HorizontalTextAlignment = TextAlignment.End, InputTransparent = true, VerticalTextAlignment = TextAlignment.Center };
-            _unitLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, HorizontalTextAlignment = TextAlignment.End, InputTransparent = true, VerticalTextAlignment = TextAlignment.Center };
+            _brand = new Label { FontSize = 12, TextColor = Colors.Gray, InputTransparent = true };
+            _brandLine = new Label { FontSize = 12, TextColor = Colors.Gray, InputTransparent = true };
+            _state = new Label { FontSize = 12, TextColor = Colors.Gray, InputTransparent = true };            
+            _unitLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, InputTransparent = true, VerticalTextAlignment = TextAlignment.Center };
+            _state = new Label { FontSize = 12, TextColor = Colors.DarkGreen, InputTransparent = true, VerticalTextAlignment = TextAlignment.Center };
 
             // Colocar en la grilla
             infoGrid.Add(_nameLabel, 0, 0);
-            //Grid.SetColumnSpan(_nameLabel, 2);
             infoGrid.Add(_codeLabel, 0, 1);
-            //Grid.SetColumnSpan(_codeLabel, 2);
             infoGrid.Add(_unitLabel, 1, 0);
             Grid.SetRowSpan(_unitLabel, 2);
 
-            infoGrid.Add(_priceLabel, 2, 0);
-            Grid.SetRowSpan(_priceLabel, 2);
-            infoGrid.Add(_stockLabel, 3, 0);
-            Grid.SetRowSpan(_stockLabel, 2);
-            //infoGrid.Add(_priceBaseLabel, 4, 0);
-            //Grid.SetRowSpan(_priceBaseLabel, 2);
+            infoGrid.Add(_brand, 2, 0);
+            Grid.SetRowSpan(_brand, 2);
+            infoGrid.Add(_brandLine, 3, 0);
+            Grid.SetRowSpan(_brandLine, 2);
+            infoGrid.Add(_state, 4, 0);
+            Grid.SetRowSpan(_state, 2);
 
             // Enlaza labels a las propiedades del Item (así no tienes que “repintar” manual)
             _nameLabel.SetBinding(Label.TextProperty, new Binding("Item.name", source: this));
             _codeLabel.SetBinding(Label.TextProperty, new Binding("Item.default_code", source: this, stringFormat: "Código: {0}"));
-            _priceLabel.SetBinding(Label.TextProperty, new Binding("Item.list_price", source: this, stringFormat: "Precio: {0:C4}"));
-            //_priceBaseLabel.SetBinding(Label.TextProperty, new Binding("Item.list_price", source: this, stringFormat: "PVP Base: {0:C}"));
-            _stockLabel.SetBinding(Label.TextProperty, new Binding("Item.qty_available", source: this, stringFormat: "Stock: {0}"));
+            _brand.SetBinding(Label.TextProperty, new Binding("Item.list_price", source: this, stringFormat: "Precio: {0:C4}"));
+            _brandLine.SetBinding(Label.TextProperty, new Binding("Item.qty_available", source: this, stringFormat: "Stock: {0}"));
             _unitLabel.SetBinding(Label.TextProperty, new Binding("Item._uom_id", source: this, stringFormat: "Unidad: {0}"));
 
             // Contenedor (dos filas: info + botón)

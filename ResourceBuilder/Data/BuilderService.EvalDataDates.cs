@@ -73,7 +73,7 @@ namespace ResourceBuilder.Data
                             //}
 
                             datesResult = responseAll.result
-                                .Select(m => m.write_date.Date)
+                                .Select(m => m.write_date.Value.Date)
                                 .Distinct() // Elimina duplicados
                                 .ToList();
                         }
@@ -91,7 +91,7 @@ namespace ResourceBuilder.Data
                         if (responseAll != null && responseAll?.result != null && responseAll.result.Length > 0)
                         {
                             datesResult = responseAll.result
-                                .Select(m => m.write_date.Date)
+                                .Select(m => m.write_date.Value.Date)
                                 .Distinct() // Elimina duplicados
                                 .ToList();
                         }
@@ -123,7 +123,7 @@ namespace ResourceBuilder.Data
                         if (responseAll != null && responseAll?.result != null && responseAll.result.Length > 0)
                         {
                             datesResult = responseAll.result
-                                .Select(m => m.write_date.Date)
+                                .Select(m => m.write_date.Value.Date)
                                 .Distinct()
                                 .ToList();
                         }
@@ -136,7 +136,7 @@ namespace ResourceBuilder.Data
                         if (responseAll != null && responseAll?.result != null && responseAll.result.Length > 0)
                         {
                             datesResult = responseAll.result
-                                .Select(m => m.write_date.Date)
+                                .Select(m => m.write_date.Value.Date)
                                 .Distinct()
                                 .ToList();
                         }
@@ -152,7 +152,7 @@ namespace ResourceBuilder.Data
                         if (responseAll != null && responseAll?.result != null && responseAll.result.Length > 0)
                         {
                             datesResult = responseAll.result
-                                .Select(m => m.write_date.Date)
+                                .Select(m => m.write_date.Value.Date)
                                 .Distinct() // Elimina duplicados
                                 .ToList();
                         }
@@ -166,7 +166,7 @@ namespace ResourceBuilder.Data
                         if (responseAll != null && responseAll?.result != null && responseAll.result.Length > 0)
                         {
                             datesResult = responseAll.result
-                                .Select(m => m.write_date.Date)
+                                .Select(m => m.write_date.Value.Date)
                                 .Distinct() // Elimina duplicados
                                 .ToList();
                         }

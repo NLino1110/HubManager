@@ -391,22 +391,22 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                                 Grid.Column="5"/>
 
                             <!-- priceUnitLabel -->
-                            <Label 
+                            <!--<Label 
                                 Text="PRE+IVA"
                                 FontAttributes="Bold"
                                 FontSize="11"
                                 TextColor="Black"
                                 HorizontalOptions="End"
-                                Grid.Column="6"/>
+                                Grid.Column="6"/>-->
 
                             <!-- subtotalLabel -->
                             <Label 
-                                Text="SUBTOT(SI)"
+                                Text="SUBTOT"
                                 FontAttributes="Bold"
                                 FontSize="11"
                                 TextColor="Black"
                                 HorizontalOptions="End"
-                                Grid.Column="7"/>
+                                Grid.Column="6"/>
 
                             <!-- discountPercentLabel -->
                             <Label 
@@ -415,7 +415,7 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                                 FontSize="11"
                                 TextColor="Black"
                                 HorizontalOptions="End"
-                                Grid.Column="8"/>
+                                Grid.Column="7"/>
 
                             <!-- discountLabel -->
                             <Label 
@@ -424,16 +424,16 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                                 FontSize="11"
                                 TextColor="Black"
                                 HorizontalOptions="End"
-                                Grid.Column="9"/>
+                                Grid.Column="8"/>
 
                             <!-- taxLabel -->
                             <Label 
-                                Text="IMP."
+                                Text="IMPUESTO"
                                 FontAttributes="Bold"
                                 FontSize="11"
                                 TextColor="Black"
                                 HorizontalOptions="End"
-                                Grid.Column="10"/>
+                                Grid.Column="9"/>
 
                             <!-- totalLabel -->
                             <Label 
@@ -442,7 +442,7 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                                 FontSize="11"
                                 TextColor="Black"
                                 HorizontalOptions="End"
-                                Grid.Column="11"/>
+                                Grid.Column="10"/>
                             
                             <StackLayout Grid.Column="12" MinimumWidthRequest="70"></StackLayout>
 
@@ -519,7 +519,7 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                       Padding="10"
                       Margin="20">
                     <Label Text="Subtotal:" Grid.Row="1" Grid.Column="0" FontSize="11"/>
-                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding Subtotal, StringFormat='${0:N3}'}" 
+                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding Subtotal, StringFormat='${0:N4}'}" 
                          FontSize="11" 
                          FontAttributes="Bold"
                          TextColor="#242322"
@@ -527,7 +527,7 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                             VerticalTextAlignment="Center"></Label>
                     
                     <Label Text="Descuento:" Grid.Row="2" Grid.Column="0" FontSize="11"></Label>
-                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding Descuento, StringFormat='${0:N3}'}" 
+                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding Descuento, StringFormat='${0:N4}'}" 
                      FontSize="11" 
                      FontAttributes="Bold"
                      TextColor="#242322"
@@ -536,7 +536,7 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
 
                     <Label Text="Neto:" Grid.Row="3" Grid.Column="0" FontSize="11" IsVisible="False"></Label>
                     <!--<Label Text="Total:" Grid.Row="3" Grid.Column="0" FontSize="11"></Label>-->
-                    <Label Grid.Row="3" Grid.Column="1" Text="{Binding Neto, StringFormat='${0:N3}'}" 
+                    <Label Grid.Row="3" Grid.Column="1" Text="{Binding Neto, StringFormat='${0:N4}'}" 
                      FontSize="11" 
                      FontAttributes="Bold"
                      TextColor="#242322"
@@ -545,7 +545,7 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                            IsVisible="False"></Label>
 
                     <Label Text="Impuesto:" Grid.Row="4" Grid.Column="0" FontSize="11"></Label>
-                    <Label Grid.Row="4" Grid.Column="1" Text="{Binding Impuesto, StringFormat='${0:N3}'}" 
+                    <Label Grid.Row="4" Grid.Column="1" Text="{Binding Impuesto, StringFormat='${0:N4}'}" 
                      FontSize="11" 
                      FontAttributes="Bold"
                      TextColor="#242322"
@@ -553,7 +553,7 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                         VerticalTextAlignment="Center"></Label>
 
                     <Label Text="Comp. Solidaria:" Grid.Row="5" Grid.Column="0" FontSize="11" IsVisible="False"></Label>
-                    <Label Grid.Row="5" Grid.Column="1" Text="{Binding CompSolidaria, StringFormat='${0:N3}'}" 
+                    <Label Grid.Row="5" Grid.Column="1" Text="{Binding CompSolidaria, StringFormat='${0:N4}'}" 
                      FontSize="11" 
                      FontAttributes="Bold"
                      TextColor="#242322"
@@ -561,7 +561,7 @@ Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                         VerticalTextAlignment="Center" IsVisible="False"></Label>
 
                     <Label Text="Total:" Grid.Row="6" Grid.Column="0" FontSize="15"></Label>
-                    <Label Grid.Row="6" Grid.Column="1" Text="{Binding Total, StringFormat='${0:N3}'}" 
+                    <Label Grid.Row="6" Grid.Column="1" Text="{Binding Total, StringFormat='${0:N4}'}" 
                      FontSize="15" 
                      FontAttributes="Bold"
                      TextColor="#242322"
