@@ -83,6 +83,15 @@ namespace DMOrders.Services.Database.Sqlite
             if (filter_stock == 1)
                 q = q.Where(x => x.qty_available > 0);            
 
+            if(filter_status == 1) // Activos
+            {
+                q = q.Where(x => x.active == true);
+            }
+            else if(filter_status == 2) // Inactivos
+            {
+                q = q.Where(x => x.active == false);
+            }
+
             // --- 3) Orden ---
             q = ApplySort(q, filter_sort);
 
