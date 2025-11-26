@@ -353,11 +353,28 @@ namespace DMOrders.Services.Promotions
 
                     if (promo._promotion_type_id == 4) // es NXN
                     {
-                        if (r.value > 0)
+                        //if (r.value > 0)
+                        //{
+                        //    if (qty < r.value) continue;
+                        //    reasons.Add($"Cumple cantidad mínima: {r.value}");
+                        //}
+
+                        decimal variableValue = GetVariableValue(r.variable);
+                        decimal value_for_eval = r.minimum_value;
+                        decimal value_for_eval_max = r.maximum_value;
+
+                        if (r.variable == "qty_product_unts")
                         {
-                            if (qty < r.value) continue;
-                            reasons.Add($"Cumple cantidad mínima: {r.value}");
+                            r.operator_ = "between_included";
                         }
+
+                        cumple = OperatorEvaluator.Evaluate(r.operator_, variableValue, value_for_eval, value_for_eval_max);
+
+                        if (cumple)
+                        {
+                            reasons.Add($"Aplica NxN: {product_id}, {r.discount} %");
+                        }
+
                     }
 
                     if (promo._promotion_type_id == 6) // es descuento

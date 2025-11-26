@@ -50,8 +50,14 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                 {
                     foreach (var benefit in promo.Items)
                     {
-                        //Se agregan los beneficios automáticos para cargar sus regalos
-                        if (benefit.Promotion._selection_type_id == 1)
+                        //Se agregan los beneficios automáticos para cargar sus regalos si es que es tipo Bonificado == 2
+                        if (benefit.Promotion._promotion_type_id == 2 && benefit.Promotion._selection_type_id == 1)
+                        {
+                            _ = AddAutoGiftsAsync(benefit);
+                        }
+
+                        //NxN se aplica automáticamente
+                        if (benefit.Promotion._promotion_type_id == 4 && benefit.Promotion._selection_type_id == 1)
                         {
                             _ = AddAutoGiftsAsync(benefit);
                         }
@@ -90,6 +96,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
             {
                 productGift.qty_gift = 0;
                 productGift.promotionEvalItem = benefit;
+                productGift.qty_gift = benefit.RuleSet.value;
                 Debug.WriteLine($"Cargado regalo automático para promoción {benefit.Promotion.name}: {productGift.name}");
                 _promoGiftsAuto.Add(productGift);
 

@@ -506,8 +506,11 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 }
 
                 if (promoResItem.Promotion._promotion_type_id == 4) // es NXN
-                {                    
-                    //throw new NotImplementedException("Requiere implementación de promocion NXN");
+                {
+                    //await ApplyNxN(saleOrder, promoResItem);
+                    //((CrudViewModel)BindingContext).UpdateTotals();
+                    ShowPromoPopup = true;
+                    break;
                 }
 
                 if (promoResItem.Promotion._promotion_type_id == 6)
@@ -568,6 +571,11 @@ public partial class Crud : ContentPage, IBackButtonHandler
         }
 
         return new List<string>();
+    }
+
+    private async Task ApplyNxN(sale_order saleOrder, PromotionEvalItem promoResItem)
+    {
+        throw new NotImplementedException();
     }
 
     private async Task ApplyDiscount(sale_order saleOrder, PromotionEvalItem promoResItem)
