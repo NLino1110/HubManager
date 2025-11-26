@@ -733,8 +733,8 @@ public partial class Login : ContentPage
                 if (!isOnline)
                 {
                     BtnTryLogin.IsEnabled = true;
-                    await Toast.Make("Offline o servidor inválido!").Show();
-                    Debug.WriteLine("Offline o servidor inválido!");
+                    await Toast.Make("Offline o servidor inválido! [Módulo de móvil debe estar instalado]").Show();
+                    Debug.WriteLine("Offline o servidor inválido! [Módulo de móvil debe estar instalado]");
                     return;
                 }
 

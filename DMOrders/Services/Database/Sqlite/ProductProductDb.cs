@@ -15,8 +15,11 @@ namespace DMOrders.Services.Database.Sqlite
 {
     public class ProductProductDb : SqliteDbBase<product_product>
     {
-        private Dictionary<int, decimal> cachedProductsWithPrices =
-    new Dictionary<int, decimal>();
+        private Dictionary<int, decimal> cachedProductsWithPrices = new Dictionary<int, decimal>();
+        private Dictionary<int, uom_uom> cachedUom = new();
+
+        private Dictionary<int, string> cachedMarcas = new Dictionary<int, string>();
+        private Dictionary<int, string> cachedCategorias = new Dictionary<int, string>();
 
         public ProductProductDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
@@ -38,6 +41,8 @@ namespace DMOrders.Services.Database.Sqlite
             Init();
 
             var q = Database.Table<product_product>();
+
+            await PreloadInfoData();
 
             if (filter_pricelist > 0)
             {
@@ -98,6 +103,30 @@ namespace DMOrders.Services.Database.Sqlite
             return q;
         }
 
+        public async Task PreloadInfoData()
+        {
+            if (cachedUom.Count > 0)
+                return;
+
+            var items = await Database.Table<uom_uom>()
+                .Where(x => x.active == true)
+                .ToArrayAsync();
+
+            cachedUom = items.ToDictionary(uom=>uom.id, uom=>uom);
+
+            var itemsMarcas = await Database.Table<product_marca>()
+                .Where(x => x.active == true)
+                .ToArrayAsync();
+
+            cachedMarcas = itemsMarcas.ToDictionary(marca => marca.id, marca => marca.name);
+
+            var itemsCategs = await Database.Table<product_categoria>()
+                .Where(x => x.active == true)
+                .ToArrayAsync();
+
+            cachedCategorias = itemsCategs.ToDictionary(categ => categ.id, categ => categ.name);
+        }
+
         public async Task PreloadPricelistCache(int pricelistId)
         {
             if (cachedProductsWithPrices.Count > 0)
@@ -150,9 +179,10 @@ namespace DMOrders.Services.Database.Sqlite
             var offset = Math.Max(0, (page - 1) * pageSize);
             var items = await q.Skip(offset).Take(pageSize).ToListAsync();
 
-            if (filter_pricelist > 0)
+            
+            foreach (var p in items)
             {
-                foreach (var p in items)
+                if (filter_pricelist > 0)
                 {
                     if (cachedProductsWithPrices.TryGetValue(p._product_tmpl_id, out var price))
                     {
@@ -163,6 +193,10 @@ namespace DMOrders.Services.Database.Sqlite
                         p.list_price = 0;
                     }
                 }
+
+                p.uom_display = cachedUom.TryGetValue(p._uom_id, out var uom) ? uom.clave_externa : "";
+                p.marca_display = cachedMarcas.TryGetValue(p._general_marca_id, out var marcaName) ? marcaName : "";
+                p.categoria_display = cachedCategorias.TryGetValue(p._general_categoria_id, out var categName) ? categName : "";
             }
 
             return (items, total);
@@ -178,6 +212,12 @@ namespace DMOrders.Services.Database.Sqlite
         {
             await Init();
             return await Database.Table<product_product>().Where(x => x._product_tmpl_id == product_template_id).FirstOrDefaultAsync();
+        }
+
+        internal async Task<List<product_product>> GetByProductsTemplate(int[] product_template_ids)
+        {
+            await Init();
+            return await Database.Table<product_product>().Where(x => product_template_ids.Contains(x._product_tmpl_id)).ToListAsync();
         }
 
         internal async Task<int[]> GetAllTaxesIdsAsync()

@@ -12,23 +12,23 @@
              x:Name="ActivitiesDataGrid">
 
     <Grid RowDefinitions="Auto,*,Auto">
-        <Grid Grid.Row="0" BackgroundColor="Gray" Padding="2">
+        <Grid Grid.Row="0" Grid.Column="1" BackgroundColor="LightGray" ColumnSpacing="10" Padding="10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Label Text="ID" FontAttributes="Bold" WidthRequest="40" TextColor="GhostWhite"/>
-            <Label Text="VENDEDOR" Grid.Column="1" FontAttributes="Bold" WidthRequest="420" TextColor="GhostWhite"/>
-            <Label Text="FECHA REP." Grid.Column="2" FontAttributes="Bold" WidthRequest="170" TextColor="GhostWhite"/>
-            <Label Text="FECHA SINC." Grid.Column="3" FontAttributes="Bold" WidthRequest="170" TextColor="GhostWhite"/>
-            <Label Text="USUARIO" Grid.Column="4" FontAttributes="Bold" WidthRequest="170"  TextColor="GhostWhite"/>
-            <Label Text="ESTADO" Grid.Column="5" FontAttributes="Bold" WidthRequest="170" TextColor="GhostWhite"/>
-            <Label Text="-" Grid.Column="6" FontAttributes="Bold" TextColor="GhostWhite"/>
+            <Label Text="ID" FontAttributes="Bold" FontSize="11" TextColor="Black"/>
+            <Label Text="VENDEDOR" Grid.Column="1" FontAttributes="Bold" FontSize="11" TextColor="Black"/>
+            <Label Text="FECHA REP." Grid.Column="2" FontAttributes="Bold" FontSize="11" TextColor="Black"/>
+            <Label Text="FECHA SINC." Grid.Column="3" FontAttributes="Bold"  FontSize="11" TextColor="Black"/>
+            <Label Text="USUARIO" Grid.Column="4" FontAttributes="Bold"  FontSize="11" TextColor="Black"/>
+            <Label Text="ESTADO" Grid.Column="5" FontAttributes="Bold" FontSize="11" TextColor="Black"/>
+            <Label Text="-" Grid.Column="6" FontAttributes="Bold" FontSize="11" TextColor="Black"/>
         </Grid>
 
         <Grid Grid.Row="1">

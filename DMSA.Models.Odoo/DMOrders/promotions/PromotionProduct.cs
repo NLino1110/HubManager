@@ -198,19 +198,35 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
             set => general_tipo_marca_id = SetIds(general_tipo_marca_id, value);
         }
 
+        //[Ignore]
+        //[JsonProperty("general_product_id")]
+        //public JToken general_product_id { get; set; } // product.template m2m
+
+
+
         [Ignore]
         [JsonProperty("general_product_id")]
-        public JToken general_product_id { get; set; } // product.template m2m
-
-        [Ignore]
-        [JsonIgnore]
-        public int[] _general_product_id
+        public JToken general_product_id
         {
-            get => GetIds(general_product_id);
-            set => general_product_id = SetIds(general_product_id, value);
+            get => string.IsNullOrEmpty(general_product_id_json)
+                ? null
+                : JToken.Parse(general_product_id_json);
+
+            set => general_product_id_json = value?.ToString(Newtonsoft.Json.Formatting.None);
         }
 
-        
+        //[Ignore]
+        //[JsonIgnore]
+        //public int[] _general_product_id
+        //{
+        //    get => GetIds(general_product_id);
+        //    set => general_product_id = SetIds(general_product_id, value);
+        //}
+
+        [JsonIgnore]
+        [JsonProperty("general_product_id_json")]
+        public string general_product_id_json { get; set; }
+
         [Ignore]
         [JsonProperty("detail_ids")]
         public JToken detail_ids { get; set; } // promotion.product.detail (parent_id)

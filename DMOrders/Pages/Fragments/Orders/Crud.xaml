@@ -51,32 +51,39 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
             <Grid Grid.Row="1" 
                     ColumnDefinitions="*,*" 
                     RowSpacing="4" 
-                    RowDefinitions="Auto,Auto,Auto,Auto"
+                    RowDefinitions="Auto,Auto,Auto,Auto,Auto"
                     Padding="5">
-                
-                <Label Text="{Binding Path=ProductEditing.name, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+
+                <Label Grid.Row="0" x:Name="labelGifInfo" Text="Regalo no editable." 
+                       FontSize="12" 
+                       FontAttributes="Bold" 
+                       TextColor="Orange" 
+                       Grid.ColumnSpan="2" 
+                       IsVisible="False"></Label>
+
+                <Label Grid.Row="1" Text="{Binding Path=ProductEditing.name, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
        FontSize="13" 
        FontAttributes="Bold"
        TextColor="#242322" Grid.ColumnSpan="2" MinimumHeightRequest="80"></Label>
                 
-                <Label Text="Unidad Vta.:" Grid.Row="1" Grid.Column="0"/>
-                <Label Grid.Row="1" Grid.Column="1" Text="{Binding Path=ProductEditing._uom_id, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+                <Label Text="Unidad Vta.:" Grid.Row="2" Grid.Column="0"/>
+                <Label Grid.Row="2" Grid.Column="1" Text="{Binding Path=ProductEditing._uom_id, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
                     FontSize="12" 
                     FontAttributes="Bold"
                     TextColor="#242322"
                        HorizontalTextAlignment="Start"
                        VerticalTextAlignment="Center"></Label>
 
-                <Label Text="Stock:" Grid.Row="2" Grid.Column="0"/>
-                <Label Grid.Row="2" Grid.Column="1" Text="{Binding Path=ProductEditing.qty_available, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+                <Label Text="Stock:" Grid.Row="3" Grid.Column="0"/>
+                <Label Grid.Row="3" Grid.Column="1" Text="{Binding Path=ProductEditing.qty_available, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
                         FontSize="12" 
                         FontAttributes="Bold"
                         TextColor="#242322"
                        HorizontalTextAlignment="Start"
                        VerticalTextAlignment="Center"></Label>
-                <Label Text="Precio:" Grid.Row="3" Grid.Column="0"/>
-
-                <Label Grid.Row="3" Grid.Column="1" Text="{Binding Path=ProductEditing.list_price, Source={RelativeSource AncestorType={x:Type ContentPage}}, StringFormat='${0:N3}'}" 
+                
+                <Label Text="Precio:" Grid.Row="4" Grid.Column="0"/>
+                <Label Grid.Row="4" Grid.Column="1" Text="{Binding Path=ProductEditing.list_price, Source={RelativeSource AncestorType={x:Type ContentPage}}, StringFormat='${0:N3}'}" 
                         FontSize="12"
                         FontAttributes="Bold"
                         TextColor="#242322"
@@ -143,7 +150,7 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
                 </VerticalStackLayout>
             </Border>
 
-            <Button Grid.Row="3" Text="" BackgroundColor="LimeGreen" 
+            <Button x:Name="btnApplyQty" Grid.Row="3" Text="" BackgroundColor="LimeGreen" 
                     TextColor="White" 
                     FontAttributes="Bold" 
                     Margin="5"
@@ -180,7 +187,7 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
                 <Button Text="⌫" Grid.Row="3" Grid.Column="2" FontAttributes="Bold" FontSize="12" FontAutoScalingEnabled="True" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
             </Grid>
 
-            <Button Grid.Row="5"
+            <Button x:Name="btnResetQty" Grid.Row="5"
               Text="" 
               HorizontalOptions="Fill" 
               BackgroundColor="Gray" 

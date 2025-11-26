@@ -274,6 +274,9 @@ namespace DMSA.Models.Odoo.Native
         [JsonIgnore]
         public decimal _virtual_line_subtotal { get; set; }
 
+        [JsonProperty("product_tmpl_id")]
+        public int product_tmpl_id { get; set; }
+
         [JsonIgnore]
         public decimal virtual_line_subtotal
         {

@@ -408,7 +408,7 @@ namespace DMOrders.Pages.Fragments.Orders
             decimal iva_tax = (decimal)tax_sale.amount; //15m;
             decimal factor_iva = 1 + (iva_tax / 100m);
 
-            decimal price_without_iva = Math.Round(price_list_value / factor_iva, 6);
+            decimal price_without_iva = Math.Round(price_list_value / factor_iva, 7);
             decimal total_line = Math.Round((price_list_value * quantity) - discount_value, decimalPositions);
 
             //return new PriceCalculationResult
@@ -463,6 +463,7 @@ namespace DMOrders.Pages.Fragments.Orders
                 existingLine.virtual_price_no_tax = priceCalc.PriceWithoutIva;
                 existingLine.virtual_iva_percentage = priceCalc.IvaPercentage;
                 existingLine.virtual_line_subtotal = priceCalc.LineSubtotal;
+                existingLine.product_tmpl_id = product._product_tmpl_id;
                 OnPropertyChanged(nameof(OrderLines));
             }
             else
@@ -489,7 +490,8 @@ namespace DMOrders.Pages.Fragments.Orders
                         price_total = priceCalc.TotalLine,
                         virtual_price_no_tax = priceCalc.PriceWithoutIva,
                         virtual_iva_percentage = priceCalc.IvaPercentage,
-                        virtual_line_subtotal = priceCalc.LineSubtotal
+                        virtual_line_subtotal = priceCalc.LineSubtotal,
+                        product_tmpl_id = product._product_tmpl_id
                     };
 
                     OrderLines.Add(line);
@@ -518,6 +520,7 @@ namespace DMOrders.Pages.Fragments.Orders
                 sale_Order_Line.virtual_price_no_tax = priceCalc.PriceWithoutIva;
                 sale_Order_Line.virtual_iva_percentage = priceCalc.IvaPercentage;
                 sale_Order_Line.virtual_line_subtotal = priceCalc.LineSubtotal;
+                sale_Order_Line.product_tmpl_id = product._product_tmpl_id;
                 sale_Order_Line.promotion_data = "";
                 //OnPropertyChanged(nameof(OrderLines));
             }
@@ -546,7 +549,7 @@ namespace DMOrders.Pages.Fragments.Orders
 
                                 if (promotionEvalItem != null)
                                 {
-                                    if (sale_Order_Line.product_id == promotionEvalItem.ProductId)
+                                    if (sale_Order_Line.product_tmpl_id == promotionEvalItem.ProductId)
                                     {
                                         OrderLines.Remove(itemGift);
                                     }

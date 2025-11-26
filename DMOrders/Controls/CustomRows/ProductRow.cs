@@ -95,10 +95,10 @@ namespace DMOrders.Controls.CustomRows
             // Enlaza labels a las propiedades del Item (así no tienes que “repintar” manual)
             _nameLabel.SetBinding(Label.TextProperty, new Binding("Item.name", source: this));
             _codeLabel.SetBinding(Label.TextProperty, new Binding("Item.default_code", source: this, stringFormat: "Código: {0}"));
-            _priceLabel.SetBinding(Label.TextProperty, new Binding("Item.list_price", source: this, stringFormat: "Precio: {0:C4}"));
+            _priceLabel.SetBinding(Label.TextProperty, new Binding("Item.list_price", source: this, stringFormat: "{0:N4}"));
             //_priceBaseLabel.SetBinding(Label.TextProperty, new Binding("Item.list_price", source: this, stringFormat: "PVP Base: {0:C}"));
-            _stockLabel.SetBinding(Label.TextProperty, new Binding("Item.qty_available", source: this, stringFormat: "Stock: {0}"));
-            _unitLabel.SetBinding(Label.TextProperty, new Binding("Item._uom_id", source: this, stringFormat: "Unidad: {0}"));
+            _stockLabel.SetBinding(Label.TextProperty, new Binding("Item.qty_available", source: this));
+            _unitLabel.SetBinding(Label.TextProperty, new Binding("Item.uom_display", source: this));
 
             // Contenedor (dos filas: info + botón)
             var container = new Grid

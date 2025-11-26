@@ -12,8 +12,26 @@
              x:Name="ActivitiesDataGrid">
 
     <Grid RowDefinitions="Auto,*,Auto">
-        <Label Grid.Row="0" Text="Listado de ordenes creadas por el usuario..." TextColor="DimGray" BackgroundColor="LightYellow" Padding="5"></Label>
         
+        <Grid Grid.Row="0"
+            VerticalOptions="Center"
+            ColumnSpacing="5"
+            ColumnDefinitions="20,200,*,*,*,*,*,20"
+            RowDefinitions="*"                
+          BackgroundColor="LightGray"              
+          Padding="3" 
+          HeightRequest="35">
+
+            <Label Grid.Column="0" FontAttributes="Bold" Text="No." FontSize="11" TextColor="Black" HorizontalTextAlignment="Start"/>
+            <Label Grid.Column="1" FontAttributes="Bold" Text="CLIENTE" FontSize="11" TextColor="Black" HorizontalTextAlignment="Start"/>
+            <Label Grid.Column="2" FontAttributes="Bold" Text="Fec. Ord." FontSize="11" TextColor="Black" HorizontalTextAlignment="End"/>
+            <Label Grid.Column="3" FontAttributes="Bold" Text="Fec. Sync" FontSize="11" TextColor="Black" HorizontalTextAlignment="End"/>
+            <Label Grid.Column="4" FontAttributes="Bold" Text="Total" FontSize="11" TextColor="Black" HorizontalTextAlignment="End"/>
+            <Label Grid.Column="5" FontAttributes="Bold" Text="Sync" FontSize="11" TextColor="Black" HorizontalTextAlignment="End"/>
+            <Label Grid.Column="6" FontAttributes="Bold" Text="-" FontSize="11" TextColor="Black" WidthRequest="200" HorizontalTextAlignment="End"/>
+        </Grid>
+        
+
         <Grid Grid.Row="1">
             
             <CollectionView 

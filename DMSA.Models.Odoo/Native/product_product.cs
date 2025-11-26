@@ -226,6 +226,10 @@ namespace DMSA.Models.Odoo.Native
 
         [Ignore]
         [JsonIgnore]
+        public bool allow_add_gift { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
         public PromotionEvalItem promotionEvalItem { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;

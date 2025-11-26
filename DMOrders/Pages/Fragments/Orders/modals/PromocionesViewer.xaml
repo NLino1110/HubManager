@@ -157,6 +157,15 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                                         FontFamily="MaterialSharp"
                                         Glyph="{x:Static uranium:MaterialSharp.Add}" />
                                 </Button.ImageSource>
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding allow_add_gift}" Value="False">
+                                        <Setter Property="IsVisible" Value="False"/>
+                                    </DataTrigger>
+
+                                    <DataTrigger TargetType="Button" Binding="{Binding allow_gift}" Value="True">
+                                        <Setter Property="IsVisible" Value="True"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
                             </Button>
                         </HorizontalStackLayout>
                     </DataTemplate>

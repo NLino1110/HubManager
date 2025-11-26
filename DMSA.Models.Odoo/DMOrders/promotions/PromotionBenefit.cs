@@ -215,7 +215,11 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
 
         [Ignore]
         [JsonIgnore]
-        public List<PromotionProductDetail> _product_promotion_ids { get; set; }
+        public List<PromotionProduct> _product_promotion_ids { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
+        public List<PromotionProductDetail> _product_details_promotion_ids { get; set; }
 
         [Ignore]
         [JsonProperty("promotion_rules_ids")]

@@ -1,6 +1,7 @@
 ﻿using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.DMOrders.promotions;
 using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.Globalization;
@@ -19,7 +20,8 @@ namespace DMOrders.Services.Promotions
             { "less_than_or_equal", (a, b, _) => a <= b },
             { "greater_than_or_equal", (a, b, _) => a >= b },
             { "between_included", (a, b, c) => a >= b && a <= c }, 
-            { "between_excluded", (a, b, c) => a > b && a < c }
+            { "between_excluded", (a, b, c) => a > b && a < c },
+            { "between_or_greater_than", (a, b, c) => (a >= b && a <= c) || a > c }, 
 
             //between_included, between_excluded
             //SON CUSTOM, NO EXISTEN EN APLICACION ODOO
@@ -45,15 +47,18 @@ namespace DMOrders.Services.Promotions
             // Llamas al método que ya tienes para buscar promociones
             var promos = await db.SearchAll(companyId, nowUtc);
 
-            var productPromoDb = new PromotionProductDetailDb(App.Session.odooConnection.DbNameSqlite);
+            var productPromoDb = new PromotionProductDb(App.Session.odooConnection.DbNameSqlite);
+            var productDetailPromoDb = new PromotionProductDetailDb(App.Session.odooConnection.DbNameSqlite);
             var promoRulesDb = new PromoRulesDb(App.Session.odooConnection.DbNameSqlite);
             var promoCentersDb = new PromoCentersDb(App.Session.odooConnection.DbNameSqlite);
 
             // Asegura listas inicializadas
             foreach (var promo in promos)
             {
-                // 1️⃣ Cargar productos asociados a la promoción
                 promo._product_promotion_ids = await productPromoDb.GetItemsByPromo(promo.id);
+
+                // 1️⃣ Cargar productos asociados a la promoción
+                promo._product_details_promotion_ids = await productDetailPromoDb.GetDetailsFull(promo.id);
 
                 // 2️⃣ Cargar reglas de la promoción
                 promo._promotion_rules_ids = await promoRulesDb.GetItemsByParent(promo.id);
@@ -223,7 +228,17 @@ namespace DMOrders.Services.Promotions
 
                 // Si la promoción tiene detalles de productos explícitos:
                 bool productMatches = true;
-                if (promo._product_promotion_ids != null && promo._product_promotion_ids.Any())
+
+                List<int> fullProductDetails = new();
+
+                foreach (var productIds in promo._product_promotion_ids)
+                {
+                    var ids = JsonConvert.DeserializeObject<int[]>(productIds.general_product_id_json);
+                    if (ids != null)
+                        fullProductDetails.AddRange(ids);
+                }
+
+                if (fullProductDetails.Any())
                 {
                     if (product_id == 0)
                     {
@@ -231,31 +246,7 @@ namespace DMOrders.Services.Promotions
                     }
                     else
                     {
-                        // promo._product_promotion_ids normalmente será List<PromotionProductDetail>
-                        // intentamos comparar por product id (prop name típico: product / product_id)
-                        productMatches = promo._product_promotion_ids.Any(d =>
-                        {
-                            try
-                            {
-                                // Intentamos leer 'product' o 'product_id' dentro de detail
-                                // La clase PromotionProductDetail en tu proyecto debería tener .product?.id o .product_id
-                                PromotionProductDetail det = d;
-                                if (det == null) return false;
-                                                                
-                                try
-                                {
-                                    int pid = det._product_id;
-                                    return pid == product_id;
-                                }
-                                catch { }
-
-                                return false;
-                            }
-                            catch
-                            {
-                                return false;
-                            }
-                        });
+                        productMatches = fullProductDetails.Contains(product_id);
                     }
 
                     if (!productMatches) continue;
@@ -384,6 +375,7 @@ namespace DMOrders.Services.Promotions
                         if (r.variable == "qty_product_unts")
                         {
                             r.operator_ = "between_included";
+                            //r.operator_ = "between_or_greater_than"; 
                         }
 
                         if (r.variable == "total_product_amount")
@@ -402,7 +394,7 @@ namespace DMOrders.Services.Promotions
 
                         if(cumple)
                         {
-                            reasons.Add($"Aplica descuento: {product_id}, {r.discount} %");                            
+                            reasons.Add($"Aplica descuento: {product_id}, {r.discount} %");
                         }
                     }
 
@@ -410,6 +402,14 @@ namespace DMOrders.Services.Promotions
 
                     if (cumple)
                     {
+                        bool existsDiscountPromo = results.Any(x => x.Promotion._promotion_type_id == 6 && x.ProductId == product_id);
+
+                        if (existsDiscountPromo) {
+                            reasons.Add($"No se agregará {promo.name} porque ya se aplicó descuento previo");
+                            Debug.WriteLine($"No se agregará {promo.name} porque ya se aplicó descuento previo");
+                            continue;
+                        }
+
                         // Si llegamos acá, la regla aplica:
                         results.Add(new PromotionEvalItem
                         {

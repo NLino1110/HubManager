@@ -33,10 +33,10 @@
             <Label Text="Ced./Ruc" Grid.Column="1" FontAttributes="Bold"  FontSize="11" Padding="20,0,0,0" HorizontalTextAlignment="Start"/>
             <Label Text="Nombre" Grid.Column="2" FontAttributes="Bold"  FontSize="11" Padding="30,0,0,0" HorizontalTextAlignment="Start"/>
             <!--<Label Text="Email" Grid.Column="3" FontAttributes="Bold"  Padding="25,0,0,0" FontSize="11"/>-->
-            <Label Text="Teléfono" Grid.Column="4" FontAttributes="Bold" Padding="15,0,0,0" FontSize="11"/>
-            <Label Text="Activo" Grid.Column="5" FontAttributes="Bold"  Padding="5,0,0,0" FontSize="11"/>
-            <Label Text="Canal" Grid.Column="6" FontAttributes="Bold"  Padding="5,0,0,0" FontSize="11"/>
-            <Label Text="Días" Grid.Column="7" FontAttributes="Bold" Padding="10,0,0,0" FontSize="11"/>
+            <Label Text="Teléfono" Grid.Column="3" FontAttributes="Bold" Padding="15,0,0,0" FontSize="11"/>
+            <Label Text="Activo" Grid.Column="4" FontAttributes="Bold"  Padding="5,0,0,0" FontSize="11"/>
+            <Label Text="Canal" Grid.Column="5" FontAttributes="Bold"  Padding="5,0,0,0" FontSize="11"/>
+            <Label Text="Días" Grid.Column="6" FontAttributes="Bold" Padding="10,0,0,0" FontSize="11"/>
         </Grid>
 
         <!--<ScrollView Grid.Row="1" BackgroundColor="WhiteSmoke">

@@ -269,6 +269,48 @@ namespace DMOrders.Services.Update
             return true;
         }
 
+        public async Task<bool> OnlinePromotionProductDetailByRules(int[] promotionRule, bool force)
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            HubPromotionProductDetail hubmanager = new HubPromotionProductDetail(App.Session);
+            var resultCount = await hubmanager.GetCountByBonus(promotionRule);
+
+            if (resultCount.result == 0)
+            {
+                return false;
+            }
+
+            int countTotal = resultCount.result / App.Session.odooConnection.DbLimitDefault;
+
+            var database = new PromotionProductDetailDb(DbNameSqlite);
+
+            for (int indice = 0; indice <= countTotal; indice++)
+            {
+                Debug.WriteLine("Página:" + indice);
+
+                var responseAll = await hubmanager.GetItemsByBonusId(promotionRule, limit, indice);
+
+                if (responseAll.result != null && responseAll.result.Length > 0)
+                {
+                    await database.InsertBatchAsync(responseAll.result);
+                }
+
+                if (indice >= 600)
+                {
+                    Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
+                    break;
+                }
+            }
+
+            stopwatch.Stop();
+
+            Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+                stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
+            return true;
+        }
+
         //public async Task<bool> OnlinePromotionProductsDetail(PromotionBenefit promotionBenfit, bool force)
         //{
         //    return true;
@@ -340,8 +382,12 @@ namespace DMOrders.Services.Update
 
                 if (responseAll.result != null && responseAll.result.Length > 0)
                 {
-                    await database.InsertBatchAsync(responseAll.result);
+                    await database.InsertBatchAsync(responseAll.result);                    
                 }
+
+                int[] RulesIds = responseAll.result.Select(r => r.id).ToArray();
+
+                await OnlinePromotionProductDetailByRules(RulesIds, true);                
 
                 if (indice >= maxIndexExceeded)
                 {
@@ -395,9 +441,9 @@ namespace DMOrders.Services.Update
                         await LoyaltyFiltersDetail(item, true);
                         
                         await PromoRules(item, true);
-                        await PromoCenter(item, true);
-                        await OnlinePromotionProducts(item, true);
                         await OnlinePromotionProductDetail(item, true);
+                        await PromoCenter(item, true);
+                        await OnlinePromotionProducts(item, true);                        
                     }
                 }
 

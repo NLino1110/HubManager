@@ -26,17 +26,18 @@
         <Grid Grid.Row="0"
                 VerticalOptions="Center"
                 ColumnSpacing="10"
-                ColumnDefinitions="Auto,480,*,*,*,*,*,*,*, 20"
-                RowDefinitions="*,*"
-                Margin="20,0,20,0"
-              HorizontalOptions="Fill">
+                ColumnDefinitions="Auto,480,*,*,*,*,*"
+                RowDefinitions="*"                
+              BackgroundColor="LightGray"              
+              Padding="10" 
+              HeightRequest="35">
 
             <Label 
     Grid.Row="0" 
     Grid.Column="0" 
     FontAttributes="Bold"
     Text="No."
-    FontSize="12"
+    FontSize="11"
     TextColor="Black" />
             
             <Label 
@@ -45,7 +46,7 @@
     Grid.ColumnSpan="3" 
     FontAttributes="Bold"
     Text="DESCRIP"
-    FontSize="12"
+    FontSize="11"
     TextColor="Black" />
 
             <Label 
@@ -53,34 +54,36 @@
     Grid.Column="2" 
                 FontAttributes="Bold"
     Text="UNIDAD"
-    FontSize="12"
-    TextColor="Black" 
-                BackgroundColor="Aqua"
-                HorizontalTextAlignment="Start"/>
+    FontSize="11"
+    TextColor="Black"                 
+                HorizontalTextAlignment="Center"/>
 
             <Label 
     Grid.RowSpan="2"
     Grid.Column="3" 
                 FontAttributes="Bold"
     Text="MARCA"
-    FontSize="12"
-    TextColor="Black" />
+    FontSize="11"
+    TextColor="Black" 
+                HorizontalTextAlignment="Center"/>
 
             <Label 
                 FontAttributes="Bold"
     Text="LINEA"
     Grid.RowSpan="2"
     Grid.Column="4" 
-    FontSize="12"
-    TextColor="Black"/>
+    FontSize="11"
+    TextColor="Black"
+                HorizontalTextAlignment="Center"/>
 
             <Label 
                 FontAttributes="Bold"
     Text="ESTADO"
     Grid.RowSpan="2"
     Grid.Column="5" 
-    FontSize="12"
-    TextColor="Black"/>
+    FontSize="11"
+    TextColor="Black"
+                HorizontalTextAlignment="Center"/>
 
         </Grid>
 
@@ -122,8 +125,8 @@
                                 <Grid Grid.Column="0"
                                     VerticalOptions="Center"
                                     ColumnSpacing="10"
-                                    ColumnDefinitions="Auto,500,*,*,*,*,*,*,*, 20"
-                                      RowDefinitions="*,*"
+                                    ColumnDefinitions="Auto,500,*,*,*,*,*"
+                                      RowDefinitions="*,*,*,*"
                                         Margin="20,0,20,0">
 
                                     <Label 
@@ -147,10 +150,9 @@
                                     <Label 
                                         Grid.Column="2"
                                         Grid.Row="0"
-                                        Text="{Binding _uom_id}"
+                                        Text="{Binding uom_display}"
                                         FontSize="14"
-                                        TextColor="Black"
-                                        BackgroundColor="Aqua"
+                                        TextColor="Black"                                        
                                         HorizontalTextAlignment="Center"/>
 
                                     <Label 
@@ -158,21 +160,23 @@
                                         Grid.Column="3" 
                                         Text="{Binding marca_display}"
                                         FontSize="12"
-                                        TextColor="DarkGreen" 
-                                        BackgroundColor="Aqua"/>
+                                        TextColor="DarkGreen"
+                                        HorizontalTextAlignment="Center"/>
 
                                     <Label 
                                         Grid.RowSpan="2"
                                         Grid.Column="4" 
-                                        Text="{Binding category_display}"
+                                        Text="{Binding categoria_display}"
                                         FontSize="12"
-                                        TextColor="Gray" />
+                                        TextColor="Gray" 
+                                        HorizontalTextAlignment="Center"/>
 
                                     <Label 
                                         Grid.RowSpan="2"
                                         Grid.Column="5" 
                                         FontSize="12"
-                                        TextColor="Gray">
+                                        TextColor="Gray"
+                                        HorizontalTextAlignment="Center">
                                         <Label.Triggers>
                                             <DataTrigger 
                                                 TargetType="Label"
@@ -188,6 +192,13 @@
                                             </DataTrigger>
                                         </Label.Triggers>
                                     </Label>
+
+                                    <BoxView Grid.Row="4"
+                                             Grid.Column="0"
+                                             Grid.ColumnSpan="9"
+                                             HeightRequest="1"
+                                             BackgroundColor="#E0E0E0" Color="LightGrey"/>
+
                                 </Grid>
                             </mpowerkit:VirtualizeListViewCell>
                         </DataTemplate>

@@ -45,6 +45,7 @@ namespace DMOrders.Controls.CustomRows
                 TextColor = Colors.Gray
             };
 
+            //uom_display
             var priceLabel = new Label
             {
                 Text = $"Precio: {Item.list_price:C4}",

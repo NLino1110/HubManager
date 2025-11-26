@@ -29,7 +29,8 @@ namespace DMOrders.Services.Database.Sqlite
                                 .Where(x => x._company_id == companyId &&
                                             x.start_datetime <= nowUtc &&
                                             x.end_datetime >= nowUtc &&
-                                            x.active);            
+                                            x.active)
+                                .OrderBy(x => x.create_date);
 
             var result = await query.ToListAsync();
 

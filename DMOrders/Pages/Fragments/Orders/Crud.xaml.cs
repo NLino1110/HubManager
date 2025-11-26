@@ -766,7 +766,22 @@ public partial class Crud : ContentPage, IBackButtonHandler
         OnPropertyChanged(nameof(ProductEditing));
 
         product_uom_qty_real = SaleOrderLine.product_uom_qty_real;
-        product_uom_qty = SaleOrderLine.product_uom_qty;        
+        product_uom_qty = SaleOrderLine.product_uom_qty;
+
+        if(SaleOrderLine.is_gift)
+        {
+            _activeEntry = null;
+            labelGifInfo.IsVisible = true;
+            btnApplyQty.IsEnabled = false;
+            btnResetQty.IsEnabled = false;
+        }
+        else
+        {
+            _activeEntry = EntryCantidadFinal;
+            labelGifInfo.IsVisible = false;
+            btnApplyQty.IsEnabled = true;
+            btnResetQty.IsEnabled = true;
+        }
     }
     
     private void OnEntryTapped(object sender, EventArgs e)

@@ -19,6 +19,12 @@ namespace DMOrders.Services.Database.Sqlite
         {
             await Init();
             return await Database.Table<PromotionProduct>().Where(x=>x.id == id).FirstOrDefaultAsync();
+        }        
+
+        public async Task<List<PromotionProduct>> GetItemsByPromo(int promoId)
+        {
+            await Init();
+            return await Database.Table<PromotionProduct>().Where(x => x._promo_id == promoId).ToListAsync();
         }
     }
 }
