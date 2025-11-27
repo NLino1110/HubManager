@@ -54,6 +54,32 @@ namespace ApiManagerOdoo.promotions
             return await GetCount(args, _custom_args);
         }
 
+        public async Task<ApiResponseOdooRpc?> GetCountByBonus(int[] bonus_ids)
+        {
+            object[] args = new object[] { };
+
+            object[] _custom_args = new object[] {
+                 new object[] { "bonus_id", "in", bonus_ids }
+            };
+            return await GetCount(args, _custom_args);
+        }
+
+        public async Task<ApiResponseOdooRpcT<PromotionProduct[]>?> GetItemsByBonusId(int[] bonus_ids, int limit, int index)
+        {
+            var kwargs = new
+            {
+                limit,
+                offset = index * limit,
+                fields = fields_array
+            };
+
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] { "bonus_id", "in", bonus_ids }
+            };
+            return await SearchRead<ApiResponseOdooRpcT<PromotionProduct[]>>(args, _custom_args, kwargs, true);
+        }
+
         public async Task<ApiResponseOdooRpcT<PromotionProduct[]>?> GetItemsByParentId(int id, int limit, int index)
         {
             var kwargs = new

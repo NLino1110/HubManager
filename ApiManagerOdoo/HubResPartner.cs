@@ -84,6 +84,16 @@ namespace ApiManager
             return await GetCount(args, _custom_args);            
         }
 
+        public async Task<ApiResponseOdooRpc?> GetCountBySeller(int year, int month, int day, int seller)
+        {
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] {"write_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
+                new object[] { "adic_comercial_id", "=", seller },               
+            };
+            return await GetCount(args, _custom_args);
+        }
+
         [Obsolete("Probablemente debe ser eliminado")]
         public async Task<ApiResponseOdooRpcT<res_partner[]>?> GetSpecial()
         {

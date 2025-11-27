@@ -222,7 +222,22 @@ namespace DMSA.Models.Odoo.Native
 
         [Ignore]
         [JsonIgnore]
-        public int qty_gift { get; set; }
+        private int _qty_gift { get; set; }
+
+        [JsonProperty("qty_gift")]
+        public int qty_gift
+        {
+            get => _qty_gift;
+            set
+            {
+                if (_qty_gift != value)
+                {
+                    _qty_gift = value;
+                    OnPropertyChanged(nameof(qty_gift));
+                }
+            }
+        }
+
 
         [Ignore]
         [JsonIgnore]

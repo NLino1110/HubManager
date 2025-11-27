@@ -269,13 +269,24 @@ namespace DMSA.Models.Odoo.Native
             }
         }
 
-
         [Ignore]
         [JsonIgnore]
         public decimal _virtual_line_subtotal { get; set; }
 
         [JsonProperty("product_tmpl_id")]
         public int product_tmpl_id { get; set; }
+
+        [JsonProperty("max_gifts")]
+        public int max_gifts { get; set; }
+
+        [JsonProperty("assigned_gifts")]
+        public int assigned_gifts { get; set; }
+
+        [JsonProperty("product_id_origin")]
+        public int product_id_origin { get; set; }
+
+        [JsonProperty("show_delete_button")]
+        public bool show_delete_button { get; set; }
 
         [JsonIgnore]
         public decimal virtual_line_subtotal

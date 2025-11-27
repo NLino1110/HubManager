@@ -513,6 +513,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
                     break;
                 }
 
+                // es DESCUENTO DEBE APLICARSE PRIMERO
                 if (promoResItem.Promotion._promotion_type_id == 6)
                 {
                     await ApplyDiscount(saleOrder, promoResItem);

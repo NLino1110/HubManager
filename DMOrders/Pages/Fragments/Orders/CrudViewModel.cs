@@ -6,6 +6,7 @@ using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Sales;
 using Microsoft.Maui.Controls.Shapes;
+using MPowerKit.VirtualizeListView;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -521,8 +522,16 @@ namespace DMOrders.Pages.Fragments.Orders
                 sale_Order_Line.virtual_iva_percentage = priceCalc.IvaPercentage;
                 sale_Order_Line.virtual_line_subtotal = priceCalc.LineSubtotal;
                 sale_Order_Line.product_tmpl_id = product._product_tmpl_id;
+
+                sale_Order_Line.max_gifts = 0;
+                sale_Order_Line.assigned_gifts = 0;
                 sale_Order_Line.promotion_data = "";
                 //OnPropertyChanged(nameof(OrderLines));
+
+                foreach (var item in OrderLines.Where(x => x.product_id_origin == sale_Order_Line.product_id).ToList())
+                {
+                    OrderLines.Remove(item);
+                }
             }
 
             UpdateTotals();
@@ -532,10 +541,11 @@ namespace DMOrders.Pages.Fragments.Orders
         {
             if (sale_Order_Line != null)
             {
+                //Cuando es un producto main (asumiendo que contenga regalos asociados)
+                //Se buscan los regalos asociados a la línea seleccionada
+                // para eliminarlos también
                 if (!sale_Order_Line.is_gift)
-                {
-                    //Se buscan los regalos asociados a la línea seleccionada
-                    // para eliminarlos también
+                {                    
                     var giftList = OrderLines.Where(x => x.is_gift).ToList();
 
                     if (giftList != null)
@@ -558,7 +568,17 @@ namespace DMOrders.Pages.Fragments.Orders
                         }
                     }
                 }
-                
+                else
+                {
+                    //Si es que es un regalo
+                    //Se busca el producto principal para reducirle la cantidad de regalos asociados
+                    var mainOrderLine = OrderLines.Where(x => x.product_id == sale_Order_Line.product_id_origin).FirstOrDefault();
+                    if(mainOrderLine != null)
+                    {
+                        mainOrderLine.assigned_gifts = mainOrderLine.assigned_gifts - (int) sale_Order_Line.product_uom_qty_real;
+                    }
+                }
+
                 //Se borra linea seleccionada
                 OrderLines.Remove(sale_Order_Line);
                 UpdateTotals();

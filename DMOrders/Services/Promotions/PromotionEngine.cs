@@ -303,20 +303,19 @@ namespace DMOrders.Services.Promotions
                     //5   SORTEO
                     //6   DESCUENTOS
                     //7   FIDELIZACION
+                    //('qty_product_unts', 'CANT. PRODUCTO (UNIDADES)'),
+                    //('total_product_amount', 'TOTAL PRODUCTO (MONTO)'),
+                    //('total_order', 'TOTAL PEDIDO')
+
+                    //('less_than', '< (MENOR QUE)'),
+                    //('greater_than', '> (MAYOR QUE)'),
+                    //('less_than_or_equal', '<= (MENOR O IGUAL QUE)'),
+                    //('greater_than_or_equal', '>= (MAYOR O IGUAL QUE)'),
+                    //('equal_to', '= (IGUAL A)'),
+                    //('not_equal_to', '<> (DISTINTO DE)')
 
                     if (promo._promotion_type_id == 2) // es regalo
                     {
-                        //('qty_product_unts', 'CANT. PRODUCTO (UNIDADES)'),
-                        //('total_product_amount', 'TOTAL PRODUCTO (MONTO)'),
-                        //('total_order', 'TOTAL PEDIDO')
-
-                        //('less_than', '< (MENOR QUE)'),
-                        //('greater_than', '> (MAYOR QUE)'),
-                        //('less_than_or_equal', '<= (MENOR O IGUAL QUE)'),
-                        //('greater_than_or_equal', '>= (MAYOR O IGUAL QUE)'),
-                        //('equal_to', '= (IGUAL A)'),
-                        //('not_equal_to', '<> (DISTINTO DE)')
-
                         decimal variableValue = GetVariableValue(r.variable);
                         cumple = OperatorEvaluator.Evaluate(r.operator_, variableValue, r.value, 0);
 
@@ -343,32 +342,23 @@ namespace DMOrders.Services.Promotions
                         }
 
                         allowed_gifts = (int)Math.Floor((double)qty / r.value);
-
-                        //if (r.value > 0)
-                        //{
-                        //    if (qty < r.value) continue;
-                        //    reasons.Add($"Cumple cantidad mínima: {r.value}");
-                        //}
                     }
 
                     if (promo._promotion_type_id == 4) // es NXN
                     {
-                        //if (r.value > 0)
+                        //decimal variableValue = GetVariableValue(r.variable);
+                        //decimal value_for_eval = r.minimum_value;
+                        //decimal value_for_eval_max = r.maximum_value;
+
+                        //if (r.variable == "qty_product_unts")
                         //{
-                        //    if (qty < r.value) continue;
-                        //    reasons.Add($"Cumple cantidad mínima: {r.value}");
+                        //    r.operator_ = "between_included";
                         //}
 
+                        //cumple = OperatorEvaluator.Evaluate(r.operator_, variableValue, value_for_eval, value_for_eval_max);
+
                         decimal variableValue = GetVariableValue(r.variable);
-                        decimal value_for_eval = r.minimum_value;
-                        decimal value_for_eval_max = r.maximum_value;
-
-                        if (r.variable == "qty_product_unts")
-                        {
-                            r.operator_ = "between_included";
-                        }
-
-                        cumple = OperatorEvaluator.Evaluate(r.operator_, variableValue, value_for_eval, value_for_eval_max);
+                        cumple = OperatorEvaluator.Evaluate(r.operator_, variableValue, r.value, 0);
 
                         if (cumple)
                         {
@@ -379,12 +369,6 @@ namespace DMOrders.Services.Promotions
 
                     if (promo._promotion_type_id == 6) // es descuento
                     {
-                        //if (r.minimum_value > 0)
-                        //{
-                        //    if (qty < r.minimum_value) continue;
-                        //    reasons.Add($"Cumple cantidad mínima: {r.minimum_value}");
-                        //}
-
                         decimal variableValue = GetVariableValue(r.variable);
                         decimal value_for_eval = r.minimum_value;
                         decimal value_for_eval_max = r.maximum_value;

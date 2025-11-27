@@ -136,14 +136,14 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                             HorizontalOptions="Fill">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <HorizontalStackLayout Padding="10" Margin="10,0,10,0">
-                            <Label Text="{Binding id}" WidthRequest="40" VerticalTextAlignment="Center" FontSize="11"/>
-                            <Label Text="{Binding code}" WidthRequest="100" VerticalTextAlignment="Center" FontSize="11"/>
-                            <Label Text="{Binding name}" WidthRequest="350" VerticalTextAlignment="Center" FontSize="11"/>
-                            <Label Text="{Binding _uom_id}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="11"/>
-                            <Label Text="{Binding qty_available}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="11"/>
+                        <HorizontalStackLayout Padding="10" Margin="8,0,8,0">
+                            <Label Text="{Binding id}" WidthRequest="40" VerticalTextAlignment="Center" FontSize="10"/>
+                            <Label Text="{Binding code}" WidthRequest="100" VerticalTextAlignment="Center" FontSize="10"/>
+                            <Label Text="{Binding name}" WidthRequest="350" VerticalTextAlignment="Center" FontSize="10"/>
+                            <Label Text="{Binding _uom_id}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="10"/>
+                            <Label Text="{Binding qty_available}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="10"/>
                             <!--<Label Text="{Binding list_price}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="12"/>-->
-                            <Label Text="{Binding qty_gift}" WidthRequest="50" VerticalTextAlignment="Center" FontSize="11"/>
+                            <Label Text="{Binding qty_gift}" WidthRequest="50" VerticalTextAlignment="Center" FontSize="10"/>
                             <Button Text="" 
                                 BackgroundColor="DodgerBlue" 
                                 TextColor="White" 
