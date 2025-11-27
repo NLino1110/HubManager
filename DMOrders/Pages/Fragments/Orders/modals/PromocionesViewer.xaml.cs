@@ -1,4 +1,5 @@
 using DMOrders.Services.Database.Sqlite;
+using DMOrders.Services.Promotions;
 using DMSA.Models.Odoo.DMOrders.promotions;
 using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
 using DMSA.Models.Odoo.Native;
@@ -494,8 +495,16 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
         ////OrderLines.Add(line);
     }
 
-    private async Task AddGiftIsolated(product_product product, bool ShouldSaveToo, PromotionEvalItem promotionEvalItem)
+    private async Task AddGiftIsolated(product_product product, bool ShouldSaveToo, PromotionEvalItem benefit)
     {
+        PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
+
+        if (!await promotionEngineRunner.CanApplyPromotion(SaleOrder, benefit))
+        {
+            Debug.WriteLine($"Descuento de promoción ya ha sido aplicado");
+            return;
+        }
+
         sale_order_line saleOrderLineOrigin = new sale_order_line();
 
         var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
@@ -507,10 +516,15 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
             {
                 saleOrderLineOrigin = (sale_order_line)itemLineOrigin[2];
 
-                if (promotionEvalItem.ProductTmplId == saleOrderLineOrigin.product_tmpl_id && !saleOrderLineOrigin.is_gift)
+                if (benefit.ProductTmplId == saleOrderLineOrigin.product_tmpl_id && !saleOrderLineOrigin.is_gift)
                 {
-                    if (saleOrderLineOrigin.max_gifts != promotionEvalItem.TotalTimesAllowed)
-                        saleOrderLineOrigin.max_gifts = promotionEvalItem.TotalTimesAllowed;
+                    if (saleOrderLineOrigin.max_gifts != benefit.TotalTimesAllowed)
+                    {
+                        saleOrderLineOrigin.max_gifts = benefit.TotalTimesAllowed;
+                        saleOrderLineOrigin.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(
+                                new List<PromotionEvalItem> { product.promotionEvalItem }
+                            );
+                    }
                     break;
                 }
             }
@@ -576,11 +590,21 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
         SaleOrder.order_line.Add(new OrderLineWrapper(line));
 
         OrderLines.Add(line);
+
+        await promotionEngineRunner.AddApplyPromotion(SaleOrder, benefit, 1);
     }
 
 
     private async Task AddGiftNxN(product_product product, bool ShouldSaveToo, PromotionEvalItem benefit)
-    {        
+    {
+        PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
+
+        if (!await promotionEngineRunner.CanApplyPromotion(SaleOrder, benefit))
+        {
+            Debug.WriteLine($"Descuento de promoción ya ha sido aplicado");
+            return;
+        }
+
         //## Buscamos dentro de SaleOrder.order_line si es que existe el producto
 
         foreach (var itemLine in SaleOrder.order_line)
@@ -600,6 +624,14 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                     //    lineObject.product_uom_qty_real++;
                     //    lineObject.product_uom_qty = lineObject.product_uom_qty_real;
                     //}
+                }
+
+                //Se busca la linea de origen de la promoción aplicada
+                if (lineObject.product_id == benefit.ProductId)
+                {
+                    lineObject.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(
+                            new List<PromotionEvalItem> { product.promotionEvalItem }
+                        );
                 }
             }
         }
@@ -637,8 +669,9 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
         SaleOrder.order_line.Add(new OrderLineWrapper(line));
 
         OrderLines.Add(line);
-    }
 
+        await promotionEngineRunner.AddApplyPromotion(SaleOrder, benefit, 1);
+    }
 
     public event PropertyChangedEventHandler PropertyChanged;
     private void OnPropertyChanged(string property) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));

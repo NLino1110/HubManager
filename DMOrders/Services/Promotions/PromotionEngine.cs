@@ -92,7 +92,7 @@ namespace DMOrders.Services.Promotions
     /// Motor ligero de promociones que trabaja con tus modelos existentes.
     /// Requiere un IPromotionRepository que devuelva promociones con sus detalles cargados.
     /// </summary>
-    public sealed class PromotionEngineLite
+    public sealed partial class PromotionEngineLite
     {
         private decimal qty;
         private decimal totalProductAmount;
@@ -423,6 +423,7 @@ namespace DMOrders.Services.Promotions
                             Discount = r.discount,
                             Reasons = reasons,
                             TotalTimesAllowed= TotalTimesAllowed,
+                            PricelistId = pricelist_id,
                             AllowedGifts = allowed_gifts
                         });
                     }

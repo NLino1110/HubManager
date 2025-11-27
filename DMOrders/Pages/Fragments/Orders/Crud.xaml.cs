@@ -580,7 +580,15 @@ public partial class Crud : ContentPage, IBackButtonHandler
     }
 
     private async Task ApplyDiscount(sale_order saleOrder, PromotionEvalItem promoResItem)
-    {   
+    {
+        PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
+
+        if(!await promotionEngineRunner.CanApplyPromotion(saleOrder, promoResItem))
+        {            
+            Debug.WriteLine($"Descuento de promoción ya ha sido aplicado");
+            return;            
+        }
+
         double discountPercentage = promoResItem.Discount;
         int productTemplateId = promoResItem.ProductTmplId;
         var orderLines = saleOrder.order_line;
@@ -612,8 +620,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
                 lineToDiscount.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(new List<PromotionEvalItem> { promoResItem });
 
-                var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
-                int updated = await saleOrderLineDb.UpdateAsync(lineToDiscount);
+                await promotionEngineRunner.AddApplyPromotion(saleOrder, promoResItem, 1);
 
                 Debug.WriteLine($"Descuento aplicado: {discountPercentage}% al producto ID {productTemplateId}");
             }

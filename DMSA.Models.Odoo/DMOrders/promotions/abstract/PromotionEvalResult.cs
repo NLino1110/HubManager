@@ -12,5 +12,4 @@ namespace DMSA.Models.Odoo.DMOrders.promotions.@abstract
         public List<PromotionEvalItem> Items { get; set; } = new();
         public PromotionEvalItem? Best => Items.OrderByDescending(i => i.Discount).FirstOrDefault();
     }
-
 }
