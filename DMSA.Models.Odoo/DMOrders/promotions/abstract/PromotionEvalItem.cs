@@ -9,6 +9,7 @@
 
         public PromotionBenefit Promotion { get; set; } = new();
         public PromoRules? RuleSet { get; set; }
+        public int ProductTmplId { get; set; }
         public int ProductId { get; set; }
         public int AllowedGifts { get; set; }
         public int TotalTimesAllowed { get; set; }

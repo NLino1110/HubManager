@@ -554,14 +554,17 @@ namespace DMOrders.Pages.Fragments.Orders
                         {
                             if (itemGift.promotion_data != null)
                             {
-                                PromotionEvalItem promotionEvalItem = Newtonsoft.Json.JsonConvert.DeserializeObject<PromotionEvalItem>(itemGift.promotion_data);
+                                List<PromotionEvalItem> promotionEvalItem = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItem>>(itemGift.promotion_data);
                                 Debug.WriteLine(promotionEvalItem);
 
-                                if (promotionEvalItem != null)
+                                if (promotionEvalItem != null && promotionEvalItem.Count > 0)
                                 {
-                                    if (sale_Order_Line.product_tmpl_id == promotionEvalItem.ProductId)
+                                    foreach (var evalItem in promotionEvalItem)
                                     {
-                                        OrderLines.Remove(itemGift);
+                                        if (sale_Order_Line.product_tmpl_id == evalItem.ProductTmplId)
+                                        {
+                                            OrderLines.Remove(itemGift);
+                                        }
                                     }
                                 }
                             }

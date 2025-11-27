@@ -187,6 +187,13 @@ namespace DMOrders.Services.Update
 
         public async Task<bool> OnlinePromotionProducts(PromotionBenefit promotionBenfit, bool force)
         {
+            var database = new PromotionProductDb(DbNameSqlite);
+
+            if (force)
+            {
+                await database.DeleteAllAsync(x => x._promo_id == promotionBenfit.id);
+            }
+
             var stopwatch = Stopwatch.StartNew();
 
             HubPromotionProduct hubmanager = new HubPromotionProduct(App.Session);
@@ -198,8 +205,6 @@ namespace DMOrders.Services.Update
             }
 
             int countTotal = resultCount.result / limit; // App.Session.odooConnection.DbLimitDefault;
-
-            var database = new PromotionProductDb(DbNameSqlite);
 
             for (int indice = 0; indice <= countTotal; indice++)
             {
@@ -227,12 +232,19 @@ namespace DMOrders.Services.Update
             return true;
         }
 
-        public async Task<bool> OnlinePromotionProductDetail(PromotionBenefit promotionBenfit, bool force)
+        public async Task<bool> OnlinePromotionProductDetail(PromotionBenefit promotionBenefit, bool force)
         {
+            var database = new PromotionProductDetailDb(DbNameSqlite);
+
+            if (force)
+            {
+                await database.DeleteAllAsync(x => x._promo_id == promotionBenefit.id);
+            }
+
             var stopwatch = Stopwatch.StartNew();
 
             HubPromotionProductDetail hubmanager = new HubPromotionProductDetail(App.Session);
-            var resultCount = await hubmanager.GetCount(promotionBenfit.id);
+            var resultCount = await hubmanager.GetCount(promotionBenefit.id);
 
             if (resultCount.result == 0)
             {
@@ -240,14 +252,13 @@ namespace DMOrders.Services.Update
             }
 
             int countTotal = resultCount.result / App.Session.odooConnection.DbLimitDefault;
-
-            var database = new PromotionProductDetailDb(DbNameSqlite);
+                        
 
             for (int indice = 0; indice <= countTotal; indice++)
             {
                 Debug.WriteLine("Página:" + indice);
 
-                var responseAll = await hubmanager.GetItemsByParentId(promotionBenfit.id, limit, indice);
+                var responseAll = await hubmanager.GetItemsByParentId(promotionBenefit.id, limit, indice);
 
                 if (responseAll.result != null && responseAll.result.Length > 0)
                 {
@@ -271,6 +282,13 @@ namespace DMOrders.Services.Update
 
         public async Task<bool> OnlinePromotionProductDetailByRules(int[] promotionRule, bool force)
         {
+            var database = new PromotionProductDetailDb(DbNameSqlite);
+
+            if (force)
+            {
+                await database.DeleteAllAsync(x => promotionRule.Contains( x._bonus_id ));
+            }
+
             var stopwatch = Stopwatch.StartNew();
 
             HubPromotionProductDetail hubmanager = new HubPromotionProductDetail(App.Session);
@@ -282,8 +300,6 @@ namespace DMOrders.Services.Update
             }
 
             int countTotal = resultCount.result / App.Session.odooConnection.DbLimitDefault;
-
-            var database = new PromotionProductDetailDb(DbNameSqlite);
 
             for (int indice = 0; indice <= countTotal; indice++)
             {
@@ -313,6 +329,13 @@ namespace DMOrders.Services.Update
 
         public async Task<bool> OnlinePromotionProductByRules(int[] promotionRule, bool force)
         {
+            var database = new PromotionProductDb(DbNameSqlite);
+
+            if (force)
+            {
+                await database.DeleteAllAsync(x => promotionRule.Contains(x._bonus_id));
+            }
+
             var stopwatch = Stopwatch.StartNew();
 
             HubPromotionProduct hubmanager = new HubPromotionProduct(App.Session);
@@ -324,8 +347,6 @@ namespace DMOrders.Services.Update
             }
 
             int countTotal = resultCount.result / App.Session.odooConnection.DbLimitDefault;
-
-            var database = new PromotionProductDb(DbNameSqlite);
 
             for (int indice = 0; indice <= countTotal; indice++)
             {
@@ -402,6 +423,13 @@ namespace DMOrders.Services.Update
 
         public async Task<bool> PromoRules(PromotionBenefit promotionBenfit, bool force)
         {
+            var database = new PromoRulesDb(DbNameSqlite);
+
+            if(force)
+            {
+                await database.DeleteAllAsync(x=> x._promo_id == promotionBenfit.id);
+            }
+
             var stopwatch = Stopwatch.StartNew();
 
             var hubmanager = new HubPromoRules(App.Session);
@@ -414,7 +442,7 @@ namespace DMOrders.Services.Update
 
             int countTotal = resultCount.result / App.Session.odooConnection.DbLimitDefault;
 
-            var database = new PromoRulesDb(DbNameSqlite);
+            
 
             for (int indice = 0; indice <= countTotal; indice++)
             {

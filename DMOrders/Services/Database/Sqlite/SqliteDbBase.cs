@@ -162,5 +162,19 @@ namespace DMOrders.Services.Database.Sqlite
             await Init();
             return await Database.DeleteAsync(item);
         }
+
+        public async Task<int> DeleteAllAsync(Func<T, bool> predicate)
+        {
+            await Init();
+
+            var items = await Database.Table<T>().ToListAsync();
+            var matches = items.Where(predicate).ToList();
+
+            foreach (var item in matches)
+                await Database.DeleteAsync(item);
+
+            return matches.Count;
+        }
+
     }
 }

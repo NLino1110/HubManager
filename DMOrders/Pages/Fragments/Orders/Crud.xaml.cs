@@ -582,7 +582,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
     private async Task ApplyDiscount(sale_order saleOrder, PromotionEvalItem promoResItem)
     {   
         double discountPercentage = promoResItem.Discount;
-        int productTemplateId = promoResItem.ProductId;
+        int productTemplateId = promoResItem.ProductTmplId;
         var orderLines = saleOrder.order_line;
 
         var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
@@ -595,7 +595,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
         if (lineToDiscount != null)
         {
-            if (lineToDiscount.promotion_data != Newtonsoft.Json.JsonConvert.SerializeObject(promoResItem))
+            if (lineToDiscount.promotion_data != Newtonsoft.Json.JsonConvert.SerializeObject(new List<PromotionEvalItem> { promoResItem }))
             {
                 decimal originalPrice = lineToDiscount.price_unit;
                 decimal virtual_price_no_tax = lineToDiscount.virtual_price_no_tax;
@@ -610,7 +610,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
                 lineToDiscount.virtual_line_subtotal = virtual_price_no_tax * lineToDiscount.product_uom_qty_real;
 
-                lineToDiscount.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(promoResItem);
+                lineToDiscount.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(new List<PromotionEvalItem> { promoResItem });
 
                 var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
                 int updated = await saleOrderLineDb.UpdateAsync(lineToDiscount);
@@ -648,9 +648,13 @@ public partial class Crud : ContentPage, IBackButtonHandler
             // 3️⃣ Iterar productos de la orden
             foreach (var line in _order_lines)
             {
-                //var product_id = line.product_id;
-                var product_template_id = await productDb.GetItem(line.product_id);
-                var product_id = product_template_id._product_tmpl_id;
+                var product_tmpl_id = line.product_tmpl_id;
+
+                if (product_tmpl_id == 0)
+                {                    
+                    var product_template_id = await productDb.GetItem(line.product_id);
+                    product_tmpl_id = product_template_id._product_tmpl_id;
+                }
 
                 var qty = (int)line.product_uom_qty;
                 var partner = saleOrder._partner_id;
@@ -659,7 +663,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
                 // 4️⃣ Evaluar promociones
                 var result = await engine.EvaluatePromotions(
-                    product_id: product_id,
+                    product_tmpl_id: product_tmpl_id,
+                    orderLine: line,
                     qty: qty,
                     totalProductAmount: totalProductAmount,
                     totalOrder: totalOrder,
@@ -683,7 +688,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
                         //Tipo automatico + bonificado
                         if (item.Promotion._selection_type_id == 1 && item.Promotion._promotion_type_id == 2)
                         {
-                            Debug.WriteLine(item.ProductId);
+                            Debug.WriteLine(item.ProductTmplId);
                         }
                     }                       
                 }

@@ -1,6 +1,7 @@
 ﻿using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.DMOrders.promotions;
 using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
+using DMSA.Models.Odoo.Native;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
@@ -184,7 +185,8 @@ namespace DMOrders.Services.Promotions
         /// - dateUtc: fecha a considerar (opcional).
         /// </summary>
         public async Task<PromotionEvalResult> EvaluatePromotions(
-            int product_id,
+            int product_tmpl_id,
+            sale_order_line orderLine,
             int qty,
             decimal totalProductAmount, 
             decimal totalOrder,
@@ -240,13 +242,13 @@ namespace DMOrders.Services.Promotions
 
                 if (fullProductDetails.Any())
                 {
-                    if (product_id == 0)
+                    if (product_tmpl_id == 0)
                     {
                         productMatches = false;
                     }
                     else
                     {
-                        productMatches = fullProductDetails.Contains(product_id);
+                        productMatches = fullProductDetails.Contains(product_tmpl_id);
                     }
 
                     if (!productMatches) continue;
@@ -362,7 +364,7 @@ namespace DMOrders.Services.Promotions
 
                         if (cumple)
                         {
-                            reasons.Add($"Aplica NxN: {product_id}, {r.discount} %");
+                            reasons.Add($"Aplica NxN: {product_tmpl_id}, {r.discount} %");
                         }
 
                     }
@@ -395,7 +397,7 @@ namespace DMOrders.Services.Promotions
 
                         if(cumple)
                         {
-                            reasons.Add($"Aplica descuento: {product_id}, {r.discount} %");
+                            reasons.Add($"Aplica descuento: {product_tmpl_id}, {r.discount} %");
                         }
                     }
 
@@ -403,7 +405,7 @@ namespace DMOrders.Services.Promotions
 
                     if (cumple)
                     {
-                        bool existsDiscountPromo = results.Any(x => x.Promotion._promotion_type_id == 6 && x.ProductId == product_id);
+                        bool existsDiscountPromo = results.Any(x => x.Promotion._promotion_type_id == 6 && x.ProductTmplId == product_tmpl_id);
 
                         if (existsDiscountPromo) {
                             reasons.Add($"No se agregará {promo.name} porque ya se aplicó descuento previo");
@@ -416,7 +418,8 @@ namespace DMOrders.Services.Promotions
                         {
                             Promotion = promo,
                             RuleSet = r,
-                            ProductId = product_id,
+                            ProductTmplId = product_tmpl_id,
+                            ProductId = orderLine.product_id,
                             Discount = r.discount,
                             Reasons = reasons,
                             TotalTimesAllowed= TotalTimesAllowed,

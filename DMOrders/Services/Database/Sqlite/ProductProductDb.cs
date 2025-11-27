@@ -211,13 +211,41 @@ namespace DMOrders.Services.Database.Sqlite
         internal async Task<product_product> GetByProductTemplate(int product_template_id)
         {
             await Init();
-            return await Database.Table<product_product>().Where(x => x._product_tmpl_id == product_template_id).FirstOrDefaultAsync();
+
+            var product_return = await Database.Table<product_product>().Where(x => x._product_tmpl_id == product_template_id).FirstOrDefaultAsync();
+
+            if(product_return == null)
+                return null;
+
+            var item_uom = await Database.Table<uom_uom>()
+                .Where(x => x.id == product_return._uom_id).FirstOrDefaultAsync();
+
+            product_return.uom_display = item_uom != null ? item_uom.clave_externa : "";
+
+            return product_return;
         }
 
         internal async Task<List<product_product>> GetByProductsTemplate(int[] product_template_ids)
         {
             await Init();
-            return await Database.Table<product_product>().Where(x => product_template_ids.Contains(x._product_tmpl_id)).ToListAsync();
+
+            var items = await Database.Table<uom_uom>()
+                .Where(x => x.active == true)
+                .ToArrayAsync();
+
+            cachedUom = items.ToDictionary(uom => uom.id, uom => uom);
+
+            var products = await Database.Table<product_product>().Where(x => product_template_ids.Contains(x._product_tmpl_id)).ToListAsync();
+
+            if(products == null || products.Count == 0)
+                return new List<product_product>();
+
+            foreach (var p in products)
+            {
+                p.uom_display = cachedUom.TryGetValue(p._uom_id, out var uom) ? uom.clave_externa : "";
+            }
+
+            return products;
         }
 
         internal async Task<int[]> GetAllTaxesIdsAsync()
