@@ -531,13 +531,16 @@ namespace DMOrders.Pages.Fragments.Orders
                 sale_Order_Line.max_gifts = 0;
                 sale_Order_Line.assigned_gifts = 0;
 
-                List<PromotionEvalItem> benefitFromData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItem>>(sale_Order_Line.promotion_data);
-                if (benefitFromData != null && benefitFromData.Count > 0)
+                if (!string.IsNullOrEmpty(sale_Order_Line.promotion_data))
                 {
-                    PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
-                    foreach (var benefit in benefitFromData)
+                    List<PromotionEvalItem> benefitFromData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItem>>(sale_Order_Line.promotion_data);
+                    if (benefitFromData != null && benefitFromData.Count > 0)
                     {
-                        await promotionEngineRunner.AddApplyPromotion(CurrentSaleOrder, benefit, -1, saleOrderPromotions);
+                        PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
+                        foreach (var benefit in benefitFromData)
+                        {
+                            await promotionEngineRunner.AddApplyPromotion(CurrentSaleOrder, benefit, -1, saleOrderPromotions);
+                        }
                     }
                 }
 

@@ -202,6 +202,11 @@ namespace ApiManager
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_virtual_line_subtotal");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "virtual_line_subtotal");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "product_tmpl_id");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "max_gifts");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "product_tmpl_id");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "assigned_gifts");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "product_id_origin");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "show_delete_button");
 
             //JObjectExtensions.RenamePropertyFromOrderLineItems(newJObject, "_product_uom_qty", "product_uom_qty");
 

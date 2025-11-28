@@ -71,7 +71,7 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                             <!--<Label Text="{Binding _selection_type_id}" WidthRequest="80" HorizontalTextAlignment="Center" />
                             <Label Text="{Binding _selection_type_id}" WidthRequest="80" HorizontalTextAlignment="Center" />-->
                             <!--<Label Text="{Binding code}" WidthRequest="100" />-->
-                            <Label Text="{Binding TotalTimesAllowed}" WidthRequest="80" HorizontalTextAlignment="Start" FontSize="11"/>
+                            <Label Text="{Binding MaxAllowedGifts}" WidthRequest="80" HorizontalTextAlignment="Start" FontSize="11"/>
                             <Label Text="{Binding Promotion.state}" WidthRequest="100" HorizontalTextAlignment="Start" FontSize="11"/>
                         </HorizontalStackLayout>
                     </DataTemplate>
@@ -162,7 +162,7 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                                         <Setter Property="IsVisible" Value="False"/>
                                     </DataTrigger>
 
-                                    <DataTrigger TargetType="Button" Binding="{Binding allow_gift}" Value="True">
+                                    <DataTrigger TargetType="Button" Binding="{Binding allow_add_gift}" Value="True">
                                         <Setter Property="IsVisible" Value="True"/>
                                     </DataTrigger>
                                 </Button.Triggers>

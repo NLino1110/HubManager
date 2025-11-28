@@ -342,8 +342,8 @@ namespace DMOrders.Services.Promotions
                             reasons.Add($"No cumple máximo: {r.maximum_value}");
                             continue;
                         }
-
-                        allowed_gifts = (int)Math.Floor((double)qty / r.value);
+                        
+                        allowed_gifts = r.qty; //(int)Math.Floor((double)qty / r.value);
                     }
 
                     if (promo._promotion_type_id == 4) // es NXN
@@ -367,6 +367,19 @@ namespace DMOrders.Services.Promotions
                             reasons.Add($"Aplica NxN: {product_tmpl_id}, {r.discount} %");
                         }
 
+                        // ej. 10 / 5 = 2 -> 2 regalos
+                        int base_allowed_gifts =  (int) variableValue / r.value;
+                        //Se realiza calculo de allowed_gifts segun r.qty y TotalTimesAllowed
+                        // ya que en NxN los regalos dependen de la cantidad comprada
+                        // y no es fijo como en bonificaciones
+                        // ademas debe evaluarse segun TotalTimesAllowed                        
+                        //allowed_gifts = r.qty;
+                        if(base_allowed_gifts > TotalTimesAllowed)
+                        {   
+                            allowed_gifts = TotalTimesAllowed * r.qty;
+                        }
+                        else
+                            allowed_gifts = base_allowed_gifts * r.qty;
                     }
 
                     if (promo._promotion_type_id == 6) // es descuento
@@ -424,7 +437,8 @@ namespace DMOrders.Services.Promotions
                             Reasons = reasons,
                             TotalTimesAllowed= TotalTimesAllowed,
                             PricelistId = pricelist_id,
-                            AllowedGifts = allowed_gifts
+                            AllowedGifts = allowed_gifts,
+                            MaxAllowedGifts = allowed_gifts * TotalTimesAllowed,
                         });
                     }
                 }
