@@ -11,6 +11,8 @@ namespace DMOrders.Pages.Fragments.Orders.modals;
 
 public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
 {
+    public List<SaleOrderPromotions> saleOrderPromotions { get; set; }
+
     public ObservableCollection<product_product> promoGiftsAuto
     {
         get => _promoGiftsAuto;
@@ -81,18 +83,6 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
     }
 
     private ObservableCollection<PromotionEvalResult> _itemsFullPromos;
-
-    //public ObservableCollection<PromotionBenefit> ItemsDataBenefits
-    //{
-    //    get => _ItemsDataBenefits;
-    //    set
-    //    {
-    //        _ItemsDataBenefits = value;
-    //        OnPropertyChanged(nameof(ItemsDataBenefits));
-    //    }
-    //}
-
-    //private ObservableCollection<PromotionBenefit> _ItemsDataBenefits;
 
     public ObservableCollection<PromotionEvalItem> ItemsDataBenefits
     {
@@ -499,9 +489,9 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
     {
         PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
 
-        if (!await promotionEngineRunner.CanApplyPromotion(SaleOrder, benefit))
+        if (!await promotionEngineRunner.CanApplyPromotion(SaleOrder, benefit, saleOrderPromotions))
         {
-            Debug.WriteLine($"Descuento de promoción ya ha sido aplicado");
+            Debug.WriteLine($"{benefit.Promotion.name} ya ha sido aplicado maximo de veces - AddGiftIsolated");
             return;
         }
 
@@ -549,6 +539,13 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
 
                     lineObject.product_uom_qty_real++;
                     lineObject.product_uom_qty = lineObject.product_uom_qty_real;
+
+                    if (saleOrderLineOrigin.assigned_gifts >= saleOrderLineOrigin.max_gifts)
+                    {
+                        //En el momento en que se ha completado el maximo de regalos, se registra la aplicación de la promoción
+                        await promotionEngineRunner.AddApplyPromotion(SaleOrder, benefit, 1, saleOrderPromotions);
+                    }
+
                     if (ShouldSaveToo)
                         await saleOrderLineDb.UpdateAsync(lineObject);
                     return;
@@ -557,8 +554,15 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
             }
         }
 
+        
         saleOrderLineOrigin.assigned_gifts++;
         product.qty_gift++;
+
+        if (saleOrderLineOrigin.assigned_gifts >= saleOrderLineOrigin.max_gifts)
+        {
+            //En el momento en que se ha completado el maximo de regalos, se registra la aplicación de la promoción
+            await promotionEngineRunner.AddApplyPromotion(SaleOrder, benefit, 1, saleOrderPromotions);
+        }
 
         int ordinal = 0;
 
@@ -590,8 +594,6 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
         SaleOrder.order_line.Add(new OrderLineWrapper(line));
 
         OrderLines.Add(line);
-
-        await promotionEngineRunner.AddApplyPromotion(SaleOrder, benefit, 1);
     }
 
 
@@ -599,9 +601,9 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
     {
         PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
 
-        if (!await promotionEngineRunner.CanApplyPromotion(SaleOrder, benefit))
+        if (!await promotionEngineRunner.CanApplyPromotion(SaleOrder, benefit, saleOrderPromotions))
         {
-            Debug.WriteLine($"Descuento de promoción ya ha sido aplicado");
+            Debug.WriteLine($"{benefit.Promotion.name} ya ha sido aplicado maximo de veces - AddGiftNxN");
             return;
         }
 
@@ -670,7 +672,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
 
         OrderLines.Add(line);
 
-        await promotionEngineRunner.AddApplyPromotion(SaleOrder, benefit, 1);
+        await promotionEngineRunner.AddApplyPromotion(SaleOrder, benefit, 1, saleOrderPromotions);
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

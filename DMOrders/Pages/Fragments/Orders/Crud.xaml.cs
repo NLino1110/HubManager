@@ -32,9 +32,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
     public product_pricelist CurrentPriceList { get; set; }
     public ICommand EditCommand { get; set; }
     public ICommand DeleteCommand { get; set; }
-    public product_product _ProductEditing { get; set; }
-    //public SaleOrderLineHeader OrdersLinesHeader { get; set; }
-
+    public product_product _ProductEditing { get; set; }    
+    public List<SaleOrderPromotions> saleOrderPromotions { get; set; }
     public product_product ProductEditing
     {
         get => _ProductEditing;
@@ -173,24 +172,6 @@ public partial class Crud : ContentPage, IBackButtonHandler
         DeleteCommand = new Command(DeleteItem);
 
         SearchProductView.PropertyChanged += SearchProductView_PropertyChanged;
-
-        //OrdersLinesHeader = new SaleOrderLineHeader
-        //{
-        //    Number = "N°",
-        //    Product = "ARTICULO",
-        //    UOM = "UNIDAD",
-        //    QtyReal = "CNTREAL",
-        //    QtyDisp = "CNTDSP",
-        //    Price = "PRECIO",
-        //    PriceTax = "PRE+IVA",
-        //    SubTotalNt = "SUBTOT(SI)",
-        //    DiscountPercent = "%DESC.",
-        //    DiscountValue = "$DESC.",
-        //    Tax = "IMP.",
-        //    Total = "TOTAL"
-        //};
-
-        //OnPropertyChanged(nameof(OrdersLinesHeader));
     }
 
     private void SearchProductView_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -236,7 +217,10 @@ public partial class Crud : ContentPage, IBackButtonHandler
             ((CrudViewModel)this.BindingContext)._CurrentPartner = CurrentPartner;
             ((CrudViewModel)this.BindingContext).CurrentCompany = CurrentCompany;
             ((CrudViewModel)this.BindingContext).CurrentSaleOrder = CurrentSaleOrder;
+            
             await ((CrudViewModel)this.BindingContext).LoadData();
+
+            saleOrderPromotions = ((CrudViewModel)this.BindingContext).saleOrderPromotions;
         }
         else
         {
@@ -254,7 +238,10 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
             ((CrudViewModel)this.BindingContext).CurrentCompany = CurrentCompany;
             ((CrudViewModel)this.BindingContext).CurrentSaleOrder = CurrentSaleOrder;
+            
             await ((CrudViewModel)this.BindingContext).LoadData();
+
+            saleOrderPromotions = ((CrudViewModel)this.BindingContext).saleOrderPromotions;
         }
 
         var PriceListDb = new ProductPricelistDb(App.Session.odooConnection.DbNameSqlite);
@@ -357,6 +344,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
             return;
         }
 
+        saleOrderPromotions.Clear();
+
         sale_order targetOrder = await SaveOrder();
 
         if (targetOrder != null)
@@ -399,8 +388,10 @@ public partial class Crud : ContentPage, IBackButtonHandler
     {
         var viewModel = (CrudViewModel)this.BindingContext;
         var orderLines = viewModel.OrderLines;
+        var orderPromotions = viewModel.saleOrderPromotions;
         var saleOrderDb = new SaleOrderDb(App.Session.odooConnection.DbNameSqlite);
         var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
+        var saleOrderPromoDb = new SaleOrderPromotionsDb(App.Session.odooConnection.DbNameSqlite);
 
         sale_order targetOrder;
 
@@ -460,6 +451,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
             // Eliminar líneas anteriores antes de insertar las nuevas
             await saleOrderLineDb.DeleteItemOfParent(targetOrder);
+            await saleOrderPromoDb.DeleteItemOfParent(targetOrder);
         }
 
         int ordinal = 1;
@@ -477,6 +469,14 @@ public partial class Crud : ContentPage, IBackButtonHandler
             targetOrder.order_line.Add(new OrderLineWrapper(orderLine));
             
             ordinal++;
+        }
+
+        // Guardar promociones aplicadas
+        foreach (var orderPromo in orderPromotions)
+        {
+            //orderPromo._sale_order_id = targetOrder.id;
+            
+            await saleOrderPromoDb.InsertAsync(orderPromo);
         }
 
         await Toast.Make(isNew ? "Orden creada" : "Orden actualizada").Show();        
@@ -531,6 +531,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         var view = new PromocionesViewer(saleOrder);
         view.ItemsData = AppliedPromotionResults;
         view.OrderLines = ((CrudViewModel)this.BindingContext).OrderLines;
+        view.saleOrderPromotions = ((CrudViewModel)this.BindingContext).saleOrderPromotions;
 
         var popup = new Popup
         {
@@ -583,9 +584,9 @@ public partial class Crud : ContentPage, IBackButtonHandler
     {
         PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
 
-        if(!await promotionEngineRunner.CanApplyPromotion(saleOrder, promoResItem))
+        if(!await promotionEngineRunner.CanApplyPromotion(saleOrder, promoResItem, saleOrderPromotions))
         {            
-            Debug.WriteLine($"Descuento de promoción ya ha sido aplicado");
+            Debug.WriteLine($"{promoResItem.Promotion.name} ya ha sido aplicado maximo de veces - Crud-ApplyDiscount");
             return;            
         }
 
@@ -620,7 +621,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
                 lineToDiscount.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(new List<PromotionEvalItem> { promoResItem });
 
-                await promotionEngineRunner.AddApplyPromotion(saleOrder, promoResItem, 1);
+                await promotionEngineRunner.AddApplyPromotion(saleOrder, promoResItem, 1, saleOrderPromotions);
 
                 Debug.WriteLine($"Descuento aplicado: {discountPercentage}% al producto ID {productTemplateId}");
             }

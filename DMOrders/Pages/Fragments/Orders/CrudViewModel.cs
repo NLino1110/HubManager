@@ -19,6 +19,7 @@ namespace DMOrders.Pages.Fragments.Orders
 {
     public class CrudViewModel : INotifyPropertyChanged
     {
+        public List<SaleOrderPromotions> saleOrderPromotions { get; set; }
         public ICommand AddLineCommand { get; }
         public res_company CurrentCompany { get; set; }
         public res_partner _CurrentPartner { get; set; }
@@ -271,6 +272,9 @@ namespace DMOrders.Pages.Fragments.Orders
                     line.uom_category_display = "UND";
                     OrderLines.Add(line);
                 }
+
+                var saleOrderPromotionsDb = new SaleOrderPromotionsDb(App.Session.odooConnection.DbNameSqlite);
+                saleOrderPromotions = await saleOrderPromotionsDb.GetItemsByOrder(CurrentSaleOrder.id);
 
                 UpdateTotals();
             }
@@ -533,7 +537,7 @@ namespace DMOrders.Pages.Fragments.Orders
                     PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
                     foreach (var benefit in benefitFromData)
                     {
-                        await promotionEngineRunner.AddApplyPromotion(CurrentSaleOrder, benefit, -1);
+                        await promotionEngineRunner.AddApplyPromotion(CurrentSaleOrder, benefit, -1, saleOrderPromotions);
                     }
                 }
 
@@ -592,6 +596,15 @@ namespace DMOrders.Pages.Fragments.Orders
                     if(mainOrderLine != null)
                     {
                         mainOrderLine.assigned_gifts = mainOrderLine.assigned_gifts - (int) sale_Order_Line.product_uom_qty_real;
+                        List<PromotionEvalItem> benefitFromData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItem>>(mainOrderLine.promotion_data);
+                        if (benefitFromData != null && benefitFromData.Count > 0)
+                        {
+                            PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
+                            foreach (var benefit in benefitFromData)
+                            {
+                                await promotionEngineRunner.AddApplyPromotion(CurrentSaleOrder, benefit, -1, saleOrderPromotions);
+                            }
+                        }
                     }
                 }
 

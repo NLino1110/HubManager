@@ -104,5 +104,20 @@ namespace DMOrders.Services.Database.Sqlite
             return new List<SaleOrderPromotions>();
         }
 
+        public async Task<int> DeleteItemOfParent(sale_order parent)
+        {
+            await Init();
+            int count = 0;
+            
+            var resultItems = (await Database.Table<SaleOrderPromotions>().ToListAsync()).Where(i => i.order_id == parent.id);
+
+            foreach (var item in resultItems)
+            {
+                count++;
+                await Database.DeleteAsync(item);
+            }
+
+            return count;
+        }
     }
 }
