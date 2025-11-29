@@ -1,5 +1,5 @@
 ﻿using DMSA.Models.Odoo.DMOrders.promotions;
-using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
+using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
 using Microsoft.Data.Sqlite;
 using SQLite;
@@ -41,7 +41,7 @@ namespace DMOrders.Services.Database.Sqlite
             ).ToListAsync();
         }
 
-        public async Task<List<SaleOrderPromotions>> GetItemsByPromoEval(sale_order order, PromotionEvalItem promotionEvalItem)
+        public async Task<List<SaleOrderPromotions>> GetItemsByPromoEval(sale_order order, PromotionEvalItemV2 promotionEvalItem)
         {
             await Init();
             return await Database.Table<SaleOrderPromotions>().Where(x => x.order_id == order.id
@@ -50,7 +50,7 @@ namespace DMOrders.Services.Database.Sqlite
             ).ToListAsync();
         }
 
-        public async Task<List<SaleOrderPromotions>> InsertOrUpdate(sale_order order, PromotionEvalItem promotionEvalItem)
+        public async Task<List<SaleOrderPromotions>> InsertOrUpdate(sale_order order, PromotionEvalItemV2 promotionEvalItem)
         {
             await Init();
             var existingItems = await GetItemsByIds(order.id, promotionEvalItem.Promotion.id, promotionEvalItem.PricelistId);
@@ -76,7 +76,7 @@ namespace DMOrders.Services.Database.Sqlite
 
         public async Task<List<SaleOrderPromotions>> AddApply(
                     sale_order order,
-                    PromotionEvalItem promotionEvalItem,
+                    PromotionEvalItemV2 promotionEvalItem,
                     int times_inv)
         {
             await Init();

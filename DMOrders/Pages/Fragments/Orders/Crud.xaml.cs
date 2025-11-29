@@ -11,7 +11,8 @@ using DMOrders.Services.Update.Pusher;
 using DMOrders.Shared;
 using DMSA.Models.Odoo.Abstract;
 using DMSA.Models.Odoo.DMOrders.promotions;
-using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
+//using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
+using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Sales;
 using Microsoft.Maui.Controls.Shapes;
@@ -153,7 +154,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         CurrentSaleOrder?.id.ToString()
         ?? string.Empty;
 
-    private ObservableCollection<PromotionEvalResult> AppliedPromotionResults;
+    private ObservableCollection<PromotionEvalResultV2> AppliedPromotionResults;
     protected override void OnAppearing()
     {
         base.OnAppearing();
@@ -344,7 +345,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
             return;
         }
 
-        saleOrderPromotions.Clear();
+        saleOrderPromotions?.Clear();
 
         sale_order targetOrder = await SaveOrder();
 
@@ -429,6 +430,10 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 await Toast.Make("Error al crear la orden").Show();
                 return null;
             }
+
+            CurrentSaleOrder = targetOrder;
+            viewModel.CurrentSaleOrder = targetOrder;
+
         }
         else
         {
@@ -474,8 +479,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         // Guardar promociones aplicadas
         foreach (var orderPromo in orderPromotions)
         {
-            //orderPromo._sale_order_id = targetOrder.id;
-            
+            //orderPromo._sale_order_id = targetOrder.id;            
             await saleOrderPromoDb.InsertAsync(orderPromo);
         }
 
@@ -575,12 +579,12 @@ public partial class Crud : ContentPage, IBackButtonHandler
         return new List<string>();
     }
 
-    private async Task ApplyNxN(sale_order saleOrder, PromotionEvalItem promoResItem)
+    private async Task ApplyNxN(sale_order saleOrder, PromotionEvalItemV2 promoResItem)
     {
         throw new NotImplementedException();
     }
 
-    private async Task ApplyDiscount(sale_order saleOrder, PromotionEvalItem promoResItem)
+    private async Task ApplyDiscount(sale_order saleOrder, PromotionEvalItemV2 promoResItem)
     {
         PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
 
@@ -590,46 +594,54 @@ public partial class Crud : ContentPage, IBackButtonHandler
             return;            
         }
 
-        double discountPercentage = promoResItem.Discount;
-        int productTemplateId = promoResItem.ProductTmplId;
-        var orderLines = saleOrder.order_line;
-
-        var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
-
-        var productTarget = await productDb.GetByProductTemplate(productTemplateId);
-
-        var lineToDiscount = orderLines
-                .Select(line => line.Count > 2 ? line[2] as sale_order_line : null)
-                .FirstOrDefault(l => l != null && l.product_id == productTarget.id);
-
-        if (lineToDiscount != null)
+        foreach(var rule in promoResItem.RuleSet)
         {
-            if (lineToDiscount.promotion_data != Newtonsoft.Json.JsonConvert.SerializeObject(new List<PromotionEvalItem> { promoResItem }))
+            if(rule.IsDiscount)
             {
-                decimal originalPrice = lineToDiscount.price_unit;
-                decimal virtual_price_no_tax = lineToDiscount.virtual_price_no_tax;
+                double discountPercentage = rule.Discount;
+                int productTemplateId = rule.ProductTmplId;
+                var orderLines = saleOrder.order_line;
 
-                decimal discountAmount = (virtual_price_no_tax * lineToDiscount.product_uom_qty_real) * (decimal)(discountPercentage / 100);
-                lineToDiscount.discount = (decimal) discountPercentage;
-                lineToDiscount.amount_discount = discountAmount;
+                var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
 
-                lineToDiscount.price_subtotal = (virtual_price_no_tax * lineToDiscount.product_uom_qty_real ) - discountAmount;
-                lineToDiscount.price_tax = (lineToDiscount.price_subtotal * lineToDiscount.virtual_iva_percentage) / 100;
-                lineToDiscount.price_total = lineToDiscount.price_subtotal + lineToDiscount.price_tax;
+                var productTarget = rule.ProductId; //await productDb.GetByProductTemplate(productTemplateId);
 
-                lineToDiscount.virtual_line_subtotal = virtual_price_no_tax * lineToDiscount.product_uom_qty_real;
+                var lineToDiscount = orderLines
+                        .Select(line => line.Count > 2 ? line[2] as sale_order_line : null)
+                        .FirstOrDefault(l => l != null && l.product_id == productTarget);
 
-                lineToDiscount.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(new List<PromotionEvalItem> { promoResItem });
+                if (lineToDiscount != null)
+                {
+                    if (lineToDiscount.promotion_data != Newtonsoft.Json.JsonConvert.SerializeObject(new List<PromotionEvalItemV2> { promoResItem }))
+                    {
+                        decimal originalPrice = lineToDiscount.price_unit;
+                        decimal virtual_price_no_tax = lineToDiscount.virtual_price_no_tax;
 
-                await promotionEngineRunner.AddApplyPromotion(saleOrder, promoResItem, 1, saleOrderPromotions);
+                        decimal discountAmount = (virtual_price_no_tax * lineToDiscount.product_uom_qty_real) * (decimal)(discountPercentage / 100);
+                        lineToDiscount.discount = (decimal)discountPercentage;
+                        lineToDiscount.amount_discount = discountAmount;
 
-                Debug.WriteLine($"Descuento aplicado: {discountPercentage}% al producto ID {productTemplateId}");
-            }
-            else
-            {
-                Debug.WriteLine($"Descuento de promoción ya ha sido aplicado");
+                        lineToDiscount.price_subtotal = (virtual_price_no_tax * lineToDiscount.product_uom_qty_real) - discountAmount;
+                        lineToDiscount.price_tax = (lineToDiscount.price_subtotal * lineToDiscount.virtual_iva_percentage) / 100;
+                        lineToDiscount.price_total = lineToDiscount.price_subtotal + lineToDiscount.price_tax;
+
+                        lineToDiscount.virtual_line_subtotal = virtual_price_no_tax * lineToDiscount.product_uom_qty_real;
+
+                        lineToDiscount.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(new List<PromotionEvalItemV2> { promoResItem });
+
+                        await promotionEngineRunner.AddApplyPromotion(saleOrder, promoResItem, 1, saleOrderPromotions);
+
+                        Debug.WriteLine($"Descuento aplicado: {discountPercentage}% al producto ID {productTemplateId}");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Descuento de promoción ya ha sido aplicado");
+                    }
+                }
             }
         }
+
+        
     }
 
     public async Task EvalPromotions(sale_order saleOrder)
@@ -639,68 +651,73 @@ public partial class Crud : ContentPage, IBackButtonHandler
             decimal totalOrder = saleOrder.amount_total;
             decimal totalProductAmount = 0m;
 
-            AppliedPromotionResults ??= new ObservableCollection<PromotionEvalResult>();
+            AppliedPromotionResults ??= new ObservableCollection<PromotionEvalResultV2>();
             AppliedPromotionResults.Clear();
 
             string dbNameSqlite = App.Session.odooConnection.DbNameSqlite;
+
 
             var repo = new PromotionRepository();            
             // 2️⃣ Crear el motor de promociones
             var engine = new PromotionEngineLite(repo);
 
-            var databaseLines = new SaleOrderLineDb(dbNameSqlite);
-            var _order_lines = await databaseLines.GetItemsByParent(saleOrder);
+            AppliedPromotionResults = await engine.EvaluatePromotionsV2(
+                saleOrder: saleOrder
+            );
 
-            var productDb = new ProductProductDb(dbNameSqlite);
+            //var databaseLines = new SaleOrderLineDb(dbNameSqlite);
+            //var _order_lines = await databaseLines.GetItemsByParent(saleOrder);
+
+            //var productDb = new ProductProductDb(dbNameSqlite);
 
             // 3️⃣ Iterar productos de la orden
-            foreach (var line in _order_lines)
-            {
-                var product_tmpl_id = line.product_tmpl_id;
+            //foreach (var line in _order_lines)
+            //{
+            //    var product_tmpl_id = line.product_tmpl_id;
 
-                if (product_tmpl_id == 0)
-                {                    
-                    var product_template_id = await productDb.GetItem(line.product_id);
-                    product_tmpl_id = product_template_id._product_tmpl_id;
-                }
+            //    if (product_tmpl_id == 0)
+            //    {                    
+            //        var product_template_id = await productDb.GetItem(line.product_id);
+            //        product_tmpl_id = product_template_id._product_tmpl_id;
+            //    }
 
-                var qty = (int)line.product_uom_qty;
-                var partner = saleOrder._partner_id;
-                var company_id = saleOrder._company_id;
-                totalProductAmount = line.price_total;
+            //    var qty = (int)line.product_uom_qty;
+            //    var partner = saleOrder._partner_id;
+            //    var company_id = saleOrder._company_id;
+            //    totalProductAmount = line.price_total;
 
-                // 4️⃣ Evaluar promociones
-                var result = await engine.EvaluatePromotions(
-                    product_tmpl_id: product_tmpl_id,
-                    orderLine: line,
-                    qty: qty,
-                    totalProductAmount: totalProductAmount,
-                    totalOrder: totalOrder,
-                    companyId: company_id,
-                    pricelist_id: CurrentPriceList.id
-                );
+            //    // 4️⃣ Evaluar promociones
+            //    var result = await engine.EvaluatePromotions(
+            //        product_tmpl_id: product_tmpl_id,
+            //        orderLine: line,
+            //        qty: qty,
+            //        totalProductAmount: totalProductAmount,
+            //        totalOrder: totalOrder,
+            //        companyId: company_id,
+            //        pricelist_id: CurrentPriceList.id
+            //    );
 
-                if (result.Best != null)
-                {
-                    //Debug.WriteLine($"Promo aplicada: {result.Best.Promotion.Name} ({result.Best.Discount}%) al producto {product.name}");
-                    // Opcional: agregar a tu lista de promociones aplicadas
-                    var benefit = (await repo.Search(company_id, DateTime.UtcNow))
-                                      .FirstOrDefault(p => p.id == result.Best.Promotion.id);
+            //    if (result.Best != null)
+            //    {
+            //        //Debug.WriteLine($"Promo aplicada: {result.Best.Promotion.Name} ({result.Best.Discount}%) al producto {product.name}");
+            //        // Opcional: agregar a tu lista de promociones aplicadas
+            //        var benefit = (await repo.Search(company_id, DateTime.UtcNow))
+            //                          .FirstOrDefault(p => p.id == result.Best.Promotion.id);
 
-                    if (benefit != null)
-                        AppliedPromotionResults.Add(result);
+            //        if (benefit != null)
+            //            AppliedPromotionResults.Add(result);
 
-                    Debug.WriteLine("Aplicar la promocion automatica");
-                    foreach(var item in result.Items)
-                    {
-                        //Tipo automatico + bonificado
-                        if (item.Promotion._selection_type_id == 1 && item.Promotion._promotion_type_id == 2)
-                        {
-                            Debug.WriteLine(item.ProductTmplId);
-                        }
-                    }                       
-                }
-            }
+            //        Debug.WriteLine("Aplicar la promocion automatica");
+            //        foreach(var item in result.Items)
+            //        {
+            //            //Tipo automatico + bonificado
+            //            if (item.Promotion._selection_type_id == 1 && item.Promotion._promotion_type_id == 2)
+            //            {
+            //                Debug.WriteLine(item.ProductTmplId);
+            //            }
+            //        }                       
+            //    }
+            //}
 
             Debug.WriteLine($"Promociones aplicadas: {AppliedPromotionResults.Count}");
         }

@@ -3,7 +3,8 @@ using DMOrders.Services.Database.Sqlite;
 using DMOrders.Services.Promotions;
 using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.DMOrders.promotions;
-using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
+//using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
+using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Sales;
 using Microsoft.Maui.Controls.Shapes;
@@ -55,9 +56,9 @@ namespace DMOrders.Pages.Fragments.Orders
 
         private ObservableCollection<PromotionBenefit> _ItemsDataBenefits;
 
-        private ObservableCollection<PromotionEvalResult> _appliedPromotionResults;
+        private ObservableCollection<PromotionEvalResultV2> _appliedPromotionResults;
 
-        private ObservableCollection<PromotionEvalResult> AppliedPromotionResults
+        private ObservableCollection<PromotionEvalResultV2> AppliedPromotionResults
         {
             get => _appliedPromotionResults;
             set
@@ -211,7 +212,8 @@ namespace DMOrders.Pages.Fragments.Orders
 
         public CrudViewModel()
         {
-            OrderLines = new ObservableCollection<sale_order_line>();            
+            OrderLines = new ObservableCollection<sale_order_line>();
+            saleOrderPromotions = new List<SaleOrderPromotions>();
             CloseCommand = new Command(OnClose);           
             SaveCommand = new Command(OnSave);
             SyncCommand = new Command(OnSync);
@@ -274,7 +276,12 @@ namespace DMOrders.Pages.Fragments.Orders
                 }
 
                 var saleOrderPromotionsDb = new SaleOrderPromotionsDb(App.Session.odooConnection.DbNameSqlite);
-                saleOrderPromotions = await saleOrderPromotionsDb.GetItemsByOrder(CurrentSaleOrder.id);
+                var saleOrderPromotions_tmp = await saleOrderPromotionsDb.GetItemsByOrder(CurrentSaleOrder.id);
+
+                foreach (var sop in saleOrderPromotions_tmp)
+                {
+                    saleOrderPromotions.Add(sop);
+                }
 
                 UpdateTotals();
             }
@@ -533,7 +540,7 @@ namespace DMOrders.Pages.Fragments.Orders
 
                 if (!string.IsNullOrEmpty(sale_Order_Line.promotion_data))
                 {
-                    List<PromotionEvalItem> benefitFromData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItem>>(sale_Order_Line.promotion_data);
+                    List<PromotionEvalItemV2> benefitFromData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(sale_Order_Line.promotion_data);
                     if (benefitFromData != null && benefitFromData.Count > 0)
                     {
                         PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
@@ -574,16 +581,19 @@ namespace DMOrders.Pages.Fragments.Orders
                         {
                             if (itemGift.promotion_data != null)
                             {
-                                List<PromotionEvalItem> promotionEvalItem = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItem>>(itemGift.promotion_data);
+                                List<PromotionEvalItemV2> promotionEvalItem = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(itemGift.promotion_data);
                                 Debug.WriteLine(promotionEvalItem);
 
                                 if (promotionEvalItem != null && promotionEvalItem.Count > 0)
                                 {
                                     foreach (var evalItem in promotionEvalItem)
                                     {
-                                        if (sale_Order_Line.product_tmpl_id == evalItem.ProductTmplId)
+                                        foreach(var ruleItem in evalItem.RuleSet)
                                         {
-                                            OrderLines.Remove(itemGift);
+                                            if (sale_Order_Line.product_tmpl_id == ruleItem.ProductTmplId)
+                                            {
+                                                OrderLines.Remove(itemGift);
+                                            }
                                         }
                                     }
                                 }
@@ -599,7 +609,7 @@ namespace DMOrders.Pages.Fragments.Orders
                     if(mainOrderLine != null)
                     {
                         mainOrderLine.assigned_gifts = mainOrderLine.assigned_gifts - (int) sale_Order_Line.product_uom_qty_real;
-                        List<PromotionEvalItem> benefitFromData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItem>>(mainOrderLine.promotion_data);
+                        List<PromotionEvalItemV2> benefitFromData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(mainOrderLine.promotion_data);
                         if (benefitFromData != null && benefitFromData.Count > 0)
                         {
                             PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();

@@ -1,5 +1,5 @@
 ﻿using DMOrders.Services.Database.Sqlite;
-using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
+using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
 using System;
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ namespace DMOrders.Services.Promotions
     {
         public async Task<bool> CanApplyPromotion(
             sale_order order, 
-            PromotionEvalItem promotionEvalItem, 
+            PromotionEvalItemV2 promotionEvalItem, 
             List<SaleOrderPromotions> saleOrderPromotions)
         {
             
@@ -52,10 +52,12 @@ namespace DMOrders.Services.Promotions
         }
 
         public async Task<bool> AddApplyPromotion(sale_order order, 
-            PromotionEvalItem promotionEvalItem, 
+            PromotionEvalItemV2 promotionEvalItem, 
             int times_inv, 
             List<SaleOrderPromotions> saleOrderPromotions)
         {
+            //saleOrderPromotions != null && saleOrderPromotions.Count > 0
+
             var existingPromos = saleOrderPromotions.Where(x => x.order_id == order.id &&
                 x.promotion_id == promotionEvalItem.Promotion.id &&
                 x.promotion_centers == promotionEvalItem.PricelistId).ToList();

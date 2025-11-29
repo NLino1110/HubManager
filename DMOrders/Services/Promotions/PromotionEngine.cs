@@ -343,7 +343,27 @@ namespace DMOrders.Services.Promotions
                             continue;
                         }
                         
+                        //Si es manual
                         allowed_gifts = r.qty; //(int)Math.Floor((double)qty / r.value);
+
+                        //Si es automático
+                        //if (promo._selection_type_id == 1)
+                        //{
+                        //    // ej. 10 / 5 = 2 -> 2 regalos
+                        //    int base_allowed_gifts = r.qty; // / r.value;
+                        //    //Se realiza calculo de allowed_gifts segun r.qty y TotalTimesAllowed
+                        //    // ya que en NxN los regalos dependen de la cantidad comprada
+                        //    // y no es fijo como en bonificaciones
+                        //    // ademas debe evaluarse segun TotalTimesAllowed                        
+                        //    //allowed_gifts = r.qty;
+                        //    if (base_allowed_gifts > TotalTimesAllowed)
+                        //    {
+                        //        allowed_gifts = TotalTimesAllowed * r.qty;
+                        //    }
+                        //    else
+                        //        allowed_gifts = base_allowed_gifts * r.qty;
+                        //}
+
                     }
 
                     if (promo._promotion_type_id == 4) // es NXN

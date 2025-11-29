@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DMSA.Models.Odoo.DMOrders.promotions.@abstract
+namespace DMSA.Models.Odoo.DMOrders.promotions.abstractCustom
 {
     [Table("sale_order_promotion")]
     public class SaleOrderPromotions
