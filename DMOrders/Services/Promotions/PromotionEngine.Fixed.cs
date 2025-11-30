@@ -435,7 +435,8 @@ namespace DMOrders.Services.Promotions
                         ProductId = orderLine.product_id,
                         IsDiscount = promo._promotion_type_id == 6,
                         Discount = r.discount,
-                        Reasons = reasons
+                        Reasons = reasons,
+                        AllowedGifts = allowed_gifts,
                     };
 
                     RuleSet.Add(newRuleSet);
