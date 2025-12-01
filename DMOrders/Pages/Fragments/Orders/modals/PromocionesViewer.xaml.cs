@@ -568,7 +568,6 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
 
         _ = AddGiftIsolated(product, ShouldSaveToo, selectedPromoEvalItem);
 
-
         ////sale_order_line saleOrderLineOrigin = new sale_order_line();
 
         ////var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
@@ -681,6 +680,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
 
         var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
 
+        bool productExistsInOrder = false;
         //Se busca linea de origen de promocion aplicada
         foreach (var itemLineOrigin in SaleOrder.order_line)
         {
@@ -692,6 +692,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                 {
                     if (ruleItem.ProductTmplId == saleOrderLineOrigin.product_tmpl_id && !saleOrderLineOrigin.is_gift)
                     {
+                        productExistsInOrder = true;
                         if (saleOrderLineOrigin.max_gifts != benefit.MaxAllowedGifts)
                         {
                             saleOrderLineOrigin.max_gifts = benefit.MaxAllowedGifts;
@@ -701,7 +702,9 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                         }
                         break;
                     }
-                }                
+                }
+
+                if (productExistsInOrder) break;
             }
         }
 
