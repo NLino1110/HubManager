@@ -272,7 +272,14 @@ namespace DMOrders.Services.Promotions
                 if (promo._promotion_type_id == 2) // es regalo
                 {
                     decimal variableValue = GetVariableValue(r.variable);
-                    cumple = OperatorEvaluator.Evaluate(r.operator_, variableValue, r.value, 0);
+
+                    //cumple = OperatorEvaluator.Evaluate(r.operator_, variableValue, r.value, 0);
+
+                    decimal value_for_eval = r.minimum_value;
+                    decimal value_for_eval_max = r.maximum_value;
+                    string operator_ = "";
+                    (operator_, value_for_eval) = fixOperator(r.variable, value_for_eval);
+                    cumple = OperatorEvaluator.Evaluate(operator_, variableValue, value_for_eval, value_for_eval_max);
 
                     if (cumple)
                     {
@@ -339,6 +346,11 @@ namespace DMOrders.Services.Promotions
                     {
                         reasons.Add($"Aplica NxN: {product_tmpl_id}, {r.discount} %");
                     }
+                    else
+                    {
+                        reasons.Add($"No cumple {r.variable} {r.operator_} {r.value}");
+                        continue;
+                    }
 
                     // ej. 10 / 5 = 2 -> 2 regalos
                     int base_allowed_gifts = (int)variableValue / r.value;
@@ -360,30 +372,38 @@ namespace DMOrders.Services.Promotions
                     decimal variableValue = GetVariableValue(r.variable);
                     decimal value_for_eval = r.minimum_value;
                     decimal value_for_eval_max = r.maximum_value;
+                    string operator_ = "";
 
-                    if (r.variable == "qty_product_unts")
-                    {
-                        r.operator_ = "between_included";
-                        //r.operator_ = "between_or_greater_than"; 
-                    }
+                    (operator_, value_for_eval) = fixOperator(r.variable, value_for_eval);
 
-                    if (r.variable == "total_product_amount")
-                    {
-                        r.operator_ = "greater_than_or_equal";
-                        value_for_eval = totalProductAmount;
-                    }
+                    //if (r.variable == "qty_product_unts")
+                    //{
+                    //    r.operator_ = "between_included";
+                    //    //r.operator_ = "between_or_greater_than"; 
+                    //}
 
-                    if (r.variable == "total_order")
-                    {
-                        r.operator_ = "greater_than_or_equal";
-                        value_for_eval = totalOrder;
-                    }
+                    //if (r.variable == "total_product_amount")
+                    //{
+                    //    r.operator_ = "greater_than_or_equal";
+                    //    value_for_eval = totalProductAmount;
+                    //}
 
-                    cumple = OperatorEvaluator.Evaluate(r.operator_, variableValue, value_for_eval, value_for_eval_max);
+                    //if (r.variable == "total_order")
+                    //{
+                    //    r.operator_ = "greater_than_or_equal";
+                    //    value_for_eval = totalOrder;
+                    //}
+
+                    cumple = OperatorEvaluator.Evaluate(operator_, variableValue, value_for_eval, value_for_eval_max);
 
                     if (cumple)
                     {
                         reasons.Add($"Aplica descuento: {product_tmpl_id}, {r.discount} %");
+                    }
+                    else
+                    {
+                        reasons.Add($"No cumple {r.variable} {r.operator_} {r.value}");
+                        continue;
                     }
                 }
 

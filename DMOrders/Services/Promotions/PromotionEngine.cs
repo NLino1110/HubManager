@@ -113,6 +113,32 @@ namespace DMOrders.Services.Promotions
             };
         }
 
+        (string operator_, decimal value_for_eval) fixOperator(string variable_name, decimal value_for_eval_default)
+        {
+            string operator_ = string.Empty;
+            decimal value_for_eval = value_for_eval_default;            
+
+            if (variable_name == "qty_product_unts")
+            {
+                operator_ = "between_included";
+                //r.operator_ = "between_or_greater_than"; 
+            }
+
+            if (variable_name == "total_product_amount")
+            {
+                operator_ = "greater_than_or_equal";
+                value_for_eval = totalProductAmount;
+            }
+
+            if (variable_name == "total_order")
+            {
+                operator_ = "greater_than_or_equal";
+                value_for_eval = totalOrder;
+            }
+
+            return (operator_, value_for_eval);
+        }
+
         //private async Task<bool> ExistsInPromoCenter(List<PromoCenters> centers, int pricelist_id)
         //{
         //    if(centers == null || centers.Count == 0)
@@ -175,7 +201,7 @@ namespace DMOrders.Services.Promotions
             return (exists, totalTimes);
         }
 
-
+        [Obsolete("VErsio inestable")]
         /// <summary>
         /// Evalúa promociones aplicables para un producto + cantidad en el contexto dado.
         /// - product: objeto product_product (puede ser null si la evaluación es por pedido).

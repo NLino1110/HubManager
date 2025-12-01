@@ -588,16 +588,18 @@ public partial class Crud : ContentPage, IBackButtonHandler
     {
         PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
 
-        if(!await promotionEngineRunner.CanApplyPromotion(saleOrder, promoResItem, saleOrderPromotions))
-        {            
-            Debug.WriteLine($"{promoResItem.Promotion.name} ya ha sido aplicado maximo de veces - Crud-ApplyDiscount");
-            return;            
-        }
-
+        
         foreach(var rule in promoResItem.RuleSet)
         {
             if(rule.IsDiscount)
             {
+                if (!await promotionEngineRunner.CanApplyPromotion(saleOrder, promoResItem, saleOrderPromotions))
+                {
+                    Debug.WriteLine($"{promoResItem.Promotion.name} ya ha sido aplicado maximo de veces - Crud-ApplyDiscount");
+                    return;
+                }
+
+
                 double discountPercentage = rule.Discount;
                 int productTemplateId = rule.ProductTmplId;
                 var orderLines = saleOrder.order_line;
