@@ -2,6 +2,7 @@
 using CommunityToolkit.Maui.Views;
 using DMOrders.Controls;
 using DMOrders.Models.Filters;
+using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Native;
 using Spinner.MAUI;
 using System.Collections.ObjectModel;
@@ -57,46 +58,49 @@ public partial class Filters : ContentView
         ddfStatus.SelectedItem = Status[0];
         //ddfDays.SelectedItemChanged += DdfDays_SelectedItemChanged;
 
-        Brands =
-        [
-            new product_marca { id = 0, name = "No seleccionada" },
-            new product_marca { id = -1, name = "🔍 Buscar..." },
-            new product_marca    { id = 1, name = "Marca 1" },
-            new product_marca { id = 2, name = "Marca 2" },
-            new product_marca { id = 3, name = "Marca 3" },
-            new product_marca { id = 4, name = "Marca 4" },
-            new product_marca { id = 5, name = "Marca 5" },
-            new product_marca { id = 6, name = "Marca 6" },
-            new product_marca { id = 7, name = "Marca 7" },
-            new product_marca { id = 8, name = "Marca 8" },
-        ];
+        //Brands =
+        //[
+        //    new product_marca { id = 0, name = "No seleccionada" },
+        //    new product_marca { id = -1, name = "🔍 Buscar..." },
+        //    new product_marca    { id = 1, name = "Marca 1" },
+        //    new product_marca { id = 2, name = "Marca 2" },
+        //    new product_marca { id = 3, name = "Marca 3" },
+        //    new product_marca { id = 4, name = "Marca 4" },
+        //    new product_marca { id = 5, name = "Marca 5" },
+        //    new product_marca { id = 6, name = "Marca 6" },
+        //    new product_marca { id = 7, name = "Marca 7" },
+        //    new product_marca { id = 8, name = "Marca 8" },
+        //];
 
-        ddfBrands.ItemsSource = Brands;
-        ddfBrands.ItemDisplayBinding = new Binding("name");
-        ddfBrands.SelectedItem = Brands[0];
-        ddfBrands.SelectedItemChanged += DdfBrands_SelectedItemChanged;
-        selected_brand = Brands[0];
+        //ddfBrands.ItemsSource = Brands;
+        //ddfBrands.ItemDisplayBinding = new Binding("name");
+        //ddfBrands.SelectedItem = Brands[0];
+        //ddfBrands.SelectedItemChanged += DdfBrands_SelectedItemChanged;
+        //selected_brand = Brands[0];
 
+        LoadTopMarcasAsync();
 
-        Product_Categories =
-        [
-            new product_categoria { id = 0, name = "No seleccionada" },
-            new product_categoria { id = -1, name = "🔍 Buscar..." },
-            new product_categoria { id = 1, name = "Categoria 1" },
-            new product_categoria { id = 2, name = "Categoria 2" },
-            new product_categoria { id = 3, name = "Categoria 3" },
-            new product_categoria { id = 4, name = "Categoria 4" },
-            new product_categoria { id = 5, name = "Categoria 5" },
-            new product_categoria { id = 6, name = "Categoria 6" },
-            new product_categoria { id = 7, name = "Categoria 7" },
-            new product_categoria { id = 8, name = "Categoria 8" },
-        ];
+        //Product_Categories =
+        //[
+        //    new product_categoria { id = 0, name = "No seleccionada" },
+        //    new product_categoria { id = -1, name = "🔍 Buscar..." },
+        //    new product_categoria { id = 1, name = "Categoria 1" },
+        //    new product_categoria { id = 2, name = "Categoria 2" },
+        //    new product_categoria { id = 3, name = "Categoria 3" },
+        //    new product_categoria { id = 4, name = "Categoria 4" },
+        //    new product_categoria { id = 5, name = "Categoria 5" },
+        //    new product_categoria { id = 6, name = "Categoria 6" },
+        //    new product_categoria { id = 7, name = "Categoria 7" },
+        //    new product_categoria { id = 8, name = "Categoria 8" },
+        //];
 
-        ddfCategory.ItemsSource = Product_Categories;
-        ddfCategory.ItemDisplayBinding = new Binding("name");
-        ddfCategory.SelectedItem = Product_Categories[0];
-        ddfCategory.SelectedItemChanged += DdfCategory_SelectedItemChanged;
-        selected_product_category = Product_Categories[0];
+        //ddfCategory.ItemsSource = Product_Categories;
+        //ddfCategory.ItemDisplayBinding = new Binding("name");
+        //ddfCategory.SelectedItem = Product_Categories[0];
+        //ddfCategory.SelectedItemChanged += DdfCategory_SelectedItemChanged;
+        //selected_product_category = Product_Categories[0];
+
+        LoadTopCategoriesAsync();
     }
 
     private async void DdfBrands_SelectedItemChanged(object? sender, object e)
@@ -142,6 +146,68 @@ public partial class Filters : ContentView
             Debug.WriteLine("Seleccion valida directa...");
             selected_brand = new_selected_brand;
         }        
+    }
+
+    private async Task LoadTopMarcasAsync()
+    {
+        //int[] topMarcas = new int[] { 66, 21, 46, 59, 24, 31, 68, 44, 57, 3, 22, 69, 64 };
+        int[] topMarcas = new int[] { 545, 669, 716, 773, 869, 512, 517, 701, 554, 968, 872, 960, 682 };
+
+        ProductMarcaDb marcasDb = new ProductMarcaDb(App.Session.odooConnection.DbNameSqlite);
+        var itemsTopMarcas = await marcasDb.GetItemsAsync(topMarcas);
+
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            Brands =
+            [
+                new product_marca { id = 0, name = "No seleccionada" },
+                new product_marca { id = -1, name = "🔍 Buscar..." }
+            ];
+
+            foreach (var marca in itemsTopMarcas)
+                Brands.Add(marca);
+
+            ddfBrands.ItemsSource = Brands;
+            ddfBrands.ItemDisplayBinding = new Binding("name");
+            ddfBrands.SelectedItem = Brands[0];
+            ddfBrands.SelectedItemChanged += DdfBrands_SelectedItemChanged;
+            //filter_brand = Brands[0];
+        });
+    }
+
+    private async Task LoadTopCategoriesAsync()
+    {        
+        int[] topMarcas = new int[] { 20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                    28,                    
+                     };
+
+        ProductCategoriaDb categoriesDb = new ProductCategoriaDb(App.Session.odooConnection.DbNameSqlite);
+        var itemsTopCategories = await categoriesDb.GetItemsAsync(topMarcas);
+
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            Product_Categories =
+            [
+                new product_categoria { id = 0, name = "No seleccionada" },
+                new product_categoria { id = -1, name = "🔍 Buscar..." }
+            ];
+
+            foreach (var categoria in itemsTopCategories)
+                Product_Categories.Add(categoria);
+
+            ddfCategory.ItemsSource = Product_Categories;
+            ddfCategory.ItemDisplayBinding = new Binding("name");
+            ddfCategory.SelectedItem = Product_Categories[0];
+            ddfCategory.SelectedItemChanged += DdfCategory_SelectedItemChanged;
+            //filter_brand = Brands[0];
+        });
     }
 
     private async void DdfCategory_SelectedItemChanged(object? sender, object e)

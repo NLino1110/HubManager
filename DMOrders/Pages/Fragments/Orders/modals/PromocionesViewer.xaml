@@ -66,7 +66,7 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                         <HorizontalStackLayout Padding="10">
                             <Label Text="{Binding Promotion.id}" WidthRequest="40" FontSize="11"/>
                             <Label Text="{Binding Promotion.code}" WidthRequest="100" FontSize="11"/>
-                            <Label Text="{Binding Promotion.description}" WidthRequest="100" FontSize="11"/>
+                            <Label Text="{Binding Promotion.name}" MaxLines="2" WidthRequest="100" FontSize="11"/>
                             <Label Text="-" WidthRequest="100" HorizontalTextAlignment="Start" FontSize="11"/>
                             <!--<Label Text="{Binding _selection_type_id}" WidthRequest="80" HorizontalTextAlignment="Center" />
                             <Label Text="{Binding _selection_type_id}" WidthRequest="80" HorizontalTextAlignment="Center" />-->
@@ -181,7 +181,7 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                 HeightRequest="40"
                 WidthRequest="120"
                 Padding="0"
-                Clicked="OnCloseButtonClicked">
+                Clicked="OnCloseButtonClicked" IsVisible="False">
                 <Button.ImageSource>
                     <FontImageSource 
             Size="25"

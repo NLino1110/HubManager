@@ -1,3 +1,4 @@
+using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Native;
 using Spinner.MAUI;
 using System.Collections.ObjectModel;
@@ -77,12 +78,17 @@ public partial class Info : ContentView
         PricesList = new ObservableCollection<infoDetail>();
     }
 
-    public void FillData(product_product _data)
+    public async Task FillData(product_product _data)
     {
         data = _data;
         LabelTitle.Text = data.name;
         lblCode.Text = data.code;
-        lblForSale.Text = data.active ? "Activo" : "Inactivo";       
+        lblForSale.Text = data.active ? "Activo" : "Inactivo";
+
+        lblMarcaNombre.Text = "---";
+        lblCategoriaNombre.Text = "---";
+        lblIvaInc.Text = "---";
+        lblIvaCalc.Text = "---";
 
         Base64Source = data.image_256 ?? string.Empty;
 
@@ -92,7 +98,22 @@ public partial class Info : ContentView
         StockList.Add(new infoDetail { id = 3, Description = "Cantidad Libre", Value = (decimal)data.free_qty });
 
         PricesList.Clear();
-        PricesList.Add(new infoDetail { id = 1, Description = "Precio de Lista", Value = (decimal)data.list_price });
+        
+        var priceListDb = new ProductPricelistDb(App.Session.odooConnection.DbNameSqlite);
+        var priceLists = await priceListDb.GetItemsAsync(x=>x.active);
+        var priceListDict = priceLists.ToDictionary(x => x.id, x => x.name);
+
+        var priceListProductsDb = new ProductPricelistItemDb(App.Session.odooConnection.DbNameSqlite);
+        var priceListItems = await priceListProductsDb.GetItemsAsync(x=>x._product_tmpl_id == data._product_tmpl_id);
+
+        if (priceListItems != null && priceListItems.Count > 0)
+        {
+            foreach (var item in priceListItems)
+            {
+                string namePriceList = priceListDict.TryGetValue(item._pricelist_id, out string name) ? name : "Desconocido";
+                PricesList.Add(new infoDetail { id = item.id, Description = namePriceList, Value = item.fixed_price });
+            }
+        }
 
         //MemoryStream stream = new MemoryStream(Convert.FromBase64String((string)Base64Source));
         //productImage.Source = ImageSource.FromStream(() => stream);     

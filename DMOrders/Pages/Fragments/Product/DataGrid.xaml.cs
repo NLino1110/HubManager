@@ -280,7 +280,7 @@ namespace DMOrders.Pages.Fragments.Product
             Debug.WriteLine(e.ToString());
 
             var customerContainer = (Product.Container) ViewParent;
-            customerContainer.LoadInfo((product_product) e.CurrentSelection[0]);
+            await customerContainer.LoadInfo((product_product) e.CurrentSelection[0]);
         }
 
 

@@ -75,7 +75,7 @@
                         <DataTemplate>
                             <Grid ColumnDefinitions="*,Auto" Padding="5,0,10,0">
                                 <Label Text="{Binding Description}" Grid.Column="0" FontSize="11"/>
-                                <Label Text="{Binding Value}" Grid.Column="1" HorizontalOptions="End" FontSize="11"/>
+                                <Label Text="{Binding Value, StringFormat='${0:N4}'}" Grid.Column="1" HorizontalOptions="End" FontSize="11"/>
                             </Grid>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>

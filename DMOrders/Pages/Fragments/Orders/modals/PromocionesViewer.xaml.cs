@@ -169,7 +169,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
     public PromocionesViewer(sale_order SaleOrderParam)
 	{
 		InitializeComponent();
-        BindingContext = this;        
+        BindingContext = this;
         SaleOrder = SaleOrderParam;
         //LoadDataByTimer();
     }
@@ -227,8 +227,8 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
 
                 //}
 
-                if (!productExistsInOrder)
-                {
+                //if (!productExistsInOrder)
+                //{
                     if (!await promotionEngineRunner.CanApplyPromotion(SaleOrder, benefit, saleOrderPromotions))
                     {
                         Debug.WriteLine($"{benefit.Promotion.name} ya ha sido aplicado maximo de veces - AddAutoGiftsAsync");
@@ -237,7 +237,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                     
                     Debug.WriteLine($"Cargado regalo automático para promoción {benefit.Promotion.name}: {productGift.name}");
                     _promoGiftsAuto.Add(productGift);
-                }
+                //}
              
                 foreach (var itemLine in SaleOrder.order_line)
                 {
@@ -398,25 +398,32 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                                                 
                         if(itemEval.Promotion._selection_type_id == 2)
                         {
-                            //Si es que es manual se maneja distinto la extracción de los productos
-                            var listIdsProd = itemEval.Promotion._product_details_promotion_ids
-                                .Where(x=>x._promo_id == 0 && x._bonus_id > 0)
+                            foreach (var ruleEval in itemEval.RuleSet)
+                            {
+                                //Si es que es manual se maneja distinto la extracción de los productos
+                                //var listIdsProd = itemEval.Promotion._product_details_promotion_ids
+                                //.Where(x => x._promo_id == 0 && x._bonus_id > 0)
+                                //.Select(x => x._product_id).ToList();
+
+                                var listIdsProd = itemEval.Promotion._product_details_promotion_ids
+                                .Where(x => x._parent_id == ruleEval.productIdParentMatch)
                                 .Select(x => x._product_id).ToList();
 
-                            var productGift = await productDb.GetByProductsTemplate(listIdsProd.ToArray());
-                            
-                            if (productGift != null && productGift.Count > 0)
-                            {
-                                foreach (var prod in productGift)
-                                {
-                                    prod.qty_gift = 0;
-                                    prod.promotionEvalItem = itemEval;
-                                    prod.allow_add_gift = true;
+                                var productGift = await productDb.GetByProductsTemplate(listIdsProd.ToArray());
 
-                                    if (!_promoGifts.Any(x => x?.default_code == prod.default_code))
-                                        promoGifts.Add(prod);
+                                if (productGift != null && productGift.Count > 0)
+                                {
+                                    foreach (var prod in productGift)
+                                    {
+                                        prod.qty_gift = 0;
+                                        prod.promotionEvalItem = itemEval;
+                                        prod.allow_add_gift = true;
+
+                                        if (!_promoGifts.Any(x => x?.default_code == prod.default_code))
+                                            promoGifts.Add(prod);
+                                    }
                                 }
-                            }                            
+                            }
                         }
                     }
                 }

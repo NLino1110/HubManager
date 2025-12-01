@@ -45,9 +45,11 @@ namespace DMOrders.Services.Promotions
             foreach (var promo in candidates)
             {
                 var FullRuleSet = new List<PromoRuleMatch>();
-                
+                int timesForApply = 0;
                 int FullAllowedGifts = 0;
                 var (inCenter, TotalTimesAllowed) = await CheckPromoCenterAsync(promo._centers_ids, saleOrder._pricelist_id);
+
+                Debug.WriteLine("Promo " + promo.name);
 
                 if (!inCenter)
                     continue;
@@ -95,9 +97,21 @@ namespace DMOrders.Services.Promotions
 
                             Debug.WriteLine($"Regla aplicada: {rule.id} - Promo: {promo.name} - Producto: {product_tmpl_id}");
                         }
+                        
                         FullRuleSet.AddRange(resultRules);
-                        //FullTotalTimesAllowed += TotalTimesAllowed;
-                        FullAllowedGifts += allowed_gifts;
+                                                
+                        foreach(var ruleMatchItem in FullRuleSet)
+                        {
+                            Debug.WriteLine($"FullRuleSet Item: {ruleMatchItem.id} - Promo: {promo.name} - Producto: {product_tmpl_id}");
+                            timesForApply++;
+
+                            if(timesForApply > TotalTimesAllowed)
+                            {
+                                break;
+                            }
+                            FullAllowedGifts += allowed_gifts;
+                        }
+
                         Debug.WriteLine("Aplicar la promocion por beneficio");
                     }
                 }
@@ -196,6 +210,7 @@ namespace DMOrders.Services.Promotions
             if (qty <= 0)
                 throw new ArgumentOutOfRangeException(nameof(qty), "qty debe ser > 0");
 
+            int productIdParentMatch = 0;
             this.qty = qty;
             this.totalProductAmount = totalProductAmount;
             this.totalOrder = totalOrder;
@@ -220,27 +235,61 @@ namespace DMOrders.Services.Promotions
 
             List<int> fullProductDetails = new();
 
+            if (product_tmpl_id == 0)
+            {
+                productMatches = false;
+                return (null, 0);
+            }
+
+            //Logica nueva
             foreach (var productIds in promo._product_promotion_ids)
             {
                 var ids = JsonConvert.DeserializeObject<int[]>(productIds.general_product_id_json);
                 if (ids != null)
                     fullProductDetails.AddRange(ids);
-            }
 
-            if (fullProductDetails.Any())
-            {
-                if (product_tmpl_id == 0)
-                {
-                    productMatches = false;
-                }
-                else
-                {
+                //Debe almacenarse productIdParentMatch
+
+                if (fullProductDetails.Any())
+                {   
                     productMatches = fullProductDetails.Contains(product_tmpl_id);
-                }
 
-                if (!productMatches) return (null,0);
-                baseReasons.Add("Producto incluido en detalle de la promoción.");
+                    if(productMatches)
+                    {
+                        productIdParentMatch = productIds.id;
+                        break;
+                    }                                        
+                }
             }
+
+            if (!productMatches) return (null, 0);
+            baseReasons.Add("Producto incluido en detalle de la promoción.");
+
+            //Logica original BACKUP
+            ////foreach (var productIds in promo._product_promotion_ids)
+            ////{
+            ////    var ids = JsonConvert.DeserializeObject<int[]>(productIds.general_product_id_json);
+            ////    if (ids != null)
+            ////        fullProductDetails.AddRange(ids);
+
+            ////    //Debe almacenarse productIdParentMatch
+
+            ////}
+
+            ////if (fullProductDetails.Any())
+            ////{
+            ////    if (product_tmpl_id == 0)
+            ////    {
+            ////        productMatches = false;
+            ////    }
+            ////    else
+            ////    {
+            ////        productMatches = fullProductDetails.Contains(product_tmpl_id);
+            ////    }
+
+            ////    if (!productMatches) return (null,0);
+            ////    baseReasons.Add("Producto incluido en detalle de la promoción.");
+            ////}
 
             List<PromoRules> rules = TryExtractRules(promo);
 
@@ -272,14 +321,17 @@ namespace DMOrders.Services.Promotions
                 if (promo._promotion_type_id == 2) // es regalo
                 {
                     decimal variableValue = GetVariableValue(r.variable);
-
-                    //cumple = OperatorEvaluator.Evaluate(r.operator_, variableValue, r.value, 0);
-
-                    decimal value_for_eval = r.minimum_value;
-                    decimal value_for_eval_max = r.maximum_value;
                     string operator_ = "";
-                    (operator_, value_for_eval) = fixOperator(r.variable, value_for_eval);
-                    cumple = OperatorEvaluator.Evaluate(operator_, variableValue, value_for_eval, value_for_eval_max);
+                    operator_ = r.operator_;
+
+                    //MODO 1
+                    cumple = OperatorEvaluator.Evaluate(r.operator_, variableValue, r.value, 0);
+
+                    //MODO 2
+                    //decimal value_for_eval = r.minimum_value;
+                    //decimal value_for_eval_max = r.maximum_value;                    
+                    //(operator_, value_for_eval) = fixOperator(r.variable, value_for_eval);
+                    //cumple = OperatorEvaluator.Evaluate(operator_, variableValue, value_for_eval, value_for_eval_max);
 
                     if (cumple)
                     {
@@ -303,8 +355,12 @@ namespace DMOrders.Services.Promotions
                         continue;
                     }
 
-                    //Si es manual
+                    //Si es manual (quizas aqui se deba solo usar modo 1)
+                    //MODO 1
                     allowed_gifts = r.qty; //(int)Math.Floor((double)qty / r.value);
+
+                    //MODO 2
+                    allowed_gifts = (int)Math.Floor((double)qty / r.value);
 
                     //Si es automático
                     //if (promo._selection_type_id == 1)
@@ -457,6 +513,7 @@ namespace DMOrders.Services.Promotions
                         Discount = r.discount,
                         Reasons = reasons,
                         AllowedGifts = allowed_gifts,
+                        productIdParentMatch = productIdParentMatch
                     };
 
                     RuleSet.Add(newRuleSet);
@@ -479,7 +536,7 @@ namespace DMOrders.Services.Promotions
             return (RuleSet, allowed_gifts);
         }
 
-
+        [Obsolete("Eliminar...")]
         public async Task<PromotionEvalResultV2> EvaluateLine(
             int product_tmpl_id,
             sale_order_line orderLine,

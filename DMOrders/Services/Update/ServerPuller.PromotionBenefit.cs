@@ -42,7 +42,7 @@ namespace DMOrders.Services.Update
                     await database.InsertBatchAsync(responseAll.result);
                 }
 
-                if (indice >= 600)
+                if (indice >= maxIndexExceeded)
                 {
                     Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
                     break;
