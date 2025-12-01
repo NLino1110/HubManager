@@ -1,3 +1,4 @@
+using CommunityToolkit.Maui.Alerts;
 using DMOrders.Services.Database.Sqlite;
 using DMOrders.Services.Promotions;
 using DMSA.Models.Odoo.DMOrders.promotions;
@@ -405,9 +406,8 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                                 //.Where(x => x._promo_id == 0 && x._bonus_id > 0)
                                 //.Select(x => x._product_id).ToList();
 
-                                var listIdsProd = itemEval.Promotion._product_details_promotion_ids
-                                .Where(x => x._parent_id == ruleEval.productIdParentMatch)
-                                .Select(x => x._product_id).ToList();
+                                var listIdsProd = itemEval.Promotion._product_details_promotion_ids                                
+                                    .Select(x => x._product_id).ToList();
 
                                 var productGift = await productDb.GetByProductsTemplate(listIdsProd.ToArray());
 
@@ -680,6 +680,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
         if (!await promotionEngineRunner.CanApplyPromotion(SaleOrder, benefit, saleOrderPromotions))
         {
             Debug.WriteLine($"{benefit.Promotion.name} ya ha sido aplicado maximo de veces - AddGiftIsolated");
+            await Toast.Make($"{benefit.Promotion.name} ya ha sido aplicado maximo de veces - AddGiftIsolated").Show();
             return;
         }
 
@@ -727,7 +728,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
             if (itemLine[2] != null)
             {
                 var lineObject = (sale_order_line)itemLine[2];
-                if (lineObject.product_id == product.id) // && lineObject.product_id_origin == saleOrderLineOrigin.product_id)
+                if (lineObject.product_id == product.id && lineObject.is_gift) // && lineObject.product_id_origin == saleOrderLineOrigin.product_id)
                 {
                     saleOrderLineOrigin.assigned_gifts++;
                     product.qty_gift++;

@@ -59,13 +59,14 @@ namespace DMOrders.Services.Promotions
                     var line = (sale_order_line)lineItem[2];
                     var product_tmpl_id = line.product_tmpl_id;
                     var qty = (int)line.product_uom_qty;
-                                       
+
+                    decimal price_total = line.price_total;
 
                     var (resultRules, allowed_gifts) = await EvaluateLineByBenefit(
                         product_tmpl_id: product_tmpl_id,
                         orderLine: line,
                         qty: qty,
-                        totalProductAmount: totalProductAmount,
+                        totalProductAmount: price_total, //totalProductAmount,
                         totalOrder: totalOrder,
                         companyId: company_id,
                         pricelist_id: saleOrder._pricelist_id,
@@ -100,17 +101,21 @@ namespace DMOrders.Services.Promotions
                         
                         FullRuleSet.AddRange(resultRules);
                                                 
-                        foreach(var ruleMatchItem in FullRuleSet)
-                        {
-                            Debug.WriteLine($"FullRuleSet Item: {ruleMatchItem.id} - Promo: {promo.name} - Producto: {product_tmpl_id}");
-                            timesForApply++;
+                        //foreach(var ruleMatchItem in FullRuleSet)
+                        //{
+                        //    Debug.WriteLine($"FullRuleSet Item: {ruleMatchItem.id} - Promo: {promo.name} - Producto: {product_tmpl_id}");
+                            
 
-                            if(timesForApply > TotalTimesAllowed)
+                            //if(timesForApply > TotalTimesAllowed)
+                            //{
+                            //    break;
+                            //}
+                            if (timesForApply < TotalTimesAllowed)
                             {
-                                break;
+                                timesForApply++;
+                                FullAllowedGifts += allowed_gifts;
                             }
-                            FullAllowedGifts += allowed_gifts;
-                        }
+                        //}
 
                         Debug.WriteLine("Aplicar la promocion por beneficio");
                     }
@@ -231,34 +236,42 @@ namespace DMOrders.Services.Promotions
             baseReasons.Add("Promoción activa y dentro de vigencia.");
 
             // Si la promoción tiene detalles de productos explícitos:
-            bool productMatches = true;
-
-            List<int> fullProductDetails = new();
+            bool productMatches = false;
 
             if (product_tmpl_id == 0)
-            {
-                productMatches = false;
+            {                
                 return (null, 0);
             }
 
-            //Logica nueva
-            foreach (var productIds in promo._product_promotion_ids)
+            //Logica nueva -MUERTA
+
+            List<int> fullProductDetails = new();
+            //foreach (var productIds in promo._product_promotion_ids)
+            //{
+            //    var ids = JsonConvert.DeserializeObject<int[]>(productIds.general_product_id_json);
+            //    if (ids != null)
+            //        fullProductDetails.AddRange(ids);
+
+            //    //Debe almacenarse productIdParentMatch
+
+            //    if (fullProductDetails.Any())
+            //    {   
+            //        productMatches = fullProductDetails.Contains(product_tmpl_id);
+
+            //        if(productMatches)
+            //        {
+            //            productIdParentMatch = productIds.id;
+            //            break;
+            //        }                                        
+            //    }
+            //}
+
+            foreach (var productIds in promo._product_details_promotion_ids_for_apply)
             {
-                var ids = JsonConvert.DeserializeObject<int[]>(productIds.general_product_id_json);
-                if (ids != null)
-                    fullProductDetails.AddRange(ids);
-
-                //Debe almacenarse productIdParentMatch
-
-                if (fullProductDetails.Any())
-                {   
-                    productMatches = fullProductDetails.Contains(product_tmpl_id);
-
-                    if(productMatches)
-                    {
-                        productIdParentMatch = productIds.id;
-                        break;
-                    }                                        
+                if (productIds._product_id == product_tmpl_id)
+                {
+                    productMatches = true;
+                    break;
                 }
             }
 
@@ -359,27 +372,9 @@ namespace DMOrders.Services.Promotions
                     //MODO 1
                     allowed_gifts = r.qty; //(int)Math.Floor((double)qty / r.value);
 
-                    //MODO 2
-                    allowed_gifts = (int)Math.Floor((double)qty / r.value);
-
-                    //Si es automático
-                    //if (promo._selection_type_id == 1)
-                    //{
-                    //    // ej. 10 / 5 = 2 -> 2 regalos
-                    //    int base_allowed_gifts = r.qty; // / r.value;
-                    //    //Se realiza calculo de allowed_gifts segun r.qty y TotalTimesAllowed
-                    //    // ya que en NxN los regalos dependen de la cantidad comprada
-                    //    // y no es fijo como en bonificaciones
-                    //    // ademas debe evaluarse segun TotalTimesAllowed                        
-                    //    //allowed_gifts = r.qty;
-                    //    if (base_allowed_gifts > TotalTimesAllowed)
-                    //    {
-                    //        allowed_gifts = TotalTimesAllowed * r.qty;
-                    //    }
-                    //    else
-                    //        allowed_gifts = base_allowed_gifts * r.qty;
-                    //}
-
+                    //MODO 2 - MANUAL
+                    if (promo._selection_type_id == 2)
+                        allowed_gifts = (int)Math.Floor((double)qty / r.value);
                 }
 
                 if (promo._promotion_type_id == 4) // es NXN

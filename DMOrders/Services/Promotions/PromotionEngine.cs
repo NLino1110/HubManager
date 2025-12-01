@@ -62,10 +62,11 @@ namespace DMOrders.Services.Promotions
                 promo._promotion_rules_ids = await promoRulesDb.GetItemsByParent(promo.id);
 
                 // 1️⃣ Cargar productos asociados a la promoción -- REGALOS
-                promo._product_details_promotion_ids = await productDetailPromoDb.GetDetailsFull(promo.id);
+                //promo._product_details_promotion_ids = await productDetailPromoDb.GetDetailsFull(promo.id);
+                promo._product_details_promotion_ids_for_apply = await productDetailPromoDb.GetItemsByPromo(promo.id);
 
                 // 1️⃣-1 Cargar productos asociados a la promoción -- PRODUCTOS QUE DEBEN APLICAR
-                promo._product_details_promotion_ids_for_apply = await productDetailPromoDb.GetItemsByPromoRules(promo.id);
+                promo._product_details_promotion_ids = await productDetailPromoDb.GetItemsByPromoRules(promo.id);
 
                 // 3️⃣ Cargar centros asociados (si aplica)
                 promo._centers_ids = await promoCentersDb.GetItemsByParent(promo.id);

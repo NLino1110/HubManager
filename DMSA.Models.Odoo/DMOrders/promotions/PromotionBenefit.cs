@@ -213,6 +213,7 @@ namespace DMSA.Models.Odoo.DMOrders.promotions
         //    set => product_promotion_ids_json = value?.ToString(Formatting.None);
         //}
 
+        [Obsolete("Debe quitarse")]
         [Ignore]
         [JsonIgnore]
         public List<PromotionProduct> _product_promotion_ids { get; set; }
