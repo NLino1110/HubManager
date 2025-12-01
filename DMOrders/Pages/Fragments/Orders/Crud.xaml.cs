@@ -344,19 +344,55 @@ public partial class Crud : ContentPage, IBackButtonHandler
         {
             return;
         }
-
-        saleOrderPromotions?.Clear();
+                
+        //saleOrderPromotions?.Clear();
 
         sale_order targetOrder = await SaveOrder();
 
         if (targetOrder != null)
         {
+            await CleanPromotionStatus(targetOrder);
+
             var applyPromo = await ApplyPromo(targetOrder);
 
             if (applyPromo.Count > 0)
             {
 
             }
+        }
+    }
+
+    private async Task CleanPromotionStatus(sale_order saleOrder)
+    {
+        saleOrderPromotions?.Clear();
+
+        //var view = new PromocionesViewer(saleOrder);
+        //view.ItemsData = AppliedPromotionResults;
+        var OrderLines = ((CrudViewModel)this.BindingContext).OrderLines;
+        //var saleOrderPromotions = ((CrudViewModel)this.BindingContext).saleOrderPromotions;
+
+        for (int i = 0; i < OrderLines.Count; i++)
+        {
+            if(OrderLines[i].is_gift )
+            {
+                OrderLines.RemoveAt(i);
+                continue;
+            }
+
+            var line = OrderLines[i];
+            line.promotion_data = null;
+
+            var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
+            var product_item = await productDb.GetItemAsync(x => x.id == line.product_id);
+
+            if (product_item == null)
+            {
+                Debug.WriteLine("Error: no se encontró el producto para actualizar la línea de orden.");
+                return;
+            }
+
+            product_item.list_price = (float)line.price_unit;
+            ((CrudViewModel)BindingContext).UpdateOrderLine(line, product_item);
         }
     }
 
@@ -599,7 +635,6 @@ public partial class Crud : ContentPage, IBackButtonHandler
                     return;
                 }
 
-
                 double discountPercentage = rule.Discount;
                 int productTemplateId = rule.ProductTmplId;
                 var orderLines = saleOrder.order_line;
@@ -614,7 +649,24 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
                 if (lineToDiscount != null)
                 {
-                    if (lineToDiscount.promotion_data != Newtonsoft.Json.JsonConvert.SerializeObject(new List<PromotionEvalItemV2> { promoResItem }))
+                    List<PromotionEvalItemV2> listPromotionData = new List<PromotionEvalItemV2>();
+
+                    listPromotionData = !string.IsNullOrEmpty(lineToDiscount.promotion_data) ?
+                                Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(lineToDiscount.promotion_data) :
+                                new List<PromotionEvalItemV2>();
+
+                    //existingPromos = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(lineToDiscount.promotion_data ?? "[]");
+                    //sino existe promoResItem dentro de la lista
+
+                    if(listPromotionData.Exists(p => p.Promotion.id == promoResItem.Promotion.id))
+                    {
+                        Debug.WriteLine($"Descuento de promoción ya ha sido aplicado anteriormente");
+                        continue;
+                    }
+
+                    listPromotionData.Add(promoResItem);
+
+                    //if (lineToDiscount.promotion_data != Newtonsoft.Json.JsonConvert.SerializeObject(new List<PromotionEvalItemV2> { promoResItem }))
                     {
                         decimal originalPrice = lineToDiscount.price_unit;
                         decimal virtual_price_no_tax = lineToDiscount.virtual_price_no_tax;
@@ -629,16 +681,16 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
                         lineToDiscount.virtual_line_subtotal = virtual_price_no_tax * lineToDiscount.product_uom_qty_real;
 
-                        lineToDiscount.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(new List<PromotionEvalItemV2> { promoResItem });
+                        lineToDiscount.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(listPromotionData);
 
                         await promotionEngineRunner.AddApplyPromotion(saleOrder, promoResItem, 1, saleOrderPromotions);
 
                         Debug.WriteLine($"Descuento aplicado: {discountPercentage}% al producto ID {productTemplateId}");
                     }
-                    else
-                    {
-                        Debug.WriteLine($"Descuento de promoción ya ha sido aplicado");
-                    }
+                    //else
+                    //{
+                    //    Debug.WriteLine($"Descuento de promoción ya ha sido aplicado");
+                    //}
                 }
             }
         }

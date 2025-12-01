@@ -231,7 +231,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                 {
                     if (!await promotionEngineRunner.CanApplyPromotion(SaleOrder, benefit, saleOrderPromotions))
                     {
-                        Debug.WriteLine($"{benefit.Promotion.name} ya ha sido aplicado maximo de veces - AddGiftNxN");
+                        Debug.WriteLine($"{benefit.Promotion.name} ya ha sido aplicado maximo de veces - AddAutoGiftsAsync");
                         return;
                     }
                     

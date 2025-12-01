@@ -17,14 +17,18 @@ namespace DMOrders.Services.Promotions
             PromotionEvalItemV2 promotionEvalItem, 
             List<SaleOrderPromotions> saleOrderPromotions)
         {
-            
-            var existingPromos = saleOrderPromotions.Where(x=> x.order_id == order.id &&
-                x.promotion_id == promotionEvalItem.Promotion.id &&
-                x.promotion_centers == promotionEvalItem.PricelistId).ToList();
-
             if (saleOrderPromotions != null && saleOrderPromotions.Count > 0)
             {
-                foreach (var promo in saleOrderPromotions)
+                var existingPromos = saleOrderPromotions.Where(x => x.order_id == order.id &&
+                x.promotion_id == promotionEvalItem.Promotion.id &&
+                x.promotion_centers == promotionEvalItem.PricelistId).ToList();
+                
+                if (existingPromos == null || existingPromos.Count == 0)
+                {
+                    return true;
+                }
+
+                foreach (var promo in existingPromos)
                 {
                     Debug.WriteLine($"Promoción existente: ID {promo.promotion_id}, Aplicada: {promo.applied}");
                     if (promo.applied == true || promo.times_inv == promo.times_inv_applied)
