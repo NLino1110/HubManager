@@ -54,7 +54,13 @@ namespace DMOrders.Services.Promotions
                 if (!inCenter)
                     continue;
 
-                foreach (var lineItem in saleOrder.order_line)
+                var ordered = saleOrder.order_line
+                    .Where(li => ((sale_order_line)li[2]).is_gift != true)
+                    .OrderByDescending(li => ((sale_order_line)li[2]).product_uom_qty)
+                    .ToList();
+
+                //foreach (var lineItem in saleOrder.order_line)
+                foreach (var lineItem in ordered)
                 {
                     var line = (sale_order_line)lineItem[2];
                     var product_tmpl_id = line.product_tmpl_id;
