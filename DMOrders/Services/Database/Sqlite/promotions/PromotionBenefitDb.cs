@@ -29,6 +29,7 @@ namespace DMOrders.Services.Database.Sqlite
                                 .Where(x => x._company_id == companyId &&
                                             x.start_datetime <= nowUtc &&
                                             x.end_datetime >= nowUtc &&
+                                            x._target_segment_id == 1 && //Solo fuerza de ventas
                                             x.active)
                                 .OrderBy(x => x.create_date);
 

@@ -28,6 +28,8 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
         }
     }
 
+    public bool BenefitsForShow { get; set; }
+
     private ObservableCollection<product_product> _promoGiftsAuto;
 
     private sale_order SaleOrder { get; set; }
@@ -51,81 +53,167 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                 //_ItemsDataBenefits = new ObservableCollection<PromotionBenefit>();
             }
 
-            foreach (var promo in _itemsFullPromos)
-            {
-                if (promo.Items != null)
-                {
-                    foreach (var benefit in promo.Items)
-                    {
-                        //Se agregan los beneficios automáticos para cargar sus regalos si es que es tipo Bonificado == 2
-                        if (benefit.Promotion._promotion_type_id == 2 && benefit.Promotion._selection_type_id == 1)
-                        {
-                            _ = AddAutoGiftsAsync(benefit);
-                        }
+            //bool existPromosForEval = false;
 
-                        //NxN se aplica automáticamente
-                        if (benefit.Promotion._promotion_type_id == 4 && benefit.Promotion._selection_type_id == 1)
-                        {
-                            _ = AddGiftNxnV2(benefit);
-                        }
+            //foreach (var promo in _itemsFullPromos)
+            //{
+            //    if (promo.Items != null)
+            //    {
+            //        foreach (var benefit in promo.Items)
+            //        {
+            //            //Se agregan los beneficios automáticos para cargar sus regalos si es que es tipo Bonificado == 2
+            //            if (benefit.Promotion._promotion_type_id == 2 && benefit.Promotion._selection_type_id == 1)
+            //            {
+            //                _ = AddAutoGiftsAsync(benefit);
+            //            }
 
-                        if (benefit?.Promotion?.id == null)
-                            continue;
+            //            //NxN se aplica automáticamente
+            //            if (benefit.Promotion._promotion_type_id == 4 && benefit.Promotion._selection_type_id == 1)
+            //            {
+            //                existPromosForEval = true;
+            //                _ = AddGiftNxnV2(benefit);                            
+            //            }
 
-                        _ItemsDataBenefits.Add(benefit);
+            //            if (benefit?.Promotion?.id == null)
+            //                continue;
 
-                        if (!_ItemsDataBenefits.Any(x => x.Promotion?.id == benefit.Promotion.id))
-                        {
-                            //Quizas se deban acumular los qty * numero de apariciones de la promoción                            
-                            benefit.FoundTimesApplies = 1;
+            //            _ItemsDataBenefits.Add(benefit);
+
+            //            if (!_ItemsDataBenefits.Any(x => x.Promotion?.id == benefit.Promotion.id))
+            //            {
+            //                //Quizas se deban acumular los qty * numero de apariciones de la promoción                            
+            //                benefit.FoundTimesApplies = 1;
                             
-                            foreach(var rule in benefit.RuleSet)
-                            {                                                                   
-                                benefit.MaxAllowedGifts += rule.AllowedGifts;                                
-                            }
+            //                foreach(var rule in benefit.RuleSet)
+            //                {                                                                   
+            //                    benefit.MaxAllowedGifts += rule.AllowedGifts;                                
+            //                }
 
-                            //Original
-                            //benefit.MaxAllowedGifts = benefit.AllowedGifts;
+            //                //Original
+            //                //benefit.MaxAllowedGifts = benefit.AllowedGifts;
 
-                            //_ItemsDataBenefits.Add(benefit);
-                        }
-                        else
-                        {
-                            var existing = _ItemsDataBenefits.First(x => x.Promotion?.id == benefit.Promotion.id);
+            //                //_ItemsDataBenefits.Add(benefit);
+            //            }
+            //            else
+            //            {
+            //                var existing = _ItemsDataBenefits.First(x => x.Promotion?.id == benefit.Promotion.id);
 
-                            // Acumulas el qty
-                            //existing.RuleSet.qty += benefit.RuleSet.qty;
+            //                // Acumulas el qty
+            //                //existing.RuleSet.qty += benefit.RuleSet.qty;
 
-                            // Si TotalTimesAllowed también debe acumularse:
-                            var totalTimesFound = existing.FoundTimesApplies + 1;
-                            if(totalTimesFound > existing.TotalTimesAllowed)
-                            {
-                                //No se puede acumular más veces de las permitidas
-                                Debug.WriteLine($"Promoción {existing.Promotion.name} ya ha alcanzado el máximo de aplicaciones permitidas.");
-                                continue;
-                            }
+            //                // Si TotalTimesAllowed también debe acumularse:
+            //                var totalTimesFound = existing.FoundTimesApplies + 1;
+            //                if(totalTimesFound > existing.TotalTimesAllowed)
+            //                {
+            //                    //No se puede acumular más veces de las permitidas
+            //                    Debug.WriteLine($"Promoción {existing.Promotion.name} ya ha alcanzado el máximo de aplicaciones permitidas.");
+            //                    continue;
+            //                }
 
-                            existing.FoundTimesApplies = totalTimesFound;
+            //                existing.FoundTimesApplies = totalTimesFound;
 
-                            //TODO: AQUI SUCEDE ALGO CRITICO
-                            foreach (var ruleMatch in existing.RuleSet)
-                            {
-                                //existing.MaxAllowedGifts += existing.FoundTimesApplies * ruleMatch.AllowedGifts;
-                            }
+            //                //TODO: AQUI SUCEDE ALGO CRITICO
+            //                foreach (var ruleMatch in existing.RuleSet)
+            //                {
+            //                    //existing.MaxAllowedGifts += existing.FoundTimesApplies * ruleMatch.AllowedGifts;
+            //                }
 
-                            //foreach (var rule in existing.RuleSet)
-                            //{
-                            //    existing.MaxAllowedGifts += rule.AllowedGifts;
-                            //}
-                        }
-                    }
-                }
-            }
+            //                //foreach (var rule in existing.RuleSet)
+            //                //{
+            //                //    existing.MaxAllowedGifts += rule.AllowedGifts;
+            //                //}
+            //            }
+            //        }
+            //    }
+            //}
 
             OnPropertyChanged(nameof(ItemsData));
             OnPropertyChanged(nameof(ItemsDataBenefits));
             OnPropertyChanged(nameof(ComputeTotal));
+
+
         }
+    }
+
+    public async Task ApplyPromosOnList()
+    {
+        bool existPromosForEval = false;
+
+        foreach (var promo in _itemsFullPromos)
+        {
+            if (promo.Items != null)
+            {
+                foreach (var benefit in promo.Items)
+                {
+                    //Se agregan los beneficios automáticos para cargar sus regalos si es que es tipo Bonificado == 2
+                    if (benefit.Promotion._promotion_type_id == 2 && benefit.Promotion._selection_type_id == 1)
+                    {
+                        await AddAutoGiftsAsync(benefit);
+                    }
+
+                    //NxN se aplica automáticamente
+                    if (benefit.Promotion._promotion_type_id == 4 && benefit.Promotion._selection_type_id == 1)
+                    {
+                        existPromosForEval = true;
+                        await AddGiftNxnV2(benefit);
+                    }
+
+                    if (benefit?.Promotion?.id == null)
+                        continue;
+
+                    _ItemsDataBenefits.Add(benefit);
+
+                    if (!_ItemsDataBenefits.Any(x => x.Promotion?.id == benefit.Promotion.id))
+                    {
+                        //Quizas se deban acumular los qty * numero de apariciones de la promoción                            
+                        benefit.FoundTimesApplies = 1;
+
+                        foreach (var rule in benefit.RuleSet)
+                        {
+                            benefit.MaxAllowedGifts += rule.AllowedGifts;
+                        }
+
+                        //Original
+                        //benefit.MaxAllowedGifts = benefit.AllowedGifts;
+
+                        //_ItemsDataBenefits.Add(benefit);
+                    }
+                    else
+                    {
+                        var existing = _ItemsDataBenefits.First(x => x.Promotion?.id == benefit.Promotion.id);
+
+                        // Acumulas el qty
+                        //existing.RuleSet.qty += benefit.RuleSet.qty;
+
+                        // Si TotalTimesAllowed también debe acumularse:
+                        var totalTimesFound = existing.FoundTimesApplies + 1;
+                        if (totalTimesFound > existing.TotalTimesAllowed)
+                        {
+                            //No se puede acumular más veces de las permitidas
+                            Debug.WriteLine($"Promoción {existing.Promotion.name} ya ha alcanzado el máximo de aplicaciones permitidas.");
+                            continue;
+                        }
+
+                        existing.FoundTimesApplies = totalTimesFound;
+
+                        //TODO: AQUI SUCEDE ALGO CRITICO
+                        foreach (var ruleMatch in existing.RuleSet)
+                        {
+                            //existing.MaxAllowedGifts += existing.FoundTimesApplies * ruleMatch.AllowedGifts;
+                        }
+
+                        //foreach (var rule in existing.RuleSet)
+                        //{
+                        //    existing.MaxAllowedGifts += rule.AllowedGifts;
+                        //}
+                    }
+                }
+            }
+        }
+
+
+        if (existPromosForEval && !_promoGiftsAuto.Any()) //(_promoGiftsAuto == null || _promoGiftsAuto.Count == 0))
+            BenefitsForShow = false;
     }
 
     private ObservableCollection<PromotionEvalResultV2> _itemsFullPromos;
@@ -181,6 +269,8 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
         productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
         realApplied = new List<sale_order_line>();
         //LoadDataByTimer();
+
+        BenefitsForShow = true;
     }
 
     private async Task AddAutoGiftsAsync(PromotionEvalItemV2 benefit)
@@ -762,8 +852,6 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                         return;
                     }
 
-                    Debug.WriteLine($"Cargado regalo automático para promoción {benefit.Promotion.name}: {productGift.name}");
-                    _promoGiftsAuto.Add(productGift);
                     //}
 
                     int line_qty = 0;
@@ -820,7 +908,10 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                         //Proceso de reconversión de qty basado en N x N
                         int qty_assign = line_qty / ruleMatch.value; //ruleMatch.AllowedGifts;
 
-                        if (qty_assign == 0) return;
+                        if (qty_assign == 0) continue;
+
+                        Debug.WriteLine($"Cargado regalo automático para promoción {benefit.Promotion.name}: {productGift.name}");
+                        _promoGiftsAuto.Add(productGift);
 
                         var line = new sale_order_line
                         {

@@ -569,10 +569,17 @@ public partial class Crud : ContentPage, IBackButtonHandler
             return new List<string>();
         }
 
+        bool ShowPromoPopupLevel2 = false;
+
         var view = new PromocionesViewer(saleOrder);
         view.ItemsData = AppliedPromotionResults;
         view.OrderLines = ((CrudViewModel)this.BindingContext).OrderLines;
         view.saleOrderPromotions = ((CrudViewModel)this.BindingContext).saleOrderPromotions;
+        await view.ApplyPromosOnList();
+
+        ShowPromoPopupLevel2 = view.BenefitsForShow;
+
+        if (!ShowPromoPopupLevel2) return new List<string>();
 
         var popup = new Popup
         {

@@ -109,7 +109,8 @@ namespace DMSA.Models.Odoo.Abstract
                     IsProduction = false,
                     IsTestMode = true,
                     DataToleranceDays = 365,
-                    sale_channel_default = 8
+                    sale_channel_default = 8,
+                    res_center_default = 49
             }
             );
 
@@ -128,7 +129,8 @@ namespace DMSA.Models.Odoo.Abstract
                 IsProduction = false,
                 IsTestMode = true,
                 DataToleranceDays = 365,
-                sale_channel_default = 8
+                sale_channel_default = 8,
+                res_center_default = 49
             }
             );
 
@@ -148,7 +150,8 @@ namespace DMSA.Models.Odoo.Abstract
                 IsProduction = true,
                 IsTestMode = true,
                 DataToleranceDays = 365,
-                sale_channel_default = 8
+                sale_channel_default = 8,
+                res_center_default = 49
             }
             );
 
@@ -168,7 +171,8 @@ namespace DMSA.Models.Odoo.Abstract
                 IsProduction = true,
                 IsTestMode = true,
                 DataToleranceDays = 365,
-                sale_channel_default = 8
+                sale_channel_default = 8,
+                res_center_default = 49
             }
             );
 
