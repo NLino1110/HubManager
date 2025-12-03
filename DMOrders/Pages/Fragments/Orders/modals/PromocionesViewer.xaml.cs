@@ -607,19 +607,24 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
             {
                 saleOrderLineOrigin = (sale_order_line)itemLineOrigin[2];
 
-                foreach (var ruleItem in benefit.RuleSet)
+                foreach (var ruleMatch in benefit.RuleSet)
                 {
-                    if (ruleItem.ProductTmplId == saleOrderLineOrigin.product_tmpl_id && !saleOrderLineOrigin.is_gift)
+                    int[] listIdsProd = Newtonsoft.Json.JsonConvert.DeserializeObject<int[]>(ruleMatch.ProductTmplIds);
+
+                    foreach (var productIdCompare in listIdsProd)
                     {
-                        productExistsInOrder = true;
-                        if (saleOrderLineOrigin.max_gifts != benefit.MaxAllowedGifts)
+                        if (productIdCompare == saleOrderLineOrigin.product_tmpl_id && !saleOrderLineOrigin.is_gift)
                         {
-                            saleOrderLineOrigin.max_gifts = benefit.MaxAllowedGifts;
-                            saleOrderLineOrigin.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(
-                                    new List<PromotionEvalItemV2> { product.promotionEvalItem }
-                                );
+                            productExistsInOrder = true;
+                            if (saleOrderLineOrigin.max_gifts != benefit.MaxAllowedGifts)
+                            {
+                                saleOrderLineOrigin.max_gifts = benefit.MaxAllowedGifts;
+                                saleOrderLineOrigin.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(
+                                        new List<PromotionEvalItemV2> { product.promotionEvalItem }
+                                    );
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
 
