@@ -33,7 +33,6 @@ namespace DMOrders.Services.Promotions
             if (_operators.TryGetValue(op, out var func))
                 return func(left, right, maximum);
 
-
             throw new InvalidOperationException($"Operador no soportado: {op}");
         }
     }

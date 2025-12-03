@@ -16,6 +16,7 @@ using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Sales;
 using Microsoft.Maui.Controls.Shapes;
+using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -556,7 +557,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 // es DESCUENTO DEBE APLICARSE PRIMERO
                 if (promoResItem.Promotion._promotion_type_id == 6)
                 {
-                    await ApplyDiscount(saleOrder, promoResItem);
+                    await ApplyDiscountV2(saleOrder, promoResItem);
                     ((CrudViewModel)BindingContext).UpdateTotals();
                 }
             }
@@ -615,9 +616,107 @@ public partial class Crud : ContentPage, IBackButtonHandler
         return new List<string>();
     }
 
-    private async Task ApplyNxN(sale_order saleOrder, PromotionEvalItemV2 promoResItem)
+    private async Task ApplyDiscountV2(sale_order saleOrder, PromotionEvalItemV2 promoResItem)
     {
-        throw new NotImplementedException();
+        PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
+
+        foreach (var ruleMatch in promoResItem.RuleSet)
+        {
+            if (ruleMatch.IsDiscount)
+            {
+                int maxProductTarget = ruleMatch.ProductTmplIdMaxTotal;
+                if ( ruleMatch.variable == "qty_product_unts")
+                {
+                    maxProductTarget = ruleMatch.ProductTmplIdMaxQty;                    
+                }
+
+                int[] listIdsProd = JsonConvert.DeserializeObject<int[]>(ruleMatch.ProductTmplIds);
+                                
+                bool existedBefore = listIdsProd.Contains(maxProductTarget);
+                                
+                var cleanedList = listIdsProd.Where(id => id != maxProductTarget);
+                                
+                listIdsProd = (new int[] { maxProductTarget })
+                                .Concat(cleanedList)
+                                .ToArray();
+                
+                if (!existedBefore)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        $"[Promotions] maxProductTarget ({maxProductTarget}) no existía en ProductTmplIds: {ruleMatch.ProductTmplIds}. Fue agregado manualmente."
+                    );
+                }
+
+                foreach (var productTarget in listIdsProd)
+                {
+                    if (!await promotionEngineRunner.CanApplyPromotion(saleOrder, promoResItem, saleOrderPromotions))
+                    {
+                        Debug.WriteLine($"{promoResItem.Promotion.name} ya ha sido aplicado maximo de veces - Crud-ApplyDiscount");
+                        return;
+                    }
+
+                    double discountPercentage = ruleMatch.Discount;
+                    int productTemplateId = ruleMatch.ProductTmplId;
+                    var orderLines = saleOrder.order_line;
+
+                    var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
+
+                    //var productTarget = ruleMatch.ProductId; //await productDb.GetByProductTemplate(productTemplateId);
+
+                    var lineToDiscount = orderLines
+                            .Select(line => line.Count > 2 ? line[2] as sale_order_line : null)
+                            .FirstOrDefault(l => l != null && l.product_tmpl_id == productTarget);
+
+                    if (lineToDiscount != null)
+                    {
+                        List<PromotionEvalItemV2> listPromotionData = new List<PromotionEvalItemV2>();
+
+                        listPromotionData = !string.IsNullOrEmpty(lineToDiscount.promotion_data) ?
+                                    Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(lineToDiscount.promotion_data) :
+                                    new List<PromotionEvalItemV2>();
+
+                        //existingPromos = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(lineToDiscount.promotion_data ?? "[]");
+                        //sino existe promoResItem dentro de la lista
+
+                        if (listPromotionData.Exists(p => p.Promotion.id == promoResItem.Promotion.id))
+                        {
+                            Debug.WriteLine($"Descuento de promoción ya ha sido aplicado anteriormente");
+                            continue;
+                        }
+
+                        listPromotionData.Add(promoResItem);
+
+                        //if (lineToDiscount.promotion_data != Newtonsoft.Json.JsonConvert.SerializeObject(new List<PromotionEvalItemV2> { promoResItem }))
+                        {
+                            decimal originalPrice = lineToDiscount.price_unit;
+                            decimal virtual_price_no_tax = lineToDiscount.virtual_price_no_tax;
+
+                            decimal discountAmount = (virtual_price_no_tax * lineToDiscount.product_uom_qty_real) * (decimal)(discountPercentage / 100);
+                            lineToDiscount.discount = (decimal)discountPercentage;
+                            lineToDiscount.amount_discount = discountAmount;
+
+                            lineToDiscount.price_subtotal = (virtual_price_no_tax * lineToDiscount.product_uom_qty_real) - discountAmount;
+                            lineToDiscount.price_tax = (lineToDiscount.price_subtotal * lineToDiscount.virtual_iva_percentage) / 100;
+                            lineToDiscount.price_total = lineToDiscount.price_subtotal + lineToDiscount.price_tax;
+
+                            lineToDiscount.virtual_line_subtotal = virtual_price_no_tax * lineToDiscount.product_uom_qty_real;
+
+                            lineToDiscount.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(listPromotionData);
+
+                            await promotionEngineRunner.AddApplyPromotion(saleOrder, promoResItem, 1, saleOrderPromotions);
+
+                            Debug.WriteLine($"Descuento aplicado: {discountPercentage}% al producto ID {productTemplateId}");
+                        }
+                        //else
+                        //{
+                        //    Debug.WriteLine($"Descuento de promoción ya ha sido aplicado");
+                        //}
+                    }
+                }
+            }
+        }
+
+
     }
 
     private async Task ApplyDiscount(sale_order saleOrder, PromotionEvalItemV2 promoResItem)
@@ -693,9 +792,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
                     //}
                 }
             }
-        }
-
-        
+        }        
     }
 
     public async Task EvalPromotions(sale_order saleOrder)
@@ -715,9 +812,14 @@ public partial class Crud : ContentPage, IBackButtonHandler
             // 2️⃣ Crear el motor de promociones
             var engine = new PromotionEngineLite(repo);
 
-            AppliedPromotionResults = await engine.EvaluatePromotionsV2(
+            //AppliedPromotionResults = await engine.EvaluatePromotionsV2(
+            //    saleOrder: saleOrder
+            //);
+
+            AppliedPromotionResults = await engine.EvaluatePromotionsV3(
                 saleOrder: saleOrder
             );
+            
 
             //var databaseLines = new SaleOrderLineDb(dbNameSqlite);
             //var _order_lines = await databaseLines.GetItemsByParent(saleOrder);
@@ -870,7 +972,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         }
         else
         {
-            _activeEntry = EntryCantidadFinal;
+            _activeEntry = EntryCantidadSolicitada;
             labelGifInfo.IsVisible = false;
             btnApplyQty.IsEnabled = true;
             btnResetQty.IsEnabled = true;

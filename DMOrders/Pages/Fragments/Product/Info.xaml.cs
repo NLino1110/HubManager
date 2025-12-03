@@ -1,5 +1,6 @@
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Sales;
 using Spinner.MAUI;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -85,8 +86,8 @@ public partial class Info : ContentView
         lblCode.Text = data.code;
         lblForSale.Text = data.active ? "Activo" : "Inactivo";
 
-        lblMarcaNombre.Text = "---";
-        lblCategoriaNombre.Text = "---";
+        lblMarcaNombre.Text = _data.marca_display;
+        lblCategoriaNombre.Text = _data.categoria_display;
         lblIvaInc.Text = "---";
         lblIvaCalc.Text = "---";
 
@@ -97,24 +98,9 @@ public partial class Info : ContentView
         StockList.Add(new infoDetail { id = 2, Description = "Disponible Virtual", Value = (decimal)data.virtual_available });
         StockList.Add(new infoDetail { id = 3, Description = "Cantidad Libre", Value = (decimal)data.free_qty });
 
-        PricesList.Clear();
-        
-        var priceListDb = new ProductPricelistDb(App.Session.odooConnection.DbNameSqlite);
-        var priceLists = await priceListDb.GetItemsAsync(x=>x.active);
-        var priceListDict = priceLists.ToDictionary(x => x.id, x => x.name);
+        await FillPrices(data);
 
-        var priceListProductsDb = new ProductPricelistItemDb(App.Session.odooConnection.DbNameSqlite);
-        var priceListItems = await priceListProductsDb.GetItemsAsync(x=>x._product_tmpl_id == data._product_tmpl_id);
-
-        if (priceListItems != null && priceListItems.Count > 0)
-        {
-            foreach (var item in priceListItems)
-            {
-                string namePriceList = priceListDict.TryGetValue(item._pricelist_id, out string name) ? name : "Desconocido";
-                PricesList.Add(new infoDetail { id = item.id, Description = namePriceList, Value = item.fixed_price });
-            }
-        }
-
+        //if (!string.IsNullOrEmpty(data.image_256))
         //MemoryStream stream = new MemoryStream(Convert.FromBase64String((string)Base64Source));
         //productImage.Source = ImageSource.FromStream(() => stream);     
 
@@ -129,5 +115,58 @@ public partial class Info : ContentView
         //    //HeightRequest = 200,
         //    //WidthRequest = 200
         //};
+    }
+        
+    public static class Cache
+    {
+        public static Dictionary<int, string> PriceListDict { get; set; }
+        = new Dictionary<int, string>();
+
+        public static Dictionary<int, List<product_pricelist_item>> PriceListItemsByTemplate
+            = new Dictionary<int, List<product_pricelist_item>>();
+    }
+
+    private async Task<List<product_pricelist_item>> FillPrices(product_product _data)
+    {
+        if (Cache.PriceListDict.Count == 0)
+        {
+            var priceListDb = new ProductPricelistDb(App.Session.odooConnection.DbNameSqlite);
+            var priceLists = await priceListDb.GetItemsAsync(x => x.active);
+            Cache.PriceListDict = priceLists.ToDictionary(x => x.id, x => x.name);
+        }
+
+        PricesList.Clear();
+
+        List<product_pricelist_item> priceListItems;
+                
+        if (!Cache.PriceListItemsByTemplate.TryGetValue(data._product_tmpl_id, out priceListItems))
+        {            
+            var priceListProductsDb = new ProductPricelistItemDb(App.Session.odooConnection.DbNameSqlite);
+
+            priceListItems = await priceListProductsDb.GetItemsAsync(
+                x => x._product_tmpl_id == data._product_tmpl_id
+            );
+                        
+            Cache.PriceListItemsByTemplate[data._product_tmpl_id] = priceListItems;
+        }
+
+        priceListItems = Cache.PriceListItemsByTemplate[data._product_tmpl_id];
+
+        // 5. Agregar al observable list
+        foreach (var item in priceListItems)
+        {
+            string namePriceList = Cache.PriceListDict.TryGetValue(item._pricelist_id, out string name)
+                ? name
+                : "Desconocido";
+
+            PricesList.Add(new infoDetail
+            {
+                id = item.id,
+                Description = namePriceList,
+                Value = item.fixed_price
+            });
+        }
+
+        return null;
     }
 }

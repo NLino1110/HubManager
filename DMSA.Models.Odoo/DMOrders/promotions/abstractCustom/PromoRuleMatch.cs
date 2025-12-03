@@ -48,7 +48,16 @@ namespace DMSA.Models.Odoo.DMOrders.promotions.abstractCustom
         public double Discount { get; set; }
         public int ProductTmplId { get; set; }
         public int ProductId { get; set; }
+
+        public string ProductTmplIds { get; set; }
+        public string ProductIds { get; set; }
+
+        public int ProductTmplIdMaxTotal { get; set; }
+        public int ProductTmplIdMaxQty { get; set; }
+
         public int AllowedGifts { get; set; }
+        
+        [Obsolete]
         public int productIdParentMatch { get; set; }
         public List<string> Reasons { get; set; } = new();
     }

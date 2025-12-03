@@ -204,12 +204,20 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                 </Button.ImageSource>
             </Button>
 
-            <Label Text="TOTAL: 0.00"
+            <Label Text="TOTAL:"
                    FontAttributes="Bold"
                    FontSize="16"
                    HorizontalOptions="Fill"
                    HorizontalTextAlignment="End" 
                    VerticalTextAlignment="Center"/>
+
+            <Label Text="{Binding ComputeTotal, StringFormat='$ {0:N2}'}"
+               FontAttributes="Bold"
+               FontSize="16"
+               HorizontalOptions="Fill"
+               HorizontalTextAlignment="End" 
+               VerticalTextAlignment="Center"/>
+            
         </HorizontalStackLayout>
     </VerticalStackLayout>
 </ContentView>

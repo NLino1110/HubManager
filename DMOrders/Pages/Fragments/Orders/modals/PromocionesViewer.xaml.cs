@@ -12,6 +12,10 @@ namespace DMOrders.Pages.Fragments.Orders.modals;
 
 public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
 {
+    private List<sale_order_line> realApplied { get; set; }
+
+    ProductProductDb productDb { get; set; }
+
     public List<SaleOrderPromotions> saleOrderPromotions { get; set; }
 
     public ObservableCollection<product_product> promoGiftsAuto
@@ -62,7 +66,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                         //NxN se aplica automáticamente
                         if (benefit.Promotion._promotion_type_id == 4 && benefit.Promotion._selection_type_id == 1)
                         {
-                            _ = AddGiftNxn(benefit);
+                            _ = AddGiftNxnV2(benefit);
                         }
 
                         if (benefit?.Promotion?.id == null)
@@ -120,6 +124,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
 
             OnPropertyChanged(nameof(ItemsData));
             OnPropertyChanged(nameof(ItemsDataBenefits));
+            OnPropertyChanged(nameof(ComputeTotal));
         }
     }
 
@@ -172,14 +177,15 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
 		InitializeComponent();
         BindingContext = this;
         SaleOrder = SaleOrderParam;
+
+        productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
+        realApplied = new List<sale_order_line>();
         //LoadDataByTimer();
     }
 
     private async Task AddAutoGiftsAsync(PromotionEvalItemV2 benefit)
     {
         PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
-
-        var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
 
         foreach (var ruleMatch in benefit.RuleSet)
         {
@@ -206,9 +212,9 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                         Debug.WriteLine($"Advertencia: Más de un producto de regalo encontrado para la regla {ruleMatch.id} de la promoción {benefit.Promotion.name}. Se tomará el primero.");
                     }
                 }
-            }            
+            }
 
-            var productGift = await productDb.GetByProductTemplate(productIdCompare);            
+            var productGift = await productDb.GetByProductTemplate(productIdCompare, SaleOrder._pricelist_id);            
             productGift.promotionEvalItem = benefit;
             productGift.qty_gift = ruleMatch.AllowedGifts;
 
@@ -326,8 +332,9 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                         qty_to_deliver = qty_assign,
                         product_uom_qty_real = qty_assign,
                         product_uom_qty = qty_assign,
-                        uom_category_display = "UND",
+                        uom_category_display = productGift.uom_display,
                         price_subtotal = 0,
+                        _virtual_price_no_tax = (decimal) productGift.list_price,
                         discount = 100,
                         price_tax = 0,
                         price_total = 0,
@@ -369,7 +376,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
             
             if (selectedPromoEvalItem.Promotion._promotion_type_id == 2) // es regalo
             {
-                foreach(var itemResult in _itemsFullPromos)                
+                foreach(var itemResult in _itemsFullPromos)
                 {
                     foreach(var itemEval in itemResult.Items)
                     {
@@ -382,7 +389,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                             foreach (var ruleEval in itemEval.RuleSet)
                             {
                                 int productIdCompare = ruleEval.ProductId;
-                                var productGift = await productDb.GetByProductTemplate(productIdCompare);
+                                var productGift = await productDb.GetByProductTemplate(productIdCompare, SaleOrder._pricelist_id);
                                 //int qty_gift = 0;
                                 //qty_gift = itemEval.AllowedGifts;
 
@@ -409,7 +416,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                                 var listIdsProd = itemEval.Promotion._product_details_promotion_ids                                
                                     .Select(x => x._product_id).ToList();
 
-                                var productGift = await productDb.GetByProductsTemplate(listIdsProd.ToArray());
+                                var productGift = await productDb.GetByProductsTemplate(listIdsProd.ToArray(), SaleOrder._pricelist_id);
 
                                 if (productGift != null && productGift.Count > 0)
                                 {
@@ -569,108 +576,12 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
     private async void AddGiftAndSave(object sender, EventArgs e)
     {
         bool ShouldSaveToo = false;
-                
+        
         Button button = (Button)sender;
         product_product product = (product_product)button.BindingContext;
 
         _ = AddGiftIsolated(product, ShouldSaveToo, selectedPromoEvalItem);
-
-        ////sale_order_line saleOrderLineOrigin = new sale_order_line();
-
-        ////var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
-
-        //////Se busca linea de origen de promocion aplicada
-        ////foreach (var itemLineOrigin in SaleOrder.order_line)
-        ////{
-        ////    if (itemLineOrigin[2] != null)
-        ////    {
-        ////        saleOrderLineOrigin = (sale_order_line)itemLineOrigin[2];
-
-        ////        if (selectedPromoEvalItem.ProductId == saleOrderLineOrigin.product_tmpl_id && !saleOrderLineOrigin.is_gift)
-        ////        {                    
-        ////            if (saleOrderLineOrigin.max_gifts != selectedPromoEvalItem.TotalTimesAllowed)
-        ////                saleOrderLineOrigin.max_gifts = selectedPromoEvalItem.TotalTimesAllowed;
-        ////            break;
-        ////        }
-        ////    }
-        ////}
-
-        ////if (saleOrderLineOrigin.assigned_gifts >= saleOrderLineOrigin.max_gifts)
-        ////{
-        ////    await Application.Current.Windows[0].Page.DisplayAlert("Información", "Cantidad máxima alcanzada en pedido.", "OK");
-        ////    return;
-        ////}
-
-        //////Se busca linea de regalo si es que ya existe
-        ////foreach (var itemLine in SaleOrder.order_line)
-        ////{
-        ////    if (itemLine[2] != null)
-        ////    {
-        ////        var lineObject = (sale_order_line)itemLine[2];
-        ////        if (lineObject.product_id == product.id) // && lineObject.product_id_origin == saleOrderLineOrigin.product_id)
-        ////        {
-        ////            saleOrderLineOrigin.assigned_gifts++;
-        ////            product.qty_gift++;
-
-        ////            //var productFromGift = promoGifts.FirstOrDefault(x => x.id == product.id);
-
-        ////            //if (productFromGift != null)
-        ////            //{
-        ////            //    productFromGift.qty_gift++;
-        ////            //    OnPropertyChanged(nameof(promoGifts)); 
-        ////            //}
-
-        ////            //foreach(var giftItem in promoGifts)
-        ////            //{
-        ////            //    if(giftItem.id == product.id)
-        ////            //    {
-        ////            //        giftItem.qty_gift++;
-        ////            //        OnPropertyChanged(nameof(promoGifts));
-        ////            //        break;
-        ////            //    }
-        ////            //}
-
-        ////            lineObject.product_uom_qty_real++;
-        ////            lineObject.product_uom_qty = lineObject.product_uom_qty_real;
-        ////            if(ShouldSaveToo)
-        ////                await saleOrderLineDb.UpdateAsync(lineObject);
-        ////            return;
-        ////            //}
-        ////        }
-        ////    }
-        ////}
-
-        ////saleOrderLineOrigin.assigned_gifts++;
-        ////product.qty_gift++;
-
-        ////int ordinal = 0;
-
-        ////var line = new sale_order_line
-        ////{
-        ////    _order_id = SaleOrder.id,
-        ////    ordinal = ordinal,
-        ////    product_id = product.id,
-        ////    product_display = product.name,
-        ////    product_code = product.code,
-        ////    qty_to_deliver = 1,
-        ////    product_uom_qty_real = 1,
-        ////    product_uom_qty = 1,
-        ////    uom_category_display = "UND",
-        ////    price_subtotal = 0,
-        ////    discount = 100,
-        ////    price_tax = 0,
-        ////    price_total = 0,
-        ////    is_gift = true,
-        ////    product_id_origin = saleOrderLineOrigin.product_id,
-        ////    promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(product.promotionEvalItem)
-        ////};
-
-        ////if (ShouldSaveToo)
-        ////    await saleOrderLineDb.InsertAsyncAutoOrdinal(line);
-
-        ////SaleOrder.order_line.Add(new OrderLineWrapper(line));
-
-        ////OrderLines.Add(line);
+        OnPropertyChanged(nameof(ComputeTotal));
     }
 
     private async Task AddGiftIsolated(product_product product, bool ShouldSaveToo, PromotionEvalItemV2 benefit)
@@ -772,12 +683,13 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
             qty_to_deliver = 1,
             product_uom_qty_real = 1,
             product_uom_qty = 1,
-            uom_category_display = "UND",
+            uom_category_display = product.uom_display,
             price_subtotal = 0,
             discount = 100,
             price_tax = 0,
             price_total = 0,
             is_gift = true,
+            _virtual_price_no_tax = (decimal) product.list_price,
             product_id_origin = saleOrderLineOrigin.product_id,
             promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(
                 new List<PromotionEvalItemV2> { product.promotionEvalItem }
@@ -790,6 +702,155 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
         SaleOrder.order_line.Add(new OrderLineWrapper(line));
 
         OrderLines.Add(line);
+
+        realApplied.Add(line);
+    }
+
+    private async Task AddGiftNxnV2(PromotionEvalItemV2 benefit)
+    {
+        //SE COMPARA CON EL MISMO PRODUCTO ORIGEN PORQUE ES NXN
+        PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
+
+        var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
+
+        foreach (var ruleMatch in benefit.RuleSet)
+        {
+            int[] listIdsProd = Newtonsoft.Json.JsonConvert.DeserializeObject<int[]>(ruleMatch.ProductTmplIds);
+
+            foreach(var productIdCompare in listIdsProd)
+            {
+                if (benefit.Promotion._selection_type_id == 1)
+                {
+                    //Aqui debe ser solo un producto
+                    var listDetailProd = benefit.Promotion._product_details_promotion_ids
+                                        .Where(x => x._promo_id == 0 && x._bonus_id > 0 && x._bonus_id == ruleMatch.id).ToList();
+
+                    //var productGift = await productDb.GetByProductsTemplate(listIdsProd.ToArray());
+
+                    if (listDetailProd != null && listDetailProd.Count > 0)
+                    {
+
+                        if (listDetailProd.Count > 1)
+                        {
+                            Debug.WriteLine($"Advertencia: Más de un producto de regalo encontrado para la regla {ruleMatch.id} de la promoción {benefit.Promotion.name}. Se tomará el primero.");
+                        }
+                    }
+                }
+
+                var productGift = await productDb.GetByProductTemplate(productIdCompare, SaleOrder._pricelist_id);
+                productGift.promotionEvalItem = benefit;
+                productGift.qty_gift = ruleMatch.AllowedGifts;
+
+                if (productGift != null)
+                {
+                    bool productExistsInOrder = false;
+                    //Se busca producto dentro de la orden para evitar duplicados 
+                    // cuando no se debe agregar más de una vez y poder sumar cantidades en caso de que se requiera
+                    if (_promoGiftsAuto.Any(x => x?.default_code == productGift.default_code))
+                    {
+                        productExistsInOrder = true;
+                    }
+
+                    if (!await promotionEngineRunner.CanApplyPromotion(SaleOrder, benefit, saleOrderPromotions))
+                    {
+                        Debug.WriteLine($"{benefit.Promotion.name} ya ha sido aplicado maximo de veces - AddAutoGiftsAsync");
+                        return;
+                    }
+
+                    Debug.WriteLine($"Cargado regalo automático para promoción {benefit.Promotion.name}: {productGift.name}");
+                    _promoGiftsAuto.Add(productGift);
+                    //}
+
+                    int line_qty = 0;
+
+                    foreach (var itemLine in SaleOrder.order_line)
+                    {
+                        if (itemLine[2] != null)
+                        {
+                            var lineObject = (sale_order_line)itemLine[2];
+                            if (lineObject.product_id == productGift.id && lineObject.is_gift) //&& lineObject.product_id_origin == benefit.ProductId
+                            {
+                                //Si es que es regalo automático, se suma la cantidad si es que no ha llegado al máximo permitido
+                                if (benefit.Promotion._selection_type_id == 1)
+                                {
+                                    await promotionEngineRunner.AddApplyPromotion(SaleOrder, benefit, 1, saleOrderPromotions);
+                                }
+                                else
+                                {
+                                    //Si es de algun otro tipo
+                                    // return porque no debe acumular *por ahora*
+                                    return;
+                                }
+                            }
+
+                            //Se busca la linea de origen de la promoción aplicada
+                            // para agregar la información de la promoción en el campo promotion_data
+                            // pero si ya tiene datos debe leerlos y agregar el nuevo
+
+                            if (lineObject.product_tmpl_id == productIdCompare)
+                            {
+                                var old_promotion_data = lineObject.promotion_data;
+                                var listPromotionData = new List<PromotionEvalItemV2>();
+
+                                listPromotionData = !string.IsNullOrEmpty(lineObject.promotion_data) ?
+                                    Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(lineObject.promotion_data) :
+                                    new List<PromotionEvalItemV2>();
+
+                                listPromotionData.Add(productGift.promotionEvalItem);
+
+                                lineObject.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(
+                                        listPromotionData
+                                    );
+
+                                line_qty = (int) lineObject.product_uom_qty_real;
+                            }
+                        }
+                    }
+
+                    bool ShouldSaveToo = false;
+                    int ordinal = 0;
+
+                    if (!productExistsInOrder)
+                    {
+                        //Proceso de reconversión de qty basado en N x N
+                        int qty_assign = line_qty / ruleMatch.value; //ruleMatch.AllowedGifts;
+
+                        var line = new sale_order_line
+                        {
+                            _order_id = SaleOrder.id,
+                            ordinal = ordinal,
+                            product_id = productGift.id,
+                            product_display = productGift.name,
+                            product_code = productGift.code,
+                            qty_to_deliver = qty_assign,
+                            product_uom_qty_real = qty_assign,
+                            product_uom_qty = qty_assign,
+                            uom_category_display = productGift.uom_display,
+                            price_subtotal = 0,
+                            discount = 100,
+                            price_tax = 0,
+                            price_total = 0,
+                            is_gift = true,
+                            product_id_origin = ruleMatch.ProductId,
+                            promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(
+                                new List<PromotionEvalItemV2> { productGift.promotionEvalItem }
+                            )
+                        };
+
+                        if (ShouldSaveToo)
+                        {
+                            var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
+                            await saleOrderLineDb.InsertAsyncAutoOrdinal(line);
+                        }
+
+                        SaleOrder.order_line.Add(new OrderLineWrapper(line));
+                        OrderLines.Add(line);
+
+                        await promotionEngineRunner.AddApplyPromotion(SaleOrder, benefit, 1, saleOrderPromotions);
+                    }
+                }
+            }
+        }
     }
 
     private async Task AddGiftNxn(PromotionEvalItemV2 benefit)
@@ -821,7 +882,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                 }
             }
 
-            var productGift = await productDb.GetByProductTemplate(productIdCompare);
+            var productGift = await productDb.GetByProductTemplate(productIdCompare, SaleOrder._pricelist_id);
             productGift.promotionEvalItem = benefit;
             productGift.qty_gift = ruleMatch.AllowedGifts;
 
@@ -962,94 +1023,19 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
         }
     }
 
-
-    [Obsolete]
-    private async Task AddGiftNxN(product_product product, bool ShouldSaveToo, PromotionEvalItemV2 benefit)
+    public decimal ComputeTotal
     {
-        PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
-
-        if (!await promotionEngineRunner.CanApplyPromotion(SaleOrder, benefit, saleOrderPromotions))
+        get
         {
-            Debug.WriteLine($"{benefit.Promotion.name} ya ha sido aplicado maximo de veces - AddGiftNxN");
-            return;
-        }
-
-        //## Buscamos dentro de SaleOrder.order_line si es que existe el producto
-
-        foreach (var itemLine in SaleOrder.order_line)
-        {
-            if (itemLine[2] != null)
+            decimal tmp_Subtotal = 0;
+            if(realApplied!=null && realApplied.Count>0)
             {
-                var lineObject = (sale_order_line) itemLine[2];
-                if (lineObject.product_id == product.id && lineObject.is_gift) //&& lineObject.product_id_origin == benefit.ProductId
-                {
-                    //return;
-                    //if (lineObject.product_uom_qty_real >= product.qty_gift)
-                    //{
-                    //    return;
-                    //}
-                    //else
-                    //{
-                    //    lineObject.product_uom_qty_real++;
-                    //    lineObject.product_uom_qty = lineObject.product_uom_qty_real;
-                    //}
+                foreach (var applied in realApplied)
+                {                    
+                    tmp_Subtotal += (decimal) (applied.product_uom_qty_real * applied.virtual_price_no_tax);
                 }
-
-                //Se busca la linea de origen de la promoción aplicada
-                foreach(var ruleItem in benefit.RuleSet)
-                {
-                    if (lineObject.product_id == ruleItem.ProductId)
-                    {
-                        lineObject.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(
-                                new List<PromotionEvalItemV2> { product.promotionEvalItem }
-                            );
-                    }
-                }                
             }
-        }
-
-        int ordinal = 0;
-
-        foreach (var ruleItem in benefit.RuleSet)
-        {
-            if (product.id != ruleItem.ProductId)
-            {
-                continue;
-            }
-
-            var line = new sale_order_line
-            {
-                _order_id = SaleOrder.id,
-                ordinal = ordinal,
-                product_id = product.id,
-                product_display = product.name,
-                product_code = product.code,
-                qty_to_deliver = benefit.MaxAllowedGifts, // benefit.RuleSet.qty,
-                product_uom_qty_real = benefit.MaxAllowedGifts, //benefit.RuleSet.qty,
-                product_uom_qty = benefit.MaxAllowedGifts, //benefit.RuleSet.qty,
-                uom_category_display = "UND",
-                price_subtotal = 0,
-                discount = 100,
-                price_tax = 0,
-                price_total = 0,
-                is_gift = true,
-                product_id_origin = ruleItem.ProductId,
-                promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(
-                new List<PromotionEvalItemV2> { product.promotionEvalItem }
-            )
-            };
-
-            if (ShouldSaveToo)
-            {
-                var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
-                await saleOrderLineDb.InsertAsyncAutoOrdinal(line);
-            }
-
-            SaleOrder.order_line.Add(new OrderLineWrapper(line));
-
-            OrderLines.Add(line);
-
-            await promotionEngineRunner.AddApplyPromotion(SaleOrder, benefit, 1, saleOrderPromotions);
+            return tmp_Subtotal;
         }
     }
 

@@ -93,9 +93,12 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
 
             <Border Grid.Row="2" Stroke="LightGrey" Padding="3" Margin="0,0,0,0">
                 <VerticalStackLayout>
-                    <Label Text="Cant. sol." 
+                    <Label Text="CANT. REAL" 
                            BackgroundColor="SlateGray" 
                            TextColor="White" 
+                           TextTransform="Uppercase"
+                           FontAttributes="Bold"
+                           FontSize="11"
                            HorizontalTextAlignment="Center"></Label>
                     <Entry x:Name="EntryCantidadSolicitada" IsReadOnly="True"
                                    Text="{Binding Path=product_uom_qty_real, 
@@ -107,7 +110,13 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
                             <TapGestureRecognizer Tapped="OnEntryTapped" />
                         </Entry.GestureRecognizers>
                     </Entry>
-                    <Label Text="Cant. fin." BackgroundColor="SlateGray" TextColor="White" HorizontalTextAlignment="Center"></Label>
+                    <Label Text="Cant. Desp." 
+                           TextTransform="Uppercase"
+                            FontAttributes="Bold"
+                            FontSize="11"
+                           BackgroundColor="SlateGray" 
+                           TextColor="White" 
+                           HorizontalTextAlignment="Center"></Label>
                     <Entry x:Name="EntryCantidadFinal" IsReadOnly="True"
                            Text="{Binding Path=product_uom_qty, 
                              Mode=TwoWay,
