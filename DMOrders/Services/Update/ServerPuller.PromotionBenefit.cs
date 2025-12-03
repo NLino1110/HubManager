@@ -1,15 +1,7 @@
 ﻿using ApiManagerOdoo.promotions;
 using DMOrders.Services.Database.Sqlite;
-using DMSA.Models.General.Requests;
 using DMSA.Models.Odoo.DMOrders.promotions;
-using DMSA.Models.Odoo.General.Responses;
-using DMSA.Models.Odoo.Native;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DMOrders.Services.Update
 {

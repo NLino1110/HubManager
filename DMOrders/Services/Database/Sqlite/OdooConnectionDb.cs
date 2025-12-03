@@ -20,11 +20,14 @@ namespace DMOrders.Services.Database.Sqlite
             
             foreach(var itemSetting in appSettings.LoadDefault())
             {
-                var foundItem = await GetItem(itemSetting.Name);
-                if (foundItem == null)
-                {
-                    await Database.InsertAsync(itemSetting);
-                }
+                //var foundItem = await GetItem(itemSetting.Name);
+                //if (foundItem == null)
+                //{
+                //    await Database.InsertAsync(itemSetting);
+                //}
+                var foundItem = await GetItemById(itemSetting.Id);
+                if(foundItem == null)
+                    await Database.InsertOrReplaceAsync(itemSetting);
             }
 
             return 0;
@@ -45,6 +48,12 @@ namespace DMOrders.Services.Database.Sqlite
         {
             await Init();
             return await Database.Table<OdooConnection>().ToListAsync();            
+        }
+
+        public async Task<OdooConnection> GetItemById(int id)
+        {
+            await Init();
+            return await Database.Table<OdooConnection>().Where(i => i.Id == id).FirstOrDefaultAsync();
         }
 
         public async Task<OdooConnection> GetItem(string name)

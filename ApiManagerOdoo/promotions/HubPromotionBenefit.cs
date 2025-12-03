@@ -1,29 +1,7 @@
 ﻿using ApiManagerOdoo.Base;
-using AppManagerOdoo.Tools;
-using CobranzasDMSA.Models;
-using DMSA.Models.Clientes;
-using DMSA.Models.General;
-using DMSA.Models.General.Responses;
 using DMSA.Models.Odoo.DMOrders.promotions;
 using DMSA.Models.Odoo.General.Responses;
-using DMSA.Models.Odoo.Native;
 using DMSA.Models.Security;
-//using Microsoft.AspNetCore.Components;
-//using Microsoft.Extensions.Configuration;
-//using Microsoft.Extensions.Logging;
-//using Microsoft.Extensions.Options;
-using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Net;
-using System.Net.Security;
-using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.Json;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ApiManagerOdoo.promotions
 {
@@ -72,6 +50,7 @@ namespace ApiManagerOdoo.promotions
             object[] _custom_args = new object[] {
                 //new object[] { "write_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
                  new object[] { "end_datetime", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
+                 new object[] { "target_segment_id", "=", 1 },
                  //new object[] { "state", "=", "authorized" },
             };
             return await GetCount(args, _custom_args);
@@ -131,6 +110,7 @@ namespace ApiManagerOdoo.promotions
                 new object[] {                    
                     "active", "=", true
                 },
+                new object[] { "target_segment_id", "=", 1 },
                 //new object[] { "state", "=", "authorized" },
             };
             return await SearchRead<ApiResponseOdooRpcT<PromotionBenefit[]>>(args, _custom_args, kwargs, true);
