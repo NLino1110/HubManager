@@ -588,11 +588,16 @@ namespace DMOrders.Pages.Fragments.Orders
                                 {
                                     foreach (var evalItem in promotionEvalItem)
                                     {
-                                        foreach(var ruleItem in evalItem.RuleSet)
+                                        foreach(var ruleMatch in evalItem.RuleSet)
                                         {
-                                            if (sale_Order_Line.product_tmpl_id == ruleItem.ProductTmplId)
+                                            int[] listIdsProd = Newtonsoft.Json.JsonConvert.DeserializeObject<int[]>(ruleMatch.ProductTmplIds);
+
+                                            foreach (var productIdCompare in listIdsProd)
                                             {
-                                                OrderLines.Remove(itemGift);
+                                                if (sale_Order_Line.product_tmpl_id == productIdCompare)
+                                                {
+                                                    OrderLines.Remove(itemGift);
+                                                }
                                             }
                                         }
                                     }
