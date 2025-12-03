@@ -3,6 +3,8 @@ using DMOrders.Services.Database.Sqlite;
 using DMOrders.Services.Promotions;
 using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.DMOrders.promotions;
+using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
+
 //using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
 using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
@@ -548,17 +550,52 @@ namespace DMOrders.Pages.Fragments.Orders
                         {
                             await promotionEngineRunner.AddApplyPromotion(CurrentSaleOrder, benefit, -1, saleOrderPromotions);
                         }
-                    }
+                    }                    
                 }
 
                 sale_Order_Line.promotion_data = "";
+
+                var giftList = OrderLines.Where(x => x.is_gift).ToList();
+
+                if (giftList != null)
+                {
+                    foreach (var itemGift in giftList)
+                    {
+                        if (itemGift.promotion_data != null)
+                        {
+                            List<PromotionEvalItemV2> promotionEvalItem = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(itemGift.promotion_data);
+                            Debug.WriteLine(promotionEvalItem);
+
+                            if (promotionEvalItem != null && promotionEvalItem.Count > 0)
+                            {
+                                foreach (var benefitItem in promotionEvalItem)
+                                {
+                                    foreach (var ruleMatch in benefitItem.RuleSet)
+                                    {
+                                        int[] listIdsProd = Newtonsoft.Json.JsonConvert.DeserializeObject<int[]>(ruleMatch.ProductTmplIds);
+
+                                        foreach (var productIdCompare in listIdsProd)
+                                        {
+                                            if (sale_Order_Line.product_tmpl_id == productIdCompare)
+                                            {
+                                                OrderLines.Remove(itemGift);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+
                 //OnPropertyChanged(nameof(OrderLines));
 
-                foreach (var item in OrderLines.Where(x => x.product_id_origin == sale_Order_Line.product_id).ToList())
-                {
-                    OrderLines.Remove(item);
-                }               
-                
+                //foreach (var item in OrderLines.Where(x => x.product_id_origin == sale_Order_Line.product_id).ToList())
+                //{
+                //    OrderLines.Remove(item);
+                //}               
+
             }
 
             UpdateTotals();

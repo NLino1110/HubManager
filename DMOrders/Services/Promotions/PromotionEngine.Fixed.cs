@@ -13,6 +13,15 @@ using System.Threading.Tasks;
 
 namespace DMOrders.Services.Promotions
 {
+    //public class RuleProductMatch
+    //{
+    //    public int RuleId { get; set; }
+    //    public int ProductTmplId { get; set; }
+    //    public int TotalQty { get; set; }
+    //    public decimal TotalAmount { get; set; }
+    //    public int AllowedGifts { get; set; }
+    //}
+
     public partial class PromotionEngineLite
     {
         public async Task<ObservableCollection<PromotionEvalResultV2>> EvaluatePromotionsV3(sale_order saleOrder)
@@ -414,9 +423,18 @@ namespace DMOrders.Services.Promotions
             var results = new List<PromotionEvalItemV2>();
             //var FullRuleSet = new List<PromoRuleMatch>();
             var RuleSet = new List<PromoRuleMatch>();
-
             var baseReasons = new List<string>();
-            baseReasons.Add("Promoción activa y dentro de vigencia.");
+
+            // tiempo de la promoción
+            //if (!promo.unlimited_time)
+            //{
+            //    if (promo.start_datetime.HasValue && nowUtc.Date < r.start_date.Value.Date) continue;
+            //    if (promo.end_date.HasValue && nowUtc.Date > r.end_date.Value.Date) continue;
+            //    baseReasons.Add("Dentro de vigencia de la regla.");
+            //}
+            //else baseReasons.Add("Regla sin vigencia (unlimited_time).");
+
+            baseReasons.Add($"Promoción activa y dentro de vigencia {promo.name}");
 
             // Si la promoción tiene detalles de productos explícitos:
             bool productMatches = false;
@@ -486,10 +504,17 @@ namespace DMOrders.Services.Promotions
                     cumple = OperatorEvaluator.Evaluate(r.operator_, variableValue, r.value, 0);
 
                     //MODO 2
-                    //decimal value_for_eval = r.minimum_value;
-                    //decimal value_for_eval_max = r.maximum_value;                    
-                    //(operator_, value_for_eval) = fixOperator(r.variable, value_for_eval);
-                    //cumple = OperatorEvaluator.Evaluate(operator_, variableValue, value_for_eval, value_for_eval_max);
+                    if (r.minimum_value > 0)
+                    {
+                        decimal value_for_eval = r.value;
+                        decimal value_for_eval_min = r.minimum_value;
+                        decimal value_for_eval_max = r.maximum_value;
+                        if (value_for_eval_max == 0)
+                            value_for_eval_max = 1000000000;
+
+                        //(operator_, value_for_eval_min) = fixOperator(r.variable, value_for_eval_min);
+                        cumple = OperatorEvaluator.Evaluate(operator_, variableValue, value_for_eval_min, value_for_eval_max);
+                    }
 
                     if (cumple)
                     {
@@ -516,6 +541,11 @@ namespace DMOrders.Services.Promotions
                     //Si es manual (quizas aqui se deba solo usar modo 1)
                     //MODO 1
                     allowed_gifts = r.qty; //(int)Math.Floor((double)qty / r.value);
+
+                    if(r.variable == "total_product_amount")
+                    {
+                        allowed_gifts = (int)Math.Floor(variableValue / r.value);
+                    }
 
                     //MODO 2 - MANUAL
                     if (promo._selection_type_id == 2)

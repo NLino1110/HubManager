@@ -820,6 +820,8 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                         //Proceso de reconversión de qty basado en N x N
                         int qty_assign = line_qty / ruleMatch.value; //ruleMatch.AllowedGifts;
 
+                        if (qty_assign == 0) return;
+
                         var line = new sale_order_line
                         {
                             _order_id = SaleOrder.id,
