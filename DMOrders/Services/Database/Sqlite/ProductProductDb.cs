@@ -309,6 +309,54 @@ namespace DMOrders.Services.Database.Sqlite
             return products;
         }
 
+
+        internal async Task<List<product_product>> GetByProductsIds(int[] product_ids, int filter_pricelist)
+        {
+            await Init();
+
+            await PreloadPricelistCache(filter_pricelist);
+            await PreloadTaxeslistCache();
+
+            var items = await Database.Table<uom_uom>()
+                .Where(x => x.active == true)
+                .ToArrayAsync();
+
+            cachedUom = items.ToDictionary(uom => uom.id, uom => uom);
+
+            var products = await Database.Table<product_product>().Where(x => product_ids.Contains(x.id)).ToListAsync();
+
+            if (products == null || products.Count == 0)
+                return new List<product_product>();
+
+            foreach (var p in products)
+            {
+                p.uom_display = cachedUom.TryGetValue(p._uom_id, out var uom) ? uom.clave_externa : "";
+
+                decimal factor_iva = 1;
+                if (cachedTaxesList.TryGetValue(p._taxes_id, out var tax_sale))
+                {
+                    decimal iva_tax = tax_sale; //15m;
+                    factor_iva = 1 + (iva_tax / 100m);
+                }
+
+                if (cachedProductsWithPrices.TryGetValue(p._product_tmpl_id, out var price))
+                {
+                    p.list_price = (float)price;
+                }
+                else
+                {
+                    p.list_price = 0;
+                }
+
+                decimal price_list_value = (decimal)p.list_price;
+                decimal price_without_iva = Math.Round(price_list_value / factor_iva, 7);
+
+                p.list_price = (float)price_without_iva;
+            }
+
+            return products;
+        }
+
         internal async Task<int[]> GetAllTaxesIdsAsync()
         {
             await Init();

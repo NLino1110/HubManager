@@ -220,6 +220,9 @@ namespace DMSA.Models.Odoo.Native
         public bool is_gift { get; set; }
 
         [JsonIgnore]
+        public bool is_manual { get; set; }
+
+        [JsonIgnore]
         public int total_times_allowed { get; set; }
 
         //[JsonIgnore]

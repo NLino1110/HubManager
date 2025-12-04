@@ -185,7 +185,6 @@ public partial class CatalogViewerInner : ContentView
         ddfSort.SelectedItemChanged += DdfSort_SelectedItemChanged;
         filter_sort = sortProducts[0].id;
 
-
         //_activeEntry = EntryCantidadSolicitada;
         HighlightActiveEntry(_activeEntry);
     }

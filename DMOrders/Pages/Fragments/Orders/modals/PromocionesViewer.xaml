@@ -104,13 +104,16 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
             <Entry x:Name="FiltroArtPromo"
                    Placeholder="Buscar..."
                    WidthRequest="200"
-                   FontSize="14" />
+                   FontSize="14" 
+                   TextTransform="Uppercase"
+                   ClearButtonVisibility="WhileEditing"
+                   TextChanged="FiltroArtPromo_TextChanged"/>
 
             <Label Text="ARTICULOS SELECCIONABLES"
                    FontAttributes="Bold"
                    HorizontalOptions="Fill"
                    VerticalTextAlignment="Center"
-                   FontSize="15"/>
+                   FontSize="13"/>
         </HorizontalStackLayout>
 
         <!-- Cabecera de selección -->
@@ -131,7 +134,7 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
         <Border StrokeThickness="1" StrokeLineCap="Flat" HeightRequest="200">
             <CollectionView x:Name="ListaDetallesSeleccion"
                             EmptyView="No hay datos para mostrar..."
-                            ItemsSource="{Binding promoGifts}"
+                            ItemsSource="{Binding promoGiftsFiltered}"
                             SelectionMode="Single"
                             HorizontalOptions="Fill">
                 <CollectionView.ItemTemplate>
@@ -153,9 +156,34 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                                 Clicked="AddGiftAndSave">
                                 <Button.ImageSource>
                                     <FontImageSource 
-                                        Size="25"
-                                        FontFamily="MaterialSharp"
-                                        Glyph="{x:Static uranium:MaterialSharp.Add}" />
+                                        Size="22"                                        
+                                        FontFamily="FontAwesome5Solid"
+                                        Glyph="&#x2b;" />
+                                </Button.ImageSource>
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding allow_add_gift}" Value="False">
+                                        <Setter Property="IsVisible" Value="False"/>
+                                    </DataTrigger>
+
+                                    <DataTrigger TargetType="Button" Binding="{Binding allow_add_gift}" Value="True">
+                                        <Setter Property="IsVisible" Value="True"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+
+                            <Button Text="" 
+                                    BackgroundColor="DodgerBlue" 
+                                    TextColor="White" 
+                                    HeightRequest="30"
+                                    WidthRequest="30"
+                                    Padding="0"
+                                    Margin="10,0,0,0"
+                                    Clicked="SubstractGift">
+                                <Button.ImageSource>
+                                    <FontImageSource 
+                                        Size="11"
+                                        FontFamily="FontAwesome5Solid"
+                                        Glyph="&#xf068;" />
                                 </Button.ImageSource>
                                 <Button.Triggers>
                                     <DataTrigger TargetType="Button" Binding="{Binding allow_add_gift}" Value="False">
@@ -206,18 +234,33 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
 
             <Label Text="TOTAL:"
                    FontAttributes="Bold"
-                   FontSize="16"
+                   FontSize="13"
                    HorizontalOptions="Fill"
                    HorizontalTextAlignment="End" 
                    VerticalTextAlignment="Center"/>
 
             <Label Text="{Binding ComputeTotal, StringFormat='$ {0:N2}'}"
                FontAttributes="Bold"
-               FontSize="16"
+               FontSize="13"
                HorizontalOptions="Fill"
                HorizontalTextAlignment="End" 
                VerticalTextAlignment="Center"/>
-            
+
+            <Label Text="TOT. CANT:"
+                FontAttributes="Bold"
+                FontSize="13"
+                HorizontalOptions="Fill"
+                HorizontalTextAlignment="End" 
+                VerticalTextAlignment="Center"
+                Margin="250,0,0,0"/>
+
+            <Label Text="{Binding ComputeTotalQty}"
+               FontAttributes="Bold"
+               FontSize="13"
+               HorizontalOptions="Fill"
+               HorizontalTextAlignment="End" 
+               VerticalTextAlignment="Center"/>
+
         </HorizontalStackLayout>
     </VerticalStackLayout>
 </ContentView>

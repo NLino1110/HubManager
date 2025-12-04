@@ -3,9 +3,6 @@ using DMOrders.Services.Database.Sqlite;
 using DMOrders.Services.Promotions;
 using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.DMOrders.promotions;
-using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
-
-//using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
 using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Sales;
@@ -267,15 +264,28 @@ namespace DMOrders.Pages.Fragments.Orders
                 //});
 
                 var orderLines = await saleOrderLinesDb.GetItemsAsync(CurrentSaleOrder.id);
+
+                var product_ids = orderLines.Select(ol => ol.product_id).Distinct().ToArray();
+                var productsList = await new ProductProductDb(App.Session.odooConnection.DbNameSqlite).GetByProductsIds(product_ids, 0);
+
                 foreach (var line in orderLines)
                 {
-                    var product = await new ProductProductDb(App.Session.odooConnection.DbNameSqlite).GetItem(line.product_id);
+                    var product = productsList.FirstOrDefault(p => p.id == line.product_id);
                     line.product_code = product.code;
-                    line.product_display = product.name; //product.display_name;
-                    //line.uom_category_display = product._uom_id;
-                    line.uom_category_display = "UND";
+                    line.product_display = product.name;
+                    line.uom_category_display = product.uom_display;
                     OrderLines.Add(line);
                 }
+
+                //foreach (var line in orderLines)
+                //{
+                //    var product = await new ProductProductDb(App.Session.odooConnection.DbNameSqlite).GetItem(line.product_id);
+                //    line.product_code = product.code;
+                //    line.product_display = product.name; //product.display_name;
+                //    //line.uom_category_display = product._uom_id;
+                //    line.uom_category_display = "UND";
+                //    OrderLines.Add(line);
+                //}
 
                 var saleOrderPromotionsDb = new SaleOrderPromotionsDb(App.Session.odooConnection.DbNameSqlite);
                 var saleOrderPromotions_tmp = await saleOrderPromotionsDb.GetItemsByOrder(CurrentSaleOrder.id);

@@ -20,6 +20,14 @@ namespace DMSA.Models.Odoo.DMOrders.promotions.abstractCustom
         public int order_id { get; set; }
         [Column("promotion_id")]
         public int promotion_id { get; set; }
+
+
+        [Column("promotion_type_id")]
+        public int promotion_type_id { get; set; }
+
+        [Column("promotion_selection_type_id")]
+        public int promotion_selection_type_id { get; set; }
+
         [Column("promotion_centers")]
         public int promotion_centers { get; set; }
         

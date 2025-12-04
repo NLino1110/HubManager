@@ -169,5 +169,22 @@ namespace DMOrders.Services.Database.Sqlite
 
             return records.Select(x => x.erp_id).ToArray();
         }
+
+        internal async Task<int> GetNextSecuentialId()
+        {   
+            await Init();
+            var records = await Database.Table<sale_order>()
+                .OrderByDescending(x => x.id)
+                .ToListAsync();
+            
+            int maxId = 0;
+            
+            if (records.Count > 0)
+            {
+                maxId = records[0].id;
+            }
+
+            return maxId + 1;
+        }
     }
 }

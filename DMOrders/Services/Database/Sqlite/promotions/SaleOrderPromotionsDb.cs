@@ -64,6 +64,8 @@ namespace DMOrders.Services.Database.Sqlite
                 {
                     order_id = order.id,
                     promotion_id = promotionEvalItem.Promotion.id,
+                    promotion_selection_type_id = promotionEvalItem.Promotion._selection_type_id,
+                    promotion_type_id = promotionEvalItem.Promotion._promotion_type_id,
                     promotion_centers = promotionEvalItem.PricelistId,
                     times_inv = promotionEvalItem.TotalTimesAllowed,
                     times_inv_applied = 1,

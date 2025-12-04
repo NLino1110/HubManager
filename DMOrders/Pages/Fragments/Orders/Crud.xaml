@@ -227,14 +227,19 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
                            FontSize="11" 
                            FontAttributes="Bold"
                            TextColor="#4d4947"></Label>
-                    <Label Text="{Binding Path=IdReferencia, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="{Binding Path=IdReferencia, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+                               FontSize="12" 
+                               FontAttributes="None"
+                               TextColor="#4d4947"
+                               VerticalOptions="Center"></Label>
+                        <Label Text="{Binding Path=IdPrimaryKey, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
                            FontSize="12" 
                            FontAttributes="None"
-                           TextColor="#4d4947"></Label>
-                    <Label Text="{Binding Path=IdPrimaryKey, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
-                           FontSize="12" 
-                           FontAttributes="None"
-                           TextColor="#4d4947"></Label>
+                           TextColor="SlateGray"
+                               VerticalOptions="Center"></Label>
+                    </HorizontalStackLayout>
                 </VerticalStackLayout>
                 <VerticalStackLayout Grid.Column="1">
                     <Label Text="{Binding Path=PriceListDisplayName, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 

@@ -352,7 +352,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
         if (targetOrder != null)
         {
-            await CleanPromotionStatus(targetOrder);
+            await CleanPromotionStatusV2(targetOrder);
 
             var applyPromo = await ApplyPromo(targetOrder);
 
@@ -363,6 +363,51 @@ public partial class Crud : ContentPage, IBackButtonHandler
         }
     }
 
+    private async Task CleanPromotionStatusV2(sale_order saleOrder)
+    {
+        //saleOrderPromotions?.Clear();
+        for(var i=0; i < saleOrderPromotions.Count(); i++)
+        {
+            var promo = saleOrderPromotions[i];
+            //Se excluyen de la elmininacion los bonificados/manuales
+            // - deben mantenerse en memoria
+            if (promo.promotion_type_id != 2 && promo.promotion_selection_type_id != 2)
+            {
+                saleOrderPromotions.Remove(promo);
+            }
+        }
+
+        //var view = new PromocionesViewer(saleOrder);
+        //view.ItemsData = AppliedPromotionResults;
+        var OrderLines = ((CrudViewModel)this.BindingContext).OrderLines;
+        //var saleOrderPromotions = ((CrudViewModel)this.BindingContext).saleOrderPromotions;
+
+        for (int i = 0; i < OrderLines.Count; i++)
+        {
+            if (OrderLines[i].is_gift && !OrderLines[i].is_manual)
+            {
+                OrderLines.RemoveAt(i);
+                continue;
+            }
+
+            var line = OrderLines[i];
+            line.promotion_data = null;
+
+            var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
+            var product_item = await productDb.GetItemAsync(x => x.id == line.product_id);
+
+            if (product_item == null)
+            {
+                Debug.WriteLine("Error: no se encontró el producto para actualizar la línea de orden.");
+                return;
+            }
+
+            product_item.list_price = (float)line.price_unit;
+            ((CrudViewModel)BindingContext).UpdateOrderLine(line, product_item);
+        }
+    }
+
+    [Obsolete("Ya no se usará probablemente")]
     private async Task CleanPromotionStatus(sale_order saleOrder)
     {
         saleOrderPromotions?.Clear();
@@ -446,6 +491,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
         if (isNew)
         {
+            string new_id_referencia = GenerarCodigo(CurrentPartner.name, await saleOrderDb.GetNextSecuentialId());
+
             targetOrder = new sale_order
             {
                 _partner_id = _CurrentPartner.id,
@@ -454,12 +501,15 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 _center_id = App.Session.res_center.id,
                 _warehouse_id = warehouseId,
                 sale_channel = App.Session.odooConnection.sale_channel_default,
-                id_referencia = "M001-RC29102025",
+                id_referencia = new_id_referencia,
                 _pricelist_id = CurrentPriceList.id,
                 amount_total = viewModel.Total,
                 amount_tax = viewModel.Impuesto,
                 amount_untaxed = viewModel.Subtotal,
-                state = "draft"
+                state = "draft",
+                partner_display_name = CurrentPartner?.display_name,
+                partner_display_address = CurrentPartner?.street,
+                partner_display_status = (CurrentPartner != null ? (CurrentPartner.active ? "Activo" : "Inactivo") : string.Empty)
             };
 
             if (await saleOrderDb.InsertAsync(targetOrder) <= 0)
@@ -479,7 +529,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
             targetOrder._center_id = App.Session.res_center.id;
             targetOrder._warehouse_id = warehouseId;
             targetOrder.sale_channel = App.Session.odooConnection.sale_channel_default;
-            targetOrder.id_referencia = "M001-RC29102025";
+            //targetOrder.id_referencia = "M001-RC29102025";
             targetOrder._pricelist_id = CurrentPriceList.id;
             targetOrder.amount_total = viewModel.Total;
             targetOrder.amount_tax = viewModel.Impuesto;
@@ -585,7 +635,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         {
             Content = view,
             BackgroundColor = Colors.Black.WithAlpha(0.4f), // fondo semi-transparente
-            CanBeDismissedByTappingOutsideOfPopup = true,
+            CanBeDismissedByTappingOutsideOfPopup = false,
             Padding = new Thickness(0),
             Margin = new Thickness(0)
         };
@@ -722,15 +772,13 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 }
             }
         }
-
-
     }
 
+    [Obsolete("Eliminar")]
     private async Task ApplyDiscount(sale_order saleOrder, PromotionEvalItemV2 promoResItem)
     {
         PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
-
-        
+                
         foreach(var rule in promoResItem.RuleSet)
         {
             if(rule.IsDiscount)
