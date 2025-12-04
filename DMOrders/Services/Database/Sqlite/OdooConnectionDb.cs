@@ -7,7 +7,7 @@ namespace DMOrders.Services.Database.Sqlite
     public class OdooConnectionDb
     {
         SQLiteAsyncConnection Database;
-                
+        
         public OdooConnectionDb()
         {
 

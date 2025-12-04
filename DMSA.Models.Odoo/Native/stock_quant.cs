@@ -42,6 +42,14 @@ namespace DMSA.Models.Odoo.Native
         public string cost_method { get; set; }
         //public string dummy_id { get; set; }
 
+
+        [JsonIgnore]
+        public int _warehouse_id
+        {
+            get => GetId(warehouse_id);
+            set => warehouse_id = SetId(warehouse_id, value);
+        }
+
         [Ignore] public JToken product_id { get; set; }
         [Ignore] public JToken product_tmpl_id { get; set; }
         [Ignore] public JToken product_uom_id { get; set; }
@@ -60,5 +68,6 @@ namespace DMSA.Models.Odoo.Native
         [Ignore] public JToken currency_id { get; set; }
         [Ignore] public JToken create_uid { get; set; }
         [Ignore] public JToken write_uid { get; set; }
+
     }
 }

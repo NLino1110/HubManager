@@ -55,6 +55,14 @@ namespace DMSA.Models.Odoo.Native
         public JToken warehouse_view_ids { get; set; }
         [Ignore]
         public JToken warehouse_id { get; set; }
+
+        [JsonIgnore]
+        public int _warehouse_id
+        {
+            get => GetId(warehouse_id);
+            set => warehouse_id = SetId(warehouse_id, value);
+        }
+
         [Ignore]
         public JToken storage_category_id { get; set; }
         [Ignore]

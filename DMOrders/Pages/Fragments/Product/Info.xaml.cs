@@ -5,6 +5,8 @@ using Spinner.MAUI;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
+using System.Text.RegularExpressions;
+
 
 namespace DMOrders.Pages.Fragments.Product;
 
@@ -93,11 +95,7 @@ public partial class Info : ContentView
 
         Base64Source = data.image_256 ?? string.Empty;
 
-        StockList.Clear();
-        StockList.Add(new infoDetail { id = 1, Description = "Disponible", Value = (decimal)data.qty_available });
-        StockList.Add(new infoDetail { id = 2, Description = "Disponible Virtual", Value = (decimal)data.virtual_available });
-        StockList.Add(new infoDetail { id = 3, Description = "Cantidad Libre", Value = (decimal)data.free_qty });
-
+        await FillInventory(data);
         await FillPrices(data);
 
         //if (!string.IsNullOrEmpty(data.image_256))
@@ -124,6 +122,67 @@ public partial class Info : ContentView
 
         public static Dictionary<int, List<product_pricelist_item>> PriceListItemsByTemplate
             = new Dictionary<int, List<product_pricelist_item>>();
+
+        public static Dictionary<int, string> StockWarehouseListDict 
+            = new Dictionary<int, string>();
+
+        public static Dictionary<int, List<stock_quant>> StockQuantListDict
+            = new Dictionary<int, List<stock_quant>>();
+
+    }
+
+
+
+    public string ObtenerCodigo(string linea)
+    {
+        var match = Regex.Match(linea, @"\((.*?)\)");
+        return match.Success ? match.Groups[1].Value : null;
+    }
+
+    private async Task<List<infoDetail>> FillInventory(product_product _data)
+    {
+        if (Cache.StockWarehouseListDict.Count == 0)
+        {
+            var whListDb = new StockWareHouseDb(App.Session.odooConnection.DbNameSqlite);
+            var whLists = await whListDb.GetItemsAsync(x => x.active);
+            Cache.StockWarehouseListDict = whLists.ToDictionary(x => x.id, x => x.name);
+        }
+
+        StockList.Clear();
+
+        List<stock_quant> stockQuantItems;
+
+        if (!Cache.StockQuantListDict.TryGetValue(data.id, out stockQuantItems))
+        {
+            var stockQuantDb = new StockQuantDb(App.Session.odooConnection.DbNameSqlite);
+
+            stockQuantItems = await stockQuantDb.GetItemsAsync(
+                x => x._product_id == data.id
+            );
+
+            Cache.StockQuantListDict[data._product_tmpl_id] = stockQuantItems;
+        }
+
+        foreach (var item in stockQuantItems)
+        {
+            string nameWarehouse = Cache.StockWarehouseListDict.TryGetValue(item._warehouse_id, out string name)
+                ? name
+                : "Desconocido";
+
+            if(nameWarehouse.Equals("Desconocido"))
+            {
+                nameWarehouse = ObtenerCodigo(item.display_name) ?? nameWarehouse;
+            }
+
+            StockList.Add(new infoDetail
+            {
+                id = item.id,
+                Description = nameWarehouse,
+                Value = (decimal) item.quantity
+            });
+        }
+
+        return null;
     }
 
     private async Task<List<product_pricelist_item>> FillPrices(product_product _data)

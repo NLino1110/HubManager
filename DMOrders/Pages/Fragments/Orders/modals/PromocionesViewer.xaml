@@ -59,7 +59,7 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                 ItemsSource="{Binding ItemsDataBenefits, Source={x:Reference Root}}"                
                 EmptyView="No hay datos de promociones..."
                 SelectionMode="Single"
-                HorizontalOptions="Fill"                
+                HorizontalOptions="Fill"
                 SelectionChanged="detail_SelectionChanged">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>

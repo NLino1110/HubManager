@@ -8,14 +8,14 @@ using System.Diagnostics;
 
 namespace DMOrders.Services.Promotions
 {
-    //public class RuleProductMatch
-    //{
-    //    public int RuleId { get; set; }
-    //    public int ProductTmplId { get; set; }
-    //    public int TotalQty { get; set; }
-    //    public decimal TotalAmount { get; set; }
-    //    public int AllowedGifts { get; set; }
-    //}
+    public class RuleProductMatch
+    {
+        public int RuleId { get; set; }
+        public int ProductTmplId { get; set; }
+        public int TotalQty { get; set; }
+        public decimal TotalAmount { get; set; }
+        public int AllowedGifts { get; set; }
+    }
 
     public partial class PromotionEngineLite
     {
@@ -356,6 +356,61 @@ namespace DMOrders.Services.Promotions
             //}
 
             return AppliedPromotionResults;
+        }
+
+        public async Task<(decimal TotalProductAmount, int TotalQty, List<RuleProductMatch> ProductMatches)>
+                CalculateValuesAsyncV2(
+                    List<PromotionProductDetail> productsApplyList,
+                    List<sale_order_line> orderLines,
+                    int TotalTimesAllowed
+                )
+        {
+            decimal totalAmount = 0;
+            int totalQty = 0;
+
+            var productMatches = new List<RuleProductMatch>();
+
+            if (productsApplyList == null || productsApplyList.Count == 0)
+                return (0, 0, productMatches);
+
+            if (orderLines == null || orderLines.Count == 0)
+                return (0, 0, productMatches);
+
+            // 1️⃣ Diccionario: product_id → detalle regla
+            var ruleByProduct = productsApplyList
+                .Where(x => x._product_id > 0)
+                .GroupBy(x => x._product_id)
+                .ToDictionary(g => g.Key, g => g.First());
+
+            // 2️⃣ Recorrer líneas del pedido
+            foreach (var line in orderLines)
+            {
+                int tmplId = line.product_tmpl_id;
+
+                if (ruleByProduct.TryGetValue(tmplId, out var ruleDetail))
+                {
+                    int qty = (int)line.product_uom_qty;
+                    decimal subtotal = line.price_subtotal;
+
+                    // Acumulados globales
+                    totalQty += qty;
+                    totalAmount += subtotal;
+
+                    // Crear item detallado
+                    var ruleMatch = new RuleProductMatch
+                    {
+                        RuleId = ruleDetail.id,
+                        ProductTmplId = tmplId,
+                        TotalQty = qty,
+                        TotalAmount = subtotal,
+                        AllowedGifts = TotalTimesAllowed
+                    };
+
+                    productMatches.Add(ruleMatch);
+                }
+            }
+
+            return (totalAmount, totalQty, productMatches);
         }
 
         public async Task<(decimal TotalProductAmount, int TotalQty, List<int> ProductApplyList)>
