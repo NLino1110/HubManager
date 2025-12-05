@@ -3,6 +3,7 @@ using DMOrders.Services.Database.Sqlite;
 using DMOrders.Services.Promotions;
 using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.DMOrders.promotions;
+using DMSA.Models.Odoo.DMOrders.promotions.@abstract;
 using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Sales;
@@ -535,6 +536,23 @@ namespace DMOrders.Pages.Fragments.Orders
         {
             if (sale_Order_Line != null)
             {
+                if (!string.IsNullOrEmpty(sale_Order_Line.promotion_data))
+                {
+                    List<PromotionEvalItemV2> promotionEvalItemParent = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(sale_Order_Line.promotion_data);
+                    if (promotionEvalItemParent != null && promotionEvalItemParent.Count > 0)
+                    {
+                        foreach (var benefitItem in promotionEvalItemParent)
+                        {
+                            if (benefitItem.Promotion._promotion_type_id == 2 && benefitItem.Promotion._selection_type_id == 2)
+                            {
+                                //Si contiene regalos asociados manuales, no se procede a recalcular
+                                return;
+                            }
+                        }
+                    }
+                }
+
+
                 var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, sale_Order_Line.product_uom_qty);
                 sale_Order_Line.price_total = priceCalc.TotalLine;
                 sale_Order_Line.price_unit = priceCalc.Price;
@@ -546,9 +564,6 @@ namespace DMOrders.Pages.Fragments.Orders
                 sale_Order_Line.virtual_iva_percentage = priceCalc.IvaPercentage;
                 sale_Order_Line.virtual_line_subtotal = priceCalc.LineSubtotal;
                 sale_Order_Line.product_tmpl_id = product._product_tmpl_id;
-
-                sale_Order_Line.max_gifts = 0;
-                sale_Order_Line.assigned_gifts = 0;
 
                 if (!string.IsNullOrEmpty(sale_Order_Line.promotion_data))
                 {
@@ -586,7 +601,7 @@ namespace DMOrders.Pages.Fragments.Orders
 
                                         foreach (var productIdCompare in listIdsProd)
                                         {
-                                            if (sale_Order_Line.product_tmpl_id == productIdCompare)
+                                            if (sale_Order_Line.product_tmpl_id == productIdCompare && (sale_Order_Line.is_gift && !sale_Order_Line.is_manual))
                                             {
                                                 OrderLines.Remove(itemGift);
                                             }

@@ -1,4 +1,5 @@
 ﻿using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Sales;
 using Microsoft.Data.Sqlite;
 using SQLite;
 using SQLiteNetExtensions.Extensions;
@@ -11,10 +12,24 @@ using System.Threading.Tasks;
 namespace DMOrders.Services.Database.Sqlite
 {
     public class ResPartnerDb : SqliteDbBase<res_partner>
-    {        
+    {
+        private Dictionary<int, string> cachedChannels = new Dictionary<int, string>();
+
         public ResPartnerDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
 
+        }
+
+        public async Task PreloadInfoData()
+        {
+            if (cachedChannels.Count > 0)
+                return;
+
+            var itemsChannels = await Database.Table<product_pricelist>()
+                .Where(x => x.active == true)
+                .ToArrayAsync();
+
+            cachedChannels = itemsChannels.ToDictionary(channel => channel.id, channel => channel.name);
         }
 
         private static AsyncTableQuery<res_partner> ApplySort(
@@ -30,7 +45,7 @@ namespace DMOrders.Services.Database.Sqlite
             };
         }
 
-        private AsyncTableQuery<res_partner> BuildQuery(
+        private async Task<AsyncTableQuery<res_partner>> BuildQuery(
             string filter_code,
             string filter_vat,
             string filter_name,            
@@ -41,6 +56,8 @@ namespace DMOrders.Services.Database.Sqlite
             Init();
 
             var q = Database.Table<res_partner>();
+
+            await PreloadInfoData();
 
             //Excluimos los vendedores
             q = q.Where(x => x.is_salesman == false);
@@ -120,7 +137,7 @@ namespace DMOrders.Services.Database.Sqlite
             int filter_sort,
             int page, int pageSize, CancellationToken ct = default)
         {
-            var q = BuildQuery(filter_code, filter_vat, filter_name, filter_days, filter_status, filter_sort);
+            var q = await BuildQuery(filter_code, filter_vat, filter_name, filter_days, filter_status, filter_sort);
 
             // COUNT(*) en SQLite, sin traer datos
             var total = await q.CountAsync();
@@ -128,6 +145,11 @@ namespace DMOrders.Services.Database.Sqlite
             // LIMIT/OFFSET en SQLite (Skip/Take sobre AsyncTableQuery)
             var offset = Math.Max(0, (page - 1) * pageSize);
             var items = await q.Skip(offset).Take(pageSize).ToListAsync();
+
+            foreach (var p in items)
+            {
+                p.display_channel_name = cachedChannels.TryGetValue(p._product_pricelist_id, out var channelName) ? channelName : "";
+            }
 
             return (items, total);
         }

@@ -237,12 +237,12 @@ namespace DMOrders.Pages.Fragments.Customers
                 var (items, total) = await _db.GetPagedAsync(
                     filters.getCode(),
                     filters.getVat(),
-                    filters.getName(), 
-                    filters.getDays(), 
-                    filters.getStatus(), 
-                    0, 
-                    Page, 
-                    PageSize, 
+                    filters.getName(),
+                    filters.getDays(),
+                    filters.getStatus(),
+                    0,
+                    Page,
+                    PageSize,
                     ct);
 
                 TotalItems = total;

@@ -490,22 +490,40 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                                         //Aqui buscamos los regalos ya existentes en la orden para asignar la cantidad correcta
 
                                         int qty_gift_eval = 0;
+
                                         for (var i = 0; i < saleOrderPromotions.Count(); i++)
                                         {
-                                            qty_gift_eval = 3;                                            
-                                            GlobalTotalManualGiftsApplied = qty_gift_eval;
+                                            if (saleOrderPromotions[i].promotion_id == itemEval.Promotion.id)
+                                            {
+                                                foreach(var lineWrapper in SaleOrder.order_line)
+                                                //foreach (var line in OrderLines)
+                                                {   
+                                                    var line = (sale_order_line)lineWrapper[2];
 
+                                                    List<PromotionEvalItemV2> listPromotionData = new List<PromotionEvalItemV2>();
+                                                    listPromotionData = !string.IsNullOrEmpty(line.promotion_data) ?
+                                                                Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(line.promotion_data) :
+                                                                new List<PromotionEvalItemV2>();
 
+                                                    //Debug.WriteLine(line.product_code);
+                                                    //Debug.WriteLine(line.product_display);
+                                                    //Debug.WriteLine(line.assigned_gifts);
+                                                    //Debug.WriteLine(line.max_gifts);
 
-                                            //if (saleOrderPromotions[i].PromotionId == itemEval.Promotion.id &&
-                                            //    saleOrderPromotions[i].GiftProductId == prod.id)
-                                            //{
-                                            //    qty_gift_eval = saleOrderPromotions[i].QtyApplied;
-                                            //    break;
-                                            //}
+                                                    if (line.product_id == prod.id && line.is_gift && listPromotionData.Any(x => x.Promotion.id == itemEval.Promotion.id))
+                                                    {
+                                                        qty_gift_eval += (int)line.product_uom_qty_real;
+                                                        GlobalTotalManualGiftsApplied += qty_gift_eval;
+                                                        realApplied.Add(line);
 
-                                            //se deben ir sumando los totales aplicados
-                                            
+                                                        var promotionEngineRunner = new PromotionEngineRunner();
+                                                        await promotionEngineRunner.AddApplyPromotion(SaleOrder, itemEval, 1, saleOrderPromotions);
+
+                                                        OnPropertyChanged(nameof(ComputeTotal));
+                                                        OnPropertyChanged(nameof(ComputeTotalQty));
+                                                    }
+                                                }
+                                            }
                                         }
 
                                         prod.qty_gift = qty_gift_eval;
@@ -521,7 +539,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                     }
                 }
 
-                OnPropertyChanged(nameof(promoGifts));
+                OnPropertyChanged(nameof(promoGifts));                
             }
 
             if (selectedPromoEvalItem.Promotion._promotion_type_id == 4) // es NXN

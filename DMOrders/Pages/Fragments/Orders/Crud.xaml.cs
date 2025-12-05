@@ -384,11 +384,16 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
         for (int i = 0; i < OrderLines.Count; i++)
         {
+            //automatico se elimina
             if (OrderLines[i].is_gift && !OrderLines[i].is_manual)
             {
                 OrderLines.RemoveAt(i);
                 continue;
             }
+
+            //manual se mantiene
+            if (OrderLines[i].is_gift && OrderLines[i].is_manual)
+                continue;
 
             var line = OrderLines[i];
             line.promotion_data = null;
@@ -1160,6 +1165,9 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
             //((CrudViewModel)BindingContext).UpdateTotals();
             OrderLinesCl.SelectedItem = null;
+
+            _activeEntry = EntryCantidadSolicitada;
+            HighlightActiveEntry(_activeEntry);
         }
     }
 }
