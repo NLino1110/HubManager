@@ -330,7 +330,8 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                                 //{
                                     lineObject.product_uom_qty_real++;
                                     lineObject.product_uom_qty = lineObject.product_uom_qty_real;
-                                    await promotionEngineRunner.AddApplyPromotion(SaleOrder, benefit, 1, saleOrderPromotions);
+                                lineObject.amount_discount = lineObject.product_uom_qty_real * lineObject.virtual_price_no_tax;
+                                await promotionEngineRunner.AddApplyPromotion(SaleOrder, benefit, 1, saleOrderPromotions);
                                 //}
                             }
                             else
@@ -400,6 +401,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                         uom_category_display = productGift.uom_display,
                         price_subtotal = 0,
                         _virtual_price_no_tax = (decimal) productGift.list_price,
+                        amount_discount =(decimal) (qty_assign * productGift.list_price),
                         discount = 100,
                         price_tax = 0,
                         price_total = 0,
@@ -764,6 +766,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                     lineObject.product_uom_qty_real++;
                     lineObject.product_uom_qty = lineObject.product_uom_qty_real;
                     lineObject.virtual_line_subtotal = lineObject.product_uom_qty_real * lineObject.virtual_price_no_tax;
+                    lineObject.amount_discount = lineObject.product_uom_qty_real * lineObject.virtual_price_no_tax;
                     GlobalTotalManualGiftsApplied++;
 
                     if (saleOrderLineOrigin.assigned_gifts >= saleOrderLineOrigin.max_gifts)
@@ -806,6 +809,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
             uom_category_display = product.uom_display,
             price_subtotal = 0,
             virtual_line_subtotal = (decimal)(1 * product.list_price),
+            amount_discount = (decimal)(1 * product.list_price),
             discount = 100,
             price_tax = 0,
             price_total = 0,
@@ -1048,6 +1052,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                             uom_category_display = productGift.uom_display,
                             price_subtotal = 0,
                             virtual_line_subtotal = (decimal)(qty_assign * productGift.list_price),
+                            amount_discount = (decimal)(qty_assign * productGift.list_price),
                             discount = 100,
                             price_tax = 0,
                             price_total = 0,

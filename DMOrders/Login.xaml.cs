@@ -361,14 +361,14 @@ public partial class Login : ContentPage
         user_access itemInsert = new user_access();
         itemInsert.name = resultUser.nombres;
         itemInsert.uid = resultUser.uid;
+        itemInsert.partner_id = resultUser.partner_id;
         itemInsert.pwd = resultUser.password;
         itemInsert.username = resultUser.username;
-
         itemInsert.api_key = resultUser.api_key;
         itemInsert.token_type = resultUser.token_type;
         itemInsert.access_token = resultUser.access_token;
         itemInsert.databasename = resultUser.databasename;
-        itemInsert.log_fec_acceso = resultUser.log_fec_acceso;
+        itemInsert.log_fec_acceso = resultUser.log_fec_acceso;        
 
         itemInsert.companies = Newtonsoft.Json.JsonConvert.SerializeObject(resultValidacion.data[0].companies);
 
@@ -491,6 +491,7 @@ public partial class Login : ContentPage
         user_access itemInsert = new user_access();
         itemInsert.name = resultUser.nombres;
         itemInsert.uid = resultUser.uid;
+        itemInsert.partner_id = resultUser.partner_id;
         itemInsert.pwd = resultUser.password;
         itemInsert.username = resultUser.username;
         itemInsert.api_key = resultUser.api_key;
@@ -581,6 +582,7 @@ public partial class Login : ContentPage
                 resultUser = new User
                 {
                     uid = userFound.uid,
+                    partner_id = userFound.partner_id,
                     username = userFound.username,
                     nombres = userFound.name,
                     password = userFound.pwd,
@@ -608,6 +610,7 @@ public partial class Login : ContentPage
                         username = txtUser.Text,
                         password = CryptoHelper.Encrypt(txtPassword.Text),
                         uid = userFound?.uid ?? 0,
+                        partner_id = userFound?.partner_id ?? 0,
                         api_key = "-",
                         token_type = "-",
                         access_token = "-"
@@ -707,6 +710,7 @@ public partial class Login : ContentPage
                 resultUser = new User
                 {
                     uid = userFound.uid,
+                    partner_id = userFound.partner_id,
                     username = userFound.username,
                     nombres = userFound.name,
                     password = userFound.pwd,
@@ -756,6 +760,7 @@ public partial class Login : ContentPage
                         username = txtUser.Text,
                         password = CryptoHelper.Encrypt(txtPassword.Text),
                         uid = responseUser.result.uid,
+                        partner_id = responseUser.result.partner_id,
                         api_key = "-",
                         token_type = "-",
                         access_token = "-",

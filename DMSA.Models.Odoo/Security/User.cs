@@ -16,6 +16,8 @@ namespace DMSA.Models.Security
         //public string exito { get; set; }
         //public string mensaje { get; set; }
         public int uid { get; set; }
+        public int partner_id { get; set; }
+
         public string nombres { get; set; }
         public string nivel { get; set; }
 

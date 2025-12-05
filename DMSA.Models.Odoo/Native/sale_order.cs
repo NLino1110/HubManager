@@ -147,19 +147,20 @@ namespace DMSA.Models.Odoo.Native
 
         [JsonProperty("id_referencia")]
         public string id_referencia { get; set; }
-
-        [Ignore]
+                
         [JsonIgnore]
         public string partner_display_name { get; set; } = "-";
-
-        [Ignore]
+                
         [JsonIgnore]
         public string partner_display_address { get; set; } = "-";
-        [Ignore]
+        
         [JsonIgnore]
         public string partner_display_status { get; set; } = "-";
 
         [JsonProperty("state")]
         public string? state { get; set; }
+
+        [JsonProperty("partner_sale_id")]
+        public int partner_sale_id { get; set; }
     }
 }

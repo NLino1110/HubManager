@@ -512,9 +512,10 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 amount_tax = viewModel.Impuesto,
                 amount_untaxed = viewModel.Subtotal,
                 state = "draft",
-                partner_display_name = CurrentPartner?.display_name,
+                partner_display_name = CurrentPartner?.name,
                 partner_display_address = CurrentPartner?.street,
-                partner_display_status = (CurrentPartner != null ? (CurrentPartner.active ? "Activo" : "Inactivo") : string.Empty)
+                partner_display_status = (CurrentPartner != null ? (CurrentPartner.active ? "Activo" : "Inactivo") : string.Empty),
+                partner_sale_id = App.Session.CurrentUserFront.partner_id
             };
 
             if (await saleOrderDb.InsertAsync(targetOrder) <= 0)

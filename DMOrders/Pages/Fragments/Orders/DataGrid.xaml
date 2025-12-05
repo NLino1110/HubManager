@@ -16,7 +16,7 @@
         <Grid Grid.Row="0"
             VerticalOptions="Center"
             ColumnSpacing="5"
-            ColumnDefinitions="20,200,*,*,*,*,*,20"
+            ColumnDefinitions="20,225,*,*,*,*,0.42*"
             RowDefinitions="*"                
           BackgroundColor="LightGray"              
           Padding="3" 
@@ -24,11 +24,11 @@
 
             <Label Grid.Column="0" FontAttributes="Bold" Text="No." FontSize="11" TextColor="Black" HorizontalTextAlignment="Start"/>
             <Label Grid.Column="1" FontAttributes="Bold" Text="CLIENTE" FontSize="11" TextColor="Black" HorizontalTextAlignment="Start"/>
-            <Label Grid.Column="2" FontAttributes="Bold" Text="Fec. Ord." FontSize="11" TextColor="Black" HorizontalTextAlignment="End"/>
-            <Label Grid.Column="3" FontAttributes="Bold" Text="Fec. Sync" FontSize="11" TextColor="Black" HorizontalTextAlignment="End"/>
-            <Label Grid.Column="4" FontAttributes="Bold" Text="Total" FontSize="11" TextColor="Black" HorizontalTextAlignment="End"/>
-            <Label Grid.Column="5" FontAttributes="Bold" Text="Sync" FontSize="11" TextColor="Black" HorizontalTextAlignment="End"/>
-            <Label Grid.Column="6" FontAttributes="Bold" Text="-" FontSize="11" TextColor="Black" WidthRequest="200" HorizontalTextAlignment="End"/>
+            <Label Grid.Column="2" FontAttributes="Bold" Text="FEC. ORD." FontSize="11" TextColor="Black" HorizontalTextAlignment="Center"/>
+            <Label Grid.Column="3" FontAttributes="Bold" Text="FEC. SYNC" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center"/>
+            <Label Grid.Column="4" FontAttributes="Bold" Text="TOTAL" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center"/>
+            <Label Grid.Column="5" FontAttributes="Bold" Text="SYNC" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center"/>
+            <Label Grid.Column="6" FontAttributes="Bold" Text="-" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center"/>
         </Grid>
         
 
@@ -49,6 +49,128 @@
                                 EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
                                 DeleteCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=DeleteCommand}"
                                 SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"/>
+
+                        <!--<Grid Grid.Column="0"
+                        VerticalOptions="Center"
+                        ColumnSpacing="10"
+                        ColumnDefinitions="Auto,350,*,*,*,*,*"
+                          RowDefinitions="*,*,*,*"
+                            Margin="20,0,20,0">
+
+                            <Label 
+                                Grid.Row="0" 
+                                Grid.Column="1"                                         
+                                FontAttributes="Bold"
+                                Text="{Binding id}"
+                                FontSize="12"
+                                TextColor="Black" />
+
+                            <Label 
+                                Grid.Column="1"
+                                Grid.Row="2"
+                                Grid.ColumnSpan="3" 
+                                Text="{Binding partner_display_name}"
+                                FontSize="14"
+                                TextColor="Black"
+                                LineBreakMode="TailTruncation"
+                                MaxLines="2" />
+
+                            <Label 
+                                Grid.Column="2"
+                                Grid.Row="0"
+                                Text="{Binding date_order}"
+                                FontSize="14"
+                                TextColor="Black"                                        
+                                HorizontalTextAlignment="Center"/>
+
+                            <Label 
+                                Grid.RowSpan="2"
+                                Grid.Column="3" 
+                                Text="{Binding date_synchronized}"
+                                FontSize="12"
+                                TextColor="DarkGreen"
+                                HorizontalTextAlignment="Center"/>
+
+                            <Label 
+                                Grid.RowSpan="2"
+                                Grid.Column="4" 
+                                Text="{Binding amount_total, StringFormat='${0:N3}'}"
+                                FontSize="12"
+                                TextColor="Gray" 
+                                HorizontalTextAlignment="Center"/>
+
+                            <Label 
+                                Grid.RowSpan="2"
+                                Grid.Column="5" 
+                                FontSize="12"
+                                TextColor="Gray"
+                                HorizontalTextAlignment="Center">
+                                <Label.Triggers>
+                                    <DataTrigger 
+                                            TargetType="Label"
+                                            Binding="{Binding is_synchronized}"
+                                            Value="True">
+                                        <Setter Property="Text" Value="Enviado" />
+                                    </DataTrigger>
+                                    <DataTrigger 
+                                            TargetType="Label"
+                                            Binding="{Binding is_synchronized}"
+                                            Value="False">
+                                        <Setter Property="Text" Value="-" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+
+                            <HorizontalStackLayout Grid.Row="0"
+                                Grid.Column="9"
+                                Grid.RowSpan="3">
+                                
+                            <Button
+                                    FontSize="10" 
+                                    BackgroundColor="DodgerBlue" 
+                                    TextColor="White" 
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
+                                    CommandParameter="{Binding .}"
+                                    HeightRequest="30"
+                                    WidthRequest="30"
+                                    
+                                    Padding="0">
+                                <Button.ImageSource>
+                                    <FontImageSource 
+                                        Size="15"
+                                        FontFamily="FontAwesome5Solid"
+                                        Glyph="&#xf303;" />
+                                </Button.ImageSource>
+                            </Button>
+
+                            <Button
+                                FontSize="10" 
+                                BackgroundColor="OrangeRed" 
+                                TextColor="White" 
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=DeleteCommand}"
+                                CommandParameter="{Binding .}"
+                                HeightRequest="30"
+                                WidthRequest="30"
+                                Grid.Row="0"
+                                Grid.Column="9"
+                                Grid.RowSpan="3"
+                                Padding="0">
+                                <Button.ImageSource>
+                                    <FontImageSource 
+                                    Size="15"
+                                    FontFamily="FontAwesome5Solid"
+                                    Glyph="&#xf2ed;" />
+                                </Button.ImageSource>
+                            </Button>
+                            </HorizontalStackLayout>
+
+                            <BoxView Grid.Row="4"
+                             Grid.Column="0"
+                             Grid.ColumnSpan="9"
+                             HeightRequest="1"
+                             BackgroundColor="#E0E0E0" Color="LightGrey"/>
+                        </Grid>-->
+                        
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

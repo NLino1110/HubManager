@@ -14,6 +14,7 @@ namespace DMSA.Models.Odoo.DMApps
         //[NotNull]
         [PrimaryKey]
         public int uid { get; set; }
+        public int partner_id { get; set; }
         public string username { get; set; }
         public string name { get; set; }
         public string pwd { get; set; }

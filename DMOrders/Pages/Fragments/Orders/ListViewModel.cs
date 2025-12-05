@@ -183,6 +183,7 @@ namespace DMOrders.Pages.Fragments.Orders
                     filters.getDateEnd(),
                     filters.getStatus(),
                     0,
+                    App.Session.CurrentUserFront.partner_id,
                     Page,
                     PageSize,
                     ct);
@@ -197,19 +198,19 @@ namespace DMOrders.Pages.Fragments.Orders
 
                 foreach (var it in items)
                 {
-                    ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
-                    var partnerItem = await resPartnerDb.GetItemsAsync(it._company_id, it._partner_id);
+                    //ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
+                    //var partnerItem = await resPartnerDb.GetItemsAsync(it._company_id, it._partner_id);
                     
-                    if (partnerItem != null)
-                    {
-                        it.partner_display_name = partnerItem?.name ?? "-";
-                        it.partner_display_address = partnerItem?.street ?? "";
-                        it.partner_display_status = partnerItem?.active == true ? "Activo" : "Inactivo";                        
-                    }
-                    else
-                    {
-                        Debug.WriteLine($"Error cargando partner: No encontrado");
-                    }                      
+                    //if (partnerItem != null)
+                    //{
+                    //    it.partner_display_name = partnerItem?.name ?? "-";
+                    //    it.partner_display_address = partnerItem?.street ?? "";
+                    //    it.partner_display_status = partnerItem?.active == true ? "Activo" : "Inactivo";                        
+                    //}
+                    //else
+                    //{
+                    //    Debug.WriteLine($"Error cargando partner: No encontrado");
+                    //}
 
                     ItemsData.Add(it);
                 }
@@ -271,6 +272,24 @@ namespace DMOrders.Pages.Fragments.Orders
             OnPropertyChanged(nameof(CanGoNext));
             OnPropertyChanged(nameof(CanGoPrevious));
         }
+
+        public ICommand NextPageCommand => new Command(async () =>
+        {
+            if (CanGoNext)
+            {
+                Page++;
+                LoadDataByTimer();
+            }
+        });
+
+        public ICommand PreviousPageCommand => new Command(async () =>
+        {
+            if (CanGoPrevious)
+            {
+                Page--;
+                LoadDataByTimer();
+            }
+        });
 
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 
 namespace DMOrders.Pages.Fragments.Activities
 {
@@ -261,6 +262,24 @@ namespace DMOrders.Pages.Fragments.Activities
         //    //objPage.Disappearing += NewGroup_Disappearing;
         //    //await Navigation.PushAsync(viewObj, false);
         //}
+
+        public ICommand NextPageCommand => new Command(async () =>
+        {
+            if (CanGoNext)
+            {
+                Page++;
+                LoadDataByTimer();
+            }
+        });
+
+        public ICommand PreviousPageCommand => new Command(async () =>
+        {
+            if (CanGoPrevious)
+            {
+                Page--;
+                LoadDataByTimer();
+            }
+        });
 
         public event PropertyChangedEventHandler PropertyChanged;
 

@@ -50,7 +50,7 @@ namespace DMOrders.Controls.CustomRows
 
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = 20 });// GridLength.Auto });
             //grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = 250 }); //new GridLength(3, GridUnitType.Star)});
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = 225 }); //new GridLength(3, GridUnitType.Star)});
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
@@ -88,7 +88,7 @@ namespace DMOrders.Controls.CustomRows
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 11,
                 TextColor = Colors.Black,
-                HorizontalOptions = LayoutOptions.End,
+                HorizontalOptions = LayoutOptions.Center,
                 VerticalOptions = LayoutOptions.Center
             };
             grid.Children.Add(dateOrderLabel);
@@ -107,7 +107,7 @@ namespace DMOrders.Controls.CustomRows
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 11,
                 TextColor = Colors.Black,
-                HorizontalOptions = LayoutOptions.End,
+                HorizontalOptions = LayoutOptions.Center,
                 VerticalOptions = LayoutOptions.Center
             };
             grid.Children.Add(dateSyncLabel);
@@ -119,7 +119,7 @@ namespace DMOrders.Controls.CustomRows
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 11,
                 TextColor = Colors.Black,
-                HorizontalOptions = LayoutOptions.End,
+                HorizontalOptions = LayoutOptions.Center,
                 VerticalOptions = LayoutOptions.Center
             };
 
@@ -133,7 +133,7 @@ namespace DMOrders.Controls.CustomRows
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 11,
                 TextColor = Colors.Black,
-                HorizontalOptions = LayoutOptions.End,
+                HorizontalOptions = LayoutOptions.Center,
                 VerticalOptions = LayoutOptions.Center
             };
             grid.Children.Add(syncLabel);

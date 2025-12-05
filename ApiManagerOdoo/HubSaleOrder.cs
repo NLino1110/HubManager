@@ -207,6 +207,7 @@ namespace ApiManager
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "assigned_gifts");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "product_id_origin");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "show_delete_button");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "is_manual");            
 
             //JObjectExtensions.RenamePropertyFromOrderLineItems(newJObject, "_product_uom_qty", "product_uom_qty");
 
