@@ -313,25 +313,25 @@
 
             <Border Grid.Row="1" Stroke="LightGrey" Padding="0" Margin="5" HeightRequest="100">
                 <VerticalStackLayout>
-                    <Label  FontSize="10" Text="Cant. sol." 
+                    <Label  FontSize="10" Text="CANT. REAL" 
                BackgroundColor="SlateGray" 
                TextColor="White" 
                HorizontalTextAlignment="Center"></Label>
                     <Entry  FontSize="10" x:Name="EntryCantidadSolicitada" IsReadOnly="True"
                        Text="{Binding Path=product_uom_qty_real, 
                         Mode=TwoWay,
-                        Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                        Source={RelativeSource AncestorType={x:Type ContentView}}}"
                HorizontalTextAlignment="End"                           
                FontAttributes="Bold">
                         <Entry.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnEntryTapped" />
                         </Entry.GestureRecognizers>
                     </Entry>
-                    <Label  FontSize="10"  Text="Cant. fin." BackgroundColor="SlateGray" TextColor="White" HorizontalTextAlignment="Center"></Label>
+                    <Label  FontSize="10"  Text="CANT. DESP." BackgroundColor="SlateGray" TextColor="White" HorizontalTextAlignment="Center"></Label>
                     <Entry  FontSize="10"  x:Name="EntryCantidadFinal" IsReadOnly="True"
                Text="{Binding Path=product_uom_qty, 
                  Mode=TwoWay,
-                 Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                 Source={RelativeSource AncestorType={x:Type ContentView}}}"
                HorizontalTextAlignment="End"
                FontAttributes="Bold">
                         <Entry.GestureRecognizers>

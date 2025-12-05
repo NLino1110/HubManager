@@ -446,9 +446,10 @@ namespace DMOrders.Services.Promotions
                 {
                     int qty = (int)line.product_uom_qty;
                     decimal subtotal = line.price_subtotal;
+                    decimal total = line.price_total;
 
                     totalQty += qty;
-                    totalAmount += subtotal;
+                    totalAmount += total; // subtotal;
 
                     productFoundList.Add(tmplId);
                 }

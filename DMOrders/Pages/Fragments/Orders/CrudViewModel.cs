@@ -22,6 +22,7 @@ namespace DMOrders.Pages.Fragments.Orders
     {
         public List<SaleOrderPromotions> saleOrderPromotions { get; set; }
         public ICommand AddLineCommand { get; }
+        public ICommand AddLineCommandByQty { get; }
         public res_company CurrentCompany { get; set; }
         public res_partner _CurrentPartner { get; set; }
         public sale_order CurrentSaleOrder { get; set; }
@@ -218,6 +219,7 @@ namespace DMOrders.Pages.Fragments.Orders
             SaveCommand = new Command(OnSave);
             SyncCommand = new Command(OnSync);
             AddLineCommand = new Command<product_product>(OnAddLine);
+            AddLineCommandByQty = new Command<ItemPickedArgs>(OnAddLine);
         }
 
         public async Task AddOrderLine(sale_order_line NewOrderLine)
@@ -531,6 +533,81 @@ namespace DMOrders.Pages.Fragments.Orders
 
             UpdateTotals();
         }
+
+
+
+        private async void OnAddLine(ItemPickedArgs itemPickedArgs)
+        {
+            if (itemPickedArgs is null) return;
+
+            var product = itemPickedArgs.product;
+            var qty_real = itemPickedArgs.qty_real;
+            var qty_sol = itemPickedArgs.qty_sol;
+            // Buscar si el producto ya existe en la lista
+            var existingLine = OrderLines.FirstOrDefault(l => l.product_id == product.id && !l.is_gift);
+
+            if (existingLine != null)
+            {
+                // Si existe, aumentar la cantidad
+                existingLine.product_uom_qty_real += qty_real;
+                existingLine.product_uom_qty += qty_sol;
+
+                var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, existingLine.product_uom_qty);
+
+                //product.list_price = (float) priceCalc.Price;
+                existingLine.price_total = priceCalc.TotalLine;
+                existingLine.price_unit = priceCalc.Price;
+                existingLine.price_subtotal = priceCalc.PriceSubtotal; //(priceCalc.PriceWithoutIva * existingLine.product_uom_qty) - priceCalc.DiscountAmount;
+                existingLine.discount = priceCalc.DiscountPercent;
+                existingLine.amount_discount = priceCalc.DiscountAmount;
+                existingLine.price_tax = priceCalc.PriceTax;
+                existingLine.virtual_price_no_tax = priceCalc.PriceWithoutIva;
+                existingLine.virtual_iva_percentage = priceCalc.IvaPercentage;
+                existingLine.virtual_line_subtotal = priceCalc.LineSubtotal;
+                existingLine.product_tmpl_id = product._product_tmpl_id;
+                OnPropertyChanged(nameof(OrderLines));
+            }
+            else
+            {
+                var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, 1);
+
+                if (priceCalc.ExistsInPriceList)
+                {
+                    // Si no existe, agregar una nueva línea
+                    var line = new sale_order_line
+                    {
+                        product_id = product.id,
+                        product_display = product.name,
+                        product_code = product.code,
+                        qty_to_deliver = qty_sol,
+                        product_uom_qty_real = qty_real,
+                        product_uom_qty = qty_sol,
+                        uom_category_display = "UND",
+                        price_subtotal = priceCalc.PriceSubtotal, // (priceCalc.PriceWithoutIva * 1) - priceCalc.DiscountAmount,
+                        discount = priceCalc.DiscountPercent,
+                        amount_discount = priceCalc.DiscountAmount,
+                        price_tax = priceCalc.PriceTax,
+                        price_unit = priceCalc.Price,
+                        price_total = priceCalc.TotalLine,
+                        virtual_price_no_tax = priceCalc.PriceWithoutIva,
+                        virtual_iva_percentage = priceCalc.IvaPercentage,
+                        virtual_line_subtotal = priceCalc.LineSubtotal,
+                        product_tmpl_id = product._product_tmpl_id
+                    };
+
+                    OrderLines.Add(line);
+                }
+                else
+                {
+                    await Application.Current.Windows[0].Page.DisplayAlert("Warning", "Producto no se puede agregar porque no existe en la lista de precios.", "OK");
+                    return;
+                }
+            }
+
+            UpdateTotals();
+        }
+
+
 
         public async void UpdateOrderLine(sale_order_line sale_Order_Line,  product_product product)
         {

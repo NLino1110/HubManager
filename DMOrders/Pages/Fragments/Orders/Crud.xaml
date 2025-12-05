@@ -24,14 +24,14 @@
 
     <Grid ColumnDefinitions="Auto,*">
         <modals:CatalogViewerInner x:Name="SearchProductView" 
-                   IsVisible="False" 
-                   Grid.Row="0" 
-                   Grid.Column="0" 
+                   IsVisible="False"
+                   Grid.Row="0"
+                   Grid.Column="0"
                    Grid.ColumnSpan="2"
-                   ItemPickedCommand="{Binding BindingContext.AddLineCommand,
-                Source={RelativeSource AncestorType={x:Type ContentPage}}}"
-                                   CurrentPriceList="{Binding CurrentPriceList,
-                Source={RelativeSource AncestorType={x:Type ContentPage}}}"></modals:CatalogViewerInner>
+                   ItemPickedCommand="{Binding BindingContext.AddLineCommand,Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                   ItemPickedByQtyCommand="{Binding BindingContext.AddLineCommandByQty,Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                   CurrentPriceList="{Binding CurrentPriceList,Source={RelativeSource AncestorType={x:Type ContentPage}}}">            
+        </modals:CatalogViewerInner>
         
         <Grid Grid.Row="0" 
               Grid.Column="0" 

@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
 using DMOrders.Controls;
+using DMOrders.Models;
 using DMOrders.Models.Filters;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Native;
@@ -72,6 +73,18 @@ public partial class CatalogViewerInner : ContentView
         get => (ICommand)GetValue(ItemPickedCommandProperty);
         set => SetValue(ItemPickedCommandProperty, value);
     }
+
+
+
+    public static readonly BindableProperty ItemPickedByQtyCommandProperty =
+        BindableProperty.Create(nameof(ItemPickedByQtyCommand), typeof(ICommand), typeof(CatalogViewerInner), default(ICommand));
+
+    public ICommand ItemPickedByQtyCommand
+    {
+        get => (ICommand)GetValue(ItemPickedByQtyCommandProperty);
+        set => SetValue(ItemPickedByQtyCommandProperty, value);
+    }
+
 
     public ContentView ViewParent
     {
@@ -326,6 +339,7 @@ public partial class CatalogViewerInner : ContentView
     //    }
     //}
 
+    
     private void SelectSingleItem(object sender, EventArgs e)
     {
         var objItem = ((CatalogViewerModel)this.BindingContext).SelectedItem;
@@ -335,8 +349,41 @@ public partial class CatalogViewerInner : ContentView
             //_parentPopup.Close(objItem);
             this.IsVisible = false;
 
-            if(ItemPickedCommand?.CanExecute(objItem) != null)
+            //ItemPickedArgs itemPickedArgs = new ItemPickedArgs
+            //{
+            //    product = objItem,
+            //    qty = 1,
+            //};
+
+            if (ItemPickedCommand?.CanExecute(objItem) != null)
                 ItemPickedCommand.Execute(objItem);
+
+        }
+        else
+        {
+            Debug.WriteLine("Error de objeto");
+        }
+    }
+
+    private void AddSingleItem(object sender, EventArgs e)
+    {
+        var objItem = ((CatalogViewerModel)this.BindingContext).SelectedItem;
+        decimal qty_real = product_uom_qty;
+        decimal qty_sol = product_uom_qty_real;
+
+        if (objItem != null)
+        {
+            ItemPickedArgs itemPickedArgs = new ItemPickedArgs
+            {
+                product = objItem,
+                qty_real = qty_real,
+                qty_sol = qty_sol,
+            };
+
+            this.IsVisible = false;
+
+            if (ItemPickedByQtyCommand?.CanExecute(itemPickedArgs) != null)
+                ItemPickedByQtyCommand.Execute(itemPickedArgs);
 
         }
         else
@@ -536,7 +583,6 @@ public partial class CatalogViewerInner : ContentView
         //Confetti.TriggerCenter();
     }
 
-
     private Entry _activeEntry;
 
     public decimal _product_uom_qty { get; set; }
@@ -554,6 +600,7 @@ public partial class CatalogViewerInner : ContentView
             }
         }
     }
+
     public decimal product_uom_qty_real
     {
         get => _product_uom_qty_real;
@@ -566,8 +613,6 @@ public partial class CatalogViewerInner : ContentView
             }
         }
     }
-
-
 
     private void OnEntryTapped(object sender, EventArgs e)
     {
@@ -650,46 +695,49 @@ public partial class CatalogViewerInner : ContentView
 
     private async void ApplyValueChanges(object sender, EventArgs e)
     {
-        var vm = BindingContext as CatalogViewerModel;
-        var ProductEditing = vm.SelectedItem;
+        AddSingleItem(sender, e);
 
-        if (ProductEditing != null)
-        {
-            if ((decimal)ProductEditing.qty_available < product_uom_qty)
-            {
-                ProductEditing = null;
-                ProductEditing = null;
-                product_uom_qty_real = 0;
-                product_uom_qty = 0;
-                //OrderLinesCl.SelectedItem = null;
 
-                //await DisplayAlert("Alerta", "La cantidad solicitada no puede ser mayor a la disponible en inventario.", "Aceptar");
-                return;
-            }
+        //////var vm = BindingContext as CatalogViewerModel;
+        //////var ProductEditing = vm.SelectedItem;
 
-            //CurrentSaleOrderLine.product_uom_qty_real = product_uom_qty_real;
-            //CurrentSaleOrderLine.product_uom_qty = product_uom_qty;
+        //////if (ProductEditing != null)
+        //////{
+        //////    if ((decimal)ProductEditing.qty_available < product_uom_qty)
+        //////    {
+        //////        ProductEditing = null;
+        //////        ProductEditing = null;
+        //////        product_uom_qty_real = 0;
+        //////        product_uom_qty = 0;
+        //////        //OrderLinesCl.SelectedItem = null;
 
-            //////////////////////////////
-            //var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
-            //var product_item = await productDb.GetItemAsync(x => x.id == CurrentSaleOrderLine.product_id);
+        //////        //await DisplayAlert("Alerta", "La cantidad solicitada no puede ser mayor a la disponible en inventario.", "Aceptar");
+        //////        return;
+        //////    }
 
-            //if (product_item == null)
-            //{
-            //    Debug.WriteLine("Error: no se encontró el producto para actualizar la línea de orden.");
-            //    return;
-            //}
+        //////    //CurrentSaleOrderLine.product_uom_qty_real = product_uom_qty_real;
+        //////    //CurrentSaleOrderLine.product_uom_qty = product_uom_qty;
 
-            //product_item.list_price = (float)CurrentSaleOrderLine.price_unit;
-            //((CrudViewModel)BindingContext).UpdateOrderLine(CurrentSaleOrderLine, product_item);
-            //////////////////////////////
+        //////    //////////////////////////////
+        //////    //var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
+        //////    //var product_item = await productDb.GetItemAsync(x => x.id == CurrentSaleOrderLine.product_id);
 
-            //CurrentSaleOrderLine = null;
-            ProductEditing = null;
-            product_uom_qty_real = 0;
-            product_uom_qty = 0;
+        //////    //if (product_item == null)
+        //////    //{
+        //////    //    Debug.WriteLine("Error: no se encontró el producto para actualizar la línea de orden.");
+        //////    //    return;
+        //////    //}
+
+        //////    //product_item.list_price = (float)CurrentSaleOrderLine.price_unit;
+        //////    //((CrudViewModel)BindingContext).UpdateOrderLine(CurrentSaleOrderLine, product_item);
+        //////    //////////////////////////////
+
+        //////    //CurrentSaleOrderLine = null;
+        //////    ProductEditing = null;
+        //////    product_uom_qty_real = 0;
+        //////    product_uom_qty = 0;
                         
-            //OrderLinesCl.SelectedItem = null;
-        }
+        //////    //OrderLinesCl.SelectedItem = null;
+        //////}
     }
 }
