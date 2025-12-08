@@ -18,7 +18,8 @@ using Microsoft.Maui.Controls.Internals;
 using System.Data.Common;
 using DMSA.Models.Odoo.DMCobranzas;
 using CommunityToolkit.Maui.Extensions;
-using DMCobranzas.Services.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Payments;
 
 namespace DMCobranzas.Controls.Modals;
 
@@ -174,13 +175,13 @@ public partial class AccountPaymentCrud : ContentPage
             //MODO EDICION -- SI YA ESTABA GUARDADO PREVIAMENTE
             if (accountPaymentHeader != null)
             {
-                var dbCompany = new CompanyDb();
+                var dbCompany = new CompanyDb(App.Session.odooConnection.DbNameSqlite);
                 Sel_Company_Id = await dbCompany.GetItem(accountPaymentHeader.company_id);
             }
             else
             {
                 //Si se está editando antes de ser guardado
-                var dbCompany = new CompanyDb();
+                var dbCompany = new CompanyDb(App.Session.odooConnection.DbNameSqlite);
                 Sel_Company_Id = await dbCompany.GetItem(accountPayment.company_id);
             }
             //Sel_Company_Id = 
@@ -208,7 +209,7 @@ public partial class AccountPaymentCrud : ContentPage
         pickerPaymentMethod.SelectedIndexChanged += pickerPaymentMethod_SelectedIndexChanged;
 
         //Formas de Pago
-        var database = new AccountJournalDb();
+        var database = new AccountJournalDb(App.Session.odooConnection.DbNameSqlite);
         var lstDiarios = await database.GetItemsAsync();
         
         if (lstDiarios.Count == 0)
@@ -219,9 +220,9 @@ public partial class AccountPaymentCrud : ContentPage
             return;
         }
 
-        AccountJournalDb db = new AccountJournalDb();
+        AccountJournalDb db = new AccountJournalDb(App.Session.odooConnection.DbNameSqlite);
         account_Journals = (await db.GetItemsAsync()).Where(
-            j => j.CompanyId == Sel_Company_Id.id && j.use_mobile_app == true).ToList();
+            j => j._company_id == Sel_Company_Id.id && j.use_mobile_app == true).ToList();
 
         account_Journals = account_Journals.OrderBy(j => j.name).ToList();
 
@@ -358,7 +359,7 @@ public partial class AccountPaymentCrud : ContentPage
             //accountPaymentHeader
             //accountPaymentHeader.company_id
 
-            CompanyDb companyDb = new CompanyDb();
+            CompanyDb companyDb = new CompanyDb(App.Session.odooConnection.DbNameSqlite);
 
             //CRASH: 2024
             //FIX:
@@ -437,7 +438,7 @@ public partial class AccountPaymentCrud : ContentPage
             ////}
 
             ObservableCollection<inbound_payment_method> l_inbound = new ObservableCollection<inbound_payment_method>();            
-            InboundPaymentMethodDb inboundPaymentMethodDb = new InboundPaymentMethodDb();
+            InboundPaymentMethodDb inboundPaymentMethodDb = new InboundPaymentMethodDb(App.Session.odooConnection.DbNameSqlite);
             //var ipmItems = inboundPaymentMethodDb.GetItemsByParentAsync(cuentaDiario.id);            
             l_inbound = new ObservableCollection<inbound_payment_method>(await inboundPaymentMethodDb.GetItemsByParentAsync(cuentaDiario.id));
             
@@ -501,7 +502,7 @@ public partial class AccountPaymentCrud : ContentPage
 
     private async Task<string> GetSellerName(int company_id, int user_id)
     {
-        UserDb  resUserDb  = new UserDb();
+        UserDb  resUserDb  = new UserDb(App.Session.odooConnection.DbNameSqlite);
         var res_User = await resUserDb.GetItemsAsync(company_id, user_id);
         
         if(res_User != null)
@@ -511,13 +512,13 @@ public partial class AccountPaymentCrud : ContentPage
 
     private async Task<string> GetSellerNameByInvoice(int invoice_id)
     {
-        AccountMoveLineDb accountMoveLineDb = new AccountMoveLineDb();
+        AccountMoveLineDb accountMoveLineDb = new AccountMoveLineDb(App.Session.odooConnection.DbNameSqlite);
         var accountMoveLine = await accountMoveLineDb.GetItem(invoice_id);
 
         if (accountMoveLine != null)
         {
-            AccountMoveDb accountMoveDb = new AccountMoveDb();
-            var accountMove = await accountMoveDb.GetItem(accountMoveLine.moveId);
+            AccountMoveDb accountMoveDb = new AccountMoveDb(App.Session.odooConnection.DbNameSqlite);
+            var accountMove = await accountMoveDb.GetItemAsync(x=> x.id == accountMoveLine._move_id);
 
             if (accountMove != null)
                 return await GetSellerName(accountMove._company_id, accountMove._invoice_user_id);
@@ -528,7 +529,7 @@ public partial class AccountPaymentCrud : ContentPage
 
     private async Task LoadPaymentLinesForNew()
     {
-        AccountMoveDb accountMoveDb = new AccountMoveDb();
+        AccountMoveDb accountMoveDb = new AccountMoveDb(App.Session.odooConnection.DbNameSqlite);
         //var accMovesByCustomer = await accountMoveDb.GetItemsByPartnerForPaymentAsync(_res_partner);
 
         var accMovesByCustomer = await accountMoveDb.GetItemsByPartnerAndCompany(_res_partner, Sel_Company_Id);
@@ -554,7 +555,7 @@ public partial class AccountPaymentCrud : ContentPage
 
             accountPaymentInvoiceLineAuxiliar.invoice_line_id = 0;
 
-            AccountMoveLineDb accountMoveLineDb = new AccountMoveLineDb();
+            AccountMoveLineDb accountMoveLineDb = new AccountMoveLineDb(App.Session.odooConnection.DbNameSqlite);
             var itemMoveLine = await accountMoveLineDb.GetItemsByParentAsync(accountMoveItem.id);
             var itemPaymentTerm = itemMoveLine.Where(x => x.display_type == "payment_term").FirstOrDefault();
 
@@ -613,9 +614,9 @@ public partial class AccountPaymentCrud : ContentPage
 
     private async Task LoadDataForEdition()
     {       
-        AccountJournalDb accountJournalDb = new AccountJournalDb();
+        AccountJournalDb accountJournalDb = new AccountJournalDb(App.Session.odooConnection.DbNameSqlite);
              
-        var selDiario = await accountJournalDb.GetItem(accountPayment.journal_id);
+        var selDiario = await accountJournalDb.GetItemAsync(x=>x.id == accountPayment.journal_id);
 
         if (selDiario != null)
         {
@@ -627,7 +628,7 @@ public partial class AccountPaymentCrud : ContentPage
                 if (account_Journals == null)
                 {
                     account_Journals = (await accountJournalDb.GetItemsAsync()).Where(j =>
-                        j.CompanyId == Sel_Company_Id.id).ToList();
+                        j._company_id == Sel_Company_Id.id).ToList();
                     account_Journals = account_Journals.OrderBy(j => j.name).ToList();
                     //Se asigna lista al picker
                     pickerDiario.ItemsSource = account_Journals;
@@ -639,7 +640,7 @@ public partial class AccountPaymentCrud : ContentPage
 
                 //Cargando métodos de pago
                 ObservableCollection<inbound_payment_method> l_inbound = new ObservableCollection<inbound_payment_method>();
-                InboundPaymentMethodDb inboundPaymentMethodDb = new InboundPaymentMethodDb();                
+                InboundPaymentMethodDb inboundPaymentMethodDb = new InboundPaymentMethodDb(App.Session.odooConnection.DbNameSqlite);                
                 l_inbound = new ObservableCollection<inbound_payment_method>(await inboundPaymentMethodDb.GetItemsByParentAsync(accountPayment.journal_id));
 
                 pickerPaymentMethod.ItemsSource = l_inbound;
@@ -675,14 +676,14 @@ public partial class AccountPaymentCrud : ContentPage
                     CreditCardGroup.IsVisible = false;
                 }
 
-                PartnerBankDb partnerBankDb = new PartnerBankDb();
+                PartnerBankDb partnerBankDb = new PartnerBankDb(App.Session.odooConnection.DbNameSqlite);
                 
-                var partnerBankItem = await partnerBankDb.GetItem(accountPayment.partner_bank_id);
+                var partnerBankItem = await partnerBankDb.GetItemAsync(x => x.id == accountPayment.partner_bank_id);
                 if (partnerBankItem != null)
                 {
                     //Busqueda de banco
-                    BankDb bankDb = new BankDb();
-                    var bankItem = await bankDb.GetItem(partnerBankItem.BankId);
+                    BankDb bankDb = new BankDb(App.Session.odooConnection.DbNameSqlite);
+                    var bankItem = await bankDb.GetItemAsync(x=>x.id == partnerBankItem._bank_id);
 
                     txtCuenta.Text = partnerBankItem.acc_number;
                     lblAccountBank.Text = bankItem.name;
@@ -708,11 +709,11 @@ public partial class AccountPaymentCrud : ContentPage
     {
         //pickerTipoDiario.SelectedIndex = 0;
         //pickerDiario.SelectedIndex = 0;
-        AccountJournalDb accountJournalDb = new AccountJournalDb();
+        AccountJournalDb accountJournalDb = new AccountJournalDb(App.Session.odooConnection.DbNameSqlite);
 
         //Desde la base
         //var selDiario = account_Journals.Where(x => x.id == accountPayment.journal_id).FirstOrDefault();
-        var selDiario = await accountJournalDb.GetItem(accountPayment.journal_id);
+        var selDiario = await accountJournalDb.GetItemAsync(x=> x.id == accountPayment.journal_id);
 
         if (selDiario != null)
         {
@@ -733,7 +734,7 @@ public partial class AccountPaymentCrud : ContentPage
                 if (account_Journals == null)
                 {
                     account_Journals = (await accountJournalDb.GetItemsAsync()).Where(j =>
-                        j.CompanyId == Sel_Company_Id.id).ToList();
+                        j._company_id == Sel_Company_Id.id).ToList();
                     account_Journals = account_Journals.OrderBy(j => j.name).ToList();
                     //Se asigna lista al picker
                     pickerDiario.ItemsSource = account_Journals;
@@ -761,23 +762,23 @@ public partial class AccountPaymentCrud : ContentPage
 
                 //Cargando metodos de pago
                 ObservableCollection<inbound_payment_method> l_inbound = new ObservableCollection<inbound_payment_method>();
-                InboundPaymentMethodDb inboundPaymentMethodDb = new InboundPaymentMethodDb();
+                InboundPaymentMethodDb inboundPaymentMethodDb = new InboundPaymentMethodDb(App.Session.odooConnection.DbNameSqlite);
                 l_inbound = new ObservableCollection<inbound_payment_method>(await inboundPaymentMethodDb.GetItemsByParentAsync(accountPayment.journal_id));
 
                 pickerPaymentMethod.ItemsSource = l_inbound;
                 var paymentLine = l_inbound.Where(p => p.id == accountPayment.payment_method_line_id).FirstOrDefault();
                 pickerPaymentMethod.SelectedItem = paymentLine;
 
-                PartnerBankDb partnerBankDb = new PartnerBankDb();
+                PartnerBankDb partnerBankDb = new PartnerBankDb(App.Session.odooConnection.DbNameSqlite);
                 //ObservableCollection<res_partner_bank> l_partnerBank = new ObservableCollection<res_partner_bank>();
                 //l_partnerBank = new ObservableCollection<res_partner_bank>(await partnerBankDb.GetItemsAsync());
 
-                var partnerBankItem = await partnerBankDb.GetItem(accountPayment.partner_bank_id);
+                var partnerBankItem = await partnerBankDb.GetItemAsync(x => x.id == accountPayment.partner_bank_id);
                 if (partnerBankItem != null)
                 {
                     //Busqueda de banco
-                    BankDb bankDb = new BankDb();
-                    var bankItem = await bankDb.GetItem(partnerBankItem.BankId);
+                    BankDb bankDb = new BankDb(App.Session.odooConnection.DbNameSqlite);
+                    var bankItem = await bankDb.GetItemAsync(x => x.id == partnerBankItem._bank_id);
 
                     txtCuenta.Text = partnerBankItem.acc_number;
                     lblAccountBank.Text = bankItem.name;
@@ -886,10 +887,10 @@ public partial class AccountPaymentCrud : ContentPage
             {
                 case "bank":
                     {
-                        AccountJournalDb db = new AccountJournalDb();
+                        AccountJournalDb db = new AccountJournalDb(App.Session.odooConnection.DbNameSqlite);
                         account_Journals = (await db.GetItemsAsync()).Where(
                             j=>j.type == account_Journal_Types[selectedIndex].code &&
-                            j.CompanyId == Sel_Company_Id.id).ToList();
+                            j._company_id == Sel_Company_Id.id).ToList();
 
                         pickerDiario.ItemsSource = account_Journals;
                         pickerDiario.ItemDisplayBinding = new Binding("name");
@@ -898,10 +899,10 @@ public partial class AccountPaymentCrud : ContentPage
                     break;
                 case "cash":
                     {
-                        AccountJournalDb db = new AccountJournalDb();
+                        AccountJournalDb db = new AccountJournalDb(App.Session.odooConnection.DbNameSqlite);
                         account_Journals = (await db.GetItemsAsync()).Where(
                             j => j.type == account_Journal_Types[selectedIndex].code &&
-                            j.CompanyId == Sel_Company_Id.id).ToList();
+                            j._company_id == Sel_Company_Id.id).ToList();
 
                         pickerDiario.ItemsSource = account_Journals;
                         pickerDiario.ItemDisplayBinding = new Binding("name");
@@ -987,7 +988,7 @@ public partial class AccountPaymentCrud : ContentPage
 
         if (result != null)
         {
-            PartnerBankDb partnerBankDb = new PartnerBankDb();
+            PartnerBankDb partnerBankDb = new PartnerBankDb(App.Session.odooConnection.DbNameSqlite);
             var new_partnerBank = (res_partner_bank)result;
             
             _res_partner_bank = new_partnerBank;

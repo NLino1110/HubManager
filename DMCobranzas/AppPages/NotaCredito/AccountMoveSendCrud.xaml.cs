@@ -23,8 +23,7 @@ using static System.Net.Mime.MediaTypeNames;
 using Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;
 using DMSA.Models.Odoo.DMCobranzas;
 using CommunityToolkit.Maui.Extensions;
-using DMCobranzas.Services.Database;
-using DMCobranzas.Services.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Payments;
 
 namespace DMCobranzas.AppPages.NotaCredito;
 
@@ -310,10 +309,10 @@ public partial class AccountMoveSendCrud : ContentPage
         }
 
         //TODO: NO ELIMINAR ESTE GRUPO DE COMENTARIO
-        var database_journals = new AccountJournalDb();
+        var database_journals = new AccountJournalDb(App.Session.odooConnection.DbNameSqlite);
         credit_note_journal = (await database_journals.GetItemsAsync()).Where(
             x => x.credit_note && 
-            x.CompanyId == default_empresa.id).FirstOrDefault();
+            x._company_id == default_empresa.id).FirstOrDefault();
 
         if(credit_note_journal == null)
         {
@@ -337,7 +336,7 @@ public partial class AccountMoveSendCrud : ContentPage
         //pickerCNJournal.ItemDisplayBinding = new Binding(nameof(account_journal.name));
         //pickerCNJournal.SelectedIndex = 0;
 
-        var database = new AccountModuleDb();
+        var database = new AccountModuleDb(App.Session.odooConnection.DbNameSqlite);
         accountModules = (await database.GetItemsAsync()).ToArray();
 
         if (accountModules.Length == 0)
@@ -371,7 +370,7 @@ public partial class AccountMoveSendCrud : ContentPage
                 selected_module = accountModules.Where(x => x.id == accountMoveSend.module_id).FirstOrDefault();
                 pickerModulos.SelectedItem = selected_module;
 
-                var database_type = new AccountTypeModuleDb();
+                var database_type = new AccountTypeModuleDb(App.Session.odooConnection.DbNameSqlite);
                 accountTypeModules = (await database_type.GetItemsAsync()).Where(x => x._module_id == selected_module.id).ToArray();
 
                 if (accountTypeModules.Length == 0)
@@ -456,7 +455,7 @@ public partial class AccountMoveSendCrud : ContentPage
         if(pickerModulos.SelectedItem != null)
         {
             var modulo_seleccionado = (AccountModule) pickerModulos.SelectedItem;
-            var database = new AccountTypeModuleDb();
+            var database = new AccountTypeModuleDb(App.Session.odooConnection.DbNameSqlite);
             accountTypeModules = (await database.GetItemsAsync()).Where(x=>x._module_id == modulo_seleccionado.id).ToArray();
            
             if (accountTypeModules.Length == 0)
@@ -527,7 +526,7 @@ public partial class AccountMoveSendCrud : ContentPage
         //        break;
         //}
 
-        AccountMoveLineDb database = new AccountMoveLineDb();
+        AccountMoveLineDb database = new AccountMoveLineDb(App.Session.odooConnection.DbNameSqlite);
         var result = await database.GetItemsByParentAsync(_accountMoveSelected.id);
         //Agrega filtro para mostrar solo productos
         result = result.Where(x => x.display_type == "product").ToList();
@@ -550,12 +549,12 @@ public partial class AccountMoveSendCrud : ContentPage
             }
             
 
-            account_Move_Line_Send.account_id = item.accountId;
-            account_Move_Line_Send.product_id = item.productId;
+            account_Move_Line_Send.account_id = item._account_id;
+            account_Move_Line_Send.product_id = item._product_id;
             account_Move_Line_Send.name = item.name;
             account_Move_Line_Send.currency_id = 2;
             //account_Move_Line_Send.line_id = item.line_ids;
-            account_Move_Line_Send.move_id = item.moveId;
+            account_Move_Line_Send.move_id = item._move_id;
 
             result_send.Add(account_Move_Line_Send);
         }

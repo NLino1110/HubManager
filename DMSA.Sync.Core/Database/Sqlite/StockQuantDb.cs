@@ -1,5 +1,4 @@
-﻿
-namespace DMOrders.Services.Database.Sqlite
+﻿namespace DMSA.Sync.Core.Database.Sqlite
 {
     public class StockQuantDb : SqliteDbBase<DMSA.Models.Odoo.Native.stock_quant>
     {

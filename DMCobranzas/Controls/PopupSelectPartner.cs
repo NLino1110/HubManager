@@ -19,7 +19,7 @@ using System.Runtime.CompilerServices;
 using DMCobranzas.Settings.helpers;
 using Microsoft.Maui.Platform;
 using Microsoft.Maui.Layouts;
-using DMCobranzas.Services.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite;
 
 namespace DMCobranzas.Controls
 {
@@ -64,7 +64,7 @@ namespace DMCobranzas.Controls
             }
 
             await SetWorkingStatus();
-            ResPartnerDb partnerBankDb = new ResPartnerDb();
+            ResPartnerDb partnerBankDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
             resultItemsSearch = new ObservableCollection<res_partner>(await partnerBankDb.GetItemsBySearchAsync(Company.id, TextForSearch.ToUpper(), 25));
             _collectionViewSearch.ItemsSource = resultItemsSearch;            
             await SetDoneStatus();

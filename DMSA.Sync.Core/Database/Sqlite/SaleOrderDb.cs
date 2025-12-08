@@ -1,7 +1,7 @@
 ﻿using DMSA.Models.Odoo.Native;
 using SQLite;
 
-namespace DMOrders.Services.Database.Sqlite
+namespace DMSA.Sync.Core.Database.Sqlite
 {
     public class SaleOrderDb : SqliteDbBase<sale_order>
     {       
@@ -73,11 +73,17 @@ namespace DMOrders.Services.Database.Sqlite
             DateTime? filter_datestart,
             DateTime? filter_dateend,
             int filter_status,
-            int filter_sort)
+            int filter_sort,
+            int seller_id)
         {
             Init();
 
             var q = Database.Table<sale_order>();
+
+            if(seller_id > 0)
+            {
+                q = q.Where(x => x.partner_sale_id == seller_id);
+            }
 
             // --- 1) Filtro por code (prioridad máxima, como tu método actual) ---
             if (!string.IsNullOrWhiteSpace(filter_code))
@@ -138,6 +144,7 @@ namespace DMOrders.Services.Database.Sqlite
             DateTime? filter_dateend,
             int filter_status,
             int filter_sort,
+            int seller_id,
             int page, int pageSize, CancellationToken ct = default)
         {
             var q = BuildQuery(filter_code,
@@ -145,7 +152,8 @@ namespace DMOrders.Services.Database.Sqlite
             filter_datestart,
             filter_dateend,
             filter_status,
-            filter_sort);
+            filter_sort,
+            seller_id);
 
             // COUNT(*) en SQLite, sin traer datos
             var total = await q.CountAsync();
@@ -168,6 +176,23 @@ namespace DMOrders.Services.Database.Sqlite
                 .ToListAsync();
 
             return records.Select(x => x.erp_id).ToArray();
+        }
+
+        internal async Task<int> GetNextSecuentialId()
+        {   
+            await Init();
+            var records = await Database.Table<sale_order>()
+                .OrderByDescending(x => x.id)
+                .ToListAsync();
+            
+            int maxId = 0;
+            
+            if (records.Count > 0)
+            {
+                maxId = records[0].id;
+            }
+
+            return maxId + 1;
         }
     }
 }

@@ -72,7 +72,23 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                             <Label Text="{Binding _selection_type_id}" WidthRequest="80" HorizontalTextAlignment="Center" />-->
                             <!--<Label Text="{Binding code}" WidthRequest="100" />-->
                             <Label Text="{Binding MaxAllowedGifts}" WidthRequest="80" HorizontalTextAlignment="Start" FontSize="11"/>
-                            <Label Text="{Binding Promotion.state}" WidthRequest="100" HorizontalTextAlignment="Start" FontSize="11"/>
+                            <!--<Label Text="{Binding Promotion.state}" WidthRequest="100" HorizontalTextAlignment="Start" FontSize="11"/>-->
+                            <Label Grid.Column="5" FontSize="12" TextColor="Gray" HorizontalTextAlignment="Center">
+                                <Label.Triggers>
+                                    <DataTrigger 
+                                            TargetType="Label"
+                                            Binding="{Binding Promotion.active}"
+                                            Value="True">
+                                        <Setter Property="Text" Value="Activo" />
+                                    </DataTrigger>
+                                    <DataTrigger 
+                                        TargetType="Label"
+                                        Binding="{Binding Promotion.active}"
+                                        Value="False">      
+                                        <Setter Property="Text" Value="Inactivo" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
                         </HorizontalStackLayout>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

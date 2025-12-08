@@ -1,29 +1,20 @@
 ﻿using ApiManager;
-using DMOrders.Services.Database.Sqlite;
-using DMSA.Models.General.Requests;
-using DMSA.Models.Odoo.General.Responses;
-using DMSA.Models.Odoo.Native;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using DMSA.Sync.Core.Database.Sqlite;
 
-namespace DMOrders.Services.Update
+namespace DMSA.Sync.Core.Update
 {
     public partial class ServerPuller
     {
         public async Task OnlineSyncResCenter(bool force)
         {
-            var database = new ResCenterDb(DbNameSqlite);
+            var database = new ResCenterDb(Constants.Session.odooConnection.DbNameSqlite);
             if (await database.GetCount() > 0)
             {
                 //Ya se ha sincronizado previamente
                 return;
             }
 
-            ApiManager.HubResCenter hubManagerInstance = new HubResCenter(appSession);
+            ApiManager.HubResCenter hubManagerInstance = new HubResCenter(Constants.Session);
             var dataList = await hubManagerInstance.GetItems(1000,0,2023,1,1);
 
             if (dataList != null && dataList.result !=null && dataList.result.Length > 0)

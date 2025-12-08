@@ -79,7 +79,7 @@ namespace DMOrders.Services.Database.Sqlite
             i._partner_id == partner_id).Take(limit).ToListAsync();
 
             return previuResult.Where(i =>
-            lines.Any(p => p.moveId == i.id)
+            lines.Any(p => p._move_id == i.id)
             ).Take(limit).ToList();
         }
 

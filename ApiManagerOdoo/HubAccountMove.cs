@@ -40,7 +40,9 @@ namespace ApiManager
             "reversed_entry_id",
             "ref",
             "refund_invoice_ids",
-            "printer_id"
+            "create_date",
+            "write_date",
+            //"printer_id"
         };
         public HubAccountMove(AppSession _setAppSession) : base(_setAppSession)
         {

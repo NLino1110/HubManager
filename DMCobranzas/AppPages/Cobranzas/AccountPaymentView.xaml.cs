@@ -6,7 +6,8 @@ using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Maui.Sample.Models;
 using DMSA.Models.Odoo.DMCobranzas;
 using CommunityToolkit.Maui.Extensions;
-using DMCobranzas.Services.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Payments;
 
 namespace DMCobranzas.Controls.Modals.TabbedPages;
 
@@ -407,7 +408,7 @@ public partial class AccountPaymentView : ContentPage
         {
             if (Sel_Res_Partner == null)
             {
-                ResPartnerDb resPartnerDb = new ResPartnerDb();
+                ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
                 //Sel_Res_Partner = await resPartnerDb.GetItem(Sel_AccountPaymentHeader.partner_id);
                 Sel_Res_Partner = await resPartnerDb.GetItemsAsync(Sel_AccountPaymentHeader.company_id, Sel_AccountPaymentHeader.partner_id);
                 txtCliente.Text = Sel_Res_Partner.id + "-" + Sel_Res_Partner.name;
@@ -431,11 +432,11 @@ public partial class AccountPaymentView : ContentPage
             {
                 //dataItems = new CobReciboDet[0];
                 //var ls_dataItems = JsonConvert.DeserializeObject<List<AccountPayment>>(cobReciboCab.DETALLESPAGO);
-                AccountPaymentDb accountPaymentDb = new AccountPaymentDb();
+                AccountPaymentDb accountPaymentDb = new AccountPaymentDb(App.Session.odooConnection.DbNameSqlite);
                 var ls_accountPayments = await accountPaymentDb.GetByParent(Sel_AccountPaymentHeader.id);
                 accountPayments = ls_accountPayments.ToArray();
 
-                AccountPaymentInvoiceLineDb accountPaymentLines = new AccountPaymentInvoiceLineDb();
+                AccountPaymentInvoiceLineDb accountPaymentLines = new AccountPaymentInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
 
                 foreach (var accountPayment in accountPayments)
                 {
@@ -498,7 +499,7 @@ public partial class AccountPaymentView : ContentPage
         //}
 
         //CobCarteraCabDb cobCarteraCab = new CobCarteraCabDb();
-        AccountPaymentHeaderDb database = new AccountPaymentHeaderDb();
+        AccountPaymentHeaderDb database = new AccountPaymentHeaderDb(App.Session.odooConnection.DbNameSqlite);
         DateTime fechaActual = DateTime.Now;
 
         if (editionMode)
@@ -560,8 +561,8 @@ public partial class AccountPaymentView : ContentPage
 
                 _accountPayment.ForEach(item => item.parent_id = accountPaymentHeader.id);
 
-                AccountPaymentDb accountPaymentDb = new AccountPaymentDb();
-                AccountPaymentInvoiceLineDb accountPaymentInvoiceLineDb = new AccountPaymentInvoiceLineDb();
+                AccountPaymentDb accountPaymentDb = new AccountPaymentDb(App.Session.odooConnection.DbNameSqlite);
+                AccountPaymentInvoiceLineDb accountPaymentInvoiceLineDb = new AccountPaymentInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
                 //Se eliminan detalles previos para almacenar los nuevos
                 //TODO: Se puede considerar crear un algoritmo de reemplazo de datos
                 await accountPaymentDb.DeleteItemOfParent(accountPaymentHeader);
@@ -633,8 +634,8 @@ public partial class AccountPaymentView : ContentPage
 
             _accountPayment.ForEach(item => item.parent_id = newId);
 
-            AccountPaymentDb accountPaymentDb = new AccountPaymentDb();
-            AccountPaymentInvoiceLineDb accountPaymentInvoiceLineDb = new AccountPaymentInvoiceLineDb();
+            AccountPaymentDb accountPaymentDb = new AccountPaymentDb(App.Session.odooConnection.DbNameSqlite);
+            AccountPaymentInvoiceLineDb accountPaymentInvoiceLineDb = new AccountPaymentInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
             //accountPaymentDb.InsertBatchAsync(cobReciboDet.ToArray());
 
             foreach (var accountPayment in _accountPayment)
@@ -690,12 +691,12 @@ public partial class AccountPaymentView : ContentPage
         //if (!isWindows)
             //returnResultPopup.Size = this.popupSizeConstants.Large;
 
-        var result = await PopupExtensions.ShowPopupAsync(this, returnResultPopup);
+        var result = await PopupExtensions.ShowPopupAsync<res_partner>(this, returnResultPopup);
         //var result = await this.ShowPopupAsync(returnResultPopup);
 
-        if (result != null)
+        if (result.Result != null)
         {
-            Sel_Res_Partner = (res_partner)result;
+            Sel_Res_Partner = (res_partner)result.Result;
             txtCliente.Text = Sel_Res_Partner.id.ToString() + " - " + Sel_Res_Partner.name;
             //_res_partnerItem = resPartner;
         }

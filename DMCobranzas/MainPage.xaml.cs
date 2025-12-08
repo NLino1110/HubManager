@@ -12,10 +12,9 @@ using CommunityToolkit.Maui.Sample.ViewModels.Views;
 using DMCobranzas.Settings.helpers;
 using CommunityToolkit.Maui.Sample;
 using CommunityToolkit.Maui.Views;
-using DMCobranzas.Services.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Payments;
 
 namespace DMCobranzas;
-
 public partial class MainPage : ContentPage
 {    
     readonly PopupSizeConstants popupSizeConstants;
@@ -85,7 +84,7 @@ public partial class MainPage : ContentPage
                 return;
             }
 
-            AccountPaymentHeaderDb _accountPaymentHeaderDb = new AccountPaymentHeaderDb();
+            AccountPaymentHeaderDb _accountPaymentHeaderDb = new AccountPaymentHeaderDb(App.Session.odooConnection.DbNameSqlite);
             var resultItems = await _accountPaymentHeaderDb.GetItemsPendingAsync(App.Session.CurrentUser.uid);
             if(resultItems.Count > 0)
             {

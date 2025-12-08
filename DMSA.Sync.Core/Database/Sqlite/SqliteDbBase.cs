@@ -1,15 +1,7 @@
-﻿using DMSA.Sync.Core;
+﻿using Microsoft.Maui.Storage;
 using SQLite;
 
-namespace DMSA.Sync.Core
-{
-    public class FileSystemClient
-    {
-        static public string AppDataDirectory { get; set; }
-    }
-}
-
-namespace DMOrders.Services.Database.Sqlite
+namespace DMSA.Sync.Core.Database.Sqlite
 {
     public class SqliteDbBase<T> where T : new()
     {
@@ -18,6 +10,11 @@ namespace DMOrders.Services.Database.Sqlite
         protected virtual string TableName => typeof(T).Name;
 
         protected virtual string DatabaseFilename { get; set; }
+
+        public SqliteDbBase()
+        {
+            DatabaseFilename = Constants.DatabasePath;
+        }
 
         public SqliteDbBase(string _DatabaseFilename)
         {
@@ -29,9 +26,8 @@ namespace DMOrders.Services.Database.Sqlite
             if (Database != null)
                 return;
             
-            string DatabasePath = Path.Combine(FileSystemClient.AppDataDirectory, DatabaseFilename);
-
-            //Database = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
+            string DatabasePath = Path.Combine(FileSystem.AppDataDirectory, DatabaseFilename);
+                        
             Database = new SQLiteAsyncConnection(DatabasePath, Constants.Flags);
 
             //try
@@ -128,6 +124,12 @@ namespace DMOrders.Services.Database.Sqlite
             return await Database.InsertAsync(item);
         }
 
+        public async Task<int> InsertOrReplaceAsync(T item)
+        {
+            await Init();
+            return await Database.InsertAsync(item, "OR REPLACE");
+        }
+
         public async Task<int> InsertBatchAsync(IEnumerable<T> items)
         {
             await Init();
@@ -171,5 +173,19 @@ namespace DMOrders.Services.Database.Sqlite
             await Init();
             return await Database.DeleteAsync(item);
         }
+
+        public async Task<int> DeleteAllAsync(Func<T, bool> predicate)
+        {
+            await Init();
+
+            var items = await Database.Table<T>().ToListAsync();
+            var matches = items.Where(predicate).ToList();
+
+            foreach (var item in matches)
+                await Database.DeleteAsync(item);
+
+            return matches.Count;
+        }
+
     }
 }

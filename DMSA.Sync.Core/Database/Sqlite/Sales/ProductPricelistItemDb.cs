@@ -1,7 +1,7 @@
 ﻿
 using DMSA.Models.Odoo.Sales;
 
-namespace DMOrders.Services.Database.Sqlite
+namespace DMSA.Sync.Core.Database.Sqlite.Sales
 {
     public class ProductPricelistItemDb : SqliteDbBase<product_pricelist_item>
     {

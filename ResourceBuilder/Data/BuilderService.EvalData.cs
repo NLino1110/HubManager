@@ -171,7 +171,7 @@ namespace ResourceBuilder.Data
                     break;
                 case "account_journal":
                     {
-                        ApiManager.HubJournal hubmanager = new ApiManager.HubJournal(_appSession);
+                        ApiManager.HubAccountJournal hubmanager = new ApiManager.HubAccountJournal(_appSession);
                         ApiResponseOdooRpcT<account_journal[]>? responseAll = null;
 
                         if (!forUpdate)

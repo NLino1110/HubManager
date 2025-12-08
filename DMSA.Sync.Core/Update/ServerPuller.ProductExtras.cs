@@ -1,16 +1,7 @@
-﻿using ApiManager;
-using DMOrders.Services.Database.Sqlite;
-using DMSA.Models.General.Requests;
-using DMSA.Models.Odoo.General.Responses;
-using DMSA.Models.Odoo.Native;
-using System;
-using System.Collections.Generic;
+﻿using DMSA.Sync.Core.Database.Sqlite;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DMOrders.Services.Update
+namespace DMSA.Sync.Core.Update
 {
     public partial class ServerPuller
     {
@@ -19,7 +10,7 @@ namespace DMOrders.Services.Update
         {
             var stopwatch = Stopwatch.StartNew();
 
-            ApiManager.HubProductCategoria hubmanager = new ApiManager.HubProductCategoria(appSession);
+            ApiManager.HubProductCategoria hubmanager = new ApiManager.HubProductCategoria(Constants.Session);
             var resultCount = await hubmanager.GetCount();
 
             if (resultCount.result == 0)
@@ -61,7 +52,7 @@ namespace DMOrders.Services.Update
         {
             var stopwatch = Stopwatch.StartNew();
 
-            ApiManager.HubProductSubcategoria hubmanager = new ApiManager.HubProductSubcategoria(appSession);
+            ApiManager.HubProductSubcategoria hubmanager = new ApiManager.HubProductSubcategoria(Constants.Session);
             var resultCount = await hubmanager.GetCount();
 
             if (resultCount.result == 0)
@@ -103,7 +94,7 @@ namespace DMOrders.Services.Update
         {
             var stopwatch = Stopwatch.StartNew();
 
-            ApiManager.HubProductLinea hubmanager = new ApiManager.HubProductLinea(appSession);
+            ApiManager.HubProductLinea hubmanager = new ApiManager.HubProductLinea(Constants.Session);
             var resultCount = await hubmanager.GetCount();
 
             if (resultCount.result == 0)
@@ -145,7 +136,7 @@ namespace DMOrders.Services.Update
         {
             var stopwatch = Stopwatch.StartNew();
 
-            ApiManager.HubProductGrupoTipo hubmanager = new ApiManager.HubProductGrupoTipo(appSession);
+            ApiManager.HubProductGrupoTipo hubmanager = new ApiManager.HubProductGrupoTipo(Constants.Session);
             var resultCount = await hubmanager.GetCount();
 
             if (resultCount.result == 0)

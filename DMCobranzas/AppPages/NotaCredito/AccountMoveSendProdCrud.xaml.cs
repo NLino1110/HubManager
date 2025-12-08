@@ -24,7 +24,7 @@ using static System.Net.Mime.MediaTypeNames;
 using Fluid;
 using DMSA.Models.Odoo.DMCobranzas;
 using CommunityToolkit.Maui.Extensions;
-using DMCobranzas.Services.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Payments;
 
 namespace DMCobranzas.AppPages.NotaCredito;
 
@@ -217,10 +217,10 @@ public partial class AccountMoveSendProdCrud : ContentPage
 
         resultPopupSelectInvoice.CanBeDismissedByTappingOutsideOfPopup = false;
 
-        var result = await this.ShowPopupAsync(resultPopupSelectInvoice);
-        if (result != null)
+        var result = await this.ShowPopupAsync<res_partner>(resultPopupSelectInvoice);
+        if (result.Result != null)
         {
-            var resPartner = (res_partner) result;
+            var resPartner = (res_partner) result.Result;
             txtCliente.Text = resPartner.id.ToString() + " - " + resPartner.name;
             _res_partner = resPartner;
         }
@@ -251,10 +251,10 @@ public partial class AccountMoveSendProdCrud : ContentPage
         var resultPopupSelectInvoice = new PopupSelectInvoiceItems(popupSizeConstants);
         resultPopupSelectInvoice.Company = empresa;
         resultPopupSelectInvoice.partner = _res_partner;
-        var result = await this.ShowPopupAsync(resultPopupSelectInvoice);
-        if (result != null)
+        var result = await this.ShowPopupAsync<account_move_line>(resultPopupSelectInvoice);
+        if (result.Result != null)
         {
-            _accountMoveLineSelected = (account_move_line)result;            
+            _accountMoveLineSelected = (account_move_line) result.Result;            
             txtProducto.Text = _accountMoveLineSelected.name;
             //Cargar documentos de factura
         }
@@ -298,7 +298,7 @@ public partial class AccountMoveSendProdCrud : ContentPage
         //pickerCNJournal.ItemDisplayBinding = new Binding(nameof(account_journal.name));
         //pickerCNJournal.SelectedIndex = 0;
 
-        var database = new AccountModuleDb();
+        var database = new AccountModuleDb(App.Session.odooConnection.DbNameSqlite);
         accountModules = (await database.GetItemsAsync()).ToArray();
 
         if (accountModules.Length == 0)
@@ -332,7 +332,7 @@ public partial class AccountMoveSendProdCrud : ContentPage
                 selected_module = accountModules.Where(x => x.id == accountMovesSend[0].module_id).FirstOrDefault();
                 pickerModulos.SelectedItem = selected_module;
 
-                var database_type = new AccountTypeModuleDb();
+                var database_type = new AccountTypeModuleDb(App.Session.odooConnection.DbNameSqlite);
                 accountTypeModules = (await database_type.GetItemsAsync()).Where(x => x._module_id == selected_module.id).ToArray();
 
                 if (accountTypeModules.Length == 0)
@@ -422,7 +422,7 @@ public partial class AccountMoveSendProdCrud : ContentPage
         if (pickerModulos.SelectedItem != null)
         {
             var modulo_seleccionado = (AccountModule)pickerModulos.SelectedItem;
-            var database = new AccountTypeModuleDb();
+            var database = new AccountTypeModuleDb(App.Session.odooConnection.DbNameSqlite);
             accountTypeModules = (await database.GetItemsAsync()).Where(x => x._module_id == modulo_seleccionado.id).ToArray();
 
             if (accountTypeModules.Length == 0)
@@ -490,13 +490,11 @@ public partial class AccountMoveSendProdCrud : ContentPage
         simplePopup.CanBeDismissedByTappingOutsideOfPopup = false;
         this.ShowPopup(simplePopup);
 
-
-
-        var databaseInvoice = new AccountMoveDb();
+        var databaseInvoice = new AccountMoveDb(App.Session.odooConnection.DbNameSqlite);
         var resultInvoices = await databaseInvoice.GetItemsAsync(default_empresa.id, _res_partner.id, 25);
 
-        var database = new AccountMoveLineDb();
-        var result = await database.GetItemsAsync(_accountMoveLineSelected.productId, resultInvoices.ToArray(), 50);
+        var database = new AccountMoveLineDb(App.Session.odooConnection.DbNameSqlite);
+        var result = await database.GetItemsAsync(_accountMoveLineSelected._product_id, resultInvoices.ToArray(), 50);
         //resultItemsSearch = new ObservableCollection<account_move_line>(result);
         //_collectionViewSearch.ItemsSource = resultItemsSearch;
 
@@ -521,12 +519,12 @@ public partial class AccountMoveSendProdCrud : ContentPage
             }
             
 
-            account_Move_Line_Send.account_id = item.accountId;
-            account_Move_Line_Send.product_id = item.productId;
+            account_Move_Line_Send.account_id = item._account_id;
+            account_Move_Line_Send.product_id = item._product_id;
             account_Move_Line_Send.name = item.name;
             account_Move_Line_Send.currency_id = 2;
             //account_Move_Line_Send.line_id = item.line_ids;
-            account_Move_Line_Send.move_id = item.moveId;
+            account_Move_Line_Send.move_id = item._move_id;
 
             result_send.Add(account_Move_Line_Send);
         }

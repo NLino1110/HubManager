@@ -1,16 +1,7 @@
-﻿using ApiManager;
-using DMOrders.Services.Database.Sqlite;
-using DMSA.Models.General.Requests;
-using DMSA.Models.Odoo.General.Responses;
-using DMSA.Models.Odoo.Native;
-using System;
-using System.Collections.Generic;
+﻿using DMSA.Sync.Core.Database.Sqlite;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DMOrders.Services.Update
+namespace DMSA.Sync.Core.Update
 {
     public partial class ServerPuller
     {
@@ -18,7 +9,7 @@ namespace DMOrders.Services.Update
         {            
             var stopwatch = Stopwatch.StartNew();
 
-            ApiManager.HubStockQuant hubmanager = new ApiManager.HubStockQuant(appSession);
+            ApiManager.HubStockQuant hubmanager = new ApiManager.HubStockQuant(Constants.Session);
             var resultCount = await hubmanager.GetCount();
 
             if (resultCount.result == 0)
@@ -28,7 +19,7 @@ namespace DMOrders.Services.Update
 
             int countTotal = resultCount.result / 300;
 
-            var database = new StockQuantDb(DbNameSqlite);
+            var database = new StockQuantDb(Constants.Session.odooConnection.DbNameSqlite);
 
             for (int indice = 0; indice <= countTotal; indice++)
             {
@@ -60,7 +51,7 @@ namespace DMOrders.Services.Update
         {
             var stopwatch = Stopwatch.StartNew();
 
-            ApiManager.HubUomUom hubmanager = new ApiManager.HubUomUom(appSession);
+            ApiManager.HubUomUom hubmanager = new ApiManager.HubUomUom(Constants.Session);
             var resultCount = await hubmanager.GetCount(year, month, day);
 
             if (resultCount.result == 0)
@@ -70,7 +61,7 @@ namespace DMOrders.Services.Update
 
             int countTotal = resultCount.result / 300;
 
-            var database = new UomUomDb(DbNameSqlite);
+            var database = new UomUomDb(Constants.Session.odooConnection.DbNameSqlite);
 
             for (int indice = 0; indice <= countTotal; indice++)
             {

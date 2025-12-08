@@ -16,7 +16,7 @@ namespace ApiManager
             "acc_number",
             "acc_holder_name",
             "type_account",
-            "use_bank_type",
+            //"use_bank_type",
             "currency_id",
             "allow_out_payment"
         };

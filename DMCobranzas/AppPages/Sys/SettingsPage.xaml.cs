@@ -20,7 +20,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using CommunityToolkit.Maui.Extensions;
-using DMCobranzas.Services.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite;
 
 namespace DMCobranzas.AppPages;
 
@@ -58,7 +58,7 @@ public partial class SettingsPage : ContentPage, IDisposable //, INotifyProperty
         timer.Interval = TimeSpan.FromMilliseconds(500);
         timer.Tick += async (s, e) =>
         {
-            AppSettingsDb appSettingsDb = new AppSettingsDb();
+            AppSettingsDb appSettingsDb = new AppSettingsDb(App.Session.odooConnection.DbNameSqlite);
             await appSettingsDb.InitDefault();
             var appSettingItems = await appSettingsDb.GetItemsAsync();
 
@@ -92,7 +92,7 @@ public partial class SettingsPage : ContentPage, IDisposable //, INotifyProperty
                 
         if (result != null && result.ToString() == "1381")
         {
-            AppSettingsDb appSettingsDb = new AppSettingsDb();
+            AppSettingsDb appSettingsDb = new AppSettingsDb(App.Session.odooConnection.DbNameSqlite);
             //await appSettingsDb.InitDefault();
             //var appSettingItems = await appSettingsDb.GetItemsAsync();
             //collectionView.ItemsSource = appSettingItems;
@@ -149,7 +149,7 @@ public partial class SettingsPage : ContentPage, IDisposable //, INotifyProperty
             Directory.Delete(DeviceStorage, true);
         }
 
-        AppSettingsDb appSettingsDb = new AppSettingsDb();
+        AppSettingsDb appSettingsDb = new AppSettingsDb(App.Session.odooConnection.DbNameSqlite);
         await appSettingsDb.TruncateAsync();
 
         //ParametrosDb database = new ParametrosDb();
@@ -171,8 +171,8 @@ public partial class SettingsPage : ContentPage, IDisposable //, INotifyProperty
         //await database_solicitudesNC.Drop();
         //await database_solicitudesNC.TruncateAsync();
 
-        UserAccessDb database_CobUsuarios = new UserAccessDb();
-        await database_CobUsuarios.Drop();
+        UserAccessDb database_CobUsuarios = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
+        //await database_CobUsuarios.Drop();
 
         CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 

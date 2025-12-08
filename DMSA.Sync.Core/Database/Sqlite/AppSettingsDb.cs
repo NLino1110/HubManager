@@ -1,23 +1,13 @@
 ﻿using DMSA.Models.Odoo;
-using DMSA.Models.Odoo.Native;
-using Microsoft.Data.Sqlite;
 using SQLite;
-using SQLiteNetExtensions.Extensions;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DMOrders.Services.Database.Sqlite
+namespace DMSA.Sync.Core.Database.Sqlite
 {
     [Obsolete]
-    public class AppSettingsDb
+    public class AppSettingsDb : SqliteDbBase<AppSettings>
     {
-        SQLiteAsyncConnection Database;
-
-        public AppSettingsDb()
+        public AppSettingsDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
 
         }

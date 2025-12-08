@@ -1,5 +1,5 @@
 ﻿
-namespace DMOrders.Services.Database.Sqlite
+namespace DMSA.Sync.Core.Database.Sqlite
 {
     public class ProductLineaDb : SqliteDbBase<DMSA.Models.Odoo.Native.product_linea>
     {

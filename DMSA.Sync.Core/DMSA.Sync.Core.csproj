@@ -4,10 +4,19 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	<UseMaui>true</UseMaui>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.11" />
+    <PackageReference Include="CommunityToolkit.Maui" Version="9.1.1" />
+    <PackageReference Include="CommunityToolkit.Maui.Core" Version="9.1.1" />
+	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.10" />   
+	  <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.10" />
+	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
+	  <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.10" />
+	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.10" />
+	  <PackageReference Include="Microsoft.Maui.Graphics" Version="9.0.120" />
   </ItemGroup>
 
   <ItemGroup>
@@ -15,4 +24,14 @@
     <ProjectReference Include="..\DMSA.Models.Odoo\DMSA.Models.Odoo.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <MauiXaml Update="Controls\ProgressBarAnimationBehaviorPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pages\Sys\" />
+  </ItemGroup>
+	
 </Project>

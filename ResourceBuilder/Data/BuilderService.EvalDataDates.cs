@@ -160,7 +160,7 @@ namespace ResourceBuilder.Data
                     }
                 case "account_journal":
                     {
-                        ApiManager.HubJournal hubmanager = new ApiManager.HubJournal(_appSession);
+                        ApiManager.HubAccountJournal hubmanager = new ApiManager.HubAccountJournal(_appSession);
                         var responseAll = await hubmanager.GetByWriteDate_dl(year, month, day);
 
                         if (responseAll != null && responseAll?.result != null && responseAll.result.Length > 0)

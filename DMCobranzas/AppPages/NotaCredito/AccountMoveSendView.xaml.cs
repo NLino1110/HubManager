@@ -16,7 +16,9 @@ using CommunityToolkit.Maui.Sample.Models;
 using DMCobranzas.Controls.Modals;
 using DMCobranzas.Controls;
 using DMSA.Models.Odoo.DMCobranzas;
-using DMCobranzas.Services.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Payments;
+using DMSA.Sync.Core.Database.Sqlite;
+using CommunityToolkit.Maui.Extensions;
 
 namespace DMCobranzas.AppPages.NotaCredito;
 
@@ -182,7 +184,7 @@ public partial class AccountMoveSendView : ContentPage
         //AccountMoveLineSendDb databaseDet = new AccountMoveLineSendDb();
         //var result_send = await databaseDet.GetItemsByParentAsync(account_Move_Send.id);
         //account_Move_Send.lines = result_send.ToArray();
-        AccountMoveDb accountMoveDb = new AccountMoveDb();
+        AccountMoveDb accountMoveDb = new AccountMoveDb(App.Session.odooConnection.DbNameSqlite);
         var _accountMoveSelected = await accountMoveDb.GetByNameItem(account_Move_Send._ref);
 
         AccountMoveSendCrud obj = new AccountMoveSendCrud(Sel_Res_Partner);
@@ -438,7 +440,7 @@ public partial class AccountMoveSendView : ContentPage
         {
             if (Sel_Res_Partner == null)
             {
-                ResPartnerDb resPartnerDb = new ResPartnerDb();
+                ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
                 //Sel_Res_Partner = await resPartnerDb.GetItem(Sel_AccountPaymentHeader.partner_id);
                 Sel_Res_Partner = await resPartnerDb.GetItemsAsync(Sel_AccountMoveSendHeader.company_id, Sel_AccountMoveSendHeader.partner_id);
                 txtCliente.Text = Sel_Res_Partner.id + "-" + Sel_Res_Partner.name;
@@ -462,11 +464,11 @@ public partial class AccountMoveSendView : ContentPage
             {
                 //dataItems = new CobReciboDet[0];
                 //var ls_dataItems = JsonConvert.DeserializeObject<List<AccountPayment>>(cobReciboCab.DETALLESPAGO);
-                AccountMoveSendDb accountPaymentDb = new AccountMoveSendDb();
+                AccountMoveSendDb accountPaymentDb = new AccountMoveSendDb(App.Session.odooConnection.DbNameSqlite);
                 var ls_accountPayments = await accountPaymentDb.GetByParent(Sel_AccountMoveSendHeader.id);
                 accountMovesSend = ls_accountPayments.ToArray();
 
-                AccountMoveLineSendDb accountPaymentLines = new AccountMoveLineSendDb();
+                AccountMoveLineSendDb accountPaymentLines = new AccountMoveLineSendDb(App.Session.odooConnection.DbNameSqlite);
 
                 foreach (var accountMoveSend in accountMovesSend)
                 {
@@ -529,7 +531,7 @@ public partial class AccountMoveSendView : ContentPage
         //}                
 
         //CobCarteraCabDb cobCarteraCab = new CobCarteraCabDb();
-        AccountMoveSendHeaderDb database = new AccountMoveSendHeaderDb();
+        AccountMoveSendHeaderDb database = new AccountMoveSendHeaderDb(App.Session.odooConnection.DbNameSqlite);
         DateTime fechaActual = DateTime.Now;
 
         if (editionMode)
@@ -589,8 +591,8 @@ public partial class AccountMoveSendView : ContentPage
 
                 _accountPayment.ForEach(item => item.parent_id = accountPaymentHeader.id);
 
-                AccountMoveSendDb accountPaymentDb = new AccountMoveSendDb();
-                AccountMoveLineSendDb accountPaymentInvoiceLineDb = new AccountMoveLineSendDb();
+                AccountMoveSendDb accountPaymentDb = new AccountMoveSendDb(App.Session.odooConnection.DbNameSqlite);
+                AccountMoveLineSendDb accountPaymentInvoiceLineDb = new AccountMoveLineSendDb(App.Session.odooConnection.DbNameSqlite);
                 //Se eliminan detalles previos para almacenar los nuevos
                 //TODO: Se puede considerar crear un algoritmo de reemplazo de datos
                 await accountPaymentDb.DeleteItemOfParent(accountPaymentHeader);
@@ -663,8 +665,8 @@ public partial class AccountMoveSendView : ContentPage
 
             _accountMoveSend.ForEach(item => item.parent_id = newId);
 
-            AccountMoveSendDb accountPaymentDb = new AccountMoveSendDb();
-            AccountMoveLineSendDb accountPaymentInvoiceLineDb = new AccountMoveLineSendDb();
+            AccountMoveSendDb accountPaymentDb = new AccountMoveSendDb(App.Session.odooConnection.DbNameSqlite);
+            AccountMoveLineSendDb accountPaymentInvoiceLineDb = new AccountMoveLineSendDb(App.Session.odooConnection.DbNameSqlite);
             //accountPaymentDb.InsertBatchAsync(cobReciboDet.ToArray());
 
             foreach (var accountMoveSendItem in _accountMoveSend)
@@ -736,13 +738,13 @@ public partial class AccountMoveSendView : ContentPage
 
         resultPopupSelectInvoice.CanBeDismissedByTappingOutsideOfPopup = false;
 
-        //var result = await this.ShowPopupAsync(resultPopupSelectInvoice);
-        //if (result != null)
-        //{
-        //    var resPartner = (res_partner)result;
-        //    txtCliente.Text = resPartner.id.ToString() + " - " + resPartner.name;
-        //    Sel_Res_Partner = resPartner;
-        //}
+        var result = await this.ShowPopupAsync<res_partner>(resultPopupSelectInvoice);
+        if (result.Result != null)
+        {
+            var resPartner = (res_partner)result.Result;
+            txtCliente.Text = resPartner.id.ToString() + " - " + resPartner.name;
+            Sel_Res_Partner = resPartner;
+        }
     }
 
     //async void ResultPopupAccountMove(object sender, EventArgs e)

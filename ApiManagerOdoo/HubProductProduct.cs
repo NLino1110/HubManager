@@ -75,6 +75,15 @@ namespace ApiManager
             return await GetCount(args, _custom_args);
         }
 
+        public async Task<ApiResponseOdooRpc?> GetCount(DateTime? dateTime)
+        {
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] { "write_date", ">=", dateTime?.ToString("yyyy-MM-dd") }
+            };
+            return await GetCount(args, _custom_args);
+        }
+
         public async Task<ApiResponseOdooRpc?> GetCountByCreateDate(int year, int month, int day)
         {
             object[] args = new object[] { };

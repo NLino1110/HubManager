@@ -1,11 +1,6 @@
 ﻿using DMSA.Models.Odoo.Native;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DMOrders.Services.Database.Sqlite
+namespace DMSA.Sync.Core.Database.Sqlite
 {
     public class StockWareHouseDb : SqliteDbBase<stock_warehouse>
     {

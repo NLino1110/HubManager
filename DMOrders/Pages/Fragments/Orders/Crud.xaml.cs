@@ -124,6 +124,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
             {
                 _product_uom_qty_real = value;
                 OnPropertyChanged(nameof(product_uom_qty_real));
+
+                product_uom_qty = value;
             }
         }
     }
@@ -1019,7 +1021,9 @@ public partial class Crud : ContentPage, IBackButtonHandler
         ProductProductDb productProductDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
         ProductEditing = await productProductDb.GetItem(SaleOrderLine.product_id);
         ProductEditing.list_price = (float) SaleOrderLine.price_unit;
-        OnPropertyChanged(nameof(ProductEditing));
+        ProductEditing.uom_display = SaleOrderLine.uom_category_display;
+
+        OnPropertyChanged(nameof(ProductEditing));        
 
         product_uom_qty_real = SaleOrderLine.product_uom_qty_real;
         product_uom_qty = SaleOrderLine.product_uom_qty;
@@ -1130,6 +1134,18 @@ public partial class Crud : ContentPage, IBackButtonHandler
     {
         if (CurrentSaleOrderLine != null)
         {
+            if (product_uom_qty > product_uom_qty_real)
+            {
+                //CurrentSaleOrderLine = null;
+                //ProductEditing = null;
+                //product_uom_qty_real = 0;
+                //product_uom_qty = 0;
+                //OrderLinesCl.SelectedItem = null;
+
+                await DisplayAlert("Alerta", "La cantidad solicitada no puede ser mayor a la cantidad real.", "Aceptar");
+                return;
+            }
+
             if ((decimal)ProductEditing.qty_available < product_uom_qty)
             {
                 CurrentSaleOrderLine = null;

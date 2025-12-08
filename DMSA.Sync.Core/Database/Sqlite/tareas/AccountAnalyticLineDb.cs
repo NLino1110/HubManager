@@ -1,7 +1,6 @@
 ﻿using DMSA.Models.Odoo.DMOrders.tareas;
-using SQLite;
 
-namespace DMOrders.Services.Database.Sqlite
+namespace DMSA.Sync.Core.Database.Sqlite.tareas
 {
     public class AccountAnalyticLineDb : SqliteDbBase<AccountAnalyticLine>
     {

@@ -1,13 +1,16 @@
 ﻿using ApiManager;
-using DMOrders.Services.Database.Sqlite;
+using CommunityToolkit.Maui.Core;
 using DMSA.Models.Odoo.DMCobranzas;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Tools;
+using DMSA.Sync.Core.Controls;
+using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Payments;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 
-namespace DMOrders.Services.Update
+namespace DMSA.Sync.Core.Update
 {
     public partial class ServerPuller
     {
@@ -21,7 +24,7 @@ namespace DMOrders.Services.Update
             
             //string idsTaxesStr = string.Join(",", idstaxes.Distinct());
 
-            ApiManager.HubAccountTax hubmanager = new ApiManager.HubAccountTax(appSession);
+            ApiManager.HubAccountTax hubmanager = new ApiManager.HubAccountTax(Constants.Session);
             var resultCount = await hubmanager.GetCount(idstaxes);
 
             if (resultCount.result == 0)
@@ -63,7 +66,7 @@ namespace DMOrders.Services.Update
         {
             var stopwatch = Stopwatch.StartNew();
 
-            ApiManager.HubCalificacionCrediticia hubmanager = new ApiManager.HubCalificacionCrediticia(appSession);
+            ApiManager.HubCalificacionCrediticia hubmanager = new ApiManager.HubCalificacionCrediticia(Constants.Session);
             var resultCount = await hubmanager.GetCount();
 
             if (resultCount.result == 0)
@@ -101,28 +104,26 @@ namespace DMOrders.Services.Update
             return true;
         }
 
-
-
-        private async Task OnlineSyncAccountModule()
+        public async Task OnlineSyncAccountModule()
         {
-            ApiManager.HubAccountModule hubAccountModule = new HubAccountModule(appSession);
-            var dataList = await hubAccountModule.GetAll();
-
-            if (dataList != null && dataList.data != null && dataList.data.Length > 0)
-            {
-                var database = new AccountModuleDb();
-                await database.InsertBatchAsync(dataList.data);
-            }
-        }
-
-        private async Task OnlineSyncAccountTypeModule()
-        {
-            ApiManager.HubAccountTypeModule hubAccountModule = new HubAccountTypeModule(appSession);
+            ApiManager.HubAccountModule hubAccountModule = new HubAccountModule(Constants.Session);
             var dataList = await hubAccountModule.GetAll();
 
             if (dataList != null && dataList.result != null && dataList.result.Length > 0)
             {
-                var database = new AccountTypeModuleDb();
+                var database = new AccountModuleDb(Constants.Session.odooConnection.DbNameSqlite);
+                await database.InsertBatchAsync(dataList.result);
+            }
+        }
+
+        public async Task OnlineSyncAccountTypeModule()
+        {
+            ApiManager.HubAccountTypeModule hubAccountModule = new HubAccountTypeModule(Constants.Session);
+            var dataList = await hubAccountModule.GetAll();
+
+            if (dataList != null && dataList.result != null && dataList.result.Length > 0)
+            {
+                var database = new AccountTypeModuleDb(Constants.Session.odooConnection.DbNameSqlite);
 
                 foreach (var user in dataList.result)
                 {
@@ -135,14 +136,15 @@ namespace DMOrders.Services.Update
             }
         }
 
-
-
         public async Task<bool> OnlineSyncAccountMove()
         {
             DateTime dateTimeIni = DateTime.Now;
 
-            ApiManager.HubAccountMove hubmanager = new ApiManager.HubAccountMove(appSession);
-            var resultCount = await hubmanager.GetHeaderCount(dateTimeIni.Year, dateTimeIni.Month, dateTimeIni.Day);
+            var database = new AccountMoveDb(Constants.Session.odooConnection.DbNameSqlite);
+            DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since_lower);
+
+            ApiManager.HubAccountMove hubmanager = new ApiManager.HubAccountMove(Constants.Session);
+            var resultCount = await hubmanager.GetHeaderCount(lastDate.Value.Year, lastDate.Value.Month, lastDate.Value.Day);
 
             Debug.WriteLine(resultCount.result);
 
@@ -151,14 +153,12 @@ namespace DMOrders.Services.Update
                 return false;
             }
 
-            int limit = appSession.odooConnection.DbLimitDefault;
+            int limit = Constants.Session.odooConnection.DbLimitDefault;
             int countTotal = resultCount.result / limit;
-
-            var database = new AccountMoveDb();
 
             for (int indice = 0; indice <= countTotal; indice++)
             {
-                var responseAll = await hubmanager.GetAccountMoves(dateTimeIni, limit, indice);
+                var responseAll = await hubmanager.GetAccountMoves(lastDate.Value, limit, indice);
 
                 if (responseAll.result != null && responseAll.result.Length > 0)
                 {
@@ -192,63 +192,63 @@ namespace DMOrders.Services.Update
         {
             foreach (var amItem in account_Moves)
             {
-                if (amItem.reversed_entry_id != null && amItem.reversed_entry_id.Length > 0)
-                {
-                    amItem._reversed_entry_id = amItem.reversed_entry_id[0].id;
-                }
+                //if (amItem.reversed_entry_id != null && amItem.reversed_entry_id.Length > 0)
+                //{
+                //    amItem._reversed_entry_id = amItem.reversed_entry_id[0].id;
+                //}
 
-                if (amItem.partner_id != null && amItem.partner_id.Length > 0)
-                {
-                    amItem._partner_id = amItem.partner_id[0].id;
-                }
+                //if (amItem.partner_id != null && amItem.partner_id.Length > 0)
+                //{
+                //    amItem._partner_id = amItem.partner_id[0].id;
+                //}
 
-                if (amItem.journal_id != null && amItem.journal_id.Length > 0)
-                {
-                    amItem._journal_id = amItem.journal_id[0].id;
-                }
+                //if (amItem.journal_id != null && amItem.journal_id.Length > 0)
+                //{
+                //    amItem._journal_id = amItem.journal_id[0].id;
+                //}
 
-                if (amItem.l10n_latam_document_type_id != null && amItem.l10n_latam_document_type_id.Length > 0)
-                {
-                    amItem._l10n_latam_document_type_id = amItem.l10n_latam_document_type_id[0].id;
-                }
+                //if (amItem.l10n_latam_document_type_id != null && amItem.l10n_latam_document_type_id.Length > 0)
+                //{
+                //    amItem._l10n_latam_document_type_id = amItem.l10n_latam_document_type_id[0].id;
+                //}
 
-                if (amItem.invoice_user_id != null && amItem.invoice_user_id.Length > 0)
-                {
-                    amItem._invoice_user_id = amItem.invoice_user_id[0].id;
-                }
+                //if (amItem.invoice_user_id != null && amItem.invoice_user_id.Length > 0)
+                //{
+                //    amItem._invoice_user_id = amItem.invoice_user_id[0].id;
+                //}
 
-                if (amItem.printer_id != null && amItem.printer_id.Length > 0)
-                {
-                    amItem._printer_id = amItem.printer_id[0].id;
-                }
+                //if (amItem.printer_id != null && amItem.printer_id.Length > 0)
+                //{
+                //    amItem._printer_id = amItem.printer_id[0].id;
+                //}
 
-                if (amItem.printer_id != null && amItem.printer_id.Length > 0)
-                {
-                    amItem._printer_id = amItem.printer_id[0].id;
-                }
+                //if (amItem.printer_id != null && amItem.printer_id.Length > 0)
+                //{
+                //    amItem._printer_id = amItem.printer_id[0].id;
+                //}
 
-                if (amItem.company_id != null && amItem.company_id.Length > 0)
-                {
-                    amItem._company_id = amItem.company_id[0].id;
-                }
+                //if (amItem.company_id != null && amItem.company_id.Length > 0)
+                //{
+                //    amItem._company_id = amItem.company_id[0].id;
+                //}
 
-                if (amItem.team_id != null && amItem.team_id.Length > 0)
-                {
-                    amItem._team_id = amItem.team_id[0].id;
-                }
+                //if (amItem.team_id != null && amItem.team_id.Length > 0)
+                //{
+                //    amItem._team_id = amItem.team_id[0].id;
+                //}
             }
 
             return account_Moves;
         }
-        private async Task OnlineSyncBank()
+        public async Task OnlineSyncBank()
         {
-            BankDb bankDb = new BankDb();
+            BankDb bankDb = new BankDb(Constants.Session.odooConnection.DbNameSqlite);
             await bankDb.Truncate();
 
             List<string> bank_ids_list = new List<string>();
 
             //Se obtienen las cuentas para ser insertados en la base local
-            ApiManager.HubCuentas hubCuentas = new HubCuentas(appSession);
+            ApiManager.HubCuentas hubCuentas = new HubCuentas(Constants.Session);
             //var cuentasDeLista = await hubCuentas.GetAll(String.Join(",", accounts_journal_ids_list.ToArray()));
             var cuentasDeLista = await hubCuentas.GetAll();
 
@@ -256,24 +256,24 @@ namespace DMOrders.Services.Update
             {
                 foreach (var pbItem in cuentasDeLista.result)
                 {
-                    pbItem.BankId = 0;
-                    pbItem.PartnerId = 0;
+                    pbItem._bank_id = 0;
+                    pbItem._partner_id = 0;
 
-                    if (pbItem.bank_id.Length > 0)
-                    {
-                        pbItem.BankId = pbItem.bank_id.FirstOrDefault().id;
-                        bank_ids_list.Add(pbItem.BankId.ToString());
-                    }
+                    //if (pbItem.bank_id.Length > 0)
+                    //{
+                    //    pbItem._bank_id = pbItem.bank_id.FirstOrDefault().id;
+                        bank_ids_list.Add(pbItem._bank_id.ToString());
+                    //}
 
-                    if (pbItem.partner_id.Length > 0)
-                    {
-                        pbItem.PartnerId = pbItem.partner_id.FirstOrDefault().id;
-                    }
+                    //if (pbItem.partner_id.Length > 0)
+                    //{
+                    //    pbItem._partner_id = pbItem.partner_id.FirstOrDefault().id;
+                    //}
 
-                    if (pbItem.currency_id.Length > 0)
-                    {
-                        pbItem.CurrencyId = pbItem.currency_id.FirstOrDefault().id;
-                    }
+                    //if (pbItem.currency_id.Length > 0)
+                    //{
+                    //    pbItem._currency_id = pbItem.currency_id.FirstOrDefault().id;
+                    //}
 
                     if (pbItem.acc_holder_name.Trim().Equals("false"))
                     {
@@ -281,7 +281,7 @@ namespace DMOrders.Services.Update
                     }
                 }
 
-                PartnerBankDb parnetBankDb = new PartnerBankDb();
+                PartnerBankDb parnetBankDb = new PartnerBankDb(Constants.Session.odooConnection.DbNameSqlite);
                 await parnetBankDb.InsertBatchAsync(cuentasDeLista.result);
 
                 Debug.WriteLine(cuentasDeLista.result.Length);
@@ -289,31 +289,49 @@ namespace DMOrders.Services.Update
 
             //Se obtienen bancos para ser insertados en la base local
 
-            ApiManager.HubBancos hubBancos = new HubBancos(appSession);
+            ApiManager.HubBank hubBancos = new HubBank(Constants.Session);
             //var bancosDeLista = await hubBancos.GetAll(String.Join(",", bank_ids_list.ToArray()));
-            var bancosDeLista = await hubBancos.GetAll();
 
-            if (bancosDeLista != null && bancosDeLista.result != null && bancosDeLista.result.Length > 0)
+            DateTime dateTimeIni = DateTime.Now;
+
+            var resultCount = await hubBancos.GetCount(dateTimeIni);
+
+            Debug.WriteLine(resultCount.result);
+
+            if (resultCount.result == 0)
             {
-                await bankDb.InsertBatchAsync(bancosDeLista.result);
+                return;
+            }
+
+            int limit = Constants.Session.odooConnection.DbLimitDefault;
+            int countTotal = resultCount.result / limit;
+
+            for (int indice = 0; indice <= countTotal; indice++)
+            {
+                var bancosDeLista = await hubBancos.GetAll(dateTimeIni, limit, indice);
+
+                if (bancosDeLista != null && bancosDeLista.result != null && bancosDeLista.result.Length > 0)
+                {
+                    await bankDb.InsertBatchAsync(bancosDeLista.result);
+                }
             }
         }
 
-        private async Task OnlineSyncJournal()
+        public async Task OnlineSyncJournal()
         {
-            InboundPaymentMethodDb inboundPaymentMethodDb = new InboundPaymentMethodDb();
-            await inboundPaymentMethodDb.TruncateAsync();
+            InboundPaymentMethodDb inboundPaymentMethodDb = new InboundPaymentMethodDb(Constants.Session.odooConnection.DbNameSqlite);
+            await inboundPaymentMethodDb.Truncate();
 
             //Se obtienen los diarios para ser insertados en la base local
-            ApiManager.HubJournal hubDiarios = new HubJournal(appSession);
+            ApiManager.HubAccountJournal hubDiarios = new HubAccountJournal(Constants.Session);
 
-            var ids = appSession.CurrentUserFront.empresas.Select(e => e.id);
-            string strEmpresas = string.Join(",", ids);
+            var ids = Constants.Session.CurrentUserFront.empresas.Select(e => e.id);
+            //string strEmpresas = string.Join(",", ids);
 
-            var responsehubhubDiariosAll = await hubDiarios.GetAccountJournal(strEmpresas);
+            var responsehubhubDiariosAll = await hubDiarios.GetAccountJournal(ids.ToArray());
 
-            AccountJournalDb accountJournalDb = new AccountJournalDb();
-            BankDb bankDb = new BankDb();
+            AccountJournalDb accountJournalDb = new AccountJournalDb(Constants.Session.odooConnection.DbNameSqlite);
+            BankDb bankDb = new BankDb(Constants.Session.odooConnection.DbNameSqlite);
             await bankDb.Truncate();
             //var res = accountJournalDb.GetItemsAsync();
 
@@ -328,41 +346,42 @@ namespace DMOrders.Services.Update
                     //Se evalúa si debe usarse en la app
                     if (!itemData.use_mobile_app)
                     {
-                        var isForApp = itemData.mobile_app_tag_ids.Where(i => i.code == appSession.AppCodeOdoo).FirstOrDefault();
+                        var isForApp = itemData.mobile_app_tag_ids.Where(i => i.code == Constants.Session.AppCodeOdoo).FirstOrDefault();
                         if (isForApp != null)
                         {
 
                         }
                         else
                         {
-                            continue;
+                            //TODO: Se debe quitar comentario cuando se solucione el tema de los diarios de Odoo
+                            //continue;
                         }
                     }
 
                     //accountJournalDb.InsertAsync(itemData);
-                    itemData.BankAccountId = 0;
-                    if (itemData.bank_account_id.Count > 0)
-                    {
-                        itemData.BankAccountId = itemData.bank_account_id.FirstOrDefault().id;
+                    //itemData._bank_account_id = 0;
+                    //if (itemData.bank_account_id.Count > 0)
+                    //{
+                    //    itemData._bank_account_id = itemData.bank_account_id.FirstOrDefault().id;
 
-                        //Se agrega a la lista
-                        accounts_journal_ids_list.Add(itemData.bank_account_id.FirstOrDefault().id.ToString());
-                    }
+                    //    //Se agrega a la lista
+                    //    accounts_journal_ids_list.Add(itemData.bank_account_id.FirstOrDefault().id.ToString());
+                    //}
 
-                    itemData.CompanyId = 0;
-                    if (itemData.company_id.Count > 0)
-                    {
-                        itemData.CompanyId = itemData.company_id.FirstOrDefault().id;
-                    }
+                    //itemData._company_id = 0;
+                    //if (itemData.company_id.Count > 0)
+                    //{
+                    //    itemData._company_id = itemData.company_id.FirstOrDefault().id;
+                    //}
 
-                    if (itemData.inbound_payment_method_line_ids.Count > 0)
-                    {
-                        itemData.inbound_payment_method_line_ids.ForEach(x => x.parent_id = itemData.id);
-                        await inboundPaymentMethodDb.InsertBatchAsync(itemData.inbound_payment_method_line_ids.ToArray());
-                    }
+                    //if (itemData.inbound_payment_method_line_ids.Count > 0)
+                    //{
+                    //    itemData.inbound_payment_method_line_ids.ForEach(x => x.parent_id = itemData.id);
+                    //    await inboundPaymentMethodDb.InsertBatchAsync(itemData.inbound_payment_method_line_ids.ToArray());
+                    //}
 
                     //Solo se insertarán las cuentas que tengan habilitado su uso en las apps móviles
-                    await accountJournalDb.InsertAsync(itemData);
+                    await accountJournalDb.InsertOrReplaceAsync(itemData);
                 }
             }
         }
@@ -371,12 +390,13 @@ namespace DMOrders.Services.Update
         public async Task<bool> OnlineSyncAccountMoveLine()
         {
             DateTime dateTimeIni = DateTime.Now;
+            var databaseDet = new AccountMoveLineDb(Constants.Session.odooConnection.DbNameSqlite);
 
             Console.WriteLine("Iniciando proceso:" + " " + DateTime.Now.ToString());
 
-            ApiManager.HubAccountMoveLine hubmanager = new ApiManager.HubAccountMoveLine(appSession);
-
-            var resultCount = await hubmanager.GetDetailCount(dateTimeIni);
+            ApiManager.HubAccountMoveLine hubmanager = new ApiManager.HubAccountMoveLine(Constants.Session);
+            DateTime? lastDate = await databaseDet.GetLastWriteDateAsync(sync_date_since_lower);
+            var resultCount = await hubmanager.GetDetailCount(lastDate.Value);
 
             Debug.WriteLine(resultCount.result);
 
@@ -385,23 +405,22 @@ namespace DMOrders.Services.Update
                 return false;
             }
 
-            int limit = appSession.odooConnection.DbLimitDefault;
+            int limit = Constants.Session.odooConnection.DbLimitDefault;
             int countTotal = resultCount.result / limit;
 
-            var databaseDet = new AccountMoveLineDb();
 
             for (int indice = 0; indice <= countTotal; indice++)
             {
 
-                var responseAll = await hubmanager.GetAccountMoveLines(dateTimeIni);
+                var responseAll = await hubmanager.GetAccountMoveLines(lastDate.Value, limit, indice);
 
                 if (responseAll.result != null && responseAll.result.Length > 0)
                 {
                     foreach (var amlItem in responseAll.result)
                     {
-                        amlItem.productId = get_from_token(amlItem.product_id);
-                        amlItem.accountId = get_from_token(amlItem.account_id);
-                        amlItem.moveId = get_from_token(amlItem.move_id);
+                        //amlItem._product_id = get_from_token(amlItem.product_id);
+                        //amlItem._account_id = get_from_token(amlItem.account_id);
+                        //amlItem._move_id = get_from_token(amlItem.move_id);
 
                         //if (amlItem.product_id != null && amlItem.product_id.Length > 0)
                         //{
@@ -428,7 +447,7 @@ namespace DMOrders.Services.Update
                 // problemas de conexion con el servidor
                 // el objetivo es que el servidor no se sobrecargue
 
-                if (indice >= 600)
+                if (indice >= maxIndexExceeded)
                 {
                     Console.WriteLine("Página " + indice + ": Se terminará el proceso.");
                     break;
@@ -443,41 +462,41 @@ namespace DMOrders.Services.Update
             return true;
         }
 
-        public void set_to_token(JToken token, int value)
-        {
-            if (token is JArray array && array.Count > 0)
-            {
-                array[0] = value;
-            }
-            else if (token is JValue)
-            {
-                token = new JArray { value };
-            }
-            else
-            {
-                token = new JArray { value };
-            }
-        }
+        //public void set_to_token(JToken token, int value)
+        //{
+        //    if (token is JArray array && array.Count > 0)
+        //    {
+        //        array[0] = value;
+        //    }
+        //    else if (token is JValue)
+        //    {
+        //        token = new JArray { value };
+        //    }
+        //    else
+        //    {
+        //        token = new JArray { value };
+        //    }
+        //}
 
-        public int get_from_token(JToken token)
-        {
-            if (token is JArray array && array.Count > 0)
-            {
-                return array[0].Type == JTokenType.Integer ? (int)array[0] : 0;
-            }
+        //public int get_from_token(JToken token)
+        //{
+        //    if (token is JArray array && array.Count > 0)
+        //    {
+        //        return array[0].Type == JTokenType.Integer ? (int)array[0] : 0;
+        //    }
 
-            else if (token is JValue value && value.Type == JTokenType.Boolean)
-            {
-                return 0;
-            }
-            return 0;
-        }
+        //    else if (token is JValue value && value.Type == JTokenType.Boolean)
+        //    {
+        //        return 0;
+        //    }
+        //    return 0;
+        //}
 
         public async Task<bool> OnlineSyncAccountPaymentDaily()
         {
             DateTime dateTimeIni = DateTime.Now;
 
-            ApiManager.HubAccountPaymentDaily hubmanager = new ApiManager.HubAccountPaymentDaily(appSession);
+            ApiManager.HubAccountPaymentDaily hubmanager = new ApiManager.HubAccountPaymentDaily(Constants.Session);
             var resultCount = await hubmanager.GetCountByUser();
 
             Debug.WriteLine(resultCount.result);
@@ -487,10 +506,10 @@ namespace DMOrders.Services.Update
                 return false;
             }
 
-            int limit = appSession.odooConnection.DbLimitDefault;
+            int limit = Constants.Session.odooConnection.DbLimitDefault;
             int countTotal = resultCount.result / limit;
 
-            var database = new AccountPaymentDailyDb();
+            var database = new AccountPaymentDailyDb(Constants.Session.odooConnection.DbNameSqlite);
 
             for (int indice = 0; indice <= countTotal; indice++)
             {
@@ -530,18 +549,18 @@ namespace DMOrders.Services.Update
         }
 
 
-        private async Task OnlineSyncFacturas(object obj,
-            object toast,
-            object duration,
+        public async Task OnlineSyncFacturas(ProgressBarAnimationBehaviorPage obj,
+            IToast toast,
+            ToastDuration duration,
             double fontSize,
             CancellationTokenSource cancellationTokenSource,
             string fechaActualizaTablet
             )
         {
 
-            //obj.SetTitle($"Actualización en línea (facturas)...");
+            obj.SetTitle($"Actualización en línea (facturas)...");
 
-            var database = new AccountMoveDb();
+            var database = new AccountMoveDb(Constants.Session.odooConnection.DbNameSqlite);
 
             //string fechaActualizaTablet = "2021-01-01 00:00:00";
             bool esActualizacion = false;
@@ -551,7 +570,7 @@ namespace DMOrders.Services.Update
                 esActualizacion = true;
             }
 
-            //obj.SetPercentProgress(0.10);
+            obj.SetPercentProgress(0.10);
 
             //_appSession.EndPointServer = "http://192.168.204.32:8069";
             //_appSession.CurrentUser = new User()
@@ -567,24 +586,23 @@ namespace DMOrders.Services.Update
             await OnlineSyncAccountMove();
             await OnlineSyncAccountMoveLine();
 
-            //TODO: Ya no se sincronizarán productos en linea
-            //await OnlineSyncProduct(_appSession, apiRequest);
+            await OnlineSyncProductProduct();
 
-            //TODO: Eliminado brand para Odoo 18
             await OnlineSyncUsers();
 
             Debug.WriteLine("Importación en linea account.move terminada");
         }
 
-
-        private async Task OnlineSyncUsers()
+        public async Task OnlineSyncUsers()
         {
-            ApiManager.HubUser hubProductBrand = new HubUser(appSession);
+            var database = new UserDb(Constants.Session.odooConnection.DbNameSqlite);
+            ApiManager.HubUser hubProductBrand = new HubUser(Constants.Session);
+            DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since_lower);
             var dataList = await hubProductBrand.GetItems();
 
             if (dataList != null && dataList.result != null && dataList.result.Length > 0)
             {
-                var database = new UserDb(appSession.odooConnection.DbNameSqlite);
+                
                 //foreach (var user in dataList.result)
                 //{
                     //if (user.company_id != null && user.company_id.Length > 0)
@@ -608,7 +626,6 @@ namespace DMOrders.Services.Update
             }
         }
 
-
         public async Task<bool> OnlineSyncPaymentHeader()
         {
             JsonSerializerSettings settings = new JsonSerializerSettings();
@@ -618,7 +635,7 @@ namespace DMOrders.Services.Update
             DateTime dateIni = DateTime.Now.AddDays(-150);
             DateTime dateEnd = DateTime.Now;
 
-            ApiManager.HubAccountPaymentHeader hubmanager = new ApiManager.HubAccountPaymentHeader(appSession);
+            ApiManager.HubAccountPaymentHeader hubmanager = new ApiManager.HubAccountPaymentHeader(Constants.Session);
             var resultCount = await hubmanager.GetCount(dateIni, dateEnd);
 
             Debug.WriteLine(resultCount.result);
@@ -628,12 +645,12 @@ namespace DMOrders.Services.Update
                 return false;
             }
 
-            int limit = appSession.odooConnection.DbLimitDefault;
+            int limit = Constants.Session.odooConnection.DbLimitDefault;
             int countTotal = resultCount.result / limit;
 
-            var database = new AccountPaymentHeaderDb();
-            var databasePay = new AccountPaymentDb();
-            var databaseInvoLine = new AccountPaymentInvoiceLineDb();
+            var database = new AccountPaymentHeaderDb(Constants.Session.odooConnection.DbNameSqlite);
+            var databasePay = new AccountPaymentDb(Constants.Session.odooConnection.DbNameSqlite);
+            var databaseInvoLine = new AccountPaymentInvoiceLineDb(Constants.Session.odooConnection.DbNameSqlite);
 
             for (int indice = 0; indice <= countTotal; indice++)
             {

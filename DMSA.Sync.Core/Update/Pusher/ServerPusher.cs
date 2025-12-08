@@ -1,15 +1,17 @@
 ﻿using ApiManager;
+using CommunityToolkit.Maui.Alerts;
 using DMOrders.Services.Database.Sqlite;
-using DMSA.Models.General.Requests;
 using DMSA.Models.Odoo.DMOrders.tareas;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Security;
+using DMSA.Sync.Core.Controls;
+using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Sales;
+using DMSA.Sync.Core.Database.Sqlite.tareas;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using static System.Net.Mime.MediaTypeNames;
 
-namespace DMOrders.Services.Update.Pusher
+namespace DMSA.Sync.Core.Update.Pusher
 {
     public partial class ServerPusher
     {
@@ -19,7 +21,7 @@ namespace DMOrders.Services.Update.Pusher
         int limit { get; set; }
 
         DateTime? sync_date_since => new DateTime(year, month, day);
-        public AppSession appSession { get; set; }
+        public AppSession appSession => Constants.Session;
         public ServerPusher() 
         {
             year = appSession.sync_date_since.Year;
@@ -35,7 +37,7 @@ namespace DMOrders.Services.Update.Pusher
             //    day = appSession.CurrentUser.log_fec_sincro.Day;
             //}
 
-            limit = appSession.odooConnection.DbLimitDefault;
+            limit = Constants.Session.odooConnection.DbLimitDefault;
         }
 
         public async Task<bool> Push()
@@ -53,25 +55,25 @@ namespace DMOrders.Services.Update.Pusher
 
             //object kargs = new object[] {};
 
-            ApiManager.HubSaleOrder hubStore = new HubSaleOrder(appSession);
+            ApiManager.HubSaleOrder hubStore = new HubSaleOrder(Constants.Session);
             ApiResponseOdooRpcT<int> resultTask = await hubStore.Create(sale_Order);
 
             if (resultTask != null && resultTask.error != null)
             {
                 Debug.WriteLine(resultTask.error.data.message);
                 Debug.WriteLine(resultTask.error.data.debug);
-                //await Toast.Make("Error:" + resultTask.error.data.message).Show();
+                await Toast.Make("Error:" + resultTask.error.data.message).Show();
                 return false;
             }
 
             if (resultTask != null && resultTask.result !=null)
             {
-                //await Toast.Make("Datos enviados correctamente").Show();
+                await Toast.Make("Datos enviados correctamente").Show();
 
                 sale_Order.erp_id = resultTask.result;
                 sale_Order.is_synchronized = true;
                 sale_Order.date_synchronized = DateTime.Now;
-                SaleOrderDb saleOrderDb = new SaleOrderDb(appSession.odooConnection.DbNameSqlite);
+                SaleOrderDb saleOrderDb = new SaleOrderDb(Constants.Session.odooConnection.DbNameSqlite);
                 await saleOrderDb.UpdateAsync(sale_Order);
                 return true;
             }
@@ -79,10 +81,10 @@ namespace DMOrders.Services.Update.Pusher
             return false;
         }
 
-        public async Task SendAllSaleOrders(object obj)
+        public async Task SendAllSaleOrders(ProgressBarAnimationBehaviorPage obj)
         {           
-            SaleOrderDb saleOrderDb = new SaleOrderDb(appSession.odooConnection.DbNameSqlite);
-            var listOrders = await saleOrderDb.GetItemsAsync(appSession.res_Company.id, false);
+            SaleOrderDb saleOrderDb = new SaleOrderDb(Constants.Session.odooConnection.DbNameSqlite);
+            var listOrders = await saleOrderDb.GetItemsAsync(Constants.Session.res_Company.id, false);
             
             if(listOrders == null || listOrders.Count == 0)
                 return;
@@ -92,7 +94,7 @@ namespace DMOrders.Services.Update.Pusher
             foreach (var item in listOrders)
             {
                 itemIndex++;
-                //obj.SetTitle($"Sincronizando pedidos ({itemIndex}/{totalItems})");
+                obj.SetTitle($"Sincronizando pedidos ({itemIndex}/{totalItems})");
                 await SendSaleOrder(item);
             }            
         }
@@ -102,19 +104,19 @@ namespace DMOrders.Services.Update.Pusher
             projectTask.user_ids = new int [] { projectTask.user_id };
 
             //TODO: Agregar validacion para ProjectTask existente
-            ApiManager.HubProjectTask hubManager = new HubProjectTask(appSession);
+            ApiManager.HubProjectTask hubManager = new HubProjectTask(Constants.Session);
 
-            var existingTasks = await hubManager.GetByNameUser(projectTask.name, appSession.CurrentUserFront.uid);
+            var existingTasks = await hubManager.GetByNameUser(projectTask.name, Constants.Session.CurrentUserFront.uid);
 
             if (existingTasks != null && existingTasks.result != null && existingTasks.result.Length > 0)
             {
                 Debug.WriteLine("La tarea ya existe en el servidor: " + projectTask.name);
-                //await Toast.Make("La tarea ya existe en el servidor: " + projectTask.name).Show();
+                await Toast.Make("La tarea ya existe en el servidor: " + projectTask.name).Show();
                 
                 projectTask.is_synchronized = true;
                 projectTask.date_synchronized = DateTime.Now;
                 projectTask.id_sync = existingTasks.result[0].id;
-                ProjectTaskDb projectTaskDb = new ProjectTaskDb(appSession.odooConnection.DbNameSqlite);
+                ProjectTaskDb projectTaskDb = new ProjectTaskDb(Constants.Session.odooConnection.DbNameSqlite);
                 await projectTaskDb.UpdateAsync(projectTask);
 
                 return projectTask.id_sync;
@@ -126,17 +128,17 @@ namespace DMOrders.Services.Update.Pusher
             {
                 Debug.WriteLine(resultTask.error.data.message);
                 Debug.WriteLine(resultTask.error.data.debug);
-                //await Toast.Make("Error:" + resultTask.error.data.message).Show();
+                await Toast.Make("Error:" + resultTask.error.data.message).Show();
                 return 0;
             }
 
             if (resultTask != null && resultTask.result != null)
             {
-                //await Toast.Make("Datos enviados correctamente").Show();
+                await Toast.Make("Datos enviados correctamente").Show();
                 projectTask.is_synchronized = true;
                 projectTask.date_synchronized = DateTime.Now;
                 projectTask.id_sync = resultTask.result;
-                ProjectTaskDb projectTaskDb = new ProjectTaskDb(appSession.odooConnection.DbNameSqlite);
+                ProjectTaskDb projectTaskDb = new ProjectTaskDb(Constants.Session.odooConnection.DbNameSqlite);
                 await projectTaskDb.UpdateAsync(projectTask);
                 return projectTask.id_sync;
             }
@@ -159,7 +161,7 @@ namespace DMOrders.Services.Update.Pusher
 
             //Debug.WriteLine(projectTask.id_sync);
 
-            AccountAnalyticLineDb projectTaskDb = new AccountAnalyticLineDb(appSession.odooConnection.DbNameSqlite);
+            AccountAnalyticLineDb projectTaskDb = new AccountAnalyticLineDb(Constants.Session.odooConnection.DbNameSqlite);
             var items = await projectTaskDb.GetItemsAsync(projectTask);
             foreach(var item in items)
             {
@@ -168,10 +170,10 @@ namespace DMOrders.Services.Update.Pusher
             }
         }
 
-        public async Task SendAllProjectTask(object obj)
+        public async Task SendAllProjectTask(ProgressBarAnimationBehaviorPage obj)
         {
-            ProjectTaskDb saleOrderDb = new ProjectTaskDb(appSession.odooConnection.DbNameSqlite);
-            var listOrders = await saleOrderDb.GetItemsAsync(appSession.res_Company.id, false);
+            ProjectTaskDb saleOrderDb = new ProjectTaskDb(Constants.Session.odooConnection.DbNameSqlite);
+            var listOrders = await saleOrderDb.GetItemsAsync(Constants.Session.res_Company.id, false);
 
             if (listOrders == null || listOrders.Count == 0)
                 return;
@@ -181,40 +183,40 @@ namespace DMOrders.Services.Update.Pusher
             foreach (var item in listOrders)
             {
                 itemIndex++;
-                //obj.SetTitle($"Sincronizando tareas ({itemIndex}/{totalItems})");
+                obj.SetTitle($"Sincronizando tareas ({itemIndex}/{totalItems})");
                 await SendProjectTask(item);
             }
         }
 
         public async Task SendAccountAnalyticLine(AccountAnalyticLine item)
         {
-            ApiManager.HubAccountAnalyticLine hubManager = new HubAccountAnalyticLine(appSession);
+            ApiManager.HubAccountAnalyticLine hubManager = new HubAccountAnalyticLine(Constants.Session);
             ApiResponseOdooRpcT<int> resultTask = await hubManager.Create(item);
 
             if (resultTask != null && resultTask.error != null)
             {
                 Debug.WriteLine(resultTask.error.data.message);
                 Debug.WriteLine(resultTask.error.data.debug);
-                //await Toast.Make("Error:" + resultTask.error.data.message).Show();
+                await Toast.Make("Error:" + resultTask.error.data.message).Show();
                 return;
             }
 
             if (resultTask != null && resultTask.result != null)
             {
-                //await Toast.Make("Datos enviados correctamente").Show();
+                await Toast.Make("Datos enviados correctamente").Show();
 
                 item.is_synchronized = true;
                 item.date_synchronized = DateTime.Now;
                 item.id_sync = resultTask.result;
-                AccountAnalyticLineDb projectTaskDb = new AccountAnalyticLineDb(appSession.odooConnection.DbNameSqlite);
+                AccountAnalyticLineDb projectTaskDb = new AccountAnalyticLineDb(Constants.Session.odooConnection.DbNameSqlite);
                 await projectTaskDb.UpdateAsync(item);
             }
         }
 
-        public async Task SendAllAccountAnalyticLine(object obj)
+        public async Task SendAllAccountAnalyticLine(ProgressBarAnimationBehaviorPage obj)
         {
-            AccountAnalyticLineDb accountAnalyticLineDb = new AccountAnalyticLineDb(appSession.odooConnection.DbNameSqlite);
-            var listItems = await accountAnalyticLineDb.GetItemsAsync(appSession.res_Company.id, false);
+            AccountAnalyticLineDb accountAnalyticLineDb = new AccountAnalyticLineDb(Constants.Session.odooConnection.DbNameSqlite);
+            var listItems = await accountAnalyticLineDb.GetItemsAsync(Constants.Session.res_Company.id, false);
 
             if (listItems == null || listItems.Count == 0)
                 return;
@@ -225,7 +227,7 @@ namespace DMOrders.Services.Update.Pusher
             {
                 //TODO: Agregar validacion para ProjectTask existente
                 itemIndex++;
-                //obj.SetTitle($"Sincronizando tareas ({itemIndex}/{totalItems})");
+                obj.SetTitle($"Sincronizando tareas ({itemIndex}/{totalItems})");
                 await SendAccountAnalyticLine(item);
             }
         }

@@ -19,7 +19,8 @@ using System.Runtime.CompilerServices;
 using DMCobranzas.Settings.helpers;
 using Microsoft.Maui.Platform;
 using Microsoft.Maui.Layouts;
-using DMCobranzas.Services.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Payments;
+
 
 namespace DMCobranzas.Controls
 {
@@ -52,7 +53,7 @@ namespace DMCobranzas.Controls
             }
 
             await SetWorkingStatus();
-            var database = new AccountMoveDb();
+            var database = new AccountMoveDb(App.Session.odooConnection.DbNameSqlite);
             var result = await database.GetItemsAsync(Company.id, partner.id, TextForSearch, 25);
             resultItemsSearch = new ObservableCollection<account_move>(result);
             _collectionViewSearch.ItemsSource = resultItemsSearch;
@@ -90,7 +91,7 @@ namespace DMCobranzas.Controls
         async Task<int> LoadDataLast20()
         {
             await SetWorkingStatus();
-            var database = new AccountMoveDb();
+            var database = new AccountMoveDb(App.Session.odooConnection.DbNameSqlite);
             var result = await database.GetItemsAsync(Company.id, partner.id, "", 25);
             resultItemsSearch = new ObservableCollection<account_move>(result);
             _collectionViewSearch.ItemsSource = resultItemsSearch;
@@ -101,7 +102,7 @@ namespace DMCobranzas.Controls
         async Task<int> LoadDataForView()
         {
             await SetWorkingStatus();
-            var database = new AccountMoveDb();
+            var database = new AccountMoveDb(App.Session.odooConnection.DbNameSqlite);
             //var result = await database.GetItemsAsync(Company.id, partner.id, TextForSearch, 25);
             var result = await database.GetItemsByPartnerForPaymentAsync(partner);
             resultItemsSearch = new ObservableCollection<account_move>(result);

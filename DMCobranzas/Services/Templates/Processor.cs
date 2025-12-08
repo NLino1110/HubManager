@@ -1,10 +1,11 @@
 ﻿using DMCobranzas.Models;
 using DMCobranzas.Models.Specials;
-using DMCobranzas.Services.Database.Sqlite;
 using DMCobranzas.Settings.helpers;
 using DMSA.Models.Odoo.DMApps;
 using DMSA.Models.Odoo.DMCobranzas;
 using DMSA.Models.Odoo.Native;
+using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Payments;
 using Fluid;
 using Microsoft.Maui.Controls;
 using Newtonsoft.Json;
@@ -56,7 +57,7 @@ namespace DMCobranzas.Services.Templates
                             TicketHeaderString += $"{empresaI.name}" + Environment.NewLine;
 
                             TicketHeaderString += "Resumen Cobranzas" + Environment.NewLine;
-                            AccountPaymentDailyDb cobCierreDb = new AccountPaymentDailyDb();
+                            AccountPaymentDailyDb cobCierreDb = new AccountPaymentDailyDb(App.Session.odooConnection.DbNameSqlite);
                             var itemsCierre = await cobCierreDb.GetItemsDateCutAsync(_cobReciboCab.company_id, _cobReciboCab.create_datetime);
                             
                             if(itemsCierre!= null)
@@ -126,14 +127,14 @@ namespace DMCobranzas.Services.Templates
             foreach (var _itemGroup in _itemsGroup)
             {
                 _accountPaymentHeaders.Add(_itemGroup);
-                AccountPaymentDailyDb _accountPaymentDailyDb = new AccountPaymentDailyDb();
+                AccountPaymentDailyDb _accountPaymentDailyDb = new AccountPaymentDailyDb(App.Session.odooConnection.DbNameSqlite);
                 var _accountPaymentDaily = await _accountPaymentDailyDb.GetItemsDateCutAsync(_itemGroup.company_id, _itemGroup.create_datetime);
 
                 res_company[] Empresas = null;
                 Empresas = App.Session.CurrentUserFront.empresas;
                 var empresaI = Empresas.ToList().Where(i => i.id == _itemGroup.company_id).FirstOrDefault();
 
-                AccountPaymentDb accountPaymentDb = new AccountPaymentDb();
+                AccountPaymentDb accountPaymentDb = new AccountPaymentDb(App.Session.odooConnection.DbNameSqlite);
                 //DateTime dateTime = DateTime.Parse(_itemGroup.create_datetime);
                 var _accountPaymentGroup = await accountPaymentDb.GetByParent(_itemGroup.id);
 
@@ -202,18 +203,18 @@ namespace DMCobranzas.Services.Templates
 
             if (_accountPaymentHeader != null)
             {
-                ResPartnerDb resPartnerDb = new ResPartnerDb();
+                ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
                 _res_partner = await resPartnerDb.GetItemsAsync(_accountPaymentHeader.company_id, _accountPaymentHeader.partner_id);
 
-                UserAccessDb userAccessDb = new UserAccessDb();
+                UserAccessDb userAccessDb = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
                 _user_Access = await userAccessDb.GetItemAsync(_accountPaymentHeader.uid);
 
-                AccountPaymentDb accountPaymentDb = new AccountPaymentDb();
+                AccountPaymentDb accountPaymentDb = new AccountPaymentDb(App.Session.odooConnection.DbNameSqlite);
                 ls_accountPayments = await accountPaymentDb.GetByParent(_accountPaymentHeader.id);
              
                 foreach (var accountPayment in ls_accountPayments)
                 {
-                    AccountPaymentInvoiceLineDb accountPaymentLines = new AccountPaymentInvoiceLineDb();
+                    AccountPaymentInvoiceLineDb accountPaymentLines = new AccountPaymentInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
                     var apl = await accountPaymentLines.GetItemsAsync(accountPayment);
 
                     if (apl.Count() > 0)
@@ -314,11 +315,11 @@ namespace DMCobranzas.Services.Templates
             {
                 //dataItems = new CobReciboDet[0];
                 //var ls_dataItems = JsonConvert.DeserializeObject<List<AccountPayment>>(cobReciboCab.DETALLESPAGO);
-                AccountPaymentDb accountPaymentDb = new AccountPaymentDb();
+                AccountPaymentDb accountPaymentDb = new AccountPaymentDb(App.Session.odooConnection.DbNameSqlite);
                 ls_accountPayments = await accountPaymentDb.GetByParent(_accountPaymentHeader.id);
                 //accountPayments = ls_accountPayments.ToArray();
 
-                AccountPaymentInvoiceLineDb accountPaymentLines = new AccountPaymentInvoiceLineDb();
+                AccountPaymentInvoiceLineDb accountPaymentLines = new AccountPaymentInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
 
                 foreach (var accountPayment in ls_accountPayments)
                 {
@@ -534,10 +535,10 @@ namespace DMCobranzas.Services.Templates
                 Empresas = App.Session.CurrentUserFront.empresas;
                 var empresaI = Empresas.ToList().Where(i => i.id == _account_move_send.company_id).FirstOrDefault();
 
-                ResPartnerDb resPartnerDb = new ResPartnerDb();
+                ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
                 var resPartner = await resPartnerDb.GetItemsAsync(1,1);
 
-                AccountMoveLineSendDb accountMoveLineSendDb = new AccountMoveLineSendDb();
+                AccountMoveLineSendDb accountMoveLineSendDb = new AccountMoveLineSendDb(App.Session.odooConnection.DbNameSqlite);
                 var movesLine = await accountMoveLineSendDb.GetItemsByParentAsync(_account_move_send.id);
 
                 if (empresaI != null)
@@ -590,7 +591,7 @@ namespace DMCobranzas.Services.Templates
 
             if (_account_move_send != null)
             {
-                AccountMoveLineSendDb _accountMoveSendLineDb = new AccountMoveLineSendDb();
+                AccountMoveLineSendDb _accountMoveSendLineDb = new AccountMoveLineSendDb(App.Session.odooConnection.DbNameSqlite);
                 ls_accountMoveSendLines = await _accountMoveSendLineDb.GetItemsByParentAsync(_account_move_send.id);
             }
 
@@ -641,12 +642,12 @@ namespace DMCobranzas.Services.Templates
             
             if (_accountMoveSendHeader != null)
             {
-                AccountMoveSendDb _accountMoveSendDb = new AccountMoveSendDb();
+                AccountMoveSendDb _accountMoveSendDb = new AccountMoveSendDb(App.Session.odooConnection.DbNameSqlite);
                 ls_accountMovesSend = await _accountMoveSendDb.GetByParent(_accountMoveSendHeader.id);
 
                 foreach(var  accountMoveSend in ls_accountMovesSend)
                 {
-                    AccountMoveLineSendDb _accountMoveSendLineDb = new AccountMoveLineSendDb();
+                    AccountMoveLineSendDb _accountMoveSendLineDb = new AccountMoveLineSendDb(App.Session.odooConnection.DbNameSqlite);
                     var lineItem = await _accountMoveSendLineDb.GetItemsByParentAsync(accountMoveSend.id);
 
                     accountMoveSend.lines = lineItem.ToArray();

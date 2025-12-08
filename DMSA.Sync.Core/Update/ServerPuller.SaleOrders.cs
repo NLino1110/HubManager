@@ -1,16 +1,8 @@
-﻿using ApiManager;
-using DMOrders.Services.Database.Sqlite;
-using DMSA.Models.General.Requests;
-using DMSA.Models.Odoo.General.Responses;
-using DMSA.Models.Odoo.Native;
-using System;
-using System.Collections.Generic;
+﻿using DMOrders.Services.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DMOrders.Services.Update
+namespace DMSA.Sync.Core.Update
 {
     public partial class ServerPuller
     {
@@ -18,7 +10,7 @@ namespace DMOrders.Services.Update
         {
             var stopwatch = Stopwatch.StartNew();
 
-            var hubmanager = new ApiManager.HubSaleOrder(appSession);
+            var hubmanager = new ApiManager.HubSaleOrder(Constants.Session);
             
             var database = new SaleOrderDb(DbNameSqlite);
 

@@ -58,7 +58,7 @@ namespace DMOrders.Services.Database.Sqlite
             ).ToListAsync();
 
             return resultTmp.Where(i=>
-            account_Move_Parents.Any(p => p.id == i.moveId)
+            account_Move_Parents.Any(p => p.id == i._move_id)
             ).Take(limit).ToList();
         }
 
@@ -69,17 +69,17 @@ namespace DMOrders.Services.Database.Sqlite
         {
             await Init();
             var resultTmp = await Database.Table<account_move_line>().
-                Where(i => i.productId == productId).ToListAsync();
+                Where(i => i._product_id == productId).ToListAsync();
 
             return resultTmp.Where(i =>
-            account_Move_Parents.Any(p => p.id == i.moveId)
+            account_Move_Parents.Any(p => p.id == i._move_id)
             ).Take(limit).ToList();
         }
 
         public async Task<List<account_move_line>> GetItemsByParentAsync(int move_id)
         {
             await Init();
-            return await Database.Table<account_move_line>().Where(x=>x.moveId == move_id).ToListAsync();
+            return await Database.Table<account_move_line>().Where(x=>x._move_id == move_id).ToListAsync();
             //return Database.Table<account_journal>().ToList();
         }
 

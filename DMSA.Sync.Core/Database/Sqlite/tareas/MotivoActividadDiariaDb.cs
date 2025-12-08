@@ -1,16 +1,6 @@
-﻿using DMSA.Models.Odoo.DMOrders.promotions;
-using DMSA.Models.Odoo.DMOrders.tareas;
-using DMSA.Models.Odoo.Native;
-using Microsoft.Data.Sqlite;
-using SQLite;
-using SQLiteNetExtensions.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DMSA.Models.Odoo.DMOrders.tareas;
 
-namespace DMOrders.Services.Database.Sqlite
+namespace DMSA.Sync.Core.Database.Sqlite.tareas
 {
     public class MotivoActividadDiariaDb : SqliteDbBase<MotivoActividadDiaria>
     {   

@@ -3,6 +3,7 @@ using CommunityToolkit.Maui;
 using DMSA.Models.Security;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using UraniumUI;
 
 namespace DMCobranzas
 {
@@ -33,12 +34,11 @@ namespace DMCobranzas
                     fonts.AddFont("Font Awesome 5 Free-Solid-900.otf", "FontAwesome5Solid");
                     fonts.AddFont("Consolas.ttf", "Consolas");
                 })
-                //.ConfigureMauiHandlers(handlers =>
-                //{
-                //    handlers.AddHandler<Editor, CustomEditorHandler>();
-                //})
-                .UseMauiCommunityToolkit();
-            
+                .UseUraniumUIBlurs()
+                .UseMauiCommunityToolkit()
+                .UseUraniumUI()
+                .UseUraniumUIMaterial();
+
             App.Session = new AppSession();
             //Debug.WriteLine(App.Session.odooConnection.IsProduction);
 
@@ -55,7 +55,19 @@ namespace DMCobranzas
             //        AppInfo.Current.Version.Minor.ToString() + "." +
             //        AppInfo.Current.Version.Build.ToString() + ".";
             //}
-            
+
+            App.Session = new AppSession();
+
+            App.Session.AppVersion = AppInfo.Current.VersionString;
+            App.Session.SqliteCoreDbName = "_app";
+
+            if (DeviceInfo.Platform == DevicePlatform.Android)
+            {
+                App.Session.AppVersion = AppInfo.Current.VersionString + "." + AppInfo.Current.BuildString;
+            }
+
+            DMSA.Sync.Core.Constants.Session = App.Session;
+
 #if DEBUG
             builder.Logging.AddDebug();
 #endif

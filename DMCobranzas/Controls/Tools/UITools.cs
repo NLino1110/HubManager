@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Maui.Sample.Models;
 using CommunityToolkit.Maui.Views;
 using Microsoft.Maui.Controls.Shapes;
 using System;
@@ -85,13 +86,13 @@ namespace DMCobranzas.Controls.Tools
             _absoluteLayout.IsVisible = false;
         }
 
-        private static DMCobranzas.Controls.PopupLoadingTask simplePopup = null;
+        private static CommunityToolkit.Maui.Sample.PopupLoadingTask simplePopup = null;
 
         public static async Task ShowLoadingPopup(ContentPage contentPage)
         {
             PopupSizeConstants popupSizeConstants = 
                 new PopupSizeConstants(DeviceDisplay.Current);
-            simplePopup = new DMOrders.Controls.PopupLoadingTask(popupSizeConstants);
+            simplePopup = new CommunityToolkit.Maui.Sample.PopupLoadingTask(popupSizeConstants);
             simplePopup.CanBeDismissedByTappingOutsideOfPopup = false;            
             //contentPage.ShowPopup(simplePopup);
 

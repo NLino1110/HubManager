@@ -189,27 +189,27 @@ namespace DMCobranzas.Controls
 
             popupSizeChanged += OnPageSizeChanged;
 
-            timer_eventController = Dispatcher.CreateTimer();
-            timer_eventController.IsRepeating = true;
-            timer_eventController.Interval = TimeSpan.FromMilliseconds(500);
-            timer_eventController.Tick += async (s, e) =>
-            {
-                if (Parent != null)
-                {
-                    if (((ContentPage)Parent).Height != lastParentHeight)
-                    {
-                        if (lastParentHeight > 0)
-                        {
-                            //Lanzar evento de Giro
-                            popupSizeChanged(this, EventArgs.Empty);
-                        }
+            //timer_eventController = Dispatcher.CreateTimer();
+            //timer_eventController.IsRepeating = true;
+            //timer_eventController.Interval = TimeSpan.FromMilliseconds(500);
+            //timer_eventController.Tick += async (s, e) =>
+            //{
+            //    if (Parent != null)
+            //    {
+            //        if (((ContentPage)Parent).Height != lastParentHeight)
+            //        {
+            //            if (lastParentHeight > 0)
+            //            {
+            //                //Lanzar evento de Giro
+            //                popupSizeChanged(this, EventArgs.Empty);
+            //            }
 
-                        lastParentHeight = ((ContentPage)Parent).Height;
-                        lastParentWidth = ((ContentPage)Parent).Width;
-                    }
-                }
-            };
-            timer_eventController.Start();
+            //            lastParentHeight = ((ContentPage)Parent).Height;
+            //            lastParentWidth = ((ContentPage)Parent).Width;
+            //        }
+            //    }
+            //};
+            //timer_eventController.Start();
         }
 
         private void OnPageSizeChanged(object sender, EventArgs e)

@@ -1,27 +1,17 @@
-﻿using ApiManager;
-using DMOrders.Services.Database.Sqlite;
-using DMSA.Models.General.Requests;
-using DMSA.Models.Odoo.DMOrders.promotions;
-using DMSA.Models.Odoo.General.Responses;
-using DMSA.Models.Odoo.Native;
-using System;
-using System.Collections.Generic;
+﻿using DMSA.Sync.Core.Database.Sqlite.tareas;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DMOrders.Services.Update
+namespace DMSA.Sync.Core.Update
 {
     public partial class ServerPuller
     {
         public async Task<bool> MotivoActividadDiaria(bool force)
         {            
-            DateTime current_datetime = DateTime.Now.AddYears(appSession.odooConnection.DataToleranceDays);
+            DateTime current_datetime = DateTime.Now.AddYears(-Constants.Session.odooConnection.DataToleranceDays);
 
             var stopwatch = Stopwatch.StartNew();
 
-            ApiManager.HubMotivoActividadDiaria hubmanager = new ApiManager.HubMotivoActividadDiaria(appSession);
+            ApiManager.HubMotivoActividadDiaria hubmanager = new ApiManager.HubMotivoActividadDiaria(Constants.Session);
             var resultCount = await hubmanager.GetCount(current_datetime.Year, current_datetime.Month, current_datetime.Day);
 
             if (resultCount.result == 0)
@@ -29,9 +19,9 @@ namespace DMOrders.Services.Update
                 return false;
             }
 
-            int countTotal = resultCount.result / appSession.odooConnection.DbLimitDefault;
+            int countTotal = resultCount.result / Constants.Session.odooConnection.DbLimitDefault;
 
-            var database = new MotivoActividadDiariaDb(appSession.odooConnection.DbNameSqlite);
+            var database = new MotivoActividadDiariaDb(Constants.Session.odooConnection.DbNameSqlite);
 
             for (int indice = 0; indice <= countTotal; indice++)
             {

@@ -67,7 +67,7 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
        TextColor="#242322" Grid.ColumnSpan="2" MinimumHeightRequest="80"></Label>
                 
                 <Label Text="Unidad Vta.:" Grid.Row="2" Grid.Column="0"/>
-                <Label Grid.Row="2" Grid.Column="1" Text="{Binding Path=ProductEditing._uom_id, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+                <Label Grid.Row="2" Grid.Column="1" Text="{Binding Path=ProductEditing.uom_display, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
                     FontSize="12" 
                     FontAttributes="Bold"
                     TextColor="#242322"
@@ -288,9 +288,9 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
                             Padding="0">
                         <Button.ImageSource>
                             <FontImageSource 
-Size="30"
-FontFamily="MaterialSharp"
-Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
+                                Size="30"
+                                FontFamily="MaterialSharp"
+                                Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
                         </Button.ImageSource>
                     </Button>
 

@@ -1,16 +1,7 @@
-﻿using ApiManager;
-using DMOrders.Services.Database.Sqlite;
-using DMSA.Models.General.Requests;
-using DMSA.Models.Odoo.General.Responses;
-using DMSA.Models.Odoo.Native;
-using System;
-using System.Collections.Generic;
+﻿using DMSA.Sync.Core.Database.Sqlite.Sales;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DMOrders.Services.Update
+namespace DMSA.Sync.Core.Update
 {
     public partial class ServerPuller
     {
@@ -18,7 +9,7 @@ namespace DMOrders.Services.Update
         {
             var stopwatch = Stopwatch.StartNew();
 
-            ApiManager.HubProductPricelist hubmanager = new ApiManager.HubProductPricelist(appSession);
+            ApiManager.HubProductPricelist hubmanager = new ApiManager.HubProductPricelist(Constants.Session);
             var resultCount = await hubmanager.GetCount();
 
             if (resultCount.result == 0)
@@ -60,7 +51,7 @@ namespace DMOrders.Services.Update
         {
             var stopwatch = Stopwatch.StartNew();
 
-            var hubmanager = new ApiManager.HubProductPricelistItem(appSession);
+            var hubmanager = new ApiManager.HubProductPricelistItem(Constants.Session);
             var databaseItems = new ProductPricelistItemDb(DbNameSqlite);
 
             var database = new ProductPricelistDb(DbNameSqlite);

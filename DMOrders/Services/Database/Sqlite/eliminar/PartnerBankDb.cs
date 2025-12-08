@@ -56,13 +56,13 @@ namespace DMOrders.Services.Database.Sqlite
 
             await Init();
             //var result = await Database.Table<res_partner_bank>().Where(i => i.PartnerId == partner_id).ToListAsync();
-            var result = await Database.Table<res_partner_bank>().Where(i => i.PartnerId == partner_id).ToListAsync();
+            var result = await Database.Table<res_partner_bank>().Where(i => i._partner_id == partner_id).ToListAsync();
             var resultbank = await Database.Table<Bank_Id>().ToListAsync();
 
             foreach (var item in result)
             {
                 item.bank_name = "";
-                var BankItem = resultbank.Where(b => b.id == item.BankId).FirstOrDefault();
+                var BankItem = resultbank.Where(b => b.id == item._bank_id).FirstOrDefault();
                 if (BankItem != null)
                 {
                     item.bank_name = BankItem?.name;
@@ -86,7 +86,7 @@ namespace DMOrders.Services.Database.Sqlite
             foreach (var item in result) 
             {
                 item.bank_name = "";
-                var BankItem = resultbank.Where( b=>b.id == item.BankId) .FirstOrDefault();
+                var BankItem = resultbank.Where( b=>b.id == item._bank_id) .FirstOrDefault();
                 if (BankItem != null)
                 {
                     item.bank_name = BankItem?.name;
@@ -112,8 +112,8 @@ namespace DMOrders.Services.Database.Sqlite
             await Init();
 
             return (await Database.Table<res_partner_bank>().ToListAsync()).Where(x => 
-                x.PartnerId == objectMatch.PartnerId &&
-                x.BankId == objectMatch.BankId &&
+                x._partner_id == objectMatch._partner_id &&
+                x._bank_id == objectMatch._bank_id &&
                 x.acc_number == objectMatch.acc_number &&
                 // x.acc_holder_name == objectMatch.acc_holder_name &&
                 x.type_account == objectMatch.type_account &&

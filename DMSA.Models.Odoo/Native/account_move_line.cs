@@ -2,12 +2,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SQLite;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace DMSA.Models.Odoo.Native
 {
@@ -26,10 +20,9 @@ namespace DMSA.Models.Odoo.Native
         public decimal discount_percentage { get; set; }
         public string display_type { get; set; }
 
-        public int moveId { get; set; }
-        public int productId { get; set; }
-        public int accountId { get; set; }
-
+        
+        
+        
         //private int _moveId = 0;
         //public int moveId
         //{
@@ -72,14 +65,39 @@ namespace DMSA.Models.Odoo.Native
         //Agregados
         [Ignore]
         public JToken account_id { get; set; }
+        public int _account_id
+        {
+            get => GetId(account_id);
+            set => account_id = SetId(account_id, value);
+        }
+
         [Ignore]
         public JToken move_id { get; set; }
+        public int _move_id
+        {
+            get => GetId(move_id);
+            set => move_id = SetId(move_id, value);
+        }
+
         [Ignore]
         public JToken product_id { get; set; }
+        public int _product_id
+        {
+            get => GetId(product_id);
+            set => product_id = SetId(product_id, value);
+        }
+
         [Ignore]
         public JToken analytic_line_ids { get; set; }
         
-        
+        [JsonIgnore]
+        [Column("_analytic_line_ids")]
+        public string _analytic_line_ids
+        {
+            get => SetIdsJson(analytic_line_ids);
+            set { }
+        }
+
         [JsonProperty("create_date")]
         [Column("create_date")]
         public DateTime? create_date { get; set; }

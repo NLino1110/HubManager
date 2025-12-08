@@ -54,7 +54,7 @@ namespace ApiManager
                     //"create_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00",                
                     },
             };
-            return await SearchRead<ApiResponseOdooRpcT<account_move_line_send[]>>(args, _custom_args, kwargs);
+            return await SearchRead<ApiResponseOdooRpcT<account_move_line_send[]>>(args, _custom_args, kwargs, true);
         }
 
 

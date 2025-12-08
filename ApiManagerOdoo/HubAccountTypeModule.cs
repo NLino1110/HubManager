@@ -14,9 +14,13 @@ namespace ApiManager
         string[] fields_array = new[] {
                 "id",
                 "name",
-                "street",
-                "stree2",
-                "city"
+                "module_id",
+                "consider_report",
+                "consider_commissions",
+                "state",
+                "use_point_sale",
+                "create_date",
+                "write_date"
         };
         public HubAccountTypeModule(AppSession _setAppSession) : base(_setAppSession)
         {

@@ -111,19 +111,6 @@ namespace DMOrders.Services.Update
         }
 
 
-
-        private async Task OnlineSyncAccountModule()
-        {
-            ApiManager.HubAccountModule hubAccountModule = new HubAccountModule(App.Session);
-            var dataList = await hubAccountModule.GetAll();
-
-            if (dataList != null && dataList.data != null && dataList.data.Length > 0)
-            {
-                var database = new AccountModuleDb();
-                await database.InsertBatchAsync(dataList.data);
-            }
-        }
-
         private async Task OnlineSyncAccountTypeModule()
         {
             ApiManager.HubAccountTypeModule hubAccountModule = new HubAccountTypeModule(App.Session);
@@ -201,112 +188,112 @@ namespace DMOrders.Services.Update
         {
             foreach (var amItem in account_Moves)
             {
-                if (amItem.reversed_entry_id != null && amItem.reversed_entry_id.Length > 0)
-                {
-                    amItem._reversed_entry_id = amItem.reversed_entry_id[0].id;
-                }
+                //if (amItem.reversed_entry_id != null && amItem.reversed_entry_id.Length > 0)
+                //{
+                //    amItem._reversed_entry_id = amItem.reversed_entry_id[0].id;
+                //}
 
-                if (amItem.partner_id != null && amItem.partner_id.Length > 0)
-                {
-                    amItem._partner_id = amItem.partner_id[0].id;
-                }
+                //if (amItem.partner_id != null && amItem.partner_id.Length > 0)
+                //{
+                //    amItem._partner_id = amItem.partner_id[0].id;
+                //}
 
-                if (amItem.journal_id != null && amItem.journal_id.Length > 0)
-                {
-                    amItem._journal_id = amItem.journal_id[0].id;
-                }
+                //if (amItem.journal_id != null && amItem.journal_id.Length > 0)
+                //{
+                //    amItem._journal_id = amItem.journal_id[0].id;
+                //}
 
-                if (amItem.l10n_latam_document_type_id != null && amItem.l10n_latam_document_type_id.Length > 0)
-                {
-                    amItem._l10n_latam_document_type_id = amItem.l10n_latam_document_type_id[0].id;
-                }
+                //if (amItem.l10n_latam_document_type_id != null && amItem.l10n_latam_document_type_id.Length > 0)
+                //{
+                //    amItem._l10n_latam_document_type_id = amItem.l10n_latam_document_type_id[0].id;
+                //}
 
-                if (amItem.invoice_user_id != null && amItem.invoice_user_id.Length > 0)
-                {
-                    amItem._invoice_user_id = amItem.invoice_user_id[0].id;
-                }
+                //if (amItem.invoice_user_id != null && amItem.invoice_user_id.Length > 0)
+                //{
+                //    amItem._invoice_user_id = amItem.invoice_user_id[0].id;
+                //}
 
-                if (amItem.printer_id != null && amItem.printer_id.Length > 0)
-                {
-                    amItem._printer_id = amItem.printer_id[0].id;
-                }
+                //if (amItem.printer_id != null && amItem.printer_id.Length > 0)
+                //{
+                //    amItem._printer_id = amItem.printer_id[0].id;
+                //}
 
-                if (amItem.printer_id != null && amItem.printer_id.Length > 0)
-                {
-                    amItem._printer_id = amItem.printer_id[0].id;
-                }
+                //if (amItem.printer_id != null && amItem.printer_id.Length > 0)
+                //{
+                //    amItem._printer_id = amItem.printer_id[0].id;
+                //}
 
-                if (amItem.company_id != null && amItem.company_id.Length > 0)
-                {
-                    amItem._company_id = amItem.company_id[0].id;
-                }
+                //if (amItem.company_id != null && amItem.company_id.Length > 0)
+                //{
+                //    amItem._company_id = amItem.company_id[0].id;
+                //}
 
-                if (amItem.team_id != null && amItem.team_id.Length > 0)
-                {
-                    amItem._team_id = amItem.team_id[0].id;
-                }
+                //if (amItem.team_id != null && amItem.team_id.Length > 0)
+                //{
+                //    amItem._team_id = amItem.team_id[0].id;
+                //}
             }
 
             return account_Moves;
         }
-        private async Task OnlineSyncBank()
-        {
-            BankDb bankDb = new BankDb();
-            await bankDb.Truncate();
+        //private async Task OnlineSyncBank()
+        //{
+        //    BankDb bankDb = new BankDb();
+        //    await bankDb.Truncate();
 
-            List<string> bank_ids_list = new List<string>();
+        //    List<string> bank_ids_list = new List<string>();
 
-            //Se obtienen las cuentas para ser insertados en la base local
-            ApiManager.HubCuentas hubCuentas = new HubCuentas(App.Session);
-            //var cuentasDeLista = await hubCuentas.GetAll(String.Join(",", accounts_journal_ids_list.ToArray()));
-            var cuentasDeLista = await hubCuentas.GetAll();
+        //    //Se obtienen las cuentas para ser insertados en la base local
+        //    ApiManager.HubCuentas hubCuentas = new HubCuentas(App.Session);
+        //    //var cuentasDeLista = await hubCuentas.GetAll(String.Join(",", accounts_journal_ids_list.ToArray()));
+        //    var cuentasDeLista = await hubCuentas.GetAll();
 
-            if (cuentasDeLista != null && cuentasDeLista.result != null && cuentasDeLista.result.Length > 0)
-            {
-                foreach (var pbItem in cuentasDeLista.result)
-                {
-                    pbItem.BankId = 0;
-                    pbItem.PartnerId = 0;
+        //    if (cuentasDeLista != null && cuentasDeLista.result != null && cuentasDeLista.result.Length > 0)
+        //    {
+        //        foreach (var pbItem in cuentasDeLista.result)
+        //        {
+        //            pbItem._bank_id = 0;
+        //            pbItem._partner_id = 0;
 
-                    if (pbItem.bank_id.Length > 0)
-                    {
-                        pbItem.BankId = pbItem.bank_id.FirstOrDefault().id;
-                        bank_ids_list.Add(pbItem.BankId.ToString());
-                    }
+        //            //if (pbItem.bank_id.Length > 0)
+        //            //{
+        //            //    pbItem._bank_id = pbItem.bank_id.FirstOrDefault().id;
+        //            //    bank_ids_list.Add(pbItem._bank_id.ToString());
+        //            //}
 
-                    if (pbItem.partner_id.Length > 0)
-                    {
-                        pbItem.PartnerId = pbItem.partner_id.FirstOrDefault().id;
-                    }
+        //            //if (pbItem.partner_id.Length > 0)
+        //            //{
+        //            //    pbItem._partner_id = pbItem.partner_id.FirstOrDefault().id;
+        //            //}
 
-                    if (pbItem.currency_id.Length > 0)
-                    {
-                        pbItem.CurrencyId = pbItem.currency_id.FirstOrDefault().id;
-                    }
+        //            //if (pbItem.currency_id.Length > 0)
+        //            //{
+        //            //    pbItem._currency_id = pbItem.currency_id.FirstOrDefault().id;
+        //            //}
 
-                    if (pbItem.acc_holder_name.Trim().Equals("false"))
-                    {
-                        pbItem.acc_holder_name = "-";
-                    }
-                }
+        //            if (pbItem.acc_holder_name.Trim().Equals("false"))
+        //            {
+        //                pbItem.acc_holder_name = "-";
+        //            }
+        //        }
 
-                PartnerBankDb parnetBankDb = new PartnerBankDb();
-                await parnetBankDb.InsertBatchAsync(cuentasDeLista.result);
+        //        PartnerBankDb parnetBankDb = new PartnerBankDb();
+        //        await parnetBankDb.InsertBatchAsync(cuentasDeLista.result);
 
-                Debug.WriteLine(cuentasDeLista.result.Length);
-            }
+        //        Debug.WriteLine(cuentasDeLista.result.Length);
+        //    }
 
-            //Se obtienen bancos para ser insertados en la base local
+        //    //Se obtienen bancos para ser insertados en la base local
 
-            ApiManager.HubBancos hubBancos = new HubBancos(App.Session);
-            //var bancosDeLista = await hubBancos.GetAll(String.Join(",", bank_ids_list.ToArray()));
-            var bancosDeLista = await hubBancos.GetAll();
+        //    ApiManager.HubBank hubBancos = new HubBank(App.Session);
+        //    //var bancosDeLista = await hubBancos.GetAll(String.Join(",", bank_ids_list.ToArray()));
+        //    var bancosDeLista = await hubBancos.GetAll();
 
-            if (bancosDeLista != null && bancosDeLista.result != null && bancosDeLista.result.Length > 0)
-            {
-                await bankDb.InsertBatchAsync(bancosDeLista.result);
-            }
-        }
+        //    if (bancosDeLista != null && bancosDeLista.result != null && bancosDeLista.result.Length > 0)
+        //    {
+        //        await bankDb.InsertBatchAsync(bancosDeLista.result);
+        //    }
+        //}
 
         private async Task OnlineSyncJournal()
         {
@@ -314,7 +301,7 @@ namespace DMOrders.Services.Update
             await inboundPaymentMethodDb.TruncateAsync();
 
             //Se obtienen los diarios para ser insertados en la base local
-            ApiManager.HubJournal hubDiarios = new HubJournal(App.Session);
+            ApiManager.HubAccountJournal hubDiarios = new HubAccountJournal(App.Session);
 
             var ids = App.Session.CurrentUserFront.empresas.Select(e => e.id);
             string strEmpresas = string.Join(",", ids);
@@ -349,26 +336,26 @@ namespace DMOrders.Services.Update
                     }
 
                     //accountJournalDb.InsertAsync(itemData);
-                    itemData.BankAccountId = 0;
-                    if (itemData.bank_account_id.Count > 0)
-                    {
-                        itemData.BankAccountId = itemData.bank_account_id.FirstOrDefault().id;
+                    //itemData._bank_account_id = 0;
+                    //if (itemData.bank_account_id.Count > 0)
+                    //{
+                    //    itemData._bank_account_id = itemData.bank_account_id.FirstOrDefault().id;
 
-                        //Se agrega a la lista
-                        accounts_journal_ids_list.Add(itemData.bank_account_id.FirstOrDefault().id.ToString());
-                    }
+                    //    //Se agrega a la lista
+                    //    accounts_journal_ids_list.Add(itemData.bank_account_id.FirstOrDefault().id.ToString());
+                    //}
 
-                    itemData.CompanyId = 0;
-                    if (itemData.company_id.Count > 0)
-                    {
-                        itemData.CompanyId = itemData.company_id.FirstOrDefault().id;
-                    }
+                    //itemData._company_id = 0;
+                    //if (itemData.company_id.Count > 0)
+                    //{
+                    //    itemData._company_id = itemData.company_id.FirstOrDefault().id;
+                    //}
 
-                    if (itemData.inbound_payment_method_line_ids.Count > 0)
-                    {
-                        itemData.inbound_payment_method_line_ids.ForEach(x => x.parent_id = itemData.id);
-                        await inboundPaymentMethodDb.InsertBatchAsync(itemData.inbound_payment_method_line_ids.ToArray());
-                    }
+                    //if (itemData.inbound_payment_method_line_ids.Count > 0)
+                    //{
+                    //    itemData.inbound_payment_method_line_ids.ForEach(x => x.parent_id = itemData.id);
+                    //    await inboundPaymentMethodDb.InsertBatchAsync(itemData.inbound_payment_method_line_ids.ToArray());
+                    //}
 
                     //Solo se insertarán las cuentas que tengan habilitado su uso en las apps móviles
                     await accountJournalDb.InsertAsync(itemData);
@@ -408,9 +395,9 @@ namespace DMOrders.Services.Update
                 {
                     foreach (var amlItem in responseAll.result)
                     {
-                        amlItem.productId = get_from_token(amlItem.product_id);
-                        amlItem.accountId = get_from_token(amlItem.account_id);
-                        amlItem.moveId = get_from_token(amlItem.move_id);
+                        amlItem._product_id = get_from_token(amlItem.product_id);
+                        amlItem._account_id = get_from_token(amlItem.account_id);
+                        amlItem._move_id = get_from_token(amlItem.move_id);
 
                         //if (amlItem.product_id != null && amlItem.product_id.Length > 0)
                         //{

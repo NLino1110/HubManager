@@ -1286,7 +1286,7 @@ namespace ResourceBuilder.Data
             apiRequest.databasename = appSetting.profile.Odoo.Database;
             apiRequest.dateIni = DateTime.Parse(fechaActualizaTablet);
 
-            ApiManager.HubJournal hubmanager = new ApiManager.HubJournal(_appSession);
+            ApiManager.HubAccountJournal hubmanager = new ApiManager.HubAccountJournal(_appSession);
             string companies_ids = "1,5";
             var resultCount = await hubmanager.GetCount(companies_ids);
 

@@ -120,6 +120,18 @@
 	
 
 	<ItemGroup>
+	  <AndroidResource Remove="Services\Database\Sqlite\**" />
+	  <Compile Remove="Services\Database\Sqlite\**" />
+	  <EmbeddedResource Remove="Services\Database\Sqlite\**" />
+	  <MauiCss Remove="Services\Database\Sqlite\**" />
+	  <MauiXaml Remove="Services\Database\Sqlite\**" />
+	  <None Remove="Services\Database\Sqlite\**" />
+	</ItemGroup>
+	
+
+	<ItemGroup>
+	  <Compile Remove="Controls\ProgressBarAnimationBehaviorPage.xaml.cs" />
+	  <Compile Remove="Login_deprecated.xaml.cs" />
 	  <Compile Remove="Services\Update\Pusher\ServerPusher.cs" />
 	  <Compile Remove="Services\Update\ServerPuller.Accounting.cs" />
 	  <Compile Remove="Services\Update\ServerPuller.cs" />
@@ -158,6 +170,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Remove="Controls\ProgressBarAnimationBehaviorPage.xaml" />
+	  <MauiXaml Remove="Login_deprecated.xaml" />
 	  <MauiXaml Remove="Resources\Styles\Colors-Original.xaml" />
 	</ItemGroup>
 
@@ -213,22 +227,27 @@
 		<PackageReference Include="Microsoft.AppCenter.Analytics" Version="5.0.7" />
 		<PackageReference Include="Microsoft.AppCenter.Crashes" Version="5.0.7" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.10" />
-		<PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.10" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.10" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 		<PackageReference Include="Plugin.BLE" Version="3.2.0" />
 		<PackageReference Include="RestSharp" Version="112.1.0" />
 		<PackageReference Include="SkiaSharp" Version="3.119.1" />
 		<PackageReference Include="SkiaSharp.QrCode" Version="0.9.0" />
-		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
+		<!--<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />-->
 		<PackageReference Include="System.IO.Compression" Version="4.3.0" />
 		<PackageReference Include="System.Private.Uri" Version="4.3.2" />
+		<PackageReference Include="UraniumUI" Version="2.14.0" />
+		<PackageReference Include="UraniumUI.Blurs" Version="2.14.0" />
+		<PackageReference Include="UraniumUI.Icons.FontAwesome" Version="2.14.0" />
+		<PackageReference Include="UraniumUI.Icons.MaterialIcons" Version="2.14.0" />
+		<PackageReference Include="UraniumUI.Material" Version="2.14.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\ApiManagerOdoo\ApiManagerOdoo.csproj" />	  
 	  <ProjectReference Include="..\BeebTech.Maui.Controls\BeebTech.Maui.Controls.csproj" />
 	  <ProjectReference Include="..\DMSA.Models.Odoo\DMSA.Models.Odoo.csproj" />
+	  <ProjectReference Include="..\DMSA.Sync.Core\DMSA.Sync.Core.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -280,9 +299,6 @@
 	  <Compile Update="Controls\PopupLoadingTask.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="Controls\ProgressBarAnimationBehaviorPage.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
 	  <Compile Update="Controls\ReturnResultPopup.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
@@ -293,10 +309,6 @@
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
 	  <Compile Update="DetailModal.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Login.xaml.cs">
-	    <SubType>Code</SubType>
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
 	  <Compile Update="MainPage.xaml.cs">
@@ -342,6 +354,9 @@
 	  <MauiXaml Update="AppPages\Sys\About.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="AppPages\Sys\Connections.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="AppPages\Sys\SettingsPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -352,9 +367,6 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Controls\PopupLoadingTask.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Controls\ProgressBarAnimationBehaviorPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Controls\ReturnResultPopup.xaml">
@@ -370,7 +382,6 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Login.xaml">
-	    <SubType>Designer</SubType>
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
@@ -382,6 +393,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="Services\Database\" />
 	  <Folder Include="Services\Update\Pusher\" />
 	</ItemGroup>
 

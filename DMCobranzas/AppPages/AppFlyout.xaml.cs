@@ -33,7 +33,7 @@ public partial class AppFlyout : FlyoutPage
                 //string fechaActualizacion = App.Session.CurrentUser.fechasincronizado;
                 //if((fechaActualizacion == null || "" == fechaActualizacion.Trim()))
 
-                if (App.Session.CurrentUser.log_fec_sincro.Date < DateTime.Today.Date && 
+                if (App.Session.CurrentUserFront.log_fec_sincro.Date < DateTime.Today.Date && 
                     (
                     item.TargetType.Name != "UpdateData" &&
                     item.TargetType.Name != "MainPage" &&

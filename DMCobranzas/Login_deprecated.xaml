@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DMCobranzas.Login_deprecated"
+             Title="Cobranzas Login"
+             Shell.FlyoutBehavior="Flyout"
+             Shell.NavBarIsVisible="False"
+             xmlns:controls="clr-namespace:BeebTech.Maui.Controls;assembly=BeebTech.Maui.Controls">
+    <ContentPage.Resources>
+        <Style x:Key="labelRedStyle"
+               TargetType="Label">
+            <Setter Property="HorizontalOptions" Value="Center" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="TextColor" Value="Red" />
+        </Style>
+        <Style x:Key="labelGreenStyle"
+               TargetType="Label">
+            <Setter Property="HorizontalOptions" Value="Center" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="TextColor" Value="Green" />
+        </Style>
+        <Style x:Key="CommonEntryStyle"
+               TargetType="Label">
+            <Setter Property="HorizontalOptions" Value="FillAndExpand" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="TextColor" Value="Black" />
+        </Style>
+    </ContentPage.Resources>
+    <ScrollView>
+        <StackLayout Orientation="Vertical" BackgroundColor="#EEEEEE">
+            <FlexLayout Wrap="Wrap" JustifyContent="Start" Margin="10"
+                Padding="30"
+                VerticalOptions="Center"
+                HorizontalOptions="Center">
+
+                <Image
+                    Source="logo_dmujeres.png"
+                    SemanticProperties.Description=""
+                    MaximumWidthRequest="200"
+                    WidthRequest="200"
+                    HorizontalOptions="Center" IsVisible="false"/>
+
+                <Image
+                    Source="logo_odoo.png"
+                    SemanticProperties.Description=""                
+                    MaximumWidthRequest="200"
+                    WidthRequest="200"
+                    HorizontalOptions="Center" IsVisible="false"/>
+                
+            </FlexLayout>
+
+            <Frame
+                CornerRadius="20"
+                Padding="10,10,10,10"
+                Margin="10,5,10,10"
+                MaximumWidthRequest="700"
+                BorderColor="Transparent">
+
+                <VerticalStackLayout
+                    Spacing="20"
+                    Padding="10"
+                    MinimumHeightRequest="450"
+                    VerticalOptions="Fill">
+
+                    <Image
+                    Source="logo_macronegocios.png"
+                    SemanticProperties.Description=""
+                    MaximumWidthRequest="200"
+                    WidthRequest="200"
+                    HorizontalOptions="Center" />
+
+                    <Label 
+                    Text="Sistema de Cobranzas"
+                    VerticalOptions="Center" 
+                    HorizontalOptions="Center" 
+                        FontAttributes="Bold" 
+                        TextColor="Gray"                        
+                        FontSize="19"/>
+
+                    <!--<controls:FloatingEntry></controls:FloatingEntry>-->
+
+                    <controls:EntryWithIcon 
+            x:Name="EntryUserName"
+            Placeholder="Usuario"
+                        Text=""
+                        HidePassword="False" 
+            FontFamily="FontAwesome5Solid"
+            Glyph="&#xf007;"/>
+
+                    <!--<Entry
+            x:Name="EntryPassword"
+            Text="triaton03"
+          MaxLength="50"
+          Style="{StaticResource CommonEntryStyle}"
+                Placeholder="Password"
+                IsPassword="True"
+          />-->
+
+                    <controls:TogglePasswordEntry 
+            x:Name="EntryPassword"
+            Placeholder="Password"
+                        Text=""
+                        HidePassword="True"
+            Completed="Entry_Completed"/>
+
+                    <Button
+            x:Name="BtnTryLogin"
+            Text="Iniciar sesión"
+            SemanticProperties.Hint="Iniciar sesión"
+            Clicked="TryLogin"
+            WidthRequest="250"
+            CornerRadius="2"
+            HorizontalOptions="Center"
+                        BackgroundColor="IndianRed" 
+                        FontAttributes="Bold"/>
+
+                    <!--<Button
+            x:Name="BtnTDbTest"
+            Text="Db Test"
+            SemanticProperties.Hint="Iniciar sesión"
+            Clicked="DbTest"
+            HorizontalOptions="Center" />-->
+
+                    <Label 
+        Text="Todos los derechos reservados &#169; D'Mujeres S.A. 2023"
+            FontSize="11"
+        VerticalOptions="Center" 
+        HorizontalOptions="Center"
+                        TextColor="Gray"/>
+
+                    <Label 
+            x:Name="lblAppVersion"
+        Text="Version 0.1"
+            FontSize="12"
+        VerticalOptions="Center" 
+        HorizontalOptions="Center" 
+                        Margin="0"                        
+                        TextColor="Gray"/>
+                    <Label
+            x:Name="txtEnvironment"
+        Text="Environment"
+            FontSize="12"
+        VerticalOptions="Center"
+        HorizontalOptions="Center" 
+                        TextColor="Gray"
+                        />
+
+                    <Button
+                    BackgroundColor="Red"
+                    x:Name="btnSetting"
+                    Text=""
+                    SemanticProperties.Hint="Settings"
+                    Clicked="ShowSettings"
+                        VerticalOptions="Start"
+                        HorizontalOptions="Center"
+                        MinimumHeightRequest="40"
+                        IsVisible="false">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid"
+											Color="DimGray"
+											Size="20"
+											FontAutoScalingEnabled="True"                                                         
+											Glyph="&#xf7d9;" />
+                        </Button.ImageSource>
+                    </Button>
+                </VerticalStackLayout>
+            </Frame>
+        </StackLayout>        
+    </ScrollView>
+</ContentPage>

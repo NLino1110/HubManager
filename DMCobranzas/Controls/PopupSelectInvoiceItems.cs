@@ -14,12 +14,7 @@ using DMSA.Models.Odoo.Native;
 using System.Collections.ObjectModel;
 using DMSA.Models.Odoo.General.Responses;
 using System.Windows.Input;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using DMCobranzas.Settings.helpers;
-using Microsoft.Maui.Platform;
-using Microsoft.Maui.Layouts;
-using DMCobranzas.Services.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Payments;
 
 namespace DMCobranzas.Controls
 {
@@ -49,15 +44,15 @@ namespace DMCobranzas.Controls
 
             await SetWorkingStatus();
 
-            var databaseInvoice = new AccountMoveDb();
+            var databaseInvoice = new AccountMoveDb(App.Session.odooConnection.DbNameSqlite);
             var resultInvoices = await databaseInvoice.GetItemsAsync(Company.id, partner.id, 50);
 
-            var database = new AccountMoveLineDb();
+            var database = new AccountMoveLineDb(App.Session.odooConnection.DbNameSqlite);
             var result = await database.GetItemsAsync(TextForSearch, "product", resultInvoices.ToArray(), 25);
 
             //TODO: Proceso de agrupación, los items no deben repetirse
-            var grupo = result.GroupBy(u=>u.productId).ToList();
-            var listaItemsAgrupados = grupo.SelectMany(grupo => grupo).DistinctBy(item => item.productId).ToList();
+            var grupo = result.GroupBy(u=>u._product_id).ToList();
+            var listaItemsAgrupados = grupo.SelectMany(grupo => grupo).DistinctBy(item => item._product_id).ToList();
 
             resultItemsSearch = new ObservableCollection<account_move_line>(listaItemsAgrupados);
             _collectionViewSearch.ItemsSource = resultItemsSearch;
@@ -96,7 +91,7 @@ namespace DMCobranzas.Controls
         {
             SetTitle(Company.name);
             SetSubtitle(partner.name);
-            SetGridTitles("Col1, Col2, Col3, Col4");            
+            SetGridTitles("Col1, Col2, Col3, Col4");
         }
 
         async void _searchBar_BeginSearch(object sender, EventArgs e)

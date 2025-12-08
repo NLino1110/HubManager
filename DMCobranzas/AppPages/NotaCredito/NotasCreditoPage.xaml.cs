@@ -24,7 +24,7 @@ using System.Drawing;
 using System.Windows.Input;
 using System.Xml.Linq;
 using DMSA.Models.Odoo.DMCobranzas;
-using DMCobranzas.Services.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Payments;
 
 namespace DMCobranzas.AppPages.NotaCredito;
 
@@ -155,7 +155,7 @@ public partial class NotasCreditoPage : ContentPage
 
             DateTime dateEndField = dateEnd.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
 
-            var database = new AccountMoveSendHeaderDb();
+            var database = new AccountMoveSendHeaderDb(App.Session.odooConnection.DbNameSqlite);
             var ls_items = await database.GetItemsAsync(se.id, dateIni.Date, dateEndField,
                  App.Session.CurrentUser.uid, txtSearch.Text.Trim());
 
@@ -258,7 +258,7 @@ public partial class NotasCreditoPage : ContentPage
     private async void DeleteItem(object obj)
     {
         AccountMoveSendHeader _accountMoveSendHeader = (AccountMoveSendHeader)obj;
-        AccountMoveSendDb accountMoveSendDb = new AccountMoveSendDb();
+        AccountMoveSendDb accountMoveSendDb = new AccountMoveSendDb(App.Session.odooConnection.DbNameSqlite);
         var movesItems = await accountMoveSendDb.GetByParent(_accountMoveSendHeader.id);
 
         int countMoves = movesItems.Count;
@@ -270,7 +270,7 @@ public partial class NotasCreditoPage : ContentPage
             return;
         }
 
-        AccountMoveSendHeaderDb accountMoveSendHeaderDb = new AccountMoveSendHeaderDb();
+        AccountMoveSendHeaderDb accountMoveSendHeaderDb = new AccountMoveSendHeaderDb(App.Session.odooConnection.DbNameSqlite);
 
         await accountMoveSendHeaderDb.DeleteRecursive(_accountMoveSendHeader);
         //accountMoveSendHeaderDb.
@@ -285,7 +285,7 @@ public partial class NotasCreditoPage : ContentPage
     private async void SendItemHeader(object obj)
     {
         AccountMoveSendHeader _accountMoveSendHeader = (AccountMoveSendHeader)obj;
-        AccountMoveSendDb accountMoveSendDb = new AccountMoveSendDb();
+        AccountMoveSendDb accountMoveSendDb = new AccountMoveSendDb(App.Session.odooConnection.DbNameSqlite);
         var movesItems = await accountMoveSendDb.GetByParent(_accountMoveSendHeader.id);
 
         int countMoves = movesItems.Count;

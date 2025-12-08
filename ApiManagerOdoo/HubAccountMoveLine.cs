@@ -10,6 +10,25 @@ namespace ApiManager
 {
     public class HubAccountMoveLine : HubBase
     {
+        private readonly string[] fields_array = new[] { 
+            "id",
+                    "move_id",
+                    "sequence",
+                    "name",
+                    "product_id",
+                    "quantity",
+                    "price_unit",
+                    "price_subtotal",
+                    "discount_balance",
+                    "price_total",
+                    "discount",//"discount_percentage", 
+                    "tax_ids",
+                    "analytic_line_ids",
+                    "display_type",
+                    "account_id",
+                    "create_date",
+                    "write_date" };
+
         public HubAccountMoveLine(AppSession _setAppSession) : base(_setAppSession)
         {
             EndPointApi = "/web/dataset/call_kw";
@@ -35,10 +54,25 @@ namespace ApiManager
         {
             var kwargs = new
             {
-                fields = new[] { "id", "move_id", "sequence", "name", "product_id", 
-                    "quantity", "price_unit", "price_subtotal", "discount_balance", 
-                    "price_total", "discount_percentage", "tax_ids", "analytic_line_ids", 
-                    "display_type", "account_id", "create_date", "write_date" }
+                fields = fields_array
+            };
+
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] { "date", ">=", $"{dateIni.ToString("yyyy-MM-dd")}" },
+            };
+
+            return await SearchRead<ApiResponseOdooRpcT<account_move_line[]>>(args, _custom_args, kwargs);
+
+        }
+
+        public async Task<ApiResponseOdooRpcT<account_move_line[]>?> GetAccountMoveLines(DateTime dateIni, int limit, int index)
+        {
+            var kwargs = new
+            {
+                limit = limit,
+                offset = (index * limit),
+                fields = fields_array
             };
 
             object[] args = new object[] { };
@@ -74,8 +108,25 @@ namespace ApiManager
         {
             var kwargs = new
             {
-                fields = new[] { "id","move_id","sequence","name","product_id","quantity","price_unit","price_subtotal","discount_balance","price_total","discount_percentage","tax_ids","analytic_line_ids","display_type","account_id","create_date","write_date"
- }
+                fields = fields_array
+                //new[] { "id",
+                //    "move_id",
+                //    "sequence",
+                //    "name",
+                //    "product_id",
+                //    "quantity",
+                //    "price_unit",
+                //    "price_subtotal",
+                //    "discount_balance",
+                //    "price_total",
+                //    "discount_percentage",
+                //    "tax_ids",
+                //    "analytic_line_ids",
+                //    "display_type",
+                //    "account_id",
+                //    "create_date",
+                //    "write_date"
+                //}
             };
 
             object[] args = new object[] { };
@@ -92,8 +143,25 @@ namespace ApiManager
         {
             var kwargs = new
             {
-                fields = new[] { "id","move_id","sequence","name","product_id","quantity","price_unit","price_subtotal","discount_balance","price_total","discount_percentage","tax_ids","analytic_line_ids","display_type","account_id","create_date","write_date"
- }
+                fields = fields_array
+                 //               fields = new[] { "id",
+                 //                   "move_id",
+                 //                   "sequence",
+                 //                   "name",
+                 //                   "product_id",
+                 //                   "quantity",
+                 //                   "price_unit",
+                 //                   "price_subtotal",
+                 //                   "discount_balance",
+                 //                   "price_total",
+                 //                   "discount_percentage",
+                 //                   "tax_ids",
+                 //                   "analytic_line_ids",
+                 //                   "display_type",
+                 //                   "account_id",
+                 //                   "create_date",
+                 //                   "write_date"
+                 //}
             };
 
             object[] args = new object[] { };

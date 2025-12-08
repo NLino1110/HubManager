@@ -16,7 +16,7 @@ using System.Reflection;
 using DMSA.Models.Odoo.Tools;
 using Parlot.Fluent;
 using DMSA.Models.Odoo.DMCobranzas;
-using DMCobranzas.Services.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Payments;
 
 namespace DMCobranzas.Models
 {
@@ -32,7 +32,7 @@ namespace DMCobranzas.Models
                 error = null
             };
 
-            AccountPaymentHeaderDb cobReciboCabDb = new AccountPaymentHeaderDb();
+            AccountPaymentHeaderDb cobReciboCabDb = new AccountPaymentHeaderDb(App.Session.odooConnection.DbNameSqlite);
 
             if (_accountPaymentHeader.payment_status == DMSA.Models.CobrosEstados.PENDIENTE)
             {
@@ -70,11 +70,11 @@ namespace DMCobranzas.Models
 
             HubAccountPayment apiProcessor = new HubAccountPayment(App.Session);
 
-            AccountPaymentDb accountPaymentDb = new AccountPaymentDb();
+            AccountPaymentDb accountPaymentDb = new AccountPaymentDb(App.Session.odooConnection.DbNameSqlite);
 
             var paymentList = await accountPaymentDb.GetByParent(_accountPaymentHeader.id);
 
-            AccountPaymentInvoiceLineDb accountPaymentLines = new AccountPaymentInvoiceLineDb();
+            AccountPaymentInvoiceLineDb accountPaymentLines = new AccountPaymentInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
 
             bool everyThingOk = false;
             foreach (var payment in paymentList)
@@ -83,14 +83,14 @@ namespace DMCobranzas.Models
 
                 if (payment.partner_bank_id < 0)
                 {
-                    PartnerBankDb bankDb = new PartnerBankDb();
-                    var partnerBankItemRed = await bankDb.GetItem(payment.partner_bank_id);
+                    PartnerBankDb bankDb = new PartnerBankDb(App.Session.odooConnection.DbNameSqlite);
+                    var partnerBankItemRed = await bankDb.GetItemAsync(x => x.id == payment.partner_bank_id);
 
                     res_partner_bank_send partnerBankItem = new res_partner_bank_send();
 
-                    partnerBankItem.partner_id = partnerBankItemRed.PartnerId;
-                    partnerBankItem.bank_id = partnerBankItemRed.BankId;
-                    partnerBankItem.currency_id = partnerBankItemRed.CurrencyId;
+                    partnerBankItem.partner_id = partnerBankItemRed._partner_id;
+                    partnerBankItem.bank_id = partnerBankItemRed._bank_id;
+                    partnerBankItem.currency_id = partnerBankItemRed._currency_id;
                     partnerBankItem.acc_number = partnerBankItemRed.acc_number;
                     partnerBankItem.acc_holder_name = partnerBankItemRed.acc_holder_name;
                     partnerBankItem.type_account = partnerBankItemRed.type_account;
@@ -300,7 +300,7 @@ namespace DMCobranzas.Models
                 error = null
             };
 
-            AccountPaymentHeaderDb cobReciboCabDb = new AccountPaymentHeaderDb();
+            AccountPaymentHeaderDb cobReciboCabDb = new AccountPaymentHeaderDb(App.Session.odooConnection.DbNameSqlite);
 
             if (_accountPaymentHeader.payment_status == DMSA.Models.CobrosEstados.PENDIENTE)
             {
@@ -338,11 +338,11 @@ namespace DMCobranzas.Models
 
             HubAccountPayment apiProcessor = new HubAccountPayment(App.Session);
 
-            AccountPaymentDb accountPaymentDb = new AccountPaymentDb();
+            AccountPaymentDb accountPaymentDb = new AccountPaymentDb(App.Session.odooConnection.DbNameSqlite);
 
             var paymentList = await accountPaymentDb.GetByParent(_accountPaymentHeader.id);
 
-            AccountPaymentInvoiceLineDb accountPaymentLines = new AccountPaymentInvoiceLineDb();
+            AccountPaymentInvoiceLineDb accountPaymentLines = new AccountPaymentInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
 
             bool everyThingOk = false;
             foreach (var payment in paymentList)
@@ -351,14 +351,14 @@ namespace DMCobranzas.Models
 
                 if (payment.partner_bank_id < 0)
                 {
-                    PartnerBankDb bankDb = new PartnerBankDb();
-                    var partnerBankItemRed = await bankDb.GetItem(payment.partner_bank_id);
+                    PartnerBankDb bankDb = new PartnerBankDb(App.Session.odooConnection.DbNameSqlite);
+                    var partnerBankItemRed = await bankDb.GetItemAsync(x => x.id == payment.partner_bank_id);
 
                     res_partner_bank_send partnerBankItem = new res_partner_bank_send();
 
-                    partnerBankItem.partner_id = partnerBankItemRed.PartnerId;
-                    partnerBankItem.bank_id = partnerBankItemRed.BankId;
-                    partnerBankItem.currency_id = partnerBankItemRed.CurrencyId;
+                    partnerBankItem.partner_id = partnerBankItemRed._partner_id;
+                    partnerBankItem.bank_id = partnerBankItemRed._bank_id;
+                    partnerBankItem.currency_id = partnerBankItemRed._currency_id;
                     partnerBankItem.acc_number = partnerBankItemRed.acc_number;
                     partnerBankItem.acc_holder_name = partnerBankItemRed.acc_holder_name;
                     partnerBankItem.type_account = partnerBankItemRed.type_account;
@@ -554,13 +554,13 @@ namespace DMCobranzas.Models
             List<account_move_line_send> account_Move_Line_Sends = new List<account_move_line_send>();
 
             HubAccountMoveRefund hubAccountMoveRefund = new HubAccountMoveRefund(App.Session);
-            AccountMoveSendDb accountMoveSendDb = new AccountMoveSendDb();
+            AccountMoveSendDb accountMoveSendDb = new AccountMoveSendDb(App.Session.odooConnection.DbNameSqlite);
 
             var accountMoveSendList = await accountMoveSendDb.GetByParent(_accountMoveSendHeader.id);
 
             foreach (var accountMoveSend in accountMoveSendList)
             {
-                AccountMoveLineSendDb accountMoveLineSendDb = new AccountMoveLineSendDb();
+                AccountMoveLineSendDb accountMoveLineSendDb = new AccountMoveLineSendDb(App.Session.odooConnection.DbNameSqlite);
                 var linesItems = await accountMoveLineSendDb.GetItemsByParentAsync(accountMoveSend.id);
 
                 int sequence = 1;
@@ -588,7 +588,7 @@ namespace DMCobranzas.Models
                 error = null
             };
 
-            AccountMoveSendHeaderDb accountMoveSendHeaderDb = new AccountMoveSendHeaderDb();
+            AccountMoveSendHeaderDb accountMoveSendHeaderDb = new AccountMoveSendHeaderDb(App.Session.odooConnection.DbNameSqlite);
 
             if (_accountMoveSendHeader.request_status == DMSA.Models.MoveStatus.PENDIENTE)
             {
@@ -622,8 +622,8 @@ namespace DMCobranzas.Models
 
             _accountMoveSendHeader.serialNumber = "unknown" + "-" + App.Session.AppVersion;
 
-            AccountMoveSendDb accountMoveSendDb = new AccountMoveSendDb();
-            AccountMoveLineSendDb accountMoveLineSendDb = new AccountMoveLineSendDb();
+            AccountMoveSendDb accountMoveSendDb = new AccountMoveSendDb(App.Session.odooConnection.DbNameSqlite);
+            AccountMoveLineSendDb accountMoveLineSendDb = new AccountMoveLineSendDb(App.Session.odooConnection.DbNameSqlite);
 
             var accountMoveSendList = await accountMoveSendDb.GetByParent(_accountMoveSendHeader.id);
 
@@ -793,7 +793,7 @@ namespace DMCobranzas.Models
                 error = null
             };
 
-            AccountMoveSendHeaderDb accountMoveSendHeaderDb = new AccountMoveSendHeaderDb();
+            AccountMoveSendHeaderDb accountMoveSendHeaderDb = new AccountMoveSendHeaderDb(App.Session.odooConnection.DbNameSqlite);
 
             if (_accountMoveSendHeader.request_status == DMSA.Models.MoveStatus.PENDIENTE)
             {
@@ -827,7 +827,7 @@ namespace DMCobranzas.Models
 
             _accountMoveSendHeader.serialNumber = "unknown" + "-" + App.Session.AppVersion;
 
-            AccountMoveSendDb accountMoveSendDb = new AccountMoveSendDb();
+            AccountMoveSendDb accountMoveSendDb = new AccountMoveSendDb(App.Session.odooConnection.DbNameSqlite);
 
             var accountMoveSendList = await accountMoveSendDb.GetByParent(_accountMoveSendHeader.id);
 
@@ -873,7 +873,7 @@ namespace DMCobranzas.Models
             var resultTask = await hubAccountMoveRefund.SendHeader_Mode_Dataset(_account_move_send);
             if (resultTask.result > 0 && resultTask.error == null)
             {
-                AccountMoveSendDb accountMoveSendDb = new AccountMoveSendDb();
+                AccountMoveSendDb accountMoveSendDb = new AccountMoveSendDb(App.Session.odooConnection.DbNameSqlite);
                 //Primera actualización de la cabecera
                 _account_move_send.doc_status = "sended";
                 _account_move_send.send_date = DateTime.Now;
@@ -918,12 +918,12 @@ namespace DMCobranzas.Models
             var resultTask = await hubAccountMoveRefund.SendHeader(_account_move_send);
             if (resultTask.result > 0)
             {
-                AccountMoveSendDb accountMoveSendDb = new AccountMoveSendDb();
+                AccountMoveSendDb accountMoveSendDb = new AccountMoveSendDb(App.Session.odooConnection.DbNameSqlite);
                 //Primera actualización de la cabecera
                 _account_move_send.doc_status = "sended";
                 await accountMoveSendDb.UpdateAsync(_account_move_send);
 
-                AccountMoveLineSendDb accountMoveLineSendDb = new AccountMoveLineSendDb();
+                AccountMoveLineSendDb accountMoveLineSendDb = new AccountMoveLineSendDb(App.Session.odooConnection.DbNameSqlite);
                 var linesItems = await accountMoveLineSendDb.GetItemsByParentAsync(_account_move_send.id);
 
                 int sequence = 1;

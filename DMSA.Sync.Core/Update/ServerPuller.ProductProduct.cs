@@ -1,16 +1,17 @@
-﻿using DMOrders.Services.Database.Sqlite;
-using DMSA.Models.Odoo.Native;
+﻿using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Origin;
+using DMSA.Sync.Core.Controls;
+using DMSA.Sync.Core.Database.Sqlite;
 using Newtonsoft.Json;
 using System.Diagnostics;
 
-namespace DMOrders.Services.Update
+namespace DMSA.Sync.Core.Update
 {
     public partial class ServerPuller
     {
-        public async Task ProcProductProduct(object obj, string[] ListFiles)
+        public async Task ProcProductProduct(ProgressBarAnimationBehaviorPage obj, string[] ListFiles)
         {
-            var database = new ProductProductDb(DbNameSqlite);
+            var database = new ProductProductDb(Constants.Session.odooConnection.DbNameSqlite);
             
             int fileIndex = 1;
 
@@ -19,7 +20,7 @@ namespace DMOrders.Services.Update
                 Debug.WriteLine("Procesando archivo de cache:");
                 Debug.WriteLine(fileNameJson);
 
-                //obj.SetTitle($"Proc. {Path.GetFileName(fileNameJson)} ({fileIndex}/{ListFiles.Length})");
+                obj.SetTitle($"Proc. {Path.GetFileName(fileNameJson)} ({fileIndex}/{ListFiles.Length})");
 
                 string jsonFileItem = File.ReadAllText(fileNameJson);
                 var listObjects = JsonConvert.DeserializeObject<ProductProductOrigin>(jsonFileItem);
@@ -50,13 +51,15 @@ namespace DMOrders.Services.Update
 
         public async Task<bool> OnlineSyncProductProduct()
         {
+            var database = new ProductProductDb(Constants.Session.odooConnection.DbNameSqlite);
             var stopwatch = Stopwatch.StartNew();
 
-            DateTime dateIni = sync_date_since.Value;
+            //DateTime dateIni = appSession.sync_date_since;
             DateTime dateEnd = DateTime.Now;
 
             ApiManager.HubProductProduct hubmanager = new ApiManager.HubProductProduct(appSession);
-            var resultCount = await hubmanager.GetCount();
+            DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since_lower);
+            var resultCount = await hubmanager.GetCount(lastDate);
 
             Debug.WriteLine(resultCount.result);
 
@@ -67,11 +70,11 @@ namespace DMOrders.Services.Update
 
             int countTotal = resultCount.result / 300;
 
-            var database = new ProductProductDb(DbNameSqlite);
+            
 
             for (int indice = 0; indice <= countTotal; indice++)
             {
-                var responseAll = await hubmanager.GetByCreateDateRange(limit, indice, dateIni, dateEnd);
+                var responseAll = await hubmanager.GetByCreateDateRange(limit, indice, lastDate.Value, dateEnd);
 
                 if (responseAll != null && responseAll.result != null && responseAll.result.Length > 0)
                 {
@@ -103,7 +106,7 @@ namespace DMOrders.Services.Update
         {
             var stopwatch = Stopwatch.StartNew();
 
-            var database = new ProductMarcaDb(DbNameSqlite);
+            var database = new ProductMarcaDb(Constants.Session.odooConnection.DbNameSqlite);
             DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since);
 
             var hubmanager = new ApiManager.HubProductMarca(appSession);

@@ -349,26 +349,26 @@ namespace DMOrders.Pages.Sys
                         }
 
                         //accountJournalDb.InsertAsync(itemData);
-                        itemData.BankAccountId = 0;
-                        if (itemData.bank_account_id.Count > 0)
-                        {
-                            itemData.BankAccountId = itemData.bank_account_id.FirstOrDefault().id;
+                        //itemData._bank_account_id = 0;
+                        //if (itemData.bank_account_id.Count > 0)
+                        //{
+                        //    itemData._bank_account_id = itemData.bank_account_id.FirstOrDefault().id;
 
-                            //Se agrega a la lista
-                            accounts_journal_ids_list.Add(itemData.bank_account_id.FirstOrDefault().id.ToString());
-                        }
+                        //    //Se agrega a la lista
+                        //    accounts_journal_ids_list.Add(itemData.bank_account_id.FirstOrDefault().id.ToString());
+                        //}
 
-                        itemData.CompanyId = 0;
-                        if (itemData.company_id.Count > 0)
-                        {
-                            itemData.CompanyId = itemData.company_id.FirstOrDefault().id;
-                        }
+                        //itemData._company_id = 0;
+                        //if (itemData.company_id.Count > 0)
+                        //{
+                        //    itemData._company_id = itemData.company_id.FirstOrDefault().id;
+                        //}
 
-                        if (itemData.inbound_payment_method_line_ids.Count > 0)
-                        {
-                            itemData.inbound_payment_method_line_ids.ForEach(x => x.parent_id = itemData.id);
-                            await inboundPaymentMethodDb.InsertBatchAsync(itemData.inbound_payment_method_line_ids.ToArray());
-                        }
+                        //if (itemData.inbound_payment_method_line_ids.Count > 0)
+                        //{
+                        //    itemData.inbound_payment_method_line_ids.ForEach(x => x.parent_id = itemData.id);
+                        //    await inboundPaymentMethodDb.InsertBatchAsync(itemData.inbound_payment_method_line_ids.ToArray());
+                        //}
 
                         //Solo se insertarán las cuentas que tengan habilitado su uso en las apps móviles
                         await database.InsertAsync(itemData);
@@ -417,9 +417,9 @@ namespace DMOrders.Pages.Sys
                 {
                     foreach (var amlItem in listObjects.account_move_line)
                     {
-                        amlItem.productId = get_from_token(amlItem.product_id);
-                        amlItem.accountId = get_from_token(amlItem.account_id);
-                        amlItem.moveId = get_from_token(amlItem.move_id);
+                        amlItem._product_id = get_from_token(amlItem.product_id);
+                        amlItem._account_id = get_from_token(amlItem.account_id);
+                        amlItem._move_id = get_from_token(amlItem.move_id);
 
                         //if (amlItem.product_id != null && amlItem.product_id.Length > 0)
                         //{
@@ -826,50 +826,50 @@ namespace DMOrders.Pages.Sys
         {
             foreach (var amItem in account_Moves)
             {
-                if (amItem.reversed_entry_id != null && amItem.reversed_entry_id.Length > 0)
-                {
-                    amItem._reversed_entry_id = amItem.reversed_entry_id[0].id;
-                }
+                //if (amItem.reversed_entry_id != null && amItem.reversed_entry_id.Length > 0)
+                //{
+                //    amItem._reversed_entry_id = amItem.reversed_entry_id[0].id;
+                //}
 
-                if (amItem.partner_id != null && amItem.partner_id.Length > 0)
-                {
-                    amItem._partner_id = amItem.partner_id[0].id;
-                }
+                //if (amItem.partner_id != null && amItem.partner_id.Length > 0)
+                //{
+                //    amItem._partner_id = amItem.partner_id[0].id;
+                //}
 
-                if (amItem.journal_id != null && amItem.journal_id.Length > 0)
-                {
-                    amItem._journal_id = amItem.journal_id[0].id;
-                }
+                //if (amItem.journal_id != null && amItem.journal_id.Length > 0)
+                //{
+                //    amItem._journal_id = amItem.journal_id[0].id;
+                //}
 
-                if (amItem.l10n_latam_document_type_id != null && amItem.l10n_latam_document_type_id.Length > 0)
-                {
-                    amItem._l10n_latam_document_type_id = amItem.l10n_latam_document_type_id[0].id;
-                }
+                //if (amItem.l10n_latam_document_type_id != null && amItem.l10n_latam_document_type_id.Length > 0)
+                //{
+                //    amItem._l10n_latam_document_type_id = amItem.l10n_latam_document_type_id[0].id;
+                //}
 
-                if (amItem.invoice_user_id != null && amItem.invoice_user_id.Length > 0)
-                {
-                    amItem._invoice_user_id = amItem.invoice_user_id[0].id;
-                }
+                //if (amItem.invoice_user_id != null && amItem.invoice_user_id.Length > 0)
+                //{
+                //    amItem._invoice_user_id = amItem.invoice_user_id[0].id;
+                //}
 
-                if (amItem.printer_id != null && amItem.printer_id.Length > 0)
-                {
-                    amItem._printer_id = amItem.printer_id[0].id;
-                }
+                //if (amItem.printer_id != null && amItem.printer_id.Length > 0)
+                //{
+                //    amItem._printer_id = amItem.printer_id[0].id;
+                //}
 
-                if (amItem.printer_id != null && amItem.printer_id.Length > 0)
-                {
-                    amItem._printer_id = amItem.printer_id[0].id;
-                }
+                //if (amItem.printer_id != null && amItem.printer_id.Length > 0)
+                //{
+                //    amItem._printer_id = amItem.printer_id[0].id;
+                //}
 
-                if (amItem.company_id != null && amItem.company_id.Length > 0)
-                {
-                    amItem._company_id = amItem.company_id[0].id;
-                }
+                //if (amItem.company_id != null && amItem.company_id.Length > 0)
+                //{
+                //    amItem._company_id = amItem.company_id[0].id;
+                //}
 
-                if (amItem.team_id != null && amItem.team_id.Length > 0)
-                {
-                    amItem._team_id = amItem.team_id[0].id;
-                }
+                //if (amItem.team_id != null && amItem.team_id.Length > 0)
+                //{
+                //    amItem._team_id = amItem.team_id[0].id;
+                //}
             }
 
             return account_Moves;

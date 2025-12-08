@@ -1,77 +1,196 @@
-using ApiManager;
-using DMCobranzas.AppPages;
-using DMCobranzas.Models;
-using DMCobranzas.Services;
-using DMCobranzas.Settings.helpers;
-using CommunityToolkit.Maui.Alerts;
+Ôªøusing CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
-using CommunityToolkit.Maui.Markup;
-using CommunityToolkit.Maui.Views;
-using DMSA.Models.Odoo;
-using DMSA.Models.Odoo.General.Responses;
-using DMSA.Models.Odoo.Native;
-using DMSA.Models.Security;
-using Microsoft.Maui.ApplicationModel.Communication;
-using Microsoft.Maui.Controls;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using RestSharp;
-using System.Buffers;
-using System.Diagnostics;
-using System.Threading;
-using System.Timers;
+using DMCobranzas.AppPages;
+using DMCobranzas.AppPages.Sys;
+using DMCobranzas.Controls.Tools;
+//using DMOrders.Controls.Tools;
+//using DMOrders.Pages.Sys;
+//using DMOrders.Services.Database.Sqlite;
+//using DMOrders.Services.Helpers;
+//using DMOrders.Services.Update;
+using DMSA.Models.Odoo.Abstract;
 using DMSA.Models.Odoo.DMApps;
-using DMCobranzas.Services.Database;
-using DMCobranzas.Services.Database.Sqlite;
-//using DMCobranzas;
+using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Tools;
+using DMSA.Models.Security;
+using DMSA.Sync.Core;
+using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Update;
+using System.Buffers;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Timers;
+using UraniumUI.Dialogs;
+using UraniumUI.Material.Controls;
 
 namespace DMCobranzas;
 
 public partial class Login : ContentPage
 {
+    public OdooConnection SelConnection { get; set; }
+
+    public res_company SelCompany { get; set; } = new();
+
+    public ObservableCollection<OdooConnection> OdooConnectionItems { get; set; } = new();
+
+    public ObservableCollection<res_center> Agencies { get; set; } = new();
+
+    public IDialogService DialogService { get; }
+
     private int _tapCount = 0;
     private System.Timers.Timer _timer;
     private const double TimeToReset = 2000;
 
+    private bool _isFirstAppearing = true;
     public Login()
     {
+        InitializeComponent();        
+    }
+
+    public Login(IEnumerable<IDialogService> dialogServices)
+    {
         InitializeComponent();
+    }
 
-        Task.Run(async () =>
+    public static class ToastHelper
+    {
+        public static async Task RunWithToastAsync(string message, Func<Task> action)
         {
-            SetupTapGesture();
+            using var cts = new CancellationTokenSource();
 
-            await LoadSettingsFromDb();
+            var toast = Toast.Make(message, ToastDuration.Long, textSize: 14);
+            var toastTask = toast.Show(cts.Token);
 
-            Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-            Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0, 10));
+            try
+            {
+                // Ejecuta la acci√≥n que le pases
+                await action();
+            }
+            finally
+            {
+                // Al terminar, se oculta el toast
+                cts.Cancel();
+            }
+        }
+    }
 
-            txtEnvironment.Text = "Desarrollo";
-
-            lblAppVersion.Text = "VersiÛn " + App.Session.AppVersion;
-
-//            if (App.Session.odooConnection.IsProduction)
-//            {
-//                txtEnvironment.Text = "ProducciÛn";
-//            }
-//            else
-//            {
-//#if DEBUG
-//                txtEnvironment.Text += " + DEBUG";
-//#endif
-//            }
-
-            //if (App.Session.odooConnection.IsTestMode)
-            //{
-            //    EntryUserName.Text = "admin";
-            //    EntryPassword.Text = "admin";
-            //}
-
-            Debug.WriteLine(txtEnvironment.Text);
-            Debug.WriteLine(lblAppVersion.Text);
-        });        
+    public async Task SetupLogin()
+    {        
+        SetupTapGesture();
                 
+        OdooConnectionItems = new ObservableCollection<OdooConnection>();
+        ddCompany.ItemsSource = OdooConnectionItems;
+        //ddCompany.ItemDisplayBinding = new Binding(nameof(OdooConnection.Name));
+        ddCompany.ItemDisplayBinding = new Binding("Name");
+
+        ddCompany.SelectedItemChanged += async (s, e) =>
+        {
+            if (ddCompany.SelectedItem == null)
+                return;
+
+            SelConnection = (OdooConnection)ddCompany.SelectedItem;
+            App.Session.odooConnection = SelConnection;
+            App.Session.CurrentUser = new User
+            {
+                username = App.Session.odooConnection.Username,
+                password = App.Session.odooConnection.Password,
+                databasename = App.Session.odooConnection.DbName,
+            };
+
+            LoadEnvironment();
+
+            CompanyDb companyDb = new CompanyDb(App.Session.odooConnection.DbNameSqlite);
+            SelCompany = (await companyDb.GetItemsAsync()).Where(x => x.id == SelConnection.CompanyId).FirstOrDefault();
+
+            if (SelCompany == null)
+            {
+                await Toast.Make("Error: No se encontr√≥ la empresa asociada a la conexi√≥n.").Show();
+                return;
+            }
+
+            var storesDb = new ResCenterDb(App.Session.odooConnection.DbNameSqlite);
+
+            var storesItems = (await Task.Run(async () => await storesDb.GetItemsAsync()))
+                              .Where(s => s.company_id == SelCompany.id && s.type_center == "M")
+                              .ToArray();
+            ddAgency.ItemsSource = storesItems;
+            ddAgency.ItemDisplayBinding = new Binding("name");
+            ddAgency.SelectedItem = storesItems.FirstOrDefault();
+        };
+
+        await LoadSettingsFromDb();
+        await PrepareConnections();
+
+        //await ToastHelper.RunWithToastAsync("Procesando...", async () =>
+        //{
+        //    // Aqu√≠ tu l√≥gica
+        //    await Task.Delay(15000); // simula proceso
+        //});
+
+        //var cts = new CancellationTokenSource();
+        //var toast = Toast.Make("Cargando...");
+        //var toastTask = toast.Show(cts.Token);
+
+        var serverPuller = new ServerPuller();
+        var pullResult = await serverPuller.Pull();
+
+        //if(true)
+        //    await serverPuller.PullPromotions();
+        
+        if (!pullResult)
+        {
+            await Toast.Make("Datos base incorrectos.").Show();
+        }
+        else
+        {
+            await Toast.Make("Datos base correctos.").Show();
+        }
+
+        //cts.Cancel();
+
+        App.Session.useOfflineMode = false;
+
+        Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+        Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0, 10));
+        
+        lblAppVersion.Text = "Versi√≥n " + App.Session.AppVersion;
+
+        if (App.Session.useOfflineMode)
+        {
+            Debug.WriteLine("Se usar√° modo modo offline.");
+            await Toast.Make("Se usar√° modo modo offline.").Show();
+        }
+        
         Application.Current.UserAppTheme = AppTheme.Light;
+    }
+
+    private void LoadEnvironment()
+    {
+        if (App.Session.odooConnection.IsProduction)
+        {
+            txtEnvironment.Text = "Producci√≥n";
+        }
+        else
+        {
+#if DEBUG
+            txtEnvironment.Text = "Desarrollo";
+            txtEnvironment.Text += " + DEBUG";
+#endif
+        }
+
+        if (App.Session.odooConnection.IsTestMode)
+        {
+            txtUser.Text = "rchonillo@macronegocios.ec";
+            txtPassword.Text = "mnsa_18";
+        }
+
+        Debug.WriteLine(txtEnvironment.Text);
+        Debug.WriteLine(lblAppVersion.Text);
+    }
+
+    private void Login_Loaded(object? sender, EventArgs e)
+    {
+        
     }
 
     private void OnSingleTapped()
@@ -79,6 +198,7 @@ public partial class Login : ContentPage
         //throw new NotImplementedException();
         Debug.WriteLine("1-Tap-Click");
     }
+
     private void OnDoubleTapped()
     {
         //throw new NotImplementedException();
@@ -94,7 +214,7 @@ public partial class Login : ContentPage
 
         _timer = new System.Timers.Timer(TimeToReset);
         _timer.Elapsed += OnTimerElapsed;
-        _timer.AutoReset = false; // Para que el timer no se reinicie autom·ticamente
+        _timer.AutoReset = false; // Para que el timer no se reinicie autom√°ticamente
     }
 
     private void OnLabelTapped(object sender, EventArgs e)
@@ -111,7 +231,7 @@ public partial class Login : ContentPage
         }
         else
         {
-            // Restablecer el timer cada vez que se registra un toque, excepto el primero y el ˙ltimo
+            // Restablecer el timer cada vez que se registra un toque, excepto el primero y el √∫ltimo
             _timer.Stop();
             _timer.Start();
         }
@@ -119,11 +239,26 @@ public partial class Login : ContentPage
 
     private async void PerformAction()
     {
-        // AquÌ ejecutar·s la acciÛn deseada despuÈs de 6 toques
-        //Debug.WriteLine("AcciÛn ejecutada despuÈs de 6 toques");
+        // Aqu√≠ ejecutar√°s la acci√≥n deseada despu√©s de 6 toques
+        //Debug.WriteLine("Acci√≥n ejecutada despu√©s de 6 toques");
         Debug.WriteLine("SettingsPage");
-        SettingsPage objPage = new SettingsPage();
+        
+        //SettingsPage objPage = new SettingsPage();
+
+        Connections objPage = new Connections();
+        objPage.Disappearing += ObjSettingPage_Disappearing;        
         await Navigation.PushModalAsync(objPage);
+    }
+
+    private async void ObjSettingPage_Disappearing(object? sender, EventArgs e)
+    {
+        var senderObject = (Connections) sender;
+        if (senderObject.Navigation.ModalStack.Count == 0)
+        {
+            Debug.WriteLine("Si es el cierre correcto");            
+            await LoadSettingsFromDb();
+            await PrepareConnections();            
+        }
     }
 
     private void OnTimerElapsed(object sender, ElapsedEventArgs e)
@@ -154,25 +289,28 @@ public partial class Login : ContentPage
     private void Entry_Completed(object sender, EventArgs e)
     {
         Debug.WriteLine("Logged");
-        TryLogin(sender, e);
+        //TryLogin(sender, e);
     }
 
     private void OnEntryCompleted(object sender, EventArgs e)
     {
         Debug.WriteLine("Logged");
     }
-
+    
     public async Task<bool> LoadSettingsFromDb()
     {
-        AppSettingsDb appSettingsDb = new AppSettingsDb();
-        await appSettingsDb.InitDefault();
+        OdooConnectionDb odooConnectionDb = new OdooConnectionDb();
+        await Task.Run(async () => await odooConnectionDb.InitDefault());
+
+        //AppSettingsDb appSettingsDb = new AppSettingsDb();
+        //await Task.Run(async () => await appSettingsDb.InitDefault());
 
         //App.Session.isProduction = await appSettingsDb.getBoolean("is_production");
         //App.Session.isTestMode = await appSettingsDb.getBoolean("is_test_mode");
-        
+
         //App.Session.EndPointServerProd = await appSettingsDb.getString("endpoint_server_prod");
         //App.Session.EndPointServer = await appSettingsDb.getString("endpoint_server_dev");
-        
+
         ////App.Session.EndPointResourceServer = await appSettingsDb.getString("url_resources_dev");
 
         //App.Session.StaticResources_Server = await appSettingsDb.getString("url_resources_dev");
@@ -187,18 +325,21 @@ public partial class Login : ContentPage
         //var usernameback = await appSettingsDb.getString("back_user");
         //var passwordback = await appSettingsDb.getString("back_user_password");
 
-        //App.Session.CurrentUserFront = new User()
-        //{
-        //    username = usernameback,
-        //    password = passwordback
-        //};
+        //passwordback = CryptoHelper.Decrypt(passwordback);
+
+        App.Session.CurrentUserFront = new User()
+        {
+            //username = usernameback,
+            //password = passwordback,
+            //databasename = App.Session.DefaultDatabase
+        };
 
         return true;
     }
 
     public async Task<bool> SetDataSessionOnLine(User resultUser, DateTime currentDate)
     {
-        var database = new UserAccessDb();
+        var database = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
 
         ApiManager.HubUser hubUser = new ApiManager.HubUser(App.Session);
         var resultValidacion = await hubUser.ValidaSincronizacionAsync(resultUser, currentDate);
@@ -206,58 +347,34 @@ public partial class Login : ContentPage
         if (resultValidacion != null)
         {
             //resultValidacion.empresas
-            Debug.WriteLine("ValidaciÛn:" + resultValidacion.data[0].companies);
+            Debug.WriteLine("Validaci√≥n:" + resultValidacion.data[0].companies);
         }
-
-        if(resultValidacion == null)
+        else if(resultValidacion == null || resultValidacion.data == null || resultValidacion.message == null)
         {
-            await Toast.Make("Se requiere verificaciÛn en linea por falta de datos, pero no se encontrÛ servidor.").Show();
+            await Toast.Make("Se requiere verificaci√≥n en linea por falta de datos, pero no se encontr√≥ servidor.").Show();
             return false;
         }
 
-        //var resultUser = Newtonsoft.Json.JsonConvert.DeserializeObject<User>(result);
-
-        //dynamic resultUsers = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(result);
-        //Console.WriteLine(resultUsers.data.ToString());
-        //var resultUser = Newtonsoft.Json.JsonConvert.DeserializeObject<List<User>>(resultUsers.data.ToString());
-        //App.Current.MainPage = new MainPage();
-        //App.Current.MainPage = new AppShell();
-
         resultUser.log_fec_acceso = resultValidacion.data[0].datetime;
-        //Se prepara para la sesiÛn el scope de la aplicaciÛn
+        //Se prepara para la sesi√≥n el scope de la aplicaci√≥n
         //AppSession ns = new AppSession();
         App.Session.CurrentUserFront = resultUser;
         App.Session.CurrentUserFront.empresas = resultValidacion.data[0].companies;
         //App.Session = ns;
 
-        //Se realiza inserciÛn/actualizaciÛn en la tabla
+        //Se realiza inserci√≥n/actualizaci√≥n en la tabla
 
         user_access itemInsert = new user_access();
         itemInsert.name = resultUser.nombres;
         itemInsert.uid = resultUser.uid;
+        itemInsert.partner_id = resultUser.partner_id;
         itemInsert.pwd = resultUser.password;
         itemInsert.username = resultUser.username;
-
         itemInsert.api_key = resultUser.api_key;
         itemInsert.token_type = resultUser.token_type;
         itemInsert.access_token = resultUser.access_token;
         itemInsert.databasename = resultUser.databasename;
-
-        //TODO: Nombre confuso fechasincronizado
-        //itemInsert.ULTIMAACTUALIZACION = resultUser.fechasincronizado;
-
-        //FIX: 
-        //---
-        //itemInsert.ULTIMAACTUALIZACION = resultValidacion.data[0].datetime.ToString("dd/MM/yyyy HH:mm:ss");
-        //+++
-        itemInsert.log_fec_acceso = resultValidacion.data[0].datetime;
-        //NO SE ASIGNA PORQUE SE ASUME QUE NO HAY DATOS DE SINCRONIZACI”N
-        //itemInsert.log_fec_sincro = resultValidacion.fecha.AddDays(-3);
-
-        //TODO: Nombre confuso FECHAACTUAL
-        //itemInsert.FECHAACTUAL = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
-        //TODO: Nombre confuso FECHAACTNC
-        //itemInsert.FECHAACTNC = "";
+        itemInsert.log_fec_acceso = resultUser.log_fec_acceso;        
 
         itemInsert.companies = Newtonsoft.Json.JsonConvert.SerializeObject(resultValidacion.data[0].companies);
 
@@ -297,7 +414,7 @@ public partial class Login : ContentPage
         {
             return HashCode.Combine(
                 obj.name,
-                obj.partner_id_ ,
+                obj.partner_id_,
                 obj.email,
                 obj.phone,
                 obj.mobile,
@@ -311,6 +428,7 @@ public partial class Login : ContentPage
         }
     }
 
+    [Obsolete]
     private async Task<res_company[]> PrepareCompanies(user_access userFound)
     {
         res_company[] _empresas = new res_company[0];
@@ -318,8 +436,8 @@ public partial class Login : ContentPage
 
         int[] _companyIds = _empresas.Select(x => x.id).ToArray();
 
-        CompanyDb companyDb = new CompanyDb();
-        var listCompany = (await companyDb.GetItemsAsync()).Where(x=> _companyIds.Contains(x.id));
+        CompanyDb companyDb = new CompanyDb(App.Session.odooConnection.DbNameSqlite);
+        var listCompany = (await companyDb.GetItemsAsync()).Where(x => _companyIds.Contains(x.id));
         bool areEqual = _empresas.ToList().SequenceEqual(listCompany, new CompanyComparer());
 
         if (!areEqual)
@@ -330,17 +448,32 @@ public partial class Login : ContentPage
         return _empresas;
     }
 
+    private async Task PrepareConnections()
+    {
+        ddCompany.ItemsSource = null;
+        OdooConnectionItems = new ObservableCollection<OdooConnection>();
+
+        OdooConnectionDb connectionsDb = new OdooConnectionDb();
+        IEnumerable<OdooConnection> filtered = (await connectionsDb.GetItemsAsync()).Where(c => c.Active);
+        OdooConnectionItems = new ObservableCollection<OdooConnection>(filtered.ToList());
+        ddCompany.ItemsSource = OdooConnectionItems;
+        ddCompany.ItemDisplayBinding = new Binding("Name");        
+
+        ddCompany.SelectedItem = OdooConnectionItems.FirstOrDefault();
+        Debug.WriteLine("Conexiones cargadas!!");
+    }
+        
     public async Task<bool> SetDataSessionOffLine(User resultUser, user_access userFound, DateTime currentDate)
     {
-        var database = new UserAccessDb();
+        var database = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
         res_company[] _empresas = new res_company[0];
 
         //if(userFound.companies!= null && userFound.companies != "")
         //{
-            //_empresas = Newtonsoft.Json.JsonConvert.DeserializeObject<List<res_company>>(userFound.companies).ToArray();
-            _empresas = await PrepareCompanies(userFound);
+        //_empresas = Newtonsoft.Json.JsonConvert.DeserializeObject<List<res_company>>(userFound.companies).ToArray();
+        _empresas = await PrepareCompanies(userFound);
         //}
-        
+
         if (_empresas.Length == 0)
         {
             return await SetDataSessionOnLine(resultUser, currentDate);
@@ -350,28 +483,24 @@ public partial class Login : ContentPage
         resultUser.log_fec_acceso = userFound.log_fec_acceso;
         resultUser.log_fec_sincro = userFound.log_fec_sincro;
         resultUser.log_fec_sincro_nc = userFound.log_fec_sincro_nc;
-        //Se prepara para la sesiÛn el scope de la aplicaciÛn
+        //Se prepara para la sesi√≥n el scope de la aplicaci√≥n
         //AppSession ns = new AppSession();
         App.Session.CurrentUserFront = resultUser;
         App.Session.CurrentUserFront.empresas = _empresas;
+
         //App.Session = ns;
 
-        //Se realiza inserciÛn/actualizaciÛn en la tabla
-        
+        //Se realiza inserci√≥n/actualizaci√≥n en la tabla
+
         user_access itemInsert = new user_access();
         itemInsert.name = resultUser.nombres;
         itemInsert.uid = resultUser.uid;
+        itemInsert.partner_id = resultUser.partner_id;
         itemInsert.pwd = resultUser.password;
         itemInsert.username = resultUser.username;
         itemInsert.api_key = resultUser.api_key;
         itemInsert.token_type = resultUser.token_type;
         itemInsert.access_token = resultUser.access_token;
-
-        //TODO: Nombre confuso (fechasincronizado)
-        //itemInsert.ULTIMAACTUALIZACION = resultUser.fechasincronizado;
-        //TODO: Nombre confuso (FECHAACTUAL)
-        //itemInsert.FECHAACTUAL = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
-        //itemInsert.FECHAACTNC = "";
 
         //DateTime log_fec_acceso = resultUser.fechasincronizado
         //FIX:
@@ -394,252 +523,397 @@ public partial class Login : ContentPage
         return true;
     }
 
-    //////private DateTime toDateExact(string dateString)
-    //////{
-    //////    // Intentamos convertir el string a DateTime usando el formato especÌfico
-    //////    if (DateTime.TryParseExact(dateString, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime result))
-    //////    {
-    //////        // La conversiÛn fue exitosa, result contiene la fecha sin datos de tiempo
-    //////        Console.WriteLine("Fecha sin datos de tiempo: " + result);
-    //////    }
-    //////    else
-    //////    {
-    //////        // El string no coincide con el formato esperado
-    //////        Console.WriteLine("El formato del string no es v·lido.");
-    //////    }
-    //////    return result;
-    //////}
-
-    public async void TryLogin(object sender, EventArgs e)
+    private async void OnLoginClicked(object sender, EventArgs e)
     {
-        //DateTime currentDate = DateTime.Now;
-        DateTime currentDate = DateTime.Now;
+        bool successLogin = false;
+        if (App.Session.useOfflineMode)
+        {
+            await TryLoginAsyncOffline();
+        }
+        else
+        {
+            await UITools.ShowLoadingPopup(this);
+            await UITools.SetNotifyLoadingPopup("Iniciando sesi√≥n...");
+            if (await TryLoginBackUserAsync())
+            {
+                await UITools.SetNotifyLoadingPopup("Comprobado backuser...");
+                successLogin = await TryLoginAsync();
+            }
+            await UITools.HideLoadingPopup();
+        }
 
-        User user = new User();
-        user.username = EntryUserName.Text;
-        user.password = EntryPassword.Text;
-        //user.fechatablet = currentDate.ToString("yyyy-MM-dd HH:mm:ss");
+        if(successLogin)
+            App.Current.MainPage = new AppFlyout();
+    }
+
+    public async Task TryLoginAsyncOffline()
+    {
+        try
+        {
+            DateTime currentDate = DateTime.Now;
+
+            User user = new User
+            {
+                username = txtUser.Text,
+                password = CryptoHelper.Encrypt(txtPassword.Text),
+                databasename = App.Session.odooConnection.DbName
+            };
 
 #if !DEBUG
-        if (!App.Session.isTestMode)
-        {
-            if (user.username.Length <= 3 || user.codclave.Length <= 3)
+        //if (!App.Session.isTestMode)
+        //{
+        //    if (user.username.Length <= 3 || user.codclave.Length <= 3)
+        //    {
+        //        await Toast.Make("Datos incorrectos, verifique usuario y contrase√±a.").Show();
+        //        return;
+        //    }
+        //}
+#endif
+
+            BtnTryLogin.IsEnabled = false;
+
+            var database = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
+            var hubUser = new ApiManager.HubUser(App.Session);
+            User resultUser = null;
+
+            // --- Ejecutar operaciones pesadas en un hilo de fondo ---
+            var userList = await Task.Run(async () => await database.GetItemsAsync());
+
+            var userFound = userList.FirstOrDefault(
+                u => u.username == txtUser.Text &&
+                     u.pwd == CryptoHelper.Encrypt(txtPassword.Text) &&
+                     u.log_fec_acceso.Date == currentDate.Date);
+
+            if (userFound != null)
             {
-                await Toast.Make("Al parecer los datos del usuario y password est·n incorrectos.").Show();
+                // Usuario encontrado offline
+                resultUser = new User
+                {
+                    uid = userFound.uid,
+                    partner_id = userFound.partner_id,
+                    username = userFound.username,
+                    nombres = userFound.name,
+                    password = userFound.pwd,
+                    api_key = userFound.api_key,
+                    token_type = userFound.token_type,
+                    access_token = userFound.access_token,
+                    databasename = userFound.databasename ?? App.Session.odooConnection.DbName,
+                    log_fec_acceso = userFound.log_fec_acceso
+                };                
+            }
+            else
+            {
+                // Modo offline
+                if (App.Session.useOfflineMode)
+                {
+                    //LoginSelector.IsVisible = false;
+                    //CompanySelector.IsVisible = true;
+
+                    userFound = userList.Where(
+                        u => u.username == txtUser.Text &&
+                        u.pwd == CryptoHelper.Encrypt(txtPassword.Text)).FirstOrDefault();
+
+                    resultUser = new User
+                    {
+                        username = txtUser.Text,
+                        password = CryptoHelper.Encrypt(txtPassword.Text),
+                        uid = userFound?.uid ?? 0,
+                        partner_id = userFound?.partner_id ?? 0,
+                        api_key = "-",
+                        token_type = "-",
+                        access_token = "-"
+                    };
+                }                
+            }
+
+            BtnTryLogin.IsEnabled = true;
+
+            // Configuraci√≥n post-login
+            if (resultUser?.uid > 0)
+            {
+                if (!(await SetDataSessionOffLine(resultUser, userFound, currentDate)))
+                {
+                    BtnTryLogin.IsEnabled = true;
+                    Debug.WriteLine("Error en login offline");
+                    return;
+                }
+
+                //LoginSelector.IsVisible = false;
+                //CompanySelector.IsVisible = true;
+
+                //var companies = await Task.Run(async () => await PrepareCompanies(userFound));
+
+                //ddCompany.ItemsSource = companies;
+                //ddCompany.ItemDisplayBinding = new Binding("name");
+                //ddCompany.SelectedItemChanged += async (s, e) =>
+                //{
+                //    var selectedCompany = (res_company)ddCompany.SelectedItem;
+                //    var storesDb = new ResCenterDb();
+
+                //    var storesItems = (await Task.Run(async () => await storesDb.GetItemsAsync()))
+                //                      .Where(s => s.company_id == selectedCompany.id)
+                //                      .ToArray();
+                //    ddAgency.ItemsSource = storesItems;
+                //    ddAgency.ItemDisplayBinding = new Binding("name");
+                //    ddAgency.SelectedItem = storesItems.FirstOrDefault();
+                //};
+
+                //ddCompany.SelectedItem = companies.FirstOrDefault();
+                //Debug.WriteLine($"Empresas: {companies.Length}");
+            }
+            else
+            {
+                await Toast.Make("Error en login").Show();
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Login (offline) error: {ex}");
+            await Toast.Make("Ha ocurrido un error durante el login").Show();
+        }
+    }
+
+    // Cambiar async void ‚Üí async Task
+    public async Task<bool> TryLoginAsync()
+    {   
+        try
+        {
+            DateTime currentDate = DateTime.Now;
+
+            User user = new User
+            {
+                username = txtUser.Text,
+                password = CryptoHelper.Encrypt(txtPassword.Text),
+                databasename = App.Session.odooConnection.DbName
+            };
+
+#if !DEBUG
+        if (!App.Session.odooConnection.IsTestMode)
+        {
+            if (user.username.Length <= 3 || user.password.Length <= 3)
+            {
+                await Toast.Make("Datos incorrectos, verifique usuario y contrase√±a.").Show();
                 return;
             }
         }
 #endif
 
-        BtnTryLogin.IsEnabled = false;
-        var database = new UserAccessDb();
+            BtnTryLogin.IsEnabled = false;
 
-        ApiManager.HubUser hubUser = new ApiManager.HubUser(App.Session);
+            var database = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
+            var hubUser = new ApiManager.HubUser(App.Session);
+            User resultUser = null;
 
-        User resultUser = null;
+            // --- Ejecutar operaciones pesadas en un hilo de fondo ---
+            var userList = await Task.Run(async () => await database.GetItemsAsync());
 
-        //Primero se intenta OFFLINE
-        var userList = await database.GetItemsAsync();
-        //var userFound = userList.Where(
-        //    u=>u.CODUSUARIO == EntryUserName.Text && 
-        //    u.CLAVE == EntryPassword.Text &&
-        //    Convert.ToDateTime(u.FECHAACTUAL).Date == currentDate.Date).FirstOrDefault();
+            var userFound = userList.FirstOrDefault(
+                u => u.username == txtUser.Text &&
+                     u.pwd == CryptoHelper.Encrypt(txtPassword.Text) &&
+                     u.log_fec_acceso.Date == currentDate.Date);
 
-        var userFound = userList.Where(
-            u => u.username == EntryUserName.Text &&
-            u.pwd == EntryPassword.Text &&
-            u.log_fec_acceso.Date == currentDate.Date).FirstOrDefault();
-
-        //Se encontrÛ el usuario en los datos locales
-        //  siempre y cuando haya iniciado sesiÛn el mismo dÌa
-        if (userFound != null)
-        {
-            //AsignaciÛn de datos desde la base de datos
-            resultUser = new User();
-            resultUser.uid = userFound.uid;
-            resultUser.username = userFound.username;
-            resultUser.nombres = userFound.name;
-            resultUser.password = userFound.pwd;
-            resultUser.api_key = userFound.api_key;
-            resultUser.token_type = userFound.token_type;
-            resultUser.access_token = userFound.access_token;
-            
-
-            if(userFound.databasename == null)
+            if (userFound != null)
             {
-                userFound.databasename = App.Session.odooConnection.DbName;
-            }
-
-            resultUser.databasename = userFound.databasename;
-
-            //TODO: Corregir nombres, son confusos, en este campo se debe hacer referencia 
-            // a la ultima fecha/hora de inicio de sesiÛn (FECHAACTUAL)
-            //resultUser.fechasincronizado = userFound.FECHAACTUAL;
-
-            //TODO: Corregir nombres, ULTIMAACTUALIZACION ???
-            //resultUser.fechasincronizado = userFound.ULTIMAACTUALIZACION;
-
-            resultUser.log_fec_acceso = userFound.log_fec_acceso;
-
-            //resultUser.exito = "true";
-
-            //Tareas de actualizaciÛn de datos
-            if(!(await SetDataSessionOffLine(resultUser, userFound, currentDate)))
-            {
-                BtnTryLogin.IsEnabled = true;
-                Debug.WriteLine("Error en login");
-                return;
-            }
-        }
-        else
-        {
-
-            ApiChecker apiChecker = new ApiChecker(App.Session.odooConnection.Host + "/connect/checkonline");
-            bool isOnline = await apiChecker.IsApiAvailable();
-
-            if(!isOnline)
-            {
-                BtnTryLogin.IsEnabled = true;
-                await Toast.Make("Offline o servidor inv·lido!").Show();
-                Debug.WriteLine("Offline o servidor inv·lido!");
-                return;
-            }
-
-            //Sino lo encuentra en los datos locales se intenta ONLINE            
-            var responseUser = await hubUser.TryLoginRpcWeb(user, currentDate);
-
-            if(responseUser == null)
-            {
-                BtnTryLogin.IsEnabled = true;
-                await Toast.Make("Offline o servidor inv·lido!").Show();
-                Debug.WriteLine("Offline o servidor inv·lido!");
-                return;
-            }
-
-            if (responseUser.error != null)
-            {
-                BtnTryLogin.IsEnabled = true;
-                await Toast.Make(responseUser.error.message + ": " + responseUser.error.data.message).Show();
-                Debug.WriteLine(responseUser.error.message + ": " + responseUser.error.data.message);
-                return;
-            }
-
-            if (responseUser.result != null ) //"true")
-            {
-                resultUser = new User();
-
-                //await Toast.Make("Error: " + resultUser.mensaje).Show();
-                //return;
-                //Se asigna la clave ya que el api no la devuelve
-                resultUser.username = EntryUserName.Text;
-                resultUser.password = EntryPassword.Text;
-                resultUser.uid = responseUser.result.uid;
-                resultUser.api_key = "-";
-                resultUser.token_type = "-";
-                resultUser.access_token = "";
-
-                //Se extrae informacion del usuario
-                // Odoo no devuelve por defecto los datos y necesitamos volver a usar el api
-                //HubPartner hubPartner = new HubPartner(App.Session);
-                //hubPartner.setApiKey(responseUser.result.api_key);                
-                var partner = await hubUser.GetById(resultUser.uid);
-                if(partner!=null)
+                // Usuario encontrado offline
+                resultUser = new User
                 {
-                    resultUser.nombres = partner.result[0].name;
+                    uid = userFound.uid,
+                    partner_id = userFound.partner_id,
+                    username = userFound.username,
+                    nombres = userFound.name,
+                    password = userFound.pwd,
+                    api_key = userFound.api_key,
+                    token_type = userFound.token_type,
+                    access_token = userFound.access_token,
+                    databasename = userFound.databasename ?? App.Session.odooConnection.DbName,
+                    log_fec_acceso = userFound.log_fec_acceso
+                };
+
+                if (!(await SetDataSessionOffLine(resultUser, userFound, currentDate)))
+                {
+                    BtnTryLogin.IsEnabled = true;
+                    Debug.WriteLine("Error en login offline");
+                    return false;
+                }
+            }
+            else
+            {  
+                // Verificar conexi√≥n
+                var apiChecker = new ApiChecker(App.Session.odooConnection.Host + "/connect/checkonline");
+                bool isOnline = await apiChecker.IsApiAvailable();
+
+                if (!isOnline)
+                {
+                    BtnTryLogin.IsEnabled = true;
+                    await Toast.Make("Offline o servidor inv√°lido! [M√≥dulo de m√≥vil debe estar instalado]").Show();
+                    Debug.WriteLine("Offline o servidor inv√°lido! [M√≥dulo de m√≥vil debe estar instalado]");
+                    return false;
                 }
 
-                if (resultUser.databasename == null)
+                // Intentar login online
+                var responseUser = await hubUser.TryLoginRpcWeb(user, currentDate);
+
+                if (responseUser?.error != null)
                 {
-                    resultUser.databasename = App.Session.odooConnection.DbName;
+                    BtnTryLogin.IsEnabled = true;
+                    await Toast.Make($"{responseUser.error.message}: {responseUser.error.data.message}").Show();
+                    Debug.WriteLine($"{responseUser.error.message}: {responseUser.error.data.message}");
+                    return false;
                 }
 
-                //Tareas de actualizaciÛn de datos
-                await SetDataSessionOnLine(resultUser, currentDate);
-            }
-        }
+                if (responseUser?.result != null)
+                {
+                    resultUser = new User
+                    {
+                        username = txtUser.Text,
+                        password = CryptoHelper.Encrypt(txtPassword.Text),
+                        uid = responseUser.result.uid,
+                        partner_id = responseUser.result.partner_id,
+                        api_key = "-",
+                        token_type = "-",
+                        access_token = "-",
+                        databasename = App.Session.odooConnection.DbName
+                    };
 
-        BtnTryLogin.IsEnabled = true;
+                    var partner = await hubUser.GetById(resultUser.uid);
+                    if (partner != null)
+                        resultUser.nombres = partner.result[0].name;
 
-        if (resultUser != null)
-        {
-            if (resultUser.uid > 0)
+                    await SetDataSessionOnLine(resultUser, currentDate);
+                }
+
+                // Releer lista actualizada desde la base local
+                userList = await Task.Run(async () => await database.GetItemsAsync());
+
+                userFound = userList.FirstOrDefault(
+                    u => u.username == txtUser.Text &&
+                            u.pwd == CryptoHelper.Encrypt(txtPassword.Text) &&
+                            u.log_fec_acceso.Date == currentDate.Date);
+                
+
+                if (userFound == null)
+                {
+                    await Toast.Make("Dato no coincide, verifique la fecha y hora de su dispositivo").Show();
+                    BtnTryLogin.IsEnabled = true;
+                    return false;
+                }
+            }            
+
+            // Configuraci√≥n post-login
+            if (resultUser?.uid > 0)
             {
-                //var parametrosDb = new ParametrosDb();
-                //var itemsParametros = (await parametrosDb.GetItemsAsync()).Where(p => p.CODUSUARIO == resultUser.codusuario).ToList();
+                return true;
 
-                ////var resultValidacion = await hubUser.ValidaSincronizacionAsync(resultUser.codusuario);
+                //LoginSelector.IsVisible = false;
+                //CompanySelector.IsVisible = true;
 
-                ////if(resultValidacion != null)
-                ////{
-                ////    //resultValidacion.empresas
-                ////    Debug.WriteLine("ValidaciÛn:" + resultValidacion.empresas);
-                ////}
+                //var companies = await Task.Run(async () => await PrepareCompanies(userFound));
 
-                //////var resultUser = Newtonsoft.Json.JsonConvert.DeserializeObject<User>(result);
+                //ddCompany.ItemsSource = companies;
+                //ddCompany.ItemDisplayBinding = new Binding("name");
+                //ddCompany.SelectedItemChanged += async (s, e) =>
+                //{
+                //    var selectedCompany = (res_company)ddCompany.SelectedItem;
+                //    var storesDb = new ResCenterDb();                    
 
-                //////dynamic resultUsers = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(result);
-                //////Console.WriteLine(resultUsers.data.ToString());
-                //////var resultUser = Newtonsoft.Json.JsonConvert.DeserializeObject<List<User>>(resultUsers.data.ToString());
-                //////App.Current.MainPage = new MainPage();
-                //////App.Current.MainPage = new AppShell();
+                //    var storesItems = (await Task.Run(async () => await storesDb.GetItemsAsync()))
+                //                      .Where(s => s.company_id == selectedCompany.id)
+                //                      .ToArray();
+                //    ddAgency.ItemsSource = storesItems;
+                //    ddAgency.ItemDisplayBinding = new Binding("name");
+                //    ddAgency.SelectedItem = storesItems.FirstOrDefault();
+                //};
 
-                //////Se prepara para la sesiÛn el scope de la aplicaciÛn
-                //////AppSession ns = new AppSession();
-                ////App.Session.CurrentUser = resultUser;
-                ////App.Session.CurrentUser.empresas = resultValidacion.empresas;
-                //////App.Session = ns;
-
-                //////Se realiza inserciÛn/actualizaciÛn en la tabla
-
-                ////CobUsuarios itemInsert = new CobUsuarios();
-                ////itemInsert.NOMBRE = resultUser.nombres;
-                ////itemInsert.CODUSUARIO = resultUser.codusuario;
-                ////itemInsert.CLAVE = user.codclave;
-                ////itemInsert.ULTIMAACTUALIZACION = resultUser.fechasincronizado;
-                ////itemInsert.FECHAACTUAL = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
-                ////itemInsert.FECHAACTNC = "";
-                ////itemInsert.CLIENTESTODOS = Newtonsoft.Json.JsonConvert.SerializeObject(resultValidacion.empresas);
-
-                ////var foundUser = await database.GetItemAsync(resultUser.codusuario);
-                ////if (foundUser == null)
-                ////{
-                ////    await database.InsertAsync(itemInsert);
-                ////}
-                ////else
-                ////{
-                ////    await database.UpdateAsync(itemInsert);
-                ////}
-
-                ////var items = await database.GetItemsAsync();
-                //////Inicializar tablas en caso de que no existan
-
-                //////items.Where(x => x.)
-                ////Debug.WriteLine("Total:" + items.Count);
-
-                App.Current.MainPage = new AppFlyout();
+                //ddCompany.SelectedItem = companies.FirstOrDefault();
+                //Debug.WriteLine($"Empresas: {companies.Length}");
             }
             else
             {
-                Debug.WriteLine("Error en login");
-
-                //string text = resultUser.mensaje;
-                ToastDuration duration = ToastDuration.Short;
-                double fontSize = 14;
-                var toast = Toast.Make("Error", duration, fontSize);
-                await toast.Show();
+                await Toast.Make("Error en login").Show();
             }
         }
-        else
+        catch (Exception ex)
         {
-            await Toast.Make("Error al intentar el login.").Show();
+            Debug.WriteLine($"Login error: {ex}");
+            await Toast.Make("Ha ocurrido un error durante el login").Show();
         }
+        finally
+        {
+            BtnTryLogin.IsEnabled = true;            
+        }
+
+        return false;
+    }
+
+    public async Task<bool> TryLoginBackUserAsync()
+    {
+        try
+        {
+            DateTime currentDate = DateTime.Now;
+
+            User user = App.Session.CurrentUser;
+
+            var database = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
+            var hubUser = new ApiManager.HubUser(App.Session);
+            User resultUser = null;
+
+            // Intentar login online
+            var responseUser = await hubUser.TryLoginRpcWeb(user, currentDate);
+
+            if (responseUser?.error != null)
+            {                
+                await Toast.Make($"{responseUser.error.message}: {responseUser.error.data.message} - BackUser").Show();
+                Debug.WriteLine($"{responseUser.error.message}: {responseUser.error.data.message}");
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Login error: {ex}");
+            await Toast.Make("Ha ocurrido un error durante el login").Show();
+        }
+
+        return true;
     }
 
     private async void ShowSettings(object sender, EventArgs e)
-    {
-        Debug.WriteLine("SettingsPage");
+    {        
         SettingsPage objPage = new SettingsPage();
         await Navigation.PushModalAsync(objPage);
-        //await Navigation.PushAsync(objPage, false);
     }
+
+    private void btnAccess_Clicked(object sender, EventArgs e)
+    {
+        if(ddCompany.SelectedItem != null && ddAgency.SelectedItem != null)
+        {
+            App.Session.res_Company = SelCompany;
+            //App.Session.res_Store = (res_store) ddAgency.SelectedItem;
+            App.Session.res_center = (res_center) ddAgency.SelectedItem;            
+            App.Current.MainPage = new AppFlyout();
+        }
+    }
+
+    private void btnBack_Clicked(object sender, EventArgs e)
+    {
+        CompanySelector.IsVisible = false;
+        LoginSelector.IsVisible = true;
+    }
+    
+    private void ContentPage_Appearing(object sender, EventArgs e)
+    {
+        if (_isFirstAppearing)
+        {
+            Dispatcher.Dispatch(async () =>
+            {
+                await SetupLogin();
+            });
+
+            _isFirstAppearing = false;
+        }
+        else
+        {
+            // Esto ocurre cada vez que vuelvas a la p√°gina
+            Console.WriteLine("La p√°gina ya apareci√≥ antes.");
+        }        
+    }    
 }

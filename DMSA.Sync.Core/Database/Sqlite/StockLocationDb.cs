@@ -1,7 +1,6 @@
 ﻿using DMSA.Models.Odoo.Native;
-using SQLite;
 
-namespace DMOrders.Services.Database.Sqlite
+namespace DMSA.Sync.Core.Database.Sqlite
 {
     public class StockLocationDb : SqliteDbBase<stock_location>
     {

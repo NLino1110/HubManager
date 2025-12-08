@@ -1,14 +1,6 @@
-﻿using CobranzasDMSA_Odoo.Models;
-using DMSA.Models.Odoo.DMApps;
-using DMSA.Models.Odoo.Native;
-using SQLite;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DMSA.Models.Odoo.Native;
 
-namespace DMOrders.Services.Database.Sqlite
+namespace DMSA.Sync.Core.Database.Sqlite
 {
     public class UserDb : SqliteDbBase<res_user>
     {

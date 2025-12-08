@@ -1,11 +1,13 @@
 ﻿using CobranzasDMSA_Odoo.Models;
+using DMSA.Models.Odoo.Base;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SQLite;
 using SQLiteNetExtensions.Attributes;
 
 namespace DMSA.Models.Odoo.Native
 {
-    public class account_journal
+    public class account_journal : OdooEntity
     {
         [PrimaryKey]
         public int id { get; set; }
@@ -30,21 +32,36 @@ namespace DMSA.Models.Odoo.Native
         public mobile_app_tag[] mobile_app_tag_ids { get; set; }
 
         [ForeignKey(typeof(BankAccount))]
-        public int BankAccountId { get; set; }
+        public int _bank_account_id
+        {
+            get => GetId(bank_account_id);
+            set => bank_account_id = SetId(bank_account_id, value);
+        }
 
         [ForeignKey(typeof(res_company))]
-        public int CompanyId { get; set; }
+        public int _company_id
+        {
+            get => GetId(company_id);
+            set => company_id = SetId(company_id, value);
+        }
 
         //[ManyToOne(CascadeOperations = CascadeOperation.All)]
         [Ignore]
-        public List<BankAccount> bank_account_id { get; set; }
+        public JToken bank_account_id { get; set; }
 
         [Ignore]
         //[ManyToOne(CascadeOperations = CascadeOperation.All)]
-        public List<res_company> company_id { get; set; }
+        public JToken company_id { get; set; }
 
         [Ignore]
-        public List<inbound_payment_method> inbound_payment_method_line_ids { get; set; }
+        public JToken inbound_payment_method_line_ids { get; set; }
+
+        [Ignore]
+        public int[] _inbound_payment_method_line_ids
+        {
+            get => GetIds(inbound_payment_method_line_ids);
+            set => inbound_payment_method_line_ids = SetIds(inbound_payment_method_line_ids, value);
+        }
 
         //[JsonIgnore] // Ignoramos esta propiedad al serializar para evitar la redundancia
         //public int BankIdData => BankId != null && BankId.Count > 0 ? BankId[0].Id : 0;
@@ -58,8 +75,6 @@ namespace DMSA.Models.Odoo.Native
         public string name { get; set; }
         public string description { get; set; }
     }
-
-
 
     public class BankAccount
     {

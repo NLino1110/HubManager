@@ -1,5 +1,5 @@
 ﻿
-namespace DMOrders.Services.Database.Sqlite
+namespace DMSA.Sync.Core.Database.Sqlite
 {
     public class CalificacionCrediticiaDb : SqliteDbBase<DMSA.Models.Odoo.Native.calificacion_crediticia>
     {

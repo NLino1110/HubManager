@@ -1,14 +1,17 @@
 ﻿using DMSA.Models.Odoo.Abstract;
+using DMSA.Models.Odoo.Native;
 using SQLite;
-using System.ComponentModel.DataAnnotations;
 
-namespace DMOrders.Services.Database.Sqlite
+namespace DMSA.Sync.Core.Database.Sqlite
 {
-    public class OdooConnectionDb
+    public class OdooConnectionDb : SqliteDbBase<OdooConnection>
     {
-        SQLiteAsyncConnection Database;
-                
         public OdooConnectionDb()
+        {
+
+        }
+
+        public OdooConnectionDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
 
         }
@@ -20,25 +23,17 @@ namespace DMOrders.Services.Database.Sqlite
             
             foreach(var itemSetting in appSettings.LoadDefault())
             {
-                var foundItem = await GetItem(itemSetting.Name);
-                if (foundItem == null)
-                {
-                    await Database.InsertAsync(itemSetting);
-                }
+                //var foundItem = await GetItem(itemSetting.Name);
+                //if (foundItem == null)
+                //{
+                //    await Database.InsertAsync(itemSetting);
+                //}
+                var foundItem = await GetItemById(itemSetting.Id);
+                if(foundItem == null)
+                    await Database.InsertOrReplaceAsync(itemSetting);
             }
 
             return 0;
-        }
-
-        public async Task<int> TruncateAsync()
-        {
-            await Init();
-            return await Database.DeleteAllAsync<OdooConnection>();
-        }
-
-        public async Task<int> GetCount()
-        {
-            return (await Database.Table<OdooConnection>().ToListAsync()).Count;
         }
 
         public async Task<List<OdooConnection>> GetItemsAsync()
@@ -47,45 +42,10 @@ namespace DMOrders.Services.Database.Sqlite
             return await Database.Table<OdooConnection>().ToListAsync();            
         }
 
-        public async Task<OdooConnection> GetItem(string name)
+        public async Task<OdooConnection> GetItemById(int id)
         {
             await Init();
-            return await Database.Table<OdooConnection>().Where(i => i.Name == name).FirstOrDefaultAsync();
-        }
-
-        public async Task<int> InsertAsync(OdooConnection item)
-        {
-            await Init();
-            int result = await Database.InsertOrReplaceAsync(item);
-            return 0;
-        }
-
-        public async Task<int> UpdateAsync(OdooConnection item)
-        {
-            await Init();
-            int result = await Database.UpdateAsync(item);
-            return 0;
-        }
-
-        public async Task<int> InsertBatchAsync(OdooConnection[] items)
-        {
-            await Init();
-            await Database.InsertAllAsync(items, "OR REPLACE");
-            return 0;
-        }
-
-        async Task Init()
-        {
-            if (Database is not null)
-                return;
-
-            Database = new SQLiteAsyncConnection(Constants.DatabasePath);
-            var result = await Database.CreateTableAsync<OdooConnection>();
-        }
-
-        public string GetDbPath()
-        {
-            return Constants.DatabasePath;
+            return await Database.Table<OdooConnection>().Where(i => i.Id == id).FirstOrDefaultAsync();
         }
     }
 }

@@ -1,23 +1,14 @@
-﻿using ApiManager;
-using DMOrders.Services.Database.Sqlite;
-using DMSA.Models.General.Requests;
-using DMSA.Models.Odoo.General.Responses;
-using DMSA.Models.Odoo.Native;
-using System;
-using System.Collections.Generic;
+﻿using DMSA.Sync.Core.Database.Sqlite;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DMOrders.Services.Update
+namespace DMSA.Sync.Core.Update
 {
     public partial class ServerPuller
     {
         public async Task<bool> FixInventory()
         {
-            var productDb = new ProductProductDb(DbNameSqlite);
-            var stockQuantDb = new StockQuantDb(DbNameSqlite);
+            var productDb = new ProductProductDb(Constants.Session.odooConnection.DbNameSqlite);
+            var stockQuantDb = new StockQuantDb(Constants.Session.odooConnection.DbNameSqlite);
 
             var allProducts = await productDb.GetItemsAsync(x=>x.active && x.sale_ok);
             

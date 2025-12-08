@@ -30,7 +30,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Xml.Linq;
 using DMSA.Models.Odoo.DMCobranzas;
-using DMCobranzas.Services.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Payments;
 
 namespace DMCobranzas.AppPages;
 
@@ -168,7 +168,7 @@ public partial class CobranzasPage : ContentPage
 
         foreach (var item in registrosGrupo)
         {
-            AccountPaymentDailyDb cobCierreDb = new AccountPaymentDailyDb();
+            AccountPaymentDailyDb cobCierreDb = new AccountPaymentDailyDb(App.Session.odooConnection.DbNameSqlite);
             var cierres = await cobCierreDb.GetItemAsync(se.id, item.create_datetime.ToString("yyyy-MM-dd"));
             //YA HA SIDO CERRADO
             if (cierres != null)
@@ -218,7 +218,7 @@ public partial class CobranzasPage : ContentPage
             DateTime dateEndField = dateEnd.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
 
             var se = (res_company) SelectorCmp.SelectedItem;
-            var database = new AccountPaymentHeaderDb();
+            var database = new AccountPaymentHeaderDb(App.Session.odooConnection.DbNameSqlite);
             //var ls_items = await database.GetItemsAsync(se.empresa, dateIni.Date, dateEndField, App.Session.CurrentUser.codusuario, true);
             var ls_items = await database.GetItemsAsync(se.id,
                 dateIni.Date,
@@ -323,7 +323,7 @@ public partial class CobranzasPage : ContentPage
         {
             //ID de Cierre es la fecha
             //Leer la base de datos
-            AccountPaymentHeaderDb cobReciboCab = new AccountPaymentHeaderDb();
+            AccountPaymentHeaderDb cobReciboCab = new AccountPaymentHeaderDb(App.Session.odooConnection.DbNameSqlite);
             var se = (res_company)SelectorCmp.SelectedItem;
             DateTime dateTime = DateTime.Parse(itemgroup.GroupData);
             //var itemsCobros = await cobReciboCab.GetItemsAsync(se.empresa, dateTime);
@@ -341,7 +341,7 @@ public partial class CobranzasPage : ContentPage
             
             decimal monto_total = 0;
 
-            AccountPaymentDb accountPaymentDb = new AccountPaymentDb();
+            AccountPaymentDb accountPaymentDb = new AccountPaymentDb(App.Session.odooConnection.DbNameSqlite);
             List<AccountPayment> wholeAccountPayments = new List<AccountPayment>();
 
             for (int i = 0; i < itemsCobros.Count(); i++)
@@ -379,7 +379,7 @@ public partial class CobranzasPage : ContentPage
                 uid = App.Session.CurrentUser.uid,
             };
 
-            AccountPaymentDailyDb cobcierre = new AccountPaymentDailyDb();
+            AccountPaymentDailyDb cobcierre = new AccountPaymentDailyDb(App.Session.odooConnection.DbNameSqlite);
 
             var foundCierre = await cobcierre.GetItemAsync(se.id, itemgroup.GroupData);
             if (foundCierre != null)
@@ -662,7 +662,7 @@ public partial class CobranzasPage : ContentPage
         // es el mismo método para envíos automáticos
 
         var se = (res_company) SelectorCmp.SelectedItem;
-        AccountPaymentDailyDb cobCierreDb = new AccountPaymentDailyDb();
+        AccountPaymentDailyDb cobCierreDb = new AccountPaymentDailyDb(App.Session.odooConnection.DbNameSqlite);
         var cierres = await cobCierreDb.GetItemAsync(se.id, DateTime.Now.ToString("yyyy-MM-dd"));
 
         //YA HA SIDO CERRADO

@@ -1,21 +1,21 @@
-﻿using Newtonsoft.Json;
+﻿using DMSA.Models.Odoo.Base;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SQLite;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DMSA.Models.Odoo.Native
-{   
-    public class res_partner_bank
+{
+    [Table("res_partner_bank")]
+    public class res_partner_bank : OdooEntity, INotifyPropertyChanged
     {
         [PrimaryKey]
         public int id { get; set; }
-        [JsonIgnore]
-        public int PartnerId { get; set; }
-        [JsonIgnore]
-        public int BankId { get; set; }
         public string acc_number { get; set; }
         public string acc_holder_name { get; set; }
 
@@ -23,15 +23,33 @@ namespace DMSA.Models.Odoo.Native
         public string use_bank_type { get; set; }
         public bool allow_out_payment { get; set; }
 
+        [Ignore]
+        public JToken partner_id { get; set; }
         [JsonIgnore]
-        public int CurrencyId { get; set; }
+        public int _partner_id
+        {
+            get => GetId(partner_id);
+            set => partner_id = SetId(partner_id, value);
+        }
 
         [Ignore]
-        public Partner_Id[] partner_id { get; set; }
+        public JToken bank_id { get; set; }
+
+        [JsonIgnore]
+        public int _bank_id
+        {
+            get => GetId(bank_id);
+            set => bank_id = SetId(bank_id, value);
+        }
+
         [Ignore]
-        public Bank_Id[] bank_id { get; set; }
-        [Ignore]
-        public Currency_Id[] currency_id { get; set; }
+        public JToken currency_id { get; set; }
+        [JsonIgnore]
+        public int _currency_id
+        {
+            get => GetId(currency_id);
+            set => currency_id = SetId(currency_id, value);
+        }
 
         [Ignore]
         [JsonIgnore]
@@ -55,6 +73,8 @@ namespace DMSA.Models.Odoo.Native
 
         [Column("write_date")]
         public DateTime? write_date { get; set; }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
     }
 
     //public class Partner_Id

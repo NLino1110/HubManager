@@ -11,7 +11,7 @@ namespace DMSA.Models.Security
 {
     public class AppSession
     {
-        public OdooConnection odooConnection { get; set; }
+        public OdooConnection odooConnection { get; set; }        
         public string SqliteCoreDbName { get; set; }
 
         public User CurrentUserFront { get; set; }

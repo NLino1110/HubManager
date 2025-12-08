@@ -1,7 +1,7 @@
 ﻿using DMSA.Models.Odoo;
 using SQLite;
 
-namespace DMOrders.Services.Database.Sqlite
+namespace DMSA.Sync.Core.Database.Sqlite
 {
     public class SyncDetailsDb
     {
