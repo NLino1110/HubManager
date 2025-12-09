@@ -15,6 +15,7 @@ namespace DMOrders.Services.Database.Sqlite
 
         public async Task InitializeAsync()
         {
+            await Init();
             await Database.ExecuteAsync("CREATE INDEX IF NOT EXISTS idx_stock_quant_product_id ON stock_quant(_product_id)");
             await Database.ExecuteAsync("CREATE INDEX IF NOT EXISTS idx_stock_quant_warehouse_id ON stock_quant(_warehouse_id)");
             await Database.ExecuteAsync("CREATE INDEX IF NOT EXISTS idx_stock_quant_tracking ON stock_quant(tracking)");
