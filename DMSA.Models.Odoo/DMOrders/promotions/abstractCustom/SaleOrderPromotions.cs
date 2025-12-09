@@ -39,5 +39,11 @@ namespace DMSA.Models.Odoo.DMOrders.promotions.abstractCustom
 
         [Column("applied")]
         public bool applied { get; set; }
+
+        [Column("max_gifts")]
+        public int max_gifts { get; set; }
+
+        [Column("assigned_gifts")]
+        public int assigned_gifts { get; set; }
     }
 }

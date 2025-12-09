@@ -33,7 +33,10 @@ namespace ApiManager
         string[] fields_array = {
             "id",
             "name",
-            "description",            
+            "description",
+            "codmotivo",
+            "tipo",
+            "codsistema",
         };
 
         public HubMotivoActividadDiaria(AppSession _setAppSession) : base(_setAppSession)

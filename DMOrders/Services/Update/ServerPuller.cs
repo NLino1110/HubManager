@@ -1,4 +1,5 @@
 ﻿using ApiManager;
+using CommunityToolkit.Maui.Alerts;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.General.Requests;
 using DMSA.Models.Odoo.General.Responses;
@@ -37,12 +38,25 @@ namespace DMOrders.Services.Update
             //}
 
             maxIndexExceeded = 600;
+
+            if(appSession.odooConnection == null)
+            {
+                //throw new Exception("Odoo Connection is null in ServerPuller");
+                return;
+            }
+
             limit = appSession.odooConnection.DbLimitDefault;
             DbNameSqlite = appSession.odooConnection.DbNameSqlite;
         }
 
         public async Task<bool> Pull()
         {
+            if (appSession.odooConnection == null)
+            {
+                await Toast.Make("Odoo Connection is null in Pull").Show();
+                return false;
+            }
+
             try
             {
                 await OnlineSyncCompany(false);

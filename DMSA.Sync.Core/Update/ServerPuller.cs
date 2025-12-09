@@ -69,12 +69,23 @@ namespace DMSA.Sync.Core.Update
             //}
 
             maxIndexExceeded = 600;
+            
+            if (appSession.odooConnection == null)
+            {                
+                return;
+            }
+
             limit = appSession.odooConnection.DbLimitDefault;
             DbNameSqlite = appSession.odooConnection.DbNameSqlite;
         }
 
         public async Task<bool> Pull()
         {
+            if (appSession.odooConnection == null)
+            {
+                return false;
+            }
+
             try
             {
                 await OnlineSyncCompany(false);

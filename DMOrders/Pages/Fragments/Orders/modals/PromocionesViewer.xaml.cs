@@ -686,6 +686,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
         OnPropertyChanged(nameof(ComputeTotalQty));
     }
 
+    [Obsolete]
     private async void SubstractGift(object sender, EventArgs e)
     {
         bool ShouldSaveToo = false;
@@ -894,11 +895,10 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
             {
                 var lineObject = (sale_order_line)itemLine[2];
                 if (lineObject.product_id == product.id && lineObject.is_gift) // && lineObject.product_id_origin == saleOrderLineOrigin.product_id)
-                {
+                {                    
                     saleOrderLineOrigin.assigned_gifts--;
                     product.qty_gift--;
                     lineObject.product_uom_qty_real--;
-
                     lineObject.product_uom_qty = lineObject.product_uom_qty_real;
                     
                     GlobalTotalManualGiftsApplied--;

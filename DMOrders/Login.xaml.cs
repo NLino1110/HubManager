@@ -451,9 +451,7 @@ public partial class Login : ContentPage
         IEnumerable<OdooConnection> filtered = (await connectionsDb.GetItemsAsync()).Where(c => c.Active);
         OdooConnectionItems = new ObservableCollection<OdooConnection>(filtered.ToList());
         ddCompany.ItemsSource = OdooConnectionItems;
-        ddCompany.ItemDisplayBinding = new Binding("Name");
-
-        
+        ddCompany.ItemDisplayBinding = new Binding("Name");        
 
         ddCompany.SelectedItem = OdooConnectionItems.FirstOrDefault();
         Debug.WriteLine("Conexiones cargadas!!");

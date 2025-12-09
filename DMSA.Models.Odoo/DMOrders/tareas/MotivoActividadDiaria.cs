@@ -1,11 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using SQLite;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SQLite;
 
 namespace DMSA.Models.Odoo.DMOrders.tareas
 {
@@ -14,8 +7,11 @@ namespace DMSA.Models.Odoo.DMOrders.tareas
     {
         [PrimaryKey]
         public int id { get; set; }
+        public int codmotivo { get; set; }
         public string name { get; set; }
         public string? description { get; set; }
+        public string? tipo { get; set; }
+        public string? codsistema { get; set; }
         public DateTime create_date { get; set; }
         public DateTime write_date { get; set; }
     }

@@ -825,7 +825,6 @@ namespace DMOrders.Controls
                 analyticLine.task_id = projectTask.id;
                 analyticLine.date = DateTime.Now;
                 analyticLine.motivo = motivo.id;
-
                 
                 analyticLine.hour_start = (decimal)hour_start;
                 analyticLine.hour_end = (decimal)hour_end;

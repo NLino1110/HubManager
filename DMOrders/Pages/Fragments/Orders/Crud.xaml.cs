@@ -1158,6 +1158,18 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 return;
             }
 
+            if(CurrentSaleOrderLine.product_uom_qty_real == product_uom_qty_real && CurrentSaleOrderLine.product_uom_qty == product_uom_qty)
+            {
+                await Toast.Make("No hay cambios para aplicar").Show();
+                return;
+            }
+
+            bool requireRefresh = false;
+            if (product_uom_qty_real < CurrentSaleOrderLine.product_uom_qty_real || product_uom_qty < CurrentSaleOrderLine.product_uom_qty)
+            {
+                requireRefresh = true;
+            }
+
             CurrentSaleOrderLine.product_uom_qty_real = product_uom_qty_real;
             CurrentSaleOrderLine.product_uom_qty = product_uom_qty;
 
@@ -1172,7 +1184,16 @@ public partial class Crud : ContentPage, IBackButtonHandler
             }
 
             product_item.list_price = (float) CurrentSaleOrderLine.price_unit;
-            ((CrudViewModel)BindingContext).UpdateOrderLine(CurrentSaleOrderLine, product_item);
+
+            if (requireRefresh)
+            {
+                ((CrudViewModel)BindingContext).UpdateOrderLineRefresh(CurrentSaleOrderLine, product_item);
+            }
+            else
+            {
+                ((CrudViewModel)BindingContext).UpdateOrderLine(CurrentSaleOrderLine, product_item);
+            }
+            
             //////////////////////////////
 
             CurrentSaleOrderLine = null;

@@ -95,6 +95,9 @@ public partial class Info : ContentView
 
         Base64Source = data.image_256 ?? string.Empty;
 
+        StockList.Clear();
+        PricesList.Clear();
+
         await FillInventory(data);
         await FillPrices(data);
 
@@ -128,10 +131,7 @@ public partial class Info : ContentView
 
         public static Dictionary<int, List<stock_quant>> StockQuantListDict
             = new Dictionary<int, List<stock_quant>>();
-
     }
-
-
 
     public string ObtenerCodigo(string linea)
     {
@@ -147,8 +147,6 @@ public partial class Info : ContentView
             var whLists = await whListDb.GetItemsAsync(x => x.active);
             Cache.StockWarehouseListDict = whLists.ToDictionary(x => x.id, x => x.name);
         }
-
-        StockList.Clear();
 
         List<stock_quant> stockQuantItems;
 
@@ -192,9 +190,7 @@ public partial class Info : ContentView
             var priceListDb = new ProductPricelistDb(App.Session.odooConnection.DbNameSqlite);
             var priceLists = await priceListDb.GetItemsAsync(x => x.active);
             Cache.PriceListDict = priceLists.ToDictionary(x => x.id, x => x.name);
-        }
-
-        PricesList.Clear();
+        }        
 
         List<product_pricelist_item> priceListItems;
                 
