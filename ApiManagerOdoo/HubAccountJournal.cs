@@ -68,7 +68,7 @@ namespace ApiManager
             object[] args = new object[] { };
             object[] _custom_args = new object[] {
                 //TODO: Activar cuando se corrija el codigo de Odoo
-                //new object[] {"use_mobile_app", "=", true},
+                new object[] { "use_mobile_app", "=", true},
                 new object[] { "active", "=", true },
                 new object[] { "company_id", "in", company_ids },
             };

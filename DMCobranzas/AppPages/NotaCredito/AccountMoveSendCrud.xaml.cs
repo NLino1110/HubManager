@@ -255,13 +255,13 @@ public partial class AccountMoveSendCrud : ContentPage
             return;
         }
 
-        var returnResultPopup = new PopupSelectInvoice(popupSizeConstants);
+        //var returnResultPopup = new PopupSelectInvoice(popupSizeConstants);
         var empresa = (res_company) SelectorCmp.SelectedItem;
-        returnResultPopup.Company = empresa;
-        returnResultPopup.partner = _res_partner;
+        //returnResultPopup.Company = empresa;
+        //returnResultPopup.partner = _res_partner;
 
-        //Evita que se cierre cuando se haga clic (tap) fuera de la ventana
-        returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;
+        ////Evita que se cierre cuando se haga clic (tap) fuera de la ventana
+        //returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;
 
         //if (!isWindows)
            // returnResultPopup.Size = this.popupSizeConstants.Large;
@@ -269,10 +269,12 @@ public partial class AccountMoveSendCrud : ContentPage
         var resultPopupSelectInvoice = new PopupSelectInvoice(popupSizeConstants);
         resultPopupSelectInvoice.Company = empresa;
         resultPopupSelectInvoice.partner = _res_partner;
-        var result = await this.ShowPopupAsync(resultPopupSelectInvoice);
-        if (result != null)
+
+        var result = await this.ShowPopupAsync<account_move>(resultPopupSelectInvoice);        
+
+        if (result.Result != null)
         {
-            _accountMoveSelected = (account_move)result;
+            _accountMoveSelected = (account_move)result.Result;
             //txtFactura.Text = _res_partnerItem.name;
             txtFactura.Text = _accountMoveSelected.name;
             //Cargar documentos de factura

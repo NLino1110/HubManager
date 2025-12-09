@@ -21,8 +21,8 @@ namespace DMSA.Models.Security
         public CultureInfo ApplicationCultureInfo { get; set; }
         //public CultureInfo ApplicationCultureInfo = CultureInfo.GetCultureInfo("es-EC");
         public string AppVersion = "0.0.0";
-        public string ApplicationName = "CobranzasDMSA";
-        public string AppCodeOdoo = "01";
+        public string ApplicationName = "CobranzasDMSA"; //Este valor debe ser modificado para cada aplicacion
+        public string AppCodeOdoo = "01";  //Este valor debe ser modificado para cada aplicacion
 
         //TODO: Revisar si se conserva, ya que la conexion contiene el codigo de empresa
         public res_company res_Company { get; set; }

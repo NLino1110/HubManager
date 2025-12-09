@@ -863,10 +863,10 @@ namespace DMCobranzas.Controls
         public static ICommand CommandSelectListItem { get; set; }
 
         private async void SelectListItem(object objItem)
-        {
+        {            
             if (objItem is T item) // aquí validas y conviertes
             {
-                await CloseAsync(item);
+                await CloseAsync(item);                
             }
             else
             {

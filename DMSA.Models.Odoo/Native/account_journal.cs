@@ -29,7 +29,19 @@ namespace DMSA.Models.Odoo.Native
         public DateTime? write_date { get; set; }
 
         [Ignore]
+        [JsonIgnore]
         public mobile_app_tag[] mobile_app_tag_ids { get; set; }
+
+        [Ignore]
+        [JsonProperty("mobile_app_tag_ids")]
+        public JToken virtual_mobile_app_tag_ids { get; set; }
+
+        [Ignore]        
+        public int[] _mobile_app_tag_ids
+        {
+            get => GetIds(virtual_mobile_app_tag_ids);
+            set => virtual_mobile_app_tag_ids = SetIds(virtual_mobile_app_tag_ids, value);
+        }
 
         [ForeignKey(typeof(BankAccount))]
         public int _bank_account_id
