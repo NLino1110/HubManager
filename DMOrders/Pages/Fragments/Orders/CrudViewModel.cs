@@ -815,7 +815,7 @@ namespace DMOrders.Pages.Fragments.Orders
                 for (var si = 0; si < saleOrderPromotions.Count; si++)
                 {
                     var currentBenefit = saleOrderPromotions[si];
-                    var tmplIds = saleOrderPromotions[0].related_product_tmpl_ids;
+                    var tmplIds = saleOrderPromotions[si].related_product_tmpl_ids;
                     int[] ints = Newtonsoft.Json.JsonConvert.DeserializeObject<int[]>(tmplIds);
 
                     if (!ints.Any())
@@ -908,7 +908,7 @@ namespace DMOrders.Pages.Fragments.Orders
                     for (var si = 0; si < saleOrderPromotions.Count; si++)
                     {
                         var currentBenefit = saleOrderPromotions[si];
-                        var tmplIds = saleOrderPromotions[0].related_product_tmpl_ids;
+                        var tmplIds = saleOrderPromotions[si].related_product_tmpl_ids;
                         int[] ints = Newtonsoft.Json.JsonConvert.DeserializeObject<int[]>(tmplIds);
 
                         if (!ints.Any())
@@ -978,7 +978,7 @@ namespace DMOrders.Pages.Fragments.Orders
                     for (var si = 0; si < saleOrderPromotions.Count; si++)
                     {
                         var currentBenefit = saleOrderPromotions[si];
-                        var tmplIds = saleOrderPromotions[0].related_product_tmpl_ids;
+                        var tmplIds = saleOrderPromotions[si].related_product_tmpl_ids;
                         int[] ints = Newtonsoft.Json.JsonConvert.DeserializeObject<int[]>(tmplIds);
 
                         if (!ints.Any())

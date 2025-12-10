@@ -47,7 +47,13 @@ namespace DMOrders.Services.Promotions
             PromotionEvalItemV2 promotionEvalItem, 
             List<SaleOrderPromotions> saleOrderPromotions)
         {
-            if (saleOrderPromotions != null && saleOrderPromotions.Count > 0)
+            bool exists = saleOrderPromotions.Any(x =>
+                x.order_id == order.id &&
+                x.promotion_id == promotionEvalItem.Promotion.id &&
+                x.promotion_centers == promotionEvalItem.PricelistId
+                );
+
+            if (exists)
             {
                 var existingPromos = saleOrderPromotions.Where(x => x.order_id == order.id &&
                 x.promotion_id == promotionEvalItem.Promotion.id &&
