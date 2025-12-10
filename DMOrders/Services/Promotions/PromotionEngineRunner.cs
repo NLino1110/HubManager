@@ -12,6 +12,36 @@ namespace DMOrders.Services.Promotions
 {
     public class PromotionEngineRunner
     {
+        public string GetRelatedProductTmplIds(
+            PromotionEvalItemV2 promotionEvalItem)
+        {
+            List<int> allProductTmplIds = new();
+            if (promotionEvalItem.RuleSet != null && promotionEvalItem.RuleSet.Count > 0)
+            {
+                foreach (var ruleMatch in promotionEvalItem.RuleSet)
+                {
+                    string raw = ruleMatch.ProductTmplIds;
+                    if (!string.IsNullOrWhiteSpace(raw))
+                    {
+                        // Limpia: quita corchetes
+                        string cleaned = raw.Replace("[", "").Replace("]", "").Trim();
+                        if (!string.IsNullOrWhiteSpace(cleaned))
+                        {
+                            var ids = cleaned
+                                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                .Select(x => int.Parse(x.Trim()));
+                            allProductTmplIds.AddRange(ids);
+                        }
+                    }
+                }
+            }
+            // Eliminamos duplicados y usamos orden opcional
+            var finalIds = allProductTmplIds.Distinct().ToList();
+            // Construimos el string final con formato de array
+            string fullProductTmplIds = $"[{string.Join(",", finalIds)}]";
+            return fullProductTmplIds;
+        }
+
         public async Task<bool> CanApplyPromotion(
             sale_order order, 
             PromotionEvalItemV2 promotionEvalItem, 
@@ -46,36 +76,38 @@ namespace DMOrders.Services.Promotions
             else
             {
 
-                List<int> allProductTmplIds = new();
+                //List<int> allProductTmplIds = new();
 
-                if (promotionEvalItem.RuleSet != null && promotionEvalItem.RuleSet.Count > 0)
-                {
-                    foreach (var ruleMatch in promotionEvalItem.RuleSet)
-                    {
-                        string raw = ruleMatch.ProductTmplIds;
+                //if (promotionEvalItem.RuleSet != null && promotionEvalItem.RuleSet.Count > 0)
+                //{
+                //    foreach (var ruleMatch in promotionEvalItem.RuleSet)
+                //    {
+                //        string raw = ruleMatch.ProductTmplIds;
 
-                        if (!string.IsNullOrWhiteSpace(raw))
-                        {
-                            // Limpia: quita corchetes
-                            string cleaned = raw.Replace("[", "").Replace("]", "").Trim();
+                //        if (!string.IsNullOrWhiteSpace(raw))
+                //        {
+                //            // Limpia: quita corchetes
+                //            string cleaned = raw.Replace("[", "").Replace("]", "").Trim();
 
-                            if (!string.IsNullOrWhiteSpace(cleaned))
-                            {
-                                var ids = cleaned
-                                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                    .Select(x => int.Parse(x.Trim()));
+                //            if (!string.IsNullOrWhiteSpace(cleaned))
+                //            {
+                //                var ids = cleaned
+                //                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                //                    .Select(x => int.Parse(x.Trim()));
 
-                                allProductTmplIds.AddRange(ids);
-                            }
-                        }
-                    }
-                }
+                //                allProductTmplIds.AddRange(ids);
+                //            }
+                //        }
+                //    }
+                //}
 
-                // Eliminamos duplicados y usamos orden opcional
-                var finalIds = allProductTmplIds.Distinct().ToList();
+                //// Eliminamos duplicados y usamos orden opcional
+                //var finalIds = allProductTmplIds.Distinct().ToList();
 
-                // Construimos el string final con formato de array
-                string fullProductTmplIds = $"[{string.Join(",", finalIds)}]";
+                //// Construimos el string final con formato de array
+                //string fullProductTmplIds = $"[{string.Join(",", finalIds)}]";
+
+                string fullProductTmplIds = GetRelatedProductTmplIds(promotionEvalItem);
 
                 var newItem = new SaleOrderPromotions
                 {
@@ -141,11 +173,14 @@ namespace DMOrders.Services.Promotions
                 x.promotion_id == promotionEvalItem.Promotion.id &&
                 x.promotion_centers == promotionEvalItem.PricelistId).ToList();
 
+            string fullProductTmplIds = GetRelatedProductTmplIds(promotionEvalItem);
+
             if (existingPromos != null && existingPromos.Count > 0)
             {
                 foreach (var item in existingPromos)
                 {   
                     item.max_gifts = promotionEvalItem.MaxAllowedGifts;
+                    item.related_product_tmpl_ids = fullProductTmplIds;
                     //item.assigned_gifts = promotionEvalItem.MaxAllowedGifts;
                 }
             }

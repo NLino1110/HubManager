@@ -800,15 +800,15 @@ namespace DMOrders.Pages.Fragments.Orders
 
                 //Se resetea las promociones tipo regalo manual
                 // y se buscan otras lineas principales que podrian estar relacionadas a la misma promocion
-                for (var ib = 0; ib < saleOrderPromotions.Count(); ib++)
-                {
-                    var benefitMemory = saleOrderPromotions[ib];
+                //for (var ib = 0; ib < saleOrderPromotions.Count(); ib++)
+                //{
+                //    var benefitMemory = saleOrderPromotions[ib];
 
-                    if (benefitMemory.promotion_type_id == 2 && benefitMemory.promotion_selection_type_id == 2)
-                    {
-                        saleOrderPromotions.Remove(benefitMemory);
-                    }
-                }
+                //    if (benefitMemory.promotion_type_id == 2 && benefitMemory.promotion_selection_type_id == 2)
+                //    {
+                //        saleOrderPromotions.Remove(benefitMemory);
+                //    }
+                //}
 
                 sale_Order_Line.promotion_data = "";
 
@@ -852,6 +852,13 @@ namespace DMOrders.Pages.Fragments.Orders
                                 }
                             }
                         }
+                    }
+
+                    //Se resetea las promociones tipo regalo manual
+                    // y se buscan otras lineas principales que podrian estar relacionadas a la misma promocion
+                    if (currentBenefit.promotion_type_id == 2 && currentBenefit.promotion_selection_type_id == 2)
+                    {
+                        saleOrderPromotions.Remove(currentBenefit);
                     }
                 }
 
