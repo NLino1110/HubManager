@@ -812,31 +812,41 @@ namespace DMOrders.Pages.Fragments.Orders
 
                 sale_Order_Line.promotion_data = "";
 
-                var giftList = OrderLines.Where(x => x.is_gift).ToList();
-
-                if (giftList != null)
+                for (var si = 0; si < saleOrderPromotions.Count; si++)
                 {
-                    foreach (var itemGift in giftList)
+                    var currentBenefit = saleOrderPromotions[si];
+                    var tmplIds = saleOrderPromotions[0].related_product_tmpl_ids;
+                    int[] ints = Newtonsoft.Json.JsonConvert.DeserializeObject<int[]>(tmplIds);
+
+                    if (!ints.Any())
                     {
-                        if (itemGift.promotion_data != null)
+                        continue;
+                    }
+
+                    if (!ints.Contains(sale_Order_Line.product_tmpl_id))
+                    {
+                        continue;
+                    }
+
+                    var giftList = OrderLines.Where(x => x.is_gift).ToList();
+                    if (giftList != null && giftList.Count > 0)
+                    {
+                        await promotionEngineRunner.ResetManualGiftBenefit(CurrentSaleOrder, saleOrderPromotions);
+
+                        foreach (var itemGift in giftList)
                         {
-                            List<PromotionEvalItemV2> promotionEvalItem = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(itemGift.promotion_data);
-                            Debug.WriteLine(promotionEvalItem);
-
-                            if (promotionEvalItem != null && promotionEvalItem.Count > 0)
+                            if (itemGift.promotion_data != null)
                             {
-                                foreach (var benefitItem in promotionEvalItem)
-                                {
-                                    foreach (var ruleMatch in benefitItem.RuleSet)
-                                    {
-                                        int[] listIdsProd = Newtonsoft.Json.JsonConvert.DeserializeObject<int[]>(ruleMatch.ProductTmplIds);
+                                List<PromotionEvalItemV2> promotionEvalItem = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(itemGift.promotion_data);
+                                Debug.WriteLine(promotionEvalItem);
 
-                                        foreach (var productIdCompare in listIdsProd)
+                                if (promotionEvalItem != null && promotionEvalItem.Count > 0)
+                                {
+                                    foreach (var evalItem in promotionEvalItem)
+                                    {
+                                        if (evalItem.Promotion.id == currentBenefit.promotion_id)
                                         {
-                                            if (sale_Order_Line.product_tmpl_id == productIdCompare)
-                                            {
-                                                OrderLines.Remove(itemGift);
-                                            }
+                                            OrderLines.Remove(itemGift);
                                         }
                                     }
                                 }
@@ -844,7 +854,41 @@ namespace DMOrders.Pages.Fragments.Orders
                         }
                     }
                 }
+
+                //var giftList = OrderLines.Where(x => x.is_gift).ToList();
+
+                //if (giftList != null)
+                //{
+                //    foreach (var itemGift in giftList)
+                //    {
+                //        if (itemGift.promotion_data != null)
+                //        {
+                //            List<PromotionEvalItemV2> promotionEvalItem = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(itemGift.promotion_data);
+                //            Debug.WriteLine(promotionEvalItem);
+
+                //            if (promotionEvalItem != null && promotionEvalItem.Count > 0)
+                //            {
+                //                foreach (var benefitItem in promotionEvalItem)
+                //                {
+                //                    foreach (var ruleMatch in benefitItem.RuleSet)
+                //                    {
+                //                        int[] listIdsProd = Newtonsoft.Json.JsonConvert.DeserializeObject<int[]>(ruleMatch.ProductTmplIds);
+
+                //                        foreach (var productIdCompare in listIdsProd)
+                //                        {
+                //                            if (sale_Order_Line.product_tmpl_id == productIdCompare)
+                //                            {
+                //                                OrderLines.Remove(itemGift);
+                //                            }
+                //                        }
+                //                    }
+                //                }
+                //            }
+                //        }
+                //    }
+                //}
             }
+
             UpdateTotals();
         }
 
