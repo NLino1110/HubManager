@@ -740,8 +740,10 @@ namespace DMOrders.Pages.Fragments.Orders
                 sale_Order_Line.product_tmpl_id = product._product_tmpl_id;
 
                 //Se resetea los regalos asignados
-                sale_Order_Line.max_gifts = 0;
-                sale_Order_Line.assigned_gifts = 0;
+                //sale_Order_Line.max_gifts = 0;
+                //sale_Order_Line.assigned_gifts = 0;
+
+                await promotionEngineRunner.ResetManualGiftBenefit(CurrentSaleOrder, saleOrderPromotions);
 
                 if (!string.IsNullOrEmpty(sale_Order_Line.promotion_data))
                 {
@@ -887,13 +889,17 @@ namespace DMOrders.Pages.Fragments.Orders
                     var mainOrderLine = OrderLines.Where(x => x.product_id == sale_Order_Line.product_id_origin).FirstOrDefault();
                     if(mainOrderLine != null)
                     {
-                        mainOrderLine.assigned_gifts = mainOrderLine.assigned_gifts - (int) sale_Order_Line.product_uom_qty_real;
+                        //mainOrderLine.assigned_gifts = mainOrderLine.assigned_gifts - (int) sale_Order_Line.product_uom_qty_real;
+
                         List<PromotionEvalItemV2> benefitFromData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(mainOrderLine.promotion_data);
                         if (benefitFromData != null && benefitFromData.Count > 0)
                         {
                             PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
                             foreach (var benefit in benefitFromData)
                             {
+                                var dataBenefit = await promotionEngineRunner.GetDataBenefit(CurrentSaleOrder, benefit, saleOrderPromotions);
+                                dataBenefit.assigned_gifts = dataBenefit.assigned_gifts - (int)sale_Order_Line.product_uom_qty_real;
+
                                 await promotionEngineRunner.AddApplyPromotion(CurrentSaleOrder, benefit, -1, saleOrderPromotions);
                             }
                         }

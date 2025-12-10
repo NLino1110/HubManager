@@ -21,7 +21,6 @@ namespace DMSA.Models.Odoo.DMOrders.promotions.abstractCustom
         [Column("promotion_id")]
         public int promotion_id { get; set; }
 
-
         [Column("promotion_type_id")]
         public int promotion_type_id { get; set; }
 
@@ -45,5 +44,8 @@ namespace DMSA.Models.Odoo.DMOrders.promotions.abstractCustom
 
         [Column("assigned_gifts")]
         public int assigned_gifts { get; set; }
+
+        [Column("related_product_tmpl_ids")]
+        public string related_product_tmpl_ids { get; set; }
     }
 }

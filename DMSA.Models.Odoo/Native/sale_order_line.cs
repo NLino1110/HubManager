@@ -222,8 +222,8 @@ namespace DMSA.Models.Odoo.Native
         [JsonIgnore]
         public bool is_manual { get; set; }
 
-        [JsonIgnore]
-        public int total_times_allowed { get; set; }
+        //[JsonIgnore]
+        //public int total_times_allowed { get; set; }
 
         //[JsonIgnore]
         //public bool? is_gift
@@ -279,11 +279,11 @@ namespace DMSA.Models.Odoo.Native
         [JsonProperty("product_tmpl_id")]
         public int product_tmpl_id { get; set; }
 
-        [JsonProperty("max_gifts")]
-        public int max_gifts { get; set; }
+        //[JsonProperty("max_gifts")]
+        //public int max_gifts { get; set; }
 
-        [JsonProperty("assigned_gifts")]
-        public int assigned_gifts { get; set; }
+        //[JsonProperty("assigned_gifts")]
+        //public int assigned_gifts { get; set; }
 
         [JsonProperty("product_id_origin")]
         public int product_id_origin { get; set; }

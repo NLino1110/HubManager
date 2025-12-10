@@ -1191,6 +1191,10 @@ public partial class Crud : ContentPage, IBackButtonHandler
             }
             else
             {
+                //Aqui buscamos las promociones relacionadas y se le cambia la cantidad
+                PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
+                await promotionEngineRunner.ResetManualGiftBenefitSoft(CurrentSaleOrder, saleOrderPromotions);
+
                 ((CrudViewModel)BindingContext).UpdateOrderLine(CurrentSaleOrderLine, product_item);
             }
             
