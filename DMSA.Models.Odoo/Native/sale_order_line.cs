@@ -288,6 +288,7 @@ namespace DMSA.Models.Odoo.Native
         [JsonProperty("product_id_origin")]
         public int product_id_origin { get; set; }
 
+        [Ignore]
         [JsonProperty("show_delete_button")]
         public bool show_delete_button { get; set; }
 

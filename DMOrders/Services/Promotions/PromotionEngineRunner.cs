@@ -56,13 +56,11 @@ namespace DMOrders.Services.Promotions
 
                         if (!string.IsNullOrWhiteSpace(raw))
                         {
-                            // Limpia: quita corchetes y espacios
+                            // Limpia: quita corchetes
                             string cleaned = raw.Replace("[", "").Replace("]", "").Trim();
 
-                            // Evitar errores si la cadena está vacía
                             if (!string.IsNullOrWhiteSpace(cleaned))
                             {
-                                // Convierte cada número a int
                                 var ids = cleaned
                                     .Split(',', StringSplitOptions.RemoveEmptyEntries)
                                     .Select(x => int.Parse(x.Trim()));
@@ -73,8 +71,11 @@ namespace DMOrders.Services.Promotions
                     }
                 }
 
-                // Unir todo sin duplicados
-                string fullProductTmplIds = string.Join(",", allProductTmplIds.Distinct());
+                // Eliminamos duplicados y usamos orden opcional
+                var finalIds = allProductTmplIds.Distinct().ToList();
+
+                // Construimos el string final con formato de array
+                string fullProductTmplIds = $"[{string.Join(",", finalIds)}]";
 
                 var newItem = new SaleOrderPromotions
                 {
