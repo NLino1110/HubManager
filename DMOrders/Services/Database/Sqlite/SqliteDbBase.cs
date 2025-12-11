@@ -1,4 +1,5 @@
 ﻿using SQLite;
+using System.Linq.Expressions;
 
 namespace DMOrders.Services.Database.Sqlite
 {
@@ -46,16 +47,16 @@ namespace DMOrders.Services.Database.Sqlite
             return (await Database.Table<T>().ToListAsync()).Count;
         }
 
-        public async Task<List<T>> GetItemsAsync(Func<T, bool> predicate)
+        public async Task<List<T>> GetItemsAsync(Expression<Func<T, bool>> predicate)
         {
             await Init();
-            return (await Database.Table<T>().ToListAsync()).Where(predicate).ToList();
+            return await Database.Table<T>().Where(predicate).ToListAsync();
         }
 
-        public async Task<T> GetItemAsync(Func<T, bool> predicate)
+        public async Task<T> GetItemAsync(Expression<Func<T, bool>> predicate)
         {
             await Init();
-            return (await Database.Table<T>().ToListAsync()).FirstOrDefault(predicate);
+            return await Database.Table<T>().Where(predicate).FirstOrDefaultAsync();
         }
 
         [Obsolete("No usar en movil")]

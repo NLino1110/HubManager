@@ -19,6 +19,9 @@ public class infoDetail
 
 public partial class Info : ContentView
 {
+    ProductPricelistItemDb priceListProductsDb { get; set; }
+
+
     public static readonly BindableProperty StockListProperty =
     BindableProperty.Create(
         nameof(StockList),
@@ -79,6 +82,7 @@ public partial class Info : ContentView
         BindingContext = this;
         StockList = new ObservableCollection<infoDetail>();
         PricesList = new ObservableCollection<infoDetail>();
+        priceListProductsDb = new ProductPricelistItemDb(App.Session.odooConnection.DbNameSqlite);
     }
 
     public async Task FillData(product_product _data)
@@ -150,6 +154,7 @@ public partial class Info : ContentView
 
         List<stock_quant> stockQuantItems;
 
+        var stopwatch = Stopwatch.StartNew();
         if (!Cache.StockQuantListDict.TryGetValue(data.id, out stockQuantItems))
         {
             var stockQuantDb = new StockQuantDb(App.Session.odooConnection.DbNameSqlite);
@@ -161,6 +166,12 @@ public partial class Info : ContentView
             Cache.StockQuantListDict[data._product_tmpl_id] = stockQuantItems;
         }
 
+        stopwatch.Stop();
+
+        Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+            stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
+        stopwatch = Stopwatch.StartNew();
         foreach (var item in stockQuantItems)
         {
             string nameWarehouse = Cache.StockWarehouseListDict.TryGetValue(item._warehouse_id, out string name)
@@ -180,6 +191,11 @@ public partial class Info : ContentView
             });
         }
 
+        stopwatch.Stop();
+
+        Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+            stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
         return null;
     }
 
@@ -196,7 +212,7 @@ public partial class Info : ContentView
                 
         if (!Cache.PriceListItemsByTemplate.TryGetValue(data._product_tmpl_id, out priceListItems))
         {            
-            var priceListProductsDb = new ProductPricelistItemDb(App.Session.odooConnection.DbNameSqlite);
+            
 
             priceListItems = await priceListProductsDb.GetItemsAsync(
                 x => x._product_tmpl_id == data._product_tmpl_id
