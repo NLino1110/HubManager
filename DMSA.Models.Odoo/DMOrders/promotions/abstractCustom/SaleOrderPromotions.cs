@@ -47,5 +47,8 @@ namespace DMSA.Models.Odoo.DMOrders.promotions.abstractCustom
 
         [Column("related_product_tmpl_ids")]
         public string related_product_tmpl_ids { get; set; }
+
+        [Column("gifts_for_remove")]
+        public int gifts_for_remove { get; set; }
     }
 }

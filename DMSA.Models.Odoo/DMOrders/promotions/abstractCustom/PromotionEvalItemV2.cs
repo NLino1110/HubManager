@@ -7,7 +7,8 @@
         public int TotalTimesAllowed { get; set; }
         public int FoundTimesApplies { get; set; }
         public int MaxAllowedGifts { get; set; }
-        public int PricelistId { get; set; }        
+        public int PricelistId { get; set; }
         public bool IsBest { get; set; }
+        public int GiftsForRemove { get; set; }
     }
 }

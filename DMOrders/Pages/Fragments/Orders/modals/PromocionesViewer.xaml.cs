@@ -13,6 +13,24 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
 {
     private int GlobalTotalManualGiftsAllowed = 0;
     private int GlobalTotalManualGiftsApplied = 0;
+    public int GlobalTotalManualGiftsForRemove = 0;
+    public int GlobalTotalManualGiftsRemoved = 0;
+
+    public int TotalGiftsForRemove
+    {
+        get
+        {            
+            return GlobalTotalManualGiftsForRemove;
+        }
+    }
+
+    public int TotalGiftsRemoved
+    {
+        get
+        {
+            return GlobalTotalManualGiftsRemoved;
+        }
+    }
 
     private List<sale_order_line> realApplied { get; set; }
 
@@ -154,9 +172,11 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                         //Bonificado / Manual
                         if(benefit.Promotion._promotion_type_id == 2 && benefit.Promotion._selection_type_id == 2)
                         {                            
-                            GlobalTotalManualGiftsAllowed += benefit.MaxAllowedGifts;
+                            GlobalTotalManualGiftsAllowed += benefit.MaxAllowedGifts;                            
                             PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
                             await promotionEngineRunner.UpdateApplyPromotion(SaleOrder, benefit, saleOrderPromotions);
+
+                            GlobalTotalManualGiftsForRemove += benefit.GiftsForRemove;
                         }
 
                         //Bonificado / Automático
@@ -186,6 +206,10 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
 
             OnPropertyChanged(nameof(ItemsData));
             OnPropertyChanged(nameof(ItemsDataBenefits));
+
+            OnPropertyChanged(nameof(TotalGiftsForRemove));
+            OnPropertyChanged(nameof(TotalGiftsRemoved));
+
         }
     }
 
@@ -926,8 +950,15 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
                     
                     GlobalTotalManualGiftsApplied--;
 
+                    if (GlobalTotalManualGiftsRemoved < GlobalTotalManualGiftsForRemove)
+                    {
+                        GlobalTotalManualGiftsRemoved++;
+                        OnPropertyChanged(nameof(TotalGiftsForRemove));
+                        OnPropertyChanged(nameof(TotalGiftsRemoved));
+                    }
+
                     //if (saleOrderLineOrigin.max_gifts >= saleOrderLineOrigin.assigned_gifts)
-                    if(dataBenefitFound.max_gifts >= dataBenefitFound.assigned_gifts)
+                    if (dataBenefitFound.max_gifts >= dataBenefitFound.assigned_gifts)
                     {
                         //En el momento en que se ha completado el maximo de regalos, se registra la aplicación de la promoción
                         await promotionEngineRunner.AddApplyPromotion(SaleOrder, benefit, -1, saleOrderPromotions);

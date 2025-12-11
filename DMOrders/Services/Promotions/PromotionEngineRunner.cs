@@ -184,7 +184,14 @@ namespace DMOrders.Services.Promotions
             if (existingPromos != null && existingPromos.Count > 0)
             {
                 foreach (var item in existingPromos)
-                {   
+                {
+                    //item.gifts_for_remove = item.max_gifts - promotionEvalItem.MaxAllowedGifts;
+                    if(item.assigned_gifts > promotionEvalItem.MaxAllowedGifts)
+                    {
+                        item.gifts_for_remove = item.assigned_gifts - promotionEvalItem.MaxAllowedGifts;
+                    }
+                    //item.gifts_for_remove = item.max_gifts - item.assigned_gifts;
+                    promotionEvalItem.GiftsForRemove = item.gifts_for_remove;
                     item.max_gifts = promotionEvalItem.MaxAllowedGifts;
                     item.related_product_tmpl_ids = fullProductTmplIds;
                     //item.assigned_gifts = promotionEvalItem.MaxAllowedGifts;
