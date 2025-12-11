@@ -91,6 +91,9 @@ namespace DMSA.Models.Odoo.Abstract
         [Column("sale_channel_default")]
         public int sale_channel_default { get; set; }
 
+        [Column("prefix_db")]
+        public int prefix_db { get; set; }
+
         public List<OdooConnection> LoadDefault()
         {
             List<OdooConnection> defaultSettings = new List<OdooConnection>();
@@ -139,8 +142,8 @@ namespace DMSA.Models.Odoo.Abstract
                 Id = 3,
                 CompanyId = 1,
                 Name = "Macronegocios",
-                Host = "http://qa.macronegocios:8069/",
-                DbName = "qamacronegocios",
+                Host = "http://qa.macronegocios/",
+                DbName = "qa.macronegocios",
                 Username = "admin",
                 Password = CryptoHelper.Encrypt("demo"),
                 Active = false,

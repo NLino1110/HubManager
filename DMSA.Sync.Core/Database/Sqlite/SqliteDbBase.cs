@@ -175,17 +175,26 @@ namespace DMSA.Sync.Core.Database.Sqlite
             return await Database.DeleteAsync(item);
         }
 
-        public async Task<int> DeleteAllAsync(Func<T, bool> predicate)
+        public async Task<int> DeleteAllAsync(Expression<Func<T, bool>> predicate)
         {
             await Init();
 
-            var items = await Database.Table<T>().ToListAsync();
-            var matches = items.Where(predicate).ToList();
+            var matches = await Database.Table<T>().Where(predicate).ToListAsync();
+            if (!matches.Any())
+                return 0;
 
-            foreach (var item in matches)
-                await Database.DeleteAsync(item);
+            int count = 0;
 
-            return matches.Count;
+            await Database.RunInTransactionAsync(tran =>
+            {
+                foreach (var item in matches)
+                {
+                    tran.Delete(item);
+                    count++;
+                }
+            });
+
+            return count;
         }
 
     }

@@ -51,10 +51,11 @@ namespace DMSA.Sync.Core.Update
         {
             var stopwatch = Stopwatch.StartNew();
 
+            var database = new ProductPricelistDb(DbNameSqlite);
+            DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since_lower);
+
             var hubmanager = new ApiManager.HubProductPricelistItem(Constants.Session);
             var databaseItems = new ProductPricelistItemDb(DbNameSqlite);
-
-            var database = new ProductPricelistDb(DbNameSqlite);
 
             var activePriceLists = await database.GetItemsByStatus(true);
 
