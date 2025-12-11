@@ -12,7 +12,7 @@ namespace DMSA.Sync.Core.Database.Sqlite.tareas
         public async Task<List<MotivoActividadDiaria>> GetItemsAsync()
         {
             await Init();
-            return await Database.Table<MotivoActividadDiaria>().ToListAsync();
+            return await Database.Table<MotivoActividadDiaria>().Where(x=>x.tipo== "ACT" && x.codsistema== "VEX").ToListAsync();
         }
 
         public async Task<MotivoActividadDiaria> GetItem(int id)

@@ -6,7 +6,7 @@ namespace DMOrders.Controls.CustomRows
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
 
-    public class ProductCategoryRow : RowAdvance<product_category>
+    public class ProductCategoryRow : RowAdvance<product_categoria>
     {
         public ICommand EditCommand
         {
@@ -56,7 +56,7 @@ namespace DMOrders.Controls.CustomRows
 
             Button btnSelect = new Button
             {
-                Command = PopupSelectBrand.CommandSelectListItem,
+                Command = PopupSelectProductCategory.CommandSelectListItem,
                 HeightRequest = 35,
                 WidthRequest = 35,
                 BackgroundColor = Colors.DodgerBlue,

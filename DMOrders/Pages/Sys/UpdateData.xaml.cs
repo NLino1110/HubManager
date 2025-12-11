@@ -199,46 +199,6 @@ public partial class UpdateData : ContentPage
         File.WriteAllBytes(Path.Combine(DeviceStorage, ZipFileName), fileBytes);
     }
 
-    
-
-    private async Task UploadDataMode1(ProgressBarAnimationBehaviorPage obj,
-        IToast toast,
-        ToastDuration duration,
-        double fontSize,
-        CancellationTokenSource cancellationTokenSource)
-    {
-
-        string textToast = "Enviando información...";
-        obj.SetTitle("Iniciando envío de información");
-        obj.SetPercentProgress(0.15);
-
-        try
-        {
-            Debug.WriteLine("Iniciando Upload...");
-            //Se obtiene de la base de datos
-            AccountPaymentHeaderDb cobReciboCabDb = new AccountPaymentHeaderDb();
-            var itemsDebug = await cobReciboCabDb.GetItemsAsync();
-            var itemsCobros = (await cobReciboCabDb.GetItemsAsync()).Where(ic => ic.payment_status == DMSA.Models.CobrosEstados.PENDIENTE || ic.payment_status == DMSA.Models.CobrosEstados.ENVIANDO).ToList();
-            if (itemsCobros.Count() > 0)
-            {
-                foreach (var itemCobro in itemsCobros)
-                {
-                    //ApiProcessor apiProcessor = new ApiProcessor();
-                    //await apiProcessor.EnviarCobro(itemCobro);
-                }
-            }
-
-            //TODO: Agregar envío de notas de crédito
-
-        }
-        catch (Exception ex)
-        {
-            textToast = "Error insert:" + ex.Message;
-            toast = Toast.Make(textToast, duration, fontSize);
-            await toast.Show(cancellationTokenSource.Token);
-        }
-    }
-
     //Esta clase sirve para intersectar la serialización de una clase, y permite excluir las propiedades
     // especificadas para que no sean serializadas
     public class ShouldSerializeContractResolver : DefaultContractResolver
@@ -325,113 +285,6 @@ public partial class UpdateData : ContentPage
         }
         return 0;
     }
-
-    public async Task<bool> DownloadAccountMoveRefund(AppSession _appSession, ApiRequestOdoo_v1 apiRequest)
-    {
-        JsonSerializerSettings settings = new JsonSerializerSettings();
-        //settings.DateFormatString = "yyyy-MM-dd HH:mm:ss";
-        settings.ContractResolver = new IncludeJsonIgnoreResolver();
-
-        DateTime dateIni = DateTime.Now;
-        DateTime dateEnd = DateTime.Now;
-        
-        ApiManager.HubAccountMoveSendHeader hubmanager = new ApiManager.HubAccountMoveSendHeader(_appSession);
-        var resultCount = await hubmanager.GetHeaderCount(dateIni, dateEnd);
-
-        Debug.WriteLine(resultCount.result);
-
-        if (resultCount.result == 0)
-        {
-            return false;
-        }
-
-        int countTotal = resultCount.result / 300;
-
-        var databaseHeader = new AccountMoveSendHeaderDb();
-        var databaseMoveSend = new AccountMoveSendDb();
-        var databaseMoveLineSend = new AccountMoveLineSendDb();
-
-        for (int indice = 0; indice <= countTotal; indice++)
-        {
-            apiRequest.index = indice;
-
-            var responseAll = await hubmanager.GetItemsFull(dateIni, dateEnd, indice);
-
-            if (responseAll != null && responseAll.Length > 0)
-            {
-                //await database.InsertBatchAsync(responseAll.data);
-
-                //Iniciando inserción
-                foreach (var headerItem in responseAll)
-                {
-                    //var foundHeader = await databaseHeader.GetItemByGuidAsync(headerItem.guid);
-                    var foundHeader = await databaseHeader.GetByRequestName(headerItem.request_name);
-                    if (foundHeader != null)
-                    {
-                        Debug.WriteLine("Registro ya existe en la base de datos!, no se sincronizará");
-                        Debug.WriteLine(foundHeader.request_name);
-                        //Debug.WriteLine(foundHeader.recipe_name);
-                        continue;
-                    }
-
-                    string jsonHeaderItem = JsonConvert.SerializeObject(headerItem); //, settings);
-                    var newHeaderItem = JsonConvert.DeserializeObject<AccountMoveSendHeader>(jsonHeaderItem);
-
-                    //var itemFound = await databaseHeader.GetItemByGuidAsync(newHeaderItem.guid);
-
-                    //if (itemFound != null) continue;
-
-                    newHeaderItem.was_odoo_synced = true;
-                    int newHeaderId = await databaseHeader.InsertAsync(newHeaderItem);
-
-                    //TODO: Podrian venir vacíos porque pudieron haberse borrado
-                    if (headerItem.account_moves != null)
-                    {
-                        foreach (var paymentItem in headerItem.account_moves)
-                        {
-                            paymentItem.parent_id = newHeaderItem.id;
-                            paymentItem.was_odoo_synced = true;
-                            string jsonPaymentItem = JsonConvert.SerializeObject(paymentItem, settings); //, settings);
-                            var newPaymentItem = JsonConvert.DeserializeObject<account_move_send>(jsonPaymentItem, settings);
-
-                            int newPayId = await databaseMoveSend.InsertAsync(newPaymentItem);
-
-                            if (paymentItem.lines != null)
-                            {
-                                foreach (var lineItem in paymentItem.lines)
-                                {
-                                    lineItem.parent_move_id = newPaymentItem.id;
-                                    lineItem.was_odoo_synced = true;
-                                    string jsonLineItem = JsonConvert.SerializeObject(lineItem, settings); //, settings);
-                                    var newLineItem = JsonConvert.DeserializeObject<account_move_line_send>(jsonLineItem, settings);
-                                    await databaseMoveLineSend.InsertAsync(newLineItem);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            Console.WriteLine("Página:" + indice);
-
-            //TODO: Se fuerza la salida para que no se quede ciclado en caso de que haya
-            // problemas de conexion con el servidor
-            // el objetivo es que el servidor no se sobrecargue
-
-            if (indice >= 600)
-            {
-                Console.WriteLine("Página " + indice + ": Se terminará el proceso.");
-                break;
-            }
-        }
-
-        TimeSpan span = (DateTime.Now - dateIni);
-
-        Console.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
-            span.Days, span.Hours, span.Minutes, span.Seconds));
-
-        return true;
-    }
     
     private async void DeleteTables(object sender, EventArgs e)
     {
@@ -510,8 +363,6 @@ public partial class UpdateData : ContentPage
 
         await Navigation.PushModalAsync(obj, true);
 
-        await UploadDataMode1(obj, toast, duration, fontSize, cancellationTokenSource);
-
         obj.SetTitle("Finalizado...");
 
         //Se fuerza con el DisplayAlert, la interacción con el usuario
@@ -526,76 +377,31 @@ public partial class UpdateData : ContentPage
         await toast.Show(cancellationTokenSource.Token);
     }
 
-    [Obsolete]
-    private async void LaunchLightUpdate(object sender, EventArgs e)
-    {
-        bool answer = await DisplayAlert("Actualizar Complementaria (NO IMPLEMENTADO)", "Esta actualización solo complementará los datos de las facturas faltantes desde la ultima fecha de actualizacion, está seguro que desea iniciar la actualización?", "Continuar", "Cancelar");
-        //Debug.WriteLine("Answer: " + answer);
-        if (!answer)
-        {
-            return;
-        }
-
-        DateTime dtInitialize = DateTime.Now;
-        lblUpdatedInfo.Text = "Iniciada: " + dtInitialize;
-        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-
-        string text = "Iniciando actualización Complementaria...";
-        ToastDuration duration = ToastDuration.Short;
-        double fontSize = 14;
-        var toast = Toast.Make(text, duration, fontSize);
-        await toast.Show(cancellationTokenSource.Token);
-
-        ProgressBarAnimationBehaviorPage obj = new ProgressBarAnimationBehaviorPage();
-        //App.Current.MainPage = obj;
-
-        await Navigation.PushModalAsync(obj, true);
-
-        obj.SetTotalPercentProgress(0.10);
-
-        obj.SetTotalPercentProgress(1);
-        obj.SetTitle("Finalizado...");
-
-        //Se fuerza con el DisplayAlert, la interacción con el usuario
-        // no avanza hasta que se cierre la ventana
-        await obj.DisplayAlert("Actualización Complementaria", "Actualización Complementaria terminada", "Aceptar");
-
-        //TODO: Solucionar crasheo en Android
-        // en modo sleep provoca crash porque al parecer no tiene nada a que hacerle Pop
-        await Navigation.PopModalAsync();
-
-        TimeSpan span = (DateTime.Now - dtInitialize);
-
-        lblUpdatedInfo.Text += ", finalizada: " + DateTime.Now +
-            " (" + String.Format("{0} días, {1} horas, {2} minutos, {3} segundos)",
-            span.Days, span.Hours, span.Minutes, span.Seconds);
-    }
-
     private async Task<bool> SuggestCacheMode()
     {
-        var databaseDet = new AccountMoveLineDb();
-        if ((await databaseDet.GetCount()) == 0)
-        {
-            return true;
-        }
+        //var databaseDet = new AccountMoveLineDb();
+        //if ((await databaseDet.GetCount()) == 0)
+        //{
+        //    return true;
+        //}
 
-        var databaseCab = new AccountMoveDb();
-        if ((await databaseCab.GetCount()) == 0)
-        {
-            return true;
-        }
+        //var databaseCab = new AccountMoveDb();
+        //if ((await databaseCab.GetCount()) == 0)
+        //{
+        //    return true;
+        //}
 
         return false;
     }
 
     private async Task<string> GetLastDate()
     {
-        var databaseCab = new AccountMoveDb();
+        //var databaseCab = new AccountMoveDb();
         //if (() != null)
         //{
         //   return true;
         //}
-        string result = (await databaseCab.GetLastDate()).ToString("yyyy-MM-dd");
+        string result = DateTime.Now.AddDays(-60).ToString("yyyy-MM-dd");
 
         return result;
     }

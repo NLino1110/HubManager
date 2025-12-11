@@ -132,7 +132,6 @@
 	<ItemGroup>
 	  <Compile Remove="Controls\ProgressBarAnimationBehaviorPage.xaml.cs" />
 	  <Compile Remove="Login_deprecated.xaml.cs" />
-	  <Compile Remove="Services\Update\Pusher\ServerPusher.cs" />
 	  <Compile Remove="Services\Update\ServerPuller.Accounting.cs" />
 	  <Compile Remove="Services\Update\ServerPuller.cs" />
 	  <Compile Remove="Services\Update\ServerPuller.ProductExtras.cs" />
@@ -394,7 +393,7 @@
 
 	<ItemGroup>
 	  <Folder Include="Services\Database\" />
-	  <Folder Include="Services\Update\Pusher\" />
+	  <Folder Include="Services\Update\" />
 	</ItemGroup>
 
 </Project>

@@ -120,6 +120,12 @@ namespace DMOrders.Services.Database.Sqlite
             return await Database.InsertAsync(item);
         }
 
+        public async Task<int> InsertOrReplaceAsync(T item)
+        {
+            await Init();
+            return await Database.InsertAsync(item, "OR REPLACE");
+        }
+
         public async Task<int> InsertBatchAsync(IEnumerable<T> items)
         {
             await Init();

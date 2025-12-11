@@ -52,6 +52,18 @@
 	<ItemGroup>
 	  <AndroidResource Remove="Platforms\Android\Resources\values\styles.xml" />
 	</ItemGroup>
+	
+
+	<ItemGroup>
+	  <Compile Remove="Controls\CustomRows\BrandRow.cs" />
+	  <Compile Remove="Controls\PopupSelectBrand.cs" />
+	  <Compile Remove="Pages\Fragments\Orders\modals\CatalogViewer.xaml.cs" />
+	</ItemGroup>
+	
+
+	<ItemGroup>
+	  <MauiXaml Remove="Pages\Fragments\Orders\modals\CatalogViewer.xaml" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<None Remove="Resources\AppIcon\appicon.svg" />
@@ -180,9 +192,6 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\Fragments\Orders\Filters.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Pages\Fragments\Orders\modals\CatalogViewer.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\Fragments\Orders\modals\CatalogViewerInner.xaml">

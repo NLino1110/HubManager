@@ -8,18 +8,18 @@ using System.Diagnostics;
 
 namespace DMOrders.Controls
 {
-    public class PopupSelectProductCategory : PopupSelectBase<product_category>
+    public class PopupSelectProductCategory : PopupSelectBase<product_categoria>
     {
         public res_company Company { get; set; }
         public int DetailMode { get; set; } = 0;
-        ObservableCollection<product_category> resultItemsSearch { get; set; }
+        ObservableCollection<product_categoria> resultItemsSearch { get; set; }
        
         public PopupSelectProductCategory(PopupSizeConstants popupSizeConstants) : base(popupSizeConstants,true)
         {            
             DataField = "id, name";
             _LaunchSearchEvent += _searchBar_BeginSearch;
             _OnAppearing += _onAppearingCustom;
-            resultItemsSearch = new ObservableCollection<product_category>();            
+            resultItemsSearch = new ObservableCollection<product_categoria>();            
         }
 
         async Task<int> LoadData()
@@ -30,8 +30,8 @@ namespace DMOrders.Controls
             }
 
             await SetWorkingStatus();
-            ProductCategoryDb dbItemsDb = new ProductCategoryDb();
-            resultItemsSearch = new ObservableCollection<product_category>((await dbItemsDb.GetItemsAsync()).Where(data=>data.name.Contains(TextForSearch.ToUpper())));            
+            var dbItemsDb = new ProductCategoriaDb("");
+            resultItemsSearch = new ObservableCollection<product_categoria>(await dbItemsDb.GetItemsAsync(data => data.name.Contains(TextForSearch.ToUpper())));
             _collectionViewSearch.ItemsSource = resultItemsSearch;            
             await SetDoneStatus();
             return 1;
