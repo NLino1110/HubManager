@@ -16,6 +16,14 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
     public int GlobalTotalManualGiftsForRemove = 0;
     public int GlobalTotalManualGiftsRemoved = 0;
 
+    public bool RequiredRemoveItems
+    {
+        get
+        {
+            return GlobalTotalManualGiftsForRemove > GlobalTotalManualGiftsRemoved;
+        }
+    }
+
     public int TotalGiftsForRemove
     {
         get
@@ -209,6 +217,7 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
 
             OnPropertyChanged(nameof(TotalGiftsForRemove));
             OnPropertyChanged(nameof(TotalGiftsRemoved));
+            OnPropertyChanged(nameof(RequiredRemoveItems));            
 
         }
     }

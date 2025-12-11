@@ -7,7 +7,6 @@ using SkiaSharp.Views.Maui.Controls.Hosting;
 using System.Diagnostics;
 using System.Globalization;
 using UraniumUI;
-using DMOrders.Services.Database.Sqlite;    // ← IMPORTANTE
 
 namespace DMOrders
 {
@@ -68,38 +67,6 @@ namespace DMOrders
             CultureInfo.DefaultThreadCurrentUICulture = culture;
             Thread.CurrentThread.CurrentCulture = culture;
             Thread.CurrentThread.CurrentUICulture = culture;
-
-
-            // 🔥 ----------------------------------------
-            // REGISTRAR SERVICIO SQLITE
-            // ----------------------------------------
-            builder.Services.AddSingleton<StockLocationDb>(provider =>
-            {
-                return new StockLocationDb(App.Session.SqliteCoreDbName);
-            });
-
-
-            // 🔥 ----------------------------------------
-            // WARMUP PARA ELIMINAR LENTITUD DE STOCK
-            // ----------------------------------------
-            Task.Run(async () =>
-            {
-                try
-                {
-                    var provider = builder.Services.BuildServiceProvider();
-                    var stockDb = provider.GetService<StockLocationDb>();
-
-                    if (stockDb != null)
-                        await stockDb.Warmup();
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("Warmup StockLocationDb Error: " + ex.Message);
-                }
-            });
-
-            // 🔥 FIN CAMBIOS IMPORTANTES
-
 
             return builder.Build();
         }

@@ -277,17 +277,26 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                HorizontalTextAlignment="End" 
                VerticalTextAlignment="Center"/>
 
-            <Label Text="ELIMINAR:"
-                   TextColor="Orange"
+            <HorizontalStackLayout x:Name="RemoveInfo" HorizontalOptions="Fill" Spacing="3" Margin="20,0,0,0">
+                <HorizontalStackLayout.Triggers>
+                    <DataTrigger TargetType="HorizontalStackLayout" Binding="{Binding RequiredRemoveItems}" Value="False">
+                        <Setter Property="IsVisible" Value="False"/>
+                    </DataTrigger>
+                    <DataTrigger TargetType="HorizontalStackLayout" Binding="{Binding RequiredRemoveItems}" Value="True">
+                        <Setter Property="IsVisible" Value="True"/>
+                    </DataTrigger>
+                </HorizontalStackLayout.Triggers>
+                <Label Text="ELIMINAR"
+                   TextColor="OrangeRed"
                     FontAttributes="Bold"
                     FontSize="11"
                     HorizontalOptions="Fill"
                     HorizontalTextAlignment="End" 
                     VerticalTextAlignment="Center"
-                    Margin="20,0,0,0"/>
+                    Margin="0,0,0,0"/>
 
-            <Label Text="{Binding TotalGiftsForRemove}"
-                   TextColor="Orange"
+                <Label Text="{Binding TotalGiftsRemoved}"
+                   TextColor="OrangeRed"
                    FontAttributes="Bold"
                    FontSize="11"
                    HorizontalOptions="Fill"
@@ -296,8 +305,8 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                    Padding="0"
                    Margin="0"/>
 
-            <Label Text="/"
-                   TextColor="Orange"
+                <Label Text="/"
+                   TextColor="OrangeRed"
                    FontAttributes="Bold"
                    FontSize="11"
                    HorizontalOptions="Fill"
@@ -306,8 +315,8 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                    Padding="0"
                    Margin="0"/>
 
-            <Label Text="{Binding TotalGiftsRemoved}"
-                   TextColor="Orange"
+                <Label Text="{Binding TotalGiftsForRemove}"
+                   TextColor="OrangeRed"
                    FontAttributes="Bold"
                    FontSize="13"
                    HorizontalOptions="Fill"
@@ -315,6 +324,7 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                    VerticalTextAlignment="Center"
                    Padding="0"
                    Margin="0"/>
+            </HorizontalStackLayout>
 
         </HorizontalStackLayout>
     </VerticalStackLayout>
