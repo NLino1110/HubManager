@@ -1381,6 +1381,12 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
 
     private async void OnCloseButtonClicked(object sender, EventArgs e)
     {
+        if (GlobalTotalManualGiftsRemoved < GlobalTotalManualGiftsForRemove)
+        {
+            await App.Current.Windows[0].Page.DisplayAlert($"No se puede continuar", $"Se requiere eliminar regalos manuales {GlobalTotalManualGiftsRemoved}/{GlobalTotalManualGiftsForRemove}","Ok");
+            return;
+        }
+
         if(GlobalTotalManualGiftsApplied < GlobalTotalManualGiftsAllowed)
         {            
             var leave = await App.Current.Windows[0].Page.DisplayAlert($"¿Desea continuar?", $"No se han aplicado todos los {GlobalTotalManualGiftsAllowed} regalos de los bonificados manuales", "Si", "No");

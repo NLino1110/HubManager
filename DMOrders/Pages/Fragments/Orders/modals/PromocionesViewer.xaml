@@ -277,34 +277,44 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                HorizontalTextAlignment="End" 
                VerticalTextAlignment="Center"/>
 
-            <Label Text="TOT. ELIM.:"
-                FontAttributes="Bold"
-                FontSize="11"
-                HorizontalOptions="Fill"
-                HorizontalTextAlignment="End" 
-                VerticalTextAlignment="Center"
-                Margin="20,0,0,0"/>
+            <Label Text="ELIMINAR:"
+                   TextColor="Orange"
+                    FontAttributes="Bold"
+                    FontSize="11"
+                    HorizontalOptions="Fill"
+                    HorizontalTextAlignment="End" 
+                    VerticalTextAlignment="Center"
+                    Margin="20,0,0,0"/>
 
             <Label Text="{Binding TotalGiftsForRemove}"
-               FontAttributes="Bold"
-               FontSize="11"
-               HorizontalOptions="Fill"
-               HorizontalTextAlignment="End" 
-               VerticalTextAlignment="Center"/>
+                   TextColor="Orange"
+                   FontAttributes="Bold"
+                   FontSize="11"
+                   HorizontalOptions="Fill"
+                   HorizontalTextAlignment="End" 
+                   VerticalTextAlignment="Center"
+                   Padding="0"
+                   Margin="0"/>
 
             <Label Text="/"
-               FontAttributes="Bold"
-               FontSize="11"
-               HorizontalOptions="Fill"
-               HorizontalTextAlignment="End" 
-               VerticalTextAlignment="Center"/>
+                   TextColor="Orange"
+                   FontAttributes="Bold"
+                   FontSize="11"
+                   HorizontalOptions="Fill"
+                   HorizontalTextAlignment="End" 
+                   VerticalTextAlignment="Center"
+                   Padding="0"
+                   Margin="0"/>
 
             <Label Text="{Binding TotalGiftsRemoved}"
-               FontAttributes="Bold"
-               FontSize="13"
-               HorizontalOptions="Fill"
-               HorizontalTextAlignment="End" 
-               VerticalTextAlignment="Center"/>
+                   TextColor="Orange"
+                   FontAttributes="Bold"
+                   FontSize="13"
+                   HorizontalOptions="Fill"
+                   HorizontalTextAlignment="End" 
+                   VerticalTextAlignment="Center"
+                   Padding="0"
+                   Margin="0"/>
 
         </HorizontalStackLayout>
     </VerticalStackLayout>
