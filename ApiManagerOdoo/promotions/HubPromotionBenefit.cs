@@ -115,5 +115,30 @@ namespace ApiManagerOdoo.promotions
             };
             return await SearchRead<ApiResponseOdooRpcT<PromotionBenefit[]>>(args, _custom_args, kwargs, true);
         }
+
+
+        public async Task<ApiResponseOdooRpcT<PromotionBenefit[]>?> GetActivesByWriteDate(DateTime write_date, DateTime expire_datetime, int limit, int index)
+        {
+            var kwargs = new
+            {
+                limit,
+                offset = index * limit,
+                fields = fields_array
+            };
+
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] { "write_date", ">=", write_date.ToString("yyyy-MM-dd") },
+                new object[] {
+                    "end_datetime", ">=", expire_datetime.ToString("yyyy-MM-dd")
+                },
+                new object[] {
+                    "active", "=", true
+                },
+                new object[] { "target_segment_id", "=", 1 },
+                //new object[] { "state", "=", "authorized" },
+            };
+            return await SearchRead<ApiResponseOdooRpcT<PromotionBenefit[]>>(args, _custom_args, kwargs, true);
+        }
     }
 }

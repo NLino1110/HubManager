@@ -1,28 +1,31 @@
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
-using Newtonsoft.Json;
-using RestSharp;
-using System.IO.Compression;
-using System.Diagnostics;
-using DMSA.Models.Security;
-using Newtonsoft.Json.Serialization;
-using System.Reflection;
+using DMOrders.Services.Database.Sqlite;
+using DMOrders.Services.Helpers;
+using DMOrders.Services.Update;
 using DMSA.Models.General.Requests;
+using DMSA.Models.Odoo.DMCobranzas;
 using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Origin;
 using DMSA.Models.Odoo.Tools;
 using DMSA.Models.Odoo.Update;
-using System.Text;
+using DMSA.Models.Security;
+using DMSA.Sync.Core.Update;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using DMOrders.Services.Helpers;
-using DMOrders.Services.Database.Sqlite;
-using DMSA.Models.Odoo.Origin;
-using DMOrders.Services.Update;
-using DMSA.Models.Odoo.DMCobranzas;
+using Newtonsoft.Json.Serialization;
+using RestSharp;
+using System.Diagnostics;
+using System.IO.Compression;
+using System.Reflection;
+using System.Text;
 
 namespace DMOrders.Pages.Sys;
 
 public partial class UpdateData : ContentPage
 {
+    DMSA.Sync.Core.Update.ServerPuller serverPullerLibrary { get; set; }
+
     //TODO: Asignación provisional
     // ya que este valor cambiará dependiendo del estado de la sesión
     private string _rootUrl = "http://127.0.0.1/path/tmp/android/sqlite/";
@@ -44,6 +47,7 @@ public partial class UpdateData : ContentPage
         //HACK
         //UNDONE
         //UnresolvedMergeConflict
+        serverPullerLibrary = new DMSA.Sync.Core.Update.ServerPuller();
     }
 
     private async Task<bool> ServerOnlineStatus_Odoo()
@@ -481,12 +485,14 @@ public partial class UpdateData : ContentPage
             //return;
         }
 
-        ServerPuller serverPuller = new ServerPuller();
+        Services.Update.ServerPuller serverPuller = new Services.Update.ServerPuller();
 
         //Actualización por Cache
         if (chkGroup1.IsChecked)
         {
-            await serverPuller.PullPromotions();
+            //await serverPuller.PullPromotions();
+
+            await serverPullerLibrary.PullPromotions();
 
             //Sinó se realiza la actualización por cache, se hará la actualización en linea
             // esta actualización lleva muchisimo tiempo
@@ -532,22 +538,26 @@ public partial class UpdateData : ContentPage
 
         if(chkGroup3.IsChecked)
         {
-            await serverPuller.OnlineSyncResPartner();
+            //await serverPuller.OnlineSyncResPartner();
+            await serverPullerLibrary.OnlineSyncResPartner();
         }
 
         if(chkGroup4.IsChecked)
         {
             await serverPuller.OnlineSyncProductPricelist();
             await serverPuller.OnlineSyncProductPricelistItem();
-            await serverPuller.OnlineSyncProductProduct();
+            //await serverPuller.OnlineSyncProductProduct();
+            await serverPullerLibrary.OnlineSyncProductProduct();
             await serverPuller.OnlineAccountTaxes();
         }
 
         if (chkGroup5.IsChecked)
         {
             await serverPuller.OnlineSyncStockWarehouse(false);
-            await serverPuller.OnlineSyncStockLocation();
-            await serverPuller.OnlineSyncStockQuant();
+            await serverPullerLibrary.OnlineSyncStockLocation();
+            //await serverPuller.OnlineSyncStockLocation();
+            //await serverPuller.OnlineSyncStockQuant();
+            await serverPullerLibrary.OnlineSyncStockQuant();
             await serverPuller.UomUom(true);
             //
             //await serverPuller.FixInventory();

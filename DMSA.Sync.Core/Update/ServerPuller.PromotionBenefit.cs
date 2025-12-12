@@ -218,7 +218,7 @@ namespace DMSA.Sync.Core.Update
 
             stopwatch.Stop();
 
-            Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+            Debug.WriteLine(String.Format("Lapso transcurrido: OnlinePromotionProducts {0} days, {1} hours, {2} minutes, {3} seconds",
                 stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
 
             return true;
@@ -266,7 +266,7 @@ namespace DMSA.Sync.Core.Update
 
             stopwatch.Stop();
 
-            Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+            Debug.WriteLine(String.Format("Lapso transcurrido: OnlinePromotionProductDetail {0} days, {1} hours, {2} minutes, {3} seconds",
                 stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
 
             return true;
@@ -407,7 +407,7 @@ namespace DMSA.Sync.Core.Update
 
             stopwatch.Stop();
 
-            Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+            Debug.WriteLine(String.Format("Lapso transcurrido: PromoCenter {0} days, {1} hours, {2} minutes, {3} seconds",
                 stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
 
             return true;
@@ -461,7 +461,7 @@ namespace DMSA.Sync.Core.Update
 
             stopwatch.Stop();
 
-            Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+            Debug.WriteLine(String.Format("Lapso transcurrido: PromoRules {0} days, {1} hours, {2} minutes, {3} seconds",
                 stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
 
             return true;
@@ -472,12 +472,14 @@ namespace DMSA.Sync.Core.Update
             await PaymentMethod(true);
             await PosTarjetasCanal(true);
 
+            var database = new PromotionBenefitDb(DbNameSqlite);
+            DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since);
             DateTime current_datetime = DateTime.Now;
 
             var stopwatch = Stopwatch.StartNew();
 
             HubPromotionBenefit hubmanager = new HubPromotionBenefit(Constants.Session);
-            var resultCount = await hubmanager.GetCount(current_datetime.Year, current_datetime.Month, current_datetime.Day);
+            var resultCount = await hubmanager.GetCount(lastDate.Value.Year, lastDate.Value.Month, lastDate.Value.Day);
 
             if (resultCount.result == 0)
             {
@@ -485,14 +487,12 @@ namespace DMSA.Sync.Core.Update
             }
 
             int countTotal = resultCount.result / Constants.Session.odooConnection.DbLimitDefault;
-
-            var database = new PromotionBenefitDb(DbNameSqlite);
-
+            
             for (int indice = 0; indice <= countTotal; indice++)
             {
                 Debug.WriteLine("Página:" + indice);
 
-                var responseAll = await hubmanager.GetActives(current_datetime, limit, indice);
+                var responseAll = await hubmanager.GetActivesByWriteDate(lastDate.Value, current_datetime, limit, indice);
 
                 if (responseAll.result != null && responseAll.result.Length > 0)
                 {
@@ -500,13 +500,13 @@ namespace DMSA.Sync.Core.Update
 
                     foreach (var item in responseAll.result)
                     {
-                        await LoyaltyFilters(item, true);
-                        await LoyaltyFiltersDetail(item, true);
+                        //await LoyaltyFilters(item, true);
+                        //await LoyaltyFiltersDetail(item, true);
                         
                         await PromoRules(item, true);
                         await OnlinePromotionProducts(item, true);
                         await OnlinePromotionProductDetail(item, true);
-                        await PromoCenter(item, true);                        
+                        await PromoCenter(item, true);
                     }
                 }
 

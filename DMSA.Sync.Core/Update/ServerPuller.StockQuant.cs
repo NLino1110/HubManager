@@ -8,31 +8,38 @@ namespace DMSA.Sync.Core.Update
         public async Task<bool> OnlineSyncStockQuant()
         {            
             var stopwatch = Stopwatch.StartNew();
+            var database = new StockQuantDb(Constants.Session.odooConnection.DbNameSqlite);
+            DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since);
 
             ApiManager.HubStockQuant hubmanager = new ApiManager.HubStockQuant(Constants.Session);
-            var resultCount = await hubmanager.GetCount();
+            
+            int res_center = Constants.Session.odooConnection.res_center_default;
+            //Obtenermos los warehouses asociados al centro de operaciones
+            var databaseWhs = new StockWareHouseDb(Constants.Session.odooConnection.DbNameSqlite);
+            var whsList = await databaseWhs.GetByResCenter(res_center);
+            int[] whsIds = whsList.Select(w => w.id).ToArray();
+
+            var resultCount = await hubmanager.GetCount(whsIds, lastDate.Value);
 
             if (resultCount.result == 0)
             {
                 return false;
             }
 
-            int countTotal = resultCount.result / 300;
-
-            var database = new StockQuantDb(Constants.Session.odooConnection.DbNameSqlite);
+            int countTotal = resultCount.result / 300;            
 
             for (int indice = 0; indice <= countTotal; indice++)
             {
-                Debug.WriteLine("Página:" + indice);
+                Debug.WriteLine("Página:" + indice + " de " + countTotal);
 
-                var responseAll = await hubmanager.GetByCreateDate(limit, indice, year, month, day);
+                var responseAll = await hubmanager.GetByWriteDate(whsIds, limit, indice, year, month, day);
 
                 if (responseAll.result != null && responseAll.result.Length > 0)
                 {
                     await database.InsertBatchAsync(responseAll.result);
                 }
 
-                if (indice >= 600)
+                if (indice >= maxIndexExceeded)
                 {
                     Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
                     break;

@@ -323,15 +323,17 @@ public partial class Crud : ContentPage, IBackButtonHandler
     private async void ButtonSave_Clicked(object sender, EventArgs e)
     {
         sale_order targetOrder = await SaveOrder();
-        
+
         if (targetOrder != null)
         {
-            //var applyPromo = await ApplyPromo(targetOrder);
+            await CleanPromotionStatusV2(targetOrder);
 
-            //if (applyPromo.Count > 0)
-            //{
+            var applyPromo = await ApplyPromo(targetOrder);
 
-            //}
+            if (applyPromo.Count > 0)
+            {
+
+            }
         }
 
         //await Navigation.PopAsync();

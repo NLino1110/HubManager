@@ -2,6 +2,7 @@
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Security;
+using System;
 
 namespace ApiManager
 {
@@ -61,6 +62,17 @@ namespace ApiManager
             };
             return await GetCount(args, _custom_args);
         }
+
+        public async Task<ApiResponseOdooRpc?> GetCount(int[] whIds, DateTime? dateTime)
+        {
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] { "warehouse_id", "in", whIds },
+                new object[] { "write_date", ">=", dateTime?.ToString("yyyy-MM-dd") }
+            };
+            return await GetCount(args, _custom_args);
+        }
+        
 
         public async Task<ApiResponseOdooRpc?> GetCountByCreateDate(int year, int month, int day)
         {
@@ -126,15 +138,18 @@ namespace ApiManager
             return await SearchRead<ApiResponseOdooRpcT<stock_location[]>>(args, _custom_args, kwargs);
         }
         
-        public async Task<ApiResponseOdooRpcT<stock_location[]>?> GetByWriteDate(int year, int month, int day)
+        public async Task<ApiResponseOdooRpcT<stock_location[]>?> GetByWriteDate(int[] whIds, int limit, int index, int year, int month, int day)
         {
             var kwargs = new
             {
+                limit = limit,
+                offset = (index * limit),
                 fields = fields_array
             };
 
             object[] args = new object[] { };
-            object[] _custom_args = new object[] {                
+            object[] _custom_args = new object[] {
+                new object[] { "warehouse_id", "in", whIds },
                 new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
             };
             return await SearchRead<ApiResponseOdooRpcT<stock_location[]>>(args, _custom_args, kwargs);

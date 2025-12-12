@@ -80,10 +80,11 @@ namespace ApiManager
             return await GetCount(args, _custom_args);
         }
 
-        public async Task<ApiResponseOdooRpc?> GetCountByWriteDate(int year, int month, int day)
+        public async Task<ApiResponseOdooRpc?> GetCount(int pricelist_id, int year, int month, int day)
         {
             object[] args = new object[] { };            
-            object[] _custom_args = new object[] {
+            object[] _custom_args = new object[] {                
+                new object[] { "pricelist_id", "=", pricelist_id },
                 new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
             };
             return await GetCount(args, _custom_args);
@@ -168,15 +169,19 @@ namespace ApiManager
             return await SearchRead<ApiResponseOdooRpcT<product_pricelist_item[]>>(args, _custom_args, kwargs);
         }
         
-        public async Task<ApiResponseOdooRpcT<product_pricelist_item[]>?> GetByWriteDate(int year, int month, int day)
+        public async Task<ApiResponseOdooRpcT<product_pricelist_item[]>?> GetByWriteDate(int pricelist_id, int limit, int index, int year, int month, int day)
         {
             var kwargs = new
             {
-                fields = fields_array 
+                limit = limit,
+                offset = (index * limit),
+                fields = fields_array
             };
+            
 
             object[] args = new object[] { };
-            object[] _custom_args = new object[] {                
+            object[] _custom_args = new object[] {
+                new object[] { "pricelist_id", "=", pricelist_id },
                 new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
             };
             return await SearchRead<ApiResponseOdooRpcT<product_pricelist_item[]>>(args, _custom_args, kwargs);

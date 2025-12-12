@@ -63,13 +63,18 @@ namespace DMOrders.Services.Update
             var hubmanager = new ApiManager.HubProductPricelistItem(App.Session);
             var databaseItems = new ProductPricelistItemDb(DbNameSqlite);
 
+            DateTime? lastDate = await databaseItems.GetLastWriteDateAsync(sync_date_since);
+            
             var database = new ProductPricelistDb(DbNameSqlite);
 
             var activePriceLists = await database.GetItemsByStatus(true);
 
             foreach ( var activePriceList in activePriceLists)
             {
-                var resultCount = await hubmanager.GetCount(activePriceList.id);
+                var resultCount = await hubmanager.GetCount(activePriceList.id, 
+                    lastDate.Value.Year, 
+                    lastDate.Value.Month, 
+                    lastDate.Value.Day);
 
                 if (resultCount.result == 0)
                 {
@@ -82,7 +87,8 @@ namespace DMOrders.Services.Update
                 {
                     Debug.WriteLine("Página:" + indice);
 
-                    var responseAll = await hubmanager.GetByCreateDate(activePriceList.id, limit, indice, year, month, day);
+                    //var responseAll = await hubmanager.GetByCreateDate(activePriceList.id, limit, indice, year, month, day);
+                    var responseAll = await hubmanager.GetByWriteDate(activePriceList.id, limit, indice, year, month, day);
 
                     if (responseAll.result != null && responseAll.result.Length > 0)
                     {

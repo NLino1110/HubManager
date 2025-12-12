@@ -64,6 +64,25 @@ namespace ApiManager
             return await GetCount(args, _custom_args);
         }
 
+        public async Task<ApiResponseOdooRpc?> GetCount(DateTime? dateTime)
+        {
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] { "write_date", ">=", dateTime?.ToString("yyyy-MM-dd") }
+            };
+            return await GetCount(args, _custom_args);
+        }
+
+        public async Task<ApiResponseOdooRpc?> GetCount(int[] whIds, DateTime? dateTime)
+        {
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] { "warehouse_id", "in", whIds },
+                new object[] { "write_date", ">=", dateTime?.ToString("yyyy-MM-dd") }
+            };
+            return await GetCount(args, _custom_args);
+        }
+
         public async Task<ApiResponseOdooRpc?> GetCountByCreateDate(int year, int month, int day)
         {
             object[] args = new object[] { };
@@ -133,15 +152,18 @@ namespace ApiManager
             return await SearchRead<ApiResponseOdooRpcT<stock_quant[]>>(args, _custom_args, kwargs);
         }
         
-        public async Task<ApiResponseOdooRpcT<stock_quant[]>?> GetByWriteDate(int year, int month, int day)
+        public async Task<ApiResponseOdooRpcT<stock_quant[]>?> GetByWriteDate(int[] whIds, int limit, int index, int year, int month, int day)
         {
             var kwargs = new
             {
+                limit = limit,
+                offset = (index * limit),
                 fields = fields_array
             };
 
             object[] args = new object[] { };
             object[] _custom_args = new object[] {
+                new object[] { "warehouse_id", "in", whIds },
                 new object[] { "location_id.usage", "=", "internal" },
                 new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
             };

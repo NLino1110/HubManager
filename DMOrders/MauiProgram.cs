@@ -51,6 +51,7 @@ namespace DMOrders
                 App.Session.AppVersion = AppInfo.Current.VersionString + "." + AppInfo.Current.BuildString;
             }
 
+            DMSA.Sync.Core.Constants.Session = App.Session;
 #if DEBUG
             builder.Logging.AddDebug();
 #endif

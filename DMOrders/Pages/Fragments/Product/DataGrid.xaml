@@ -129,13 +129,19 @@
                                       RowDefinitions="*,*,*,*"
                                         Margin="20,0,20,0">
 
-                                    <Label 
-                                        Grid.Row="0" 
-                                        Grid.Column="1"                                         
-                                        FontAttributes="Bold"
-                                        Text="{Binding default_code}"
-                                        FontSize="12"
-                                        TextColor="Black" />
+                                    <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="5">
+                                        <Label                                         
+                                            FontAttributes="Bold"
+                                            Text="{Binding default_code}"
+                                            FontSize="12"
+                                            TextColor="Black" />
+
+                                        <Label                                         
+                                            FontAttributes="Bold"
+                                            Text="{Binding id}"
+                                            FontSize="12"
+                                            TextColor="ForestGreen" />
+                                    </HorizontalStackLayout>
 
                                     <Label 
                                         Grid.Column="1"
