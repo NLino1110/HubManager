@@ -117,7 +117,7 @@ public partial class MainPageTab : ContentPage
                 name = nameTodayTask,
                 company_id = App.Session.res_Company.id,
                 create_uid = App.Session.CurrentUserFront.uid,
-                stage_id_ = 1,
+                stage_id_ = 57, //estapa predeterminada
                 project_id_ = 1, //proyecto predeterminado
                 parent_id = 1, //tarea predeterminada
                 date_assign = DateTime.Now,

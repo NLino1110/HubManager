@@ -210,6 +210,8 @@ namespace DMOrders.Pages.Fragments.Customers
 
         public async Task LoadData()
         {
+            int partner_id = App.Session.CurrentUserFront.partner_id;
+
             var signature = BuildFilterSignature();
             var filtersChanged = signature != _lastFilterSignature;
 

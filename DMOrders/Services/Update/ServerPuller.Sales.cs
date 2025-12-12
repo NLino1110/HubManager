@@ -62,9 +62,7 @@ namespace DMOrders.Services.Update
 
             var hubmanager = new ApiManager.HubProductPricelistItem(App.Session);
             var databaseItems = new ProductPricelistItemDb(DbNameSqlite);
-
-            DateTime? lastDate = await databaseItems.GetLastWriteDateAsync(sync_date_since);
-            
+            DateTime? lastDate = await databaseItems.GetLastWriteDateAsync(sync_date_since);            
             var database = new ProductPricelistDb(DbNameSqlite);
 
             var activePriceLists = await database.GetItemsByStatus(true);

@@ -545,7 +545,8 @@ public partial class UpdateData : ContentPage
         if(chkGroup4.IsChecked)
         {
             await serverPuller.OnlineSyncProductPricelist();
-            await serverPuller.OnlineSyncProductPricelistItem();
+            await serverPullerLibrary.OnlineSyncProductPricelistItem();
+            //await serverPuller.OnlineSyncProductPricelistItem();
             //await serverPuller.OnlineSyncProductProduct();
             await serverPullerLibrary.OnlineSyncProductProduct();
             await serverPuller.OnlineAccountTaxes();

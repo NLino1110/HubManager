@@ -51,17 +51,19 @@ namespace DMSA.Sync.Core.Update
         {
             var stopwatch = Stopwatch.StartNew();
 
-            var database = new ProductPricelistDb(DbNameSqlite);
-            DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since_lower);
-
-            var hubmanager = new ApiManager.HubProductPricelistItem(Constants.Session);
+            var hubmanager = new ApiManager.HubProductPricelistItem(Constants.Session);            
             var databaseItems = new ProductPricelistItemDb(DbNameSqlite);
+            DateTime? lastDate = await databaseItems.GetLastWriteDateAsync(sync_date_since_lower);
+            var database = new ProductPricelistDb(DbNameSqlite);
 
             var activePriceLists = await database.GetItemsByStatus(true);
 
             foreach ( var activePriceList in activePriceLists)
             {
-                var resultCount = await hubmanager.GetCount(activePriceList.id);
+                var resultCount = await hubmanager.GetCount(activePriceList.id,
+                    lastDate.Value.Year,
+                    lastDate.Value.Month,
+                    lastDate.Value.Day);
 
                 if (resultCount.result == 0)
                 {
