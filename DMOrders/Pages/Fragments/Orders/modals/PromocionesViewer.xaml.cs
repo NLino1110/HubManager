@@ -3,6 +3,7 @@ using DMOrders.Services.Database.Sqlite;
 using DMOrders.Services.Promotions;
 using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
+using DMSA.Sync.Core.Database.Sqlite;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;

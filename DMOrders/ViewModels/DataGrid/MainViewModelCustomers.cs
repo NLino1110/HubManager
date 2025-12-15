@@ -12,6 +12,7 @@ using ApiManager;
 using DMSA.Models.Clientes;
 using DMSA.Models.Odoo.Native;
 using DMOrders.Services.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite;
 
 namespace DMOrders.ViewModels.DataGrid
 {

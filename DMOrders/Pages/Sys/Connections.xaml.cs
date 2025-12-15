@@ -1,5 +1,5 @@
-using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Abstract;
+using DMSA.Sync.Core.Database.Sqlite;
 using Microsoft.Maui.Controls;
 
 namespace DMOrders.Pages.Sys;
@@ -18,7 +18,7 @@ public partial class Connections : TabbedPage
         timer.Interval = TimeSpan.FromMilliseconds(500);
         timer.Tick += async (s, e) =>
         {
-            AppSettingsDb appSettingsDb = new AppSettingsDb();
+            AppSettingsDb appSettingsDb = new AppSettingsDb(App.Session.odooConnection.DbNameSqlite);
             await appSettingsDb.InitDefault();
             var appSettingItems = await appSettingsDb.GetItemsAsync();
             lblDbPath.Text = appSettingsDb.GetDbPath();

@@ -2,6 +2,7 @@
 using DMOrders.Controls.CustomRows;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Native;
+using DMSA.Sync.Core.Database.Sqlite;
 using Microsoft.Maui.Controls;
 using System.Collections.ObjectModel;
 using System.Diagnostics;

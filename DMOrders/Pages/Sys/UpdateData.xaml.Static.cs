@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DMOrders.Services.Update;
 using DMOrders.Services.Database.Sqlite;
 using System.Diagnostics;
 using DMSA.Models.Odoo.Native;

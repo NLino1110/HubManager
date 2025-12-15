@@ -7,6 +7,8 @@ using DMOrders.Services.Helpers;
 using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.DMOrders.tareas;
 using DMSA.Models.Odoo.Native;
+using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.tareas;
 using InputKit.Shared.Validations;
 using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Layouts;

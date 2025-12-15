@@ -127,17 +127,17 @@ namespace DMOrders.Controls.CustomRows
             grid.Children.Add(totalLabel);
             Grid.SetColumn(totalLabel, 4);
 
-            var syncLabel = new Label
+            var statusLabel = new Label
             {
-                Text = Item.is_synchronized.ToString(),
+                Text = Item.state_view,
                 FontAttributes = FontAttributes.Bold,
                 FontSize = 11,
                 TextColor = Colors.Black,
                 HorizontalOptions = LayoutOptions.Center,
                 VerticalOptions = LayoutOptions.Center
             };
-            grid.Children.Add(syncLabel);
-            Grid.SetColumn(syncLabel, 5);
+            grid.Children.Add(statusLabel);
+            Grid.SetColumn(statusLabel, 5);
 
             //var btnSelect = new Button
             //{

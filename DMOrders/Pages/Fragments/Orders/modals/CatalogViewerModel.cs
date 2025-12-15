@@ -5,6 +5,7 @@ using DMOrders.Models.Filters;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Sales;
+using DMSA.Sync.Core.Database.Sqlite;
 using Microsoft.Maui;
 using Microsoft.Maui.Controls;
 using System.Collections.ObjectModel;

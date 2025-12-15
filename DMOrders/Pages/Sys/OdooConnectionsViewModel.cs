@@ -4,6 +4,7 @@ using DMOrders.AppPages.Sys;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Abstract;
 using DMSA.Models.Odoo.Tools;
+using DMSA.Sync.Core.Database.Sqlite;
 using SQLite;
 using System;
 using System.Collections.Generic;

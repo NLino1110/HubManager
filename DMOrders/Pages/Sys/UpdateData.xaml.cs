@@ -1,8 +1,6 @@
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
-using DMOrders.Services.Database.Sqlite;
 using DMOrders.Services.Helpers;
-using DMOrders.Services.Update;
 using DMSA.Models.General.Requests;
 using DMSA.Models.Odoo.DMCobranzas;
 using DMSA.Models.Odoo.Native;
@@ -10,6 +8,7 @@ using DMSA.Models.Odoo.Origin;
 using DMSA.Models.Odoo.Tools;
 using DMSA.Models.Odoo.Update;
 using DMSA.Models.Security;
+using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Update;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -24,7 +23,7 @@ namespace DMOrders.Pages.Sys;
 
 public partial class UpdateData : ContentPage
 {
-    DMSA.Sync.Core.Update.ServerPuller serverPullerLibrary { get; set; }
+    DMSA.Sync.Core.Update.ServerPuller serverPuller { get; set; }
 
     //TODO: Asignación provisional
     // ya que este valor cambiará dependiendo del estado de la sesión
@@ -47,7 +46,7 @@ public partial class UpdateData : ContentPage
         //HACK
         //UNDONE
         //UnresolvedMergeConflict
-        serverPullerLibrary = new DMSA.Sync.Core.Update.ServerPuller();
+        serverPuller = new DMSA.Sync.Core.Update.ServerPuller();
     }
 
     private async Task<bool> ServerOnlineStatus_Odoo()
@@ -310,7 +309,7 @@ public partial class UpdateData : ContentPage
             Directory.Delete(DeviceStorage,true);
         }
 
-        AppSettingsDb appSettingsDb = new AppSettingsDb();
+        AppSettingsDb appSettingsDb = new AppSettingsDb(App.Session.odooConnection.DbNameSqlite);
         await appSettingsDb.TruncateAsync();
 
         //ParametrosDb database = new ParametrosDb();
@@ -464,7 +463,6 @@ public partial class UpdateData : ContentPage
 
         obj.SetTotalPercentProgress(0.10);
 
-
         if (await ServerOnlineStatus_Odoo())
         {
             BoxViewServerStatusOdoo.Color = Colors.LawnGreen;
@@ -485,14 +483,10 @@ public partial class UpdateData : ContentPage
             //return;
         }
 
-        Services.Update.ServerPuller serverPuller = new Services.Update.ServerPuller();
-
         //Actualización por Cache
         if (chkGroup1.IsChecked)
         {
-            //await serverPuller.PullPromotions();
-
-            await serverPullerLibrary.PullPromotions();
+            await serverPuller.PullPromotions();
 
             //Sinó se realiza la actualización por cache, se hará la actualización en linea
             // esta actualización lleva muchisimo tiempo
@@ -537,28 +531,25 @@ public partial class UpdateData : ContentPage
         }
 
         if(chkGroup3.IsChecked)
-        {
-            //await serverPuller.OnlineSyncResPartner();
-            await serverPullerLibrary.OnlineSyncResPartner();
+        {            
+            await serverPuller.OnlineSyncResPartner();
         }
 
         if(chkGroup4.IsChecked)
         {
             await serverPuller.OnlineSyncProductPricelist();
-            await serverPullerLibrary.OnlineSyncProductPricelistItem();
-            //await serverPuller.OnlineSyncProductPricelistItem();
-            //await serverPuller.OnlineSyncProductProduct();
-            await serverPullerLibrary.OnlineSyncProductProduct();
+            await serverPuller.OnlineSyncProductPricelistItem();            
+            await serverPuller.OnlineSyncProductProduct();
             await serverPuller.OnlineAccountTaxes();
         }
 
         if (chkGroup5.IsChecked)
         {
             await serverPuller.OnlineSyncStockWarehouse(false);
-            await serverPullerLibrary.OnlineSyncStockLocation();
+            await serverPuller.OnlineSyncStockLocation();
             //await serverPuller.OnlineSyncStockLocation();
             //await serverPuller.OnlineSyncStockQuant();
-            await serverPullerLibrary.OnlineSyncStockQuant();
+            await serverPuller.OnlineSyncStockQuant();
             await serverPuller.UomUom(true);
             //
             //await serverPuller.FixInventory();

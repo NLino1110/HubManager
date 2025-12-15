@@ -13,6 +13,8 @@
     <ContentView.Resources>
         <ResourceDictionary>
             <converters:DiasSemanaConverter x:Key="DiasSemanaConverter" />
+            <converters:BoolToActivoConverter x:Key="BoolToActivoConverter"/>
+            <converters:FalseStringToDashConverter x:Key="FalseStringToDashConverter"/>
         </ResourceDictionary>
     </ContentView.Resources>
     <Grid RowDefinitions="Auto,*,Auto">
@@ -34,7 +36,7 @@
             <Label Text="Nombre" Grid.Column="2" FontAttributes="Bold"  FontSize="11" Padding="30,0,0,0" HorizontalTextAlignment="Start"/>
             <!--<Label Text="Email" Grid.Column="3" FontAttributes="Bold"  Padding="25,0,0,0" FontSize="11"/>-->
             <Label Text="Teléfono" Grid.Column="3" FontAttributes="Bold" Padding="15,0,0,0" FontSize="11"/>
-            <Label Text="Activo" Grid.Column="4" FontAttributes="Bold"  Padding="5,0,0,0" FontSize="11"/>
+            <Label Text="Estado" Grid.Column="4" FontAttributes="Bold"  Padding="5,0,0,0" FontSize="11"/>
             <Label Text="Canal" Grid.Column="5" FontAttributes="Bold"  Padding="5,0,0,0" FontSize="11"/>
             <Label Text="Días" Grid.Column="6" FontAttributes="Bold" Padding="10,0,0,0" FontSize="11"/>
         </Grid>
@@ -96,11 +98,11 @@
                                       Margin="20,0,20,0">
                                
                                     <Label Grid.Column="0" FontSize="11" Text="{Binding id}" VerticalOptions="Center" />
-                                    <Label Grid.Column="1" FontSize="11" Text="{Binding vat_doc}" VerticalOptions="Center"/>
+                                    <Label Grid.Column="1" FontSize="11" Text="{Binding vat_doc, Converter={StaticResource FalseStringToDashConverter}}" VerticalOptions="Center"/>
                                     <Label Grid.Column="2" FontSize="12" FontAttributes="Bold" Text="{Binding name}" VerticalOptions="Center"/>
                                     <!--<Label Grid.Column="3" FontSize="12" FontAttributes="Bold" Text="{Binding email}" VerticalOptions="Center"/>-->
-                                    <Label Grid.Column="3" FontSize="12" FontAttributes="Bold" Text="{Binding phone}" VerticalOptions="Center"/>
-                                    <Label Grid.Column="4" FontSize="12" FontAttributes="Bold" Text="{Binding active}" VerticalOptions="Center"/>
+                                    <Label Grid.Column="3" FontSize="12" FontAttributes="Bold" Text="{Binding phone, Converter={StaticResource FalseStringToDashConverter}}" VerticalOptions="Center"/>
+                                    <Label Grid.Column="4" FontSize="12" FontAttributes="Bold" Text="{Binding active, Converter={StaticResource BoolToActivoConverter}}" VerticalOptions="Center"/>
                                     <Label Grid.Column="5" FontSize="12" FontAttributes="Bold" Text="{Binding display_channel_name}" VerticalOptions="Center"/>
                                     <Label Grid.Column="6"
                                        FontSize="10"

@@ -4,6 +4,7 @@ using DMOrders.Controls;
 using DMOrders.Models.Filters;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Native;
+using DMSA.Sync.Core.Database.Sqlite;
 using Spinner.MAUI;
 using System.Collections.ObjectModel;
 using System.Diagnostics;

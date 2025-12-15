@@ -10,7 +10,11 @@
              x:Class="DMOrders.Pages.Fragments.Product.DataGrid"
              xmlns:odoo="clr-namespace:DMSA.Models.Odoo.Native;assembly=DMSA.Models.Odoo" 
              x:Name="ProductDataGrid">
-
+    <ContentView.Resources>
+        <ResourceDictionary>            
+            <converters:BoolToActivoConverter x:Key="BoolToActivoConverter"/>
+        </ResourceDictionary>
+    </ContentView.Resources>
     <Grid RowDefinitions="Auto,*,Auto">
         <!--<Grid Grid.Row="0" BackgroundColor="LightGray" Padding="10" HeightRequest="35">
             <Grid.ColumnDefinitions>
@@ -182,21 +186,8 @@
                                         Grid.Column="5" 
                                         FontSize="12"
                                         TextColor="Gray"
+                                        Text="{Binding active, Converter={StaticResource BoolToActivoConverter}}"
                                         HorizontalTextAlignment="Center">
-                                        <Label.Triggers>
-                                            <DataTrigger 
-                                                TargetType="Label"
-                                                Binding="{Binding active}"
-                                                Value="True">
-                                                <Setter Property="Text" Value="Activo" />
-                                            </DataTrigger>
-                                            <DataTrigger 
-                                                    TargetType="Label"
-                                                    Binding="{Binding active}"
-                                                    Value="False">
-                                                <Setter Property="Text" Value="Inactivo" />
-                                            </DataTrigger>
-                                        </Label.Triggers>
                                     </Label>
 
                                     <BoxView Grid.Row="4"

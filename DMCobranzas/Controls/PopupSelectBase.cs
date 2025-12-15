@@ -866,7 +866,7 @@ namespace DMCobranzas.Controls
         {            
             if (objItem is T item) // aquí validas y conviertes
             {
-                await CloseAsync(item);                
+                await CloseAsync(item);
             }
             else
             {

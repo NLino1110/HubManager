@@ -178,7 +178,7 @@ namespace DMSA.Sync.Core.Database.Sqlite
             return records.Select(x => x.erp_id).ToArray();
         }
 
-        internal async Task<int> GetNextSecuentialId()
+        public async Task<int> GetNextSecuentialId()
         {   
             await Init();
             var records = await Database.Table<sale_order>()

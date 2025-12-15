@@ -21,7 +21,7 @@ namespace DMSA.Sync.Core.Database.Sqlite.Benefits
             return await Database.Table<PromotionBenefit>().Where(x=>x.id == id).FirstOrDefaultAsync();
         }
 
-        internal async Task<IEnumerable<PromotionBenefit>> SearchAll(int companyId, DateTime nowUtc)
+        public async Task<IEnumerable<PromotionBenefit>> SearchAll(int companyId, DateTime nowUtc)
         {
             await Init();
 

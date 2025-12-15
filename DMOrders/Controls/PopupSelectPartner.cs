@@ -3,6 +3,7 @@ using System.Diagnostics;
 using DMSA.Models.Odoo.Native;
 using System.Collections.ObjectModel;
 using DMOrders.Services.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite;
 
 namespace DMOrders.Controls
 {

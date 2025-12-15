@@ -6,6 +6,8 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
 using System.Text.RegularExpressions;
+using DMSA.Sync.Core.Database.Sqlite.Sales;
+using DMSA.Sync.Core.Database.Sqlite;
 
 
 namespace DMOrders.Pages.Fragments.Product;
@@ -90,6 +92,7 @@ public partial class Info : ContentView
         data = _data;
         LabelTitle.Text = data.name;
         lblCode.Text = data.code;
+        lblBarCode.Text = !string.IsNullOrEmpty(data.barcode) && data.barcode != "false" ? data.barcode : "-";
         lblForSale.Text = data.active ? "Activo" : "Inactivo";
 
         lblMarcaNombre.Text = _data.marca_display;

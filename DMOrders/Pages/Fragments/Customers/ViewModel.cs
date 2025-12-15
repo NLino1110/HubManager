@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Messaging.Messages;
 using DMOrders.Models.Filters;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Native;
+using DMSA.Sync.Core.Database.Sqlite;
 using Microsoft.Maui.Controls;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -243,6 +244,7 @@ namespace DMOrders.Pages.Fragments.Customers
                     filters.getDays(),
                     filters.getStatus(),
                     0,
+                    partner_id,
                     Page,
                     PageSize,
                     ct);

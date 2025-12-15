@@ -106,7 +106,10 @@
             <Label Text="Cuando está activado, la aplicación trabajará sin conexión a servidor." 
                    FontSize="Small" TextColor="Gray"/>
 
-            <material:InputField x:Name="lblDbPath" IsEnabled="False"/>
+            <material:TextField x:Name="lblDbPath"
+                    Title="Path"
+                    BorderThickness="0.4"
+                    Icon="{FontImageSource FontFamily=FontAwesome5Solid, Glyph='&#xf7d9;'}" />
         </VerticalStackLayout>
     </ContentPage>
 </TabbedPage>

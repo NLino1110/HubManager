@@ -162,5 +162,19 @@ namespace DMSA.Models.Odoo.Native
 
         [JsonProperty("partner_sale_id")]
         public int partner_sale_id { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
+        public string? state_view =>
+                (state, is_synchronized) switch
+                {
+                    ("draft", true) => "SINCRONIZADO",
+                    ("draft", false) => "ACTIVO",
+                    ("sent", _) => "SINCRONIZADO",
+                    ("sale", _) => "FACTURADO",
+                    ("done", _) => "TERMINADO",
+                    ("cancel", _) => "CANCELADO",
+                    _ => state
+                };
     }
 }

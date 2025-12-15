@@ -3,9 +3,9 @@ using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Extensions;
 using DMOrders.Controls;
 using DMOrders.Controls.Tools;
-using DMOrders.Services.Update.Pusher;
 using DMOrders.Shared;
 using DMSA.Models.Odoo.DMOrders.tareas;
+using DMSA.Sync.Core.Update.Pusher;
 using System.Diagnostics;
 using System.Windows.Input;
 

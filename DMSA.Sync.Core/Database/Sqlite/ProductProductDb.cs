@@ -60,8 +60,8 @@ namespace DMSA.Sync.Core.Database.Sqlite
                 }
                 else
                 {
-                    var term = raw.ToLowerInvariant();
-                    q = q.Where(x => x.code.ToLower().Contains(term));
+                    var term = raw.ToLowerInvariant();                    
+                    q = q.Where(x => x.code.ToLower().Contains(term) || x.barcode.ToLower().Contains(term));
                     return ApplySort(q, filter_sort);
                 }
             }
@@ -78,6 +78,9 @@ namespace DMSA.Sync.Core.Database.Sqlite
 
             //if (filter_new == 1)
             //    q = q.Where(x => x.is_new);
+
+            if(filter_category > 0)
+                q = q.Where(x => x._general_categoria_id == filter_category);
 
             if (filter_stock == 1)
                 q = q.Where(x => x.qty_available > 0);            
@@ -216,7 +219,7 @@ namespace DMSA.Sync.Core.Database.Sqlite
             return await Database.Table<product_product>().Where(x=>x.id == id).FirstOrDefaultAsync();
         }
 
-        internal async Task<product_product> GetByProductTemplate(int product_template_id, int filter_pricelist)
+        public async Task<product_product> GetByProductTemplate(int product_template_id, int filter_pricelist)
         {
             await Init();
             await PreloadPricelistCache(filter_pricelist);
@@ -254,7 +257,7 @@ namespace DMSA.Sync.Core.Database.Sqlite
             return product_return;
         }
 
-        internal async Task<List<product_product>> GetByProductsTemplate(int[] product_template_ids, int filter_pricelist)
+        public async Task<List<product_product>> GetByProductsTemplate(int[] product_template_ids, int filter_pricelist)
         {
             await Init();
 
@@ -302,7 +305,7 @@ namespace DMSA.Sync.Core.Database.Sqlite
         }
 
 
-        internal async Task<List<product_product>> GetByProductsIds(int[] product_ids, int filter_pricelist)
+        public async Task<List<product_product>> GetByProductsIds(int[] product_ids, int filter_pricelist)
         {
             await Init();
 

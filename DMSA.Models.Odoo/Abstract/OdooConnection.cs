@@ -92,7 +92,15 @@ namespace DMSA.Models.Odoo.Abstract
         public int sale_channel_default { get; set; }
 
         [Column("prefix_db")]
-        public int prefix_db { get; set; }
+        public string prefix_db { get; set; }
+
+
+        [Column("stage_id")]
+        public int stage_id { get; set; }
+        [Column("project_id")]
+        public int project_id { get; set; }
+        [Column("parent_id")]
+        public int parent_id { get; set; }
 
         public List<OdooConnection> LoadDefault()
         {

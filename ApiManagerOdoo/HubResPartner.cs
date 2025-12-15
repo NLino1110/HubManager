@@ -146,6 +146,24 @@ namespace ApiManager
             return await SearchRead<ApiResponseOdooRpcT<res_partner[]>>(args, _custom_args, kwargs, true);
         }
 
+        public async Task<ApiResponseOdooRpcT<res_partner[]>?> GetByWriteDateBySeller(DateTime dateIni, int limit, int index, int seller)
+        {
+            var kwargs = new
+            {
+                limit = limit,
+                offset = (index * limit),
+                fields = fields_array
+            };
+
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] {"write_date", ">=", dateIni.ToString("yyyy-MM-dd 00:00:00") },
+                new object[] { "adic_comercial_id", "=", seller },
+            };
+            return await SearchRead<ApiResponseOdooRpcT<res_partner[]>>(args, _custom_args, kwargs, true);
+        }
+
+
         public async Task<ApiResponseOdooRpc?> GetCountByCreateDate(int year, int month, int day)
         {
             object[] args = new object[] { };

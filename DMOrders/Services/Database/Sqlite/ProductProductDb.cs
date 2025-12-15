@@ -69,7 +69,7 @@ namespace DMOrders.Services.Database.Sqlite
                 else
                 {
                     var term = raw.ToLowerInvariant();
-                    q = q.Where(x => x.code.ToLower().Contains(term));
+                    q = q.Where(x => x.code.ToLower().Contains(term) || x.barcode.ToLower().Contains(term));
                     return ApplySort(q, filter_sort);
                 }
             }
@@ -86,6 +86,9 @@ namespace DMOrders.Services.Database.Sqlite
 
             //if (filter_new == 1)
             //    q = q.Where(x => x.is_new);
+
+            if(filter_category > 0)
+                q = q.Where(x => x._general_categoria_id == filter_category);
 
             if (filter_stock == 1)
                 q = q.Where(x => x.qty_available > 0);            

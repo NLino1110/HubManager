@@ -3,6 +3,7 @@ using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.DMOrders.tareas;
 using DMSA.Models.Odoo.Native;
+using DMSA.Sync.Core.Database.Sqlite.Sales;
 using Microsoft.Maui;
 using System.Collections.ObjectModel;
 using System.ComponentModel;

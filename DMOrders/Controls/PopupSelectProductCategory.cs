@@ -2,6 +2,7 @@
 using DMOrders.Controls.CustomRows;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Native;
+using DMSA.Sync.Core.Database.Sqlite;
 using Microsoft.Maui.Controls;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -30,7 +31,7 @@ namespace DMOrders.Controls
             }
 
             await SetWorkingStatus();
-            var dbItemsDb = new ProductCategoriaDb("");
+            var dbItemsDb = new ProductCategoriaDb(App.Session.odooConnection.DbNameSqlite);
             resultItemsSearch = new ObservableCollection<product_categoria>(await dbItemsDb.GetItemsAsync(data => data.name.Contains(TextForSearch.ToUpper())));
             _collectionViewSearch.ItemsSource = resultItemsSearch;            
             await SetDoneStatus();

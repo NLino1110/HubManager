@@ -45,6 +45,10 @@ namespace DMOrders.Controls.CustomRows
                 TextColor = Colors.Gray
             };
 
+            var _barCodeLabel = new Label {
+                Text = $"Barcode: {Item.barcode}",
+                FontSize = 12, TextColor = Colors.GreenYellow, InputTransparent = true };
+
             //uom_display
             var priceLabel = new Label
             {
@@ -128,7 +132,7 @@ namespace DMOrders.Controls.CustomRows
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Fill,
                 Padding = 4,
-                Children = { nameLabel, codeLabel, priceLabel }
+                Children = { nameLabel, codeLabel, _barCodeLabel, priceLabel }
             };
 
             var containerGrid = new Grid

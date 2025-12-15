@@ -22,7 +22,7 @@ namespace DMSA.Sync.Core.Database.Sqlite
                 .ToListAsync();
         }
 
-        internal async Task<List<stock_warehouse>> GetByResCenter(int id)
+        public async Task<List<stock_warehouse>> GetByResCenter(int id)
         {
             await Init();
             return await Database.Table<stock_warehouse>()

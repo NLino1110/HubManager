@@ -2,6 +2,7 @@
 using DMSA.Models.Odoo.DMOrders.promotions;
 using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
+using DMSA.Sync.Core.Database.Sqlite;
 using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -413,7 +414,11 @@ namespace DMOrders.Services.Promotions
             return (totalAmount, totalQty, productMatches);
         }
 
-        public async Task<(decimal TotalProductAmount, int TotalQty, List<int> ProductApplyList)>
+        public async Task<(decimal TotalProductAmount, 
+            int TotalQty, 
+            List<int> ProductApplyList,
+            sale_order_line productWithMaxValue,
+            sale_order_line productWithMaxQty)>
                     CalculateValuesAsync(
                         List<PromotionProductDetail> productsApplyList,
                         List<sale_order_line> orderLines,
@@ -425,10 +430,10 @@ namespace DMOrders.Services.Promotions
             var productFoundList = new List<int>();
 
             if (productsApplyList == null || productsApplyList.Count == 0)
-                return (0, 0, productFoundList);
+                return (0, 0, productFoundList, null, null);
 
             if (orderLines == null || orderLines.Count == 0)
-                return (0, 0, productFoundList);
+                return (0, 0, productFoundList, null, null);
 
             // 1️⃣ Crear HashSet de product_ids de la promoción (más rápido)
             var productSet = new HashSet<int>(
@@ -455,7 +460,23 @@ namespace DMOrders.Services.Promotions
                 }
             }
 
-            return (totalAmount, totalQty, productFoundList);
+            //var OrderProductList = orderLines
+            //    .Where(li => li.is_gift != true)
+            //    .Select(li => li)
+            //    .ToList();
+
+            var productWithMaxValue = orderLines
+                .Where(x => productFoundList.Contains(x.product_tmpl_id))
+                .OrderByDescending(x => x.price_total)
+                .FirstOrDefault();
+
+            var productWithMaxQty = orderLines
+                .Where(x => productFoundList.Contains(x.product_tmpl_id))
+                .OrderByDescending(x => x.product_uom_qty)
+                .FirstOrDefault();
+
+
+            return (totalAmount, totalQty, productFoundList, productWithMaxValue, productWithMaxQty);
         }
 
         public async Task<(List<PromoRuleMatch>, int allowed_gifts)> EvaluateBenefit(            
@@ -497,15 +518,15 @@ namespace DMOrders.Services.Promotions
                 .Select(li => (sale_order_line)li[2])
                 .ToList();
 
-            var productWithMaxValue = OrderProductList
-                .OrderByDescending(x => x.price_total)
-                .FirstOrDefault();
+            //var productWithMaxValue = OrderProductList
+            //    .OrderByDescending(x => x.price_total)
+            //    .FirstOrDefault();
 
-            var productWithMaxQty = OrderProductList
-                .OrderByDescending(x => x.product_uom_qty)
-                .FirstOrDefault();
+            //var productWithMaxQty = OrderProductList
+            //    .OrderByDescending(x => x.product_uom_qty)
+            //    .FirstOrDefault();
 
-            var (TotalProductAmount, TotalQty, ProductApplyList) = await CalculateValuesAsync(
+            var (TotalProductAmount, TotalQty, ProductApplyList, productWithMaxValue, productWithMaxQty) = await CalculateValuesAsync(
                 productsApplyList: promo._product_details_promotion_ids_for_apply,
                 orderLines: OrderProductList,
                 TotalTimesAllowed: TotalTimesAllowed

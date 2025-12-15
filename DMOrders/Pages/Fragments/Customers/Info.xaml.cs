@@ -1,6 +1,8 @@
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Dictionaries;
 using DMSA.Models.Odoo.Native;
+using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Sales;
 using Spinner.MAUI;
 using System.Collections.ObjectModel;
 using System.Diagnostics;

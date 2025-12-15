@@ -50,6 +50,22 @@
 	
 
 	<ItemGroup>
+	  <AndroidResource Remove="Services\Database\Sqlite\**" />
+	  <AndroidResource Remove="Services\Update\**" />
+	  <Compile Remove="Services\Database\Sqlite\**" />
+	  <Compile Remove="Services\Update\**" />
+	  <EmbeddedResource Remove="Services\Database\Sqlite\**" />
+	  <EmbeddedResource Remove="Services\Update\**" />
+	  <MauiCss Remove="Services\Database\Sqlite\**" />
+	  <MauiCss Remove="Services\Update\**" />
+	  <MauiXaml Remove="Services\Database\Sqlite\**" />
+	  <MauiXaml Remove="Services\Update\**" />
+	  <None Remove="Services\Database\Sqlite\**" />
+	  <None Remove="Services\Update\**" />
+	</ItemGroup>
+	
+
+	<ItemGroup>
 	  <AndroidResource Remove="Platforms\Android\Resources\values\styles.xml" />
 	</ItemGroup>
 	
@@ -58,11 +74,13 @@
 	  <Compile Remove="Controls\CustomRows\BrandRow.cs" />
 	  <Compile Remove="Controls\PopupSelectBrand.cs" />
 	  <Compile Remove="Pages\Fragments\Orders\modals\CatalogViewer.xaml.cs" />
+	  <Compile Remove="Pages\Sys\ConnectionForm.xaml.cs" />
 	</ItemGroup>
 	
 
 	<ItemGroup>
 	  <MauiXaml Remove="Pages\Fragments\Orders\modals\CatalogViewer.xaml" />
+	  <MauiXaml Remove="Pages\Sys\ConnectionForm.xaml" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -222,9 +240,6 @@
 	  <MauiXaml Update="Pages\Sys\About.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\Sys\ConnectionForm.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
 	  <MauiXaml Update="Pages\Sys\Connections.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -240,5 +255,9 @@
 	  <MauiXaml Update="Resources\Styles\classic\Styles.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>	  
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Services\Database\" />
 	</ItemGroup>
 </Project>

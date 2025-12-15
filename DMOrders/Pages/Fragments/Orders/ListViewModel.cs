@@ -3,6 +3,7 @@ using DMOrders.Controls.CustomRows;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.Native;
+using DMSA.Sync.Core.Database.Sqlite;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

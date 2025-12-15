@@ -27,7 +27,10 @@ namespace DMOrders.Controls.CustomRows
 
         // ---------- cache de vistas (se crean una sola vez) ----------
         bool _built;
-        Label _nameLabel, _codeLabel, _priceLabel, 
+        Label _nameLabel, 
+            _codeLabel,
+            _barCodeLabel,
+            _priceLabel, 
             //_priceBaseLabel, 
             _stockLabel, _unitLabel;
         Button _btnSelect;
@@ -72,6 +75,7 @@ namespace DMOrders.Controls.CustomRows
             };
 
             _codeLabel = new Label { FontSize = 12, TextColor = Colors.Gray, InputTransparent = true };
+            _barCodeLabel = new Label { FontSize = 12, TextColor = Colors.Gray, InputTransparent = true };
             _priceLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, HorizontalTextAlignment = TextAlignment.End, InputTransparent = true , VerticalTextAlignment = TextAlignment.Center };
             //_priceBaseLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, HorizontalTextAlignment = TextAlignment.End, InputTransparent = true , VerticalTextAlignment = TextAlignment.Center, IsVisible = false };
             _stockLabel = new Label { FontSize = 12, TextColor = Colors.DarkGreen, HorizontalTextAlignment = TextAlignment.End, InputTransparent = true, VerticalTextAlignment = TextAlignment.Center };
@@ -81,6 +85,7 @@ namespace DMOrders.Controls.CustomRows
             infoGrid.Add(_nameLabel, 0, 0);
             //Grid.SetColumnSpan(_nameLabel, 2);
             infoGrid.Add(_codeLabel, 0, 1);
+            infoGrid.Add(_barCodeLabel, 1, 1);
             //Grid.SetColumnSpan(_codeLabel, 2);
             infoGrid.Add(_unitLabel, 1, 0);
             Grid.SetRowSpan(_unitLabel, 2);
@@ -95,6 +100,7 @@ namespace DMOrders.Controls.CustomRows
             // Enlaza labels a las propiedades del Item (así no tienes que “repintar” manual)
             _nameLabel.SetBinding(Label.TextProperty, new Binding("Item.name", source: this));
             _codeLabel.SetBinding(Label.TextProperty, new Binding("Item.default_code", source: this, stringFormat: "Código: {0}"));
+            _barCodeLabel.SetBinding(Label.TextProperty, new Binding("Item.barcode", source: this, stringFormat: "Barcode: {0}"));
             _priceLabel.SetBinding(Label.TextProperty, new Binding("Item.list_price", source: this, stringFormat: "{0:N4}"));
             //_priceBaseLabel.SetBinding(Label.TextProperty, new Binding("Item.list_price", source: this, stringFormat: "PVP Base: {0:C}"));
             _stockLabel.SetBinding(Label.TextProperty, new Binding("Item.qty_available", source: this));

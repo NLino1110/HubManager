@@ -44,7 +44,8 @@ namespace DMSA.Sync.Core.Database.Sqlite
             string filter_name,            
             int filter_days,
             int filter_status,
-            int filter_sort)
+            int filter_sort,
+            int filter_adic_commercial)
         {
             Init();
 
@@ -52,8 +53,8 @@ namespace DMSA.Sync.Core.Database.Sqlite
 
             await PreloadInfoData();
 
-            //Excluimos los vendedores
-            q = q.Where(x => x.is_salesman == false);
+            //Excluimos los vendedores y filtramos cliente por vendedor
+            q = q.Where(x => x.is_salesman == false && x._adic_comercial_id == filter_adic_commercial);
 
             // --- 1) Filtro por code (prioridad máxima, como tu método actual) ---
             if (!string.IsNullOrWhiteSpace(filter_code))
@@ -128,9 +129,10 @@ namespace DMSA.Sync.Core.Database.Sqlite
             int filter_days,
             int filter_status,
             int filter_sort,
+            int filter_adic_commercial,
             int page, int pageSize, CancellationToken ct = default)
         {
-            var q = await BuildQuery(filter_code, filter_vat, filter_name, filter_days, filter_status, filter_sort);
+            var q = await BuildQuery(filter_code, filter_vat, filter_name, filter_days, filter_status, filter_sort, filter_adic_commercial);
 
             // COUNT(*) en SQLite, sin traer datos
             var total = await q.CountAsync();

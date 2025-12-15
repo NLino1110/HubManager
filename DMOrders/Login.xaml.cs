@@ -2,14 +2,14 @@
 using CommunityToolkit.Maui.Core;
 using DMOrders.Controls.Tools;
 using DMOrders.Pages.Sys;
-using DMOrders.Services.Database.Sqlite;
 using DMOrders.Services.Helpers;
-using DMOrders.Services.Update;
 using DMSA.Models.Odoo.Abstract;
 using DMSA.Models.Odoo.DMApps;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Tools;
 using DMSA.Models.Security;
+using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Update;
 using System.Buffers;
 using System.Collections.ObjectModel;
 using System.Diagnostics;

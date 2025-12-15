@@ -118,14 +118,61 @@ namespace DMSA.Sync.Core.Update
 
         public async Task<bool> OnlineSyncResPartner()
         {
-            //int limit = 20; // limit / 3;
+            var stopwatch = Stopwatch.StartNew();
 
+            var database = new ResPartnerDb(Constants.Session.odooConnection.DbNameSqlite);
+            
+            int partner_id = Constants.Session.CurrentUserFront.partner_id;
+
+            DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since);
+            
+            ApiManager.HubResPartner hubmanager = new ApiManager.HubResPartner(appSession);
+            var resultCount = await hubmanager.GetCountBySeller(lastDate.Value.Year, lastDate.Value.Month, lastDate.Value.Day, partner_id);
+
+            Debug.WriteLine(resultCount.result);
+
+            if (resultCount.result == 0)
+            {
+                return false;
+            }
+
+            int countTotal = resultCount.result / limit;
+            
+            for (int indice = 0; indice <= countTotal; indice++)
+            {
+                var responseAll = await hubmanager.GetByWriteDateBySeller(lastDate.Value, limit, indice, partner_id);
+
+                if (responseAll != null && responseAll.result != null && responseAll.result.Length > 0)
+                {
+                    await database.InsertBatchAsync(responseAll.result);
+                }
+
+                Console.WriteLine("Página:" + indice);
+
+                if (indice >= 600)
+                {
+                    Console.WriteLine("Página " + indice + ": Se terminará el proceso.");
+                    break;
+                }
+            }
+
+            stopwatch.Stop();
+
+            Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+                stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
+            return true;
+        }
+
+
+        public async Task<bool> OnlineSyncResPartnerFull()
+        {
             var stopwatch = Stopwatch.StartNew();
 
             var database = new ResPartnerDb(Constants.Session.odooConnection.DbNameSqlite);
 
             DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since);
-            
+
             ApiManager.HubResPartner hubmanager = new ApiManager.HubResPartner(appSession);
             var resultCount = await hubmanager.GetCount(lastDate.Value.Year, lastDate.Value.Month, lastDate.Value.Day);
 
@@ -137,7 +184,7 @@ namespace DMSA.Sync.Core.Update
             }
 
             int countTotal = resultCount.result / limit;
-            
+
             for (int indice = 0; indice <= countTotal; indice++)
             {
                 var responseAll = await hubmanager.GetByWriteDate(lastDate.Value, limit, indice);

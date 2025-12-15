@@ -1,7 +1,8 @@
+using DMOrders.Controls.Tools;
 using DMOrders.Pages.Fragments.Activities;
 using DMOrders.Pages.Sys;
-using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.DMOrders.tareas;
+using DMSA.Sync.Core.Database.Sqlite.Sales;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 namespace DMOrders;
@@ -56,6 +57,37 @@ public partial class MainPageTab : ContentPage
         };
 
         BindingContext = this;
+    }
+
+    bool isUpdated = false;
+    protected async override void OnAppearing()
+    {
+        base.OnAppearing();
+        if (!isUpdated)
+        {
+            isUpdated = true;
+            await AutoUpdate();
+        }
+        //await UITools.ShowLoadingPopup(this);
+        //await Task.Delay(1000);
+        //await UITools.SetNotifyLoadingPopup("Notificacion 1/3");
+        //await Task.Delay(1000);
+        //await UITools.SetNotifyLoadingPopup("Notificacion 2/3");
+        //await Task.Delay(1000);
+        //await UITools.SetNotifyLoadingPopup("Notificacion 3/3");
+        //await Task.Delay(1000);
+        //await UITools.HideLoadingPopup();
+    }
+
+    private async Task<bool> AutoUpdate()
+    {
+        await UITools.ShowLoadingPopup(this);
+        await UITools.SetNotifyLoadingPopup("Ejecutando actualización...");
+        await Task.Delay(2000);
+        //await UITools.SetNotifyLoadingPopup("Actualizando.....");
+        await UITools.HideLoadingPopup();
+        
+        return true;
     }
 
     private void OnMenuItemSelected(object sender, SelectionChangedEventArgs e)
@@ -117,7 +149,7 @@ public partial class MainPageTab : ContentPage
                 name = nameTodayTask,
                 company_id = App.Session.res_Company.id,
                 create_uid = App.Session.CurrentUserFront.uid,
-                stage_id_ = 57, //estapa predeterminada
+                stage_id_ = 57, //etapa predeterminada
                 project_id_ = 1, //proyecto predeterminado
                 parent_id = 1, //tarea predeterminada
                 date_assign = DateTime.Now,

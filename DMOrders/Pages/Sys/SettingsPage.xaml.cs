@@ -9,6 +9,7 @@ using DMSA.Models.Odoo;
 using DMSA.Models.Odoo.Tools;
 using System.Diagnostics;
 using System.Security.Cryptography;
+using DMSA.Sync.Core.Database.Sqlite;
 
 namespace DMOrders.Pages.Sys;
 
@@ -46,7 +47,7 @@ public partial class SettingsPage : ContentPage //, IDisposable //, INotifyPrope
         timer.Interval = TimeSpan.FromMilliseconds(500);
         timer.Tick += async (s, e) =>
         {
-            AppSettingsDb appSettingsDb = new AppSettingsDb();
+            AppSettingsDb appSettingsDb = new AppSettingsDb(App.Session.odooConnection.DbNameSqlite);
             await appSettingsDb.InitDefault();
             var appSettingItems = await appSettingsDb.GetItemsAsync();
 
@@ -79,7 +80,7 @@ public partial class SettingsPage : ContentPage //, IDisposable //, INotifyPrope
                 
         if (result.Result != null && result.Result.ToString() == "1381")
         {
-            AppSettingsDb appSettingsDb = new AppSettingsDb();
+            AppSettingsDb appSettingsDb = new AppSettingsDb(App.Session.odooConnection.DbNameSqlite);
 
             foreach (AppSettings itemSetting in collectionView.ItemsSource)
             {
@@ -155,7 +156,7 @@ public partial class SettingsPage : ContentPage //, IDisposable //, INotifyPrope
             Directory.Delete(DeviceStorage, true);
         }
 
-        AppSettingsDb appSettingsDb = new AppSettingsDb();
+        AppSettingsDb appSettingsDb = new AppSettingsDb(App.Session.odooConnection.DbNameSqlite);
         await appSettingsDb.TruncateAsync();
 
         //ParametrosDb database = new ParametrosDb();

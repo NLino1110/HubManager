@@ -6,6 +6,7 @@ using DMOrders.Models.Filters;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Sales;
+using DMSA.Sync.Core.Database.Sqlite;
 using MPowerKit.VirtualizeListView;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -385,6 +386,8 @@ public partial class CatalogViewerInner : ContentView
             if (ItemPickedByQtyCommand?.CanExecute(itemPickedArgs) != null)
                 ItemPickedByQtyCommand.Execute(itemPickedArgs);
 
+            //product_uom_qty = 0;
+            product_uom_qty_real = 0;
         }
         else
         {
@@ -610,6 +613,8 @@ public partial class CatalogViewerInner : ContentView
             {
                 _product_uom_qty_real = value;
                 OnPropertyChanged(nameof(product_uom_qty_real));
+
+                product_uom_qty = value;
             }
         }
     }

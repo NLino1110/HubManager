@@ -241,5 +241,50 @@ namespace DMOrders.Pages.Fragments.Orders
             Debug.WriteLine("ViewObj_Disappearing");
             ((ListViewModel)this.BindingContext).LoadData();
         }
+
+        private async void ButtonSync_Clicked(object sender, EventArgs e)
+        {
+            Debug.WriteLine("Send!!");
+            //var leave = await DisplayAlert("Enviar", "¿Desea enviar esta orden al ERP? Los cambios realizados serán almacenados.", "Si", "No");
+
+            //if (!leave)
+            //{
+            //    return;
+            //}
+
+            //await UITools.ShowLoadingPopup(this);
+
+            //bool orderHasChanges = true;
+
+            //if (orderHasChanges)
+            //{
+            //    await UITools.SetNotifyLoadingPopup("Almacenando orden...");
+            //    await SaveOrder();
+            //}
+
+            //await UITools.SetNotifyLoadingPopup("Preparando orden...");
+
+            //ServerPusher serverPusher = new ServerPusher();
+
+            //var orderLinesList = ((CrudViewModel)this.BindingContext).OrderLines.ToList();
+            //CurrentSaleOrder.order_line = new List<OrderLineWrapper>();
+            //CurrentSaleOrder._center_id = App.Session.odooConnection.res_center_default;
+
+            //foreach (var orderLine in orderLinesList)
+            //{
+            //    CurrentSaleOrder.order_line.Add(new OrderLineWrapper(orderLine));
+            //}
+
+            //await UITools.SetNotifyLoadingPopup("Sincronizando orden...");
+            //bool sendOk = await serverPusher.SendSaleOrder(CurrentSaleOrder);
+
+            //await UITools.HideLoadingPopup();
+
+            //if (sendOk)
+            //{
+            //    await DisplayAlert("Envío de datos", "Envío correcto", "Aceptar");
+            //    await Navigation.PopModalAsync();
+            //}
+        }
     }
 }
