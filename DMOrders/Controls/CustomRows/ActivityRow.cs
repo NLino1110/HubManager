@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Maui.Behaviors;
 using DMOrders.Controls.Base;
+using DMOrders.Converters;
 using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.DMOrders.tareas;
 using System.Diagnostics;
@@ -54,20 +55,24 @@ namespace DMOrders.Controls.CustomRows
 
             labelId = new Label { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, TextColor = Colors.Black, FontSize = 12, BackgroundColor = Colors.Transparent, Padding = new Thickness(20,0,20,0), Margin = new Thickness(0) };
 
-            labelName = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, FontSize = 12, BackgroundColor = Colors.Transparent };
-            labelSellerName = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, FontSize = 12, BackgroundColor = Colors.Red };
-            labelPlanningDate = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, TextColor = Colors.Black, FontSize = 12 };
-            labelWriteDate = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, TextColor = Colors.Black, FontSize = 12 };
-            labelUser = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, TextColor = Colors.Black, FontSize = 12 };
-            labelState = new Label { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, TextColor = Colors.Black, FontSize = 12 };
+            labelName = new Label { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, FontSize = 12, BackgroundColor = Colors.Transparent };
+            labelSellerName = new Label { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, FontSize = 12, BackgroundColor = Colors.Red };
+            labelPlanningDate = new Label { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, TextColor = Colors.Black, FontSize = 12 };
+            labelWriteDate = new Label { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, TextColor = Colors.Black, FontSize = 12 };
+            labelUser = new Label { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, TextColor = Colors.Black, FontSize = 12 };
+            labelState = new Label { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold, TextColor = Colors.Black, FontSize = 12 };
 
             labelId.SetBinding(Label.TextProperty, new Binding(nameof(Item.id), source: Item));
             labelName.SetBinding(Label.TextProperty, new Binding(nameof(Item.display_username), source: Item));
             labelSellerName.SetBinding(Label.TextProperty, new Binding(nameof(Item.display_username), source: Item));
             labelPlanningDate.SetBinding(Label.TextProperty, new Binding(nameof(Item.date_assign), source: Item));
-            labelWriteDate.SetBinding(Label.TextProperty, new Binding(nameof(Item.date_synchronized), source: Item));
+            labelWriteDate.SetBinding(Label.TextProperty, 
+                new Binding(nameof(Item.date_synchronized), 
+                source: Item, 
+                converter: new DateToDashConverter()
+                ));
             labelUser.SetBinding(Label.TextProperty, new Binding(nameof(Item.create_user), source: Item));
-            //labelState.SetBinding(Label.TextProperty, new Binding(nameof(Item.status), source: this));
+            labelState.SetBinding(Label.TextProperty, new Binding(nameof(Item.state_view), source: Item));
 
             //leftGrid.Children.Add(labelId);
             //Grid.SetRow(labelId, 0);

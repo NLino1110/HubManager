@@ -215,7 +215,7 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
 
         <Grid RowDefinitions="Auto,Auto,*,Auto" Grid.Column="1">
             <Grid Grid.Row="0"
-              ColumnDefinitions="*,*,Auto"
+              ColumnDefinitions="*,*,*,Auto"
               Margin="10">
 
                 <VerticalStackLayout Grid.Column="0">
@@ -250,9 +250,26 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
                            FontSize="11" 
                            FontAttributes="Bold"
                            TextColor="#4d4947"></Label>
+                    
                 </VerticalStackLayout>
 
-                <HorizontalStackLayout Grid.Column="2" HorizontalOptions="Fill" Spacing="10">
+                <VerticalStackLayout Grid.Column="2" WidthRequest="250">
+                    <material:DropdownField
+                            x:Name="ddfAddress"                        
+                            Title="Dirección"
+                            FontSize="11"
+                            TitleFontSize="8"
+                            AllowClear="True">
+                        <material:DropdownField.Icon>                            
+                            <FontImageSource
+                                Size="14"
+                                FontFamily="FontAwesome5Solid"
+                                Glyph="&#xf3c5;" />
+                        </material:DropdownField.Icon>
+                    </material:DropdownField>
+                </VerticalStackLayout>
+
+                <HorizontalStackLayout Grid.Column="3" HorizontalOptions="Fill" Spacing="10">
                     <Button Text="" Clicked="ButtonAddNew_Clicked" BackgroundColor="DarkSlateGray" TextColor="White" HeightRequest="45" WidthRequest="45" Padding="0">
                         <Button.ImageSource>
                             <FontImageSource 
@@ -524,7 +541,8 @@ RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
                     HorizontalTextAlignment="Center"
                     Padding="3" IsVisible="False"/>
                         </uranium:ExpanderView.Header>
-                        <StackLayout>
+                        <StackLayout>                            
+                            
                             <material:EditorField x:Name="fieldNote" Title="Observac." Text="{Binding Note, Mode=TwoWay}" />
                         </StackLayout>
                     </uranium:ExpanderView>

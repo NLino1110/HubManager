@@ -201,7 +201,7 @@ namespace DMOrders.Pages.Fragments.Orders
             if (BindingContext is ListViewModel vm)
             {
                 vm.filters = FiltersView;
-                //vm.LoadDataByTimer();
+                vm.LoadDataByTimer();
             }
         }
 

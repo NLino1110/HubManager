@@ -73,7 +73,7 @@
                                         TextColor="White"
                                         FontAttributes="Bold">
                                     <Button.ImageSource>
-                                        <FontImageSource FontFamily="FontAwesome5Solid"
+                                        <FontImageSource FontFamily="MaterialSharp"
                                             Color="White"
                                             Size="20"
                                             FontAutoScalingEnabled="True"

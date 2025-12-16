@@ -65,7 +65,8 @@ namespace ApiManager
                 "adic_domingo",
                 "is_salesman",
                 "sale_available",
-                "calificacion_crediticia_id"
+                "calificacion_crediticia_id",
+                "child_ids"
     };
 
         public HubResPartner(AppSession _setAppSession) : base(_setAppSession)
@@ -111,6 +112,22 @@ namespace ApiManager
 
             return await Call<Object, ApiResponseOdooRpcT<res_partner[]>>(EndPointApiLine,
                 Method.Post, value, true);
+        }
+
+        public async Task<ApiResponseOdooRpcT<res_partner[]>?> GetByIds(int limit, int index, int[] ids)
+        {
+            var kwargs = new
+            {
+                limit = limit,
+                offset = (index * limit),
+                fields = fields_array
+            };
+
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] {"id", "in", ids },
+            };
+            return await SearchRead<ApiResponseOdooRpcT<res_partner[]>>(args, _custom_args, kwargs, true);
         }
 
         public async Task<ApiResponseOdooRpcT<res_partner[]>?> GetByCreateDateRange(int limit, int index, DateTime dateIni, DateTime dateEnd)

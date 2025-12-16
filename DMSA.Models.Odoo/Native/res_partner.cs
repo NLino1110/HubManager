@@ -223,7 +223,17 @@ namespace DMSA.Models.Odoo.Native
         [Column("sale_available")]
         public bool sale_available { get; set; }
 
-
+        [Ignore]
+        public JToken child_ids { get; set; } 
+        
+        [JsonIgnore]
+        public string childs_ids_json
+        {
+            get => child_ids?.ToString(Formatting.None);
+            set => child_ids = string.IsNullOrEmpty(value)
+                ? null
+                : JToken.Parse(value);
+        }
 
         [Ignore]
         [JsonIgnore]
@@ -235,6 +245,11 @@ namespace DMSA.Models.Odoo.Native
         [Ignore]
         [JsonIgnore]
         public string display_ranking_credit { get; set; }
+
+        [Column("partner_invoice_id")]
+        public int partner_invoice_id { get; set; }
+        [Column("partner_shipping_id")]
+        public int partner_shipping_id { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)

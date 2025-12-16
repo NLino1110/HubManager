@@ -38,6 +38,10 @@ public partial class Crud : ContentPage, IBackButtonHandler
     public ICommand DeleteCommand { get; set; }
     public product_product _ProductEditing { get; set; }    
     public List<SaleOrderPromotions> saleOrderPromotions { get; set; }
+
+
+    public List<res_partner> PartnerAddress { get; set; }
+
     public product_product ProductEditing
     {
         get => _ProductEditing;
@@ -202,7 +206,9 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
     public async Task PrepareForm()
     {
-        if( CurrentPartner != null )
+        ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
+
+        if ( CurrentPartner != null )
         {
             //DESDE LISTA DE CLIENTES PARA AGREGAR NUEVA ORDEN
             Title = CurrentPartner.name;
@@ -230,7 +236,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         }
         else
         {
-            ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
+            
             CurrentPartner = await resPartnerDb.GetItemsAsync(CurrentCompany.id , CurrentSaleOrder._partner_id);
             if(CurrentPartner != null)
             {
@@ -258,6 +264,24 @@ public partial class Crud : ContentPage, IBackButtonHandler
             await DisplayAlert("Alerta", "El cliente no tiene lista de precio asignada, no se puede continuar", "Aceptar");
             await Navigation.PopModalAsync();
         }
+
+        PartnerAddress = new List<res_partner>();
+        PartnerAddress =  await resPartnerDb.GetItemsAsync(x=>x._parent_id == CurrentPartner.id);
+        if (PartnerAddress != null && PartnerAddress.Count > 0)
+        {            
+            ddfAddress.ItemsSource = PartnerAddress;
+            ddfAddress.ItemDisplayBinding = new Binding("name");
+            ddfAddress.SelectedItem = PartnerAddress[0];
+        }
+        else
+        {
+            PartnerAddress = new List<res_partner>();
+            PartnerAddress.Add(CurrentPartner);
+            ddfAddress.ItemsSource = PartnerAddress;
+            ddfAddress.ItemDisplayBinding = new Binding("name");
+            ddfAddress.SelectedItem = PartnerAddress[0];
+        }
+
 
         ((CrudViewModel)this.BindingContext).CurrentPriceList = CurrentPriceList;
         SearchProductView.CurrentPriceList = CurrentPriceList;

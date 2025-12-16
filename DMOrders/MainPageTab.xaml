@@ -323,7 +323,7 @@
                                     </Grid>
                                 </ViewCell>
 
-                                <ViewCell Tapped="ShowSettings">
+                                <!--<ViewCell Tapped="ShowSettings">
                                     <Grid Padding="3" BackgroundColor="GhostWhite">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
@@ -350,7 +350,7 @@
                                             <Label Text="Modificar rutas de servidores y variables de entorno." FontSize="12" />
                                         </StackLayout>
                                     </Grid>
-                                </ViewCell>
+                                </ViewCell>-->
 
                             </TableSection>
                         </TableRoot>

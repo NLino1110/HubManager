@@ -63,5 +63,23 @@ namespace DMSA.Models.Odoo.DMOrders.tareas
         public DateTime date_synchronized { get; set; }
         [JsonIgnore]
         public int id_sync { get; set; }
+
+        [JsonIgnore]
+        [JsonProperty("state")]
+        public string? state { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
+        [JsonProperty("state")]
+        public string? state_view =>
+                (state, is_synchronized) switch
+                {
+                    ("draft", true) => "SINCRONIZADO",
+                    ("draft", false) => "ACTIVO",
+                    ("sent", _) => "SINCRONIZADO",                    
+                    ("done", _) => "TERMINADO",
+                    ("cancel", _) => "CANCELADO",
+                    _ => state
+                };
     }
 }

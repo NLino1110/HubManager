@@ -204,7 +204,7 @@
                     Clicked="ButtonSync_Clicked" 
             Text="Enviar"
             HorizontalOptions="Start"
-            Margin="5,0" />
+            Margin="5,0" IsVisible="False"/>
 
             <!-- Contenido derecho (paginación) -->
             <Grid Grid.Column="1"

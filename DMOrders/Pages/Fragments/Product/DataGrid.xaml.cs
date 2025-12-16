@@ -96,7 +96,7 @@ namespace DMOrders.Pages.Fragments.Product
             if (BindingContext is ProductListViewModel vm)
             {
                 vm.filters = FiltersView;
-                //vm.LoadDataByTimer();
+                vm.LoadDataByTimer();
             }
         }
 

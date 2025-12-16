@@ -142,6 +142,9 @@ namespace DMOrders.Pages.Fragments.Activities
 
         public async Task LoadData()
         {
+            int partner_id = App.Session.CurrentUserFront.partner_id;
+            int user_id = App.Session.CurrentUserFront.uid;
+
             var signature = BuildFilterSignature();
             var filtersChanged = signature != _lastFilterSignature;
 
@@ -171,6 +174,7 @@ namespace DMOrders.Pages.Fragments.Activities
                     filters.getDateEnd(),
                     filters.getStatus(),
                     0,
+                    user_id,
                     Page,
                     PageSize,
                     ct);
@@ -200,6 +204,7 @@ namespace DMOrders.Pages.Fragments.Activities
                     //}
 
                     it.display_username = App.Session.CurrentUserFront.nombres;
+                    it.create_user = App.Session.CurrentUserFront.username;
                     ItemsData.Add(it);
                 }
 

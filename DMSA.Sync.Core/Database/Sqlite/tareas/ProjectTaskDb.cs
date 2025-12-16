@@ -50,10 +50,10 @@ namespace DMSA.Sync.Core.Database.Sqlite.Sales
             return await query.ToListAsync();
         }
 
-        public async Task<List<ProjectTask>> GetItemByNameAsync(int company_id, string name)
+        public async Task<List<ProjectTask>> GetItemByNameAsync(int company_id, string name, int user_id)
         {
             await Init();
-            return await Database.Table<ProjectTask>().Where(x=>x.name == name && x.company_id == company_id).ToListAsync();
+            return await Database.Table<ProjectTask>().Where(x=>x.name == name && x.company_id == company_id && x.user_id == user_id).ToListAsync();
         }
 
         public async Task<ProjectTask> GetItem(int id)
@@ -62,15 +62,19 @@ namespace DMSA.Sync.Core.Database.Sqlite.Sales
             return await Database.Table<ProjectTask>().Where(x=>x.id == id).FirstOrDefaultAsync();
         }
 
-        private AsyncTableQuery<ProjectTask> BuildQuery(            
+        private async Task<AsyncTableQuery<ProjectTask>> BuildQuery(            
             DateTime? filter_datestart,
             DateTime? filter_dateend,
             int filter_status,
-            int filter_sort)
+            int filter_sort,
+            int user_id)
         {
-            Init();
+            await Init();
 
             var q = Database.Table<ProjectTask>();
+
+            //Se filtra por usuario
+            q = q.Where(x => x.user_id == user_id);
 
             if (filter_datestart != null && filter_dateend != null)
                 q = q.Where(x => x.date_assign >= filter_datestart && x.date_assign <= filter_dateend);
@@ -103,15 +107,17 @@ namespace DMSA.Sync.Core.Database.Sqlite.Sales
             DateTime? filter_dateend,
             int filter_status,
             int filter_sort,
+            int user_id,
             int page, 
             int pageSize, 
             CancellationToken ct = default)
         {
-            var q = BuildQuery(
+            var q = await BuildQuery(
             filter_datestart,
             filter_dateend,
             filter_status,
-            filter_sort);
+            filter_sort,
+            user_id);
 
             // COUNT(*) en SQLite, sin traer datos
             var total = await q.CountAsync();

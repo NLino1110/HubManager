@@ -32,7 +32,7 @@ namespace DMSA.Sync.Core.Database.Sqlite
             int filter_status,
             int filter_pricelist)
         {
-            Init();
+            await Init();
 
             var q = Database.Table<product_product>();
 

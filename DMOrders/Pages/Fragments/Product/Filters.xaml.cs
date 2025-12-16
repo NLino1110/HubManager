@@ -57,50 +57,8 @@ public partial class Filters : ContentView
         ddfStatus.ItemsSource = Status;
         ddfStatus.ItemDisplayBinding = new Binding("Name");
         ddfStatus.SelectedItem = Status[0];
-        //ddfDays.SelectedItemChanged += DdfDays_SelectedItemChanged;
-
-        //Brands =
-        //[
-        //    new product_marca { id = 0, name = "No seleccionada" },
-        //    new product_marca { id = -1, name = "🔍 Buscar..." },
-        //    new product_marca    { id = 1, name = "Marca 1" },
-        //    new product_marca { id = 2, name = "Marca 2" },
-        //    new product_marca { id = 3, name = "Marca 3" },
-        //    new product_marca { id = 4, name = "Marca 4" },
-        //    new product_marca { id = 5, name = "Marca 5" },
-        //    new product_marca { id = 6, name = "Marca 6" },
-        //    new product_marca { id = 7, name = "Marca 7" },
-        //    new product_marca { id = 8, name = "Marca 8" },
-        //];
-
-        //ddfBrands.ItemsSource = Brands;
-        //ddfBrands.ItemDisplayBinding = new Binding("name");
-        //ddfBrands.SelectedItem = Brands[0];
-        //ddfBrands.SelectedItemChanged += DdfBrands_SelectedItemChanged;
-        //selected_brand = Brands[0];
-
+        
         LoadTopMarcasAsync();
-
-        //Product_Categories =
-        //[
-        //    new product_categoria { id = 0, name = "No seleccionada" },
-        //    new product_categoria { id = -1, name = "🔍 Buscar..." },
-        //    new product_categoria { id = 1, name = "Categoria 1" },
-        //    new product_categoria { id = 2, name = "Categoria 2" },
-        //    new product_categoria { id = 3, name = "Categoria 3" },
-        //    new product_categoria { id = 4, name = "Categoria 4" },
-        //    new product_categoria { id = 5, name = "Categoria 5" },
-        //    new product_categoria { id = 6, name = "Categoria 6" },
-        //    new product_categoria { id = 7, name = "Categoria 7" },
-        //    new product_categoria { id = 8, name = "Categoria 8" },
-        //];
-
-        //ddfCategory.ItemsSource = Product_Categories;
-        //ddfCategory.ItemDisplayBinding = new Binding("name");
-        //ddfCategory.SelectedItem = Product_Categories[0];
-        //ddfCategory.SelectedItemChanged += DdfCategory_SelectedItemChanged;
-        //selected_product_category = Product_Categories[0];
-
         LoadTopCategoriesAsync();
     }
 
@@ -351,6 +309,9 @@ public partial class Filters : ContentView
         if (ddfBrands.SelectedItem != null)
             selected_brand = (product_marca) ddfBrands.SelectedItem;
 
+        if (selected_brand == null)
+            return 0;
+
         return selected_brand.id;
     }
 
@@ -358,6 +319,9 @@ public partial class Filters : ContentView
     {
         if (ddfCategory.SelectedItem != null)
             selected_product_category = (product_categoria)ddfCategory.SelectedItem;
+
+        if (selected_product_category == null)
+            return 0;
 
         return selected_product_category.id;
     }

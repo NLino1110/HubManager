@@ -53,7 +53,7 @@ public partial class MainPageTab : ContentPage
             new() { Icon = "\uf279", Title = "Nueva actividad", Description = "Seguimiento de proceso.", Action = async () => ViewCell_Add_Task(null, EventArgs.Empty) },
             new() { Icon = "\uf0c7", Title = "Actualización", Description = "Sincronizar los datos principales.", Action = async () => ViewCell_Tapped_Update(null, EventArgs.Empty) },
             new() { Icon = "\uf2f5", Title = "Salir", Description = "Volver a ingresar credenciales.", Action = async () => ViewCell_Tapped_Exit_Regular(null, EventArgs.Empty) },
-            new() { Icon = "\uf7d9", Title = "Configuraciones", Description = "Modificar rutas y entorno.", Action = async () => ShowSettings(null, EventArgs.Empty) },
+            //new() { Icon = "\uf7d9", Title = "Configuraciones", Description = "Modificar rutas y entorno.", Action = async () => ShowSettings(null, EventArgs.Empty) },
         };
 
         BindingContext = this;
@@ -131,10 +131,13 @@ public partial class MainPageTab : ContentPage
     private async void ViewCell_Add_Task(object sender, EventArgs e)
     {
         Debug.WriteLine("EditItem");
-        
+
+        int partner_id = App.Session.CurrentUserFront.partner_id;
+        int user_id = App.Session.CurrentUserFront.uid;
+
         ProjectTaskDb projectTaskDb = new ProjectTaskDb(App.Session.odooConnection.DbNameSqlite);
         string nameTodayTask = DateTime.Now.ToString("yyyy-MM-dd");
-        var foundTodayTasks = await projectTaskDb.GetItemByNameAsync(App.Session.res_Company.id, nameTodayTask);
+        var foundTodayTasks = await projectTaskDb.GetItemByNameAsync(App.Session.res_Company.id, nameTodayTask, user_id);
         
         ProjectTask CurrentActivityHeader = null;
 
@@ -157,7 +160,8 @@ public partial class MainPageTab : ContentPage
                 display_in_project = true,
                 id_sync = 0,
                 user_id = App.Session.CurrentUserFront.uid,
-                user_ids = new int [App.Session.CurrentUserFront.uid] 
+                user_ids = new int [App.Session.CurrentUserFront.uid],
+                state = "draft"
             };            
 
             //viewObj.CurrentActivityHeader = new DMSA.Models.Odoo.DMOrders.tareas.ProjectTask() { id = 0, name = nameTodayTask };
