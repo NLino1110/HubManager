@@ -161,6 +161,7 @@ namespace ApiManager
             JObjectExtensions.RenameProperty(newJObject, "_currency_id", "currency_id");
             JObjectExtensions.RenameProperty(newJObject, "_center_id", "center_id");
             JObjectExtensions.RenameProperty(newJObject, "_pricelist_id", "pricelist_id");
+            JObjectExtensions.RenameProperty(newJObject, "_partner_invoice_id", "partner_invoice_id");
 
             JObjectExtensions.RemoveProperty(newJObject, "is_synchronized");
             JObjectExtensions.RemoveProperty(newJObject, "date_synchronized");
@@ -177,6 +178,7 @@ namespace ApiManager
             JObjectExtensions.RemoveProperty(newJObject, "team_id");
             JObjectExtensions.RemoveProperty(newJObject, "user_id");
             JObjectExtensions.RemoveProperty(newJObject, "erp_id");
+            JObjectExtensions.RemoveProperty(newJObject, "state_view");
 
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_order_id");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_product_uom_category_id");
@@ -207,7 +209,7 @@ namespace ApiManager
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "assigned_gifts");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "product_id_origin");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "show_delete_button");
-            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "is_manual");            
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "is_manual");
 
             //JObjectExtensions.RenamePropertyFromOrderLineItems(newJObject, "_product_uom_qty", "product_uom_qty");
 

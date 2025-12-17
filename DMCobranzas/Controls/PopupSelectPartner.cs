@@ -52,7 +52,8 @@ namespace DMCobranzas.Controls
             _LaunchSearchEvent += _searchBar_BeginSearch;
             _OnAppearing += _onAppearingCustom;
             resultItemsSearch = new ObservableCollection<res_partner>();
-            
+            Padding = new Thickness(0);
+            Margin = new Thickness(0);
             Debug.WriteLine("PopupSelectPartner");
         }
 

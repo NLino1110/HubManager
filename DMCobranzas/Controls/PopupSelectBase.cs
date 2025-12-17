@@ -1,9 +1,4 @@
 ﻿using CommunityToolkit.Maui.Views;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CommunityToolkit.Maui.Sample.Models;
 using CommunityToolkit.Maui.Core.Platform;
 using System.Diagnostics;
@@ -12,15 +7,15 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Microsoft.Maui.Layouts;
 using DMCobranzas.Settings.helpers;
-using Microsoft.Maui.Controls;
-using DMSA.Models.Odoo.Native;
 using Microsoft.Maui.Controls.Shapes;
-using CommunityToolkit.Maui.Markup;
 
 namespace DMCobranzas.Controls
 {
     public class PopupSelectBase<T> : Popup<T>, INotifyPropertyChanged
     {
+        //public ContentPage CurrentContentPage { get; set; }
+        //public event Action<T> RequestClose;
+
         protected static Grid scrollGridContent { get; set; }
         private AbsoluteLayout _layoutLoading { get; set; }
 
@@ -803,7 +798,7 @@ namespace DMCobranzas.Controls
             _layoutLoading.VerticalOptions = LayoutOptions.Center;
             _layoutLoading.BackgroundColor = Colors.GhostWhite;
 
-            CommandSelectListItem = new Command(SelectListItem);
+            CommandSelectListItem = new Command(async o => await SelectListItem(o));
 
             if (_renderCustomDataTemplate)
             {
@@ -860,13 +855,13 @@ namespace DMCobranzas.Controls
             //};
         }
 
-        public static ICommand CommandSelectListItem { get; set; }
+        public ICommand CommandSelectListItem { get; set; }
 
-        private async void SelectListItem(object objItem)
+        private async Task SelectListItem(object objItem)
         {            
             if (objItem is T item) // aquí validas y conviertes
             {
-                await CloseAsync(item);
+                await CloseAsync(item);                
             }
             else
             {

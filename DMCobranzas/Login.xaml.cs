@@ -693,7 +693,7 @@ public partial class Login : ContentPage
             if (user.username.Length <= 3 || user.password.Length <= 3)
             {
                 await Toast.Make("Datos incorrectos, verifique usuario y contraseña.").Show();
-                return;
+                return false;
             }
         }
 #endif

@@ -163,6 +163,9 @@ namespace DMSA.Models.Odoo.Native
         [JsonProperty("partner_sale_id")]
         public int partner_sale_id { get; set; }
 
+        [JsonProperty("_partner_invoice_id")]
+        public int _partner_invoice_id { get; set; }
+
         [Ignore]
         [JsonIgnore]
         public string? state_view =>

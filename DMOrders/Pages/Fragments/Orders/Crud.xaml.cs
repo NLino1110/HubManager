@@ -206,13 +206,15 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
     public async Task PrepareForm()
     {
+        bool RequiredPreloadData = false;
+
         ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
 
-        if ( CurrentPartner != null )
+        if (CurrentPartner != null)
         {
             //DESDE LISTA DE CLIENTES PARA AGREGAR NUEVA ORDEN
             Title = CurrentPartner.name;
-            if(CurrentSaleOrder == null)
+            if (CurrentSaleOrder == null)
             {
                 Title += " [*]";
                 btnSend.IsVisible = false;
@@ -229,16 +231,16 @@ public partial class Crud : ContentPage, IBackButtonHandler
             ((CrudViewModel)this.BindingContext)._CurrentPartner = CurrentPartner;
             ((CrudViewModel)this.BindingContext).CurrentCompany = CurrentCompany;
             ((CrudViewModel)this.BindingContext).CurrentSaleOrder = CurrentSaleOrder;
-            
+
             await ((CrudViewModel)this.BindingContext).LoadData();
 
             saleOrderPromotions = ((CrudViewModel)this.BindingContext).saleOrderPromotions;
         }
         else
         {
-            
-            CurrentPartner = await resPartnerDb.GetItemsAsync(CurrentCompany.id , CurrentSaleOrder._partner_id);
-            if(CurrentPartner != null)
+
+            CurrentPartner = await resPartnerDb.GetItemsAsync(CurrentCompany.id, CurrentSaleOrder._partner_id);
+            if (CurrentPartner != null)
             {
                 Title = CurrentPartner.name;
             }
@@ -246,11 +248,12 @@ public partial class Crud : ContentPage, IBackButtonHandler
             if (CurrentSaleOrder != null)
             {
                 Title += " [edición]";
+                RequiredPreloadData = true;
             }
 
             ((CrudViewModel)this.BindingContext).CurrentCompany = CurrentCompany;
             ((CrudViewModel)this.BindingContext).CurrentSaleOrder = CurrentSaleOrder;
-            
+
             await ((CrudViewModel)this.BindingContext).LoadData();
 
             saleOrderPromotions = ((CrudViewModel)this.BindingContext).saleOrderPromotions;
@@ -266,22 +269,32 @@ public partial class Crud : ContentPage, IBackButtonHandler
         }
 
         PartnerAddress = new List<res_partner>();
-        PartnerAddress =  await resPartnerDb.GetItemsAsync(x=>x._parent_id == CurrentPartner.id);
+        PartnerAddress = await resPartnerDb.GetItemsAsync(x => x._parent_id == CurrentPartner.id);
         if (PartnerAddress != null && PartnerAddress.Count > 0)
-        {            
-            ddfAddress.ItemsSource = PartnerAddress;
-            ddfAddress.ItemDisplayBinding = new Binding("name");
-            ddfAddress.SelectedItem = PartnerAddress[0];
+        {
+            //PartnerAddress.Add(CurrentPartner);            
         }
         else
         {
             PartnerAddress = new List<res_partner>();
-            PartnerAddress.Add(CurrentPartner);
-            ddfAddress.ItemsSource = PartnerAddress;
-            ddfAddress.ItemDisplayBinding = new Binding("name");
-            ddfAddress.SelectedItem = PartnerAddress[0];
         }
 
+        PartnerAddress.Add(CurrentPartner);
+        ddfAddress.ItemsSource = PartnerAddress;
+        ddfAddress.ItemDisplayBinding = new Binding("display_full_address");
+        ddfAddress.SelectedItem = PartnerAddress[0];
+
+        if (RequiredPreloadData)
+        {
+            for(var i=0; i< PartnerAddress.Count ; i++)
+            {
+                if(PartnerAddress[i].id == CurrentSaleOrder._partner_invoice_id)
+                {
+                    ddfAddress.SelectedItem = PartnerAddress[i];
+                    break;
+                }
+            }
+        }
 
         ((CrudViewModel)this.BindingContext).CurrentPriceList = CurrentPriceList;
         SearchProductView.CurrentPriceList = CurrentPriceList;
@@ -516,6 +529,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         bool isNew = CurrentSaleOrder == null;
 
         int warehouseId = 0;
+        int partner_invoice_id = ((res_partner)ddfAddress.SelectedItem).id;
 
         StockWareHouseDb stockWareHouseDb = new StockWareHouseDb(App.Session.odooConnection.DbNameSqlite);
         var warehouseList = await stockWareHouseDb.GetByResCenter(App.Session.res_center.id);
@@ -545,7 +559,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 partner_display_name = CurrentPartner?.name,
                 partner_display_address = CurrentPartner?.street,
                 partner_display_status = (CurrentPartner != null ? (CurrentPartner.active ? "Activo" : "Inactivo") : string.Empty),
-                partner_sale_id = App.Session.CurrentUserFront.partner_id
+                partner_sale_id = App.Session.CurrentUserFront.partner_id,
+                _partner_invoice_id = partner_invoice_id
             };
 
             if (await saleOrderDb.InsertAsync(targetOrder) <= 0)
@@ -565,6 +580,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
             targetOrder._center_id = App.Session.res_center.id;
             targetOrder._warehouse_id = warehouseId;
             targetOrder.sale_channel = App.Session.odooConnection.sale_channel_default;
+            targetOrder._partner_invoice_id = partner_invoice_id;
             //targetOrder.id_referencia = "M001-RC29102025";
             targetOrder._pricelist_id = CurrentPriceList.id;
             targetOrder.amount_total = viewModel.Total;

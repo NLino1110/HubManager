@@ -1,18 +1,7 @@
-﻿using CommunityToolkit.Maui.Views;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CommunityToolkit.Maui.Sample.Models;
-using Microsoft.Maui.Controls;
-using System.Drawing;
-using Microsoft.Maui.Graphics;
-using DMCobranzas.Models;
+﻿using CommunityToolkit.Maui.Sample.Models;
 using System.Diagnostics;
 using DMSA.Models.Odoo.Native;
 using System.Collections.ObjectModel;
-using DMSA.Models.Odoo.General.Responses;
 using System.Windows.Input;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
 
@@ -33,6 +22,8 @@ namespace DMCobranzas.Controls
             _LaunchSearchEvent += _searchBar_BeginSearch;
             _OnAppearing += _onAppearingCustom;
             resultItemsSearch = new ObservableCollection<account_move_line>();
+            Padding = new Thickness(0);
+            Margin = new Thickness(0);
         }
 
         async Task<int> LoadData()
@@ -57,33 +48,6 @@ namespace DMCobranzas.Controls
             resultItemsSearch = new ObservableCollection<account_move_line>(listaItemsAgrupados);
             _collectionViewSearch.ItemsSource = resultItemsSearch;
             await SetDoneStatus();
-
-            //IDispatcherTimer timer;
-
-            //timer = Dispatcher.CreateTimer();
-            //timer.IsRepeating = false;
-            //timer.Interval = TimeSpan.FromMilliseconds(500);
-            //timer.Tick += async (s, e) =>
-            //{
-            //    await SetWorkingStatus();
-
-            //    Debug.WriteLine(_searchBar.Text);
-            //    var database = new AccountMoveDb();
-            //    var result = await database.GetItemsAsync(Company.id, partner.id, _searchBar.Text, 25);
-
-            //    resultItemsSearch = new ObservableCollection<account_move>(result);
-
-            //    Debug.WriteLine(resultItemsSearch.Count);
-            //    //if(_collectionViewSearch.ItemsSource == null)
-            //    _collectionViewSearch.ItemsSource = resultItemsSearch;
-
-            //    await SetDoneStatus();
-
-            //    timer.Stop();
-            //};
-
-            //timer.Start();
-
             return 1;
         }
 
@@ -97,54 +61,6 @@ namespace DMCobranzas.Controls
         async void _searchBar_BeginSearch(object sender, EventArgs e)
         {
             await LoadData();
-        }
-
-        private void PrepareForm()
-        {
-            IDispatcherTimer timer;
-
-            timer = Dispatcher.CreateTimer();
-            timer.IsRepeating = false;
-            timer.Interval = TimeSpan.FromMilliseconds(500);
-            timer.Tick += async (s, e) =>
-            {
-                Debug.WriteLine("Cargando los datos...");
-
-                //partner = new res_partner {
-                //    email = "ronald.chonillo@gmail.com",
-                //    id = 1,
-                //    name = "Ronald Chonillo",
-                //    vat = "0919826958"
-                //};
-
-                if(Company==null || Company.id == 0)
-                {
-                    await App.Current.MainPage.DisplayAlert("Clientes",
-                                        $"Se requiere que se especifique la compañia para poder realizar la búsqueda de clientes.",
-                                        "Continuar");
-                    await CloseAsync();
-                    return;
-                }
-
-                _labelOverTitle.Text = Company.name;
-
-                //if ( partner != null )
-                //{
-
-                //}
-                //else
-                //{
-                //    //Si no se ha enviado el partner de origen no se permitirá el ingreso del dato
-                //    await App.Current.MainPage.DisplayAlert("Nueva cuenta",
-                //                        $"Se requiere que se especifique el cliente para poder crear nueva cuenta bancaria",
-                //                        "Continuar");
-                //    Close(null);
-                //    return;
-                //}                
-
-                timer.Stop();
-            };
-            timer.Start();
         }
 
         public ICommand CommandSelectListItem { get; set; }
@@ -162,11 +78,7 @@ namespace DMCobranzas.Controls
         }
 
         private async void OnBtnSave_Clicked(object sender, EventArgs e)
-        {
-            //ResPartnerDb partnerBankDb = new ResPartnerDb();
-            ////res_partner res_Partner = await partnerBankDb.GetItem(1);
-            //res_partner res_Partner = await partnerBankDb.GetItemsAsync(Company.id, partner.id);
-            //// Lógica cuando se hace clic en el primer botón
+        {            
             await CloseAsync();
         }
 

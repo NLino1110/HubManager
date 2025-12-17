@@ -121,7 +121,7 @@ namespace DMSA.Models.Odoo.Native
             set => country_id = SetId(country_id, value);
         }
         
-        public string contact_address_complete { get; set; }
+        public string contact_address { get; set; }
         public bool active { get; set; }
 
         [Ignore]
@@ -245,6 +245,11 @@ namespace DMSA.Models.Odoo.Native
         [Ignore]
         [JsonIgnore]
         public string display_ranking_credit { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
+        public string display_full_address =>
+        $"{name}, {contact_address}";
 
         [Column("partner_invoice_id")]
         public int partner_invoice_id { get; set; }

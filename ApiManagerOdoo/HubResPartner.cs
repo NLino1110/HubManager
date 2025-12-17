@@ -28,6 +28,7 @@ namespace ApiManager
                 "display_name",
                 "email",
                 "user_id",
+                "contact_address",
                 //"user_login",
                 //"total_due",
                 //"total_overdue",
@@ -67,7 +68,7 @@ namespace ApiManager
                 "sale_available",
                 "calificacion_crediticia_id",
                 "child_ids"
-    };
+        };
 
         public HubResPartner(AppSession _setAppSession) : base(_setAppSession)
         {

@@ -141,13 +141,12 @@ public partial class AccountMoveSendView : ContentPage
             return;
         }
 
-        AccountMoveSendCrud obj = new AccountMoveSendCrud(Sel_Res_Partner);
+        AccountMoveSendCrud obj = new AccountMoveSendCrud(Sel_Res_Partner);        
         obj.accountMoveSendHeader = Sel_AccountMoveSendHeader;
         obj.isNewData = true;
         await obj.SetDefaultData(Sel_Company_Id);
 
         //obj._cobCarteraCab = _cobCarteraCab;
-
         //obj.Sel_Company_Id = Sel_Company_Id;
         //Se asigna la empresa seleccionada
         //obj.empresa = se;
@@ -735,8 +734,7 @@ public partial class AccountMoveSendView : ContentPage
         var resultPopupSelectInvoice = new PopupSelectPartner(popupSizeConstants);
         resultPopupSelectInvoice.Company = Sel_Company_Id;
         resultPopupSelectInvoice.DetailMode = 1;
-
-        resultPopupSelectInvoice.CanBeDismissedByTappingOutsideOfPopup = false;
+        resultPopupSelectInvoice.CanBeDismissedByTappingOutsideOfPopup = false;        
 
         var result = await this.ShowPopupAsync<res_partner>(resultPopupSelectInvoice);
         if (result.Result != null)

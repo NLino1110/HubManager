@@ -1,26 +1,9 @@
-﻿using CommunityToolkit.Maui.Views;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CommunityToolkit.Maui.Sample.Models;
-using Microsoft.Maui.Controls;
-using System.Drawing;
-using Microsoft.Maui.Graphics;
-using DMCobranzas.Models;
+﻿using CommunityToolkit.Maui.Sample.Models;
 using System.Diagnostics;
 using DMSA.Models.Odoo.Native;
 using System.Collections.ObjectModel;
-using DMSA.Models.Odoo.General.Responses;
 using System.Windows.Input;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using DMCobranzas.Settings.helpers;
-using Microsoft.Maui.Platform;
-using Microsoft.Maui.Layouts;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
-
 
 namespace DMCobranzas.Controls
 {
@@ -34,15 +17,15 @@ namespace DMCobranzas.Controls
 
         public bool LoadAuto { get; set; } = false;
 
-        public PopupSelectInvoice(PopupSizeConstants popupSizeConstants) : 
-            base(popupSizeConstants, 
-                true)
+        public PopupSelectInvoice(PopupSizeConstants popupSizeConstants) : base(popupSizeConstants)
         {            
             DataField = "id, name, invoice_date, payment_state, amount_residual, amount_total";
             //_searchBar.SearchButtonPressed += _searchBar_OnTextChanged;
             _LaunchSearchEvent += _searchBar_BeginSearch;
             _OnAppearing += _onAppearingCustom;
             resultItemsSearch = new ObservableCollection<account_move>();
+            Padding = new Thickness(0);
+            Margin = new Thickness(0);
         }
 
         async Task<int> LoadData()
@@ -58,33 +41,6 @@ namespace DMCobranzas.Controls
             resultItemsSearch = new ObservableCollection<account_move>(result);
             _collectionViewSearch.ItemsSource = resultItemsSearch;
             await SetDoneStatus();
-
-            //IDispatcherTimer timer;
-
-            //timer = Dispatcher.CreateTimer();
-            //timer.IsRepeating = false;
-            //timer.Interval = TimeSpan.FromMilliseconds(500);
-            //timer.Tick += async (s, e) =>
-            //{
-            //    await SetWorkingStatus();
-
-            //    Debug.WriteLine(_searchBar.Text);
-            //    var database = new AccountMoveDb();
-            //    var result = await database.GetItemsAsync(Company.id, partner.id, _searchBar.Text, 25);
-
-            //    resultItemsSearch = new ObservableCollection<account_move>(result);
-
-            //    Debug.WriteLine(resultItemsSearch.Count);
-            //    //if(_collectionViewSearch.ItemsSource == null)
-            //    _collectionViewSearch.ItemsSource = resultItemsSearch;
-
-            //    await SetDoneStatus();
-
-            //    timer.Stop();
-            //};
-
-            //timer.Start();
-
             return 1;
         }
 
@@ -135,7 +91,7 @@ namespace DMCobranzas.Controls
                     Size = 20,
                     FontAutoScalingEnabled = true,
                     Glyph = "\uf0ae"
-                }                
+                }
             };
 
             _btnLoadLastInvoices.Clicked += OnBtnLoadLast_Clicked;
@@ -150,7 +106,8 @@ namespace DMCobranzas.Controls
 
             _stackLayoutToolBox.Children.Add(_btnLoadLastInvoices);
 
-            ContentCustomToolBox = new Microsoft.Maui.Controls.ContentView() {
+            ContentCustomToolBox = new Microsoft.Maui.Controls.ContentView()
+            {
                 Content = _stackLayoutToolBox
             };
         }
@@ -160,48 +117,48 @@ namespace DMCobranzas.Controls
             await LoadData();
         }
 
-        private void PrepareForm()
-        {
-            IDispatcherTimer timer;
+        //private void PrepareForm()
+        //{
+        //    IDispatcherTimer timer;
 
-            timer = Dispatcher.CreateTimer();
-            timer.IsRepeating = false;
-            timer.Interval = TimeSpan.FromMilliseconds(500);
-            timer.Tick += async (s, e) =>
-            {
-                Debug.WriteLine("Cargando los datos...");
+        //    timer = Dispatcher.CreateTimer();
+        //    timer.IsRepeating = false;
+        //    timer.Interval = TimeSpan.FromMilliseconds(500);
+        //    timer.Tick += async (s, e) =>
+        //    {
+        //        Debug.WriteLine("Cargando los datos...");
                 
-                if(Company==null || Company.id == 0)
-                {
-                    await App.Current.MainPage.DisplayAlert("Clientes",
-                                        $"Se requiere que se especifique la compañia para poder realizar la búsqueda de clientes.",
-                                        "Continuar");
-                    await CloseAsync();
-                    return;
-                }
+        //        if(Company==null || Company.id == 0)
+        //        {
+        //            await App.Current.MainPage.DisplayAlert("Clientes",
+        //                                $"Se requiere que se especifique la compañia para poder realizar la búsqueda de clientes.",
+        //                                "Continuar");
+        //            await CloseAsync();
+        //            return;
+        //        }
 
-                _labelOverTitle.Text = Company.name;
+        //        _labelOverTitle.Text = Company.name;
 
-                //if ( partner != null )
-                //{
+        //        //if ( partner != null )
+        //        //{
 
-                //}
-                //else
-                //{
-                //    //Si no se ha enviado el partner de origen no se permitirá el ingreso del dato
-                //    await App.Current.MainPage.DisplayAlert("Nueva cuenta",
-                //                        $"Se requiere que se especifique el cliente para poder crear nueva cuenta bancaria",
-                //                        "Continuar");
-                //    Close(null);
-                //    return;
-                //}                
+        //        //}
+        //        //else
+        //        //{
+        //        //    //Si no se ha enviado el partner de origen no se permitirá el ingreso del dato
+        //        //    await App.Current.MainPage.DisplayAlert("Nueva cuenta",
+        //        //                        $"Se requiere que se especifique el cliente para poder crear nueva cuenta bancaria",
+        //        //                        "Continuar");
+        //        //    Close(null);
+        //        //    return;
+        //        //}                
 
-                timer.Stop();
-            };
-            timer.Start();
-        }
+        //        timer.Stop();
+        //    };
+        //    timer.Start();
+        //}
 
-        //public ICommand CommandSelectListItem { get; set; }
+        public ICommand CommandSelectListItem { get; set; }
 
         private async void SelectListItem(object objItem)
         {            
@@ -213,37 +170,33 @@ namespace DMCobranzas.Controls
             {
                 Debug.WriteLine("Error de objeto");
             }
-        }
+        }        
 
         private async void OnBtnLoadLast_Clicked(object sender, EventArgs e)
         {
             await LoadDataLast20();
         }
 
-        public override CollectionView builCollectionViewCustom()
+        //public override CollectionView builCollectionViewCustom()
+        //{
+        //    return new CollectionView
+        //    {
+        //        //Hay que tener claro que cada vez que se crea un item se vuelve a renderizar
+        //        // y se vuelven a cargar los child dentro del ItemTemplate
+        //        ItemTemplate = new DataTemplate(() =>  new ItemAccountMove(CommandSelectListItem))
+        //    };
+        //}
+
+        private async void OnBtnSave_Clicked(object sender, EventArgs e)
         {
-            return new CollectionView
-            {
-                //Hay que tener claro que cada vez que se crea un item se vuelve a renderizar
-                // y se vuelven a cargar los child dentro del ItemTemplate
-                ItemTemplate = new DataTemplate(() =>  new ItemAccountMove(CommandSelectListItem))
-            };
+            await CloseAsync();
         }
 
-        //private async void OnBtnSave_Clicked(object sender, EventArgs e)
-        //{
-        //    //ResPartnerDb partnerBankDb = new ResPartnerDb();
-        //    ////res_partner res_Partner = await partnerBankDb.GetItem(1);
-        //    //res_partner res_Partner = await partnerBankDb.GetItemsAsync(Company.id, partner.id);
-        //    //// Lógica cuando se hace clic en el primer botón
-        //    Close(null);
-        //}
-
-        //private void OnBtnCancel_Clicked(object sender, EventArgs e)
-        //{
-        //    // Lógica cuando se hace clic en el segundo botón
-        //    //Close(null);
-        //}
+        private void OnBtnCancel_Clicked(object sender, EventArgs e)
+        {
+            // Lógica cuando se hace clic en el segundo botón
+            //Close(null);
+        }
 
         //private void OnBtnClose_Clicked(object sender, EventArgs e)
         //{

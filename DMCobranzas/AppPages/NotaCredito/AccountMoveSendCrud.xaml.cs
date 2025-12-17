@@ -1,26 +1,15 @@
-
-using DMCobranzas;
 using DMCobranzas.Controls;
-using DMCobranzas.Models;
 using DMCobranzas.Settings.helpers;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Sample.Models;
 using CommunityToolkit.Maui.Sample.ViewModels.Views;
-using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Maui.Sample;
-
 using DMSA.Models.MovilCobranzas.Api;
 using DMSA.Models.Odoo.Native;
-using Microsoft.Maui.Controls;
-using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Windows.Input;
-using static System.Net.Mime.MediaTypeNames;
-using Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;
 using DMSA.Models.Odoo.DMCobranzas;
 using CommunityToolkit.Maui.Extensions;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
@@ -269,8 +258,8 @@ public partial class AccountMoveSendCrud : ContentPage
         var resultPopupSelectInvoice = new PopupSelectInvoice(popupSizeConstants);
         resultPopupSelectInvoice.Company = empresa;
         resultPopupSelectInvoice.partner = _res_partner;
-
-        var result = await this.ShowPopupAsync<account_move>(resultPopupSelectInvoice);        
+        resultPopupSelectInvoice.LoadAuto = true;
+        var result = await this.ShowPopupAsync<account_move>(resultPopupSelectInvoice);
 
         if (result.Result != null)
         {
@@ -751,12 +740,13 @@ public partial class AccountMoveSendCrud : ContentPage
     {
         base.OnDisappearing();
 
+        //TODO: Chequear el funcionamiento
         // Verificar la variable para decidir si permitir o no el cierre de la página
-        if (true)
-        {
-            // Si no se permite el cierre, evitar que la página se cierre
-            Navigation.PopModalAsync(false);
-        }
+        //if (true)
+        //{
+            // Si no se permite el cierre
+            //Navigation.PopModalAsync(false);
+        //}
     }
 
     private async void btnClose_Clicked(object sender, EventArgs e)
