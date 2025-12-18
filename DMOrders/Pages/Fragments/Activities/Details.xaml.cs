@@ -9,7 +9,9 @@ using DMSA.Sync.Core.Database.Sqlite.Sales;
 using DMSA.Sync.Core.Database.Sqlite.tareas;
 using DMSA.Sync.Core.Update.Pusher;
 using Microsoft.Maui.Controls;
+using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -27,6 +29,15 @@ public partial class Details : ContentPage, IBackButtonHandler
     private async void EditItem(object obj)
     {
         Debug.WriteLine("EditItem");
+
+        // Bloquear edición si la tarea está sincronizada
+        if (CurrentProjectTask != null && CurrentProjectTask.is_synchronized)
+        {
+            Debug.WriteLine("[Details] Edit blocked: task is synchronized");
+            await DisplayAlert("Atención", "No se puede editar una actividad sincronizada.", "Aceptar");
+            return;
+        }
+
         var ItemForEdit = (AccountAnalyticLine)obj;
         PopupSizeConstants popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
 
@@ -63,10 +74,58 @@ public partial class Details : ContentPage, IBackButtonHandler
         }
 
         BindingContext = new DetailsViewModel(CurrentProjectTask);
-        EditCommand = new Command(EditItem);
 
-        // Inicializar DeleteCommand para que AccountAnalyticLineRow pueda ejecutarlo (restaurado)
-        DeleteCommand = new Command(async (obj) => await DeleteItemAsync(obj));
+        // Si la tarea ya está sincronizada, desactivar comandos y ocultar botones del footer
+        if (CurrentProjectTask != null && CurrentProjectTask.is_synchronized)
+        {
+            Debug.WriteLine("[Details] Task is synchronized -> read-only view");
+
+            EditCommand = null;
+            DeleteCommand = null;
+
+            HideFooterButtons();
+        }
+        else
+        {
+            EditCommand = new Command(EditItem);
+
+            // Inicializar DeleteCommand para que AccountAnalyticLineRow pueda ejecutarlo (restaurado)
+            DeleteCommand = new Command(async (obj) => await DeleteItemAsync(obj));
+        }
+    }
+
+    // Oculta los botones del footer por su texto (si no hay x:Name en XAML)
+    void HideFooterButtons()
+    {
+        try
+        {
+            if (Content is Grid rootGrid)
+            {
+                // Buscar la vista que está en la fila 3 (footer)
+                var footer = rootGrid.Children.FirstOrDefault(ch =>
+                    ch is Microsoft.Maui.Controls.View v && Microsoft.Maui.Controls.Grid.GetRow(v) == 3);
+
+                if (footer is Layout layout)
+                {
+                    foreach (var child in layout.Children)
+                    {
+                        if (child is Button btn)
+                        {
+                            // Ocultar botones relevantes por texto
+                            var text = (btn.Text ?? string.Empty).Trim().ToLowerInvariant();
+                            if (text == "nuevo" || text == "enviar" || text == "guardar")
+                            {
+                                btn.IsVisible = false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"HideFooterButtons error: {ex}");
+        }
     }
 
     public async Task<bool> OnBackButtonPressedAsync()
@@ -103,6 +162,14 @@ public partial class Details : ContentPage, IBackButtonHandler
 
     private async void ButtonNew_Clicked(object sender, EventArgs e)
     {
+        // Bloquear creación si la tarea ya fue sincronizada
+        if (CurrentProjectTask != null && CurrentProjectTask.is_synchronized)
+        {
+            Debug.WriteLine("[Details] New blocked: task is synchronized");
+            await DisplayAlert("Atención", "No puede agregar nuevas actividades a una tarea sincronizada.", "Aceptar");
+            return;
+        }
+
         PopupSizeConstants popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
 
         var returnResultPopup = new PopupAccountAnalyticLine(popupSizeConstants, CurrentProjectTask, null);
@@ -146,6 +213,13 @@ public partial class Details : ContentPage, IBackButtonHandler
             {
                 CurrentProjectTask.is_synchronized = true;
                 CurrentProjectTask.date_synchronized = DateTime.Now;
+
+                // Desactivar comandos tras sincronizar y notificar
+                EditCommand = null;
+                DeleteCommand = null;
+
+                // Ocultar botones del footer ahora que está sincronizada
+                HideFooterButtons();
             }
 
             // Persistir el cambio en la BD usada por la UI
@@ -211,6 +285,15 @@ public partial class Details : ContentPage, IBackButtonHandler
     private async Task DeleteItemAsync(object obj)
     {
         Debug.WriteLine("[Activities.Details] DeleteItemAsync invoked");
+
+        // Bloquear eliminación si la tarea padre está sincronizada
+        if (CurrentProjectTask != null && CurrentProjectTask.is_synchronized)
+        {
+            Debug.WriteLine("[Activities.Details] Delete blocked: task is synchronized");
+            await Toast.Make("No puede eliminar actividades de una tarea sincronizada").Show();
+            return;
+        }
+
         try
         {
             if (obj == null)

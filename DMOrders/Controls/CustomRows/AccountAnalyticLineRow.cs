@@ -14,7 +14,12 @@ namespace DMOrders.Controls.CustomRows
     public class AccountAnalyticLineRow : RowAdvance<AccountAnalyticLine>
     {
         public static readonly BindableProperty EditCommandProperty =
-            BindableProperty.Create(nameof(EditCommand), typeof(ICommand), typeof(AccountAnalyticLineRow));
+            BindableProperty.Create(
+                nameof(EditCommand),
+                typeof(ICommand),
+                typeof(AccountAnalyticLineRow),
+                default(ICommand),
+                propertyChanged: OnEditCommandChanged);
 
         public ICommand EditCommand
         {
@@ -36,6 +41,18 @@ namespace DMOrders.Controls.CustomRows
             set => SetValue(DeleteCommandProperty, value);
         }
 
+        static void OnEditCommandChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            if (bindable is AccountAnalyticLineRow row && row._btnEdit != null)
+            {
+                row._btnEdit.Command = newValue as ICommand;
+                row._btnEdit.CommandParameter = row.Item;
+                // Mostrar/ocultar botón según exista comando
+                row._btnEdit.IsVisible = newValue != null;
+                Debug.WriteLine($"[AccountAnalyticLineRow] OnEditCommandChanged: IsVisible={row._btnEdit.IsVisible}");
+            }
+        }
+
         static void OnDeleteCommandChanged(BindableObject bindable, object oldValue, object newValue)
         {
             if (bindable is AccountAnalyticLineRow row && row._btnDelete != null)
@@ -43,6 +60,9 @@ namespace DMOrders.Controls.CustomRows
                 // actualizar comando directo en el botón para asegurar comportamiento inmediato
                 row._btnDelete.Command = newValue as ICommand;
                 row._btnDelete.CommandParameter = row.Item;
+                // Mostrar/ocultar botón según exista comando
+                row._btnDelete.IsVisible = newValue != null;
+                Debug.WriteLine($"[AccountAnalyticLineRow] OnDeleteCommandChanged: IsVisible={row._btnDelete.IsVisible}");
             }
         }
 
@@ -201,8 +221,10 @@ namespace DMOrders.Controls.CustomRows
                 HorizontalOptions = LayoutOptions.Center,
                 VerticalOptions = LayoutOptions.Center
             };
+            // Vincular comando y parámetro; OnEditCommandChanged actualizará IsVisible si el comando cambia después
             _btnEdit.SetBinding(Button.CommandProperty, new Binding(nameof(EditCommand), source: this));
             _btnEdit.SetBinding(Button.CommandParameterProperty, new Binding(nameof(Item), source: this));
+            _btnEdit.IsVisible = EditCommand != null;
 
             _btnDelete = new Button
             {
@@ -227,6 +249,7 @@ namespace DMOrders.Controls.CustomRows
             // Mantener enlace a la propiedad DeleteCommand del control (si el consumidor lo establece)
             _btnDelete.SetBinding(Button.CommandProperty, new Binding(nameof(DeleteCommand), source: this));
             _btnDelete.SetBinding(Button.CommandParameterProperty, new Binding(nameof(Item), source: this));
+            _btnDelete.IsVisible = DeleteCommand != null;
 
             // Manejo adicional: si no hay DeleteCommand asignado al control, buscarlo en la página o en su BindingContext
             _btnDelete.Clicked += (s, e) =>
