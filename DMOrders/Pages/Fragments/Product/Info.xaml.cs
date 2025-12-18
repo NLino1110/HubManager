@@ -1,13 +1,14 @@
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Sales;
+using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Sales;
+using Microsoft.Maui.Controls;
 using Spinner.MAUI;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Windows.Input;
 using System.Text.RegularExpressions;
-using DMSA.Sync.Core.Database.Sqlite.Sales;
-using DMSA.Sync.Core.Database.Sqlite;
+using System.Windows.Input;
 
 
 namespace DMOrders.Pages.Fragments.Product;
@@ -99,29 +100,54 @@ public partial class Info : ContentView
         lblCategoriaNombre.Text = _data.categoria_display;
         lblIvaInc.Text = "---";
         lblIvaCalc.Text = "---";
-
-        Base64Source = data.image_256 ?? string.Empty;
-
+        
         StockList.Clear();
         PricesList.Clear();
 
         await FillInventory(data);
         await FillPrices(data);
 
+        Base64Source = data.image_256 is string s &&
+                    !string.IsNullOrWhiteSpace(s) &&
+                    !s.Equals("false", StringComparison.OrdinalIgnoreCase)
+                        ? s
+                        : string.Empty;
+
+        if (!string.IsNullOrWhiteSpace(Base64Source) && !Base64Source.Equals("false"))
+        {
+            Debug.WriteLine("===================");
+            Debug.WriteLine("ImageString to Bytes");
+            byte[] imageBytes = Convert.FromBase64String(Base64Source);
+            Debug.WriteLine("Create Stream");
+            var stream = new MemoryStream(imageBytes);
+
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                Debug.WriteLine("Put Image from ImageSource");
+                productImage.Source = ImageSource.FromStream(() => stream);
+                Debug.WriteLine("Done.");                
+                productImage.IsVisible = true;
+            });
+        }
+        else
+        {
+            productImage.Source = null;
+        }
+
         //if (!string.IsNullOrEmpty(data.image_256))
-        //MemoryStream stream = new MemoryStream(Convert.FromBase64String((string)Base64Source));
-        //productImage.Source = ImageSource.FromStream(() => stream);     
+        //    MemoryStream stream = new MemoryStream(Convert.FromBase64String((string)Base64Source));
+        //productImage.Source = ImageSource.FromStream(() => stream);
 
         //OnPropertyChanged(nameof(Base64Source));
 
-        //byte[] imageBytes = Convert.FromBase64String(data.image_256);
+        //byte[] imageBytes = Convert.FromBase64String(Base64Source);
 
         //productImage = new Image
         //{
         //    Source = ImageSource.FromStream(() => new MemoryStream(imageBytes)),
-        //    //Aspect = Aspect.AspectFill,
-        //    //HeightRequest = 200,
-        //    //WidthRequest = 200
+        //    Aspect = Aspect.AspectFill,
+        //    HeightRequest = 200,
+        //    WidthRequest = 200
         //};
     }
         

@@ -47,7 +47,7 @@ namespace DMOrders.Controls.CustomRows
 
             var _barCodeLabel = new Label {
                 Text = $"Barcode: {Item.barcode}",
-                FontSize = 12, TextColor = Colors.GreenYellow, InputTransparent = true };
+                FontSize = 12, TextColor = Colors.DimGray, InputTransparent = true };
 
             //uom_display
             var priceLabel = new Label
@@ -89,11 +89,12 @@ namespace DMOrders.Controls.CustomRows
             {
                 try
                 {
-                    if (!string.IsNullOrWhiteSpace(Item.image_256) && !Item.image_256.Equals("false"))
+                    string img_string = Item.image_1920;
+                    if (!string.IsNullOrWhiteSpace(img_string) && !img_string.Equals("false"))
                     {
                         Debug.WriteLine("===================");
                         Debug.WriteLine("ImageString to Bytes");
-                        byte[] imageBytes = Convert.FromBase64String(Item.image_256);
+                        byte[] imageBytes = Convert.FromBase64String(img_string);
                         Debug.WriteLine("Create Stream");
                         var stream = new MemoryStream(imageBytes);
 

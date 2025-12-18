@@ -68,13 +68,11 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
 
-            int countTotal = resultCount.result / 300;
-
-            
+            int countTotal = resultCount.result / 300;            
 
             for (int indice = 0; indice <= countTotal; indice++)
             {
-                var responseAll = await hubmanager.GetByCreateDateRange(limit, indice, lastDate.Value, dateEnd);
+                var responseAll = await hubmanager.GetByWriteDate(limit, indice, lastDate.Value);
 
                 if (responseAll != null && responseAll.result != null && responseAll.result.Length > 0)
                 {

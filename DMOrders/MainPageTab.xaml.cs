@@ -53,8 +53,9 @@ public partial class MainPageTab : ContentPage
         MenuItems = new ObservableCollection<MenuItemModel>
         {
             new() { Icon = "\uf279", Title = "Nueva actividad", Description = "Seguimiento de proceso.", Action = async () => ViewCell_Add_Task(null, EventArgs.Empty) },
+            new() { Icon = "\uf1d8", Title = "Enviar datos", Description = "Sincronizar datos locales.", Action = () => SendFullData() },
             new() { Icon = "\uf0c7", Title = "Actualización", Description = "Sincronizar los datos principales.", Action = async () => ViewCell_Tapped_Update(null, EventArgs.Empty) },
-            new() { Icon = "\uf2f5", Title = "Salir", Description = "Volver a ingresar credenciales.", Action = async () => ViewCell_Tapped_Exit_Regular(null, EventArgs.Empty) },
+            new() { Icon = "\uf2f5", Title = "Salir", Description = "Volver a ingresar credenciales.", Action = async () => await Exit_Special() },
             //new() { Icon = "\uf7d9", Title = "Configuraciones", Description = "Modificar rutas y entorno.", Action = async () => ShowSettings(null, EventArgs.Empty) },
         };
 
@@ -94,6 +95,12 @@ public partial class MainPageTab : ContentPage
 
     private async Task<bool> SendFullData()
     {
+        bool result = await DisplayAlert("¿Enviar datos?", "Si envía los datos ya no podrá modificarlos", "Sí", "No");
+        if (!result)
+        {
+            return false;
+        }
+
         //Enviará las ordenes y las tareas que no se han sincronizado
         await UITools.ShowLoadingPopup(this);
         await UITools.SetNotifyLoadingPopup("Ejecutando envío de datos...");
@@ -102,7 +109,11 @@ public partial class MainPageTab : ContentPage
         await serverPusher.SendAllSaleOrders();
         await serverPusher.SendAllProjectTask();
 
-        //await UITools.SetNotifyLoadingPopup("Actualizando.....");
+        await UITools.SetNotifyLoadingPopup("Ejecutando extracción de datos...");
+
+        ServerPuller serverPuller = new ServerPuller();
+        await serverPuller.SyncSaleOrders();
+                
         await UITools.HideLoadingPopup();
 
         return true;
@@ -209,6 +220,27 @@ public partial class MainPageTab : ContentPage
         //App.Current.MainPage = new DMOrders.AppShellStart();
         //App.Current.MainPage = new Login();
         App.Current.Windows[0].Page = new Login();
+    }
+
+    private async Task Exit_Special()
+    {
+        await MainThread.InvokeOnMainThreadAsync(async () =>
+        {
+            //App.Current.MainPage = new Login();
+
+            var window = App.Current.Windows.FirstOrDefault();
+            if (window == null)
+                return;
+
+            if (window.Page?.Navigation?.ModalStack?.Count > 0)
+            {
+                await window.Page.Navigation.PopModalAsync(false);
+            }
+
+            await Task.Delay(50);
+
+            window.Page = new Login();
+        });
     }
 
     private async Task ViewCell_Tapped_Exit()

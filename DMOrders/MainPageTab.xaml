@@ -209,7 +209,7 @@
                         Margin="0">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Grid Padding="8">
+                                <Grid Padding="3">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />

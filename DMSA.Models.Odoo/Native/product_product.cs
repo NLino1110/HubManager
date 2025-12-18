@@ -50,6 +50,9 @@ namespace DMSA.Models.Odoo.Native
         [JsonProperty("image_256")]
         public string image_256 { get; set; }
 
+        [JsonProperty("image_1920")]
+        public string image_1920 { get; set; }
+
         [JsonProperty("can_image_1024_be_zoomed")]
         public bool can_image_1024_be_zoomed { get; set; }
 

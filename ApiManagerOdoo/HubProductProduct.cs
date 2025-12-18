@@ -42,6 +42,7 @@ namespace ApiManager
                 "sale_ok",
                 "purchase_ok",                
                 "image_256",
+                "image_1920",
                 "cod_marca",
                 "cod_linea",
                 "cod_sublinea",
@@ -133,6 +134,22 @@ namespace ApiManager
             object[] _custom_args = new object[] {
                 new object[] {"create_date", ">=", dateIni.ToString("yyyy-MM-dd 00:00:00") },
                 new object[] {"create_date", "<=", dateEnd.ToString("yyyy-MM-dd 23:59:59") },
+            };
+            return await SearchRead<ApiResponseOdooRpcT<product_product[]>>(args, _custom_args, kwargs, true);
+        }
+
+        public async Task<ApiResponseOdooRpcT<product_product[]>?> GetByWriteDate(int limit, int index, DateTime dateIni)
+        {
+            var kwargs = new
+            {
+                limit = limit,
+                offset = (index * limit),
+                fields = fields_array //new[] { "id", "name", "uom_id", "default_code", "categ_id", "type", "product_brand_id", "active", "macro_product_available", "sale_ok", "purchase_ok", "trade_ok" }
+            };
+
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] {"write_date", ">=", dateIni.ToString("yyyy-MM-dd 00:00:00") }                
             };
             return await SearchRead<ApiResponseOdooRpcT<product_product[]>>(args, _custom_args, kwargs, true);
         }
