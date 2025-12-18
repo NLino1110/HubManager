@@ -144,7 +144,7 @@ namespace ApiManager
             {
                 limit = limit,
                 offset = (index * limit),
-                fields = fields_array //new[] { "id", "name", "uom_id", "default_code", "categ_id", "type", "product_brand_id", "active", "macro_product_available", "sale_ok", "purchase_ok", "trade_ok" }
+                fields = fields_array
             };
 
             object[] args = new object[] { };

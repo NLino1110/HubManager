@@ -84,12 +84,12 @@ public partial class UpdateData : ContentPage
         timer.IsRepeating = false;
         timer.Tick += async (s, e) =>
         {
-            if (await SuggestCacheMode())
-            {
-                //chkUpdateBig.IsChecked = true;
-                //chkUpdateFacDet.IsChecked = true;
-                chkCacheMode.IsChecked = true;
-            }
+            //if (await SuggestCacheMode())
+            //{
+            //    //chkUpdateBig.IsChecked = true;
+            //    //chkUpdateFacDet.IsChecked = true;
+            //    chkCacheMode.IsChecked = true;
+            //}
 
             if(await ServerOnlineStatus_Odoo())
             {
@@ -101,15 +101,15 @@ public partial class UpdateData : ContentPage
                 lblServerStatusOdoo.Text = "Servidor Odoo (x)";
             }
 
-            if (await ServerOnlineStatus_Resources())
-            {
-                BoxViewServerStatusResBuilder.Color = Colors.LawnGreen;
-            }
-            else
-            {
-                await Toast.Make("Servidor de recursos no disponible", ToastDuration.Short, 14).Show();
-                lblServerStatusResources.Text = "Servidor Recursos (x)";
-            }
+            //if (await ServerOnlineStatus_Resources())
+            //{
+            //    BoxViewServerStatusResBuilder.Color = Colors.LawnGreen;
+            //}
+            //else
+            //{
+            //    await Toast.Make("Servidor de recursos no disponible", ToastDuration.Short, 14).Show();
+            //    lblServerStatusResources.Text = "Servidor Recursos (x)";
+            //}
 
             timer.Stop();
         };
