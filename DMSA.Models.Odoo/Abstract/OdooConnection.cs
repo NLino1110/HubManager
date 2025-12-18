@@ -67,15 +67,15 @@ namespace DMSA.Models.Odoo.Abstract
 
         [Required]
         [Column("active")]
-        public bool Active { get; set; } = true;
+        public bool Active { get; set; }
 
         [Required]
         [Column("is_prod")]
-        public bool IsProduction { get; set; } = true;
+        public bool IsProduction { get; set; }
 
         [Required]
         [Column("is_test")]
-        public bool IsTestMode { get; set; } = true;
+        public bool IsTestMode { get; set; }
 
         [Column("create_date")]
         public long CreateDate { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds();

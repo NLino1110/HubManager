@@ -84,6 +84,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<None Remove="Platforms\Android\env.conf" />
 		<None Remove="Resources\AppIcon\appicon.svg" />
 		<None Remove="Resources\Fonts\Consolas.ttf" />
 		<None Remove="Resources\Fonts\fa-brands-400.ttf" />
@@ -259,5 +260,11 @@
 
 	<ItemGroup>
 	  <Folder Include="Services\Database\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Platforms\Windows\Package.appxmanifest">
+	    <SubType>Designer</SubType>
+	  </None>
 	</ItemGroup>
 </Project>

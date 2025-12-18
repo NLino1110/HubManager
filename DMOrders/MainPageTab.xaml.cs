@@ -3,6 +3,8 @@ using DMOrders.Pages.Fragments.Activities;
 using DMOrders.Pages.Sys;
 using DMSA.Models.Odoo.DMOrders.tareas;
 using DMSA.Sync.Core.Database.Sqlite.Sales;
+using DMSA.Sync.Core.Update;
+using DMSA.Sync.Core.Update.Pusher;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 namespace DMOrders;
@@ -87,6 +89,22 @@ public partial class MainPageTab : ContentPage
         //await UITools.SetNotifyLoadingPopup("Actualizando.....");
         await UITools.HideLoadingPopup();
         
+        return true;
+    }
+
+    private async Task<bool> SendFullData()
+    {
+        //Enviará las ordenes y las tareas que no se han sincronizado
+        await UITools.ShowLoadingPopup(this);
+        await UITools.SetNotifyLoadingPopup("Ejecutando envío de datos...");
+        
+        ServerPusher serverPusher = new ServerPusher();
+        await serverPusher.SendAllSaleOrders();
+        await serverPusher.SendAllProjectTask();
+
+        //await UITools.SetNotifyLoadingPopup("Actualizando.....");
+        await UITools.HideLoadingPopup();
+
         return true;
     }
 

@@ -5,6 +5,7 @@ using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Tools;
 using DMSA.Sync.Core.Controls;
 using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Benefits;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -14,6 +15,149 @@ namespace DMSA.Sync.Core.Update
 {
     public partial class ServerPuller
     {
+        public async Task<bool> OnlineCreditNotesRelated()
+        {
+            await TypeNcData();
+            await TypeParentNcData();
+            await AccountAccountData();
+
+            return true;
+        }
+
+        public async Task<bool> AccountAccountData()
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            var databaseTypeNc = new TypeNcDb(DbNameSqlite);
+            var database = new AccountAccountDb(DbNameSqlite);
+            DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since);
+
+            int[] account_ids = await databaseTypeNc.GetAllAccountIds();
+
+            var hubmanager = new ApiManager.HubAccountAccount(Constants.Session);
+            var resultCount = await hubmanager.GetCountByIds(account_ids);
+
+            if (resultCount.result == 0)
+            {
+                return false;
+            }
+
+            int countTotal = resultCount.result / limit;
+
+            for (int indice = 0; indice <= countTotal; indice++)
+            {
+                Debug.WriteLine("Página:" + indice);
+
+                var responseAll = await hubmanager.GetItemsById(account_ids);
+
+                if (responseAll.result != null && responseAll.result.Length > 0)
+                {
+                    await database.InsertBatchAsync(responseAll.result);
+                }
+
+                if (indice >= maxIndexExceeded)
+                {
+                    Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
+                    break;
+                }
+            }
+
+            stopwatch.Stop();
+
+            Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+                stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
+            return true;
+        }
+
+        public async Task<bool> TypeParentNcData()
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            var database = new TypeParentNcDb(DbNameSqlite);
+            DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since);
+
+            ApiManager.HubTypeParentNc hubmanager = new ApiManager.HubTypeParentNc(Constants.Session);
+            var resultCount = await hubmanager.GetCount(lastDate.Value);
+
+            if (resultCount.result == 0)
+            {
+                return false;
+            }
+
+            int countTotal = resultCount.result / limit;
+
+            for (int indice = 0; indice <= countTotal; indice++)
+            {
+                Debug.WriteLine("Página:" + indice);
+
+                var responseAll = await hubmanager.GetItems(lastDate.Value, limit, indice);
+
+                if (responseAll.result != null && responseAll.result.Length > 0)
+                {
+                    await database.InsertBatchAsync(responseAll.result);
+                }
+
+                if (indice >= maxIndexExceeded)
+                {
+                    Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
+                    break;
+                }
+            }
+
+            stopwatch.Stop();
+
+            Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+                stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
+            return true;
+        }
+
+        public async Task<bool> TypeNcData()
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            var database = new TypeNcDb(DbNameSqlite);
+            DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since);
+
+            ApiManager.HubTypeNc hubmanager = new ApiManager.HubTypeNc(Constants.Session);
+            var resultCount = await hubmanager.GetCount(lastDate.Value);
+
+            if (resultCount.result == 0)
+            {
+                return false;
+            }
+
+            int countTotal = resultCount.result / limit;
+
+            for (int indice = 0; indice <= countTotal; indice++)
+            {
+                Debug.WriteLine("Página:" + indice);
+
+                var responseAll = await hubmanager.GetItems(lastDate.Value, limit, indice);
+
+                if (responseAll.result != null && responseAll.result.Length > 0)
+                {
+                    await database.InsertBatchAsync(responseAll.result);
+                }
+
+                if (indice >= maxIndexExceeded)
+                {
+                    Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
+                    break;
+                }
+            }
+
+            stopwatch.Stop();
+
+            Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+                stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
+            return true;
+        }
+
+
+
         public async Task<bool> OnlineAccountTaxes()
         {
             var stopwatch = Stopwatch.StartNew();
@@ -548,7 +692,6 @@ namespace DMSA.Sync.Core.Update
             return true;
         }
 
-
         public async Task OnlineSyncFacturas(ProgressBarAnimationBehaviorPage obj,
             IToast toast,
             ToastDuration duration,
@@ -585,11 +728,8 @@ namespace DMSA.Sync.Core.Update
 
             await OnlineSyncAccountMove();
             await OnlineSyncAccountMoveLine();
-
             await OnlineSyncProductProduct();
-
             await OnlineSyncUsers();
-
             Debug.WriteLine("Importación en linea account.move terminada");
         }
 

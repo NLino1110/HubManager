@@ -3,32 +3,18 @@ using CommunityToolkit.Maui.Core;
 using Newtonsoft.Json;
 using RestSharp;
 using System.IO.Compression;
-using static System.Net.Mime.MediaTypeNames;
-using System.Threading.Tasks;
-using System.Threading;
 using System.Diagnostics;
-using CommunityToolkit.Maui.Views;
-using CommunityToolkit.Maui.Markup;
-using ApiManager;
 using DMSA.Models.Security;
-using DMCobranzas.Models;
 using DMCobranzas.Services.ApiHub;
-using DMSA.Models.General;
 using Newtonsoft.Json.Serialization;
 using System.Reflection;
-using Newtonsoft.Json.Schema;
 using DMSA.Models.General.Requests;
-using DMSA.Models.General.Responses;
-using System.Net;
-using System.Text.Json.Nodes;
 using DMSA.Models.Odoo.Native;
-using DMSA.Models.Odoo.Tools;
 using DMCobranzas.Settings.helpers;
 using DMSA.Models.Odoo.Update;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using DMSA.Models.Odoo.Origin;
-using DMSA.Models.Odoo.DMCobranzas;
 using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
 using DMSA.Sync.Core.Controls;
@@ -1574,218 +1560,6 @@ public partial class UpdateData : ContentPage
         }
     }
 
-    [Obsolete]
-    private async Task LaunchCacheMode__old(ProgressBarAnimationBehaviorPage obj,
-        IToast toast,
-        ToastDuration duration,
-        double fontSize,
-        CancellationTokenSource cancellationTokenSource)
-    {
-
-        string textToast = "Actualización por cache iniciada...";
-        await Toast.Make(textToast, duration, fontSize).Show();
-        //Se crea el directorio para descargas
-        string DeviceStorage = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "tmp");
-        System.IO.Directory.CreateDirectory(DeviceStorage);
-
-        obj.SetTitle("Iniciando descarga de archivos de cache...");
-
-        //TODO: Revisar si es que se continua usando para importar (excluidos mientras)...
-        // "COBCARTERACAB.zip",
-        // "COBCARTERADET.zip",
-
-        string[] ZipFiles = {
-            "account_move.zip",
-            "account_move_line.zip",
-            "res_partner.zip",
-            "account_journal.zip",
-            "product_template.zip"
-        };
-
-        foreach (string ZipFileName in ZipFiles)
-        {
-            obj.SetSubTitle("Descargando " + ZipFileName);
-
-            try
-            {
-                await DownloadResource(obj,
-                    toast,
-                    duration,
-                    fontSize,
-                    cancellationTokenSource,
-                    DeviceStorage,
-                    ZipFileName);
-
-                obj.SetTitle("Descomprimiendo e insertando " + ZipFileName);
-                obj.SetPercentProgress(0.15);
-                string DeviceStorageJson = Path.Combine(DeviceStorage, "json", ZipFileName + "_tmp");
-
-                if (Directory.Exists(DeviceStorageJson))
-                {
-                    Directory.Delete(DeviceStorageJson, true);
-                }
-
-                Directory.CreateDirectory(DeviceStorageJson);
-
-                if (File.Exists(Path.Combine(DeviceStorage, ZipFileName)))
-                {
-                    Debug.WriteLine(Path.Combine(DeviceStorage, ZipFileName));
-                    Debug.WriteLine("Archivo encontrado");
-                }
-
-                //TODO: Sería útil una validación del zip, porque es posible que el archivo 
-                //  sea devuelto corrompido, ya se solucionó desde el servidor, pero es aún
-                //  una posibilidad. Sin dicha validación (try) la aplicación crashea.
-                ZipFile.ExtractToDirectory(Path.Combine(DeviceStorage, ZipFileName), DeviceStorageJson);
-
-                var ListFiles = Directory.GetFiles(DeviceStorageJson, "*.json");
-
-                switch (ZipFileName)
-                {
-                    case "account_move.zip":
-                        {
-                            await ProcAccountMove(obj, ListFiles);
-                        }
-                        break;
-                    case "account_move_line.zip":
-                        {
-                            await ProcAccountMoveLine(obj, ListFiles);
-                        }
-                        break;
-                    case "res_partner.zip":
-                        {
-                            await ProcPartner(obj, ListFiles);
-                        }
-                        break;
-                    case "account_journal.zip":
-                        {
-                            await ProcAccountJournal(obj, ListFiles);
-                        }
-                        break;
-                    case "product_template.zip":
-                        {
-                            await ProcProducts(obj, ListFiles);
-                        }
-                        break;
-                }
-
-                //Eliminar carpeta descomprimida temporal
-                Directory.Delete(DeviceStorageJson, true);
-
-            }
-            catch (Exception ex)
-            {
-                textToast = "Error insert:" + ex.Message;
-                toast = Toast.Make(textToast, duration, fontSize);
-                await toast.Show(cancellationTokenSource.Token);
-                break;
-            }
-
-            textToast = "Actualización por cache terminada " + ZipFileName;
-            //text = "Insertado en " + ZipFileName + " " + await database.GetCount();
-            toast = Toast.Make(textToast, duration, fontSize);
-            await toast.Show(cancellationTokenSource.Token);
-        }
-    }
-        
-    private async Task OnlineSyncFacturas(ProgressBarAnimationBehaviorPage obj,
-        IToast toast,
-        ToastDuration duration,
-        double fontSize,
-        CancellationTokenSource cancellationTokenSource,
-        string fechaActualizaTablet
-        )
-    {
-
-        obj.SetTitle($"Actualización en línea (facturas)...");
-
-        var database = new AccountMoveDb(App.Session.odooConnection.DbNameSqlite);
-
-        //string fechaActualizaTablet = "2021-01-01 00:00:00";
-        bool esActualizacion = false;
-
-        if ((await database.GetCount()) > 0)
-        {
-            esActualizacion = true;
-        }
-
-        obj.SetPercentProgress(0.10);
-
-        AppSession _appSession = App.Session;
-        //_appSession.EndPointServer = "http://192.168.204.32:8069";
-        //_appSession.CurrentUser = new User()
-        //{
-        //    api_key = "110C6C7QU1YSWT6HW0MNXWL48L7802TG"
-        //};
-
-        DateTime dateTimeIni = DateTime.Now;
-                
-        //await ProcessFacHeaderOdoo(_appSession, apiRequest);
-        //await ProcessFacDetailOdoo(_appSession, apiRequest);
-
-        await serverPuller.OnlineSyncAccountMove();
-        await serverPuller.OnlineSyncAccountMoveLine();
-
-        //TODO: Ya no se sincronizarán productos en linea
-        //await OnlineSyncProduct(_appSession, apiRequest);
-                
-        await serverPuller.OnlineSyncUsers();
-
-        Debug.WriteLine("Importación en linea account.move terminada");
-    }
-
-
-    [Obsolete]
-    public async Task<bool> OnlineSyncProduct(AppSession _appSession, ApiRequestOdoo_v1 apiRequest)
-    {
-        DateTime dateTimeIni = DateTime.Now;
-
-        ApiManager.HubProductTemplate hubmanager = new ApiManager.HubProductTemplate(_appSession);
-        var resultCount = await hubmanager.GetCount();
-
-        Debug.WriteLine(resultCount.result);
-
-        if (resultCount.result == 0)
-        {
-            return false;
-        }
-
-        int countTotal = resultCount.result / db_limit_default;
-
-        var database = new ProductTemplateDb(App.Session.odooConnection.DbNameSqlite);
-
-        for (int indice = 0; indice <= countTotal; indice++)
-        {
-            apiRequest.index = indice;
-
-            var responseAll = await hubmanager.GetItems(db_limit_default, indice);
-
-            if (responseAll != null && responseAll.result != null && responseAll.result.Length > 0)
-            {
-                await database.InsertBatchAsync(responseAll.result);
-            }
-
-            Console.WriteLine("Página:" + indice);
-
-            //TODO: Se fuerza la salida para que no se quede ciclado en caso de que haya
-            // problemas de conexion con el servidor
-            // el objetivo es que el servidor no se sobrecargue
-
-            if (indice >= 600)
-            {
-                Console.WriteLine("Página " + indice + ": Se terminará el proceso.");
-                break;
-            }
-        }
-
-        TimeSpan span = (DateTime.Now - dateTimeIni);
-
-        Console.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
-            span.Days, span.Hours, span.Minutes, span.Seconds));
-
-        return true;
-    }
-
     private async void DeleteTables(object sender, EventArgs e)
     {
         bool answer = await DisplayAlert("Borrar los datos de cache?",
@@ -1990,20 +1764,20 @@ public partial class UpdateData : ContentPage
         //var resourceBytes = await hubStatic.GetBytesFromUrlAsync("tmp/android/json/data_groups_info.json");
 
         //Evaluar estado actual de los datos para proponer un modo u otro de actualización
-        if (await SuggestCacheMode())
-        {
-            if (!chkUpdateBig.IsChecked || !chkUpdateFacDet.IsChecked || !chkCacheMode.IsChecked)
-            {
-                bool answerChange = await DisplayAlert("Cambiar modo de Actualización", "Se sugiere cambiar a modo cache ya que actualmente no tiene información. " +
-            " Sino cambia el modo y procede a actualizar, el proceso podría ser muy lento.", "Cambiar", "No Cambiar");
-                if (answerChange)
-                {
-                    chkUpdateBig.IsChecked = true;
-                    chkUpdateFacDet.IsChecked = true;
-                    chkCacheMode.IsChecked = true;
-                }
-            }
-        }
+        //if (await SuggestCacheMode())
+        //{
+        //    if (!chkUpdateBig.IsChecked || !chkUpdateFacDet.IsChecked || !chkCacheMode.IsChecked)
+        //    {
+        //        bool answerChange = await DisplayAlert("Cambiar modo de Actualización", "Se sugiere cambiar a modo cache ya que actualmente no tiene información. " +
+        //    " Sino cambia el modo y procede a actualizar, el proceso podría ser muy lento.", "Cambiar", "No Cambiar");
+        //        if (answerChange)
+        //        {
+        //            chkUpdateBig.IsChecked = true;
+        //            chkUpdateFacDet.IsChecked = true;
+        //            chkCacheMode.IsChecked = true;
+        //        }
+        //    }
+        //}
 
         bool answer = await DisplayAlert("Actualizar datos de la aplicación?", "Este proceso realiza una sincronización de los datos hacia su dispositivo.", "Actualizar", "Cancelar");
         //Debug.WriteLine("Answer: " + answer);
@@ -2017,19 +1791,10 @@ public partial class UpdateData : ContentPage
 
         CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
-        ////
         string fechaActualizaTablet = "2021-01-01 00:00:00";
         AppSession _appSession = App.Session;
 
         DateTime dateTimeIni = DateTime.Now;
-
-        ApiRequestOdoo_v1 apiRequest = new ApiRequestOdoo_v1();
-        apiRequest.uid = App.Session.CurrentUser.uid;
-        apiRequest.password = App.Session.CurrentUser.password;
-        apiRequest.databasename = App.Session.CurrentUser.databasename;
-        apiRequest.dateIni = DateTime.Parse(fechaActualizaTablet);
-
-        ////
 
         string text = "Iniciando actualización...";
         ToastDuration duration = ToastDuration.Short;
@@ -2160,6 +1925,9 @@ public partial class UpdateData : ContentPage
             await serverPuller.OnlineSyncAccountModule();
             await serverPuller.OnlineSyncAccountTypeModule();
             await serverPuller.OnlineSyncCompany(false);
+
+            await serverPuller.OnlineCreditNotesRelated();
+
 
             obj.SetTotalPercentProgress(0.80);
         }

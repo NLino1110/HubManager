@@ -81,7 +81,7 @@ namespace DMSA.Sync.Core.Update.Pusher
             return false;
         }
 
-        public async Task SendAllSaleOrders(ProgressBarAnimationBehaviorPage obj)
+        public async Task SendAllSaleOrders()
         {           
             SaleOrderDb saleOrderDb = new SaleOrderDb(Constants.Session.odooConnection.DbNameSqlite);
             var listOrders = await saleOrderDb.GetItemsAsync(Constants.Session.res_Company.id, false);
@@ -94,7 +94,7 @@ namespace DMSA.Sync.Core.Update.Pusher
             foreach (var item in listOrders)
             {
                 itemIndex++;
-                obj.SetTitle($"Sincronizando pedidos ({itemIndex}/{totalItems})");
+                //obj.SetTitle($"Sincronizando pedidos ({itemIndex}/{totalItems})");
                 await SendSaleOrder(item);
             }            
         }
@@ -170,7 +170,7 @@ namespace DMSA.Sync.Core.Update.Pusher
             }
         }
 
-        public async Task SendAllProjectTask(ProgressBarAnimationBehaviorPage obj)
+        public async Task SendAllProjectTask()
         {
             ProjectTaskDb saleOrderDb = new ProjectTaskDb(Constants.Session.odooConnection.DbNameSqlite);
             var listOrders = await saleOrderDb.GetItemsAsync(Constants.Session.res_Company.id, false);
@@ -183,7 +183,7 @@ namespace DMSA.Sync.Core.Update.Pusher
             foreach (var item in listOrders)
             {
                 itemIndex++;
-                obj.SetTitle($"Sincronizando tareas ({itemIndex}/{totalItems})");
+                //obj.SetTitle($"Sincronizando tareas ({itemIndex}/{totalItems})");
                 await SendProjectTask(item);
             }
         }

@@ -184,11 +184,11 @@
         TextColor="DimGray"/>
 
                     <Image Grid.Column="7"
-     BackgroundColor="Transparent"
-     VerticalOptions="Center"
-     HeightRequest="15"
-     WidthRequest="15"
-     Margin="10">
+                         BackgroundColor="Transparent"
+                         VerticalOptions="Center"
+                         HeightRequest="15"
+                         WidthRequest="15"
+                         Margin="10">
                         <Image.Source>
                             <FontImageSource FontFamily="FontAwesome5Solid"
 										Color="DimGray"
@@ -235,7 +235,7 @@
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                     
-                    <TableView Intent="Menu" Margin="0" BackgroundColor="White" Grid.Column="0" IsVisible="True">                        
+                    <TableView Intent="Menu" Margin="0" BackgroundColor="White" Grid.Column="0" IsVisible="False">                        
                         <TableRoot>
                             <TableSection>
                                 <ViewCell Tapped="ViewCell_Add_Task">

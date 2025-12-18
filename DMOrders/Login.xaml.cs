@@ -177,6 +177,11 @@ public partial class Login : ContentPage
             txtUser.Text = "jchonillo@macronegocios.ec";
             txtPassword.Text = "mnsa_18";
         }
+        else
+        {
+            txtUser.Text = "";
+            txtPassword.Text = "";
+        }
 
         Debug.WriteLine(txtEnvironment.Text);
         Debug.WriteLine(lblAppVersion.Text);
