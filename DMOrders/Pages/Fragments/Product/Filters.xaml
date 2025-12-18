@@ -34,8 +34,7 @@
                         FontSize="11"
                         x:Name="TextCode"
                         Title="Código producto"
-                        BorderThickness="0.4"
-                        Keyboard="Numeric"
+                        BorderThickness="0.4"                        
                         Margin="0"
                         Padding="0"/>
 
