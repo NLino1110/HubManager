@@ -20,7 +20,7 @@ public partial class Filters : ContentView
         {
             new FStatus { id = -1, Name = "Todos" },
             new FStatus { id = 0, Name = "Activo" },
-            new FStatus { id = 1, Name = "Inactivo" },            
+            new FStatus { id = 1, Name = "Sincronizada" },            
         };
 
         ddfStatus.ItemsSource = Status;        

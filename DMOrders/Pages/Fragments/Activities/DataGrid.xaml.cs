@@ -177,11 +177,46 @@ namespace DMOrders.Pages.Fragments.Activities
         private async void EditItem(object obj)
         {
             Debug.WriteLine("EditItem");
-            var CurrentActivityHeader = (ProjectTask)obj;
+
+            ProjectTask CurrentActivityHeader = null;
+
+            // Caso ideal: ya nos pasan el modelo
+            if (obj is ProjectTask pt)
+            {
+                CurrentActivityHeader = pt;
+            }
+            else
+            {
+                // Si nos pasan la fila (ActivityRow) o cualquier objeto que exponga "Item", intentamos obtener el modelo por reflexión
+                try
+                {
+                    if (obj is DMOrders.Controls.CustomRows.ActivityRow ar)
+                    {
+                        var prop = ar.GetType().GetProperty("Item", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        var val = prop?.GetValue(ar);
+                        if (val is ProjectTask pt2) CurrentActivityHeader = pt2;
+                    }
+                    else if (obj != null)
+                    {
+                        var t = obj.GetType();
+                        var p = t.GetProperty("Item", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        var val = p?.GetValue(obj);
+                        if (val is ProjectTask pt3) CurrentActivityHeader = pt3;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"EditItem: error al extraer Item por reflexión: {ex.Message}");
+                }
+            }
+
+            if (CurrentActivityHeader == null)
+            {
+                Debug.WriteLine($"EditItem: parámetro inválido tipo={obj?.GetType().FullName}");
+                return;
+            }
+
             Details viewObj = new Details(CurrentActivityHeader);
-            
-            //objPage.Sel_AccountMoveSendHeader = (AccountMoveSendHeader)obj;
-            //objPage.editionMode = true;
             viewObj.Disappearing += ViewObj_Disappearing;
             await Navigation.PushModalAsync(viewObj);
         }

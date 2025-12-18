@@ -1,18 +1,44 @@
 using DMSA.Models.Odoo.Native;
+using Microsoft.Maui.Controls;
+using System.Diagnostics;
 
 namespace DMOrders.Pages.Fragments.Activities;
 
 public partial class Container : ContentView
 {
-	public Container()
-	{
-		InitializeComponent();
+    public Container()
+    {
+        InitializeComponent();
         filterActivities.OnSearchButtonClicked += OnSearchButtonClicked;
 
         if (App.Session.CurrentUser != null)
         {
             //customImageHeaderView.Title = App.Session.CurrentUser.username;
             //customImageHeaderView.Subtitle = App.Session.CurrentUser.nombres;
+        }
+
+        // Suscribirse para refrescar la lista cuando una tarea se sincronice
+        try
+        {
+            MessagingCenter.Subscribe<Details, int>(this, "ProjectTaskSynced", (sender, taskId) =>
+            {
+                Debug.WriteLine($"[Container] ProjectTaskSynced received id={taskId}. Reloading activities.");
+                Dispatcher.Dispatch(() =>
+                {
+                    try
+                    {
+                        dataActivities.LoadData(filterActivities);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("[Container] Error al recargar dataActivities: " + ex);
+                    }
+                });
+            });
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[Container] MessagingCenter subscribe failed: " + ex);
         }
     }
 
@@ -29,23 +55,6 @@ public partial class Container : ContentView
     private void OnSearchButtonClicked(object? sender, EventArgs e)
     {
         dataActivities.LoadData(filterActivities);
-
-        //var label = new Label { Text = "Resultado de la búsqueda" };
-        //var stackLayout = new StackLayout
-        //{
-        //    Children = { label }
-        //};
-
-        //Customers customers = new Customers();
-
-        //ScrollViewContent.Content = customers;
-
-        // Desactivar el botón btnNew
-        //pagingFragment.DisableNewButton();
-
-        // Ejecutar lógica de PagingFragment si es necesario
-        //pagingFragment.ExecuteSearch();
-
     }
 
     public void LoadInfo(res_partner _data)
@@ -56,5 +65,24 @@ public partial class Container : ContentView
     public void ReloadData()
     {
         dataActivities.LoadData(filterActivities);
+    }
+
+    protected override void OnParentSet()
+    {
+        base.OnParentSet();
+
+        // Si el control se quita de la visual tree, anular la suscripción para evitar memory leaks
+        if (Parent == null)
+        {
+            try
+            {
+                MessagingCenter.Unsubscribe<Details, int>(this, "ProjectTaskSynced");
+                Debug.WriteLine("[Container] Unsubscribed from ProjectTaskSynced");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[Container] Error unsubscribing: " + ex);
+            }
+        }
     }
 }

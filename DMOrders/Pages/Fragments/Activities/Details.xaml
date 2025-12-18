@@ -20,12 +20,12 @@
         <BackButtonBehavior IsEnabled="{StaticResource IsBackButtonEnabled}" IsVisible="{StaticResource IsBackButtonEnabled}"/>
     </Shell.BackButtonBehavior>
 
-    <Grid RowDefinitions="Auto,*,Auto">
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <!-- Top title bar -->
         <Grid Grid.Row="0"
           BackgroundColor="WhiteSmoke"
           ColumnDefinitions="Auto,*"
-              RowDefinitions="*,*"
-          Padding="0"
+          RowDefinitions="*,*"
           ColumnSpacing="20"
           VerticalOptions="Center">
             <Button Grid.Column="0" Grid.Row="0"
@@ -54,26 +54,65 @@
                FontSize="15" />
         </Grid>
 
+        <!-- Header por columnas (coincide con AccountAnalyticLineRow) -->
+        <Grid Grid.Row="1" BackgroundColor="LightGray" ColumnSpacing="4" Margin="0,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="42"/>
+                <!-- 0: id -->
+                <ColumnDefinition Width="6"/>
+                <!-- 1: separador -->
+                <ColumnDefinition Width="2.5*"/>
+                <!-- 2: empresa -->
+                <ColumnDefinition Width="1.5*"/>
+                <!-- 3: motivo -->
+                <ColumnDefinition Width="3*"/>
+                <!-- 4: cliente -->
+                <ColumnDefinition Width="72"/>
+                <!-- 5: H. INI -->
+                <ColumnDefinition Width="72"/>
+                <!-- 6: H. FIN -->
+                <ColumnDefinition Width="72"/>
+                <!-- 7: STANDBY -->
+                <ColumnDefinition Width="64"/>
+                <!-- 8: herramientas (columna vacía en header) -->
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Column="0" Text="ID" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+            <Label Grid.Column="1" Text="" />
+            <Label Grid.Column="2" Text="EMPRESA" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Start" VerticalOptions="Center"/>
+            <Label Grid.Column="3" Text="MOTIVO" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Start" VerticalOptions="Center"/>
+            <Label Grid.Column="4" Text="CLIENTE" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Start" VerticalOptions="Center"/>
+            <Label Grid.Column="5" Text="H. INI" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+            <Label Grid.Column="6" Text="H. FIN" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+            <Label Grid.Column="7" Text="STANDBY" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+            <!-- columna 8 reservada para botones -->
+        </Grid>
+
+        <!-- Lista de actividades -->
         <CollectionView 
-            Grid.Row="1"
+            Grid.Row="2"
                 x:Name="MyCollectionView"
                 ItemsSource="{Binding Activities}"
                 ItemSizingStrategy="MeasureFirstItem"
                 EmptyView="No hay actividades ingresadas..." 
                 HorizontalOptions="Fill" 
                 SelectionMode="Single"
-                SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
+                SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                Margin="0"
+                BackgroundColor="Transparent">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <customrows:AccountAnalyticLineRow 
                         Item="{Binding .}" 
                         SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"
-                        EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=EditCommand}"/>
+                        EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=EditCommand}"
+                        DeleteCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=DeleteCommand}"/>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <HorizontalStackLayout Grid.Row="2" HorizontalOptions="Center" Margin="0,0,0,10" Spacing="10">
+        <!-- Footer / botones -->
+        <HorizontalStackLayout Grid.Row="3" HorizontalOptions="Center" Margin="0,0,0,10" Spacing="10">
             <Button Text="" Clicked="ButtonClose_Clicked" BackgroundColor="Gray" TextColor="White" HeightRequest="43" WidthRequest="43" Padding="0" IsVisible="False">
                 <Button.ImageSource>
                     <FontImageSource 
@@ -89,7 +128,7 @@
                         Size="30"
                         FontFamily="MaterialSharp"
                         Glyph="{x:Static uranium:MaterialSharp.New_label}" />
-                    </Button.ImageSource>
+                </Button.ImageSource>
             </Button>
             <Button Text="Guardar" Clicked="ButtonSave_Clicked" BackgroundColor="Orange" TextColor="White" HeightRequest="43" WidthRequest="120" Padding="0" IsVisible="False">
                 <Button.ImageSource>
