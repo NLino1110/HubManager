@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
+using CommunityToolkit.Mvvm.Messaging;
 using DMOrders.Controls;
 using DMOrders.Models;
 using DMOrders.Models.Filters;
@@ -11,6 +12,7 @@ using MPowerKit.VirtualizeListView;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
+using static DMOrders.Pages.Fragments.Orders.modals.CatalogViewerModel;
 
 namespace DMOrders.Pages.Fragments.Orders.modals;
 
@@ -75,8 +77,6 @@ public partial class CatalogViewerInner : ContentView
         set => SetValue(ItemPickedCommandProperty, value);
     }
 
-
-
     public static readonly BindableProperty ItemPickedByQtyCommandProperty =
         BindableProperty.Create(nameof(ItemPickedByQtyCommand), typeof(ICommand), typeof(CatalogViewerInner), default(ICommand));
 
@@ -125,7 +125,9 @@ public partial class CatalogViewerInner : ContentView
     private async Task LoadTopMarcasAsync()
     {
         //int[] topMarcas = new int[] { 66, 21, 46, 59, 24, 31, 68, 44, 57, 3, 22, 69, 64 };
-        int[] topMarcas = new int[] { 545, 669, 716, 773, 869, 512, 517, 701, 554, 968, 872, 960, 682 };
+        //int[] topMarcas = new int[] { 545, 669, 716, 773, 869, 512, 517, 701, 554, 968, 872, 960, 682 };
+        ProductProductDb productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
+        int[] topMarcas = await productDb.GetTopMarcas(13);
 
         ProductMarcaDb marcasDb = new ProductMarcaDb(App.Session.odooConnection.DbNameSqlite);
         var itemsTopMarcas = await marcasDb.GetItemsAsync(topMarcas);
@@ -201,6 +203,16 @@ public partial class CatalogViewerInner : ContentView
 
         //_activeEntry = EntryCantidadSolicitada;
         HighlightActiveEntry(_activeEntry);
+
+        WeakReferenceMessenger.Default.Register<ItemSelectedMessage>(this, async (r, m) =>
+        {
+            //await LoadInfo(m.Value);
+            Debug.WriteLine("Message Weak");
+            Debug.WriteLine(m.Value);
+
+            _activeEntry = EntryCantidadSolicitada;
+            HighlightActiveEntry(_activeEntry);
+        });
     }
 
     private async void DdfBrands_SelectedItemChanged(object? sender, object e)
@@ -381,7 +393,7 @@ public partial class CatalogViewerInner : ContentView
                 qty_sol = qty_sol,
             };
 
-            this.IsVisible = false;
+            //this.IsVisible = false;
 
             if (ItemPickedByQtyCommand?.CanExecute(itemPickedArgs) != null)
                 ItemPickedByQtyCommand.Execute(itemPickedArgs);
@@ -695,6 +707,7 @@ public partial class CatalogViewerInner : ContentView
             product_uom_qty_real = 0; // CurrentSaleOrderLine.product_uom_qty_real;
             product_uom_qty = 0; // CurrentSaleOrderLine.product_uom_qty;
             vm.SelectedItem = null;
+            vm.ClearSelection(vm.SelectedItem);
         }
     }
 

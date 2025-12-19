@@ -108,9 +108,9 @@ public partial class Filters : ContentView
     }
 
     private async Task LoadTopMarcasAsync()
-    {
-        //int[] topMarcas = new int[] { 66, 21, 46, 59, 24, 31, 68, 44, 57, 3, 22, 69, 64 };
-        int[] topMarcas = new int[] { 545, 669, 716, 773, 869, 512, 517, 701, 554, 968, 872, 960, 682 };
+    {       
+        ProductProductDb productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
+        int[] topMarcas = await productDb.GetTopMarcas(13);
 
         ProductMarcaDb marcasDb = new ProductMarcaDb(App.Session.odooConnection.DbNameSqlite);
         var itemsTopMarcas = await marcasDb.GetItemsAsync(topMarcas);

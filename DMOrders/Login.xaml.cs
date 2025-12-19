@@ -93,6 +93,18 @@ public partial class Login : ContentPage
 
             LoadEnvironment();
 
+            var serverPuller = new ServerPuller();
+            var pullResult = await serverPuller.Pull();
+
+            if (!pullResult)
+            {
+                await Toast.Make("Datos base incorrectos.").Show();
+            }
+            else
+            {
+                await Toast.Make("Datos base correctos.").Show();
+            }
+
             CompanyDb companyDb = new CompanyDb(App.Session.odooConnection.DbNameSqlite);
             SelCompany = (await companyDb.GetItemsAsync()).Where(x => x.id == SelConnection.CompanyId).FirstOrDefault();
 
@@ -124,21 +136,6 @@ public partial class Login : ContentPage
         //var cts = new CancellationTokenSource();
         //var toast = Toast.Make("Cargando...");
         //var toastTask = toast.Show(cts.Token);
-
-        var serverPuller = new ServerPuller();
-        var pullResult = await serverPuller.Pull();
-
-        //if(true)
-        //    await serverPuller.PullPromotions();
-        
-        if (!pullResult)
-        {
-            await Toast.Make("Datos base incorrectos.").Show();
-        }
-        else
-        {
-            await Toast.Make("Datos base correctos.").Show();
-        }
 
         //cts.Cancel();
 

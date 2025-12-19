@@ -316,7 +316,7 @@ namespace DMSA.Sync.Core.Update
                 // problemas de conexion con el servidor
                 // el objetivo es que el servidor no se sobrecargue
 
-                if (indice >= 600)
+                if (indice >= maxIndexExceeded)
                 {
                     Console.WriteLine("Página " + indice + ": Se terminará el proceso.");
                     break;
@@ -677,7 +677,7 @@ namespace DMSA.Sync.Core.Update
 
                 Console.WriteLine("Página:" + indice);
 
-                if (indice >= 600)
+                if (indice >= maxIndexExceeded)
                 {
                     Console.WriteLine("Página " + indice + ": Se terminará el proceso.");
                     break;
@@ -855,7 +855,7 @@ namespace DMSA.Sync.Core.Update
                 // problemas de conexion con el servidor
                 // el objetivo es que el servidor no se sobrecargue
 
-                if (indice >= 600)
+                if (indice >= maxIndexExceeded)
                 {
                     Console.WriteLine("Página " + indice + ": Se terminará el proceso.");
                     break;

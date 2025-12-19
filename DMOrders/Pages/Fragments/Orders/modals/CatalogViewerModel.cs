@@ -371,6 +371,16 @@ namespace DMOrders.Pages.Fragments.Orders.modals
             WeakReferenceMessenger.Default.Send(new ItemSelectedMessage(tappedItem));
         }
 
+        public void ClearSelection(product_product tappedItem)
+        {
+            foreach (var res_partner_item in _itemsData)
+                res_partner_item.IsSelected = false;
+
+            //tappedItem.IsSelected = true;
+            //SelectedItem = tappedItem;
+            //WeakReferenceMessenger.Default.Send(new ItemSelectedMessage(tappedItem));
+        }
+
         public class ItemSelectedMessage : ValueChangedMessage<product_product>
         {
             public ItemSelectedMessage(product_product value) : base(value) { }

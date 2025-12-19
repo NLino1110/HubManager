@@ -304,7 +304,6 @@ namespace DMSA.Sync.Core.Database.Sqlite
             return products;
         }
 
-
         public async Task<List<product_product>> GetByProductsIds(int[] product_ids, int filter_pricelist)
         {
             await Init();
@@ -368,5 +367,22 @@ namespace DMSA.Sync.Core.Database.Sqlite
             return taxesIds;
         }
 
+        public async Task<int[]> GetTopMarcas(int topCount)
+        {
+            await Init();
+
+            var products = await Database.Table<product_product>()
+                .Where(x => x._taxes_id != 0 && x._general_marca_id != 0)
+                .ToListAsync();
+
+            var topMarcasIds = products
+                .GroupBy(x => x._general_marca_id)
+                .OrderByDescending(g => g.Count())
+                .Take(topCount)
+                .Select(g => g.Key)
+                .ToArray();
+
+            return topMarcasIds;
+        }
     }
 }

@@ -129,7 +129,7 @@ namespace DMSA.Models.Odoo.Abstract
             defaultSettings.Add(new OdooConnection()
             {
                 Id = 2,
-                CompanyId = 2,
+                CompanyId = 1,
                 Name = "DMujeres (DEV)",
                 Host = "http://localhost:8069/",
                 DbName = "qadmujeres",
@@ -171,10 +171,10 @@ namespace DMSA.Models.Odoo.Abstract
             defaultSettings.Add(new OdooConnection()
             {
                 Id = 4,
-                CompanyId = 2,
+                CompanyId = 1,
                 Name = "DMujeres",
-                Host = "http://qa.dmujeres:8069/",
-                DbName = "qadmujeres",
+                Host = "http://qa.dmujeres/",
+                DbName = "qa.dmujeres",
                 Username = "admin",
                 Password = CryptoHelper.Encrypt("demo"),
                 Active = false,
