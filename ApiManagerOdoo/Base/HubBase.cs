@@ -355,6 +355,9 @@ namespace ApiManagerOdoo.Base
                     Debug.WriteLine("Se detectó un error de Odoo:");
                     Debug.WriteLine(errorMessage);
 
+                    //TODO: Aquí validacion de HTML
+                    // las respuestas a veces son de NGINX
+
                     var resultNativeError = JsonConvert.DeserializeObject<T>(result.Content);
                     return resultNativeError;
                 }

@@ -1,4 +1,8 @@
-using DMOrders.Models.Filters;
+﻿using DMOrders.Models.Filters;
+using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Sales;
+using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Sales;
 using Spinner.MAUI;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -13,6 +17,8 @@ public partial class Filters : ContentView
     FDays[] Days { get; set; }
 
     FStatus[] Status { get; set; }
+
+    public ObservableCollection<product_pricelist> Product_Pricelists { get; set; } = new();
 
     public Filters()
 	{
@@ -48,9 +54,39 @@ public partial class Filters : ContentView
         ddfStatus.SelectedItem = Status[0];
         //ddfDays.SelectedItemChanged += DdfDays_SelectedItemChanged;
 
+        LoadProductPricelists();
+    }
+
+    private async Task LoadProductPricelists()
+    {
+        ProductPricelistDb productPriceListsDb = new ProductPricelistDb(App.Session.odooConnection.DbNameSqlite);
+        
+        var pplItems = await productPriceListsDb.GetItemsAsync(x=>x._tipo_canal_id == 1);
+
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            Product_Pricelists =
+            [
+                new product_pricelist { id = 0, name = "Todos" },                
+            ];
+
+            foreach (var marca in pplItems)
+                Product_Pricelists.Add(marca);
+
+            ddfChannel.ItemsSource = Product_Pricelists;
+            ddfChannel.ItemDisplayBinding = new Binding("name");
+            ddfChannel.SelectedItem = Product_Pricelists[0];
+            ddfChannel.SelectedItemChanged += DdfChannel_SelectedItemChanged;            
+        });
     }
 
     private void DdfDays_SelectedItemChanged(object? sender, object e)
+    {
+        //throw new NotImplementedException();
+        Debug.WriteLine(e);
+    }
+
+    private void DdfChannel_SelectedItemChanged(object? sender, object e)
     {
         //throw new NotImplementedException();
         Debug.WriteLine(e);
@@ -91,5 +127,10 @@ public partial class Filters : ContentView
     internal int getStatus()
     {
         return ((FStatus)ddfStatus.SelectedItem).id;
+    }
+
+    internal int getChannel()
+    {
+        return ((product_pricelist)ddfChannel.SelectedItem).id;
     }
 }

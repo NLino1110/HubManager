@@ -28,7 +28,9 @@ namespace DMOrders.Pages.Fragments.Orders;
 
 [XamlCompilation(XamlCompilationOptions.Compile)]
 public partial class Crud : ContentPage, IBackButtonHandler
-{    
+{
+    public bool LockEdition { get; set; } = false;
+
     private Entry _activeEntry;
     public res_company CurrentCompany { get; set; }
     public res_partner _CurrentPartner { get; set; }
@@ -257,6 +259,9 @@ public partial class Crud : ContentPage, IBackButtonHandler
             await ((CrudViewModel)this.BindingContext).LoadData();
 
             saleOrderPromotions = ((CrudViewModel)this.BindingContext).saleOrderPromotions;
+
+            LockEdition = CurrentSaleOrder.is_synchronized;
+            OnPropertyChanged(nameof(LockEdition));
         }
 
         var PriceListDb = new ProductPricelistDb(App.Session.odooConnection.DbNameSqlite);
@@ -319,6 +324,11 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
         Dispatcher.Dispatch(async () =>
         {
+            if(LockEdition)
+            {
+                await Navigation.PopModalAsync();
+            }
+
             if (SearchProductView.IsVisible)
             {
                 await Toast.Make("Primero cierre la búsqueda de productos.").Show();

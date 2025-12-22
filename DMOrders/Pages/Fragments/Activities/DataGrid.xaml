@@ -72,9 +72,9 @@
             <!-- Botón izquierdo -->
             <Button Grid.Column="0"
                     Clicked="ButtonSync_Clicked" 
-            Text="Enviar"
-            HorizontalOptions="Start"
-            Margin="5,0" IsVisible="False" />
+                    Text="Enviar"
+                    HorizontalOptions="Start"
+                    Margin="5,0" IsVisible="False" />
 
             <!-- Contenido derecho (paginación) -->
             <Grid Grid.Column="1"
@@ -105,19 +105,19 @@
 
                 <!-- Página actual -->
                 <Label Grid.Column="1"
-               Text="{Binding Page}"
-               VerticalOptions="Center"
-               Margin="5,0"/>
+                   Text="{Binding Page}"
+                   VerticalOptions="Center"
+                   Margin="5,0"/>
 
                 <Label Grid.Column="2"
-               Text="/"
-               VerticalOptions="Center"
-               Margin="2,0"/>
+                   Text="/"
+                   VerticalOptions="Center"
+                   Margin="2,0"/>
 
                 <Label Grid.Column="3"
-               Text="{Binding TotalPages}"
-               VerticalOptions="Center"
-               Margin="5,0"/>
+                   Text="{Binding TotalPages}"
+                   VerticalOptions="Center"
+                   Margin="5,0"/>
 
                 <!-- Botón siguiente -->
                 <Button Grid.Column="4"

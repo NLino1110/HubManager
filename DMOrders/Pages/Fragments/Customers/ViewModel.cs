@@ -241,6 +241,7 @@ namespace DMOrders.Pages.Fragments.Customers
                     filters.getCode(),
                     filters.getVat(),
                     filters.getName(),
+                    filters.getChannel(),
                     filters.getDays(),
                     filters.getStatus(),
                     0,

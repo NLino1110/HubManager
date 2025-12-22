@@ -39,10 +39,100 @@
         <DataTemplate x:Key="RowTemplate">            
             <mpowerkit:VirtualizeListViewCell BackgroundColor="WhiteSmoke">
                 
-                <customrows:ProductRow 
+                <!--<customrows:ProductRow 
             Item="{Binding .}" 
             ActionButton="{Binding Source={x:Reference Root}, Path=ItemPickedCommand}" 
-            ShowSelectButton="True"/>
+            ShowSelectButton="True"/>-->
+
+                <Grid Padding="4"
+                  RowSpacing="2"
+                  ColumnSpacing="12">
+
+                    <!-- Definición del grid principal -->
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="1.1*" />
+                        <ColumnDefinition Width="1.1*" />
+                        <ColumnDefinition Width="1.1*" />
+                        <ColumnDefinition Width="40" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Nombre -->
+                    <Label Grid.Row="0"
+                       Grid.Column="0"
+                       FontAttributes="Bold"
+                       FontSize="14"
+                       TextColor="Black"
+                       MinimumHeightRequest="40"
+                        LineBreakMode="NoWrap"
+                        MaxLines="1"
+                       Text="{Binding name}"/>
+
+                    <!-- Código -->
+                    <Label Grid.Row="1"
+                       Grid.Column="0"
+                       FontSize="12"
+                       TextColor="Gray"
+                       Text="{Binding default_code, StringFormat='Código: {0}'}"/>
+                    
+                    <Label Grid.Row="0"
+                       Grid.Column="1"
+                       FontSize="12"
+                       TextColor="DarkGreen"
+                       VerticalTextAlignment="Center"
+                       HorizontalTextAlignment="Center"                           
+                       Text="{Binding uom_display}"/>
+
+                    <Label Grid.Row="1"
+                       Grid.Column="1"
+                       FontSize="12"
+                       TextColor="Gray"
+                        VerticalTextAlignment="Center"
+                        HorizontalTextAlignment="Center"     
+                       Text="{Binding barcode, StringFormat='Barcode: {0}'}" />
+                    
+                    <Label Grid.Row="0"
+                       Grid.Column="2"
+                       Grid.RowSpan="2"
+                       FontSize="12"
+                       TextColor="DarkGreen"
+                       HorizontalTextAlignment="End"
+                       VerticalTextAlignment="Center"
+                       Text="{Binding list_price, StringFormat='{0:N4}'}" />
+                    
+                    <Label Grid.Row="0"
+                       Grid.Column="3"
+                       Grid.RowSpan="2"
+                       FontSize="12"
+                       TextColor="DarkGreen"
+                       HorizontalTextAlignment="End"
+                       VerticalTextAlignment="Center"
+                       Text="{Binding qty_available}" />
+
+                    <!-- Botón -->
+                    <Button Grid.Row="0"
+                        Grid.Column="4"
+                            Grid.RowSpan="2"
+                        HeightRequest="35"
+                        Padding="10,0"
+                        BackgroundColor="DodgerBlue"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="15"
+                        ImageSource="{FontImage FontFamily=FontAwesome5Solid,
+                                              Glyph=&#xf067;,
+                                              Color=White,
+                                              Size=15}"
+                        Command="{Binding Source={x:Reference Root}, Path=ItemPickedCommand}"
+                        CommandParameter="{Binding .}"/>
+                </Grid>
+
+
                 <mpowerkit:VirtualizeListViewCell.Triggers>
                     <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="True">
                         <Setter Property="BackgroundColor" Value="LightBlue"/>

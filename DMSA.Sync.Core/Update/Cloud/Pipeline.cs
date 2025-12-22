@@ -264,7 +264,7 @@ namespace DMSA.Sync.Core.Update.Cloud
                 ZipFile.ExtractToDirectory(tempZipPath, extractPath, true);
 
                 Debug.WriteLine("ZIP descomprimido correctamente");
-            }            
+            }
         }
 
         public async Task<bool> RequiredNewUpload()

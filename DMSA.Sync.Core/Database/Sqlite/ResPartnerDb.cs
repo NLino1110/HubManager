@@ -41,7 +41,8 @@ namespace DMSA.Sync.Core.Database.Sqlite
         private async Task<AsyncTableQuery<res_partner>> BuildQuery(
             string filter_code,
             string filter_vat,
-            string filter_name,            
+            string filter_name,
+            int filter_channel,
             int filter_days,
             int filter_status,
             int filter_sort,
@@ -82,6 +83,11 @@ namespace DMSA.Sync.Core.Database.Sqlite
             {
                 var nameTerm = filter_name.Trim().ToLowerInvariant();
                 q = q.Where(x => x.name.ToLower().Contains(nameTerm));
+            }
+
+            if(filter_channel != 0)
+            {
+                q = q.Where(x => x._product_pricelist_id == filter_channel);
             }
 
             if (filter_status == 1)
@@ -126,13 +132,14 @@ namespace DMSA.Sync.Core.Database.Sqlite
             string filter_code,
             string filter_vat,
             string filter_name,
+            int filter_channel,
             int filter_days,
             int filter_status,
             int filter_sort,
             int filter_adic_commercial,
             int page, int pageSize, CancellationToken ct = default)
         {
-            var q = await BuildQuery(filter_code, filter_vat, filter_name, filter_days, filter_status, filter_sort, filter_adic_commercial);
+            var q = await BuildQuery(filter_code, filter_vat, filter_name, filter_channel,filter_days, filter_status, filter_sort, filter_adic_commercial);
 
             // COUNT(*) en SQLite, sin traer datos
             var total = await q.CountAsync();

@@ -10,7 +10,12 @@
              xmlns:local="clr-namespace:DMOrders.Pages.Fragments.Orders"
              x:Class="DMOrders.Pages.Fragments.Orders.DataGrid"
              x:Name="ActivitiesDataGrid">
-
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <converters:InverseBooleanConverter x:Key="InverseBoolConverter" />
+            <converters:DateToDashConverter x:Key="DateConverter" />
+        </ResourceDictionary>
+    </ContentView.Resources>
     <Grid RowDefinitions="Auto,*,Auto">
         
         <Grid Grid.Row="0"
@@ -44,36 +49,40 @@
                                 SelectionChanged="MyCollectionView_SelectionChanged">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <customrows:SaleOrderRow
+                        
+                        <!--<customrows:SaleOrderRow
                                 Item="{x:Binding .}" 
                                 EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
                                 DeleteCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=DeleteCommand}"
-                                SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"/>
+                                SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"/>-->
 
-                        <!--<Grid Grid.Column="0"
-                        VerticalOptions="Center"
-                        ColumnSpacing="10"
-                        ColumnDefinitions="Auto,350,*,*,*,*,*"
-                          RowDefinitions="*,*,*,*"
-                            Margin="20,0,20,0">
+                        <Grid Grid.Column="0"
+                            VerticalOptions="Center"
+                            ColumnSpacing="10"
+                            ColumnDefinitions="Auto,350,*,*,*,*,*"
+                            RowDefinitions="*,*"
+                            Margin="20,0,20,0"
+                              Padding="0" Style="{StaticResource CollectionItemSelectable}">
 
                             <Label 
                                 Grid.Row="0" 
-                                Grid.Column="1"                                         
+                                Grid.Column="0"                                         
                                 FontAttributes="Bold"
                                 Text="{Binding id}"
                                 FontSize="12"
-                                TextColor="Black" />
+                                TextColor="Black" 
+                                VerticalOptions="Center"/>
 
                             <Label 
                                 Grid.Column="1"
-                                Grid.Row="2"
+                                Grid.Row="0"
                                 Grid.ColumnSpan="3" 
                                 Text="{Binding partner_display_name}"
                                 FontSize="14"
                                 TextColor="Black"
                                 LineBreakMode="TailTruncation"
-                                MaxLines="2" />
+                                MaxLines="2" 
+                                VerticalOptions="Center"/>
 
                             <Label 
                                 Grid.Column="2"
@@ -81,15 +90,17 @@
                                 Text="{Binding date_order}"
                                 FontSize="14"
                                 TextColor="Black"                                        
-                                HorizontalTextAlignment="Center"/>
+                                HorizontalTextAlignment="Center"
+                                VerticalOptions="Center"/>
 
                             <Label 
                                 Grid.RowSpan="2"
                                 Grid.Column="3" 
-                                Text="{Binding date_synchronized}"
+                                Text="{Binding date_synchronized, Converter={StaticResource DateConverter}}"
                                 FontSize="12"
                                 TextColor="DarkGreen"
-                                HorizontalTextAlignment="Center"/>
+                                HorizontalTextAlignment="Center"
+                                VerticalOptions="Center"/>
 
                             <Label 
                                 Grid.RowSpan="2"
@@ -97,79 +108,102 @@
                                 Text="{Binding amount_total, StringFormat='${0:N3}'}"
                                 FontSize="12"
                                 TextColor="Gray" 
-                                HorizontalTextAlignment="Center"/>
+                                HorizontalTextAlignment="Center"
+                                VerticalOptions="Center"/>
 
                             <Label 
                                 Grid.RowSpan="2"
                                 Grid.Column="5" 
+                                Text="{Binding state_view}"
                                 FontSize="12"
                                 TextColor="Gray"
-                                HorizontalTextAlignment="Center">
-                                <Label.Triggers>
-                                    <DataTrigger 
-                                            TargetType="Label"
-                                            Binding="{Binding is_synchronized}"
-                                            Value="True">
-                                        <Setter Property="Text" Value="Enviado" />
-                                    </DataTrigger>
-                                    <DataTrigger 
-                                            TargetType="Label"
-                                            Binding="{Binding is_synchronized}"
-                                            Value="False">
-                                        <Setter Property="Text" Value="-" />
-                                    </DataTrigger>
-                                </Label.Triggers>
+                                HorizontalTextAlignment="Center"
+                                VerticalOptions="Center">                                
                             </Label>
 
-                            <HorizontalStackLayout Grid.Row="0"
-                                Grid.Column="9"
-                                Grid.RowSpan="3">
-                                
-                            <Button
+                            <HorizontalStackLayout Grid.Row="0" Grid.Column="9" IsVisible="{Binding is_synchronized, Converter={StaticResource InverseBoolConverter}}">
+                                <Button
+                                        FontSize="10" 
+                                        BackgroundColor="DodgerBlue" 
+                                        TextColor="White" 
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
+                                        CommandParameter="{Binding .}"
+                                        HeightRequest="30"
+                                        WidthRequest="30"                                    
+                                        Padding="0">
+                                    <Button.ImageSource>
+                                        <FontImageSource 
+                                            Size="15"
+                                            FontFamily="FontAwesome5Solid"
+                                            Glyph="&#xf303;" />
+                                    </Button.ImageSource>
+                                </Button>
+
+                                <Button
                                     FontSize="10" 
-                                    BackgroundColor="DodgerBlue" 
+                                    BackgroundColor="OrangeRed" 
                                     TextColor="White" 
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=DeleteCommand}"
                                     CommandParameter="{Binding .}"
                                     HeightRequest="30"
                                     WidthRequest="30"
-                                    
+                                    Grid.Row="0"
+                                    Grid.Column="9"
+                                    Grid.RowSpan="3"
                                     Padding="0">
-                                <Button.ImageSource>
-                                    <FontImageSource 
+                                    <Button.ImageSource>
+                                        <FontImageSource 
                                         Size="15"
                                         FontFamily="FontAwesome5Solid"
-                                        Glyph="&#xf303;" />
-                                </Button.ImageSource>
-                            </Button>
-
-                            <Button
-                                FontSize="10" 
-                                BackgroundColor="OrangeRed" 
-                                TextColor="White" 
-                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=DeleteCommand}"
-                                CommandParameter="{Binding .}"
-                                HeightRequest="30"
-                                WidthRequest="30"
-                                Grid.Row="0"
-                                Grid.Column="9"
-                                Grid.RowSpan="3"
-                                Padding="0">
-                                <Button.ImageSource>
-                                    <FontImageSource 
-                                    Size="15"
-                                    FontFamily="FontAwesome5Solid"
-                                    Glyph="&#xf2ed;" />
-                                </Button.ImageSource>
-                            </Button>
+                                        Glyph="&#xf2ed;" />
+                                    </Button.ImageSource>
+                                </Button>
                             </HorizontalStackLayout>
 
-                            <BoxView Grid.Row="4"
+                            <HorizontalStackLayout Grid.Row="0" Grid.Column="9" IsVisible="{Binding is_synchronized}">
+                                <Button
+                                        FontSize="10" 
+                                        BackgroundColor="LimeGreen" 
+                                        TextColor="White" 
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
+                                        CommandParameter="{Binding .}"
+                                        HeightRequest="30"
+                                        WidthRequest="30"                                    
+                                        Padding="0">
+                                    <Button.ImageSource>
+                                        <FontImageSource 
+                                            Size="15"
+                                            FontFamily="FontAwesome5Solid"
+                                            Glyph="&#xf06e;" />
+                                    </Button.ImageSource>
+                                </Button>
+
+                                <Button
+                                        FontSize="10" 
+                                        BackgroundColor="LightGray" 
+                                        TextColor="White"
+                                        HeightRequest="30"
+                                        WidthRequest="30"
+                                        Grid.Row="0"
+                                        Grid.Column="9"
+                                        Grid.RowSpan="3"
+                                        Padding="0"
+                                        IsEnabled="False">
+                                    <Button.ImageSource>
+                                        <FontImageSource 
+                                            Size="15"
+                                            FontFamily="FontAwesome5Solid"
+                                            Glyph="&#xf192;" />
+                                    </Button.ImageSource>
+                                </Button>
+                            </HorizontalStackLayout>
+
+                            <BoxView Grid.Row="1"
                              Grid.Column="0"
                              Grid.ColumnSpan="9"
                              HeightRequest="1"
                              BackgroundColor="#E0E0E0" Color="LightGrey"/>
-                        </Grid>-->
+                        </Grid>
                         
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

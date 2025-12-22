@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DMOrders.Controls.CustomRowsV2.SaleOrderLineRow"
+             xmlns:local="clr-namespace:DMOrders.Controls.CustomRows"
+            xmlns:converters="clr-namespace:DMOrders.Converters"
+            x:Name="Root">
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <converters:InverseBooleanConverter x:Key="InverseBool" />
+            <converters:BoolToOpacityConverter x:Key="BoolToOpacity" />
+        </ResourceDictionary>
+    </ContentView.Resources>
+
+
+    <Grid
+        Padding="4"
+        ColumnSpacing="8"
+        HorizontalOptions="Fill">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="100"/>            
+        </Grid.ColumnDefinitions>
+
+        <!-- Ordinal -->
+        <Label
+        Grid.RowSpan="2"
+        Grid.Column="0"
+        Text="{Binding Item.ordinal, Source={x:Reference Root}}"
+        FontSize="12"
+        TextColor="Green"/>
+
+        <!-- Code + SKU -->
+        <HorizontalStackLayout
+        Grid.Row="0"
+        Grid.Column="1"
+        Spacing="6">
+
+            <Label
+            Text="{Binding Item.product_code, Source={x:Reference Root}}"
+            FontSize="14"
+            FontAttributes="Bold"
+            TextColor="Green"/>
+
+            <Label
+            Text="{Binding Item.product_id, Source={x:Reference Root}, StringFormat='({0})'}"
+            FontSize="10"
+            FontAttributes="Bold"
+            TextColor="DarkGray"
+            VerticalOptions="Center"/>
+        </HorizontalStackLayout>
+
+        <!-- Product Name -->
+        <Label
+        Grid.Row="1"
+        Grid.Column="1"
+        Grid.ColumnSpan="5"
+        Text="{Binding Item.product_display, Source={x:Reference Root}}"
+        FontSize="11"
+        TextColor="Black"/>
+
+        <!-- UOM -->
+        <Label Grid.Column="2"
+            Text="{Binding Item.uom_category_display, Source={x:Reference Root}}"
+            FontSize="12"
+            FontAttributes="Bold"/>
+
+        <!-- Qty Real -->
+        <Label Grid.Column="3"
+            Text="{Binding product_uom_qty_real}"
+            FontSize="12"
+            FontAttributes="Bold"/>
+
+        <!-- Qty -->
+        <Label Grid.Column="4"
+            Text="{Binding product_uom_qty}"
+            FontSize="12"
+            FontAttributes="Bold"/>
+
+        <!-- Price -->
+        <Label Grid.Column="5"
+            Text="{Binding virtual_price_no_tax, StringFormat='{0:N4}'}"
+            FontSize="12"
+            FontAttributes="Bold"
+            HorizontalTextAlignment="End"/>
+
+        <!-- Subtotal -->
+        <Label Grid.Column="6"
+            Text="{Binding virtual_line_subtotal, StringFormat='{0:N4}'}"
+            FontSize="12"
+            FontAttributes="Bold"
+            HorizontalTextAlignment="End"/>
+
+        <!-- Discount % -->
+        <Label Grid.Column="7"
+            Text="{Binding discount, StringFormat='{0:N4}'}"
+            FontSize="12"
+            FontAttributes="Bold"
+            HorizontalTextAlignment="End"/>
+
+        <!-- Discount -->
+        <Label Grid.Column="8"
+            Text="{Binding amount_discount, StringFormat='{0:N4}'}"
+            FontSize="12"
+            FontAttributes="Bold"
+            HorizontalTextAlignment="End"/>
+
+        <!-- Tax -->
+        <Label Grid.Column="9"
+            Text="{Binding price_tax, StringFormat='{0:N4}'}"
+            FontSize="12"
+            FontAttributes="Bold"
+            HorizontalTextAlignment="End"/>
+
+        <!-- Total -->
+        <Label Grid.Column="10"
+            Text="{Binding price_total, StringFormat='{0:N4}'}"
+            FontSize="12"
+            FontAttributes="Bold"
+            HorizontalTextAlignment="End"/>
+
+        <!-- ================= TOOL GRID ================= -->
+        <!--<Grid Grid.Column="11" Grid.RowSpan="2">-->
+            <HorizontalStackLayout Grid.Column="11" Grid.RowSpan="2" Spacing="5">
+
+                <!-- Gift -->
+                <Button
+                    HeightRequest="35"
+                    WidthRequest="35"
+                    BackgroundColor="Transparent"                    
+                    ImageSource="{FontImage FontFamily=FontAwesome5Solid, Glyph=&#xf06b;, Color=DodgerBlue, Size=10}"
+                    Opacity="{Binding is_gift, Converter={StaticResource BoolToOpacity}}"
+                    InputTransparent="{Binding is_gift, Converter={StaticResource InverseBool}}"
+                    Padding="3"
+                    Margin="2"/>
+
+                <!-- Edit -->
+                <!--<Button
+                    HeightRequest="35"
+                    WidthRequest="35"
+                    BackgroundColor="DodgerBlue"
+                    ImageSource="{FontImage FontFamily=FontAwesome5Solid, Glyph=&#xf303;, Color=White, Size=15}"
+                    Command="{Binding EditCommand, Source={x:Reference Root}}"
+                    CommandParameter="{Binding Item, Source={x:Reference Root}}"/>-->
+
+                <!-- Delete -->
+                <Button
+                    HeightRequest="35"
+                    WidthRequest="35"
+                    BackgroundColor="OrangeRed"
+                    HorizontalOptions = "Center"
+                    ImageSource="{FontImage FontFamily=FontAwesome5Solid, Glyph=&#xf2ed;, Color=White, Size=15}"
+                    Padding="3"
+                    Margin="2"
+                    Command="{Binding DeleteCommand, Source={x:Reference Root}}"
+                    CommandParameter="{Binding Item, Source={x:Reference Root}}"
+                    IsVisible="{Binding LockEdition, Source={x:Reference Root}, Converter={StaticResource InverseBool}}"/>
+
+            </HorizontalStackLayout>
+        <!--</Grid>-->
+    
+    </Grid>
+</ContentView>
