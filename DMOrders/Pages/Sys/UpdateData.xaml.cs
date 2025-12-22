@@ -1,15 +1,9 @@
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using DMOrders.Services.Helpers;
-using DMSA.Models.General.Requests;
-using DMSA.Models.Odoo.DMCobranzas;
-using DMSA.Models.Odoo.Native;
-using DMSA.Models.Odoo.Origin;
-using DMSA.Models.Odoo.Tools;
-using DMSA.Models.Odoo.Update;
 using DMSA.Models.Security;
 using DMSA.Sync.Core.Database.Sqlite;
-using DMSA.Sync.Core.Update;
+using DMSA.Sync.Core.Update.Cloud;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -17,7 +11,6 @@ using RestSharp;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Reflection;
-using System.Text;
 
 namespace DMOrders.Pages.Sys;
 
@@ -411,6 +404,110 @@ public partial class UpdateData : ContentPage
 
     private async void LaunchUpdate(object sender, EventArgs e)
     {
+        bool answer = await DisplayAlert("Actualizar datos de la aplicación?", "Este proceso realiza una sincronización de los datos hacia su dispositivo.", "Actualizar", "Cancelar");
+        
+        if (!answer)
+        {
+            return;
+        }
+
+
+        DateTime dtInitialize = DateTime.Now;
+        lblUpdatedInfo.Text = "Iniciada: " + dtInitialize;
+
+        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+        string fechaActualizaTablet = "2021-01-01 00:00:00";
+        AppSession _appSession = App.Session;
+
+        DateTime dateTimeIni = DateTime.Now;
+
+        string text = "Iniciando actualización...";
+        ToastDuration duration = ToastDuration.Short;
+        double fontSize = 14;
+        var toast = Toast.Make(text, duration, fontSize);
+        await toast.Show(cancellationTokenSource.Token);
+        ProgressBarAnimationBehaviorPage obj = new ProgressBarAnimationBehaviorPage();        
+        await Navigation.PushModalAsync(obj, true);
+        bool launchSalesUpdate = true;
+        obj.SetTotalPercentProgress(0.10);
+
+        if (await ServerOnlineStatus_Odoo())
+        {
+            BoxViewServerStatusOdoo.Color = Colors.LawnGreen;
+            lblServerStatusOdoo.Text = "Servidor Odoo";
+        }
+        else
+        {            
+            toast = Toast.Make("Servidor Odoo no disponible", duration, fontSize);
+            await toast.Show(cancellationTokenSource.Token);
+
+            BoxViewServerStatusOdoo.Color = Colors.SaddleBrown;
+            lblServerStatusOdoo.Text = "Servidor Odoo (x)";
+
+            await obj.DisplayAlert("Error de actualización", "El servidor de datos no está disponible.", "Aceptar");
+            await Navigation.PopModalAsync();           
+        }
+
+        //Esta porciòn de còdigo servirà en caso de que no se haya realizado actualizaciòn por ningun medio
+        //////fechaActualizaTablet = await GetLastDate();//"2023-09-04 00:00:00";
+
+        //////Debug.WriteLine("Última fecha...");
+        //////Debug.WriteLine(fechaActualizaTablet);
+
+        //////if (fechaActualizaTablet == null || fechaActualizaTablet == "2021-01-01 00:00:00")
+        //////{
+        //////    fechaActualizaTablet = "2021-01-01 00:00:00";
+
+        //////    bool answerContinue = await DisplayAlert("Error de actualización", "Al parecer no se han insertado datos, por favor verifique su conexión de datos. Desea proceder con la actualización en línea?", "Continuar", "Cancelar");
+
+        //////    if (!answerContinue)
+        //////    {
+        //////        await Navigation.PopModalAsync();
+        //////        return;
+        //////    }
+        //////}
+
+        var appSettingsDb = new AppSettingsDb();
+        bool packageReady = await appSettingsDb.GetBooleanAsync("updated_by_package");
+
+        if(!packageReady)
+        {
+            await SqliteDbBase<object>.CloseDatabaseAsync();
+            Pipeline pipeline = new Pipeline();
+
+            bool packFound = false;
+            packFound = await pipeline.AvailableZipPack();
+
+            if (packFound)
+            {
+                await pipeline.DownloadSqliteZip();
+                await appSettingsDb.SetBooleanAsync("updated_by_package", true);
+            }
+        }
+        else
+        {
+            await LaunchOnlineUpdate(obj);
+        }
+
+        //await RefreshVat();
+
+        obj.SetTotalPercentProgress(1);
+        obj.SetTitle("Finalizado...");
+
+        TimeSpan span = (DateTime.Now - dtInitialize);
+
+        lblUpdatedInfo.Text += ", finalizada: " + DateTime.Now +
+            " (" + String.Format("{0} días, {1} horas, {2} minutos, {3} segundos)",
+            span.Days, span.Hours, span.Minutes, span.Seconds);
+
+        await obj.DisplayAlert("Actualización", "Actualización terminada", "Aceptar");        
+        
+        await Navigation.PopModalAsync();
+    }
+
+    private async Task LaunchOnlineUpdate(ProgressBarAnimationBehaviorPage obj)
+    {
         //TODO: Funcionando pero no implementado
         //HubStatic hubStatic = new HubStatic(App.Session);
         //var resourceBytes = await hubStatic.GetBytesFromUrlAsync("tmp/android/json/data_groups_info.json");
@@ -429,92 +526,16 @@ public partial class UpdateData : ContentPage
         //            chkCacheMode.IsChecked = true;
         //        }
         //    }
-        //}
+        //}        
 
-        bool answer = await DisplayAlert("Actualizar datos de la aplicación?", "Este proceso realiza una sincronización de los datos hacia su dispositivo.", "Actualizar", "Cancelar");
-        //Debug.WriteLine("Answer: " + answer);
-        if (!answer)
-        {
-            return;
-        }
+        
 
-        DateTime dtInitialize = DateTime.Now;
-        lblUpdatedInfo.Text = "Iniciada: " + dtInitialize;
-
-        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-
-        string fechaActualizaTablet = "2021-01-01 00:00:00";
-        AppSession _appSession = App.Session;
-
-        DateTime dateTimeIni = DateTime.Now;
-
-        string text = "Iniciando actualización...";
-        ToastDuration duration = ToastDuration.Short;
-        double fontSize = 14;
-        var toast = Toast.Make(text, duration, fontSize);
-        await toast.Show(cancellationTokenSource.Token);
-
-        ProgressBarAnimationBehaviorPage obj = new ProgressBarAnimationBehaviorPage();
-        //App.Current.MainPage = obj;
-
-        await Navigation.PushModalAsync(obj, true);
-
-        bool launchSalesUpdate = true;
-
-        obj.SetTotalPercentProgress(0.10);
-
-        if (await ServerOnlineStatus_Odoo())
-        {
-            BoxViewServerStatusOdoo.Color = Colors.LawnGreen;
-            lblServerStatusOdoo.Text = "Servidor Odoo";
-        }
-        else
-        {
-            //TODO: Realizar proceso de cancelacion de actualización
-            // ya que el servidor no esta disponible
-            toast = Toast.Make("Servidor Odoo no disponible", duration, fontSize);
-            await toast.Show(cancellationTokenSource.Token);
-
-            BoxViewServerStatusOdoo.Color = Colors.SaddleBrown;
-            lblServerStatusOdoo.Text = "Servidor Odoo (x)";
-
-            await obj.DisplayAlert("Error de actualización", "El servidor de datos no está disponible.", "Aceptar");
-            await Navigation.PopModalAsync();
-            //return;
-        }
+        
 
         //Actualización por Cache
         if (chkGroup1.IsChecked)
         {
             await serverPuller.PullPromotions();
-
-            //Sinó se realiza la actualización por cache, se hará la actualización en linea
-            // esta actualización lleva muchisimo tiempo
-
-            //Luego de realizar la actualización por cache debe realizarse la actualización en línea
-            // debe obtenerse esta fecha de la base de datos para
-            // saber cual es la ultima fecha existente en los registros
-            fechaActualizaTablet = await GetLastDate();//"2023-09-04 00:00:00";
-
-            Debug.WriteLine("Última fecha...");
-            Debug.WriteLine(fechaActualizaTablet);
-
-            if (fechaActualizaTablet == null || fechaActualizaTablet == "2021-01-01 00:00:00")
-            {
-                //No se encontraron datos y esto provocará una demora en la actualización
-                // Mostras mensaje aquí                
-                //Debug.WriteLine("Se debe cambiar la lógica porque en caso de que no existan datos la variable no tendrá 2021-01-01 00:00:00");
-                fechaActualizaTablet = "2021-01-01 00:00:00";
-
-                bool answerContinue = await DisplayAlert("Error de actualización", "Al parecer no se han insertado datos, por favor verifique su conexión de datos. Desea proceder con la actualización en línea?", "Continuar", "Cancelar");
-                //Debug.WriteLine("Answer: " + answer);
-                if (!answerContinue)
-                {
-                    //Se procede a cerrar
-                    await Navigation.PopModalAsync();
-                    return;
-                }
-            }            
         }
         
         obj.SetTotalPercentProgress(0.30);
@@ -532,7 +553,8 @@ public partial class UpdateData : ContentPage
 
         if(chkGroup3.IsChecked)
         {            
-            await serverPuller.OnlineSyncResPartner();
+            //await serverPuller.OnlineSyncResPartner();
+            await serverPuller.OnlineSyncResPartnerFull();
         }
 
         if(chkGroup4.IsChecked)
@@ -560,25 +582,23 @@ public partial class UpdateData : ContentPage
             await serverPuller.SyncSaleOrders();
         }
 
-        //await RefreshVat();
+        Pipeline pipeline = new Pipeline();
+        bool requiredNewUpload = await pipeline.RequiredNewUpload();
+        if (requiredNewUpload)
+            await pipeline.UploadSqliteZip();
+    }
 
-        obj.SetTotalPercentProgress(1);
+    private async void btnUploadPipeline_Clicked(object sender, EventArgs e)
+    {
+        Pipeline pipeline = new Pipeline();
+        await pipeline.UploadSqliteZip();
+    }
 
-        obj.SetTitle("Finalizado...");
-
-        TimeSpan span = (DateTime.Now - dtInitialize);
-
-        lblUpdatedInfo.Text += ", finalizada: " + DateTime.Now +
-            " (" + String.Format("{0} días, {1} horas, {2} minutos, {3} segundos)",
-            span.Days, span.Hours, span.Minutes, span.Seconds);
-
-        //Se fuerza con el DisplayAlert, la interacción con el usuario
-        // no avanza hasta que se cierre la ventana
-        await obj.DisplayAlert("Actualización", "Actualización terminada", "Aceptar");
-
-        //TODO: Solucionar crasheo en Android
-        // en modo sleep provoca crash porque al parecer no tiene nada a que hacerle Pop
-        await Navigation.PopModalAsync();
+    private async void btnFromPipeline_Clicked(object sender, EventArgs e)
+    {
+        await SqliteDbBase<object>.CloseDatabaseAsync();
+        Pipeline pipeline = new Pipeline();
+        await pipeline.DownloadSqliteZip();
     }
 
     private async void btnBack_Clicked(object sender, EventArgs e)

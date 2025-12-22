@@ -1,6 +1,7 @@
 ﻿using DMSA.Models.Odoo.Base;
 using DMSA.Models.Odoo.Json.Converters;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SQLite;
 
 namespace DMSA.Models.Odoo.Specials
@@ -10,11 +11,28 @@ namespace DMSA.Models.Odoo.Specials
     {
         [PrimaryKey]
         [JsonProperty("id")]
-        public int id { get; set; }
-        public string file_content { get; set; }       
+        public int id { get; set; }         
         public string file_name { get; set; }
         public string file_type { get; set; }
         public DateTime? date_data_cutoff { get; set; }
+
+        public JToken mobile_app_id { get; set; }
+     
+        [JsonIgnore]
+        public int _mobile_app_id
+        {
+            get => GetId(mobile_app_id);
+            set => mobile_app_id = SetId(mobile_app_id, value);
+        }
+
+        public JToken attachment_ids { get; set; }
+
+        [JsonIgnore]
+        public int[] _attachment_ids
+        {
+            get => GetIds(attachment_ids);
+            set => attachment_ids = SetIds(attachment_ids, value);
+        }
 
         [Column("create_date")]
         [JsonProperty("create_date")]

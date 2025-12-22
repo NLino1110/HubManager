@@ -4,6 +4,7 @@ using DMSA.Models.Security;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
+using System;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
@@ -367,6 +368,52 @@ namespace ApiManagerOdoo.Base
             return new T();
         }
 
+        public async Task<T?> Write<T>(
+            object[] _args_,
+            object kargs,
+            string model_name) where T : class, new()
+        {
+            string _method_name = "write";
+
+            var restRequest = new RestRequest(CallKw, Method.Post);
+            restRequest.RequestFormat = DataFormat.Json;
+            await RequireLogin();
+
+            var apiRequestRpc = new ApiRequestOdooRpc_v2();
+            apiRequestRpc.method = "call";
+            apiRequestRpc.id = 1;
+            apiRequestRpc._params = new Params_v2();
+            apiRequestRpc._params.model = model_name;
+            apiRequestRpc._params.method = _method_name;
+            apiRequestRpc._params.args = _args_;
+            apiRequestRpc._params.kwargs = kargs;
+
+            string jsonBody = JsonConvert.SerializeObject(apiRequestRpc);
+
+            restRequest.AddJsonBody(jsonBody);
+
+            var result = await _client.ExecutePostAsync(restRequest);
+
+            if (result != null && result.Content != null & result.Content != "")
+            {
+                if (IsOdooError(result.Content, out string errorMessage))
+                {
+                    Debug.WriteLine("Se detectó un error de Odoo:");
+                    Debug.WriteLine(errorMessage);
+
+                    var resultNativeError = JsonConvert.DeserializeObject<T>(result.Content);
+                    return resultNativeError;
+                }
+                else
+                {
+                    var resultNative = JsonConvert.DeserializeObject<T>(result.Content);
+                    return resultNative;
+                }
+            }
+
+            return new T();
+        }
+
         public bool IsOdooError(string jsonResponse, out string errorMessage)
         {
             errorMessage = null;
@@ -537,6 +584,23 @@ namespace ApiManagerOdoo.Base
             }
 
             return new T();
+        }
+
+        public async Task<byte[]> GetRawBytes(string url)
+        {
+            await RequireLogin();
+
+            var request = new RestRequest(url, Method.Get);
+
+            var response = await _client.ExecuteAsync(request);
+
+            if (!response.IsSuccessful)
+                throw new Exception($"Error descargando archivo: {response.StatusCode}");
+
+            if (response.RawBytes == null || response.RawBytes.Length == 0)
+                throw new Exception("La respuesta no contiene datos binarios");
+
+            return response.RawBytes;
         }
     }
 }

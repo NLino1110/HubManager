@@ -23,6 +23,7 @@ namespace DMSA.Models.Security
         public string AppVersion = "0.0.0";
         public string ApplicationName = "CobranzasDMSA"; //Este valor debe ser modificado para cada aplicacion
         public string AppCodeOdoo = "01";  //Este valor debe ser modificado para cada aplicacion
+        public int AppMobileId = 1;
 
         //TODO: Revisar si se conserva, ya que la conexion contiene el codigo de empresa
         public res_company res_Company { get; set; }

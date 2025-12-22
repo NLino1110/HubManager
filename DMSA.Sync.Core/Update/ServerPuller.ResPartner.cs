@@ -219,7 +219,7 @@ namespace DMSA.Sync.Core.Update
                     //await database.InsertBatchControlAsync(responseAll.result);
                 }
 
-                Console.WriteLine("Página:" + indice);
+                Console.WriteLine("ResPartnerFull Página:" + indice + " de " + countTotal);
 
                 if (indice >= maxIndexExceeded)
                 {

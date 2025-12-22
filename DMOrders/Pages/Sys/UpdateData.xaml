@@ -149,7 +149,37 @@
                             Glyph="{x:Static uranium:MaterialSharp.Delete}" />
                     </Button.ImageSource>
                     </Button>
-                </FlexLayout>
+
+                <Button Grid.Column="3"
+                    x:Name="BtnUploadPipeline"
+                    Text="Crear Pipeline"                    
+                    Clicked="btnUploadPipeline_Clicked"
+                    HorizontalOptions="Center"
+                    BackgroundColor="LawnGreen" 
+                        IsVisible="True" Margin="5">
+                                    <Button.ImageSource>
+                                        <FontImageSource                            
+                        Size="18"
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xf359;" />
+                    </Button.ImageSource>
+                </Button>
+
+                <Button Grid.Column="3"
+                    x:Name="BtnDownloadFromFile"
+                    Text="Desde Pipeline"                    
+                    Clicked="btnFromPipeline_Clicked"
+                    HorizontalOptions="Center"
+                    BackgroundColor="Firebrick" 
+                        IsVisible="True" Margin="5">
+                    <Button.ImageSource>
+                        <FontImageSource                            
+                            Size="18"
+                            FontFamily="FontAwesome5Solid"
+                            Glyph="&#xf359;" />
+                    </Button.ImageSource>
+                </Button>
+            </FlexLayout>
             </VerticalStackLayout>        
         
         <Button x:Name="btnBack"

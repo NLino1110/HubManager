@@ -1,6 +1,10 @@
+using ApiManager;
 using DMSA.Models.Odoo.Abstract;
+using DMSA.Models.Odoo.Specials;
 using DMSA.Sync.Core.Database.Sqlite;
 using Microsoft.Maui.Controls;
+using System.Diagnostics;
+using System.IO.Compression;
 
 namespace DMOrders.Pages.Sys;
 
@@ -32,6 +36,11 @@ public partial class Connections : TabbedPage
         await Navigation.PopModalAsync();
     }
 
+    private async void btnSendCloud_Clicked(object sender, EventArgs e)
+    {        
+        
+    }
+
     private void ConnectionsCollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (e.CurrentSelection != null && e.CurrentSelection.Count > 0)
@@ -44,5 +53,4 @@ public partial class Connections : TabbedPage
             }
         }
     }
-
 }

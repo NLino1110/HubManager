@@ -380,9 +380,10 @@ public partial class CatalogViewerInner : ContentView
 
     private void AddSingleItem(object sender, EventArgs e)
     {
+        var vm = BindingContext as CatalogViewerModel;
         var objItem = ((CatalogViewerModel)this.BindingContext).SelectedItem;
-        decimal qty_real = product_uom_qty;
-        decimal qty_sol = product_uom_qty_real;
+        decimal qty_real = product_uom_qty_real;
+        decimal qty_sol = product_uom_qty;
 
         if (objItem != null)
         {
@@ -400,6 +401,10 @@ public partial class CatalogViewerInner : ContentView
 
             //product_uom_qty = 0;
             product_uom_qty_real = 0;
+            //objItem = null;
+
+            vm.SelectedItem = null;
+            vm.ClearSelection(vm.SelectedItem);
         }
         else
         {

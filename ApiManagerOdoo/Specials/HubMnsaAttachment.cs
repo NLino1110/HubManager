@@ -5,8 +5,12 @@ using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Modules.Accounting;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Specials;
+using DMSA.Models.Odoo.Tools;
 using DMSA.Models.Security;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RestSharp;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -17,10 +21,10 @@ namespace ApiManager
     {
         string[] fields_array = new[] {
                 "id",
-                "file_content",
                 "file_name",
                 "file_type",
-                "date_data_cutoff"                
+                "date_data_cutoff",                
+                "attachment_ids"
             };
 
         public HubMnsaAttachment(AppSession _setAppSession) : base(_setAppSession)
@@ -38,21 +42,122 @@ namespace ApiManager
             return await GetCount(args, _custom_args);
         }
 
-        public async Task<ApiResponseOdooRpcT<mnsa_attachment[]>?> GetAll(int[] ids)
+        public async Task<ApiResponseOdooRpcT<mnsa_attachment[]>?> GetTop5()
         {
+            string mobile_app_id_code = "00";
+
+            mobile_app_id_code = _appSession.AppCodeOdoo;
+
             var kwargs = new
             {
+                limit = 5,
+                order = "date_data_cutoff desc",
                 fields = fields_array
             };
 
             object[] args = new object[] { };
             object[] _custom_args = new object[] {
-                new object[] { "id", "in", ids },
+                new object[] { "file_type", "=", "application/zip" },
+                new object[] { "mobile_app_id.code", "=", mobile_app_id_code },
+                
             };
-            return await SearchRead<ApiResponseOdooRpcT<mnsa_attachment[]>>(args, _custom_args, kwargs);
+            return await SearchRead<ApiResponseOdooRpcT<mnsa_attachment[]>>(args, _custom_args, kwargs, true);
         }
 
-        public async Task<byte[]> DownloadFileAsync(int recordId, string downloadFileName)
+        public async Task<ApiResponseOdooRpcT<int>?> CreatePackage(mnsa_attachment SendObject)
+        {
+            var kwargs = new { };
+
+            var settings = new JsonSerializerSettings
+            {
+                DateFormatString = "yyyy-MM-dd HH:mm:ss",
+                //ContractResolver = new IncludeJsonIgnoreResolver(new string[] { "was_odoo_synced", "lines" })
+            };
+
+            var serialized = JsonConvert.SerializeObject(SendObject, settings);
+
+            var newJObject = JObject.Parse(serialized);
+
+            object[] args = new object[] { newJObject };
+            return await Create<ApiResponseOdooRpcT<int>>(args, kwargs);
+        }
+
+        public async Task<ApiResponseOdooRpcT<bool>?> Link(int parent_id, int attachment_id)
+        { 
+
+            var settings = new JsonSerializerSettings
+            {
+                DateFormatString = "yyyy-MM-dd HH:mm:ss",
+                //ContractResolver = new IncludeJsonIgnoreResolver(new string[] { "was_odoo_synced", "lines" })
+            };
+
+            var kwargs = new { };
+
+            object[] args = new object[]
+            {
+                    new object[] { parent_id },
+                    new Dictionary<string, object>
+                    {
+                        {
+                            "attachment_ids",
+                            new object[]
+                            {
+                                new object[] { 4, attachment_id }
+                            }
+                        }
+                    }
+            };
+
+            //var serialized = JsonConvert.SerializeObject(SendObject, settings);
+            //var newJObject = JObject.Parse(serialized);
+            
+            return await Write<ApiResponseOdooRpcT<bool>>(args, kwargs, _modelname);
+        }
+
+        public async Task<ApiResponseOdooRpcT<int>?> SendAttachment(ir_attachment SendObject)
+        {
+            var kwargs = new { };
+
+            var settings = new JsonSerializerSettings
+            {
+                DateFormatString = "yyyy-MM-dd HH:mm:ss",
+                //ContractResolver = new IncludeJsonIgnoreResolver(new string[] { "was_odoo_synced", "lines" })
+            };
+
+            var serialized = JsonConvert.SerializeObject(SendObject, settings);
+
+            var newJObject = JObject.Parse(serialized);
+
+            JObjectExtensions.RemoveProperty(newJObject, "type");
+            JObjectExtensions.RemoveProperty(newJObject, "display_name");
+            JObjectExtensions.RemoveProperty(newJObject, "description");
+            JObjectExtensions.RemoveProperty(newJObject, "file_size");
+            JObjectExtensions.RemoveProperty(newJObject, "url");
+            JObjectExtensions.RemoveProperty(newJObject, "local_url");
+            JObjectExtensions.RemoveProperty(newJObject, "checksum");
+
+            object[] args = new object[] { newJObject };
+            return await Create<ApiResponseOdooRpcT<int>>(args, kwargs, "ir.attachment");
+        }
+
+        public async Task<byte[]> DownloadFileAsync(int recordId)
+        {
+            try
+            {
+                string url = $"/web/content/{recordId}?download=true";
+
+                byte[] fileContent = await GetRawBytes(url);
+
+                return fileContent;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                return Array.Empty<byte>();
+            }
+        }
+
+        public async Task<byte[]> DownloadFileAsync1(int recordId, string downloadFileName)
         {
             //_appSession = _setAppSession;
             //_baseUrl = _appSession.odooConnection.Host;

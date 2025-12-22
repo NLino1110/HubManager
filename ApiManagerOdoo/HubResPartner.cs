@@ -181,7 +181,6 @@ namespace ApiManager
             return await SearchRead<ApiResponseOdooRpcT<res_partner[]>>(args, _custom_args, kwargs, true);
         }
 
-
         public async Task<ApiResponseOdooRpc?> GetCountByCreateDate(int year, int month, int day)
         {
             object[] args = new object[] { };

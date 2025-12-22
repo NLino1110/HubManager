@@ -41,7 +41,7 @@ namespace DMSA.Models.Odoo.Abstract
         {
             get
             {
-                return DbName;
+                return string.Concat(prefix_db ?? string.Empty, DbName ?? string.Empty);
             }
         }
 
@@ -122,7 +122,8 @@ namespace DMSA.Models.Odoo.Abstract
                 IsTestMode = true,
                 DataToleranceDays = 365,
                 sale_channel_default = 8,
-                res_center_default = 49
+                res_center_default = 49,
+                prefix_db = "dev_"
             }
             );
 
@@ -143,7 +144,8 @@ namespace DMSA.Models.Odoo.Abstract
                 IsTestMode = true,
                 DataToleranceDays = 365,
                 sale_channel_default = 8,
-                res_center_default = 49
+                res_center_default = 49,
+                prefix_db = "dev_"
             }
             );
 
@@ -164,7 +166,8 @@ namespace DMSA.Models.Odoo.Abstract
                 IsTestMode = true,
                 DataToleranceDays = 365,
                 sale_channel_default = 8,
-                res_center_default = 49
+                res_center_default = 49,
+                prefix_db = "prod1_"
             }
             );
 
@@ -185,7 +188,8 @@ namespace DMSA.Models.Odoo.Abstract
                 IsTestMode = true,
                 DataToleranceDays = 365,
                 sale_channel_default = 8,
-                res_center_default = 49
+                res_center_default = 49,
+                prefix_db = "prod1_"
             }
             );
 

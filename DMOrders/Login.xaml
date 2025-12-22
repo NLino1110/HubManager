@@ -73,11 +73,11 @@
                                         TextColor="White"
                                         FontAttributes="Bold">
                                     <Button.ImageSource>
-                                        <FontImageSource FontFamily="MaterialSharp"
+                                        <FontImageSource FontFamily="FontAwesome5Solid"
                                             Color="White"
                                             Size="20"
                                             FontAutoScalingEnabled="True"
-                                            Glyph="&#xf060;" />
+                                            Glyph="&#xf359;" />
                                     </Button.ImageSource>
                                 </Button>
                             </HorizontalStackLayout>

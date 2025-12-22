@@ -1178,6 +1178,12 @@ public partial class Crud : ContentPage, IBackButtonHandler
     {
         if (CurrentSaleOrderLine != null)
         {
+            if (product_uom_qty == 0 || product_uom_qty_real == 0)
+            {   
+                await DisplayAlert("Alerta", "La cantidad no puede ser 0.", "Aceptar");
+                return;
+            }
+
             if (product_uom_qty > product_uom_qty_real)
             {
                 //CurrentSaleOrderLine = null;

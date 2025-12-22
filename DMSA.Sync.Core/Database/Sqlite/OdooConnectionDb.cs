@@ -47,5 +47,17 @@ namespace DMSA.Sync.Core.Database.Sqlite
             await Init();
             return await Database.Table<OdooConnection>().Where(i => i.Id == id).FirstOrDefaultAsync();
         }
+
+        public async Task<string> CompressDatabaseAsync(string dbPath)
+        {
+            //await Init();
+            string zipPath = dbPath + ".zip";
+            if (File.Exists(zipPath))
+            {
+                File.Delete(zipPath);
+            }
+            System.IO.Compression.ZipFile.CreateFromDirectory(Path.GetDirectoryName(dbPath), zipPath, System.IO.Compression.CompressionLevel.Fastest, false);
+            return zipPath;
+        }
     }
 }

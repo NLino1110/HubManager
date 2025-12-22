@@ -3,10 +3,14 @@ using SQLite;
 using System.Diagnostics;
 
 namespace DMSA.Sync.Core.Database.Sqlite
-{
-    [Obsolete]
+{    
     public class AppSettingsDb : SqliteDbBase<AppSettings>
     {
+        public AppSettingsDb()
+        {
+
+        }
+
         public AppSettingsDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
 
@@ -53,22 +57,66 @@ namespace DMSA.Sync.Core.Database.Sqlite
             //return Database.Table<account_journal>().ToList();
         }
 
-        public async Task<bool> getBoolean(string name)
+        //public async Task<bool> getBoolean(string name)
+        //{
+        //    await Init();
+        //    var dbITem = await Database.Table<AppSettings>().Where(i => i.name == name).FirstOrDefaultAsync();
+        //    bool returnValue = false;
+        //    try
+        //    {
+        //        returnValue = bool.Parse(dbITem.value);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.WriteLine(ex);
+        //    }
+
+        //    return returnValue;
+        //}
+
+        public async Task<bool> GetBooleanAsync(string name, bool defaultValue = false)
         {
             await Init();
-            var dbITem = await Database.Table<AppSettings>().Where(i => i.name == name).FirstOrDefaultAsync();
-            bool returnValue = false;
-            try
-            {
-                returnValue = bool.Parse(dbITem.value);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-            }
 
-            return returnValue;
+            var dbItem = await Database.Table<AppSettings>()
+                .Where(i => i.name == name)
+                .FirstOrDefaultAsync();
+
+            if (dbItem == null || string.IsNullOrWhiteSpace(dbItem.value))
+                return defaultValue;
+
+            return bool.TryParse(dbItem.value, out var result)
+                ? result
+                : defaultValue;
         }
+
+        public async Task SetBooleanAsync(string name, bool value)
+        {
+            await Init();
+
+            var dbItem = await Database.Table<AppSettings>()
+                .Where(i => i.name == name)
+                .FirstOrDefaultAsync();
+
+            string strValue = value.ToString().ToLower();
+
+            if (dbItem == null)
+            {
+                dbItem = new AppSettings
+                {
+                    name = name,
+                    value = strValue
+                };
+
+                await Database.InsertAsync(dbItem);
+            }
+            else
+            {
+                dbItem.value = strValue;
+                await Database.UpdateAsync(dbItem);
+            }
+        }
+
 
         public async Task<DateTime> getDateTime(string name)
         {
@@ -89,8 +137,6 @@ namespace DMSA.Sync.Core.Database.Sqlite
 
             return DateTime.MinValue; // o cualquier valor predeterminado que prefieras
         }
-
-
 
         public async Task<int> getInteger(string name)
         {
@@ -120,29 +166,6 @@ namespace DMSA.Sync.Core.Database.Sqlite
         {
             await Init();
             return await Database.Table<AppSettings>().Where(i => i.name == name).FirstOrDefaultAsync();
-        }
-
-        public async Task<int> InsertAsync(AppSettings item)
-        {
-            await Init();
-            int result = await Database.InsertOrReplaceAsync(item);
-            return 0;
-        }
-
-        public async Task<int> InsertBatchAsync(AppSettings[] items)
-        {
-            await Init();
-            await Database.InsertAllAsync(items, "OR REPLACE");
-            return 0;
-        }
-
-        async Task Init()
-        {
-            if (Database is not null)
-                return;
-
-            Database = new SQLiteAsyncConnection(Constants.DatabasePath);
-            var result = await Database.CreateTableAsync<AppSettings>();
         }
 
         public string GetDbPath()

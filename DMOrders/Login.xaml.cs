@@ -938,5 +938,5 @@ public partial class Login : ContentPage
             // Esto ocurre cada vez que vuelvas a la página
             Console.WriteLine("La página ya apareció antes.");
         }        
-    }    
+    }
 }

@@ -86,6 +86,9 @@ namespace DMSA.Models.Odoo.Native
         [JsonProperty("note")]
         public string note { get; set; }
 
+        [JsonProperty("note2")]
+        public string note2 { get; set; }
+
         [Ignore]
         [JsonProperty("partner_invoice_id")]
         public JToken partner_invoice_id { get; set; }

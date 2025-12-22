@@ -45,6 +45,8 @@ namespace DMOrders
             App.Session = new AppSession();
             App.Session.AppVersion = AppInfo.Current.VersionString;
             App.Session.SqliteCoreDbName = "DMOrders_app";
+            App.Session.AppCodeOdoo = "02";
+            App.Session.AppMobileId = 2;
 
             if (DeviceInfo.Platform == DevicePlatform.Android)
             {

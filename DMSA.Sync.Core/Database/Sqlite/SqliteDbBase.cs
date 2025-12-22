@@ -22,15 +22,22 @@ namespace DMSA.Sync.Core.Database.Sqlite
             DatabaseFilename = _DatabaseFilename;
         }
 
+        public string GetDatabasePath()
+        {
+            return Path.Combine(FileSystem.AppDataDirectory, DatabaseFilename);
+        }
+
         protected async Task Init()
         {
             if (Database != null)
                 return;
             
             string DatabasePath = Path.Combine(FileSystem.AppDataDirectory, DatabaseFilename);
-                        
-            Database = new SQLiteAsyncConnection(DatabasePath, Constants.Flags);
 
+            //Moto antiguo:
+            //Database = new SQLiteAsyncConnection(DatabasePath, Constants.Flags);
+            
+            Database = SqliteConnectionManager.GetConnection(DatabasePath, Constants.Flags);
             //try
             //{
             //    await Database.ExecuteAsync("PRAGMA journal_mode=WAL;");
@@ -197,5 +204,9 @@ namespace DMSA.Sync.Core.Database.Sqlite
             return count;
         }
 
+        public static async Task CloseDatabaseAsync()
+        {
+            await SqliteConnectionManager.CloseAsync();
+        }
     }
 }

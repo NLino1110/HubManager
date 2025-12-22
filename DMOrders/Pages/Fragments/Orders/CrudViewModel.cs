@@ -556,6 +556,13 @@ namespace DMOrders.Pages.Fragments.Orders
             var product = itemPickedArgs.product;
             var qty_real = itemPickedArgs.qty_real;
             var qty_sol = itemPickedArgs.qty_sol;
+
+            if (qty_sol > qty_real)
+            {
+                await Application.Current.Windows[0].Page.DisplayAlert("Alerta", "La cantidad solicitada no puede ser mayor a la cantidad real.", "Aceptar");
+                return;
+            }
+
             // Buscar si el producto ya existe en la lista
             var existingLine = OrderLines.FirstOrDefault(l => l.product_id == product.id && !l.is_gift);
 

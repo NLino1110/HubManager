@@ -54,8 +54,7 @@ namespace DMSA.Sync.Core.Database.Sqlite
                 // Si es numérico: buscar por id exacto (fallback lo haces fuera)
                 if (int.TryParse(raw, out var idCode))
                 {
-                    q = q.Where(x => x.id == idCode || x.code.ToLower().Contains(filter_code.ToLower()));
-                    // OJO: no aplicamos más filtros aquí para mantener tu comportamiento original.
+                    q = q.Where(x => x.id == idCode || x.code.ToLower().Contains(filter_code.ToLower()) || x.barcode.ToLower().Contains(filter_code.ToLower()));                    
                     return ApplySort(q, filter_sort);
                 }
                 else
