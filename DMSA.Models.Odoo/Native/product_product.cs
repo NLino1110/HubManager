@@ -241,10 +241,12 @@ namespace DMSA.Models.Odoo.Native
             }
         }
 
-
         [Ignore]
         [JsonIgnore]
         public bool allow_add_gift { get; set; }
+
+        [JsonIgnore]
+        public float cantidad_disponible { get; set; }
 
         [Ignore]
         [JsonIgnore]

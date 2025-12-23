@@ -5,6 +5,7 @@ namespace DMSA.Sync.Core.Update
 {
     public partial class ServerPuller
     {
+        [Obsolete]
         public async Task<bool> FixInventory()
         {
             var productDb = new ProductProductDb(Constants.Session.odooConnection.DbNameSqlite);

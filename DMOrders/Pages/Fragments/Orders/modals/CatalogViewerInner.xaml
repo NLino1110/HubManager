@@ -112,7 +112,7 @@
                        TextColor="DarkGreen"
                        HorizontalTextAlignment="End"
                        VerticalTextAlignment="Center"
-                       Text="{Binding qty_available}" />
+                       Text="{Binding cantidad_disponible}" />
 
                     <!-- Botón -->
                     <Button Grid.Row="0"
@@ -376,7 +376,7 @@
                       TextColor="#242322" Grid.ColumnSpan="2"></Label>
 
                 <Label Text="Unidad Vta.:"  FontSize="10" Grid.Row="1" Grid.Column="0"/>
-                <Label Grid.Row="1" Grid.Column="1" Text="{Binding Path=SelectedItem._uom_id}" 
+                <Label Grid.Row="1" Grid.Column="1" Text="{Binding Path=SelectedItem.uom_display}" 
                FontSize="10" 
                FontAttributes="Bold"
                TextColor="#242322"
@@ -384,7 +384,7 @@
                   VerticalTextAlignment="Center"></Label>
 
                 <Label Text="Stock:"  FontSize="10" Grid.Row="2" Grid.Column="0"/>
-                <Label Grid.Row="2" Grid.Column="1" Text="{Binding Path=SelectedItem.qty_available}" 
+                <Label Grid.Row="2" Grid.Column="1" Text="{Binding Path=SelectedItem.cantidad_disponible}" 
                    FontSize="10" 
                    FontAttributes="Bold"
                    TextColor="#242322"

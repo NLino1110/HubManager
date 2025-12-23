@@ -103,7 +103,7 @@ namespace DMOrders.Controls.CustomRows
             _barCodeLabel.SetBinding(Label.TextProperty, new Binding("Item.barcode", source: this, stringFormat: "Barcode: {0}"));
             _priceLabel.SetBinding(Label.TextProperty, new Binding("Item.list_price", source: this, stringFormat: "{0:N4}"));
             //_priceBaseLabel.SetBinding(Label.TextProperty, new Binding("Item.list_price", source: this, stringFormat: "PVP Base: {0:C}"));
-            _stockLabel.SetBinding(Label.TextProperty, new Binding("Item.qty_available", source: this));
+            _stockLabel.SetBinding(Label.TextProperty, new Binding("Item.cantidad_disponible", source: this));
             _unitLabel.SetBinding(Label.TextProperty, new Binding("Item.uom_display", source: this));
 
             // Contenedor (dos filas: info + botón)

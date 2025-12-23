@@ -473,22 +473,22 @@ public partial class UpdateData : ContentPage
 
         if(!packageReady)
         {
-            await SqliteDbBase<object>.CloseDatabaseAsync();
-            Pipeline pipeline = new Pipeline();
+            //await SqliteDbBase<object>.CloseDatabaseAsync();
+            //Pipeline pipeline = new Pipeline();
 
-            bool packFound = false;
-            packFound = await pipeline.AvailableZipPack();
+            //bool packFound = false;
+            //packFound = await pipeline.AvailableZipPack();
 
-            if (packFound)
-            {
-                await pipeline.DownloadSqliteZip();
-                await appSettingsDb.SetBooleanAsync("updated_by_package", true);
-            }
+            //if (packFound)
+            //{
+            //    await pipeline.DownloadSqliteZip();
+            //    await appSettingsDb.SetBooleanAsync("updated_by_package", true);
+            //}
         }
-        else
-        {
+        //else
+        //{
             await LaunchOnlineUpdate(obj);
-        }
+        //}
 
         //await RefreshVat();
 
@@ -508,30 +508,6 @@ public partial class UpdateData : ContentPage
 
     private async Task LaunchOnlineUpdate(ProgressBarAnimationBehaviorPage obj)
     {
-        //TODO: Funcionando pero no implementado
-        //HubStatic hubStatic = new HubStatic(App.Session);
-        //var resourceBytes = await hubStatic.GetBytesFromUrlAsync("tmp/android/json/data_groups_info.json");
-
-        //Evaluar estado actual de los datos para proponer un modo u otro de actualización
-        //if (await SuggestCacheMode())
-        //{
-        //    if (!chkUpdateBig.IsChecked || !chkUpdateFacDet.IsChecked || !chkCacheMode.IsChecked)
-        //    {
-        //        bool answerChange = await DisplayAlert("Cambiar modo de Actualización", "Se sugiere cambiar a modo cache ya que actualmente no tiene información. " +
-        //    " Sino cambia el modo y procede a actualizar, el proceso podría ser muy lento.", "Cambiar", "No Cambiar");
-        //        if (answerChange)
-        //        {
-        //            chkUpdateBig.IsChecked = true;
-        //            chkUpdateFacDet.IsChecked = true;
-        //            chkCacheMode.IsChecked = true;
-        //        }
-        //    }
-        //}        
-
-        
-
-        
-
         //Actualización por Cache
         if (chkGroup1.IsChecked)
         {
@@ -568,11 +544,12 @@ public partial class UpdateData : ContentPage
         if (chkGroup5.IsChecked)
         {
             await serverPuller.OnlineSyncStockWarehouse(false);
-            await serverPuller.OnlineSyncStockLocation();
-            //await serverPuller.OnlineSyncStockLocation();
-            //await serverPuller.OnlineSyncStockQuant();
+            await serverPuller.OnlineSyncStockLocation();            
             await serverPuller.OnlineSyncStockQuant();
             await serverPuller.UomUom(true);
+
+            await serverPuller.OnlineSyncWmsStockQuant();
+            await serverPuller.UpdateWmsStockQuant();
             //
             //await serverPuller.FixInventory();
         }
@@ -582,10 +559,10 @@ public partial class UpdateData : ContentPage
             await serverPuller.SyncSaleOrders();
         }
 
-        Pipeline pipeline = new Pipeline();
-        bool requiredNewUpload = await pipeline.RequiredNewUpload();
-        if (requiredNewUpload)
-            await pipeline.UploadSqliteZip();
+        //Pipeline pipeline = new Pipeline();
+        //bool requiredNewUpload = await pipeline.RequiredNewUpload();
+        //if (requiredNewUpload)
+        //    await pipeline.UploadSqliteZip();
     }
 
     private async void btnUploadPipeline_Clicked(object sender, EventArgs e)

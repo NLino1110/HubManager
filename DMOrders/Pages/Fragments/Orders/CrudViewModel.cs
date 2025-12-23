@@ -577,6 +577,12 @@ namespace DMOrders.Pages.Fragments.Orders
                 return;
             }
 
+            if(itemPickedArgs.product.cantidad_disponible < (float) qty_sol)
+            {
+                await Application.Current.Windows[0].Page.DisplayAlert("Alerta", "La cantidad solicitada no puede ser mayor a la disponible en inventario.", "Aceptar");
+                return;
+            }
+
             // Buscar si el producto ya existe en la lista
             var existingLine = OrderLines.FirstOrDefault(l => l.product_id == product.id && !l.is_gift);
 

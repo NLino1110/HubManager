@@ -238,7 +238,7 @@ namespace ApiManager
                     { "free_order_state", "INGRESADO" },
                     { "name", false },
                     { "order_id", created_data.result },
-                    { "note", "OBSERVACION AUTOMATICA" }
+                    { "note", "APLICACIÓN DE VENTA EXTERNA" }
                 }
             };
 

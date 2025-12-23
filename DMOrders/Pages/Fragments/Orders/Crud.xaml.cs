@@ -1218,7 +1218,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 return;
             }
 
-            if ((decimal)ProductEditing.qty_available < product_uom_qty)
+            if ((decimal)ProductEditing.cantidad_disponible < product_uom_qty)
             {
                 CurrentSaleOrderLine = null;
                 ProductEditing = null;
