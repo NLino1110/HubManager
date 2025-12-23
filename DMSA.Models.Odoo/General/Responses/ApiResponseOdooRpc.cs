@@ -14,39 +14,11 @@ namespace DMSA.Models.Odoo.General.Responses
     //    public int result { get; set; }
     //}
 
-    [Obsolete("Debe ser eliminado")]
-    public class ApiResponseOdooRpc_v2
-    {
-        public string jsonrpc { get; set; }
-        public int id { get; set; }
-        public bool result { get; set; }
-        public Error? error { get; set; }
-    }
-
     public class ApiResponseOdooRpc
     {
         public string jsonrpc { get; set; }
         public int id { get; set; }
         public int result { get; set; }
-        public Error? error { get; set; }
-    }
-
-    [Obsolete("Debe ser eliminado")]
-    public class ApiResponseOdooRpc_account_move___
-    {
-        public string jsonrpc { get; set; }
-        public int id { get; set; }
-        //public object? result { get; set; }
-        public account_move_base[]? result { get; set; }
-        public Error? error { get; set; }
-    }
-
-    [Obsolete("Debe ser eliminado")]
-    public class ApiResponseOdooRpcDynamic___
-    {
-        public string jsonrpc { get; set; }
-        public int id { get; set; }
-        public dynamic result { get; set; }
         public Error? error { get; set; }
     }
 

@@ -70,26 +70,15 @@ public partial class MainPageTab : ContentPage
         {
             isUpdated = true;
             await AutoUpdate();
-        }
-        //await UITools.ShowLoadingPopup(this);
-        //await Task.Delay(1000);
-        //await UITools.SetNotifyLoadingPopup("Notificacion 1/3");
-        //await Task.Delay(1000);
-        //await UITools.SetNotifyLoadingPopup("Notificacion 2/3");
-        //await Task.Delay(1000);
-        //await UITools.SetNotifyLoadingPopup("Notificacion 3/3");
-        //await Task.Delay(1000);
-        //await UITools.HideLoadingPopup();
+        }        
     }
 
     private async Task<bool> AutoUpdate()
     {
         await UITools.ShowLoadingPopup(this);
         await UITools.SetNotifyLoadingPopup("Ejecutando actualización...");
-        await Task.Delay(2000);
-        //await UITools.SetNotifyLoadingPopup("Actualizando.....");
-        await UITools.HideLoadingPopup();
-        
+        await Task.Delay(2000);        
+        await UITools.HideLoadingPopup();        
         return true;
     }
 
@@ -254,8 +243,8 @@ public partial class MainPageTab : ContentPage
 
     private async void ShowSettings(object sender, EventArgs e)
     {
-        Debug.WriteLine("SettingsPage");        
-        Connections objPage = new Connections();        
+        Debug.WriteLine("SettingsPage");
+        Connections objPage = new Connections();
         await Navigation.PushModalAsync(objPage);
     }        
 
@@ -279,6 +268,18 @@ public partial class MainPageTab : ContentPage
             //var viewContent = (DMOrders.Pages.Fragments.Product.Container) tabProducts.Content;
             var viewContent = (DMOrders.Pages.Fragments.Product.Container) e.Content;
             Debug.WriteLine(viewContent);
+        }
+    }
+
+    public void SelectTab(string tabTitle)
+    {
+        foreach (var tab in tabViewMain.Tabs)
+        {
+            if (tab.Title.Equals(tabTitle, StringComparison.OrdinalIgnoreCase))
+            {
+                tabViewMain.SelectedTab = tab;
+                break;
+            }
         }
     }
 }

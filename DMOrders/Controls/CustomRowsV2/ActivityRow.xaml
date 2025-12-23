@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:DMOrders.Converters"
+             x:Class="DMOrders.Controls.CustomRowsV2.ActivityRow"
+             x:Name="Root">
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <converters:DateToDashConverter x:Key="DateToDash"/>
+        </ResourceDictionary>
+    </ContentView.Resources>
+
+    <Grid
+        HeightRequest="28"
+        ColumnSpacing="0"
+        Padding="0">
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="42"/>
+            <ColumnDefinition Width="2.5*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="28"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ID -->
+        <Label Grid.Column="0"
+               Text="{Binding Item.id, Source={x:Reference Root}}"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center"
+               FontSize="12"/>
+
+        <!-- VENDEDOR -->
+        <Label Grid.Column="1"
+               Text="{Binding Item.display_username, Source={x:Reference Root}}"
+               FontSize="11"
+               LineBreakMode="TailTruncation"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center"
+               Margin="6,0"/>
+
+        <!-- Fecha planificación -->
+        <Label Grid.Column="2"
+               Text="{Binding Item.date_assign, Source={x:Reference Root}}"
+               FontSize="12"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center"/>
+
+        <!-- Fecha sincronización -->
+        <Label Grid.Column="3"
+               Text="{Binding Item.date_synchronized, Source={x:Reference Root}, Converter={StaticResource DateToDash}}"
+               FontSize="12"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center"/>
+
+        <!-- Estado -->
+        <Label x:Name="StateLabel"
+               Grid.Column="4"
+               FontSize="12"
+               LineBreakMode="TailTruncation"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center"/>
+
+        <!-- BOTONES -->
+        <HorizontalStackLayout Grid.Column="5"
+                               Spacing="0"
+                               HorizontalOptions="End"
+                               VerticalOptions="Center">
+
+            <!-- Edit -->
+            <Button x:Name="EditButton"
+                    HeightRequest="28"
+                    WidthRequest="28"
+                    BackgroundColor="DodgerBlue"
+                    CornerRadius="4"
+                    Padding="0"
+                    ImageSource="{FontImage FontFamily=FontAwesome5Solid, Glyph=&#xf303;, Color=White, Size=14}"
+                    Command="{Binding EditCommand, Source={x:Reference Root}}"
+                    CommandParameter="{Binding Item, Source={x:Reference Root}}"/>
+
+            <!-- Delete -->
+            <Button x:Name="DeleteButton"
+                    HeightRequest="28"
+                    WidthRequest="28"
+                    BackgroundColor="OrangeRed"
+                    CornerRadius="4"
+                    Padding="0"
+                    IsVisible="False"
+                    ImageSource="{FontImage FontFamily=FontAwesome5Solid, Glyph=&#xf2ed;, Color=White, Size=14}"/>
+        </HorizontalStackLayout>
+
+    </Grid>
+</ContentView>

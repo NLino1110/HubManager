@@ -570,7 +570,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 partner_display_address = CurrentPartner?.street,
                 partner_display_status = (CurrentPartner != null ? (CurrentPartner.active ? "Activo" : "Inactivo") : string.Empty),
                 partner_sale_id = App.Session.CurrentUserFront.partner_id,
-                _partner_invoice_id = partner_invoice_id
+                _partner_invoice_id = partner_invoice_id,
+                note2 = viewModel.Note2
             };
 
             if (await saleOrderDb.InsertAsync(targetOrder) <= 0)
@@ -596,6 +597,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
             targetOrder.amount_total = viewModel.Total;
             targetOrder.amount_tax = viewModel.Impuesto;
             targetOrder.amount_untaxed = viewModel.Subtotal;
+            targetOrder.note2 = viewModel.Note2;
 
             if (await saleOrderDb.UpdateAsync(targetOrder) <= 0)
             {
@@ -630,6 +632,16 @@ public partial class Crud : ContentPage, IBackButtonHandler
         {
             //orderPromo._sale_order_id = targetOrder.id;            
             await saleOrderPromoDb.InsertAsync(orderPromo);
+        }
+
+        try
+        {
+            var mainPage = (MainPageTab)App.Current.MainPage;
+            mainPage.SelectTab("Pedidos");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error al cambiar a la pestaña Pedidos: {ex.Message}");
         }
 
         await Toast.Make(isNew ? "Orden creada" : "Orden actualizada").Show();        
@@ -761,7 +773,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 
                 if (!existedBefore)
                 {
-                    System.Diagnostics.Debug.WriteLine(
+                    Debug.WriteLine(
                         $"[Promotions] maxProductTarget ({maxProductTarget}) no existía en ProductTmplIds: {ruleMatch.ProductTmplIds}. Fue agregado manualmente."
                     );
                 }

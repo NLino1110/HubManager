@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace DMOrders.Pages.Fragments.Customers
-{
+{   
     public partial class DataGrid : ContentView
     {
         res_partner SelectedItem { get; set; }
@@ -288,7 +288,7 @@ namespace DMOrders.Pages.Fragments.Customers
         }
 
         private async void Button_Clicked(object sender, EventArgs e)
-        {
+        {            
             Button button = (sender as Button);
             SelectedItem = (res_partner) button.BindingContext;
 
@@ -308,6 +308,6 @@ namespace DMOrders.Pages.Fragments.Customers
                 await viewObj.PrepareForm();
                 await Navigation.PushModalAsync(viewObj);
             }
-        }
+        }        
     }
 }

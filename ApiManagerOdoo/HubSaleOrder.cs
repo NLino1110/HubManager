@@ -2,10 +2,12 @@
 using DMSA.Models.Odoo.General.Requests;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Sales;
 using DMSA.Models.Odoo.Tools;
 using DMSA.Models.Security;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 
@@ -225,10 +227,67 @@ namespace ApiManager
             //}
 
             object[] args = new object[] { newJObject };
-            return await Create<ApiResponseOdooRpcT<int>>(args, kwargs);
+            var created_data = await Create<ApiResponseOdooRpcT<int>>(args, kwargs);
+
+
+            object[] args_s1 = new object[]
+            {
+                new object[] { },
+                new Dictionary<string, object>
+                {
+                    { "free_order_state", "INGRESADO" },
+                    { "name", false },
+                    { "order_id", created_data.result },
+                    { "note", "OBSERVACION AUTOMATICA" }
+                }
+            };
+
+            var kwargs_s1 = new Dictionary<string, object>
+            {
+                ["context"] = new Dictionary<string, object>(),
+
+                ["specification"] = new Dictionary<string, object>
+                {
+                    ["free_order_state"] = new Dictionary<string, object>(),
+                    ["name"] = new Dictionary<string, object>(),
+
+                    ["order_id"] = new Dictionary<string, object>
+                    {
+                        ["fields"] = new Dictionary<string, object>()
+                    },
+
+                    ["note"] = new Dictionary<string, object>()
+                }
+            };
+
+            var pre_aprobed_data = await CallMethod<ApiResponseOdooRpcT<List<wkf_state_order>>>("/web/dataset/call_kw",
+                Method.Post,
+                args_s1,
+                kwargs_s1, "wkf.state.order", "web_save");
+
+            int created_state_order = 0;
+
+            if (pre_aprobed_data.result.Count > 0)
+            {
+                created_state_order = pre_aprobed_data.result[0].id;                
+            }
+
+            var args_s2 = new object[]
+            {
+                new object[] { created_state_order }
+            };
+
+            var kwargs_s2 = new Dictionary<string, object>
+            {
+                ["context"] = new Dictionary<string, object>()
+            };
+
+            var aprobed_data = await CallMethod<ApiResponseOdooRpcV2>("/web/dataset/call_button",
+                Method.Post,
+                args_s2,
+                kwargs_s2, "wkf.state.order", "confirm_free_order_state");
+
+            return created_data;
         }
-
-
-        
     }
 }

@@ -34,11 +34,9 @@
             <Label Grid.Column="4" FontAttributes="Bold" Text="TOTAL" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center"/>
             <Label Grid.Column="5" FontAttributes="Bold" Text="ESTADO" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center"/>
             <Label Grid.Column="6" FontAttributes="Bold" Text="-" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center"/>
-        </Grid>
-        
+        </Grid>        
 
-        <Grid Grid.Row="1">
-            
+        <Grid Grid.Row="1">            
             <CollectionView 
                     x:Name="MyCollectionView"
                     ItemsSource="{Binding ItemsData}" 

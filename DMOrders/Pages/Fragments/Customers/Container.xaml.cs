@@ -7,7 +7,7 @@ namespace DMOrders.Pages.Fragments.Customers;
 
 public partial class Container : ContentView
 {
-	public Container()
+    public Container()
 	{
 		InitializeComponent();
         filterCustomer.OnSearchButtonClicked += OnSearchButtonClicked;

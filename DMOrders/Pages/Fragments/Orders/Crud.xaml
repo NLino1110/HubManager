@@ -537,9 +537,9 @@
                     HorizontalTextAlignment="Center"
                     Padding="3" IsVisible="False"/>
                         </uranium:ExpanderView.Header>
-                        <StackLayout>                            
-                            
-                            <material:EditorField x:Name="fieldNote" Title="Observac." Text="{Binding Note, Mode=TwoWay}" />
+                        <StackLayout>
+                            <material:EditorField x:Name="fieldNote" Title="Observac." Text="{Binding Note2, Mode=TwoWay}" 
+                                IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={RelativeSource AncestorType={x:Type ContentPage}}}"/>
                         </StackLayout>
                     </uranium:ExpanderView>
                     

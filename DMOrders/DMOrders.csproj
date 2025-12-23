@@ -154,6 +154,9 @@
 	  <MauiXaml Update="Controls\ConfettiOverlay.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Controls\CustomRowsV2\ActivityRow.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Controls\CustomRowsV2\SaleOrderLineRow.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

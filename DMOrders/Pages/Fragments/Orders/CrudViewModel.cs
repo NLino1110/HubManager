@@ -105,6 +105,19 @@ namespace DMOrders.Pages.Fragments.Orders
             }
         }
 
+        public string Note2
+        {
+            get => CurrentSaleOrder?.note2;
+            set
+            {
+                if (CurrentSaleOrder != null && CurrentSaleOrder.note2 != value)
+                {
+                    CurrentSaleOrder.note2 = value;
+                    OnPropertyChanged(nameof(Note2));
+                }
+            }
+        }
+
         public decimal Subtotal
         {
             get
@@ -239,6 +252,7 @@ namespace DMOrders.Pages.Fragments.Orders
             if (CurrentSaleOrder != null)
             {
                 OnPropertyChanged(nameof(Note));
+                OnPropertyChanged(nameof(Note2));
 
                 var saleOrderLinesDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
                 //_ = saleOrderLinesDb.GetItemsAsync(CurrentSaleOrder.id).ContinueWith(task =>
