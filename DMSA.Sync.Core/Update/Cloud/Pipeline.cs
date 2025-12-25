@@ -2,6 +2,7 @@
 using DMSA.Models.Odoo.General.Requests;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Specials;
+using DMSA.Sync.Core.Database.Sqlite;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -80,48 +81,10 @@ namespace DMSA.Sync.Core.Update.Cloud
             return zipPath;
         }
 
-
-        public async Task UploadSqliteZip_old()
-        {            
-            string dbPath = FileSystem.AppDataDirectory;
-            dbPath = Path.Combine(dbPath, Constants.Session.odooConnection.DbNameSqlite);
-            //creamos comprimido de la base de datos
-            Debug.WriteLine($"Comenzando compresion de la base de datos: {dbPath}");
-            string zipPath = await CompressDatabaseAsync(dbPath);
-            Debug.WriteLine($"Base de datos comprimida en: {zipPath}");
-
-            HubMnsaAttachment hubMnsaAttachment = new HubMnsaAttachment(Constants.Session);
-            Debug.WriteLine("Iniciando envio del archivo comprimido al servidor...");
-            byte[] fileBytes = await File.ReadAllBytesAsync(zipPath);
-
-            string uploadFileName = $"{Constants.Session.odooConnection.DbNameSqlite}.zip";
-
-            mnsa_attachment mnsaAttachment = new mnsa_attachment()
-            {
-                file_name = uploadFileName,                
-                file_type = "application/zip",
-                date_data_cutoff = DateTime.UtcNow,
-                mobile_app_id = Constants.Session.AppMobileId,
-            };
-
-            var responseData = await hubMnsaAttachment.CreatePackage(mnsaAttachment);
-
-            Debug.WriteLine("Archivo enviado correctamente al servidor.");
-
-            if (responseData.result > 0)
-            {
-                Debug.WriteLine($"Respuesta recibida del servidor. Tamaño: {responseData}");
-            }
-            else
-            {
-                Debug.WriteLine("No se recibió respuesta del servidor o el tamaño es cero.");
-            }
-
-        }
-
+        //Archivos con un tamaño maximo de 3.14 MB
         const int MAX_PART_SIZE = (int)(3.14 * 1024 * 1024);
 
-        public async Task UploadSqliteZip()
+        public async Task<(mnsa_attachment, bool)> UploadSqliteZip()
         {
             string dbPath = Path.Combine(
                 FileSystem.AppDataDirectory,
@@ -139,6 +102,8 @@ namespace DMSA.Sync.Core.Update.Cloud
 
             mnsa_attachment mnsaAttachment = new mnsa_attachment()
             {
+                server = Constants.Session.odooConnection.Host,
+                database_name = Constants.Session.odooConnection.DbName,
                 file_name = Path.GetFileName(zipPath),
                 file_type = "application/zip",
                 date_data_cutoff = DateTime.UtcNow,
@@ -175,13 +140,20 @@ namespace DMSA.Sync.Core.Update.Cloud
                     res_id = packageId
                 });
 
-                Debug.WriteLine($"Parte {partName} subida con ID: {file_upload_response.result}");
+                if(file_upload_response.result  == 0)
+                {
+                    Debug.WriteLine($"Hubo un error al enviar el archivo: {file_upload_response.error.message}");
+                    return (mnsaAttachment, false);
+                }                    
 
+                Debug.WriteLine($"Parte {partName} subida con ID: {file_upload_response.result}");
 
                 await hub.Link(packageId, file_upload_response.result);
             }
 
             Debug.WriteLine("✅ Todas las partes enviadas correctamente");
+
+            return (mnsaAttachment, true);
         }
 
         public static IEnumerable<byte[]> SplitFile(byte[] fileBytes, int chunkSize)
@@ -198,8 +170,6 @@ namespace DMSA.Sync.Core.Update.Cloud
             }
         }
 
-
-
         public async Task<bool> AvailableZipPack()
         {
             HubMnsaAttachment hubMnsaAttachment = new HubMnsaAttachment(Constants.Session);
@@ -214,8 +184,24 @@ namespace DMSA.Sync.Core.Update.Cloud
             return false;
         }
 
-        public async Task DownloadSqliteZip()
+        public async Task<mnsa_attachment> NewestZipPack()
         {
+            HubMnsaAttachment hubMnsaAttachment = new HubMnsaAttachment(Constants.Session);
+
+            var top5List = await hubMnsaAttachment.GetTop5();
+
+            if (top5List != null && top5List.result != null && top5List.result.Length > 0)
+            {
+                return top5List.result[0];
+            }
+
+            return null;
+        }
+
+        public async Task<bool> DownloadSqliteZip(bool removeTmpFile)
+        {
+            bool boolResponse = false;
+
             HubMnsaAttachment hubMnsaAttachment = new HubMnsaAttachment(Constants.Session);
             HubIrAttachment hubIrAttachment = new HubIrAttachment(Constants.Session);
 
@@ -240,6 +226,11 @@ namespace DMSA.Sync.Core.Update.Cloud
                     $"{nameWithoutExt}_{randomSuffix}{ext}"
                 );
 
+                if (attachmentIds.Count == 0)
+                {
+                    return false;
+                }
+
                 using (var output = new FileStream(tempZipPath, FileMode.Create, FileAccess.Write))
                 {
                     foreach (var item in attachmentIds)
@@ -259,34 +250,80 @@ namespace DMSA.Sync.Core.Update.Cloud
 
                 Debug.WriteLine($"ZIP reconstruido en: {tempZipPath}");
 
-                // 🔹 Ahora SÍ se puede descomprimir
-                string extractPath = FileSystem.AppDataDirectory;
-                ZipFile.ExtractToDirectory(tempZipPath, extractPath, true);
+                bool exists = ZipContainsFile(tempZipPath, Constants.Session.odooConnection.DbNameSqlite);
 
-                Debug.WriteLine("ZIP descomprimido correctamente");
+                if (exists)
+                {
+                    // 🔹 Ahora SÍ se puede descomprimir
+                    string extractPath = FileSystem.AppDataDirectory;
+                    ZipFile.ExtractToDirectory(tempZipPath, extractPath, true);
+
+                    Debug.WriteLine("ZIP descomprimido correctamente");
+
+                    //Esperamos 2 segundos para eliminar el archivo temporal
+
+                    await Task.Delay(2000);
+                    boolResponse = true;
+
+                }
+                else
+                {
+                    Debug.WriteLine("El archivo no pertenece a esta conexión. No se va a restaurar.");
+                }
+
+                if (removeTmpFile)
+                    File.Delete(tempZipPath);                
             }
+
+            return boolResponse;
+        }
+
+        public bool ZipContainsFile(string zipPath, string fileName)
+        {
+            using var zip = ZipFile.OpenRead(zipPath);
+
+            return zip.Entries.Any(e =>
+                string.Equals(e.Name, fileName, StringComparison.OrdinalIgnoreCase));
         }
 
         public async Task<bool> RequiredNewUpload()
         {
             HubMnsaAttachment hubMnsaAttachment = new HubMnsaAttachment(Constants.Session);
 
-            var top5List = await hubMnsaAttachment.GetTop5();
+            var topList = await hubMnsaAttachment.GetLastest(Constants.Session.CurrentUserFront.log_fec_acceso);
 
-            if (top5List?.result == null || top5List.result.Length == 0)
+            if (topList?.result == null || topList.result.Length == 0)
                 return true;
 
-            var item = top5List.result[0];
+            var item = topList.result[0];
 
             if (!item.date_data_cutoff.HasValue)
                 return true;
 
-            DateTime cutoff = item.date_data_cutoff.Value;
-            DateTime now = DateTime.UtcNow;
+            DateTime cutoff = item.date_data_cutoff.Value.Date;
+            DateTime now = Constants.Session.CurrentUserFront.log_fec_acceso.Date;
 
             double daysDiff = Math.Abs((now - cutoff).TotalDays);
 
-            return daysDiff >= 7;
+            return daysDiff >= 1;
+        }
+
+        public async Task<bool> ExistAttachRecord()
+        {
+            MnsaAttachmentDb mnsaAttachmentDb = new MnsaAttachmentDb(Constants.Session.odooConnection.DbNameSqlite);
+            var record = await mnsaAttachmentDb.GetLastUpdate();
+            if(record != null)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public async Task<bool> InsertAttachRecord(mnsa_attachment mnsa_Attachment)
+        {
+            MnsaAttachmentDb mnsaAttachmentDb = new MnsaAttachmentDb(Constants.Session.odooConnection.DbNameSqlite);
+            var record = await mnsaAttachmentDb.InsertAsync(mnsa_Attachment);            
+            return true;
         }
     }
 }

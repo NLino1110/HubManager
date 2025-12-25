@@ -11,11 +11,14 @@ namespace DMSA.Models.Odoo.Specials
     {
         [PrimaryKey]
         [JsonProperty("id")]
-        public int id { get; set; }         
+        public int id { get; set; }
+        public string server { get; set; }
+        public string database_name { get; set; }
         public string file_name { get; set; }
         public string file_type { get; set; }
         public DateTime? date_data_cutoff { get; set; }
 
+        [Ignore]
         public JToken mobile_app_id { get; set; }
      
         [JsonIgnore]
@@ -25,8 +28,10 @@ namespace DMSA.Models.Odoo.Specials
             set => mobile_app_id = SetId(mobile_app_id, value);
         }
 
+        [Ignore]
         public JToken attachment_ids { get; set; }
 
+        [Ignore]
         [JsonIgnore]
         public int[] _attachment_ids
         {

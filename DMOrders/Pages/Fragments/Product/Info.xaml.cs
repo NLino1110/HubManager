@@ -1,5 +1,6 @@
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Native.Inventory;
 using DMSA.Models.Odoo.Sales;
 using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite.Sales;
@@ -162,8 +163,8 @@ public partial class Info : ContentView
         public static Dictionary<int, string> StockWarehouseListDict 
             = new Dictionary<int, string>();
 
-        public static Dictionary<int, List<stock_quant>> StockQuantListDict
-            = new Dictionary<int, List<stock_quant>>();
+        public static Dictionary<int, List<wms_stock_quant>> StockQuantListDict
+            = new Dictionary<int, List<wms_stock_quant>>();
     }
 
     public string ObtenerCodigo(string linea)
@@ -181,12 +182,12 @@ public partial class Info : ContentView
             Cache.StockWarehouseListDict = whLists.ToDictionary(x => x.id, x => x.name);
         }
 
-        List<stock_quant> stockQuantItems;
+        List<wms_stock_quant> stockQuantItems;
 
         var stopwatch = Stopwatch.StartNew();
         if (!Cache.StockQuantListDict.TryGetValue(data.id, out stockQuantItems))
         {
-            var stockQuantDb = new StockQuantDb(App.Session.odooConnection.DbNameSqlite);
+            var stockQuantDb = new WmsStockQuantDb(App.Session.odooConnection.DbNameSqlite);
 
             stockQuantItems = await stockQuantDb.GetItemsAsync(
                 x => x._product_id == data.id
@@ -216,7 +217,7 @@ public partial class Info : ContentView
             {
                 id = item.id,
                 Description = nameWarehouse,
-                Value = (decimal) item.quantity
+                Value = (decimal) item.cantidad_disponible
             });
         }
 

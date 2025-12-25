@@ -242,7 +242,7 @@ public partial class Login : ContentPage
         //SettingsPage objPage = new SettingsPage();
 
         Connections objPage = new Connections();
-        objPage.Disappearing += ObjSettingPage_Disappearing;        
+        objPage.Disappearing += ObjSettingPage_Disappearing;
         await Navigation.PushModalAsync(objPage);
     }
 
@@ -484,10 +484,10 @@ public partial class Login : ContentPage
         App.Session.CurrentUserFront = resultUser;
         App.Session.CurrentUserFront.empresas = _empresas;
 
-        //App.Session = ns;
+        //Se vuelve a reasignar la sesión global
+        DMSA.Sync.Core.Constants.Session = App.Session;
 
         //Se realiza inserción/actualización en la tabla
-
         user_access itemInsert = new user_access();
         itemInsert.name = resultUser.nombres;
         itemInsert.uid = resultUser.uid;

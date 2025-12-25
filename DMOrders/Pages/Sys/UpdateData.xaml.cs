@@ -213,45 +213,6 @@ public partial class UpdateData : ContentPage
         }
     }
 
-    
-
-
-    private async Task<string[]> ExtractZipFile(
-        string DeviceStorage, 
-        string finalFileUrl,
-        IToast toast,
-        ToastDuration duration,
-        double fontSize,
-        CancellationTokenSource cancellationTokenSource)
-    {
-        try
-        {
-            string DeviceStorageJson = Path.Combine(DeviceStorage, "_extract", finalFileUrl + "_tmp");
-
-            if (Directory.Exists(DeviceStorageJson))
-            {
-                Directory.Delete(DeviceStorageJson, true);
-            }
-
-            Directory.CreateDirectory(DeviceStorageJson);
-
-            ZipFile.ExtractToDirectory(DeviceStorage + "/_zip/" + finalFileUrl, DeviceStorageJson);
-
-            var ListFiles = Directory.GetFiles(DeviceStorageJson, "*.json");
-            return ListFiles;
-        }
-        catch(Exception e)
-        {
-            //textToast = "ExtractZipFile:" + e.Message;
-            toast = Toast.Make("ExtractZipFile:" + e.Message, duration, fontSize);
-            await toast.Show(cancellationTokenSource.Token);
-        }
-
-        return null;
-    }
-
-
-
     public void set_to_token(JToken token, int value)
     {
         if (token is JArray array && array.Count > 0)
@@ -373,23 +334,6 @@ public partial class UpdateData : ContentPage
         await toast.Show(cancellationTokenSource.Token);
     }
 
-    private async Task<bool> SuggestCacheMode()
-    {
-        //var databaseDet = new AccountMoveLineDb();
-        //if ((await databaseDet.GetCount()) == 0)
-        //{
-        //    return true;
-        //}
-
-        //var databaseCab = new AccountMoveDb();
-        //if ((await databaseCab.GetCount()) == 0)
-        //{
-        //    return true;
-        //}
-
-        return false;
-    }
-
     private async Task<string> GetLastDate()
     {
         //var databaseCab = new AccountMoveDb();
@@ -403,14 +347,13 @@ public partial class UpdateData : ContentPage
     }
 
     private async void LaunchUpdate(object sender, EventArgs e)
-    {
+    {        
         bool answer = await DisplayAlert("Actualizar datos de la aplicación?", "Este proceso realiza una sincronización de los datos hacia su dispositivo.", "Actualizar", "Cancelar");
         
         if (!answer)
         {
             return;
         }
-
 
         DateTime dtInitialize = DateTime.Now;
         lblUpdatedInfo.Text = "Iniciada: " + dtInitialize;
@@ -468,29 +411,40 @@ public partial class UpdateData : ContentPage
         //////    }
         //////}
 
-        var appSettingsDb = new AppSettingsDb();
-        bool packageReady = await appSettingsDb.GetBooleanAsync("updated_by_package");
+        
+        Pipeline pipeline = new Pipeline();
+
+        bool packageReady = await pipeline.ExistAttachRecord();
 
         if(!packageReady)
         {
-            //await SqliteDbBase<object>.CloseDatabaseAsync();
+            //await SqliteDbBase<object>.CloseDatabaseAsync();            
             //Pipeline pipeline = new Pipeline();
+                        
+            var packFound = await pipeline.NewestZipPack();
 
-            //bool packFound = false;
-            //packFound = await pipeline.AvailableZipPack();
+            if (packFound != null)
+            {
+                await SqliteDbBase<object>.CloseDatabaseAsync();
+                obj.SetTitle("Iniciando actualización rápida...");
+                obj.SetTotalPercentProgress(0.2);
+                
+                if(await pipeline.DownloadSqliteZip(true))
+                {
+                    await pipeline.InsertAttachRecord(packFound);
+                }
+                else
+                {
+                    await Toast.Make("Hubo un error al descargar/descomprimir archivo.", duration, fontSize).Show();
+                }
 
-            //if (packFound)
-            //{
-            //    await pipeline.DownloadSqliteZip();
-            //    await appSettingsDb.SetBooleanAsync("updated_by_package", true);
-            //}
+                await Toast.Make("Actualización rápida terminada", duration, fontSize).Show();                
+            }
         }
-        //else
-        //{
-            await LaunchOnlineUpdate(obj);
-        //}
 
-        //await RefreshVat();
+        obj.SetTitle("Actualización en línea...");
+
+        await LaunchOnlineUpdate(obj);       
 
         obj.SetTotalPercentProgress(1);
         obj.SetTitle("Finalizado...");
@@ -559,10 +513,18 @@ public partial class UpdateData : ContentPage
             await serverPuller.SyncSaleOrders();
         }
 
-        //Pipeline pipeline = new Pipeline();
-        //bool requiredNewUpload = await pipeline.RequiredNewUpload();
-        //if (requiredNewUpload)
-        //    await pipeline.UploadSqliteZip();
+        Pipeline pipeline = new Pipeline();
+        bool requiredNewUpload = await pipeline.RequiredNewUpload();
+        if (requiredNewUpload)
+        {
+            (var attachData, bool successUpload) = await pipeline.UploadSqliteZip();
+
+            if (successUpload)
+            {
+                if(!await pipeline.ExistAttachRecord())
+                    await pipeline.InsertAttachRecord(attachData);
+            }
+        }
     }
 
     private async void btnUploadPipeline_Clicked(object sender, EventArgs e)
@@ -575,7 +537,7 @@ public partial class UpdateData : ContentPage
     {
         await SqliteDbBase<object>.CloseDatabaseAsync();
         Pipeline pipeline = new Pipeline();
-        await pipeline.DownloadSqliteZip();
+        await pipeline.DownloadSqliteZip(true);
     }
 
     private async void btnBack_Clicked(object sender, EventArgs e)

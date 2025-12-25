@@ -156,7 +156,7 @@
                     Clicked="btnUploadPipeline_Clicked"
                     HorizontalOptions="Center"
                     BackgroundColor="LawnGreen" 
-                        IsVisible="True" Margin="5">
+                        IsVisible="False" Margin="5">
                                     <Button.ImageSource>
                                         <FontImageSource                            
                         Size="18"
@@ -171,7 +171,7 @@
                     Clicked="btnFromPipeline_Clicked"
                     HorizontalOptions="Center"
                     BackgroundColor="Firebrick" 
-                        IsVisible="True" Margin="5">
+                        IsVisible="False" Margin="5">
                     <Button.ImageSource>
                         <FontImageSource                            
                             Size="18"

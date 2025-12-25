@@ -23,6 +23,7 @@ namespace ApiManager
                 "clave_externa",
                 "tipo_canal",
                 "tipo_canal_id",
+                "use_mobile_app",
                 "date_start",
                 "date_end"
                 };

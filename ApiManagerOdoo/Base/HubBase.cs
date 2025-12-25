@@ -350,15 +350,31 @@ namespace ApiManagerOdoo.Base
 
             if (result != null && result.Content != null & result.Content != "")
             {
-                if (IsOdooError(result.Content, out string errorMessage))
+                if (IsOdooError(result.Content, out string errorMessage, out bool IsHtmlMessage))
                 {
                     Debug.WriteLine("Se detectó un error de Odoo:");
                     Debug.WriteLine(errorMessage);
 
-                    //TODO: Aquí validacion de HTML
-                    // las respuestas a veces son de NGINX
+                    var resultString = result.Content;
 
-                    var resultNativeError = JsonConvert.DeserializeObject<T>(result.Content);
+                    if (IsHtmlMessage)
+                    {
+                        var response = new
+                        {
+                            jsonrpc = "2.0",
+                            id = 1,
+                            result = 0,
+                            error = new
+                            {
+                                code = 500,
+                                message = errorMessage                                
+                            }
+                        };
+
+                        resultString = JsonConvert.SerializeObject(response);
+                    }
+
+                    var resultNativeError = JsonConvert.DeserializeObject<T>(resultString);
                     return resultNativeError;
                 }
                 else
@@ -417,12 +433,145 @@ namespace ApiManagerOdoo.Base
             return new T();
         }
 
+        public bool IsOdooErrorNEW(string response, out string errorMessage)
+        {
+            errorMessage = null;
+
+            if (string.IsNullOrWhiteSpace(response))
+                return false;
+
+            var trimmed = response.TrimStart();
+
+            // ------------------------------------------------
+            // 1️⃣ HTML error (NGINX / Proxy / IIS)
+            // ------------------------------------------------
+            if (trimmed.StartsWith("<!DOCTYPE", StringComparison.OrdinalIgnoreCase) ||
+                trimmed.StartsWith("<html", StringComparison.OrdinalIgnoreCase))
+            {
+                errorMessage = ExtractHtmlError(response);
+                return true;
+            }
+
+            // ------------------------------------------------
+            // 2️⃣ JSON (posible error Odoo)
+            // ------------------------------------------------
+            if (trimmed.StartsWith("{") || trimmed.StartsWith("["))
+            {
+                try
+                {
+                    var json = JObject.Parse(response);
+
+                    var errorNode = json["error"];
+                    if (errorNode != null)
+                    {
+                        var message = errorNode["message"]?.ToString();
+                        var detailedMessage = errorNode["data"]?["message"]?.ToString();
+                        var debug = errorNode["data"]?["debug"]?.ToString();
+
+                        errorMessage =
+                            $"Odoo Error:\n" +
+                            $"Message: {message}\n" +
+                            $"Details: {detailedMessage}\n" +
+                            $"Traceback:\n{debug}";
+
+                        return true;
+                    }
+                }
+                catch (JsonReaderException)
+                {
+                    errorMessage = "Invalid JSON response received.";
+                    return true;
+                }
+            }
+
+            // ------------------------------------------------
+            // 3️⃣ Respuesta desconocida
+            // ------------------------------------------------
+            return false;
+        }
+
+        private string ExtractHtmlError(string html)
+        {
+            // Detectar errores típicos de NGINX
+            if (html.Contains("413", StringComparison.OrdinalIgnoreCase))
+                return "NGINX Error 413: Archivo demasiado grande.";
+
+            if (html.Contains("502", StringComparison.OrdinalIgnoreCase))
+                return "NGINX Error 502: Bad Gateway.";
+
+            if (html.Contains("504", StringComparison.OrdinalIgnoreCase))
+                return "NGINX Error 504: Gateway Timeout.";
+
+            // Fallback genérico
+            return "Proxy/Server error (HTML response received).";
+        }
+
+        public bool IsOdooError(string jsonResponse, out string errorMessage, out bool IsHtmlMessage)
+        {
+            errorMessage = null;
+            IsHtmlMessage = false;
+
+            if (string.IsNullOrWhiteSpace(jsonResponse))
+                return false;
+
+            var trimmed = jsonResponse;
+
+            // ------------------------------------------------
+            // 1️⃣ HTML error (NGINX / Proxy / IIS)
+            // ------------------------------------------------
+            if (trimmed.StartsWith("<!DOCTYPE", StringComparison.OrdinalIgnoreCase) ||
+                trimmed.StartsWith("<html", StringComparison.OrdinalIgnoreCase))
+            {
+                errorMessage = ExtractHtmlError(jsonResponse);
+                IsHtmlMessage = true;
+                return true;
+            }
+
+            try
+            {
+                var json = JObject.Parse(jsonResponse);
+
+                // Verifica si existe un nodo "error"
+                var errorNode = json["error"];
+                if (errorNode != null)
+                {
+                    var message = errorNode["message"]?.ToString();
+                    var detailedMessage = errorNode["data"]?["message"]?.ToString();
+                    var debug = errorNode["data"]?["debug"]?.ToString();
+
+                    // Puedes adaptar la forma de concatenar el mensaje según tus necesidades
+                    errorMessage = $"Odoo Error: {message}\nDetails: {detailedMessage}\nTraceback:\n{debug}";
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Error parsing JSON: {ex.Message}";
+                return true;
+            }
+
+            return false;
+        }
+
         public bool IsOdooError(string jsonResponse, out string errorMessage)
         {
             errorMessage = null;
 
             if (string.IsNullOrWhiteSpace(jsonResponse))
                 return false;
+
+            var trimmed = jsonResponse;
+
+            // ------------------------------------------------
+            // 1️⃣ HTML error (NGINX / Proxy / IIS)
+            // ------------------------------------------------
+            if (trimmed.StartsWith("<!DOCTYPE", StringComparison.OrdinalIgnoreCase) ||
+                trimmed.StartsWith("<html", StringComparison.OrdinalIgnoreCase))
+            {
+                errorMessage = ExtractHtmlError(jsonResponse);
+                return true;
+            }
 
             try
             {

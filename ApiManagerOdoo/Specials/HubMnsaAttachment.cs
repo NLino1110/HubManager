@@ -21,10 +21,14 @@ namespace ApiManager
     {
         string[] fields_array = new[] {
                 "id",
+                "server",
+                "database_name",
                 "file_name",
                 "file_type",
                 "date_data_cutoff",                
-                "attachment_ids"
+                "attachment_ids",
+                "create_date",
+                "write_date"
             };
 
         public HubMnsaAttachment(AppSession _setAppSession) : base(_setAppSession)
@@ -58,9 +62,32 @@ namespace ApiManager
             object[] args = new object[] { };
             object[] _custom_args = new object[] {
                 new object[] { "file_type", "=", "application/zip" },
-                new object[] { "mobile_app_id.code", "=", mobile_app_id_code },
-                
+                new object[] { "mobile_app_id.code", "=", mobile_app_id_code },                
             };
+
+            return await SearchRead<ApiResponseOdooRpcT<mnsa_attachment[]>>(args, _custom_args, kwargs, true);
+        }
+
+        public async Task<ApiResponseOdooRpcT<mnsa_attachment[]>?> GetLastest(DateTime referenceDate)
+        {
+            string mobile_app_id_code = "00";
+
+            mobile_app_id_code = _appSession.AppCodeOdoo;
+
+            var kwargs = new
+            {
+                limit = 5,
+                order = "date_data_cutoff desc",
+                fields = fields_array
+            };
+
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] { "file_type", "=", "application/zip" },
+                new object[] { "mobile_app_id.code", "=", mobile_app_id_code },
+                new object[] { "date_data_cutoff", "<=", referenceDate.ToString("yyyy-MM-dd 23:59:59") }
+            };
+
             return await SearchRead<ApiResponseOdooRpcT<mnsa_attachment[]>>(args, _custom_args, kwargs, true);
         }
 
