@@ -245,6 +245,7 @@ public partial class CatalogViewerInner : ContentView
                 }                
                 
                 vm.SetFilterBrand(filter_brand.id);
+                await vm.LoadData();
                 return;
             }
         }
@@ -260,14 +261,15 @@ public partial class CatalogViewerInner : ContentView
             ddfBrands.SelectedItem = nsBrand;
             filter_brand = nsBrand;
             ddfBrands.IsEnabled = true;
+            vm.SetFilterBrand(filter_brand.id);            
         }
         else
         {
             Debug.WriteLine("Seleccion valida directa...");
             filter_brand = new_selected_brand;
+            vm.SetFilterBrand(filter_brand.id);
+            await vm.LoadData();
         }
-        
-        vm.SetFilterBrand(filter_brand.id);
     }
 
     private async void DdfNews_SelectedItemChanged(object? sender, object e)
@@ -278,6 +280,7 @@ public partial class CatalogViewerInner : ContentView
             FStatus new_selected_item = (FStatus)e;
             filter_new = new_selected_item.id;
             vm.SetFilterNew(filter_new);
+            //await vm.LoadData();
         }
         catch (Exception ex)
         {
@@ -293,6 +296,7 @@ public partial class CatalogViewerInner : ContentView
             FStatus new_selected_item = (FStatus)e;
             filter_stock = new_selected_item.id;
             vm.SetFilterStock(filter_stock);
+            //await vm.LoadData();
         }
         catch (Exception ex)
         {
@@ -308,6 +312,7 @@ public partial class CatalogViewerInner : ContentView
             FStatus new_selected_item = (FStatus)e;
             filter_sort = new_selected_item.id;
             vm.SetFilterSort(filter_sort);
+            await vm.LoadData();
         }
         catch (Exception ex)
         {
@@ -338,21 +343,6 @@ public partial class CatalogViewerInner : ContentView
         return selected_product_brand;
     }
 
-    //private async void SelectListItem(object objItem)
-    //{
-    //    if (objItem != null)
-    //    {
-    //        //((CatalogViewerModel)this.BindingContext).SelectedItem = (product_product)objItem;
-    //        //_parentPopup.Close(objItem);
-    //        Debug.WriteLine(objItem);
-    //    }
-    //    else
-    //    {
-    //        Debug.WriteLine("Error de objeto");
-    //    }
-    //}
-
-    
     private void SelectSingleItem(object sender, EventArgs e)
     {
         var objItem = ((CatalogViewerModel)this.BindingContext).SelectedItem;
@@ -589,6 +579,9 @@ public partial class CatalogViewerInner : ContentView
     {
         TextCode.ClearValue();
         TextDescription.ClearValue();
+        
+        Brands[0] = new product_marca { id = 0, name = "No seleccionada" };
+
         ddfBrands.SelectedItem = Brands[0];
         ddfNews.SelectedItem = newProducts[0];
         ddfStock.SelectedItem = stockProducts[0];
@@ -719,48 +712,5 @@ public partial class CatalogViewerInner : ContentView
     private async void ApplyValueChanges(object sender, EventArgs e)
     {
         AddSingleItem(sender, e);
-
-
-        //////var vm = BindingContext as CatalogViewerModel;
-        //////var ProductEditing = vm.SelectedItem;
-
-        //////if (ProductEditing != null)
-        //////{
-        //////    if ((decimal)ProductEditing.qty_available < product_uom_qty)
-        //////    {
-        //////        ProductEditing = null;
-        //////        ProductEditing = null;
-        //////        product_uom_qty_real = 0;
-        //////        product_uom_qty = 0;
-        //////        //OrderLinesCl.SelectedItem = null;
-
-        //////        //await DisplayAlert("Alerta", "La cantidad solicitada no puede ser mayor a la disponible en inventario.", "Aceptar");
-        //////        return;
-        //////    }
-
-        //////    //CurrentSaleOrderLine.product_uom_qty_real = product_uom_qty_real;
-        //////    //CurrentSaleOrderLine.product_uom_qty = product_uom_qty;
-
-        //////    //////////////////////////////
-        //////    //var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
-        //////    //var product_item = await productDb.GetItemAsync(x => x.id == CurrentSaleOrderLine.product_id);
-
-        //////    //if (product_item == null)
-        //////    //{
-        //////    //    Debug.WriteLine("Error: no se encontró el producto para actualizar la línea de orden.");
-        //////    //    return;
-        //////    //}
-
-        //////    //product_item.list_price = (float)CurrentSaleOrderLine.price_unit;
-        //////    //((CrudViewModel)BindingContext).UpdateOrderLine(CurrentSaleOrderLine, product_item);
-        //////    //////////////////////////////
-
-        //////    //CurrentSaleOrderLine = null;
-        //////    ProductEditing = null;
-        //////    product_uom_qty_real = 0;
-        //////    product_uom_qty = 0;
-                        
-        //////    //OrderLinesCl.SelectedItem = null;
-        //////}
     }
 }

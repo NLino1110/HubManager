@@ -1,11 +1,8 @@
-﻿
-using DMOrders.Controls.CustomRows;
-using DMOrders.Services.Database.Sqlite;
+﻿using DMOrders.Controls.CustomRows.Lite;
 using DMSA.Models.Odoo.Native;
 using DMSA.Sync.Core.Database.Sqlite;
-using Microsoft.Maui.Controls;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
+
 
 namespace DMOrders.Controls
 {
@@ -67,8 +64,8 @@ namespace DMOrders.Controls
             collectionView.ItemTemplate = new DataTemplate(() =>
             {
                 var row = new MarcaRow();
-                row.SetBinding(MarcaRow.ItemProperty, new Binding("."));
-
+                row.ActionCommand = CommandSelectListItem;
+                
                 row.BindingContextChanged += (s, e) =>
                 {
                     if (row.BindingContext != null)

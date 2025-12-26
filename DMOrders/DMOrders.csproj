@@ -160,6 +160,9 @@
 	  <MauiXaml Update="Controls\CustomRowsV2\SaleOrderLineRow.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Controls\CustomRows\Lite\MarcaRow.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Controls\CustomRows\Lite\ProductCanvasRow.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

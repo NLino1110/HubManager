@@ -304,6 +304,79 @@ namespace DMSA.Models.Odoo.Native
             }
         }
 
+        [Ignore]
+        [JsonProperty("promotion_ids")]
+        public int[] promotion_ids { get; set; }
+        //promotion_ids = fields.Many2many('promotion.benefit', string='Promoción')
+
+        [JsonIgnore]
+        public string promotion_ids_json
+        {
+            get => promotion_ids == null ? "[]" : JsonConvert.SerializeObject(promotion_ids);
+            set
+            {
+                promotion_ids = string.IsNullOrWhiteSpace(value)
+                    ? Array.Empty<int>()
+                    : JsonConvert.DeserializeObject<int[]>(value);
+            }
+        }
+
+        [Ignore]
+        [JsonProperty("rule_ids")]
+        public int[] rule_ids { get; set; }
+        //rule_ids = fields.Many2many('promo.rules', string='Regla')
+
+        [JsonIgnore]
+        public string rule_ids_json
+        {
+            get => rule_ids == null ? "[]" : JsonConvert.SerializeObject(rule_ids);
+            set
+            {
+                rule_ids = string.IsNullOrWhiteSpace(value)
+                    ? Array.Empty<int>()
+                    : JsonConvert.DeserializeObject<int[]>(value);
+            }
+        }
+
+        [Ignore]
+        [JsonProperty("origin_gift_line_ids")]
+        public int[] origin_gift_line_ids { get; set; }
+        //origin_gift_line_ids = fields.Many2many('sale.order.line', 'origin_line_rel', 'origin_id', 'gift_id')
+
+        [JsonIgnore]
+        public string origin_gift_line_ids_json
+        {
+            get => origin_gift_line_ids == null ? "[]" : JsonConvert.SerializeObject(origin_gift_line_ids);
+            set
+            {
+                origin_gift_line_ids = string.IsNullOrWhiteSpace(value)
+                    ? Array.Empty<int>()
+                    : JsonConvert.DeserializeObject<int[]>(value);
+            }
+        }
+
+        //[Ignore]
+        //[JsonProperty("customers_excluded_ids")]
+        //public JToken customers_excluded_ids { get; set; }
+
+        //[Ignore]
+        //[JsonIgnore]
+        //public int[] _customers_excluded_ids
+        //{
+        //    get => GetIds(customers_excluded_ids);
+        //    set => customers_excluded_ids = SetIds(customers_excluded_ids, value);
+        //}
+
+        //[JsonIgnore]
+        //public string customers_excluded_ids_json
+        //{
+        //    get => SetIdsJson(customers_excluded_ids);
+        //    set { }
+        //}
+
+
+
+
         public event PropertyChangedEventHandler PropertyChanged;
         void OnPropertyChanged(string n) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
     }

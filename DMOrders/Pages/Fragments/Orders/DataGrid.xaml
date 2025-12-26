@@ -21,7 +21,7 @@
         <Grid Grid.Row="0"
             VerticalOptions="Center"
             ColumnSpacing="5"
-            ColumnDefinitions="20,225,*,*,*,*,0.42*"
+            ColumnDefinitions="20,350,*,*,*,*,100"
             RowDefinitions="*"                
           BackgroundColor="LightGray"              
           Padding="3" 
@@ -57,9 +57,9 @@
                         <Grid Grid.Column="0"
                             VerticalOptions="Center"
                             ColumnSpacing="10"
-                            ColumnDefinitions="Auto,350,*,*,*,*,*"
+                            ColumnDefinitions="Auto,350,*,*,*,*,100"
                             RowDefinitions="*,*"
-                            Margin="20,0,20,0"
+                            Margin="0,0,0,0"
                               Padding="0" Style="{StaticResource CollectionItemSelectable}">
 
                             <Label 

@@ -3,6 +3,7 @@ using CommunityToolkit.Maui.Views;
 using DMOrders.Controls;
 using DMOrders.Models.Filters;
 using DMSA.Models.Odoo.Native;
+using DMSA.Sync.Core.Database.Sqlite;
 using Spinner.MAUI;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -44,21 +45,43 @@ public partial class Filters : ContentView
         //ddfDays.SelectedItemChanged += DdfDays_SelectedItemChanged;
 
         Partners =
-        [
-            new res_partner { id = 0, name = "No seleccionada" },
-            new res_partner { id = -1, name = "🔍 Buscar..." },
-            new res_partner { id = 1, name = "Cliente 1" },
-            new res_partner { id = 2, name = "Cliente 2" },
-            new res_partner { id = 3, name = "Cliente 3" },
-            new res_partner { id = 4, name = "Cliente 4" },
-            new res_partner { id = 5, name = "Cliente 5" },
-        ];
+            [
+                new res_partner { id = 0, name = "No seleccionada" },
+                new res_partner { id = -1, name = "🔍 Buscar..." }
+            ];
 
-        ddfCustomer.ItemsSource = Partners;
-        ddfCustomer.ItemDisplayBinding = new Binding("name");
-        ddfCustomer.SelectedItem = Partners[0];
-        ddfCustomer.SelectedItemChanged += DdfCustomer_SelectedItemChanged;
-        selected_partner = Partners[0];
+        //Task.Run(async () => await LoadTopCustomersAsync());
+        LoadTopCustomersAsync();        
+    }
+
+    private async Task LoadTopCustomersAsync()
+    {
+        int adic_comercial_id = App.Session.CurrentUserFront.partner_id;
+        ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
+
+        var topPartners = await resPartnerDb.GetItemsAsync(x=> x._adic_comercial_id == adic_comercial_id);
+        topPartners = topPartners.OrderByDescending(x => x.credit).Take(5).ToList();
+
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            Partners =
+            [
+                new res_partner { id = 0, name = "No seleccionada" },
+                new res_partner { id = -1, name = "🔍 Buscar..." }
+            ];
+
+            foreach (var partnerItem in topPartners)
+            {
+                partnerItem.name = partnerItem.name + "- $" + partnerItem.credit.ToString();
+                Partners.Add(partnerItem);
+            }
+
+            ddfCustomer.ItemsSource = Partners;
+            ddfCustomer.ItemDisplayBinding = new Binding("name");
+            ddfCustomer.SelectedItem = Partners[0];
+            ddfCustomer.SelectedItemChanged += DdfCustomer_SelectedItemChanged;
+            selected_partner = Partners[0];
+        });
     }
 
     private async void DdfCustomer_SelectedItemChanged(object? sender, object e)
@@ -137,9 +160,10 @@ public partial class Filters : ContentView
     private void btnClear_Clicked(object sender, EventArgs e)
     {
         entryDocNumber.ClearValue();
-        ddfCustomer.SelectedItem = Partners[0];
-        ddfStatus.SelectedItem = Status[0];
         
+        Partners[0] = new res_partner { id = 0, name = "No seleccionada" };
+        ddfCustomer.SelectedItem = Partners[0];
+        ddfStatus.SelectedItem = Status[0];        
         datePickerStart.Date = DateTime.Now.AddDays(-7);
         datePickerEnd.Date = DateTime.Now;
         //entryId.Text = "";

@@ -692,10 +692,11 @@ namespace DMOrders.Pages.Fragments.Orders
                         {
                             await promotionEngineRunner.AddApplyPromotion(CurrentSaleOrder, benefit, -1, saleOrderPromotions);
                         }
-                    }                    
+                    }
                 }
 
                 sale_Order_Line.promotion_data = "";
+                DMSA.Models.Odoo.Promotions.Tools.ClearPromotionData(sale_Order_Line);
 
                 var giftList = OrderLines.Where(x => x.is_gift).ToList();
 
@@ -868,160 +869,158 @@ namespace DMOrders.Pages.Fragments.Orders
         }
 
 
-        public async void UpdateOrderLineRefresh_OLd(sale_order_line sale_Order_Line, product_product product)
-        {
-            PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
+        //////public async void UpdateOrderLineRefresh_OLd(sale_order_line sale_Order_Line, product_product product)
+        //////{
+        //////    PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
 
-            if (sale_Order_Line != null)
-            {
-                if (!string.IsNullOrEmpty(sale_Order_Line.promotion_data))
-                {
-                    List<PromotionEvalItemV2> promotionEvalItemParent = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(sale_Order_Line.promotion_data);
-                    if (promotionEvalItemParent != null && promotionEvalItemParent.Count > 0)
-                    {
-                        foreach (var benefitItem in promotionEvalItemParent)
-                        {
-                            if (benefitItem.Promotion._promotion_type_id == 2 && benefitItem.Promotion._selection_type_id == 2)
-                            {
-                                //Si contiene regalos asociados manuales, no se procede a recalcular
-                                return;
-                            }
-                        }
-                    }
-                }
+        //////    if (sale_Order_Line != null)
+        //////    {
+        //////        if (!string.IsNullOrEmpty(sale_Order_Line.promotion_data))
+        //////        {
+        //////            List<PromotionEvalItemV2> promotionEvalItemParent = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(sale_Order_Line.promotion_data);
+        //////            if (promotionEvalItemParent != null && promotionEvalItemParent.Count > 0)
+        //////            {
+        //////                foreach (var benefitItem in promotionEvalItemParent)
+        //////                {
+        //////                    if (benefitItem.Promotion._promotion_type_id == 2 && benefitItem.Promotion._selection_type_id == 2)
+        //////                    {
+        //////                        //Si contiene regalos asociados manuales, no se procede a recalcular
+        //////                        return;
+        //////                    }
+        //////                }
+        //////            }
+        //////        }
 
-                var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, sale_Order_Line.product_uom_qty);
-                sale_Order_Line.price_total = priceCalc.TotalLine;
-                sale_Order_Line.price_unit = priceCalc.Price;
-                sale_Order_Line.price_subtotal = priceCalc.PriceSubtotal; // (priceCalc.PriceWithoutIva * sale_Order_Line.product_uom_qty) - priceCalc.DiscountAmount;
-                sale_Order_Line.price_tax = priceCalc.PriceTax; //(priceCalc.PriceWithoutIva * sale_Order_Line.product_uom_qty * priceCalc.IvaPercentage) / 100;
-                sale_Order_Line.discount = priceCalc.DiscountPercent;
-                sale_Order_Line.amount_discount = priceCalc.DiscountAmount;
-                sale_Order_Line.virtual_price_no_tax = priceCalc.PriceWithoutIva;
-                sale_Order_Line.virtual_iva_percentage = priceCalc.IvaPercentage;
-                sale_Order_Line.virtual_line_subtotal = priceCalc.LineSubtotal;
-                sale_Order_Line.product_tmpl_id = product._product_tmpl_id;
+        //////        var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, sale_Order_Line.product_uom_qty);
+        //////        sale_Order_Line.price_total = priceCalc.TotalLine;
+        //////        sale_Order_Line.price_unit = priceCalc.Price;
+        //////        sale_Order_Line.price_subtotal = priceCalc.PriceSubtotal; // (priceCalc.PriceWithoutIva * sale_Order_Line.product_uom_qty) - priceCalc.DiscountAmount;
+        //////        sale_Order_Line.price_tax = priceCalc.PriceTax; //(priceCalc.PriceWithoutIva * sale_Order_Line.product_uom_qty * priceCalc.IvaPercentage) / 100;
+        //////        sale_Order_Line.discount = priceCalc.DiscountPercent;
+        //////        sale_Order_Line.amount_discount = priceCalc.DiscountAmount;
+        //////        sale_Order_Line.virtual_price_no_tax = priceCalc.PriceWithoutIva;
+        //////        sale_Order_Line.virtual_iva_percentage = priceCalc.IvaPercentage;
+        //////        sale_Order_Line.virtual_line_subtotal = priceCalc.LineSubtotal;
+        //////        sale_Order_Line.product_tmpl_id = product._product_tmpl_id;
 
-                //Se resetea los regalos asignados
-                //sale_Order_Line.max_gifts = 0;
-                //sale_Order_Line.assigned_gifts = 0;
+        //////        //Se resetea los regalos asignados
+        //////        //sale_Order_Line.max_gifts = 0;
+        //////        //sale_Order_Line.assigned_gifts = 0;
 
-                await promotionEngineRunner.ResetManualGiftBenefit(CurrentSaleOrder, saleOrderPromotions);
+        //////        await promotionEngineRunner.ResetManualGiftBenefit(CurrentSaleOrder, saleOrderPromotions);
 
-                if (!string.IsNullOrEmpty(sale_Order_Line.promotion_data))
-                {
-                    List<PromotionEvalItemV2> benefitFromData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(sale_Order_Line.promotion_data);
-                    if (benefitFromData != null && benefitFromData.Count > 0)
-                    {
-                        foreach (var benefit in benefitFromData)
-                        {
-                            await promotionEngineRunner.AddApplyPromotion(CurrentSaleOrder, benefit, -1, saleOrderPromotions);
-                        }
-                    }
-                }
+        //////        if (!string.IsNullOrEmpty(sale_Order_Line.promotion_data))
+        //////        {
+        //////            List<PromotionEvalItemV2> benefitFromData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(sale_Order_Line.promotion_data);
+        //////            if (benefitFromData != null && benefitFromData.Count > 0)
+        //////            {
+        //////                foreach (var benefit in benefitFromData)
+        //////                {
+        //////                    await promotionEngineRunner.AddApplyPromotion(CurrentSaleOrder, benefit, -1, saleOrderPromotions);
+        //////                }
+        //////            }
+        //////        }
 
-                //for (var io = 0; io < OrderLines.Count(); io++)
-                //{
-                //    var lineMemory = OrderLines[io];
-                //    if (!string.IsNullOrEmpty(lineMemory.promotion_data) && !lineMemory.is_gift)
-                //    {
-                //        List<PromotionEvalItemV2> promotionEvalItemParentMem = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(lineMemory.promotion_data);
-                //        if (promotionEvalItemParentMem != null && promotionEvalItemParentMem.Count > 0)
-                //        {
-                //            foreach (var benefitItem in promotionEvalItemParentMem)
-                //            {
-                //                if (benefitItem.Promotion._promotion_type_id == 2 && benefitItem.Promotion._selection_type_id == 2)
-                //                {
-                //                    var arrayProdTmpls = Newtonsoft.Json.JsonConvert.DeserializeObject<int[]>(benefitItem.RuleSet[0].ProductTmplIds);
-                //                    if(arrayProdTmpls.Any())
-                //                    {
-                //                        for(var xp=0; xp < arrayProdTmpls.Length; xp++)
-                //                        {
+        //////        //for (var io = 0; io < OrderLines.Count(); io++)
+        //////        //{
+        //////        //    var lineMemory = OrderLines[io];
+        //////        //    if (!string.IsNullOrEmpty(lineMemory.promotion_data) && !lineMemory.is_gift)
+        //////        //    {
+        //////        //        List<PromotionEvalItemV2> promotionEvalItemParentMem = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(lineMemory.promotion_data);
+        //////        //        if (promotionEvalItemParentMem != null && promotionEvalItemParentMem.Count > 0)
+        //////        //        {
+        //////        //            foreach (var benefitItem in promotionEvalItemParentMem)
+        //////        //            {
+        //////        //                if (benefitItem.Promotion._promotion_type_id == 2 && benefitItem.Promotion._selection_type_id == 2)
+        //////        //                {
+        //////        //                    var arrayProdTmpls = Newtonsoft.Json.JsonConvert.DeserializeObject<int[]>(benefitItem.RuleSet[0].ProductTmplIds);
+        //////        //                    if(arrayProdTmpls.Any())
+        //////        //                    {
+        //////        //                        for(var xp=0; xp < arrayProdTmpls.Length; xp++)
+        //////        //                        {
 
-                //                            var productInRule = OrderLines.Where(x=> x.product_tmpl_id == arrayProdTmpls[xp] && !x.is_gift).FirstOrDefault();
+        //////        //                            var productInRule = OrderLines.Where(x=> x.product_tmpl_id == arrayProdTmpls[xp] && !x.is_gift).FirstOrDefault();
 
-                //                            if (productInRule != null)
-                //                            {
-                //                                productInRule.promotion_data = "";
-                //                                await promotionEngineRunner.AddApplyPromotion(CurrentSaleOrder, benefitItem, -1, saleOrderPromotions);                                                
-                //                            }
-                //                        }
-                //                    }                                    
-                //                }
-                //            }
-                //        }
-                //    }
-                //}
+        //////        //                            if (productInRule != null)
+        //////        //                            {
+        //////        //                                productInRule.promotion_data = "";
+        //////        //                                await promotionEngineRunner.AddApplyPromotion(CurrentSaleOrder, benefitItem, -1, saleOrderPromotions);                                                
+        //////        //                            }
+        //////        //                        }
+        //////        //                    }                                    
+        //////        //                }
+        //////        //            }
+        //////        //        }
+        //////        //    }
+        //////        //}
 
-                //Se resetea las promociones tipo regalo manual
-                // y se buscan otras lineas principales que podrian estar relacionadas a la misma promocion
-                //for (var ib = 0; ib < saleOrderPromotions.Count(); ib++)
-                //{
-                //    var benefitMemory = saleOrderPromotions[ib];
+        //////        //Se resetea las promociones tipo regalo manual
+        //////        // y se buscan otras lineas principales que podrian estar relacionadas a la misma promocion
+        //////        //for (var ib = 0; ib < saleOrderPromotions.Count(); ib++)
+        //////        //{
+        //////        //    var benefitMemory = saleOrderPromotions[ib];
 
-                //    if (benefitMemory.promotion_type_id == 2 && benefitMemory.promotion_selection_type_id == 2)
-                //    {
-                //        saleOrderPromotions.Remove(benefitMemory);
-                //    }
-                //}
+        //////        //    if (benefitMemory.promotion_type_id == 2 && benefitMemory.promotion_selection_type_id == 2)
+        //////        //    {
+        //////        //        saleOrderPromotions.Remove(benefitMemory);
+        //////        //    }
+        //////        //}
 
-                sale_Order_Line.promotion_data = "";
+        //////        sale_Order_Line.promotion_data = "";
 
-                for (var si = 0; si < saleOrderPromotions.Count; si++)
-                {
-                    var currentBenefit = saleOrderPromotions[si];
-                    var tmplIds = saleOrderPromotions[si].related_product_tmpl_ids;
-                    int[] ints = Newtonsoft.Json.JsonConvert.DeserializeObject<int[]>(tmplIds);
+        //////        for (var si = 0; si < saleOrderPromotions.Count; si++)
+        //////        {
+        //////            var currentBenefit = saleOrderPromotions[si];
+        //////            var tmplIds = saleOrderPromotions[si].related_product_tmpl_ids;
+        //////            int[] ints = Newtonsoft.Json.JsonConvert.DeserializeObject<int[]>(tmplIds);
 
-                    if (!ints.Any())
-                    {
-                        continue;
-                    }
+        //////            if (!ints.Any())
+        //////            {
+        //////                continue;
+        //////            }
 
-                    if (!ints.Contains(sale_Order_Line.product_tmpl_id))
-                    {
-                        continue;
-                    }
+        //////            if (!ints.Contains(sale_Order_Line.product_tmpl_id))
+        //////            {
+        //////                continue;
+        //////            }
 
-                    var giftList = OrderLines.Where(x => x.is_gift).ToList();
-                    if (giftList != null && giftList.Count > 0)
-                    {
-                        await promotionEngineRunner.ResetManualGiftBenefit(CurrentSaleOrder, saleOrderPromotions);
+        //////            var giftList = OrderLines.Where(x => x.is_gift).ToList();
+        //////            if (giftList != null && giftList.Count > 0)
+        //////            {
+        //////                await promotionEngineRunner.ResetManualGiftBenefit(CurrentSaleOrder, saleOrderPromotions);
 
-                        foreach (var itemGift in giftList)
-                        {
-                            if (itemGift.promotion_data != null)
-                            {
-                                List<PromotionEvalItemV2> promotionEvalItem = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(itemGift.promotion_data);
-                                Debug.WriteLine(promotionEvalItem);
+        //////                foreach (var itemGift in giftList)
+        //////                {
+        //////                    if (itemGift.promotion_data != null)
+        //////                    {
+        //////                        List<PromotionEvalItemV2> promotionEvalItem = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItemV2>>(itemGift.promotion_data);
+        //////                        Debug.WriteLine(promotionEvalItem);
 
-                                if (promotionEvalItem != null && promotionEvalItem.Count > 0)
-                                {
-                                    foreach (var evalItem in promotionEvalItem)
-                                    {
-                                        if (evalItem.Promotion.id == currentBenefit.promotion_id)
-                                        {
-                                            OrderLines.Remove(itemGift);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+        //////                        if (promotionEvalItem != null && promotionEvalItem.Count > 0)
+        //////                        {
+        //////                            foreach (var evalItem in promotionEvalItem)
+        //////                            {
+        //////                                if (evalItem.Promotion.id == currentBenefit.promotion_id)
+        //////                                {
+        //////                                    OrderLines.Remove(itemGift);
+        //////                                }
+        //////                            }
+        //////                        }
+        //////                    }
+        //////                }
+        //////            }
 
-                    //Se resetea las promociones tipo regalo manual
-                    // y se buscan otras lineas principales que podrian estar relacionadas a la misma promocion
-                    if (currentBenefit.promotion_type_id == 2 && currentBenefit.promotion_selection_type_id == 2)
-                    {
-                        saleOrderPromotions.Remove(currentBenefit);
-                    }
-                }
-            }
+        //////            //Se resetea las promociones tipo regalo manual
+        //////            // y se buscan otras lineas principales que podrian estar relacionadas a la misma promocion
+        //////            if (currentBenefit.promotion_type_id == 2 && currentBenefit.promotion_selection_type_id == 2)
+        //////            {
+        //////                saleOrderPromotions.Remove(currentBenefit);
+        //////            }
+        //////        }
+        //////    }
 
-            UpdateTotals();
-        }
-
-
+        //////    UpdateTotals();
+        //////}
 
         public async Task<bool> ExistsLinkedGifts(sale_order_line sale_Order_Line)
         {

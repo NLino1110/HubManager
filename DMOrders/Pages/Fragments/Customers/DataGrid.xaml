@@ -103,7 +103,7 @@
                                     <!--<Label Grid.Column="3" FontSize="12" FontAttributes="Bold" Text="{Binding email}" VerticalOptions="Center"/>-->
                                     <Label Grid.Column="3" FontSize="12" FontAttributes="Bold" Text="{Binding phone, Converter={StaticResource FalseStringToDashConverter}}" VerticalOptions="Center"/>
                                     <Label Grid.Column="4" FontSize="12" FontAttributes="Bold" Text="{Binding active, Converter={StaticResource BoolToActivoConverter}}" VerticalOptions="Center"/>
-                                    <Label Grid.Column="5" FontSize="12" FontAttributes="Bold" Text="{Binding display_channel_name}" VerticalOptions="Center"/>
+                                    <Label Grid.Column="5" FontSize="11" FontAttributes="Bold" Text="{Binding display_channel_name}" VerticalOptions="Center"/>
                                     <Label Grid.Column="6"
                                        FontSize="10"
                                        FontAttributes="Bold"

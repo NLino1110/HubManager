@@ -180,7 +180,7 @@ namespace DMOrders.Pages.Fragments.Orders
                 
         private void btnBuscar_Clicked(object sender, EventArgs e)
         {
-            ((ListViewModel)this.BindingContext).LoadData();
+            ((ListViewModel)this.BindingContext).LoadDataByTimer();
 
         }
 
@@ -239,7 +239,7 @@ namespace DMOrders.Pages.Fragments.Orders
         private void ViewObj_Disappearing(object? sender, EventArgs e)
         {
             Debug.WriteLine("ViewObj_Disappearing");
-            ((ListViewModel)this.BindingContext).LoadData();
+            ((ListViewModel)this.BindingContext).LoadDataByTimer();
         }
 
         private async void ButtonSync_Clicked(object sender, EventArgs e)

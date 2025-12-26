@@ -41,7 +41,7 @@ namespace DMOrders.Pages.Fragments.Product
         public DetailsViewModel()
         {
             Activities = new ObservableCollection<PlanningSlot>();
-            LoadActivities();
+            //LoadActivities();
 
             CloseCommand = new Command(OnClose);
             NewCommand = new Command(OnNew);
@@ -49,12 +49,12 @@ namespace DMOrders.Pages.Fragments.Product
             SyncCommand = new Command(OnSync);
         }
 
-        private void LoadActivities()
-        {
-            // Aquí deberías cargar tus actividades desde el servicio o base de datos
-            Activities.Add(new PlanningSlot { id = 1, name = "Reunión diaria", res_company_display="Macronegocios", res_partner_display="Cliente", start_datetime = DateTime.Now.TimeOfDay, end_datetime = DateTime.Now.TimeOfDay  });
-            Activities.Add(new PlanningSlot { id = 2, name = "Revisión", res_company_display = "Macronegocios", res_partner_display = "Cliente", start_datetime = DateTime.Now.TimeOfDay, end_datetime = DateTime.Now.TimeOfDay });
-        }
+        //private void LoadActivities()
+        //{
+        //    // Aquí deberías cargar tus actividades desde el servicio o base de datos
+        //    Activities.Add(new PlanningSlot { id = 1, name = "Reunión diaria", res_company_display="Macronegocios", res_partner_display="Cliente", start_datetime = DateTime.Now.TimeOfDay, end_datetime = DateTime.Now.TimeOfDay  });
+        //    Activities.Add(new PlanningSlot { id = 2, name = "Revisión", res_company_display = "Macronegocios", res_partner_display = "Cliente", start_datetime = DateTime.Now.TimeOfDay, end_datetime = DateTime.Now.TimeOfDay });
+        //}
 
         private void OnClose()
         {

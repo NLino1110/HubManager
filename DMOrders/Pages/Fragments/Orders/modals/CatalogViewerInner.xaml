@@ -251,7 +251,7 @@
                 Title="Marcas"
                 FontSize="11"
                 AllowClear="True" 
-                StyleClass="ControlPreview"
+                StyleClass="ControlPreview"                
                 BorderThickness="0.4"
                 Grid.Row="2">
                 <material:DropdownField.Icon>

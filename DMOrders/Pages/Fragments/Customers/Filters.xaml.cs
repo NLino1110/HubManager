@@ -39,7 +39,7 @@ public partial class Filters : ContentView
         ddfDays.ItemsSource = Days;
         ddfDays.ItemDisplayBinding = new Binding("Name");
         ddfDays.SelectedItem = Days[0];
-        //ddfDays.SelectedItemChanged += DdfDays_SelectedItemChanged;
+        ddfDays.SelectedItemChanged += DdfDays_SelectedItemChanged;
         //ddfDays.ItemDisplayBinding = new ;
 
         Status = new FStatus[3]
@@ -52,7 +52,7 @@ public partial class Filters : ContentView
         ddfStatus.ItemsSource = Status;        
         ddfStatus.ItemDisplayBinding = new Binding("Name");
         ddfStatus.SelectedItem = Status[0];
-        //ddfDays.SelectedItemChanged += DdfDays_SelectedItemChanged;
+        ddfStatus.SelectedItemChanged += DdfStatus_SelectedItemChanged;
 
         LoadProductPricelists();
     }
@@ -80,16 +80,22 @@ public partial class Filters : ContentView
         });
     }
 
-    private void DdfDays_SelectedItemChanged(object? sender, object e)
-    {
-        //throw new NotImplementedException();
+    private void DdfStatus_SelectedItemChanged(object? sender, object e)
+    {        
         Debug.WriteLine(e);
+        //Button_Clicked(sender, null);
+    }
+
+    private void DdfDays_SelectedItemChanged(object? sender, object e)
+    {       
+        Debug.WriteLine(e);
+        //Button_Clicked(sender, null);
     }
 
     private void DdfChannel_SelectedItemChanged(object? sender, object e)
-    {
-        //throw new NotImplementedException();
-        Debug.WriteLine(e);
+    {        
+        Debug.WriteLine(e);        
+        //Button_Clicked(sender, null);
     }
 
     private void Button_Clicked(object sender, EventArgs e)
@@ -102,6 +108,9 @@ public partial class Filters : ContentView
         entryCode.Text = "";
         entryVat.Text = "";
         entryName.Text = "";
+        ddfDays.SelectedItem = Days[0];
+        ddfStatus.SelectedItem = Status[0];
+        ddfChannel.SelectedItem = Product_Pricelists[0];
     }
 
     internal string getCode()

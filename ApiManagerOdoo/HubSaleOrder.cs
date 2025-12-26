@@ -213,6 +213,10 @@ namespace ApiManager
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "show_delete_button");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "is_manual");
 
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "promotion_ids_json");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "rule_ids_json");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "origin_gift_line_ids_json");
+
             //JObjectExtensions.RenamePropertyFromOrderLineItems(newJObject, "_product_uom_qty", "product_uom_qty");
 
             //if (newJObject["partner_id"] != null)
@@ -229,6 +233,10 @@ namespace ApiManager
             object[] args = new object[] { newJObject };
             var created_data = await Create<ApiResponseOdooRpcT<int>>(args, kwargs);
 
+            if(created_data.result == 0)
+            {
+                return created_data;
+            }
 
             object[] args_s1 = new object[]
             {
@@ -267,7 +275,7 @@ namespace ApiManager
 
             int created_state_order = 0;
 
-            if (pre_aprobed_data.result.Count > 0)
+            if (pre_aprobed_data.result != null && pre_aprobed_data.result.Count > 0)
             {
                 created_state_order = pre_aprobed_data.result[0].id;                
             }

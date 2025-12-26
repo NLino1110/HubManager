@@ -284,9 +284,15 @@ public partial class Filters : ContentView
 
     private void btnClear_Clicked(object sender, EventArgs e)
     {
-        //entryCode.Text = "";
-        //entryId.Text = "";
+        TextCode.Text = "";
+        TextDescription.Text = "";
         //entryName.Text = "";
+
+        ddfStatus.SelectedItem = Status[0];
+        Brands [0] = new product_marca { id = 0, name = "No seleccionada" };
+        ddfBrands.SelectedItem = Brands[0];
+        Product_Categories[0] = new product_categoria { id = 0, name = "No seleccionada" };
+        ddfCategory.SelectedItem = Product_Categories[0];
     }
 
     internal int getStatus()
