@@ -163,6 +163,9 @@
 	  <MauiXaml Update="Controls\CustomRows\Lite\ProductCanvasRow.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Controls\CustomRows\Lite\ProductViewerRow.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Controls\PopupLoadingTask.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

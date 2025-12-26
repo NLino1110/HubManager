@@ -113,7 +113,7 @@ namespace DMOrders.Controls.CustomRows
                     {
                         MainThread.BeginInvokeOnMainThread(() =>
                         {
-                            image.Source = "image_not_found.png";
+                            image.Source = "image_not_found_gray_opt.png";
                             activityIndicator.IsRunning = false;
                             activityIndicator.IsVisible = false;
                             image.IsVisible = true;

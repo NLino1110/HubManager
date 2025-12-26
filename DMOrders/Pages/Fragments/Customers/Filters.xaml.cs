@@ -61,7 +61,7 @@ public partial class Filters : ContentView
     {
         ProductPricelistDb productPriceListsDb = new ProductPricelistDb(App.Session.odooConnection.DbNameSqlite);
         
-        var pplItems = await productPriceListsDb.GetItemsAsync(x=>x._tipo_canal_id == 1);
+        var pplItems = await productPriceListsDb.GetItemsAsync(x=>x._tipo_canal_id == 1 && x.use_mobile_app);
 
         MainThread.BeginInvokeOnMainThread(() =>
         {

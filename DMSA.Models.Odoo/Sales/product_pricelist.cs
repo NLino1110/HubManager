@@ -23,8 +23,8 @@ namespace DMSA.Models.Odoo.Sales
         public string display_name { get; set; }
         public string clave_externa { get; set; }
         public string tipo_canal { get; set; }
-        [JsonProperty("use_mobil_app")]
-        public bool use_mobil_app { get; set; }
+        [JsonProperty("use_mobile_app")]
+        public bool use_mobile_app { get; set; }
 
         [Ignore]        
         public JToken currency_id { get; set; }

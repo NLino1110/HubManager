@@ -234,18 +234,19 @@ public partial class Info : ContentView
         if (Cache.PriceListDict.Count == 0)
         {
             var priceListDb = new ProductPricelistDb(App.Session.odooConnection.DbNameSqlite);
-            var priceLists = await priceListDb.GetItemsAsync(x => x.active);
+            var priceLists = await priceListDb.GetItemsAsync(x => x.active && x.use_mobile_app);
             Cache.PriceListDict = priceLists.ToDictionary(x => x.id, x => x.name);
         }        
 
         List<product_pricelist_item> priceListItems;
                 
         if (!Cache.PriceListItemsByTemplate.TryGetValue(data._product_tmpl_id, out priceListItems))
-        {            
-            
+        {
+            var priceListIds = Cache.PriceListDict.Keys.ToList();
 
             priceListItems = await priceListProductsDb.GetItemsAsync(
-                x => x._product_tmpl_id == data._product_tmpl_id
+                x => x._product_tmpl_id == data._product_tmpl_id &&
+                priceListIds.Contains(x._pricelist_id)
             );
                         
             Cache.PriceListItemsByTemplate[data._product_tmpl_id] = priceListItems;
