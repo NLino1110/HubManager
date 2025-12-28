@@ -144,7 +144,7 @@ namespace ApiManager
             return await SearchRead<ApiResponseOdooRpcT<sale_order[]>>(args, _custom_args, kwargs);
         }
 
-        public async Task<ApiResponseOdooRpcT<int>?> Create(sale_order sale_Order)
+        public async Task<ApiResponseOdooRpcT<int>?> Create(sale_order sale_Order, bool requiredApproved)
         {
             var kwargs = new{};
             var settings = new JsonSerializerSettings
@@ -233,7 +233,7 @@ namespace ApiManager
             object[] args = new object[] { newJObject };
             var created_data = await Create<ApiResponseOdooRpcT<int>>(args, kwargs);
 
-            if(created_data.result == 0)
+            if(created_data.result == 0 || !requiredApproved)
             {
                 return created_data;
             }

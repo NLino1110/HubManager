@@ -56,7 +56,7 @@ namespace DMSA.Sync.Core.Update.Pusher
             //object kargs = new object[] {};
 
             ApiManager.HubSaleOrder hubStore = new HubSaleOrder(Constants.Session);
-            ApiResponseOdooRpcT<int> resultTask = await hubStore.Create(sale_Order);
+            ApiResponseOdooRpcT<int> resultTask = await hubStore.Create(sale_Order, false);
 
             if (resultTask != null && resultTask.error != null)
             {

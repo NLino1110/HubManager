@@ -225,7 +225,7 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
                 HeightRequest="40"
                 WidthRequest="120"
                 Padding="0"
-                Clicked="OnCloseButtonClicked" IsVisible="False">
+                Clicked="OnCloseButtonClicked" IsVisible="True">
                 <Button.ImageSource>
                     <FontImageSource 
             Size="25"
@@ -233,7 +233,7 @@ xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
             Glyph="{x:Static uranium:MaterialSharp.Data_saver_on}" />
                 </Button.ImageSource>
             </Button>
-            <Button Text="Continuar" 
+            <Button Text="Cerrar" 
                 BackgroundColor="#4CAF50" 
                 TextColor="White" 
                 HeightRequest="40"

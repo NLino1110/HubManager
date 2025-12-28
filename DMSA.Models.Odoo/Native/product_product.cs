@@ -206,6 +206,9 @@ namespace DMSA.Models.Odoo.Native
             set => taxes_id = SetId(taxes_id, value);
         }
 
+        [JsonProperty("otras_venta_pedido")]
+        public bool otras_venta_pedido { get; set; }
+
         [JsonIgnore]
         private bool _isSelected;
         [Ignore]

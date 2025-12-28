@@ -59,7 +59,8 @@ namespace ApiManager
                 "general_grupor_tipo_id",
                 "general_registro_sanitario",
                 "taxes_id",
-                "supplier_taxes_id"
+                "supplier_taxes_id",
+                "otras_venta_pedido"
                 };
 
         public HubProductProduct(AppSession _setAppSession) : base(_setAppSession)

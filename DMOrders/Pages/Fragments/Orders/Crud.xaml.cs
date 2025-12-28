@@ -381,7 +381,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
             if (applyPromo.Count > 0)
             {
-
+                //Se guarda después de la aplicación de promociones
+                targetOrder = await SaveOrder();
             }
         }
 
@@ -614,6 +615,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
     private async Task<List<string>> ApplyPromo(sale_order saleOrder)
     {
+        List<string> resultData = new List<string>();
+
         await EvalPromotions(saleOrder);
 
         bool ShowPromoPopup = false;
@@ -628,7 +631,9 @@ public partial class Crud : ContentPage, IBackButtonHandler
         {
             foreach(var promoResItem in promoResult.Items)
             {
-                if(promoResItem.Promotion._promotion_type_id == 2) //REGALO
+                resultData.Add(promoResItem.Promotion.name);
+
+                if (promoResItem.Promotion._promotion_type_id == 2) //REGALO
                 {
                     ShowPromoPopup = true;
                     break;
@@ -708,7 +713,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
             
         }
 
-        return new List<string>();
+        return resultData;
     }
 
     private async Task ApplyDiscountV2(sale_order saleOrder, PromotionEvalItemV2 promoResItem)

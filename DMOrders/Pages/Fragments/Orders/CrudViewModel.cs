@@ -503,6 +503,12 @@ namespace DMOrders.Pages.Fragments.Orders
 
             if (existingLine != null)
             {
+                if ((int)product.cantidad_disponible < (int)(existingLine.product_uom_qty_real + 1))
+                {
+                    await Application.Current.Windows[0].Page.DisplayAlert("Warning", "Producto no se puede agregar porque no hay stock sufuciente.", "OK");
+                    return;
+                }
+
                 // Si existe, aumentar la cantidad
                 existingLine.product_uom_qty_real += 1;
                 existingLine.product_uom_qty += 1;
@@ -520,11 +526,17 @@ namespace DMOrders.Pages.Fragments.Orders
                 existingLine.virtual_iva_percentage = priceCalc.IvaPercentage;
                 existingLine.virtual_line_subtotal = priceCalc.LineSubtotal;
                 existingLine.product_tmpl_id = product._product_tmpl_id;
-                OnPropertyChanged(nameof(OrderLines));                
+                OnPropertyChanged(nameof(OrderLines));
             }
             else
             {
                 var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, 1);
+
+                if(product.cantidad_disponible == 0)
+                {
+                    await Application.Current.Windows[0].Page.DisplayAlert("Warning", "Producto no se puede agregar porque no hay stock sufuciente.", "OK");
+                    return;
+                }
 
                 if (priceCalc.ExistsInPriceList)
                 {
