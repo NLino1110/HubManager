@@ -140,6 +140,9 @@ public partial class Filters : ContentView
 
     internal int getChannel()
     {
-        return ((product_pricelist)ddfChannel.SelectedItem).id;
+        if (ddfChannel.SelectedItem != null)
+            return ((product_pricelist)ddfChannel.SelectedItem).id;
+        else
+            return 0;
     }
 }

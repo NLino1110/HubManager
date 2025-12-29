@@ -4,6 +4,7 @@ using System.Windows.Input;
 
 namespace DMOrders.Controls.CustomRows
 {
+    [Obsolete("Eliminar porque es ineficiente")]
     [XamlCompilation(XamlCompilationOptions.Compile)]
 
     public class MarcaRow : RowAdvance<product_marca>

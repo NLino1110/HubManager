@@ -13,6 +13,8 @@
     <ContentView.Resources>
         <ResourceDictionary>            
             <converters:BoolToActivoConverter x:Key="BoolToActivoConverter"/>
+            <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
+            <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
         </ResourceDictionary>
     </ContentView.Resources>
     <Grid RowDefinitions="Auto,*,Auto">
@@ -205,7 +207,8 @@
 
             <Grid
                 BackgroundColor="#80000000"
-                IsVisible="{Binding IsLoading}"
+                Opacity="{Binding IsLoading, Converter={StaticResource BoolToOpacityConverter}}"
+                InputTransparent="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
                 VerticalOptions="Fill"
                 HorizontalOptions="Fill"
                 ZIndex="10">

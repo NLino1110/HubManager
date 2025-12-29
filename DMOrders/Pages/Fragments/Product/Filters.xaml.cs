@@ -135,7 +135,8 @@ public partial class Filters : ContentView
     }
 
     private async Task LoadTopCategoriesAsync()
-    {        
+    {
+
         int[] topMarcas = new int[] { 20,
                     21,
                     22,
@@ -148,8 +149,9 @@ public partial class Filters : ContentView
                      };
 
         ProductCategoriaDb categoriesDb = new ProductCategoriaDb(App.Session.odooConnection.DbNameSqlite);
-        var itemsTopCategories = await categoriesDb.GetItemsAsync(topMarcas);
-
+        //var itemsTopCategories = await categoriesDb.GetItemsAsync(topMarcas);
+        var itemsTopCategories = await categoriesDb.GetItemsAsync("");        
+        
         MainThread.BeginInvokeOnMainThread(() =>
         {
             Product_Categories =
@@ -212,7 +214,6 @@ public partial class Filters : ContentView
             Debug.WriteLine("Seleccion valida directa...");
             selected_product_category = new_selected_product_category;
         }
-
     }
 
     async Task<product_marca> PopupBrand(object sender, EventArgs e)

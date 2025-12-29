@@ -3,7 +3,6 @@ using DMSA.Models.Odoo.Native;
 using DMSA.Sync.Core.Database.Sqlite;
 using System.Collections.ObjectModel;
 
-
 namespace DMOrders.Controls
 {
     public class PopupSelectMarca : PopupSelectBase<product_marca>
@@ -20,6 +19,7 @@ namespace DMOrders.Controls
             resultItemsSearch = new ObservableCollection<product_marca>();
             Padding = new Thickness(0);
             Margin = new Thickness(0);
+            _collectionViewSearch.MinimumHeightRequest = 400;
         }
 
         async Task<int> LoadData()

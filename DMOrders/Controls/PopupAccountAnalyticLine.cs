@@ -355,7 +355,7 @@ namespace DMOrders.Controls
             popupSizeConstants.CalculateSizes(DeviceDisplay.Current);
             //DesiredSize = popupSizeConstants.Medium;
 
-            var returnResultPopup = new PopupSelectPartner(popupSizeConstants);
+            var returnResultPopup = new PopupSelectPartnerSingle(popupSizeConstants);
             
             returnResultPopup.Company = new res_company()
             {

@@ -87,17 +87,6 @@ namespace DMOrders.Pages.Fragments.Product
             }
         }
 
-        private bool _isBusy;
-        public bool IsBusy
-        {
-            get => _isBusy;
-            set
-            {
-                _isBusy = value;
-                OnPropertyChanged(nameof(IsBusy));
-            }
-        }
-
         public ProductListViewModel(Filters _filters)
         {
             _db = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
@@ -194,6 +183,11 @@ namespace DMOrders.Pages.Fragments.Product
         }
 
         public void LoadDataByTimer()
+        {            
+            LoadData();                
+        }
+
+        public void LoadDataByTimerOld()
         {
             // Usamos el dispatcher global de la app para garantizar ejecución en UI
             //var dispatcher = Application.Current.Dispatcher;
@@ -206,7 +200,7 @@ namespace DMOrders.Pages.Fragments.Product
             {
                 try
                 {
-                    if (IsBusy) return; // Previene cargas simultáneas
+                    if (IsLoading) return; // Previene cargas simultáneas
                     await LoadData();
                 }
                 catch (Exception ex)

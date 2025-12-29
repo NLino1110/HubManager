@@ -15,6 +15,8 @@
             <converters:DiasSemanaConverter x:Key="DiasSemanaConverter" />
             <converters:BoolToActivoConverter x:Key="BoolToActivoConverter"/>
             <converters:FalseStringToDashConverter x:Key="FalseStringToDashConverter"/>
+            <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
+            <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
         </ResourceDictionary>
     </ContentView.Resources>
     <Grid RowDefinitions="Auto,*,Auto">
@@ -144,30 +146,29 @@
                                             Glyph="&#xf067;" />
                                         </Button.ImageSource>
                                     </Button>
-                                </Grid>
-                                    
+                                </Grid>                                    
                                 </mpowerkit:VirtualizeListViewCell>
                             </DataTemplate>
                         </mpowerkit:VirtualizeListView.ItemTemplate>                        
                     </mpowerkit:VirtualizeListView>
                 </mpowerkit:FixedRefreshView>
-            
-            <Grid 
-            
-            BackgroundColor="#80000000"
-            IsVisible="{Binding IsLoading}"
-            VerticalOptions="Fill"
-            HorizontalOptions="Fill"
-            ZIndex="10">
-            <ActivityIndicator 
-                IsRunning="{Binding IsLoading}" 
-                Color="MediumVioletRed"
-                WidthRequest="100"
-                HeightRequest="100"
-                VerticalOptions="Center"
-                HorizontalOptions="Center" />
-        </Grid>
+
+            <Grid
+                BackgroundColor="#80000000"
+                Opacity="{Binding IsLoading, Converter={StaticResource BoolToOpacityConverter}}"
+                InputTransparent="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
+                VerticalOptions="Fill"
+                HorizontalOptions="Fill"
+                ZIndex="10">
+                <ActivityIndicator 
+                    IsRunning="{Binding IsLoading}" 
+                    Color="MediumVioletRed"
+                    WidthRequest="100"
+                    HeightRequest="100"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center" />
             </Grid>
+        </Grid>
 
         <StackLayout Grid.Row="2"  Orientation="Horizontal" HorizontalOptions="Center" Margin="0,2">
             <Button Text=""

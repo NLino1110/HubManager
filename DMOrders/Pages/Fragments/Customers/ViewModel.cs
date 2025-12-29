@@ -68,6 +68,11 @@ namespace DMOrders.Pages.Fragments.Customers
         }
 
         public void LoadDataByTimer()
+        {            
+            LoadData();            
+        }
+
+        public void LoadDataByTimerOld()
         {
             // Usamos el dispatcher global de la app para garantizar ejecución en UI
             //var dispatcher = Application.Current.Dispatcher;
@@ -225,42 +230,62 @@ namespace DMOrders.Pages.Fragments.Customers
                 _lastFilterSignature = signature;
             }
 
-            _cts?.Cancel();
-            _cts = new CancellationTokenSource();
-            var ct = _cts.Token;
+            //_cts?.Cancel();
+            //_cts?.Dispose();
+            //_cts = new CancellationTokenSource();
+            //var ct = _cts.Token;
 
-            await _loadLock.WaitAsync(ct);
+            
             var stopwatch = Stopwatch.StartNew();
 
             try
             {
-                IsLoading = true;
+                //await _loadLock.WaitAsync(ct);
 
-                // Llama paginado (NO vuelvas a traer todo)
+                //IsLoading = true;
+                await MainThread.InvokeOnMainThreadAsync(() => IsLoading = true);
+
+                var filter_code = filters.getCode();
+                var filter_vat = filters.getVat();
+                var filter_name = filters.getName();
+                var filter_channel = filters.getChannel();
+                var filter_days = filters.getDays();
+                var filter_status = filters.getStatus();
+
                 var (items, total) = await _db.GetPagedAsync(
-                    filters.getCode(),
-                    filters.getVat(),
-                    filters.getName(),
-                    filters.getChannel(),
-                    filters.getDays(),
-                    filters.getStatus(),
+                    filter_code,
+                    filter_vat,
+                    filter_name,
+                    filter_channel,
+                    filter_days,
+                    filter_status,
                     0,
                     partner_id,
                     Page,
-                    PageSize,
-                    ct);
+                    PageSize);
 
-                TotalItems = total;
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    TotalItems = total;
 
-                // Evita recrear la OC (menos churn de UI)
-                if (ItemsData == null)
-                    ItemsData = new ObservableCollection<res_partner>();
-                else
+                    ItemsData ??= new ObservableCollection<res_partner>();
                     ItemsData.Clear();
 
-                foreach (var it in items)
-                    ItemsData.Add(it);
-                
+                    foreach (var it in items)
+                        ItemsData.Add(it);
+                });
+
+                //TotalItems = total;
+
+                //// Evita recrear la OC (menos churn de UI)
+                //if (ItemsData == null)
+                //    ItemsData = new ObservableCollection<res_partner>();
+                //else
+                //    ItemsData.Clear();
+
+                //foreach (var it in items)
+                //    ItemsData.Add(it);
+
             }
             catch (OperationCanceledException ecx)
             {
@@ -269,13 +294,14 @@ namespace DMOrders.Pages.Fragments.Customers
             }
             catch (Exception ex)
             {
-                ItemsData = new ObservableCollection<res_partner>();
+                //ItemsData = new ObservableCollection<res_partner>();
                 Debug.WriteLine(ex);
             }
             finally
             {
-                IsLoading = false;
-                _loadLock.Release();
+                //IsLoading = false;
+                await MainThread.InvokeOnMainThreadAsync(() => IsLoading = false);
+                //_loadLock.Release();
                 stopwatch.Stop();
                 Debug.WriteLine($"[CatalogViewerModel] Carga en {stopwatch.ElapsedMilliseconds} ms | TotalItems: {TotalItems}, Page: {Page}, PageSize: {PageSize}, Filtro: {filters.getCode() ?? filters.getName() ?? "sin filtro"}");
             }

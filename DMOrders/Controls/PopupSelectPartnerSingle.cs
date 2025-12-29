@@ -5,18 +5,18 @@ using System.Collections.ObjectModel;
 
 namespace DMOrders.Controls
 {
-    public class PopupSelectProductCategory : PopupSelectBase<product_categoria>
+    public class PopupSelectPartnerSingle : PopupSelectBase<res_partner>
     {
         public res_company Company { get; set; }
         public int DetailMode { get; set; } = 0;
-        ObservableCollection<product_categoria> resultItemsSearch { get; set; }
+        ObservableCollection<res_partner> resultItemsSearch { get; set; }
        
-        public PopupSelectProductCategory(PopupSizeConstants popupSizeConstants) : base(popupSizeConstants,true)
+        public PopupSelectPartnerSingle(PopupSizeConstants popupSizeConstants) : base(popupSizeConstants,true)
         {            
             DataField = "id, name";
             _LaunchSearchEvent += _searchBar_BeginSearch;
             _OnAppearing += _onAppearingCustom;
-            resultItemsSearch = new ObservableCollection<product_categoria>();
+            resultItemsSearch = new ObservableCollection<res_partner>();
             Padding = new Thickness(0);
             Margin = new Thickness(0);
             _collectionViewSearch.MinimumHeightRequest = 400;
@@ -28,20 +28,21 @@ namespace DMOrders.Controls
             {
                 return 0;
             }
-            
+
             await SetWorkingStatus();
-            var dbItemsDb = new ProductCategoriaDb(App.Session.odooConnection.DbNameSqlite);
-            resultItemsSearch = new ObservableCollection<product_categoria>(await dbItemsDb.GetItemsAsync(TextForSearch));
-            _collectionViewSearch.ItemsSource = resultItemsSearch;            
+            ResPartnerDb partnerBankDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
+            resultItemsSearch = new ObservableCollection<res_partner>(await partnerBankDb.GetItemsBySearchAsync(Company.id, TextForSearch.ToUpper(), 25));
+            _collectionViewSearch.ItemsSource = resultItemsSearch;
             await SetDoneStatus();
+
             return 1;
         }
 
         async void _onAppearingCustom(object sender, EventArgs e)
         {
-            SetTitle("Categorias");
+            SetTitle("Clientes");
             SetSubtitle(Company.name);
-            SetGridTitles("Datos de Categoria");            
+            SetGridTitles("Datos de Cliente");            
         }
 
         async void _searchBar_BeginSearch(object sender, EventArgs e)
@@ -52,18 +53,19 @@ namespace DMOrders.Controls
         public override CollectionView builCollectionViewCustom()
         {
             var collectionView = new CollectionView
-            {                
+            {
+                BackgroundColor = Colors.WhiteSmoke,
                 HorizontalOptions = LayoutOptions.Fill,
                 SelectionMode = SelectionMode.Single,
-                EmptyView = "Datos no encontrados...",
-                ItemsLayout = new GridItemsLayout(4, ItemsLayoutOrientation.Vertical)
+                EmptyView = "No hay datos para mostrar...",
+                //ItemsLayout = new GridItemsLayout(4, ItemsLayoutOrientation.Vertical)
             };
                         
             collectionView.ItemTemplate = new DataTemplate(() =>
             {
-                var row = new ProductCategoryRow();
+                var row = new ResPartnerSingle();
                 row.ActionCommand = CommandSelectListItem;
-
+                
                 row.BindingContextChanged += (s, e) =>
                 {
                     if (row.BindingContext != null)
@@ -73,8 +75,7 @@ namespace DMOrders.Controls
                             Path = "SelectedItem",
                             Source = collectionView,
                             Mode = BindingMode.TwoWay
-                        };
-                        //row.SetBinding(ProductCategoryRow.SelectedItemProperty, selectedItemBinding);
+                        };                        
                     }
                 };
 
@@ -82,7 +83,6 @@ namespace DMOrders.Controls
             });
 
             return collectionView;
-
         }
     }
 }

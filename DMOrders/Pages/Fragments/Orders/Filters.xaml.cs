@@ -135,7 +135,7 @@ public partial class Filters : ContentView
         var popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
         popupSizeConstants.CalculateSizes(DeviceDisplay.Current);
         
-        var returnResultPopup = new PopupSelectPartner(popupSizeConstants);
+        var returnResultPopup = new PopupSelectPartnerSingle(popupSizeConstants);
 
         returnResultPopup.Company = App.Session.res_Company;
         returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;

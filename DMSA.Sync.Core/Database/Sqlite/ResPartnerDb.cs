@@ -137,7 +137,7 @@ namespace DMSA.Sync.Core.Database.Sqlite
             int filter_status,
             int filter_sort,
             int filter_adic_commercial,
-            int page, int pageSize, CancellationToken ct = default)
+            int page, int pageSize)
         {
             var q = await BuildQuery(filter_code, filter_vat, filter_name, filter_channel,filter_days, filter_status, filter_sort, filter_adic_commercial);
 

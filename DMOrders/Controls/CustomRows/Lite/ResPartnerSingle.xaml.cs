@@ -2,7 +2,7 @@ using System.Windows.Input;
 
 namespace DMOrders.Controls.CustomRows.Lite;
 
-public partial class MarcaRow : ContentView
+public partial class ResPartnerSingle : ContentView
 {
     public ICommand ActionCommand
     {
@@ -17,20 +17,8 @@ public partial class MarcaRow : ContentView
             typeof(MarcaRow),
             null);
 
-    public MarcaRow()
+    public ResPartnerSingle()
 	{
 		InitializeComponent();
 	}
-
-    //private void OnPressed(object sender, PointerEventArgs e)
-    //{
-    //    RootBorder.BackgroundColor = Color.FromArgb("#E6F0FF");
-    //    RootBorder.Stroke = Colors.DodgerBlue;
-    //}
-
-    //private void OnReleased(object sender, PointerEventArgs e)
-    //{
-    //    RootBorder.BackgroundColor = Colors.FloralWhite;
-    //    RootBorder.Stroke = Colors.LightGray;
-    //}
 }
