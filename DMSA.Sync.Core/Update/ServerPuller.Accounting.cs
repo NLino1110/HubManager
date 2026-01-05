@@ -1,6 +1,6 @@
 ﻿using ApiManager;
 using CommunityToolkit.Maui.Core;
-using DMSA.Models.Odoo.DMCobranzas;
+using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Tools;
 using DMSA.Sync.Core.Controls;
@@ -310,7 +310,7 @@ namespace DMSA.Sync.Core.Update
                     await database.InsertBatchAsync(responseAll.result);
                 }
 
-                Console.WriteLine("Página:" + indice);
+                Debug.WriteLine("Página:" + indice + "/" + countTotal.ToString());
 
                 //TODO: Se fuerza la salida para que no se quede ciclado en caso de que haya
                 // problemas de conexion con el servidor
@@ -318,14 +318,14 @@ namespace DMSA.Sync.Core.Update
 
                 if (indice >= maxIndexExceeded)
                 {
-                    Console.WriteLine("Página " + indice + ": Se terminará el proceso.");
+                    Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
                     break;
                 }
             }
 
             TimeSpan span = (DateTime.Now - dateTimeIni);
 
-            Console.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+            Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
                 span.Days, span.Hours, span.Minutes, span.Seconds));
 
             return true;
@@ -392,7 +392,7 @@ namespace DMSA.Sync.Core.Update
             List<string> bank_ids_list = new List<string>();
 
             //Se obtienen las cuentas para ser insertados en la base local
-            ApiManager.HubCuentas hubCuentas = new HubCuentas(Constants.Session);
+            ApiManager.HubResPartnerBank hubCuentas = new HubResPartnerBank(Constants.Session);
             //var cuentasDeLista = await hubCuentas.GetAll(String.Join(",", accounts_journal_ids_list.ToArray()));
             var cuentasDeLista = await hubCuentas.GetAll();
 
@@ -461,73 +461,118 @@ namespace DMSA.Sync.Core.Update
             }
         }
 
-        public async Task OnlineSyncJournal()
+        public async Task<bool> OnlineSyncJournal()
         {
-            InboundPaymentMethodDb inboundPaymentMethodDb = new InboundPaymentMethodDb(Constants.Session.odooConnection.DbNameSqlite);
-            await inboundPaymentMethodDb.Truncate();
+            var stopwatch = Stopwatch.StartNew();
 
-            //Se obtienen los diarios para ser insertados en la base local
-            ApiManager.HubAccountJournal hubDiarios = new HubAccountJournal(Constants.Session);
+            var database = new AccountJournalDb(Constants.Session.odooConnection.DbNameSqlite);
 
-            var ids = Constants.Session.CurrentUserFront.empresas.Select(e => e.id);
-            //string strEmpresas = string.Join(",", ids);
+            DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since);
 
-            var responsehubhubDiariosAll = await hubDiarios.GetAccountJournal(ids.ToArray());
+            HubAccountJournal hubmanager = new HubAccountJournal(appSession);
+            var resultCount = await hubmanager.GetCount(lastDate.Value.Year, lastDate.Value.Month, lastDate.Value.Day);
 
-            AccountJournalDb accountJournalDb = new AccountJournalDb(Constants.Session.odooConnection.DbNameSqlite);
-            BankDb bankDb = new BankDb(Constants.Session.odooConnection.DbNameSqlite);
-            await bankDb.Truncate();
-            //var res = accountJournalDb.GetItemsAsync();
+            Debug.WriteLine(resultCount.result);
 
-            //string[] accounts_journal_ids = new string[] { };
-            List<string> accounts_journal_ids_list = new List<string>();
-
-            if (responsehubhubDiariosAll != null && responsehubhubDiariosAll.result != null)
+            if (resultCount.result == 0)
             {
-                //Debug.WriteLine(res.Count);
-                foreach (var itemData in responsehubhubDiariosAll.result)
+                return false;
+            }
+
+            int countTotal = resultCount.result / limit;
+
+            for (int indice = 0; indice <= countTotal; indice++)
+            {
+                var responseAll = await hubmanager.GetItems(lastDate.Value, limit, indice);
+
+                if (responseAll != null && responseAll.result != null && responseAll.result.Length > 0)
                 {
-                    //Se evalúa si debe usarse en la app
-                    if (!itemData.use_mobile_app)
-                    {
-                        var isForApp = itemData.mobile_app_tag_ids.Where(i => i.code == Constants.Session.AppCodeOdoo).FirstOrDefault();
-                        if (isForApp != null)
-                        {
+                    await database.InsertBatchAsync(responseAll.result);
+                    //await database.InsertBatchControlAsync(responseAll.result);
+                }
 
-                        }
-                        else
-                        {
-                            //TODO: Se debe quitar comentario cuando se solucione el tema de los diarios de Odoo
-                            //continue;
-                        }
-                    }
+                Console.WriteLine("ResPartnerFull Página:" + indice + " de " + countTotal);
 
-                    //accountJournalDb.InsertAsync(itemData);
-                    //itemData._bank_account_id = 0;
-                    //if (itemData.bank_account_id.Count > 0)
-                    //{
-                    //    itemData._bank_account_id = itemData.bank_account_id.FirstOrDefault().id;
-
-                    //    //Se agrega a la lista
-                    //    accounts_journal_ids_list.Add(itemData.bank_account_id.FirstOrDefault().id.ToString());
-                    //}
-
-                    //itemData._company_id = 0;
-                    //if (itemData.company_id.Count > 0)
-                    //{
-                    //    itemData._company_id = itemData.company_id.FirstOrDefault().id;
-                    //}
-
-                    //if (itemData.inbound_payment_method_line_ids.Count > 0)
-                    //{
-                    //    itemData.inbound_payment_method_line_ids.ForEach(x => x.parent_id = itemData.id);
-                    //    await inboundPaymentMethodDb.InsertBatchAsync(itemData.inbound_payment_method_line_ids.ToArray());
-                    //}
-
-                    //Solo se insertarán las cuentas que tengan habilitado su uso en las apps móviles
-                    await accountJournalDb.InsertOrReplaceAsync(itemData);
+                if (indice >= maxIndexExceeded)
+                {
+                    Console.WriteLine("Página " + indice + ": Se terminará el proceso.");
+                    break;
                 }
             }
+
+            stopwatch.Stop();
+
+            Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+                stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
+            return true;
+        
+
+        //////InboundPaymentMethodDb inboundPaymentMethodDb = new InboundPaymentMethodDb(Constants.Session.odooConnection.DbNameSqlite);
+        //////    await inboundPaymentMethodDb.Truncate();
+
+        //////    //Se obtienen los diarios para ser insertados en la base local
+        //////    ApiManager.HubAccountJournal hubDiarios = new HubAccountJournal(Constants.Session);
+
+        //////    var ids = Constants.Session.CurrentUserFront.empresas.Select(e => e.id);
+        //////    //string strEmpresas = string.Join(",", ids);
+
+        //////    var responsehubhubDiariosAll = await hubDiarios.GetAccountJournal(ids.ToArray());
+
+        //////    AccountJournalDb accountJournalDb = new AccountJournalDb(Constants.Session.odooConnection.DbNameSqlite);
+        //////    BankDb bankDb = new BankDb(Constants.Session.odooConnection.DbNameSqlite);
+        //////    await bankDb.Truncate();
+        //////    //var res = accountJournalDb.GetItemsAsync();
+
+        //////    //string[] accounts_journal_ids = new string[] { };
+        //////    List<string> accounts_journal_ids_list = new List<string>();
+
+        //////    if (responsehubhubDiariosAll != null && responsehubhubDiariosAll.result != null)
+        //////    {
+        //////        //Debug.WriteLine(res.Count);
+        //////        foreach (var itemData in responsehubhubDiariosAll.result)
+        //////        {
+        //////            //Se evalúa si debe usarse en la app
+        //////            if (!itemData.use_mobile_app)
+        //////            {
+        //////                var isForApp = itemData.mobile_app_tag_ids.Where(i => i.code == Constants.Session.AppCodeOdoo).FirstOrDefault();
+        //////                if (isForApp != null)
+        //////                {
+
+        //////                }
+        //////                else
+        //////                {
+        //////                    //TODO: Se debe quitar comentario cuando se solucione el tema de los diarios de Odoo
+        //////                    //continue;
+        //////                }
+        //////            }
+
+        //////            //accountJournalDb.InsertAsync(itemData);
+        //////            //itemData._bank_account_id = 0;
+        //////            //if (itemData.bank_account_id.Count > 0)
+        //////            //{
+        //////            //    itemData._bank_account_id = itemData.bank_account_id.FirstOrDefault().id;
+
+        //////            //    //Se agrega a la lista
+        //////            //    accounts_journal_ids_list.Add(itemData.bank_account_id.FirstOrDefault().id.ToString());
+        //////            //}
+
+        //////            //itemData._company_id = 0;
+        //////            //if (itemData.company_id.Count > 0)
+        //////            //{
+        //////            //    itemData._company_id = itemData.company_id.FirstOrDefault().id;
+        //////            //}
+
+        //////            //if (itemData.inbound_payment_method_line_ids.Count > 0)
+        //////            //{
+        //////            //    itemData.inbound_payment_method_line_ids.ForEach(x => x.parent_id = itemData.id);
+        //////            //    await inboundPaymentMethodDb.InsertBatchAsync(itemData.inbound_payment_method_line_ids.ToArray());
+        //////            //}
+
+        //////            //Solo se insertarán las cuentas que tengan habilitado su uso en las apps móviles
+        //////            await accountJournalDb.InsertOrReplaceAsync(itemData);
+        //////        }
+        //////    }
         }
 
 
@@ -696,8 +741,7 @@ namespace DMSA.Sync.Core.Update
             IToast toast,
             ToastDuration duration,
             double fontSize,
-            CancellationTokenSource cancellationTokenSource,
-            string fechaActualizaTablet
+            CancellationTokenSource cancellationTokenSource
             )
         {
 

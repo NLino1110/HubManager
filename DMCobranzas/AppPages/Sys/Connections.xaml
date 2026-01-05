@@ -35,16 +35,29 @@
                             <material:TextField Title="Host" BorderThickness="0.4" Text="{Binding SelectedConnection.Host}" Grid.Row="1" Grid.Column="0"/>
                             <material:TextField Title="Host Dump" BorderThickness="0.4" Text="{Binding SelectedConnection.HostDump}" Grid.Row="2" Grid.Column="0"/>
                             <material:TextField Title="Dump Service" BorderThickness="0.4" Text="{Binding SelectedConnection.DumpService}" Grid.Row="3" Grid.Column="0"/>
-                            <material:TextField Title="Database Name" BorderThickness="0.4" Text="{Binding SelectedConnection.DbName}" Grid.Row="4" Grid.Column="0"/>
 
+                            <HorizontalStackLayout Grid.Row="4" Grid.Column="0" HorizontalOptions="Fill" Spacing="5">
+                                <material:TextField Title="Prefix" BorderThickness="0.4" Text="{Binding SelectedConnection.prefix_db}" MinimumWidthRequest="100"/>
+                                <material:TextField Title="Database Name" BorderThickness="0.4" Text="{Binding SelectedConnection.DbName}" MinimumWidthRequest="300"/>
+                            </HorizontalStackLayout>
                             <!-- Columna 2 -->
                             <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="15">
                                 <material:TextField Title="DB Limit Default" BorderThickness="0.4" Text="{Binding SelectedConnection.DbLimitDefault}"/>
                                 <material:TextField Title="Tolerancy Days" BorderThickness="0.4" Text="{Binding SelectedConnection.DataToleranceDays}"/>
-                                <material:TextField Title="Sale Channel" BorderThickness="0.4" Text="{Binding SelectedConnection.sale_channel_default}"/>                                
+                                                            
                             </HorizontalStackLayout>
-                            <material:TextField Title="Company Id" BorderThickness="0.4" Text="{Binding SelectedConnection.CompanyId}" Grid.Row="1" Grid.Column="1"/>
-                            <material:TextField Title="Center Id" BorderThickness="0.4" Text="{Binding SelectedConnection.res_center_default}" Grid.Row="2" Grid.Column="1"/>
+
+                            <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="15">
+                                <material:TextField Title="Company Id" BorderThickness="0.4" Text="{Binding SelectedConnection.CompanyId}" />
+                                <material:TextField Title="Sale Channel" BorderThickness="0.4" Text="{Binding SelectedConnection.sale_channel_default}"/>
+                                <material:TextField Title="Center Id" BorderThickness="0.4" Text="{Binding SelectedConnection.res_center_default}"/>
+                            </HorizontalStackLayout>
+
+                            <HorizontalStackLayout Grid.Row="2" Grid.Column="1" Spacing="15">
+                                <material:TextField Title="Project Id" BorderThickness="0.4" Text="{Binding SelectedConnection.project_id}" />
+                                <material:TextField Title="Project Stage Id" BorderThickness="0.4" Text="{Binding SelectedConnection.stage_id}" />
+                            </HorizontalStackLayout>
+
                             <material:TextField Title="Username" BorderThickness="0.4" Text="{Binding SelectedConnection.Username}" Grid.Row="3" Grid.Column="1"/>
                             <material:TextField Title="Password" BorderThickness="0.4" Text="{Binding SelectedConnection.Password}" Grid.Row="4" Grid.Column="1"/>
                         </Grid>

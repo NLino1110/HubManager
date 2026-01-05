@@ -8,8 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Maui" Version="9.1.1" />
-    <PackageReference Include="CommunityToolkit.Maui.Core" Version="9.1.1" />
+	  <PackageReference Include="CommunityToolkit.Maui" Version="12.3.0" />
+	  <PackageReference Include="CommunityToolkit.Maui.Core" Version="12.3.0" />
+	  <PackageReference Include="CommunityToolkit.Maui.Markup" Version="6.0.1" />
 	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.10" />   
 	  <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.10" />
@@ -25,6 +26,36 @@
   </ItemGroup>
 
   <ItemGroup>
+    <MauiXaml Update="Controls\CustomRows\Lite\AccountAnalyticLineRow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Controls\CustomRows\Lite\MarcaRow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Controls\CustomRows\Lite\ProductCanvasRow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Controls\CustomRows\Lite\ProductCategoryRow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Controls\CustomRows\Lite\ProductViewerRow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Controls\CustomRows\Lite\ResPartner.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Controls\CustomRows\Lite\ResPartnerCreditDataRow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Controls\CustomRows\Lite\ResPartnerSingleRow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Controls\CustomRows\Lite\SaleOrderRow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Controls\PopupLoadingTask.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
     <MauiXaml Update="Controls\ProgressBarAnimationBehaviorPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
@@ -32,6 +63,15 @@
 
   <ItemGroup>
     <Folder Include="Pages\Sys\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Controls\CustomRows\Lite\ResPartnerCreditDataRow.xaml.cs">
+      <DependentUpon>ResPartnerCreditDataRow.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Controls\CustomRows\Lite\ResPartnerSingleRow.xaml.cs">
+      <DependentUpon>ResPartnerSingleRow.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 	
 </Project>

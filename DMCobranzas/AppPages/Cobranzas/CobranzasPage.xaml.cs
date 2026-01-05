@@ -1,36 +1,23 @@
 //using CloudKit;
 using ApiManager;
+using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Sample.Models;
+using CommunityToolkit.Maui.Sample.ViewModels.Views;
 using DMCobranzas.Controls.Modals;
 using DMCobranzas.Controls.Modals.TabbedPages;
 using DMCobranzas.Models;
 using DMCobranzas.Models.Specials;
 using DMCobranzas.Services.ApiHub;
 using DMCobranzas.Settings.helpers;
-using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Sample;
-using CommunityToolkit.Maui.Sample.Models;
-using CommunityToolkit.Maui.Sample.Pages;
-using CommunityToolkit.Maui.Sample.ViewModels.Views;
-using CommunityToolkit.Maui.Views;
-using DMSA.Models;
-using DMSA.Models.General;
-using DMSA.Models.General.Responses;
+using DMSA.Models.Odoo.Accounting;
+using DMSA.Models.Odoo.DebitCollection;
 using DMSA.Models.Odoo.Native;
-using DMSA.Models.Odoo.Tools;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Controls.PlatformConfiguration.WindowsSpecific;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using System.Collections.ObjectModel;
-//using Microsoft.Maui.Controls.Compatibility;
-using System.Diagnostics;
-using System.Drawing;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Windows.Input;
-using System.Xml.Linq;
-using DMSA.Models.Odoo.DMCobranzas;
+using DMSA.Sync.Core.Database.Sqlite.DebitCollection;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
+using Newtonsoft.Json;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Windows.Input;
 
 namespace DMCobranzas.AppPages;
 
@@ -160,7 +147,7 @@ public partial class CobranzasPage : ContentPage
         await LoadData();
     }
 
-    private async Task ProcessItemsGroup(List<AccountPaymentHeader> registrosGrupo,
+    private async Task ProcessItemsGroup(List<MultipleCobrosInvoice> registrosGrupo,
         ObservableCollection<ItemsGroup> _items,
         res_company se)
     {
@@ -169,7 +156,7 @@ public partial class CobranzasPage : ContentPage
         foreach (var item in registrosGrupo)
         {
             AccountPaymentDailyDb cobCierreDb = new AccountPaymentDailyDb(App.Session.odooConnection.DbNameSqlite);
-            var cierres = await cobCierreDb.GetItemAsync(se.id, item.create_datetime.ToString("yyyy-MM-dd"));
+            var cierres = await cobCierreDb.GetItemAsync(se.id, item.create_date.ToString("yyyy-MM-dd"));
             //YA HA SIDO CERRADO
             if (cierres != null)
             {
@@ -180,10 +167,10 @@ public partial class CobranzasPage : ContentPage
 
         if (registrosGrupo.Count() > 0)
         {
-            DateTime fecha = registrosGrupo[0].create_datetime;
+            DateTime fecha = registrosGrupo[0].create_date;
             string GroupTitle = fecha.ToString("yyyy-MM-dd");
 
-            var newGroup = new ItemsGroup(GroupTitle, registrosGrupo[0].create_datetime.ToString("yyyy-MM-dd"), registrosGrupo[0].create_datetime.ToString("yyyy-MM-dd"), registrosGrupo);
+            var newGroup = new ItemsGroup(GroupTitle, registrosGrupo[0].create_date.ToString("yyyy-MM-dd"), registrosGrupo[0].create_date.ToString("yyyy-MM-dd"), registrosGrupo);
             newGroup.showButtonCierre = !FoundCerrado;
             _items.Add(newGroup);
         }
@@ -217,25 +204,33 @@ public partial class CobranzasPage : ContentPage
             //{
             DateTime dateEndField = dateEnd.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
 
-            var se = (res_company) SelectorCmp.SelectedItem;
-            var database = new AccountPaymentHeaderDb(App.Session.odooConnection.DbNameSqlite);
+            var SelCompany = (res_company) SelectorCmp.SelectedItem;
+            var database = new MultipleCobrosInvoiceDb(App.Session.odooConnection.DbNameSqlite);
             //var ls_items = await database.GetItemsAsync(se.empresa, dateIni.Date, dateEndField, App.Session.CurrentUser.codusuario, true);
-            var ls_items = await database.GetItemsAsync(se.id,
-                dateIni.Date,
-                dateEndField,
-                txtSearch.Text.Trim(),
-                App.Session.CurrentUser.uid,
-                true);
+            //var ls_items = await database.GetItemsAsync(SelCompany.id,
+            //    dateIni.Date,
+            //    dateEndField,
+            //    txtSearch.Text.Trim(),
+            //    App.Session.CurrentUser.uid,
+            //    true);
+
+            string text_search = txtSearch.Text.Trim();
+
+            var ls_items = await database.GetItemsAsync(x=> x.company_id == SelCompany.id && 
+                 x.create_date >= dateIni.Date && 
+                 x.create_date <= dateEndField &&                                   
+                 x.partner_name.Contains(text_search) &&
+                 x.create_uid == App.Session.CurrentUser.uid);
 
             //Se ordenan los registros por FECHA
             //ls_items.Sort((x, y) => x.FECHA.CompareTo(y.FECHA));
 
             //Se ordena desde la fecha mas actual
-            ls_items = ls_items.OrderByDescending(c => c.create_datetime).ToList();
+            ls_items = ls_items.OrderByDescending(c => c.create_date).ToList();
 
             // Variable para almacenar la fecha actual
             DateTime currentFecha = DateTime.MinValue;
-            List<AccountPaymentHeader> registrosGrupo = new List<AccountPaymentHeader>();
+            List<MultipleCobrosInvoice> registrosGrupo = new List<MultipleCobrosInvoice>();
 
             foreach (var _paymentHeaderItem in ls_items)
             {
@@ -244,7 +239,7 @@ public partial class CobranzasPage : ContentPage
                 {
                     // Obtén la fecha y hora actual
                     DateTime fechaActual = DateTime.Now;
-                    TimeSpan diferenciaDeTiempo = fechaActual - _paymentHeaderItem.create_datetime;
+                    TimeSpan diferenciaDeTiempo = fechaActual - _paymentHeaderItem.create_date;
 
                     if (diferenciaDeTiempo.TotalMinutes > 5)
                     {
@@ -253,21 +248,21 @@ public partial class CobranzasPage : ContentPage
                     }
                 }
 
-                DateTime fecha = _paymentHeaderItem.create_datetime; // Convertir la cadena de fecha a DateTime
+                DateTime fecha = _paymentHeaderItem.create_date; // Convertir la cadena de fecha a DateTime
 
                 if (fecha.Date != currentFecha.Date) // Si la fecha cambia
                 {
                     // Ejecutar la función que recibe los registros de la fecha anterior
-                    await ProcessItemsGroup(registrosGrupo, _items, se);
+                    await ProcessItemsGroup(registrosGrupo, _items, SelCompany);
 
                     currentFecha = fecha.Date; // Actualizar la fecha actual
-                    registrosGrupo = new List<AccountPaymentHeader>();
+                    registrosGrupo = new List<MultipleCobrosInvoice>();
                 }
 
                 registrosGrupo.Add(_paymentHeaderItem);
             }
 
-            await ProcessItemsGroup(registrosGrupo, _items, se);
+            await ProcessItemsGroup(registrosGrupo, _items, SelCompany);
 
             collectionView.ItemsSource = _items;
             
@@ -451,8 +446,8 @@ public partial class CobranzasPage : ContentPage
     {
         Debug.WriteLine("EditItem");
 
-        DMCobranzas.Controls.Modals.TabbedPages.AccountPaymentView objPage = new DMCobranzas.Controls.Modals.TabbedPages.AccountPaymentView();
-        objPage.Sel_AccountPaymentHeader = (AccountPaymentHeader)obj;
+        AccountPaymentView objPage = new AccountPaymentView();
+        objPage.Sel_AccountPaymentHeader = (MultipleCobrosInvoice)obj;
         objPage.editionMode = true;
 
         //CobrosTabs objPage = new CobrosTabs();
@@ -510,7 +505,7 @@ public partial class CobranzasPage : ContentPage
             case "AccountPaymentHeader":
                 {
                     //printTemplate = await processor.Template_CobReciboCab((AccountPaymentHeader)obj);
-                    printTemplate = await processor.Template_AccountPaymentHeader_v2((AccountPaymentHeader)obj);
+                    printTemplate = await processor.Template_AccountPaymentHeader_v2((MultipleCobrosInvoice)obj);
                     var _itemGroup = (AccountPaymentHeader)obj;
                     
                     res_company[] Empresas = null;

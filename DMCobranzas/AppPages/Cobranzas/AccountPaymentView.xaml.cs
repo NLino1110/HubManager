@@ -1,13 +1,16 @@
-using System.Diagnostics;
-using System.Windows.Input;
-using DMSA.Models.Odoo.Native;
 using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Views;
-using CommunityToolkit.Maui.Sample.Models;
-using DMSA.Models.Odoo.DMCobranzas;
 using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Maui.Sample.Models;
+using DMSA.Models.Odoo.Accounting;
+using DMSA.Models.Odoo.DebitCollection;
+using DMSA.Models.Odoo.Native;
+using DMSA.Sync.Core.Controls.Popups;
 using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.DebitCollection;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
+using System.Diagnostics;
+using System.Linq;
+using System.Windows.Input;
 
 namespace DMCobranzas.Controls.Modals.TabbedPages;
 
@@ -27,14 +30,14 @@ public partial class AccountPaymentView : ContentPage
     public bool isWindows { get; set; } = false;
     public bool editionMode { get; set; } = false;
     public bool isFirstLoad { get; set; } = true;
-    public AccountPayment[] accountPayments { get; set; } = new AccountPayment[0];
+    public MultipleCobrosInvoiceLine[] accountPayments { get; set; } = new MultipleCobrosInvoiceLine[0];
 
     public static readonly BindableProperty _cobReciboCabProperty =
-            BindableProperty.Create(nameof(Sel_AccountPaymentHeader), typeof(AccountPaymentHeader), typeof(AccountPaymentView));
+            BindableProperty.Create(nameof(Sel_AccountPaymentHeader), typeof(MultipleCobrosInvoice), typeof(AccountPaymentView));
 
-    public AccountPaymentHeader Sel_AccountPaymentHeader
+    public MultipleCobrosInvoice Sel_AccountPaymentHeader
     {
-        get => (AccountPaymentHeader)GetValue(_cobReciboCabProperty);
+        get => (MultipleCobrosInvoice)GetValue(_cobReciboCabProperty);
         set => SetValue(_cobReciboCabProperty, value);
     }
 
@@ -56,7 +59,8 @@ public partial class AccountPaymentView : ContentPage
         //LoadData();        
         isWindows = DeviceInfo.Current.Platform == DevicePlatform.WinUI;
 
-        this.popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
+        this.popupSizeConstants2 = new DMSA.Sync.Core.Controls.Popups.PopupSizeConstants(DeviceDisplay.Current);
+        this.popupSizeConstants = new CommunityToolkit.Maui.Sample.Models.PopupSizeConstants(DeviceDisplay.Current);
                 
         BindingContext = this;
     }
@@ -169,7 +173,7 @@ public partial class AccountPaymentView : ContentPage
 
         AccountPaymentCrud obj = new AccountPaymentCrud(Sel_Res_Partner);
         obj.isNewData = false;
-        obj.accountPayment = (AccountPayment)objParam;
+        obj.accountPayment = (MultipleCobrosInvoiceLine)objParam;
         obj.itemIndex = accountPayments.ToList().IndexOf(obj.accountPayment);
         obj.accountPaymentHeader = Sel_AccountPaymentHeader;
 
@@ -184,35 +188,6 @@ public partial class AccountPaymentView : ContentPage
         obj.Disappearing += accountPaymentCrud_Disappearing;
     }
 
-    //[Obsolete]
-    //private async void EditItem_old(object objParam)
-    //{
-    //    Debug.WriteLine("EditItem");
-
-    //    if(_cobCarteraCab == null && editionMode)
-    //    {
-    //        //Hay que obtener los datos de cartera cuando el origen es el modo edición
-    //        CobCarteraCabDb cobCarteraCabDb = new CobCarteraCabDb();
-    //        _cobCarteraCab = await cobCarteraCabDb.GetItemAsync(Sel_AccountPaymentHeader.CODCLIENTE);            
-    //    }
-
-    //    CobroNuevo obj = new CobroNuevo(_cobCarteraCab, Sel_Res_Partner);
-    //    obj.isNewData = false;
-    //    obj.accountPayment = (AccountPayment) objParam;
-    //    obj.itemIndex = accountPayments.ToList().IndexOf(obj.accountPayment);
-    //    obj.accountPaymentHeader = Sel_AccountPaymentHeader;
-
-    //    //Se asigna la empresa seleccionada
-    //    //obj.empresa = se;
-    //    //Se asigna título
-    //    //obj.Title = "Cartera Clientes/" + se.nombre;
-
-    //    await Navigation.PushModalAsync(obj, false);
-    //    //await Navigation.PushModalAsync(obj, true);
-
-    //    obj.Disappearing += Obj_Disappearing;
-    //}
-
     public ICommand DeleteItemCommand { get; set; }
 
     private async void DeleteItem(object objParam)
@@ -223,7 +198,7 @@ public partial class AccountPaymentView : ContentPage
         if (answer)
         {
             var nList = accountPayments.ToList();
-            int itemIndex = nList.IndexOf((AccountPayment)objParam);            
+            int itemIndex = nList.IndexOf((MultipleCobrosInvoiceLine)objParam);            
             nList.RemoveAt(itemIndex);
             
             accountPayments = nList.ToArray();
@@ -231,23 +206,6 @@ public partial class AccountPaymentView : ContentPage
             return;
         }
     }
-
-    //private async void EditItem_Clicked(object sender, EventArgs e)
-    //{
-    //    CobroNuevo obj = new CobroNuevo();
-    //    obj.isNewData = false;
-    //    obj.cobReciboDet = null;
-    //    //Se asigna la empresa seleccionada
-    //    //obj.empresa = se;
-    //    //Se asigna título
-    //    //obj.Title = "Cartera Clientes/" + se.nombre;
-
-    //    await Navigation.PushModalAsync(obj, false);
-    //    //await Navigation.PushModalAsync(obj, true);
-
-    //    obj.Disappearing += Obj_Disappearing;
-    //    //SelectorCmp.IsEnabled = false;
-    //}
 
     // Función para buscar el objeto más parecido en una lista
     public static T FindClosestObject<T>(List<T> objects, T targetObject)
@@ -285,18 +243,6 @@ public partial class AccountPaymentView : ContentPage
         return default(T);
     }
 
-    //public string ConvertirAMoneda(string valor)
-    //{
-    //    if (decimal.TryParse(valor, out decimal numero))
-    //    {
-    //        return numero.ToString("0.00");
-    //    }
-    //    else
-    //    {
-    //        return valor; // Devuelve el valor original si no es un número válido
-    //    }
-    //}
-
     public decimal FnToDecimal(string valor)
     {
         if (decimal.TryParse(valor, out decimal numero))
@@ -322,7 +268,7 @@ public partial class AccountPaymentView : ContentPage
                 var task = Task.Run(async () =>
                 {
                     //var database = new CobReciboCabDb();
-                    AccountPayment cobReciboDet = new AccountPayment();
+                    MultipleCobrosInvoiceLine cobReciboDet = new MultipleCobrosInvoiceLine();
                     
 
                     //Se asigna para posteriormente almacenar
@@ -349,7 +295,7 @@ public partial class AccountPaymentView : ContentPage
                     var nList = accountPayments.ToList();
 
 
-                    AccountPayment cobReciboDet = new AccountPayment();
+                    MultipleCobrosInvoiceLine cobReciboDet = new MultipleCobrosInvoiceLine();
                     cobReciboDet = ((AccountPaymentCrud)sender).accountPayment;
 
                     //TODO: PARECE INNECESARIO
@@ -376,7 +322,7 @@ public partial class AccountPaymentView : ContentPage
             idItem++;
             //di.sequence = idItem;
 
-            decimal _totalPagado = di.amount;
+            decimal _totalPagado = (decimal) di.Amount;
             Debug.WriteLine(_totalPagado);
 
             totalPagado += _totalPagado; // ParseTool.StringToDecimal(item.valor);
@@ -432,15 +378,15 @@ public partial class AccountPaymentView : ContentPage
             {
                 //dataItems = new CobReciboDet[0];
                 //var ls_dataItems = JsonConvert.DeserializeObject<List<AccountPayment>>(cobReciboCab.DETALLESPAGO);
-                AccountPaymentDb accountPaymentDb = new AccountPaymentDb(App.Session.odooConnection.DbNameSqlite);
-                var ls_accountPayments = await accountPaymentDb.GetByParent(Sel_AccountPaymentHeader.id);
+                var accountPaymentDb = new MultipleCobrosInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
+                var ls_accountPayments = await accountPaymentDb.GetItemsAsync(x=>x.MultipleCobrosInvoiceId == Sel_AccountPaymentHeader.id);
                 accountPayments = ls_accountPayments.ToArray();
 
-                AccountPaymentInvoiceLineDb accountPaymentLines = new AccountPaymentInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
+                var accountPaymentLines = new MultipleCobrosInvoiceLineAiDb(App.Session.odooConnection.DbNameSqlite);
 
                 foreach (var accountPayment in accountPayments)
                 {
-                    var apl = await accountPaymentLines.GetItemsAsync(accountPayment);
+                    var apl = await accountPaymentLines.GetItemsAsync( x=>x.multiple_cobros_invoice_line_id == accountPayment.Id);
 
                     if (apl.Count() > 0)
                     {
@@ -499,7 +445,7 @@ public partial class AccountPaymentView : ContentPage
         //}
 
         //CobCarteraCabDb cobCarteraCab = new CobCarteraCabDb();
-        AccountPaymentHeaderDb database = new AccountPaymentHeaderDb(App.Session.odooConnection.DbNameSqlite);
+        var database = new MultipleCobrosInvoiceDb(App.Session.odooConnection.DbNameSqlite);
         DateTime fechaActual = DateTime.Now;
 
         if (editionMode)
@@ -521,7 +467,7 @@ public partial class AccountPaymentView : ContentPage
                         
 
             //Guardar info
-            AccountPaymentHeader accountPaymentHeader = new AccountPaymentHeader();
+            MultipleCobrosInvoice accountPaymentHeader = new MultipleCobrosInvoice();
             accountPaymentHeader.company_id = Sel_AccountPaymentHeader.company_id;
 
             //Update
@@ -531,11 +477,11 @@ public partial class AccountPaymentView : ContentPage
                 accountPaymentHeader.id = Sel_AccountPaymentHeader.id;
             }
 
-            accountPaymentHeader.create_datetime = fechaActual;
-            accountPaymentHeader.uid = App.Session.CurrentUser.uid;
+            accountPaymentHeader.create_date = fechaActual;
+            accountPaymentHeader.create_uid = App.Session.CurrentUser.uid;
             accountPaymentHeader.partner_id = Sel_AccountPaymentHeader.partner_id;
             accountPaymentHeader.partner_name = Sel_AccountPaymentHeader.partner_name;
-            accountPaymentHeader.payment_amount = totalPagado; //.ToString(App.Session.ApplicationCultureInfo);
+            accountPaymentHeader.amount = (float) totalPagado; //.ToString(App.Session.ApplicationCultureInfo);
             accountPaymentHeader.total_due = Sel_AccountPaymentHeader.total_due;
             accountPaymentHeader.payment_status = DMSA.Models.CobrosEstados.PENDIENTE;
             //
@@ -543,7 +489,7 @@ public partial class AccountPaymentView : ContentPage
             accountPaymentHeader.CERRADO = "N";
             accountPaymentHeader.NOMBREUSUARIO = App.Session.CurrentUser.nombres;
 
-            List<AccountPayment> _accountPayment = new List<AccountPayment>();
+            List<MultipleCobrosInvoiceLine> _accountPayment = new List<MultipleCobrosInvoiceLine>();
 
             //Se obtienen las formas de pago para almacenar            
             _accountPayment = accountPayments.ToList();
@@ -559,10 +505,10 @@ public partial class AccountPaymentView : ContentPage
             {
                 await database.UpdateAsync(accountPaymentHeader);
 
-                _accountPayment.ForEach(item => item.parent_id = accountPaymentHeader.id);
+                _accountPayment.ForEach(item => item.MultipleCobrosInvoiceId = accountPaymentHeader.id);
 
-                AccountPaymentDb accountPaymentDb = new AccountPaymentDb(App.Session.odooConnection.DbNameSqlite);
-                AccountPaymentInvoiceLineDb accountPaymentInvoiceLineDb = new AccountPaymentInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
+                var accountPaymentDb = new MultipleCobrosInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
+                var accountPaymentInvoiceLineDb = new MultipleCobrosInvoiceLineAiDb(App.Session.odooConnection.DbNameSqlite);
                 //Se eliminan detalles previos para almacenar los nuevos
                 //TODO: Se puede considerar crear un algoritmo de reemplazo de datos
                 await accountPaymentDb.DeleteItemOfParent(accountPaymentHeader);
@@ -575,13 +521,13 @@ public partial class AccountPaymentView : ContentPage
                     await accountPaymentInvoiceLineDb.DeleteItemOfParent(accountPayment);
 
                     await accountPaymentDb.InsertAsync(accountPayment);
-                    int accPayId = accountPayment.id;
+                    int accPayId = accountPayment.Id;
 
                     if (accountPayment.lines != null)
                     {
                         foreach (var accountPaymentInvoiceLine in accountPayment.lines)
                         {
-                            accountPaymentInvoiceLine.parent_payment_id = accPayId;
+                            accountPaymentInvoiceLine.multiple_cobros_invoice_line_id = accPayId;
                             await accountPaymentInvoiceLineDb.InsertAsync(accountPaymentInvoiceLine);
                         }
                     }
@@ -601,7 +547,7 @@ public partial class AccountPaymentView : ContentPage
                 return;
             }
 
-            AccountPaymentHeader accountPaymentHeader = new AccountPaymentHeader();
+            var accountPaymentHeader = new MultipleCobrosInvoice();
             //TODO: Asignación de los datos del pago nuevo
 
             //accountPaymentHeader.company_id = Sel_Res_Partner.company_id;
@@ -609,18 +555,18 @@ public partial class AccountPaymentView : ContentPage
             accountPaymentHeader.partner_name = Sel_Res_Partner.name;
             accountPaymentHeader.partner_id = Sel_Res_Partner.id;
 
-            accountPaymentHeader.create_datetime = fechaActual;
-            accountPaymentHeader.uid = App.Session.CurrentUser.uid;
+            accountPaymentHeader.create_date = fechaActual;
+            accountPaymentHeader.create_uid = App.Session.CurrentUser.uid;
             
-            accountPaymentHeader.payment_amount = totalPagado; //.ToString(App.Session.ApplicationCultureInfo);
-            accountPaymentHeader.total_due = Sel_Res_Partner.total_due;
+            accountPaymentHeader.amount = (float) totalPagado; //.ToString(App.Session.ApplicationCultureInfo);
+            accountPaymentHeader.total_due = (float) Sel_Res_Partner.total_due;
             accountPaymentHeader.payment_status = DMSA.Models.CobrosEstados.PENDIENTE;
             //
             accountPaymentHeader.EMAILCLIENTE = Sel_Res_Partner.email;
             accountPaymentHeader.CERRADO = "N";
             accountPaymentHeader.NOMBREUSUARIO = App.Session.CurrentUser.nombres;
 
-            List<AccountPayment> _accountPayment = new List<AccountPayment>();
+            List<MultipleCobrosInvoiceLine> _accountPayment = new List<MultipleCobrosInvoiceLine>();
 
             //Se obtienen las formas de pago para almacenar            
             _accountPayment = accountPayments.ToList();
@@ -632,20 +578,20 @@ public partial class AccountPaymentView : ContentPage
             //Se obtiene el nuevo ID
             int newId = accountPaymentHeader.id;
 
-            _accountPayment.ForEach(item => item.parent_id = newId);
+            _accountPayment.ForEach(item => item.MultipleCobrosInvoiceId = newId);
 
-            AccountPaymentDb accountPaymentDb = new AccountPaymentDb(App.Session.odooConnection.DbNameSqlite);
-            AccountPaymentInvoiceLineDb accountPaymentInvoiceLineDb = new AccountPaymentInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
+            var accountPaymentDb = new MultipleCobrosInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
+            var accountPaymentInvoiceLineDb = new MultipleCobrosInvoiceLineAiDb(App.Session.odooConnection.DbNameSqlite);
             //accountPaymentDb.InsertBatchAsync(cobReciboDet.ToArray());
 
             foreach (var accountPayment in _accountPayment)
             {
                 await accountPaymentDb.InsertAsync(accountPayment);
-                int accPayId = accountPayment.id;
+                int accPayId = accountPayment.Id;
 
                 foreach (var accountPaymentInvoiceLine in accountPayment.lines)
                 {
-                    accountPaymentInvoiceLine.parent_payment_id = accPayId;
+                    accountPaymentInvoiceLine.multiple_cobros_invoice_line_id = accPayId;
                     await accountPaymentInvoiceLineDb.InsertAsync(accountPaymentInvoiceLine);
                 }
             }
@@ -667,11 +613,12 @@ public partial class AccountPaymentView : ContentPage
         //ClearItems();
     }
 
-    readonly PopupSizeConstants popupSizeConstants;
+    readonly CommunityToolkit.Maui.Sample.Models.PopupSizeConstants popupSizeConstants;
+    readonly DMSA.Sync.Core.Controls.Popups.PopupSizeConstants popupSizeConstants2;
 
     async void HandleReturnResultPopupButtonClicked(object sender, EventArgs e)
     {
-        var returnResultPopup = new PopupSelectPartner(popupSizeConstants);
+        var returnResultPopup = new DMSA.Sync.Core.Controls.Popups.PopupSelectPartnerCreditData(popupSizeConstants2);
         //var empresa = (res_company) SelectorCmp.SelectedItem;
         //returnResultPopup.Company = new Company()
         //{

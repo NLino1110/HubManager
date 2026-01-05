@@ -1,9 +1,10 @@
-﻿using DMSA.Models.Odoo.DMCobranzas;
+﻿using DMSA.Models.Odoo.Accounting;
 using SQLite;
 using System.Globalization;
 
 namespace DMSA.Sync.Core.Database.Sqlite.Payments
 {
+    [Obsolete]
     public class AccountPaymentHeaderDb : SqliteDbBase<AccountPaymentHeader>
     {   
         public AccountPaymentHeaderDb(string _DatabaseFilename) : base(_DatabaseFilename)

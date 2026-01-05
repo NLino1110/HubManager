@@ -17,8 +17,19 @@ namespace DMSA.Models.Odoo.Native
         public string name { get; set; }
 
         public bool use_mobile_app { get; set; }
+
+        [Obsolete("Ya no usado")]
         public bool credit_card { get; set; }
+        [Obsolete("Ya no usado")]
         public bool credit_note { get; set; }
+
+        [JsonProperty("aplica_cheque")]
+        [Column("aplica_cheque")]
+        public bool aplica_cheque { get; set; }
+        [JsonProperty("aplica_tarjeta")]
+        [Column("aplica_tarjeta")]
+        public bool aplica_tarjeta { get; set; }
+
         [JsonProperty("create_date")]
         [Column("create_date")]
         public DateTime? create_date { get; set; }
@@ -75,8 +86,6 @@ namespace DMSA.Models.Odoo.Native
             set => inbound_payment_method_line_ids = SetIds(inbound_payment_method_line_ids, value);
         }
 
-        //[JsonIgnore] // Ignoramos esta propiedad al serializar para evitar la redundancia
-        //public int BankIdData => BankId != null && BankId.Count > 0 ? BankId[0].Id : 0;
     }
 
 
@@ -127,6 +136,7 @@ namespace DMSA.Models.Odoo.Native
     //    public string name { get; set; }
     //}
 
+    [Obsolete]
     public class account_journal_type
     {
         [PrimaryKey]
@@ -135,6 +145,7 @@ namespace DMSA.Models.Odoo.Native
         public string name { get; set; }
     }
 
+    [Obsolete]
     public class inbound_payment_method
     {
         [JsonIgnore]

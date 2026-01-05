@@ -7,8 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DMSA.Models.Odoo.DMCobranzas
+namespace DMSA.Models.Odoo.Accounting
 {
+    [Obsolete("Eliminar")]
     public class AccountPayment
     {
         [JsonIgnore]
@@ -79,6 +80,26 @@ namespace DMSA.Models.Odoo.DMCobranzas
         [JsonIgnore]
         public string? auth_tc { get; set; }
         public string? lote_tc { get; set; }
+
+
+        [JsonProperty("center_id")]
+        public int center_id { get; set; }
+        [JsonProperty("destination_account_id")]
+        public int destination_account_id { get; set; }
+        [JsonProperty("analytic_account_id")]
+        public int analytic_account_id { get; set; }
+         
+        [JsonProperty("depositos_confirmar_id")]
+        public int depositos_confirmar_id { get; set; }
+
+        [JsonProperty("subclasificacion_gasto_id")]
+        public int subclasificacion_gasto_id { get; set; }
+
+        [JsonProperty("deducible")] //si/no
+        public string deducible { get; set; }
+
+        [JsonProperty("deducible")] //si/no
+        public string bank_type_emision { get; set; }
     }
 
     public class JournalSummary

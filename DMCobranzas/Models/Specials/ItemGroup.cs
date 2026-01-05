@@ -1,10 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using DMSA.Models.Odoo.Accounting;
+using DMSA.Models.Odoo.DebitCollection;
 using DMSA.Models.Odoo.DMCobranzas;
 using DMSA.Models.Odoo.Native;
 
 namespace DMCobranzas.Models.Specials
 {
-    public class ItemsGroup : List<AccountPaymentHeader>
+    public class ItemsGroup : List<MultipleCobrosInvoice>
     {
         public string Title { get; private set; }
         public string Header { get; private set; }
@@ -26,7 +28,7 @@ namespace DMCobranzas.Models.Specials
             }
         }
 
-        public ItemsGroup(string title, string header, string groupdata, List<AccountPaymentHeader> items) : base(items)
+        public ItemsGroup(string title, string header, string groupdata, List<MultipleCobrosInvoice> items) : base(items)
         {
             Title = title;
             Header = header;

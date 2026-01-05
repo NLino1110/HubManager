@@ -7,7 +7,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
-namespace DMSA.Models.Odoo.DMCobranzas
+namespace DMSA.Models.Odoo.Accounting
 {
     //cabeceraCobro
     public class AccountPaymentHeaderSend: AccountPaymentHeader

@@ -1,4 +1,4 @@
-﻿using DMSA.Models.Odoo.DMCobranzas;
+﻿using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.Native;
 using System;
 using System.Collections.Generic;

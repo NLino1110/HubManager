@@ -8,9 +8,9 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace DMSA.Models.Odoo.DMCobranzas
+namespace DMSA.Models.Odoo.Accounting
 {
-    //cabeceraCobro
+    [Obsolete]
     public class AccountPaymentHeader
     {
         [Key]

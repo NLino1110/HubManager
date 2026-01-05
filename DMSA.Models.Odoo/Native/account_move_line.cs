@@ -18,9 +18,7 @@ namespace DMSA.Models.Odoo.Native
         public decimal discount_balance { get; set; }
         public decimal price_total { get; set; }
         public decimal discount_percentage { get; set; }
-        public string display_type { get; set; }
-
-        
+        public string display_type { get; set; }        
         
         
         //private int _moveId = 0;
@@ -106,5 +104,5 @@ namespace DMSA.Models.Odoo.Native
         [JsonProperty("write_date")]
         [Column("write_date")]
         public DateTime? write_date { get; set; }
-    }    
+    }
 }

@@ -8,9 +8,44 @@ namespace DMSA.Sync.Core.Database.Sqlite.Payments
     {
         public AccountMoveLineDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
-
+            Task.Run(async () =>
+            {
+                await InitializeAsync();
+            });
         }
 
+        public async Task InitializeAsync()
+        {
+            await Init();
+                        
+            await Database.ExecuteAsync(
+                "CREATE INDEX IF NOT EXISTS idx_account_move_line__move_id ON account_move_line(_move_id)"
+            );
+
+            await Database.ExecuteAsync(
+                "CREATE INDEX IF NOT EXISTS idx_account_move_line__product_id ON account_move_line(_product_id)"
+            );
+
+            await Database.ExecuteAsync(
+                "CREATE INDEX IF NOT EXISTS idx_account_move_line__account_id ON account_move_line(_account_id)"
+            );
+                        
+            await Database.ExecuteAsync(
+                "CREATE INDEX IF NOT EXISTS idx_account_move_line__create_date ON account_move_line(create_date)"
+            );
+
+            await Database.ExecuteAsync(
+                "CREATE INDEX IF NOT EXISTS idx_account_move_line__write_date ON account_move_line(write_date)"
+            );
+                        
+            await Database.ExecuteAsync(
+                "CREATE INDEX IF NOT EXISTS idx_account_move_line__display_type ON account_move_line(display_type)"
+            );
+
+            await Database.ExecuteAsync(
+                "CREATE INDEX IF NOT EXISTS idx_account_move_line__move_id__display_type ON account_move_line(_move_id, display_type)"
+            );
+        }
 
         public async Task<List<account_move_line>> GetItemsAsync(
             string name, 

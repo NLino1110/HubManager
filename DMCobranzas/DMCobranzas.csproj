@@ -365,6 +365,15 @@
 	  <MauiXaml Update="Controls\CustomListItem.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Controls\CustomRows\CustomHeaderView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Controls\CustomRows\InvoicePaymentItem.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Controls\CustomRows\PaymentHeaderItem.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Controls\PopupLoadingTask.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

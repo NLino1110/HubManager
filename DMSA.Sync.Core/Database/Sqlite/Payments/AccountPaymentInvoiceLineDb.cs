@@ -1,8 +1,9 @@
-﻿using DMSA.Models.Odoo.DMCobranzas;
+﻿using DMSA.Models.Odoo.Accounting;
 using SQLite;
 
 namespace DMSA.Sync.Core.Database.Sqlite.Payments
 {
+    [Obsolete]
     public class AccountPaymentInvoiceLineDb : SqliteDbBase<AccountPaymentInvoiceLine>
     {
         public AccountPaymentInvoiceLineDb(string _DatabaseFilename) : base(_DatabaseFilename)

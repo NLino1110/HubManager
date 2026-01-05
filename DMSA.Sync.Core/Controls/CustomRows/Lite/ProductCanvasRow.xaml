@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DMOrders.Controls.CustomRows.Lite.ProductCanvasRow"
+             xmlns:odoo="clr-namespace:DMSA.Models.Odoo.Native;assembly=DMSA.Models.Odoo"
+            x:DataType="odoo:product_product">
+    <Grid
+        Padding="4"
+        RowSpacing="2"
+        ColumnSpacing="12">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <!-- Nombre -->
+            <RowDefinition Height="Auto" />
+            <!-- Código -->
+            <RowDefinition Height="Auto" />
+            <!-- Precio / Stock -->
+            <RowDefinition Height="Auto" />
+            <!-- PVP Base / Unidad -->
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Nombre -->
+        <Label
+            Grid.Row="0"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Text="{Binding name}"
+            FontAttributes="Bold"
+            FontSize="14"
+            TextColor="Black"
+            LineBreakMode="TailTruncation"
+            MaxLines="2"
+            MinimumHeightRequest="40"
+            InputTransparent="True" />
+
+        <!-- Código -->
+        <Label
+            Grid.Row="1"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Text="{Binding default_code, StringFormat='Código: {0}'}"
+            FontSize="12"
+            TextColor="Gray"
+            InputTransparent="True" />
+
+        <!-- Precio -->
+        <Label
+            Grid.Row="2"
+            Grid.Column="0"
+            Text="{Binding list_price, StringFormat='Precio: {0:C}'}"
+            FontSize="12"
+            TextColor="DarkGreen"
+            InputTransparent="True" 
+            IsVisible="False"/>
+
+        <!-- Stock -->
+        <Label
+            Grid.Row="2"
+            Grid.Column="1"
+            Text="{Binding qty_available, StringFormat='Stock: {0}'}"
+            FontSize="12"
+            TextColor="DarkGreen"
+            HorizontalTextAlignment="End"
+            InputTransparent="True" />
+
+        <!-- PVP Base -->
+        <Label
+            Grid.Row="3"
+            Grid.Column="0"
+            Text="{Binding list_price, StringFormat='PVP Base: {0:C}'}"
+            FontSize="12"
+            TextColor="DarkGreen"
+            InputTransparent="True"
+            IsVisible="False"/>
+
+        <!-- Unidad -->
+        <Label
+            Grid.Row="3"
+            Grid.Column="1"
+            Text="{Binding _uom_id, StringFormat='Unidad: {0}'}"
+            FontSize="12"
+            TextColor="DarkGreen"
+            HorizontalTextAlignment="End"
+            InputTransparent="True" />
+
+    </Grid>
+</ContentView>

@@ -3,6 +3,7 @@ using SQLite;
 
 namespace DMSA.Sync.Core.Database.Sqlite.Payments
 {
+    [Obsolete]
     public class InboundPaymentMethodDb : SqliteDbBase<inbound_payment_method>
     {
 

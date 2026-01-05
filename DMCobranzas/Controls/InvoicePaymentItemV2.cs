@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using DMSA.Models.Odoo.DMCobranzas;
+using DMSA.Models.Odoo.Accounting;
 
 namespace DMCobranzas.Controls
 {

@@ -6,9 +6,10 @@
              x:Class="DMCobranzas.AppPages.CobranzasPage"
              xmlns:local="clr-namespace:DMCobranzas"
              xmlns:control="clr-namespace:DMCobranzas.Controls"
+             xmlns:controlCustom="clr-namespace:DMCobranzas.Controls.CustomRows"
              Title="Cobranzas">
     <StackLayout HorizontalOptions="Fill">
-        <StackLayout Orientation="Vertical" Margin="4">
+        <StackLayout Orientation="Vertical" Margin="4" HorizontalOptions="Fill">
             <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10, 0,0,0">
                 <Label Text="Empresa:" VerticalOptions="Center" WidthRequest="100" TextColor="DodgerBlue"></Label>
                 <Picker x:Name="SelectorCmp"
@@ -17,15 +18,15 @@
                         SelectedIndexChanged="OnPickerSelectedIndexChanged"
                         VerticalOptions="Center"
                         Margin="0,0,0,0"
-                        HorizontalOptions="FillAndExpand"/>
+                        HorizontalOptions="Fill"/>
             </StackLayout>
             <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10, 0,0,0">
                 <Label Text="F. desde:" VerticalOptions="Center" WidthRequest="100" TextColor="DodgerBlue"></Label>
-                <DatePicker x:Name="dateIni" HorizontalOptions="FillAndExpand" />
+                <DatePicker x:Name="dateIni" HorizontalOptions="Fill" />
             </StackLayout>
             <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10, 0,0,0">
                 <Label Text="F. hasta:" VerticalOptions="Center" WidthRequest="100" TextColor="DodgerBlue"></Label>
-                <DatePicker x:Name="dateEnd" HorizontalOptions="FillAndExpand" />
+                <DatePicker x:Name="dateEnd" HorizontalOptions="Fill" />
             </StackLayout>
 
             <StackLayout Orientation="Horizontal" Margin="10">
@@ -50,7 +51,7 @@
             </StackLayout>
 
             <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10, 0,0,0">
-                <Entry x:Name="txtSearch" Text="" Placeholder="Buscar por Cliente" HorizontalOptions="FillAndExpand" FlexLayout.Shrink="50" FlexLayout.Grow="1"/>
+                <Entry x:Name="txtSearch" Text="" Placeholder="Buscar por Cliente" HorizontalOptions="Fill" FlexLayout.Shrink="50" FlexLayout.Grow="1"/>
             </StackLayout>
         </StackLayout>
 
@@ -59,27 +60,35 @@
         <!--<RefreshView x:Name="refreshView"
                      IsRefreshing="{Binding IsRefreshing}"
                         Command="{Binding RefreshCommand}">-->
-        <ScrollView x:Name="scrollViewResult" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+        <ScrollView x:Name="scrollViewResult" VerticalOptions="Fill" HorizontalOptions="Fill">
             <CollectionView x:Name="collectionView"
                             ItemsSource="{Binding _items}" 
                             IsGrouped="True"
-                            HorizontalOptions="FillAndExpand"
-                            EmptyView=".....">
+                            HorizontalOptions="Fill"
+                            EmptyView="No existen datos para mostrar...">
                     <CollectionView.GroupHeaderTemplate>
                         <DataTemplate>
-                            <control:CustomHeaderView Title="{x:Binding Title}"
+                            <!--<control:CustomHeaderView Title="{x:Binding Title}"
                                                   CommandParameter="{Binding .}"
                                                   ShowButton2="{x:Binding showButtonCierre}"
                                                   Button1Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ReporteDiaCommand}"
                                                   Button2Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CerrarDiaCommand}">
-                            </control:CustomHeaderView>
-                        </DataTemplate>
+                            </control:CustomHeaderView>-->
+                        <controlCustom:CustomHeaderView Title="{x:Binding Title}"
+                      CommandParameter="{Binding .}"
+                      ShowButton2="{x:Binding showButtonCierre}"
+                      Button1Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ReporteDiaCommand}"
+                      Button2Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CerrarDiaCommand}">
+                        </controlCustom:CustomHeaderView>
+                    </DataTemplate>
                     </CollectionView.GroupHeaderTemplate>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <control:PaymentHeaderItem DataItem="{x:Binding .}">
-                            </control:PaymentHeaderItem>
-                        </DataTemplate>
+                            <!--<control:PaymentHeaderItem DataItem="{x:Binding .}">
+                            </control:PaymentHeaderItem>-->
+                        <controlCustom:PaymentHeaderItem Item="{x:Binding .}">
+                        </controlCustom:PaymentHeaderItem>
+                    </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
             </ScrollView>

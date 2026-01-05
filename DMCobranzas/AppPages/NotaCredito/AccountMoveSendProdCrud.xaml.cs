@@ -13,6 +13,7 @@ using System.Windows.Input;
 using DMSA.Models.Odoo.DMCobranzas;
 using CommunityToolkit.Maui.Extensions;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
+using DMSA.Models.Odoo.Accounting;
 
 namespace DMCobranzas.AppPages.NotaCredito;
 

@@ -41,7 +41,8 @@ namespace ApiManagerOdoo.Base
 
             var options = new RestClientOptions(_baseUrl)
             {
-                CookieContainer = _cookieContainer
+                CookieContainer = _cookieContainer,
+                RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
             };
 
             _client = new RestClient(options);

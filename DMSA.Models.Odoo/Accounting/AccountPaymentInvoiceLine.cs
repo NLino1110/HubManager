@@ -7,8 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DMSA.Models.Odoo.DMCobranzas
+namespace DMSA.Models.Odoo.Accounting
 {
+    [Obsolete]
     public class AccountPaymentInvoiceLine
     {
         //account.payment.invoice.line
@@ -34,7 +35,7 @@ namespace DMSA.Models.Odoo.DMCobranzas
         public decimal amount_residual { get; set; }
     }
 
-    //Clase informativa
+    [Obsolete]
     public class AccountPaymentInvoiceLineAuxiliar : AccountPaymentInvoiceLine
     {
         public string invoice_name { get; set; }

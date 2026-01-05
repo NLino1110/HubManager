@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 
 namespace ApiManager
 {
-    public class HubCuentas : HubBase
+    public class HubResPartnerBank : HubBase
     {
         string[] fields_array = new[] {
             "id",
@@ -18,10 +18,12 @@ namespace ApiManager
             "type_account",
             //"use_bank_type",
             "currency_id",
-            "allow_out_payment"
+            "allow_out_payment",
+            "create_date",
+            "write_date"
         };
 
-        public HubCuentas(AppSession _setAppSession) : base(_setAppSession)
+        public HubResPartnerBank(AppSession _setAppSession) : base(_setAppSession)
         {
             EndPointApi = "/web/dataset/call_kw";
             _modelname = "res.partner.bank";

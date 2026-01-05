@@ -19,8 +19,8 @@ namespace DMSA.Models.Odoo.Native
         public string name { get; set; }
         public string complete_name { get; set; }
 
-        [JsonIgnore]
-        public string partner_name { get; set; }             
+        //[JsonIgnore]
+        //public string partner_name { get; set; }
 
         [Ignore]
         public JToken company_id { get; set; }

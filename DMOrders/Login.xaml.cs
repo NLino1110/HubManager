@@ -598,8 +598,8 @@ public partial class Login : ContentPage
                 // Modo offline
                 if (App.Session.useOfflineMode)
                 {
-                    //LoginSelector.IsVisible = false;
-                    //CompanySelector.IsVisible = true;
+                    LoginSelector.IsVisible = false;
+                    CompanySelector.IsVisible = true;
 
                     userFound = userList.Where(
                         u => u.username == txtUser.Text &&
@@ -630,8 +630,8 @@ public partial class Login : ContentPage
                     return;
                 }
 
-                //LoginSelector.IsVisible = false;
-                //CompanySelector.IsVisible = true;
+                LoginSelector.IsVisible = false;
+                CompanySelector.IsVisible = true;
 
                 //var companies = await Task.Run(async () => await PrepareCompanies(userFound));
 

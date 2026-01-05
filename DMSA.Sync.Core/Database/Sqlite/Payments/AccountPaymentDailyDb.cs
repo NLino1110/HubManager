@@ -1,4 +1,4 @@
-﻿using DMSA.Models.Odoo.DMCobranzas;
+﻿using DMSA.Models.Odoo.Accounting;
 using SQLite;
 
 namespace DMSA.Sync.Core.Database.Sqlite.Payments

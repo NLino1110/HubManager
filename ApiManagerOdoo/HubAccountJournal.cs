@@ -21,6 +21,8 @@ namespace ApiManager
             "bank_account_id",
             "company_id",
             "inbound_payment_method_line_ids",
+            "aplica_cheque",
+            "aplica_tarjeta",
             "create_date",
             "write_date"
         };
@@ -73,6 +75,21 @@ namespace ApiManager
                 new object[] { "company_id", "in", company_ids },
             };
             return await SearchRead<ApiResponseOdooRpcT<account_journal[]>>(args, _custom_args, kwargs, true);
+        }
+
+        public async Task<ApiResponseOdooRpc?> GetCount(int year, int month, int day)
+        {
+            var kwargs = new
+            {
+            };
+
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {                
+                //new object[] { "use_mobile_app", "=", true},
+                new object[] { "active", "=", true },
+                new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 00:00:00" },
+            };
+            return await GetCount(args, _custom_args);
         }
 
         [Obsolete]
@@ -176,6 +193,22 @@ namespace ApiManager
             object[] _custom_args = new object[] {
                 new object[] { "create_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
                 new object[] { "active", "=", true },
+            };
+            return await SearchRead<ApiResponseOdooRpcT<account_journal[]>>(args, _custom_args, kwargs, true);
+        }
+
+        public async Task<ApiResponseOdooRpcT<account_journal[]>?> GetItems(DateTime dateIni, int limit, int index)
+        {
+            var kwargs = new
+            {
+                limit = limit,
+                offset = (index * limit),
+                fields = fields_array
+            };
+
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] { "write_date", ">=", dateIni.ToString("yyyy-MM-dd") }
             };
             return await SearchRead<ApiResponseOdooRpcT<account_journal[]>>(args, _custom_args, kwargs, true);
         }

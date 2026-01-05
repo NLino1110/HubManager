@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DMSA.Models.Odoo.DMCobranzas;
+using Newtonsoft.Json;
 using SQLite;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DMSA.Models.Odoo.DMCobranzas
+namespace DMSA.Models.Odoo.Accounting
 {
     public class AccountTypeModule
     {

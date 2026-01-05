@@ -3,11 +3,6 @@ using CommunityToolkit.Maui.Core;
 using DMCobranzas.AppPages;
 using DMCobranzas.AppPages.Sys;
 using DMCobranzas.Controls.Tools;
-//using DMOrders.Controls.Tools;
-//using DMOrders.Pages.Sys;
-//using DMOrders.Services.Database.Sqlite;
-//using DMOrders.Services.Helpers;
-//using DMOrders.Services.Update;
 using DMSA.Models.Odoo.Abstract;
 using DMSA.Models.Odoo.DMApps;
 using DMSA.Models.Odoo.Native;
@@ -15,13 +10,13 @@ using DMSA.Models.Odoo.Tools;
 using DMSA.Models.Security;
 using DMSA.Sync.Core;
 using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Services;
 using DMSA.Sync.Core.Update;
 using System.Buffers;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Timers;
 using UraniumUI.Dialogs;
-using UraniumUI.Material.Controls;
 
 namespace DMCobranzas;
 
@@ -99,6 +94,18 @@ public partial class Login : ContentPage
 
             LoadEnvironment();
 
+            var serverPuller = new ServerPuller();
+            var pullResult = await serverPuller.Pull();
+
+            if (!pullResult)
+            {
+                await Toast.Make("Datos base incorrectos.").Show();
+            }
+            else
+            {
+                await Toast.Make("Datos base correctos.").Show();
+            }
+
             CompanyDb companyDb = new CompanyDb(App.Session.odooConnection.DbNameSqlite);
             SelCompany = (await companyDb.GetItemsAsync()).Where(x => x.id == SelConnection.CompanyId).FirstOrDefault();
 
@@ -130,21 +137,6 @@ public partial class Login : ContentPage
         //var cts = new CancellationTokenSource();
         //var toast = Toast.Make("Cargando...");
         //var toastTask = toast.Show(cts.Token);
-
-        var serverPuller = new ServerPuller();
-        var pullResult = await serverPuller.Pull();
-
-        //if(true)
-        //    await serverPuller.PullPromotions();
-        
-        if (!pullResult)
-        {
-            await Toast.Make("Datos base incorrectos.").Show();
-        }
-        else
-        {
-            await Toast.Make("Datos base correctos.").Show();
-        }
 
         //cts.Cancel();
 
@@ -299,6 +291,8 @@ public partial class Login : ContentPage
     
     public async Task<bool> LoadSettingsFromDb()
     {
+        string deviceID = await DeviceIdentityService.GetCachedAsync();
+
         OdooConnectionDb odooConnectionDb = new OdooConnectionDb();
         await Task.Run(async () => await odooConnectionDb.InitDefault());
 
@@ -488,7 +482,8 @@ public partial class Login : ContentPage
         App.Session.CurrentUserFront = resultUser;
         App.Session.CurrentUserFront.empresas = _empresas;
 
-        //App.Session = ns;
+        //Se vuelve a reasignar la sesión global
+        DMSA.Sync.Core.Constants.Session = App.Session;
 
         //Se realiza inserción/actualización en la tabla
 
@@ -525,7 +520,6 @@ public partial class Login : ContentPage
 
     private async void OnLoginClicked(object sender, EventArgs e)
     {
-        bool successLogin = false;
         if (App.Session.useOfflineMode)
         {
             await TryLoginAsyncOffline();
@@ -537,13 +531,10 @@ public partial class Login : ContentPage
             if (await TryLoginBackUserAsync())
             {
                 await UITools.SetNotifyLoadingPopup("Comprobado backuser...");
-                successLogin = await TryLoginAsync();
+                await TryLoginAsync();
             }
             await UITools.HideLoadingPopup();
         }
-
-        if(successLogin)
-            App.Current.MainPage = new AppFlyout();
     }
 
     public async Task TryLoginAsyncOffline()
@@ -606,8 +597,8 @@ public partial class Login : ContentPage
                 // Modo offline
                 if (App.Session.useOfflineMode)
                 {
-                    //LoginSelector.IsVisible = false;
-                    //CompanySelector.IsVisible = true;
+                    LoginSelector.IsVisible = false;
+                    CompanySelector.IsVisible = true;
 
                     userFound = userList.Where(
                         u => u.username == txtUser.Text &&
@@ -638,8 +629,8 @@ public partial class Login : ContentPage
                     return;
                 }
 
-                //LoginSelector.IsVisible = false;
-                //CompanySelector.IsVisible = true;
+                LoginSelector.IsVisible = false;
+                CompanySelector.IsVisible = true;
 
                 //var companies = await Task.Run(async () => await PrepareCompanies(userFound));
 
@@ -674,7 +665,7 @@ public partial class Login : ContentPage
     }
 
     // Cambiar async void → async Task
-    public async Task<bool> TryLoginAsync()
+    public async Task TryLoginAsync()
     {   
         try
         {
@@ -693,7 +684,7 @@ public partial class Login : ContentPage
             if (user.username.Length <= 3 || user.password.Length <= 3)
             {
                 await Toast.Make("Datos incorrectos, verifique usuario y contraseña.").Show();
-                return false;
+                return;
             }
         }
 #endif
@@ -733,7 +724,7 @@ public partial class Login : ContentPage
                 {
                     BtnTryLogin.IsEnabled = true;
                     Debug.WriteLine("Error en login offline");
-                    return false;
+                    return;
                 }
             }
             else
@@ -747,7 +738,7 @@ public partial class Login : ContentPage
                     BtnTryLogin.IsEnabled = true;
                     await Toast.Make("Offline o servidor inválido! [Módulo de móvil debe estar instalado]").Show();
                     Debug.WriteLine("Offline o servidor inválido! [Módulo de móvil debe estar instalado]");
-                    return false;
+                    return;
                 }
 
                 // Intentar login online
@@ -758,7 +749,7 @@ public partial class Login : ContentPage
                     BtnTryLogin.IsEnabled = true;
                     await Toast.Make($"{responseUser.error.message}: {responseUser.error.data.message}").Show();
                     Debug.WriteLine($"{responseUser.error.message}: {responseUser.error.data.message}");
-                    return false;
+                    return;
                 }
 
                 if (responseUser?.result != null)
@@ -795,18 +786,18 @@ public partial class Login : ContentPage
                 {
                     await Toast.Make("Dato no coincide, verifique la fecha y hora de su dispositivo").Show();
                     BtnTryLogin.IsEnabled = true;
-                    return false;
+                    return;
                 }
             }            
 
             // Configuración post-login
-            if (resultUser?.uid > 0)
-            {
-                return true;
+             if (resultUser?.uid > 0)
+            {                
+                
 
-                //LoginSelector.IsVisible = false;
-                //CompanySelector.IsVisible = true;
-
+                LoginSelector.IsVisible = false;
+                CompanySelector.IsVisible = true;
+                                
                 //var companies = await Task.Run(async () => await PrepareCompanies(userFound));
 
                 //ddCompany.ItemsSource = companies;
@@ -841,8 +832,6 @@ public partial class Login : ContentPage
         {
             BtnTryLogin.IsEnabled = true;            
         }
-
-        return false;
     }
 
     public async Task<bool> TryLoginBackUserAsync()

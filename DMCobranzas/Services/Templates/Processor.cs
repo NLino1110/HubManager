@@ -1,10 +1,13 @@
 ﻿using DMCobranzas.Models;
 using DMCobranzas.Models.Specials;
 using DMCobranzas.Settings.helpers;
+using DMSA.Models.Odoo.Accounting;
+using DMSA.Models.Odoo.DebitCollection;
 using DMSA.Models.Odoo.DMApps;
 using DMSA.Models.Odoo.DMCobranzas;
 using DMSA.Models.Odoo.Native;
 using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.DebitCollection;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
 using Fluid;
 using Microsoft.Maui.Controls;
@@ -58,7 +61,7 @@ namespace DMCobranzas.Services.Templates
 
                             TicketHeaderString += "Resumen Cobranzas" + Environment.NewLine;
                             AccountPaymentDailyDb cobCierreDb = new AccountPaymentDailyDb(App.Session.odooConnection.DbNameSqlite);
-                            var itemsCierre = await cobCierreDb.GetItemsDateCutAsync(_cobReciboCab.company_id, _cobReciboCab.create_datetime);
+                            var itemsCierre = await cobCierreDb.GetItemsDateCutAsync(_cobReciboCab.company_id, _cobReciboCab.create_date);
                             
                             if(itemsCierre!= null)
                             {
@@ -120,23 +123,23 @@ namespace DMCobranzas.Services.Templates
 
         public async Task<string> Template_ItemsGroup_V2(ItemsGroup _itemsGroup)
         {
-            List<AccountPaymentHeader> _accountPaymentHeaders = new List<AccountPaymentHeader>();
-            List<AccountPayment> _accountPayments = new List<AccountPayment>();
+            List<MultipleCobrosInvoice> _accountPaymentHeaders = new List<MultipleCobrosInvoice>();
+            List<MultipleCobrosInvoiceLine> _accountPayments = new List<MultipleCobrosInvoiceLine>();
 
             string result = "";
             foreach (var _itemGroup in _itemsGroup)
             {
                 _accountPaymentHeaders.Add(_itemGroup);
                 AccountPaymentDailyDb _accountPaymentDailyDb = new AccountPaymentDailyDb(App.Session.odooConnection.DbNameSqlite);
-                var _accountPaymentDaily = await _accountPaymentDailyDb.GetItemsDateCutAsync(_itemGroup.company_id, _itemGroup.create_datetime);
+                var _accountPaymentDaily = await _accountPaymentDailyDb.GetItemsDateCutAsync(_itemGroup.company_id, _itemGroup.create_date);
 
                 res_company[] Empresas = null;
                 Empresas = App.Session.CurrentUserFront.empresas;
                 var empresaI = Empresas.ToList().Where(i => i.id == _itemGroup.company_id).FirstOrDefault();
 
-                AccountPaymentDb accountPaymentDb = new AccountPaymentDb(App.Session.odooConnection.DbNameSqlite);
+                var accountPaymentDb = new MultipleCobrosInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
                 //DateTime dateTime = DateTime.Parse(_itemGroup.create_datetime);
-                var _accountPaymentGroup = await accountPaymentDb.GetByParent(_itemGroup.id);
+                var _accountPaymentGroup = await accountPaymentDb.GetItemsAsync(x=>x.MultipleCobrosInvoiceId == _itemGroup.id);
 
                 _accountPayments.AddRange(_accountPaymentGroup);
 
@@ -146,7 +149,7 @@ namespace DMCobranzas.Services.Templates
                                      {
                                          JournalName = g.Key,
                                          TotalRecords = g.Count(),
-                                         TotalAmount = g.Sum(p => p.amount)
+                                         TotalAmount = g.Sum(p => (decimal) p.Amount)
                                      })
                                      .ToList();
 
@@ -172,8 +175,8 @@ namespace DMCobranzas.Services.Templates
 
                 var options = new TemplateOptions();
                 options.MemberAccessStrategy.Register<AccountPaymentDaily>();
-                options.MemberAccessStrategy.Register<AccountPaymentHeader>();
-                options.MemberAccessStrategy.Register<AccountPayment>();
+                options.MemberAccessStrategy.Register<MultipleCobrosInvoice>();
+                options.MemberAccessStrategy.Register<MultipleCobrosInvoiceLine>();
                 options.MemberAccessStrategy.Register<res_company>();                
                 options.MemberAccessStrategy.Register<user_access>();
                 options.MemberAccessStrategy.Register<JournalSummary>();
@@ -195,27 +198,27 @@ namespace DMCobranzas.Services.Templates
             return result;
         }
 
-        public async Task<string> Template_AccountPaymentHeader_v2(AccountPaymentHeader _accountPaymentHeader)
+        public async Task<string> Template_AccountPaymentHeader_v2(MultipleCobrosInvoice _accountPaymentHeader)
         {
-            List<AccountPayment> ls_accountPayments = new List<AccountPayment>();
+            List<MultipleCobrosInvoiceLine> ls_accountPayments = new List<MultipleCobrosInvoiceLine>();
             res_partner _res_partner = null;
             user_access _user_Access = null;
 
             if (_accountPaymentHeader != null)
             {
-                ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
+                var resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
                 _res_partner = await resPartnerDb.GetItemsAsync(_accountPaymentHeader.company_id, _accountPaymentHeader.partner_id);
 
-                UserAccessDb userAccessDb = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
-                _user_Access = await userAccessDb.GetItemAsync(_accountPaymentHeader.uid);
+                var userAccessDb = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
+                _user_Access = await userAccessDb.GetItemAsync(x=>x.uid == _accountPaymentHeader.create_uid);
 
-                AccountPaymentDb accountPaymentDb = new AccountPaymentDb(App.Session.odooConnection.DbNameSqlite);
-                ls_accountPayments = await accountPaymentDb.GetByParent(_accountPaymentHeader.id);
+                var accountPaymentDb = new MultipleCobrosInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
+                ls_accountPayments = await accountPaymentDb.GetItemsAsync(x=>x.MultipleCobrosInvoiceId == _accountPaymentHeader.id);
              
                 foreach (var accountPayment in ls_accountPayments)
                 {
-                    AccountPaymentInvoiceLineDb accountPaymentLines = new AccountPaymentInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
-                    var apl = await accountPaymentLines.GetItemsAsync(accountPayment);
+                    var accountPaymentLines = new MultipleCobrosInvoiceLineAiDb(App.Session.odooConnection.DbNameSqlite);
+                    var apl = await accountPaymentLines.GetItemsAsync(x => x.multiple_cobros_invoice_line_id == accountPayment.Id);
 
                     if (apl.Count() > 0)
                     {
@@ -251,9 +254,9 @@ namespace DMCobranzas.Services.Templates
             };
 
             var options = new TemplateOptions();
-            options.MemberAccessStrategy.Register<AccountPaymentHeader>();
-            options.MemberAccessStrategy.Register<AccountPayment>();
-            options.MemberAccessStrategy.Register<AccountPaymentInvoiceLine>();
+            options.MemberAccessStrategy.Register<MultipleCobrosInvoice>();
+            options.MemberAccessStrategy.Register<MultipleCobrosInvoiceLine>();
+            options.MemberAccessStrategy.Register<MultipleCobrosInvoiceLineAi>();
             options.MemberAccessStrategy.Register<res_company>();
             options.MemberAccessStrategy.Register<res_partner>();
             options.MemberAccessStrategy.Register<user_access>();

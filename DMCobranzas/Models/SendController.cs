@@ -17,6 +17,7 @@ using DMSA.Models.Odoo.Tools;
 using Parlot.Fluent;
 using DMSA.Models.Odoo.DMCobranzas;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
+using DMSA.Models.Odoo.Accounting;
 
 namespace DMCobranzas.Models
 {
@@ -103,7 +104,7 @@ namespace DMCobranzas.Models
 
                     partnerBankItem.active = true;
 
-                    HubCuentas hubCuentas = new HubCuentas(App.Session);
+                    HubResPartnerBank hubCuentas = new HubResPartnerBank(App.Session);
                     var newAccount = await hubCuentas.CreateIfNotExists(partnerBankItem);
 
                     if (newAccount.result > 0)
@@ -371,7 +372,7 @@ namespace DMCobranzas.Models
 
                     partnerBankItem.active = true;
 
-                    HubCuentas hubCuentas = new HubCuentas(App.Session);
+                    HubResPartnerBank hubCuentas = new HubResPartnerBank(App.Session);
                     var newAccount = await hubCuentas.CreateIfNotExists(partnerBankItem);
 
                     if (newAccount.result > 0)

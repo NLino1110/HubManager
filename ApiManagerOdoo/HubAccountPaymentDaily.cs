@@ -5,7 +5,7 @@ using DMSA.Models.Clientes;
 using DMSA.Models.General;
 using DMSA.Models.General.Requests;
 using DMSA.Models.General.Responses;
-using DMSA.Models.Odoo.DMCobranzas;
+using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Tools;

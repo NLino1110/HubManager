@@ -7,8 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DMSA.Models.Odoo.DMCobranzas
+namespace DMSA.Models.Odoo.Accounting
 {
+    [Obsolete]
     public class AccountPaymentInvoiceLineSend: AccountPaymentInvoiceLine
     {
         //[JsonIgnore]

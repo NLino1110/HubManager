@@ -1,26 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using DMSA.Models.Odoo.DebitCollection;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using DMCobranzas.Models;
-using DMCobranzas.Models.Specials;
-using DMSA.Models.Odoo.DMCobranzas;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace DMCobranzas.Controls
 {
     public class PaymentHeaderItem : SwipeView
     {
         public static readonly BindableProperty DataItemProperty =
-            BindableProperty.Create(nameof(DataItem), typeof(AccountPaymentHeader), typeof(PaymentHeaderItem), null);
+            BindableProperty.Create(nameof(DataItem), typeof(MultipleCobrosInvoice), typeof(PaymentHeaderItem), null);
 
-        public AccountPaymentHeader DataItem
+        public MultipleCobrosInvoice DataItem
         {
-            get => (AccountPaymentHeader)GetValue(DataItemProperty);
+            get => (MultipleCobrosInvoice)GetValue(DataItemProperty);
             set => SetValue(DataItemProperty, value);
         }
 
