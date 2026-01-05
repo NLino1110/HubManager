@@ -185,6 +185,6 @@ namespace DMSA.Models.Odoo.DebitCollection
         public int sequence { get; set; }
 
         [JsonIgnore]
-        public string journal_name;
+        public string journal_name { get; set; }
     }
 }

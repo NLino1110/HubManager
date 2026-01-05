@@ -162,7 +162,7 @@
                        Grid.ColumnSpan="2"
                        FontAttributes="Bold"
                        TextColor="DimGray"
-                       Margin="5"></Label>
+                       Margin="5" IsVisible="False"></Label>
                 
                 <Label x:Name="txtTotalPagado" 
                        HorizontalOptions="Center" 
@@ -172,6 +172,7 @@
                        Grid.ColumnSpan="2" 
                        Grid.Row="3"
                        FontAttributes="Bold"></Label>
+                
                 <Label x:Name="txtTotalAplicado" 
                        HorizontalOptions="Center" 
                        Text="TOTAL APLICADO: $ 0.00" 

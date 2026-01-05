@@ -33,6 +33,7 @@ namespace DMCobranzas
                     fonts.AddFont("Font Awesome 5 Brands-Regular-400.otf", "FontAwesome5Brands");
                     fonts.AddFont("Font Awesome 5 Free-Solid-900.otf", "FontAwesome5Solid");
                     fonts.AddFont("Consolas.ttf", "Consolas");
+                    fonts.AddFont("Consoles.otf", "Consoles");
                 })
                 .UseUraniumUIBlurs()
                 .UseMauiCommunityToolkit()
