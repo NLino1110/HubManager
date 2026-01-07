@@ -187,8 +187,8 @@ namespace DMSA.Models.Odoo.Abstract
                 IsProduction = true,
                 IsTestMode = true,
                 DataToleranceDays = 365,
-                sale_channel_default = 8,
-                res_center_default = 49,
+                sale_channel_default = 3,
+                res_center_default = 2,
                 prefix_db = "prod1_"
             }
             );

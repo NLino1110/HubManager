@@ -16,7 +16,7 @@
             x:Name="Root">
     <ContentView.Resources>
         <ResourceDictionary>
-            <converters:InverseBooleanConverter x:Key="InverseBoolConverter" />
+            <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
             <converters:BoolToActivoConverter x:Key="BoolToActivoConverter"/>
             <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>            
         </ResourceDictionary>
@@ -541,7 +541,7 @@ Glyph="{x:Static uranium:MaterialSharp.Check}" />
                             Padding="0"                        
                             BackgroundColor="Gray" 
                             ItemTemplate="{StaticResource ProductTemplateSelector}"
-                            IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
+                            IsVisible="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}">
                         <mpowerkit:VirtualizeListView.ItemsLayout>
                             <mpowerkit:GridLayout HorizontalItemSpacing="1" Span="4" VerticalItemSpacing="1" />                            
                         </mpowerkit:VirtualizeListView.ItemsLayout>                        
