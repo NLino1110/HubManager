@@ -180,7 +180,7 @@ namespace DMSA.Models.Odoo.Abstract
                 DbName = "qa.dmujeres",
                 Username = "admin",
                 Password = CryptoHelper.Encrypt("demo"),
-                Active = false,
+                Active = true,
                 HostDump = "https://192.168.204.66:2443",
                 DumpService = "/resources/tmp/android/sqlite/",
                 DbLimitDefault = 300,
