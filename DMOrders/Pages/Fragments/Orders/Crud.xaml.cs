@@ -652,6 +652,9 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 {
                     await ApplyDiscountV2(saleOrder, promoResItem);
                     ((CrudViewModel)BindingContext).UpdateTotals();
+
+                    ShowPromoPopup = true;
+                    break;
                 }
             }
         }

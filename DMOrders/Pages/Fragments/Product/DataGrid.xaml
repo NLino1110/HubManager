@@ -213,12 +213,12 @@
                 HorizontalOptions="Fill"
                 ZIndex="10">
                 <ActivityIndicator 
-            IsRunning="{Binding IsLoading}" 
-            Color="MediumVioletRed"
-            WidthRequest="100"
-            HeightRequest="100"
-            VerticalOptions="Center"
-            HorizontalOptions="Center" />
+                    IsRunning="{Binding IsLoading}" 
+                    Color="MediumVioletRed"
+                    WidthRequest="100"
+                    HeightRequest="100"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center" />
             </Grid>
         </Grid>
 

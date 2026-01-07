@@ -302,7 +302,6 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
         }
     }
 
-
     private void AutoselectManualPromotionFull()
     {
         foreach (var promo in _itemsFullPromos)
@@ -743,6 +742,30 @@ public partial class PromocionesViewer : ContentView, INotifyPropertyChanged
             }
 
             OnPropertyChanged(nameof(promoGifts));
+        }
+
+        if (selectedPromoEvalItem.Promotion._promotion_type_id == 6) // Descuento
+        {
+            Debug.WriteLine("Promocion de descuento seleccionada!");
+
+            if(selectedPromoEvalItem.Promotion._selection_type_id == 1)
+            {
+
+            }
+
+            //foreach (var itemResult in _itemsFullPromos)
+            //{
+            //    foreach (var itemEval in itemResult.Items)
+            //    {
+            //        if (itemEval.Promotion.id != selectedPromoEvalItem.Promotion.id)
+            //            continue;
+
+            //        if (itemEval.Promotion._selection_type_id == 1)
+            //        {
+
+            //        }
+            //    }
+            //}
         }
     }
 

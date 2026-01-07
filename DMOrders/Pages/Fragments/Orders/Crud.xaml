@@ -266,7 +266,7 @@
                         </Button.ImageSource>
                     </Button>
 
-                    <Button Text="" Clicked="ButtonPromo_Clicked" BackgroundColor="DeepPink" TextColor="White" HeightRequest="45" WidthRequest="45" Padding="0" IsVisible="False">
+                    <Button Text="" Clicked="ButtonPromo_Clicked" BackgroundColor="DeepPink" TextColor="White" HeightRequest="45" WidthRequest="45" Padding="0" IsVisible="True">
                         <Button.ImageSource>
                             <FontImageSource 
                                 Size="28"

@@ -339,6 +339,13 @@ namespace DMOrders.Services.Update
 
             if (ShouldSaveSyncDate && foundUser != null)
             {
+                //FIX: Parche fecha de usuario, en caso de que se haya restaurado data que no coincide                
+                if( foundUser.log_fec_acceso.Date != responseValSync.data[0].datetime.Date )
+                {
+                    foundUser.log_fec_acceso = responseValSync.data[0].datetime;
+                    App.Session.CurrentUserFront.log_fec_acceso = foundUser.log_fec_acceso;
+                }
+
                 foundUser.log_fec_sincro = responseValSync.data[0].datetime;
                 App.Session.CurrentUserFront.log_fec_sincro = foundUser.log_fec_sincro;                
                 await UserDatabase.UpdateAsync(foundUser);

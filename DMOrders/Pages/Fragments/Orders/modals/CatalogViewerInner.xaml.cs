@@ -136,8 +136,8 @@ public partial class CatalogViewerInner : ContentView
         {
             Brands =
             [
-                new product_marca { id = 0, name = "No seleccionada" },
-                new product_marca { id = -1, name = "🔍 Buscar..." }
+                new product_marca { id = 0, name = "No seleccionada", active = true, clave_externa = "000" },
+                new product_marca { id = -1, name = "🔍 Buscar..." , active = true, clave_externa = "000"}
             ];
 
             foreach (var marca in itemsTopMarcas)
@@ -580,9 +580,10 @@ public partial class CatalogViewerInner : ContentView
         TextCode.ClearValue();
         TextDescription.ClearValue();
         
-        Brands[0] = new product_marca { id = 0, name = "No seleccionada" };
+        //FIX: Se requiere revisión, en Android CRASHEA
+        //Brands[0] = new product_marca { id = 0, name = "No seleccionada", active = true, clave_externa = "000" };
+        //ddfBrands.SelectedItem = Brands[0];
 
-        ddfBrands.SelectedItem = Brands[0];
         ddfNews.SelectedItem = newProducts[0];
         ddfStock.SelectedItem = stockProducts[0];
         ddfSort.SelectedItem = sortProducts[0];

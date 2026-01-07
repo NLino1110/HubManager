@@ -17,6 +17,8 @@
     <ContentView.Resources>
         <ResourceDictionary>
             <converters:InverseBooleanConverter x:Key="InverseBoolConverter" />
+            <converters:BoolToActivoConverter x:Key="BoolToActivoConverter"/>
+            <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>            
         </ResourceDictionary>
 
         <!--<DataTemplate x:Key="RowTemplate">
@@ -467,13 +469,13 @@ Glyph="{x:Static uranium:MaterialSharp.Check}" />
             </Grid>
 
             <Button Grid.Row="4"
-  Text="" 
-  HorizontalOptions="Fill" 
-  BackgroundColor="Gray" 
-  TextColor="Black"
-  FontAttributes="Italic"
-  Margin="5"
-        Clicked="ResetOriginalValues">
+                  Text="" 
+                  HorizontalOptions="Fill" 
+                  BackgroundColor="Gray" 
+                  TextColor="Black"
+                  FontAttributes="Italic"
+                  Margin="5"
+                  Clicked="ResetOriginalValues">
                 <Button.ImageSource>
                     <FontImageSource 
             Size="20"
@@ -481,10 +483,7 @@ Glyph="{x:Static uranium:MaterialSharp.Check}" />
             Glyph="{x:Static uranium:MaterialSharp.Undo}" />
                 </Button.ImageSource>
             </Button>
-
-
         </Grid>
-
 
         <Grid RowDefinitions="Auto,*" Grid.Row="2">
             <Grid.GestureRecognizers>
@@ -514,25 +513,42 @@ Glyph="{x:Static uranium:MaterialSharp.Check}" />
             </CollectionView>-->
 
             <Grid Grid.Row="1">
+
+                <Grid
+                    BackgroundColor="#80000000"
+                    Opacity="{Binding IsLoading, Converter={StaticResource BoolToOpacityConverter}}"
+                    InputTransparent="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
+                    VerticalOptions="Fill"
+                    HorizontalOptions="Fill"
+                    ZIndex="0">
+                            <ActivityIndicator 
+                                IsRunning="{Binding IsLoading}" 
+                                Color="MediumVioletRed"
+                                WidthRequest="100"
+                                HeightRequest="100"
+                                VerticalOptions="Center"
+                                HorizontalOptions="Center" />
+                    </Grid>
+                
                 <mpowerkit:FixedRefreshView                    
                 HorizontalOptions="Fill" 
                 VerticalOptions="Fill"
                 IsPullToRefreshEnabled="False">
                     <mpowerkit:VirtualizeListView 
-                x:Name="listViewProduct"
-                ItemsSource="{Binding ItemsData}"
-                        ItemTapCommand="{Binding ItemTappedCommand}"
-                Padding="0"                        
-                BackgroundColor="Gray" 
-                        ItemTemplate="{StaticResource ProductTemplateSelector}"
-                        IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
+                            x:Name="listViewProduct"
+                            ItemsSource="{Binding ItemsData}"
+                            ItemTapCommand="{Binding ItemTappedCommand}"
+                            Padding="0"                        
+                            BackgroundColor="Gray" 
+                            ItemTemplate="{StaticResource ProductTemplateSelector}"
+                            IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
                         <mpowerkit:VirtualizeListView.ItemsLayout>
                             <mpowerkit:GridLayout HorizontalItemSpacing="1" Span="4" VerticalItemSpacing="1" />                            
                         </mpowerkit:VirtualizeListView.ItemsLayout>                        
                     </mpowerkit:VirtualizeListView>
                 </mpowerkit:FixedRefreshView>
 
-                <Grid
+                <!--<Grid
                     BackgroundColor="#80000000"
                     IsVisible="{Binding IsLoading}"
                     VerticalOptions="Fill"
@@ -545,7 +561,10 @@ Glyph="{x:Static uranium:MaterialSharp.Check}" />
                         HeightRequest="100"
                         VerticalOptions="Center"
                         HorizontalOptions="Center" />
-                </Grid>
+                </Grid>-->
+
+
+
             </Grid>
         </Grid>        
 

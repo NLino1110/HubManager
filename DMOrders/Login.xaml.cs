@@ -370,7 +370,7 @@ public partial class Login : ContentPage
         itemInsert.token_type = resultUser.token_type;
         itemInsert.access_token = resultUser.access_token;
         itemInsert.databasename = resultUser.databasename;
-        itemInsert.log_fec_acceso = resultUser.log_fec_acceso;        
+        itemInsert.log_fec_acceso = resultUser.log_fec_acceso;
 
         itemInsert.companies = Newtonsoft.Json.JsonConvert.SerializeObject(resultValidacion.data[0].companies);
 
@@ -497,8 +497,7 @@ public partial class Login : ContentPage
         itemInsert.api_key = resultUser.api_key;
         itemInsert.token_type = resultUser.token_type;
         itemInsert.access_token = resultUser.access_token;
-
-        //DateTime log_fec_acceso = resultUser.fechasincronizado
+                
         //FIX:
         itemInsert.log_fec_acceso = DateTime.Now;
         itemInsert.log_fec_sincro = userFound.log_fec_sincro;
@@ -764,7 +763,8 @@ public partial class Login : ContentPage
                         api_key = "-",
                         token_type = "-",
                         access_token = "-",
-                        databasename = App.Session.odooConnection.DbName
+                        databasename = App.Session.odooConnection.DbName,
+                        log_fec_acceso = currentDate.Date
                     };
 
                     var partner = await hubUser.GetById(resultUser.uid);
@@ -780,8 +780,7 @@ public partial class Login : ContentPage
                 userFound = userList.FirstOrDefault(
                     u => u.username == txtUser.Text &&
                             u.pwd == CryptoHelper.Encrypt(txtPassword.Text) &&
-                            u.log_fec_acceso.Date == currentDate.Date);
-                
+                            u.log_fec_acceso.Date == currentDate.Date);                
 
                 if (userFound == null)
                 {
@@ -793,9 +792,7 @@ public partial class Login : ContentPage
 
             // Configuración post-login
             if (resultUser?.uid > 0)
-            {                
-                
-
+            {
                 LoginSelector.IsVisible = false;
                 CompanySelector.IsVisible = true;
                                 

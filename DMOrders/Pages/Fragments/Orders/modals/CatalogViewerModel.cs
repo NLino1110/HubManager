@@ -247,6 +247,8 @@ namespace DMOrders.Pages.Fragments.Orders.modals
 
         public async Task LoadData()
         {
+            if(IsLoading) return;
+
             var signature = BuildFilterSignature();
             var filtersChanged = signature != _lastFilterSignature;
 
@@ -295,9 +297,11 @@ namespace DMOrders.Pages.Fragments.Orders.modals
                     OnPropertyChanged(nameof(SelectedItem));
                 }
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException oex)
             {
                 // ignorar: una nueva carga comenzó
+                Debug.WriteLine("OperationCanceledException");
+                Debug.WriteLine(oex);
             }
             catch (Exception ex)
             {
