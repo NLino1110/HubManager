@@ -238,6 +238,24 @@
             HorizontalOptions="Start"
             Margin="5,0" IsVisible="False"/>
 
+            <Button Grid.Column="0"
+                Clicked="GotoCustomers_Clicked" 
+                BackgroundColor="DodgerBlue"
+                TextColor="White"
+                Text="Nuevo"
+                HorizontalOptions="Start"
+                Margin="5"
+                Padding="10"
+                CornerRadius="8">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+                        Color="White"
+                        Size="20"
+                        FontAutoScalingEnabled="True"
+                        Glyph="&#xf067;" />
+                </Button.ImageSource>
+            </Button>
+
             <!-- Contenido derecho (paginación) -->
             <Grid Grid.Column="1"
           ColumnDefinitions="Auto,Auto,Auto,Auto,Auto"

@@ -479,7 +479,8 @@ namespace DMSA.Sync.Core.Update
             var stopwatch = Stopwatch.StartNew();
 
             HubPromotionBenefit hubmanager = new HubPromotionBenefit(Constants.Session);
-            var resultCount = await hubmanager.GetCount(lastDate.Value.Year, lastDate.Value.Month, lastDate.Value.Day);
+            //var resultCount = await hubmanager.GetCount(lastDate.Value.Year, lastDate.Value.Month, lastDate.Value.Day);
+            var resultCount = await hubmanager.GetCountPrecise(lastDate.Value);
 
             if (resultCount.result == 0)
             {
@@ -503,10 +504,10 @@ namespace DMSA.Sync.Core.Update
                         //await LoyaltyFilters(item, true);
                         //await LoyaltyFiltersDetail(item, true);
                         
-                        await PromoRules(item, true);
-                        await OnlinePromotionProducts(item, true);
-                        await OnlinePromotionProductDetail(item, true);
-                        await PromoCenter(item, true);
+                        await PromoRules(item, false);
+                        await OnlinePromotionProducts(item, false);
+                        await OnlinePromotionProductDetail(item, false);
+                        await PromoCenter(item, false);
                     }
                 }
 

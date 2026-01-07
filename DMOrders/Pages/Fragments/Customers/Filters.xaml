@@ -27,7 +27,7 @@
                         BorderThickness="0.4"
                         Keyboard="Numeric"                
                         Margin="0"
-                        Padding="0"                
+                        Padding="0"                        
                         />
 
                     <material:TextField

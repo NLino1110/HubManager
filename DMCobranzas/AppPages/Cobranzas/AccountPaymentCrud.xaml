@@ -110,8 +110,7 @@
                   ColumnSpacing="10"
                   Padding="10"
                   ColumnDefinitions="*,*"
-                  RowDefinitions="
-                    Auto,
+                  RowDefinitions="Auto,
                     Auto,
                     Auto,
                     Auto,

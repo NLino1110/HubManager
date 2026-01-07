@@ -1,6 +1,7 @@
 using DMOrders.Controls.Tools;
 using DMOrders.Pages.Fragments.Activities;
 using DMOrders.Pages.Sys;
+using DMOrders.Services.Update;
 using DMSA.Models.Odoo.DMOrders.tareas;
 using DMSA.Sync.Core.Database.Sqlite.Sales;
 using DMSA.Sync.Core.Update;
@@ -59,7 +60,13 @@ public partial class MainPageTab : ContentPage
             //new() { Icon = "\uf7d9", Title = "Configuraciones", Description = "Modificar rutas y entorno.", Action = async () => ShowSettings(null, EventArgs.Empty) },
         };
 
+        Loaded += (_, __) => ReloadData();
         BindingContext = this;
+    }
+
+    private void ReloadData()
+    {
+        tabCustomers?.ReloadData();
     }
 
     bool isUpdated = false;
@@ -70,6 +77,7 @@ public partial class MainPageTab : ContentPage
         {
             isUpdated = true;
             await AutoUpdate();
+            tabCustomers.ReloadData();
         }        
     }
 
@@ -77,7 +85,10 @@ public partial class MainPageTab : ContentPage
     {
         await UITools.ShowLoadingPopup(this);
         await UITools.SetNotifyLoadingPopup("Ejecutando actualización...");
-        await Task.Delay(2000);        
+        
+        LaunchManager launchManager = new LaunchManager();
+        await launchManager.Execute();
+
         await UITools.HideLoadingPopup();        
         return true;
     }
@@ -260,14 +271,22 @@ public partial class MainPageTab : ContentPage
 
         if(e.Title.ToLower() == "clientes")
         {
-
+            tabCustomers?.ReloadData();
         }
 
         if (e.Title.ToLower() == "artículos")
-        {
-            //var viewContent = (DMOrders.Pages.Fragments.Product.Container) tabProducts.Content;
-            var viewContent = (DMOrders.Pages.Fragments.Product.Container) e.Content;
-            Debug.WriteLine(viewContent);
+        {            
+            tabProducts?.ReloadData();
+        }
+
+        if (e.Title.ToLower() == "pedidos")
+        {            
+            tabOrders?.ReloadData();
+        }
+
+        if (e.Title.ToLower() == "actividades")
+        {            
+            tabActivities?.ReloadData();
         }
     }
 

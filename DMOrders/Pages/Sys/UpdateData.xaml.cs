@@ -491,7 +491,6 @@ public partial class UpdateData : ContentPage
         {
             await serverPuller.OnlineSyncProductPricelist();
             await serverPuller.OnlineSyncProductPricelistItem();            
-            await serverPuller.OnlineSyncProductProduct();
             await serverPuller.OnlineAccountTaxes();
         }
 
@@ -511,6 +510,11 @@ public partial class UpdateData : ContentPage
         if(chkGroup6.IsChecked)
         {
             await serverPuller.SyncSaleOrders();
+        }
+
+        if (chkGroup7.IsChecked)
+        {
+            await serverPuller.OnlineSyncProductProduct();
         }
 
         Pipeline pipeline = new Pipeline();

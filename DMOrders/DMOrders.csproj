@@ -99,6 +99,10 @@
 	  <AndroidEnvironment Include="Platforms\Android\env.conf" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Compile Include="Services\Update\LaunchManager.cs" />
+	</ItemGroup>
+
 	<ItemGroup>		
 		<PackageReference Include="CommunityToolkit.Maui" Version="12.3.0" />
 		<PackageReference Include="CommunityToolkit.Maui.Core" Version="12.3.0" />

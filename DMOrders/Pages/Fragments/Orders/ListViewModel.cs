@@ -238,30 +238,31 @@ namespace DMOrders.Pages.Fragments.Orders
 
         public void LoadDataByTimer()
         {
-            // Usamos el dispatcher global de la app para garantizar ejecución en UI
-            //var dispatcher = Application.Current.Dispatcher;
-            var dispatcher = Dispatcher.GetForCurrentThread();
-            var timer = dispatcher.CreateTimer();
-            timer.Interval = TimeSpan.FromMilliseconds(300); // delay corto para dejar respirar la UI
-            timer.IsRepeating = false;
+            LoadData();
+            ////// Usamos el dispatcher global de la app para garantizar ejecución en UI
+            //////var dispatcher = Application.Current.Dispatcher;
+            ////var dispatcher = Dispatcher.GetForCurrentThread();
+            ////var timer = dispatcher.CreateTimer();
+            ////timer.Interval = TimeSpan.FromMilliseconds(300); // delay corto para dejar respirar la UI
+            ////timer.IsRepeating = false;
 
-            timer.Tick += async (s, e) =>
-            {
-                try
-                {
-                    await LoadData();
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Error en LoadData: {ex}");
-                }
-                finally
-                {
-                    timer.Stop();
-                }
-            };
+            ////timer.Tick += async (s, e) =>
+            ////{
+            ////    try
+            ////    {
+            ////        await LoadData();
+            ////    }
+            ////    catch (Exception ex)
+            ////    {
+            ////        Debug.WriteLine($"Error en LoadData: {ex}");
+            ////    }
+            ////    finally
+            ////    {
+            ////        timer.Stop();
+            ////    }
+            ////};
 
-            timer.Start();
+            ////timer.Start();
         }
 
         public async Task RemoveOrder(sale_order order)

@@ -47,13 +47,14 @@ namespace DMOrders.Pages.Fragments.Customers
         }
 
         public ICommand EditCommand { get; set; }
+        public ICommand NewOrderCommand { get; set; }
         public DataGrid()
         {
             InitializeComponent();
             BindingContext = new ViewModel(FiltersView);
 
             EditCommand = new Command(AddProcess);
-            
+            NewOrderCommand = new Command(NewOrder);
             //IDispatcherTimer timer;
 
             //timer = Dispatcher.CreateTimer();
@@ -82,7 +83,7 @@ namespace DMOrders.Pages.Fragments.Customers
             if (BindingContext is ViewModel vm)
             {
                 vm.filters = FiltersView;
-                vm.LoadDataByTimer();
+                //vm.LoadDataByTimer();
             }
         }
         private async void AddProcess(object obj)
@@ -308,6 +309,54 @@ namespace DMOrders.Pages.Fragments.Customers
                 await viewObj.PrepareForm();
                 await Navigation.PushModalAsync(viewObj);
             }
-        }        
+        }
+
+        private async void NewOrder(object obj)
+        {
+            SelectedItem = (res_partner)obj;
+
+            var itemData = SelectedItem;
+            Debug.WriteLine(itemData);
+
+            Crud viewObj = new Crud();
+            viewObj.CurrentPartner = itemData;
+            viewObj.CurrentCompany = App.Session.res_Company;
+            viewObj.CurrentSaleOrder = null;
+            viewObj.Disappearing += NewOrderPopup_Disappearing;
+            await viewObj.PrepareForm();
+            await Navigation.PushModalAsync(viewObj);
+        }
+
+        private void OnItemPressed(object sender, PointerEventArgs e)
+        {
+            if (sender is not BindableObject bo)
+                return;
+
+            if (bo.BindingContext is not res_partner item)
+                return;
+
+            if (bo.BindingContext is res_partner itemYes)
+            {
+                //CustomersCollectionView.SelectedItem = itemYes;
+                Debug.WriteLine("OnItemPressed: " + itemYes.name);
+            }
+
+            //var vm = BindingContext as CustomersViewModel;
+            //if (vm == null)
+            //    return;
+
+            //vm.SelectItem(item);
+        }
+
+        //public void SelectItem(res_partner item)
+        //{
+        //    if (item == null) return;
+
+        //    foreach (var i in ItemsData)
+        //        i.IsSelected = false;
+
+        //    item.IsSelected = true;
+        //    SelectedItem = item;
+        //}
     }
 }

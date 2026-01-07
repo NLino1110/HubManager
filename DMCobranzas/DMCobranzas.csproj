@@ -243,7 +243,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\ApiManagerOdoo\ApiManagerOdoo.csproj" />	  
+	  <ProjectReference Include="..\ApiManagerOdoo\ApiManagerOdoo.csproj" />
+	  <ProjectReference Include="..\BeebTech.Controls\BeebTech.Controls.csproj" />	  
 	  <ProjectReference Include="..\BeebTech.Maui.Controls\BeebTech.Maui.Controls.csproj" />
 	  <ProjectReference Include="..\DMSA.Models.Odoo\DMSA.Models.Odoo.csproj" />
 	  <ProjectReference Include="..\DMSA.Sync.Core\DMSA.Sync.Core.csproj" />

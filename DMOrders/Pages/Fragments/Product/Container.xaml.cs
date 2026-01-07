@@ -31,6 +31,11 @@ public partial class Container : ContentView
         dataProducts.LoadData(filterProducts);
     }
 
+    public void ReloadData()
+    {
+        dataProducts.LoadData(filterProducts);
+    }
+
     public async Task LoadInfo(product_product _data)
     {
         await info.FillData(_data);

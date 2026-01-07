@@ -4,6 +4,7 @@ using DMSA.Models.Security;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using UraniumUI;
+using BeebTech.Controls.UI;
 
 namespace DMCobranzas
 {
@@ -38,7 +39,8 @@ namespace DMCobranzas
                 .UseUraniumUIBlurs()
                 .UseMauiCommunityToolkit()
                 .UseUraniumUI()
-                .UseUraniumUIMaterial();
+                .UseUraniumUIMaterial()
+                .UseBeebTechControls();
 
             App.Session = new AppSession();
             //Debug.WriteLine(App.Session.odooConnection.IsProduction);

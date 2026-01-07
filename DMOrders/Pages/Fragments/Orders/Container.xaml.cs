@@ -48,6 +48,11 @@ public partial class Container : ContentView
 
     }
 
+    public void ReloadData()
+    {
+        dataOrders.LoadData(filterOrders);
+    }
+
     public void LoadInfo(res_partner _data)
     {
         //info.FillData(_data);

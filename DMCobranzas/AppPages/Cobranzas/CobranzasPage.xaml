@@ -9,6 +9,7 @@
              xmlns:controlCustom="clr-namespace:DMCobranzas.Controls.CustomRows"
              Title="Cobranzas">
     <StackLayout HorizontalOptions="Fill">
+
         <StackLayout Orientation="Vertical" Margin="4" HorizontalOptions="Fill">
             <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10, 0,0,0">
                 <Label Text="Empresa:" VerticalOptions="Center" WidthRequest="100" TextColor="DodgerBlue"></Label>

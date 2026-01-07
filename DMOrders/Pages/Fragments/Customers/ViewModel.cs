@@ -69,7 +69,7 @@ namespace DMOrders.Pages.Fragments.Customers
 
         public void LoadDataByTimer()
         {            
-            LoadData();            
+            LoadData();
         }
 
         public void LoadDataByTimerOld()

@@ -6,6 +6,14 @@
     <UseMaui>true</UseMaui>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Controls\NativeDropdown\**" />
+    <EmbeddedResource Remove="Controls\NativeDropdown\**" />
+    <MauiCss Remove="Controls\NativeDropdown\**" />
+    <MauiXaml Remove="Controls\NativeDropdown\**" />
+    <None Remove="Controls\NativeDropdown\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Maui" Version="9.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.10" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.10" />
@@ -16,7 +24,13 @@
     <MauiXaml Update="CheckBoxEx.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
+    <MauiXaml Update="Controls\DropdownMenu.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
     <MauiXaml Update="Controls\EntryLayout.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Controls\TitledPicker.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
   </ItemGroup>

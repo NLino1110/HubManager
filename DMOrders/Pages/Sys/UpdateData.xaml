@@ -70,6 +70,7 @@
                             <RowDefinition Height="*" />
                             <RowDefinition Height="*" />
                             <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="auto"/>
@@ -79,10 +80,11 @@
                             <controls:CheckBoxEx x:Name="chkCacheMode" CheckBoxColor="#ACCAEB" TextColor="Black" IsChecked="False" Grid.Column="0" Grid.Row="0" LabelText="Modo cache (datos permitidos)" IsVisible="False"></controls:CheckBoxEx>
                             <controls:CheckBoxEx x:Name="chkGroup1" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" Grid.Column="0" Grid.Row="1" LabelText="Promociones"></controls:CheckBoxEx>
                         <controls:CheckBoxEx x:Name="chkGroup2" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" Grid.Column="0" Grid.Row="2" LabelText="Marcas, categorías ..."></controls:CheckBoxEx>
-                        <controls:CheckBoxEx x:Name="chkGroup3" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" Grid.Column="0" Grid.Row="3" LabelText="Clientes"></controls:CheckBoxEx>
-                        <controls:CheckBoxEx x:Name="chkGroup4" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" Grid.Column="0" Grid.Row="4" LabelText="Precios"></controls:CheckBoxEx>
-                        <controls:CheckBoxEx x:Name="chkGroup5" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" Grid.Column="0" Grid.Row="5" LabelText="Stock"></controls:CheckBoxEx>
-                        <controls:CheckBoxEx x:Name="chkGroup6" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" Grid.Column="0" Grid.Row="6" LabelText="Ordenes"></controls:CheckBoxEx>
+                        <controls:CheckBoxEx x:Name="chkGroup7" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" Grid.Column="0" Grid.Row="3" LabelText="Productos"></controls:CheckBoxEx>
+                        <controls:CheckBoxEx x:Name="chkGroup3" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" Grid.Column="0" Grid.Row="4" LabelText="Clientes"></controls:CheckBoxEx>
+                        <controls:CheckBoxEx x:Name="chkGroup4" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" Grid.Column="0" Grid.Row="5" LabelText="Precios"></controls:CheckBoxEx>
+                        <controls:CheckBoxEx x:Name="chkGroup5" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" Grid.Column="0" Grid.Row="6" LabelText="Stock"></controls:CheckBoxEx>
+                        <controls:CheckBoxEx x:Name="chkGroup6" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" Grid.Column="0" Grid.Row="7" LabelText="Ordenes"></controls:CheckBoxEx>                        
                     </Grid>
                     </StackLayout>
                 </Frame>

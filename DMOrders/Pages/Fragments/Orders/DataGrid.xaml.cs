@@ -181,7 +181,6 @@ namespace DMOrders.Pages.Fragments.Orders
         private void btnBuscar_Clicked(object sender, EventArgs e)
         {
             ((ListViewModel)this.BindingContext).LoadDataByTimer();
-
         }
 
         internal void LoadData(Filters _filters)
@@ -201,7 +200,7 @@ namespace DMOrders.Pages.Fragments.Orders
             if (BindingContext is ListViewModel vm)
             {
                 vm.filters = FiltersView;
-                vm.LoadDataByTimer();
+                //vm.LoadDataByTimer();
             }
         }
 
@@ -240,6 +239,19 @@ namespace DMOrders.Pages.Fragments.Orders
         {
             Debug.WriteLine("ViewObj_Disappearing");
             ((ListViewModel)this.BindingContext).LoadDataByTimer();
+        }
+
+        private async void GotoCustomers_Clicked(object sender, EventArgs e)
+        {
+            try
+            {
+                var mainPage = (MainPageTab)App.Current.MainPage;
+                mainPage.SelectTab("Clientes");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error al cambiar a la pestaña Pedidos: {ex.Message}");
+            }
         }
 
         private async void ButtonSync_Clicked(object sender, EventArgs e)

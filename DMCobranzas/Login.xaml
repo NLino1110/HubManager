@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
     xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+    xmlns:beebtech="clr-namespace:BeebTech.Controls.UI;assembly=BeebTech.Controls"
     xmlns:DMCobranzas="clr-namespace:DMCobranzas"
     x:Class="DMCobranzas.Login"
     Title="Cobranzas Login"
@@ -29,8 +30,8 @@
     </ContentPage.Resources>
 
     <!-- CONTENIDO PRINCIPAL -->
-    <ScrollView>
-        <Grid>
+    <ScrollView>        
+        <Grid>            
             <!-- Fondo -->
             <Image Source="logo_macronegocios.png"
                    Aspect="AspectFill"
@@ -85,20 +86,20 @@
 
                         <!-- Login -->
                         <VerticalStackLayout x:Name="LoginSelector" Spacing="10">
-                            <material:DropdownField x:Name="ddCompany" Title="Compañia"/>
-                            <material:TextField x:Name="txtUser"
+                            <beebtech:DropdownField x:Name="ddCompany" Title="Compañia"/>
+                            <beebtech:TextField x:Name="txtUser"
                                                 Title="Usuario"
                                                 BorderThickness="0.4"
                                                 Icon="{FontImageSource FontFamily=FontAwesome5Solid, Glyph='&#xf7d9;'}" />
 
-                            <material:TextField x:Name="txtPassword"
+                            <beebtech:TextField x:Name="txtPassword"
                                                 Title="Password"
                                                 IsPassword="True"
                                                 Icon="{FontImageSource FontFamily=FontAwesome5Solid, Glyph='&#xf7d9;'}">
-                                <material:TextField.Attachments>
-                                    <material:TextFieldPasswordShowHideAttachment />
-                                </material:TextField.Attachments>
-                            </material:TextField>
+                                <beebtech:TextField.Attachments>
+                                    <beebtech:TextFieldPasswordShowHideAttachment />
+                                </beebtech:TextField.Attachments>
+                            </beebtech:TextField>
 
                             <Button x:Name="BtnTryLogin"
                                     Text="Iniciar sesión"

@@ -62,6 +62,11 @@ public partial class Container : ContentView
 
     }
 
+    public void ReloadData()
+    {
+        dataCustomers.LoadData(filterCustomer);
+    }
+
     public async Task LoadInfo(res_partner _data)
     {
         await info.FillData(_data);

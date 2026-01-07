@@ -1,6 +1,8 @@
 //using CloudKit;
 using ApiManager;
+using BeebTech.Maui.Controls.Controls;
 using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Sample.Models;
 using CommunityToolkit.Maui.Sample.ViewModels.Views;
 using DMCobranzas.Controls.Modals;
@@ -693,5 +695,5 @@ public partial class CobranzasPage : ContentPage
     private void swipeView_SwipeStarted(object sender, SwipeStartedEventArgs e)
     {
         Debug.WriteLine("Sta..");
-    }
+    }    
 }

@@ -230,31 +230,32 @@ namespace DMOrders.Pages.Fragments.Activities
 
         public void LoadDataByTimer()
         {
-            // Usamos el dispatcher global de la app para garantizar ejecución en UI
-            var dispatcher = Application.Current.Dispatcher;
+            LoadData();
+            ////// Usamos el dispatcher global de la app para garantizar ejecución en UI
+            ////var dispatcher = Application.Current.Dispatcher;
 
-            var timer = dispatcher.CreateTimer();
-            timer.Interval = TimeSpan.FromMilliseconds(300); // delay corto para dejar respirar la UI
-            timer.IsRepeating = false;
+            ////var timer = dispatcher.CreateTimer();
+            ////timer.Interval = TimeSpan.FromMilliseconds(300); // delay corto para dejar respirar la UI
+            ////timer.IsRepeating = false;
 
-            timer.Tick += async (s, e) =>
-            {
-                try
-                {
-                    if (IsLoading) return; // Previene cargas simultáneas
-                    await LoadData();
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Error en LoadData: {ex}");
-                }
-                finally
-                {
-                    timer.Stop();
-                }
-            };
+            ////timer.Tick += async (s, e) =>
+            ////{
+            ////    try
+            ////    {
+            ////        if (IsLoading) return; // Previene cargas simultáneas
+            ////        await LoadData();
+            ////    }
+            ////    catch (Exception ex)
+            ////    {
+            ////        Debug.WriteLine($"Error en LoadData: {ex}");
+            ////    }
+            ////    finally
+            ////    {
+            ////        timer.Stop();
+            ////    }
+            ////};
 
-            timer.Start();
+            ////timer.Start();
         }
 
         //public ICommand EditCommand { get; set; }

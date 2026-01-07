@@ -71,17 +71,113 @@
             </VerticalStackLayout>
             </ScrollView>-->
         <Grid Grid.Row="1">
-        <mpowerkit:FixedRefreshView 
-                                            Refreshing="FixedRefreshView_Refreshing" 
-                                            HorizontalOptions="Fill" 
-                                            VerticalOptions="Fill"
-                                    IsPullToRefreshEnabled="False">
-                    <mpowerkit:VirtualizeListView x:Name="listView"
-                                          Padding="0"
-                                          BackgroundColor="Gray"
-                                                  ItemsSource="{Binding ItemsData}"
-                                                  ItemTapCommand="{Binding ItemTappedCommand}">
-                        <mpowerkit:VirtualizeListView.ItemTemplate>
+
+            <!--<CollectionView                
+                x:Name="CustomersCollectionView"
+                ItemsSource="{Binding ItemsData}" 
+                EmptyView="Datos de cliente no encontrados"
+                HorizontalOptions="Fill" 
+                VerticalOptions="Fill" 
+                SelectionMode="Single"                
+                ItemsUpdatingScrollMode="KeepItemsInView"
+                ItemSizingStrategy="MeasureFirstItem">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="odoo:res_partner">
+                        <Grid Grid.Column="0"
+                              VerticalOptions="Center"
+                              ColumnSpacing="0"
+                              ColumnDefinitions="50,100,*,*,*,*,*,20"
+                              Margin="5,0,5,0"
+                              Padding="10,0,10,0"
+                              x:Name="RowRoot">
+                            
+                            <Grid
+                                x:Name="TouchArea"
+                                Grid.ColumnSpan="7"
+                                ColumnSpacing="10"
+                                ColumnDefinitions="50,100,*,*,*,*,*"
+                                VerticalOptions="Center">
+
+                                <Grid.GestureRecognizers>
+                                    <PointerGestureRecognizer PointerPressed="OnItemPressed" />
+                                </Grid.GestureRecognizers>
+                                
+                                <Grid.Behaviors>
+                                    <toolkit:TouchBehavior
+                                        PressedOpacity="0.991"
+                                        PressedScale="0.994"
+                                        PressedBackgroundColor="#E6F0FF"
+                                        LongPressDuration="1500"                                        
+                                        LongPressCommand="{Binding NewOrderCommand, Source={x:Reference CustomerDataGrid}}"
+                                        LongPressCommandParameter="{Binding BindingContext, Source={x:Reference RowRoot}}"                                        
+                                        DefaultBackgroundColor="Transparent"/>
+                                </Grid.Behaviors>
+
+                                <Label Grid.Column="0" FontSize="11" Text="{Binding id}" VerticalOptions="Center" />
+                                <Label Grid.Column="1" FontSize="11" Text="{Binding vat_doc, Converter={StaticResource FalseStringToDashConverter}}" VerticalOptions="Center"/>
+                                <Label Grid.Column="2" FontSize="12" FontAttributes="Bold" Text="{Binding name}" VerticalOptions="Center"/>
+                                <Label Grid.Column="3" FontSize="12" FontAttributes="Bold" Text="{Binding phone, Converter={StaticResource FalseStringToDashConverter}}" VerticalOptions="Center"/>
+                                <Label Grid.Column="4" FontSize="12" FontAttributes="Bold" Text="{Binding active, Converter={StaticResource BoolToActivoConverter}}" VerticalOptions="Center"/>
+                                <Label Grid.Column="5" FontSize="11" FontAttributes="Bold" Text="{Binding display_channel_name}" VerticalOptions="Center"/>
+                                <Label Grid.Column="6"
+       FontSize="10"
+       FontAttributes="Bold"
+       VerticalOptions="Center"
+           MaxLines="2"
+           MaximumWidthRequest="88">
+                                    <Label.Text>
+                                        <MultiBinding Converter="{StaticResource DiasSemanaConverter}">
+                                            <Binding Path="adic_lunes"/>
+                                            <Binding Path="adic_martes"/>
+                                            <Binding Path="adic_miercoles"/>
+                                            <Binding Path="adic_jueves"/>
+                                            <Binding Path="adic_viernes"/>
+                                            <Binding Path="adic_sabado"/>
+                                            <Binding Path="adic_domingo"/>
+                                        </MultiBinding>
+                                    </Label.Text>
+                                </Label>
+                            </Grid>
+
+                            <Button Grid.Column="7"
+                                HeightRequest="35"
+                                WidthRequest="35"
+                                BackgroundColor="DodgerBlue"
+                                Text=""
+                                TextColor="White"
+                                FontAttributes="Bold"
+                                FontSize="12"
+                                HorizontalOptions="Center"
+                                Padding="3"
+                                Margin="2"
+                                Clicked="Button_Clicked">
+                                <Button.ImageSource>
+                                    <FontImageSource
+                                        FontFamily="FontAwesome5Solid"
+                                        Color="White"
+                                        Size="15"
+                                        FontAutoScalingEnabled="True"
+                                        Glyph="&#xf067;" />
+                                </Button.ImageSource>
+                            </Button>
+                        </Grid>
+
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>-->
+            <!--ItemTapCommand="{Binding ItemTappedCommand}"-->
+                
+            <mpowerkit:FixedRefreshView 
+                                Refreshing="FixedRefreshView_Refreshing" 
+                                HorizontalOptions="Fill" 
+                                VerticalOptions="Fill"
+                                IsPullToRefreshEnabled="False">
+                <mpowerkit:VirtualizeListView x:Name="listView"
+                                        Padding="0"
+                                        BackgroundColor="Gray"
+                                        ItemsSource="{Binding ItemsData}" 
+                                              ItemTapCommand="{Binding ItemTappedCommand}">
+                    <mpowerkit:VirtualizeListView.ItemTemplate>
                             <DataTemplate x:DataType="odoo:res_partner">
                                 <mpowerkit:VirtualizeListViewCell BackgroundColor="WhiteSmoke">
 
@@ -92,62 +188,88 @@
                                 <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="False">
                                     <Setter Property="BackgroundColor" Value="WhiteSmoke"/>
                                 </DataTrigger>
-                            </mpowerkit:VirtualizeListViewCell.Triggers>                            
-                                    <Grid Grid.Column="0"
+                            </mpowerkit:VirtualizeListViewCell.Triggers>
+                                <Grid Grid.Column="0"
                                   VerticalOptions="Center"
                                   ColumnSpacing="10"
                                   ColumnDefinitions="50,100,*,*,*,*,*,20"
-                                      Margin="20,0,20,0">
-                               
-                                    <Label Grid.Column="0" FontSize="11" Text="{Binding id}" VerticalOptions="Center" />
-                                    <Label Grid.Column="1" FontSize="11" Text="{Binding vat_doc, Converter={StaticResource FalseStringToDashConverter}}" VerticalOptions="Center"/>
-                                    <Label Grid.Column="2" FontSize="12" FontAttributes="Bold" Text="{Binding name}" VerticalOptions="Center"/>
-                                    <!--<Label Grid.Column="3" FontSize="12" FontAttributes="Bold" Text="{Binding email}" VerticalOptions="Center"/>-->
-                                    <Label Grid.Column="3" FontSize="12" FontAttributes="Bold" Text="{Binding phone, Converter={StaticResource FalseStringToDashConverter}}" VerticalOptions="Center"/>
-                                    <Label Grid.Column="4" FontSize="12" FontAttributes="Bold" Text="{Binding active, Converter={StaticResource BoolToActivoConverter}}" VerticalOptions="Center"/>
-                                    <Label Grid.Column="5" FontSize="11" FontAttributes="Bold" Text="{Binding display_channel_name}" VerticalOptions="Center"/>
-                                    <Label Grid.Column="6"
+                                      Margin="20,0,20,0"
+                                          x:Name="RowRoot">
+                                    <Grid
+                                        x:Name="TouchArea"
+                                        Grid.ColumnSpan="7"
+                                        ColumnSpacing="10"
+                                        ColumnDefinitions="50,100,*,*,*,*,*"
+                                        VerticalOptions="Center">
+
+                                        <!--<Grid.GestureRecognizers>
+                                            <PointerGestureRecognizer PointerPressed="OnItemPressed" />
+                                            <TapGestureRecognizer Command="{Binding ItemTappedCommand}" CommandParameter="{Binding BindingContext, Source={x:Reference RowRoot}}"></TapGestureRecognizer>
+                                        </Grid.GestureRecognizers>                                        
+                                        
+                                        <Grid.Behaviors>
+                                            <toolkit:TouchBehavior
+                                                PressedOpacity="0.991"
+                                                PressedScale="0.994"
+                                                PressedBackgroundColor="#E6F0FF"
+                                                LongPressDuration="1500"
+                                                LongPressCommand="{Binding NewOrderCommand, Source={x:Reference CustomerDataGrid}}"
+                                                LongPressCommandParameter="{Binding BindingContext, Source={x:Reference RowRoot}}"
+                                                Command="{Binding ItemTappedCommand}"
+                                                CommandParameter="{Binding .}"
+                                                DefaultBackgroundColor="Transparent" 
+                                                ShouldMakeChildrenInputTransparent="True"/>
+                                        </Grid.Behaviors>-->
+
+                                        <Label Grid.Column="0" FontSize="11" Text="{Binding id}" VerticalOptions="Center" />
+                                        <Label Grid.Column="1" FontSize="11" Text="{Binding vat_doc, Converter={StaticResource FalseStringToDashConverter}}" VerticalOptions="Center"/>
+                                        <Label Grid.Column="2" FontSize="12" FontAttributes="Bold" Text="{Binding name}" VerticalOptions="Center"/>                                        
+                                        <Label Grid.Column="3" FontSize="12" FontAttributes="Bold" Text="{Binding phone, Converter={StaticResource FalseStringToDashConverter}}" VerticalOptions="Center"/>
+                                        <Label Grid.Column="4" FontSize="12" FontAttributes="Bold" Text="{Binding active, Converter={StaticResource BoolToActivoConverter}}" VerticalOptions="Center"/>
+                                        <Label Grid.Column="5" FontSize="11" FontAttributes="Bold" Text="{Binding display_channel_name}" VerticalOptions="Center"/>
+                                        <Label Grid.Column="6"
                                        FontSize="10"
                                        FontAttributes="Bold"
                                        VerticalOptions="Center"
                                            MaxLines="2"
                                            MaximumWidthRequest="88">
-                                        <Label.Text>
-                                            <MultiBinding Converter="{StaticResource DiasSemanaConverter}">
-                                                <Binding Path="adic_lunes"/>
-                                                <Binding Path="adic_martes"/>
-                                                <Binding Path="adic_miercoles"/>
-                                                <Binding Path="adic_jueves"/>
-                                                <Binding Path="adic_viernes"/>
-                                                <Binding Path="adic_sabado"/>
-                                                <Binding Path="adic_domingo"/>
-                                            </MultiBinding>
-                                        </Label.Text>
-                                    </Label>
+                                            <Label.Text>
+                                                <MultiBinding Converter="{StaticResource DiasSemanaConverter}">
+                                                    <Binding Path="adic_lunes"/>
+                                                    <Binding Path="adic_martes"/>
+                                                    <Binding Path="adic_miercoles"/>
+                                                    <Binding Path="adic_jueves"/>
+                                                    <Binding Path="adic_viernes"/>
+                                                    <Binding Path="adic_sabado"/>
+                                                    <Binding Path="adic_domingo"/>
+                                                </MultiBinding>
+                                            </Label.Text>
+                                        </Label>
+                                    </Grid>
 
                                     <Button Grid.Column="7"
-                                        HeightRequest="35"
-                                        WidthRequest="35"
-                                        BackgroundColor="DodgerBlue"
-                                        Text=""
-                                        TextColor="White"
-                                        FontAttributes="Bold"
-                                        FontSize="12"
-                                        HorizontalOptions="Center"                                        
-                                        Padding="3"
-                                        Margin="2"
+                                            HeightRequest="35"
+                                            WidthRequest="35"
+                                            BackgroundColor="DodgerBlue"
+                                            Text=""
+                                            TextColor="White"
+                                            FontAttributes="Bold"
+                                            FontSize="12"
+                                            HorizontalOptions="Center"
+                                            Padding="3"
+                                            Margin="2"
                                             Clicked="Button_Clicked">
                                         <Button.ImageSource>
                                             <FontImageSource
-                                            FontFamily="FontAwesome5Solid"
-                                            Color="White"
-                                            Size="15"
-                                            FontAutoScalingEnabled="True"
-                                            Glyph="&#xf067;" />
+                                                FontFamily="FontAwesome5Solid"
+                                                Color="White"
+                                                Size="15"
+                                                FontAutoScalingEnabled="True"
+                                                Glyph="&#xf067;" />     
                                         </Button.ImageSource>
                                     </Button>
-                                </Grid>                                    
-                                </mpowerkit:VirtualizeListViewCell>
+                                </Grid>
+                            </mpowerkit:VirtualizeListViewCell>
                             </DataTemplate>
                         </mpowerkit:VirtualizeListView.ItemTemplate>                        
                     </mpowerkit:VirtualizeListView>

@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiManager", "ApiManager\Ap
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMSA.Sync.Core", "DMSA.Sync.Core\DMSA.Sync.Core.csproj", "{BBD46A9D-C53E-4E40-A27C-E31A2FCD83A3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeebTech.Controls", "BeebTech.Controls\BeebTech.Controls.csproj", "{A015DC28-7AB0-432F-A5D5-A84709984CC9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +101,10 @@ Global
 		{BBD46A9D-C53E-4E40-A27C-E31A2FCD83A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BBD46A9D-C53E-4E40-A27C-E31A2FCD83A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BBD46A9D-C53E-4E40-A27C-E31A2FCD83A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A015DC28-7AB0-432F-A5D5-A84709984CC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A015DC28-7AB0-432F-A5D5-A84709984CC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A015DC28-7AB0-432F-A5D5-A84709984CC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A015DC28-7AB0-432F-A5D5-A84709984CC9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
