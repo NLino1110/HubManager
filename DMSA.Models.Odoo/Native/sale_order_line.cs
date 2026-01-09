@@ -374,9 +374,6 @@ namespace DMSA.Models.Odoo.Native
         //    set { }
         //}
 
-
-
-
         public event PropertyChangedEventHandler PropertyChanged;
         void OnPropertyChanged(string n) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
     }

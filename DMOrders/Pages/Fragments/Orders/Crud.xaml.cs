@@ -466,7 +466,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
             ((CrudViewModel)BindingContext).UpdateOrderLine(line, product_item);
         }
     }
-    
+
     public static string ObtenerIniciales(string nombreCompleto)
     {
         var partes = nombreCompleto
@@ -476,11 +476,17 @@ public partial class Crud : ContentPage, IBackButtonHandler
         if (partes.Length == 0)
             return "";
 
-        string inicialApellido = partes[0][0].ToString();
-        string inicialNombre = partes.Length > 2 ? partes[2][0].ToString() : partes[1][0].ToString();
+        if (partes.Length == 1)
+            return partes[0][0].ToString().ToUpper();
 
-        return (inicialApellido + inicialNombre).ToUpper();
+        // Si hay 2 palabras → iniciales = primera + segunda
+        if (partes.Length == 2)
+            return (partes[0][0].ToString() + partes[1][0].ToString()).ToUpper();
+
+        // Si hay 3 o más → primera + tercera (como tu lógica original)
+        return (partes[0][0].ToString() + partes[2][0].ToString()).ToUpper();
     }
+
 
     public static string GenerarCodigo(string nombreCompleto, int secuencial, bool esMovil = true)
     {

@@ -726,30 +726,30 @@ namespace DMOrders.Controls
 
         private async void OnBtnSave_Clicked(object sender, EventArgs e)
         {
-            if(_inputResPartner.Text == null || _inputResPartner.Text == "")
-            {
-                //await App.Current.MainPage.DisplayAlert("Cuenta requerida", "Llene el campo de cliente", "Cerrar");
+            //if(_inputResPartner.Text == null || _inputResPartner.Text == "")
+            //{
+            //    //await App.Current.MainPage.DisplayAlert("Cuenta requerida", "Llene el campo de cliente", "Cerrar");
 
-                var messageView = new VerticalStackLayout
-                {
-                    Margin = new Thickness(15),
-                    Children =
-                    {
-                        new Label
-                        {
-                            Text = "Llene el campo de cliente",
-                            FontSize = 15,
-                            FontAttributes = FontAttributes.None,
-                            HorizontalOptions = LayoutOptions.Center
-                        }
-                    }
-                };
+            //    var messageView = new VerticalStackLayout
+            //    {
+            //        Margin = new Thickness(15),
+            //        Children =
+            //        {
+            //            new Label
+            //            {
+            //                Text = "Llene el campo de cliente",
+            //                FontSize = 15,
+            //                FontAttributes = FontAttributes.None,
+            //                HorizontalOptions = LayoutOptions.Center
+            //            }
+            //        }
+            //    };
 
-                //await ServicesExposer.DialogService.DisplayViewAsync("Cliente requerido", messageView);
-                //var leave = await this.DisplayAlert("Atención", "Cliente requerido", "Si", "No");
-                Debug.WriteLine("Cliente requerido");
-                return;
-            }
+            //    //await ServicesExposer.DialogService.DisplayViewAsync("Cliente requerido", messageView);
+            //    //var leave = await this.DisplayAlert("Atención", "Cliente requerido", "Si", "No");
+            //    Debug.WriteLine("Cliente requerido");
+            //    return;
+            //}
 
             if (_inputReview.Text == null || _inputReview.Text == "")
             {

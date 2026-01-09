@@ -34,68 +34,65 @@
                 ColumnSpacing="10"
                 ColumnDefinitions="Auto,480,*,*,*,*,*"
                 RowDefinitions="*"                
-              BackgroundColor="LightGray"              
-              Padding="10" 
-              HeightRequest="35">
+                BackgroundColor="LightGray"              
+                Padding="10" 
+                HeightRequest="35">
 
             <Label 
-    Grid.Row="0" 
-    Grid.Column="0" 
-    FontAttributes="Bold"
-    Text="No."
-    FontSize="11"
-    TextColor="Black" />
+                Grid.Row="0" 
+                Grid.Column="0" 
+                FontAttributes="Bold"
+                Text="N"
+                FontSize="11"
+                TextColor="Transparent" />
             
             <Label 
-    Grid.Row="0" 
-    Grid.Column="1" 
-    Grid.ColumnSpan="3" 
-    FontAttributes="Bold"
-    Text="DESCRIP"
-    FontSize="11"
-    TextColor="Black" />
+                Grid.Row="0" 
+                Grid.Column="1" 
+                Grid.ColumnSpan="3" 
+                FontAttributes="Bold"
+                Text="DESCRIP"
+                FontSize="11"
+                TextColor="Black" />
 
             <Label 
-    Grid.RowSpan="2"
-    Grid.Column="2" 
+                Grid.RowSpan="2"
+                Grid.Column="2" 
                 FontAttributes="Bold"
-    Text="UNIDAD"
-    FontSize="11"
-    TextColor="Black"                 
+                Text="UNIDAD"
+                FontSize="11"
+                TextColor="Black"                 
                 HorizontalTextAlignment="Center"/>
 
             <Label 
-    Grid.RowSpan="2"
-    Grid.Column="3" 
+                Grid.RowSpan="2"
+                Grid.Column="3" 
                 FontAttributes="Bold"
-    Text="MARCA"
-    FontSize="11"
-    TextColor="Black" 
-                HorizontalTextAlignment="Center"/>
-
-            <Label 
-                FontAttributes="Bold"
-    Text="LINEA"
-    Grid.RowSpan="2"
-    Grid.Column="4" 
-    FontSize="11"
-    TextColor="Black"
+                Text="MARCA"
+                FontSize="11"
+                TextColor="Black" 
                 HorizontalTextAlignment="Center"/>
 
             <Label 
                 FontAttributes="Bold"
-    Text="ESTADO"
-    Grid.RowSpan="2"
-    Grid.Column="5" 
-    FontSize="11"
-    TextColor="Black"
+                Text="LINEA"
+                Grid.RowSpan="2"
+                Grid.Column="4" 
+                FontSize="11"
+                TextColor="Black"
                 HorizontalTextAlignment="Center"/>
 
+            <Label 
+                FontAttributes="Bold"
+                Text="ESTADO"
+                Grid.RowSpan="2"
+                Grid.Column="5" 
+                FontSize="11"
+                TextColor="Black"
+                HorizontalTextAlignment="Center"/>
         </Grid>
 
-
         <Grid Grid.Row="1">            
-            
             <mpowerkit:FixedRefreshView                    
                         HorizontalOptions="Fill" 
                         VerticalOptions="Fill"

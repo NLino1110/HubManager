@@ -2,7 +2,14 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:odoo="clr-namespace:DMSA.Models.Odoo.Native;assembly=DMSA.Models.Odoo"
+             xmlns:converters="clr-namespace:DMOrders.Converters"
              x:Class="DMOrders.Controls.CustomRows.Lite.ProductViewerRow">
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <converters:FalseStringToDashConverter x:Key="FalseToDashConverter" />
+        </ResourceDictionary>
+    </ContentView.Resources>
+
     <Grid
         x:DataType="odoo:product_product"
         Padding="4"
@@ -10,39 +17,15 @@
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="450" />
         </Grid.ColumnDefinitions>
 
-        <!-- ================= TEXT ================= -->
-        <StackLayout Grid.Column="0" Spacing="4">
-
-            <Label
-                Text="{Binding name}"
-                FontAttributes="Bold"
-                FontSize="14"
-                TextColor="Black" />
-
-            <Label
-                Text="{Binding default_code, StringFormat='Código: {0}'}"
-                FontSize="12"
-                TextColor="Gray" />
-
-            <Label
-                Text="{Binding barcode, StringFormat='Barcode: {0}'}"
-                FontSize="12"
-                TextColor="DimGray" />
-
-            <Label
-                Text="{Binding list_price, StringFormat='Precio: {0:C4}'}"
-                FontSize="12"
-                TextColor="DarkGreen" />
-        </StackLayout>
-
-        <!-- ================= IMAGE ================= -->
         <Grid
-            Grid.Column="1"
+            Grid.Column="0"
             HeightRequest="450"
-            WidthRequest="450">
+            WidthRequest="450"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Margin="0">
 
             <Image
                 x:Name="ProductImage"
@@ -56,6 +39,45 @@
                 HorizontalOptions="Center"
                 VerticalOptions="Center" />
         </Grid>
+        
+        <StackLayout Grid.Column="0" Spacing="4">            
+            <Label
+                Text="{Binding name}"
+                FontAttributes="Bold"
+                FontSize="14"
+                TextColor="Black" />
 
+            <Label
+                Text="{Binding default_code, StringFormat='Código: {0}'}"
+                FontSize="12"
+                FontAttributes="Bold"
+                TextColor="DimGray" />
+
+            <Label
+                Text="{Binding barcode, Converter={StaticResource FalseToDashConverter}, StringFormat='Barcode: {0}'}"
+                FontSize="12"
+                FontAttributes="Bold"
+                TextColor="DimGray" />
+
+            <Label
+                Text="{Binding list_price, StringFormat='Precio: {0:C4}'}"
+                FontSize="12"
+                FontAttributes="Bold"
+                TextColor="DarkGreen" />
+
+            <Label
+                Text="{Binding uom_display, StringFormat='U.MED: {0}'}"
+                FontSize="12"
+                FontAttributes="Bold"
+                TextColor="DimGray" />
+
+            <Label
+                Text="{Binding cantidad_disponible, StringFormat='STOCK: {0}'}"
+                FontSize="12"
+                FontAttributes="Bold"
+                TextColor="DimGray" />
+        </StackLayout>
+
+        
     </Grid>
 </ContentView>

@@ -157,9 +157,9 @@ public partial class MainPageTab : ContentPage
         isExpanded = !isExpanded;
     }
 
-    private async void ViewCell_Add_Task(object sender, EventArgs e)
+    public async Task AddnewActivity()
     {
-        Debug.WriteLine("EditItem");
+        Debug.WriteLine("AddnewActivity");
 
         int partner_id = App.Session.CurrentUserFront.partner_id;
         int user_id = App.Session.CurrentUserFront.uid;
@@ -167,7 +167,7 @@ public partial class MainPageTab : ContentPage
         ProjectTaskDb projectTaskDb = new ProjectTaskDb(App.Session.odooConnection.DbNameSqlite);
         string nameTodayTask = DateTime.Now.ToString("yyyy-MM-dd");
         var foundTodayTasks = await projectTaskDb.GetItemByNameAsync(App.Session.res_Company.id, nameTodayTask, user_id);
-        
+
         ProjectTask CurrentActivityHeader = null;
 
         if (foundTodayTasks != null && foundTodayTasks.Count > 0)
@@ -189,9 +189,9 @@ public partial class MainPageTab : ContentPage
                 display_in_project = true,
                 id_sync = 0,
                 user_id = App.Session.CurrentUserFront.uid,
-                user_ids = new int [App.Session.CurrentUserFront.uid],
+                user_ids = new int[App.Session.CurrentUserFront.uid],
                 state = "draft"
-            };            
+            };
 
             //viewObj.CurrentActivityHeader = new DMSA.Models.Odoo.DMOrders.tareas.ProjectTask() { id = 0, name = nameTodayTask };
             await projectTaskDb.InsertAsync(newTask);
@@ -201,6 +201,53 @@ public partial class MainPageTab : ContentPage
         Details viewObj = new Details(CurrentActivityHeader);
         viewObj.Disappearing += viewAddTask_Disappearing;
         await Navigation.PushModalAsync(viewObj);
+    }
+
+    private async void ViewCell_Add_Task(object sender, EventArgs e)
+    {
+        await AddnewActivity();
+        //Debug.WriteLine("EditItem");
+
+        //int partner_id = App.Session.CurrentUserFront.partner_id;
+        //int user_id = App.Session.CurrentUserFront.uid;
+
+        //ProjectTaskDb projectTaskDb = new ProjectTaskDb(App.Session.odooConnection.DbNameSqlite);
+        //string nameTodayTask = DateTime.Now.ToString("yyyy-MM-dd");
+        //var foundTodayTasks = await projectTaskDb.GetItemByNameAsync(App.Session.res_Company.id, nameTodayTask, user_id);
+
+        //ProjectTask CurrentActivityHeader = null;
+
+        //if (foundTodayTasks != null && foundTodayTasks.Count > 0)
+        //{
+        //    CurrentActivityHeader = foundTodayTasks[0];
+        //}
+        //else
+        //{
+        //    var newTask = new DMSA.Models.Odoo.DMOrders.tareas.ProjectTask()
+        //    {
+        //        name = nameTodayTask,
+        //        company_id = App.Session.res_Company.id,
+        //        create_uid = App.Session.CurrentUserFront.uid,
+        //        stage_id_ = 57, //etapa predeterminada
+        //        project_id_ = 1, //proyecto predeterminado
+        //        parent_id = 1, //tarea predeterminada
+        //        date_assign = DateTime.Now,
+        //        date_deadline = DateTime.Now,
+        //        display_in_project = true,
+        //        id_sync = 0,
+        //        user_id = App.Session.CurrentUserFront.uid,
+        //        user_ids = new int [App.Session.CurrentUserFront.uid],
+        //        state = "draft"
+        //    };            
+
+        //    //viewObj.CurrentActivityHeader = new DMSA.Models.Odoo.DMOrders.tareas.ProjectTask() { id = 0, name = nameTodayTask };
+        //    await projectTaskDb.InsertAsync(newTask);
+        //    CurrentActivityHeader = newTask;
+        //}
+
+        //Details viewObj = new Details(CurrentActivityHeader);
+        //viewObj.Disappearing += viewAddTask_Disappearing;
+        //await Navigation.PushModalAsync(viewObj);
     }
 
     private void viewAddTask_Disappearing(object? sender, EventArgs e)

@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="DMOrders.Pages.Fragments.Orders.modals.PromocionesViewer"
     xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
-xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+    xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
     BackgroundColor="Transparent"
     Padding="10"
     x:Name="Root">

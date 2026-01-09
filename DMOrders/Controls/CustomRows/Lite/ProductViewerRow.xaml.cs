@@ -50,7 +50,7 @@ public partial class ProductViewerRow : ContentView
     private static void OnItemChanged(BindableObject bindable, object oldValue, object newValue)
     {
         var view = (ProductViewerRow)bindable;
-        view.BindingContext = newValue;
+        //view.BindingContext = newValue;
 
         if (newValue is product_product product)
             view.LoadImageAsync(product);
@@ -109,5 +109,4 @@ public partial class ProductViewerRow : ContentView
         Activity.IsVisible = false;
         ProductImage.IsVisible = true;
     }
-
 }

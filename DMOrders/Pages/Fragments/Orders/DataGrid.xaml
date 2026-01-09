@@ -21,12 +21,11 @@
         <Grid Grid.Row="0"
             VerticalOptions="Center"
             ColumnSpacing="5"
-            ColumnDefinitions="20,350,*,*,*,*,100"
+            ColumnDefinitions="30,350,*,*,*,*,100"
             RowDefinitions="*"                
           BackgroundColor="LightGray"              
           Padding="3" 
           HeightRequest="35">
-
             <Label Grid.Column="0" FontAttributes="Bold" Text="No." FontSize="11" TextColor="Black" HorizontalTextAlignment="Start"/>
             <Label Grid.Column="1" FontAttributes="Bold" Text="CLIENTE" FontSize="11" TextColor="Black" HorizontalTextAlignment="Start"/>
             <Label Grid.Column="2" FontAttributes="Bold" Text="FEC. ORD." FontSize="11" TextColor="Black" HorizontalTextAlignment="Center"/>
@@ -69,14 +68,15 @@
                                 Text="{Binding id}"
                                 FontSize="12"
                                 TextColor="Black" 
-                                VerticalOptions="Center"/>
+                                VerticalOptions="Center"
+                                Margin="10,0,10,0"/>
 
                             <Label 
                                 Grid.Column="1"
                                 Grid.Row="0"
                                 Grid.ColumnSpan="3" 
                                 Text="{Binding partner_display_name}"
-                                FontSize="14"
+                                FontSize="12"
                                 TextColor="Black"
                                 LineBreakMode="TailTruncation"
                                 MaxLines="2" 
@@ -86,7 +86,7 @@
                                 Grid.Column="2"
                                 Grid.Row="0"
                                 Text="{Binding date_order}"
-                                FontSize="14"
+                                FontSize="12"
                                 TextColor="Black"                                        
                                 HorizontalTextAlignment="Center"
                                 VerticalOptions="Center"/>
@@ -207,23 +207,20 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-
-            <Grid 
-    
-    BackgroundColor="#80000000"
-    IsVisible="{Binding IsLoading}"
-    VerticalOptions="Fill"
-    HorizontalOptions="Fill"
-    ZIndex="10">
+            <Grid    
+                BackgroundColor="#80000000"
+                IsVisible="{Binding IsLoading}"
+                VerticalOptions="Fill"
+                HorizontalOptions="Fill"
+                ZIndex="10">
                 <ActivityIndicator 
-        IsRunning="{Binding IsLoading}" 
-        Color="MediumVioletRed"
-        WidthRequest="100"
-        HeightRequest="100"
-        VerticalOptions="Center"
-        HorizontalOptions="Center" />
+                    IsRunning="{Binding IsLoading}" 
+                    Color="MediumVioletRed"
+                    WidthRequest="100"
+                    HeightRequest="100"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center" />
             </Grid>
-
         </Grid>
 
         <Grid Grid.Row="2"
@@ -258,9 +255,9 @@
 
             <!-- Contenido derecho (paginación) -->
             <Grid Grid.Column="1"
-          ColumnDefinitions="Auto,Auto,Auto,Auto,Auto"
-          HorizontalOptions="End"
-          VerticalOptions="Center">
+                  ColumnDefinitions="Auto,Auto,Auto,Auto,Auto"
+                  HorizontalOptions="End"
+                  VerticalOptions="Center">
 
                 <!-- Botón anterior -->
                 <Button Grid.Column="0"
@@ -285,19 +282,19 @@
 
                 <!-- Página actual -->
                 <Label Grid.Column="1"
-               Text="{Binding Page}"
-               VerticalOptions="Center"
-               Margin="5,0"/>
+                    Text="{Binding Page}"
+                    VerticalOptions="Center"
+                    Margin="5,0"/>
 
                 <Label Grid.Column="2"
-               Text="/"
-               VerticalOptions="Center"
-               Margin="2,0"/>
+                    Text="/"
+                    VerticalOptions="Center"
+                    Margin="2,0"/>
 
                 <Label Grid.Column="3"
-               Text="{Binding TotalPages}"
-               VerticalOptions="Center"
-               Margin="5,0"/>
+                   Text="{Binding TotalPages}"
+                   VerticalOptions="Center"
+                   Margin="5,0"/>
 
                 <!-- Botón siguiente -->
                 <Button Grid.Column="4"

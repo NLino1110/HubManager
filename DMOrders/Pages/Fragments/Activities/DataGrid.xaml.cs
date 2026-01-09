@@ -157,6 +157,13 @@ namespace DMOrders.Pages.Fragments.Activities
             OnTapGestureRecognizerTapped(this, null);
         }
 
+        private async void ButtonAddNewActivity_Clicked(object sender, EventArgs e)
+        {
+            var mainPage = (MainPageTab)App.Current.MainPage;
+            //mainPage.SelectTab("Pedidos");
+            await mainPage.AddnewActivity();
+        }
+
         internal void LoadData(Filters _filters)
         {
             FiltersView = _filters;            

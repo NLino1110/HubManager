@@ -216,6 +216,10 @@ namespace ApiManager
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "promotion_ids_json");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "rule_ids_json");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "origin_gift_line_ids_json");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "origin_gift_line_ids");
+
+            //FIX: Eliminados temporalmente
+            //JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "gift_id");            
 
             //JObjectExtensions.RenamePropertyFromOrderLineItems(newJObject, "_product_uom_qty", "product_uom_qty");
 

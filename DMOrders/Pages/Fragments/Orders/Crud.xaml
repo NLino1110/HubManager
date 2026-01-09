@@ -25,10 +25,11 @@
         <BackButtonBehavior IsEnabled="{StaticResource IsBackButtonEnabled}" IsVisible="{StaticResource IsBackButtonEnabled}"/>
     </Shell.BackButtonBehavior>
 
-    <Grid ColumnDefinitions="Auto,*">
+    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,*">        
         <modals:CatalogViewerInner x:Name="SearchProductView" 
                    IsVisible="False"
                    Grid.Row="0"
+                   Grid.RowSpan="2"
                    Grid.Column="0"
                    Grid.ColumnSpan="2"
                    ItemPickedCommand="{Binding BindingContext.AddLineCommand,Source={RelativeSource AncestorType={x:Type ContentPage}}}"
@@ -36,43 +37,31 @@
                    CurrentPriceList="{Binding CurrentPriceList,Source={RelativeSource AncestorType={x:Type ContentPage}}}">            
         </modals:CatalogViewerInner>
 
-        <Grid Grid.Row="0" 
+        <Grid Grid.Row="1" 
                   Grid.Column="0"
                  Padding="10"
                  RowDefinitions="Auto,Auto" 
                  WidthRequest="220">
-
-            <Button Grid.Row="0" Text="" Clicked="ButtonClose_Clicked" BackgroundColor="Gray" TextColor="White" HeightRequest="43" WidthRequest="43" Padding="0">
-                <Button.ImageSource>
-                    <FontImageSource 
-            Size="30"
-            FontFamily="MaterialSharp"
-            Glyph="{x:Static uranium:MaterialSharp.Arrow_back}"/>
-                </Button.ImageSource>
-            </Button>
             
             <Grid Grid.Row="1" 
                   Grid.Column="0" 
                   Padding="10"
                   RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" 
                   WidthRequest="220"
-                  IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={RelativeSource AncestorType={x:Type ContentPage}}}">
-
-                
+                  IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={RelativeSource AncestorType={x:Type ContentPage}}}">                
             
-                <Grid Grid.Row="1" 
+                <Grid Grid.Row="0" 
                         ColumnDefinitions="*,*" 
                         RowSpacing="4" 
                         RowDefinitions="Auto,Auto,Auto,Auto,Auto"
-                        Padding="5">
+                        Padding="0,0,0,5">
 
-                    <Label Grid.Row="0" x:Name="labelGifInfo" Text="Regalo no editable." 
+                    <Label Grid.Row="0" Grid.ColumnSpan="2"  x:Name="labelGifInfo" Text="Regalo no editable." 
                            FontSize="12" 
                            FontAttributes="Bold" 
-                           TextColor="Orange" 
-                           Grid.ColumnSpan="2" 
+                           TextColor="Orange"                            
                            IsVisible="False"></Label>
-
+                    
                     <Label Grid.Row="1" Text="{Binding Path=ProductEditing.name, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
            FontSize="13" 
            FontAttributes="Bold"
@@ -103,7 +92,7 @@
                            VerticalTextAlignment="Center"></Label>
                 </Grid>
 
-                <Border Grid.Row="2" Stroke="LightGrey" Padding="3" Margin="0,0,0,0">
+                <Border Grid.Row="1" Stroke="LightGrey" Padding="3" Margin="0,0,0,0">
                     <VerticalStackLayout>
                         <Label Text="CANT. REAL" 
                                BackgroundColor="SlateGray" 
@@ -142,7 +131,7 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <Button x:Name="btnApplyQty" Grid.Row="3" Text="" BackgroundColor="LimeGreen" 
+                <Button x:Name="btnApplyQty" Grid.Row="2" Text="" BackgroundColor="LimeGreen" 
                         TextColor="White" 
                         FontAttributes="Bold" 
                         Margin="5"
@@ -155,7 +144,7 @@
                     </Button.ImageSource>
                 </Button>
 
-                <Grid Grid.Row="4" ColumnDefinitions="Auto,Auto,Auto" RowDefinitions="Auto,Auto,Auto,Auto" Padding="5" RowSpacing="2" ColumnSpacing="2">
+                <Grid Grid.Row="3" ColumnDefinitions="Auto,Auto,Auto" RowDefinitions="Auto,Auto,Auto,Auto" Padding="5" RowSpacing="2" ColumnSpacing="2">
                     <!-- Fila 1 -->
                     <Button Text="1" Grid.Row="0" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked">
 
@@ -179,7 +168,7 @@
                     <Button Text="⌫" Grid.Row="3" Grid.Column="2" FontAttributes="Bold" FontSize="12" FontAutoScalingEnabled="True" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
                 </Grid>
 
-                <Button x:Name="btnResetQty" Grid.Row="5"
+                <Button x:Name="btnResetQty" Grid.Row="4"
                   Text="" 
                   HorizontalOptions="Fill" 
                   BackgroundColor="Gray" 
@@ -196,111 +185,126 @@
                 </Button>
             </Grid>
         </Grid>
-        
-        <Grid RowDefinitions="Auto,Auto,*,Auto" Grid.Column="1">
-            <Grid Grid.Row="0"
-              ColumnDefinitions="*,*,*,Auto"
-              Margin="10">
 
-                <VerticalStackLayout Grid.Column="0">
-                    <Label Text="{Binding Path=PartnerDisplayName, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
-                           FontSize="16" 
-                           FontAttributes="Bold"
-                           TextColor="#242322"></Label>
-                    <Label Text="{Binding Path=PartnerDisplayAddress, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
-                           FontSize="11" 
-                           FontAttributes="Bold"
-                           TextColor="#4d4947"></Label>
+        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" ColumnDefinitions="Auto,*,*,*,Auto" RowDefinitions="Auto" Margin="5">
+            <Button Grid.Row="0" Grid.Column="0" Text="" Clicked="ButtonClose_Clicked" 
+                    BackgroundColor="Gray" 
+                    TextColor="White" 
+                    HeightRequest="43" 
+                    WidthRequest="43" 
+                    Padding="0"
+                    Margin="0,0,10,0">
+                <Button.ImageSource>
+                    <FontImageSource 
+                         Size="30"
+                         FontFamily="MaterialSharp"
+                         Glyph="{x:Static uranium:MaterialSharp.Arrow_back}"/>
+                </Button.ImageSource>
+            </Button>
+            
+            <VerticalStackLayout Grid.Column="1">
+                <Label Text="{Binding Path=PartnerDisplayName, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+           FontSize="16" 
+           FontAttributes="Bold"
+           TextColor="#242322"></Label>
+                <Label Text="{Binding Path=PartnerDisplayAddress, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+           FontSize="11" 
+           FontAttributes="Bold"
+           TextColor="#4d4947"></Label>
 
-                    <HorizontalStackLayout Spacing="10">
-                        <Label Text="{Binding Path=IdReferencia, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
-                               FontSize="12" 
-                               FontAttributes="None"
-                               TextColor="#4d4947"
-                               VerticalOptions="Center"></Label>
-                        <Label Text="{Binding Path=IdPrimaryKey, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
-                           FontSize="12" 
-                           FontAttributes="None"
-                           TextColor="SlateGray"
-                               VerticalOptions="Center"></Label>
-                    </HorizontalStackLayout>
-                </VerticalStackLayout>
-                <VerticalStackLayout Grid.Column="1">
-                    <Label Text="{Binding Path=PriceListDisplayName, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
-                           FontSize="16" 
-                           FontAttributes="Bold"
-                           TextColor="#242322"></Label>
-                    <Label Text="{Binding Path=PartnerDisplayStatus, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
-                           FontSize="11" 
-                           FontAttributes="Bold"
-                           TextColor="#4d4947"></Label>
-                    
-                </VerticalStackLayout>
-
-                <VerticalStackLayout Grid.Column="2" WidthRequest="250">
-                    <material:DropdownField
-                            x:Name="ddfAddress"                        
-                            Title="Dirección"
-                            FontSize="11"
-                            TitleFontSize="8"
-                            AllowClear="True"
-                        IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={RelativeSource AncestorType={x:Type ContentPage}}}">
-                        <material:DropdownField.Icon>                            
-                            <FontImageSource
-                                Size="14"
-                                FontFamily="FontAwesome5Solid"
-                                Glyph="&#xf3c5;" />
-                        </material:DropdownField.Icon>
-                    </material:DropdownField>
-                </VerticalStackLayout>
-
-                <HorizontalStackLayout Grid.Column="3" HorizontalOptions="Fill" Spacing="10" 
-                                       IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
-                                       IsVisible="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={RelativeSource AncestorType={x:Type ContentPage}}}">
-                    <Button Text="" Clicked="ButtonAddNew_Clicked" BackgroundColor="DarkSlateGray" TextColor="White" HeightRequest="45" WidthRequest="45" Padding="0">
-                        <Button.ImageSource>
-                            <FontImageSource 
-                                Size="28"
-                                FontFamily="MaterialSharp"
-                                Glyph="{x:Static uranium:MaterialSharp.Add_business}"/>
-                        </Button.ImageSource>
-                    </Button>
-
-                    <Button Text="" Clicked="ButtonPromo_Clicked" BackgroundColor="DeepPink" TextColor="White" HeightRequest="45" WidthRequest="45" Padding="0" IsVisible="True">
-                        <Button.ImageSource>
-                            <FontImageSource 
-                                Size="28"
-                                FontFamily="MaterialSharp"
-                                Glyph="{x:Static uranium:MaterialSharp.Price_change}"/>
-                        </Button.ImageSource>
-                    </Button>
-
-                    <Button Text="Guardar" Clicked="ButtonSave_Clicked" BackgroundColor="LimeGreen" TextColor="White" HeightRequest="45" WidthRequest="120" Padding="0">
-                        <Button.ImageSource>
-                            <FontImageSource 
-                            Size="30"
-                            FontFamily="MaterialSharp"
-                            Glyph="{x:Static uranium:MaterialSharp.Save_as}" />
-                        </Button.ImageSource>
-                    </Button>
-                    
-                    <Button x:Name="btnSend" Text="" Clicked="ButtonSync_Clicked" 
-                            BackgroundColor="DodgerBlue" 
-                            TextColor="White" 
-                            HeightRequest="43" 
-                            WidthRequest="43" 
-                            Padding="0">
-                        <Button.ImageSource>
-                            <FontImageSource 
-                                Size="30"
-                                FontFamily="MaterialSharp"
-                                Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
-                        </Button.ImageSource>
-                    </Button>
-
+                <HorizontalStackLayout Spacing="10">
+                    <Label Text="{Binding Path=IdReferencia, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+               FontSize="12" 
+               FontAttributes="None"
+               TextColor="#4d4947"
+               VerticalOptions="Center"></Label>
+                    <Label Text="{Binding Path=IdPrimaryKey, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+           FontSize="12" 
+           FontAttributes="None"
+           TextColor="SlateGray"
+               VerticalOptions="Center"></Label>
                 </HorizontalStackLayout>
-                
-            </Grid>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Grid.Column="2">
+                <Label Text="{Binding Path=PriceListDisplayName, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+           FontSize="16" 
+           FontAttributes="Bold"
+           TextColor="#242322"></Label>
+                <Label Text="{Binding Path=PartnerDisplayStatus, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+           FontSize="11" 
+           FontAttributes="Bold"
+           TextColor="#4d4947"></Label>
+
+            </VerticalStackLayout>
+
+            <HorizontalStackLayout Grid.Column="3">
+                <material:DropdownField
+                    x:Name="ddfAddress"
+                    Title="Dirección"
+                    FontSize="11"
+                    TitleFontSize="8"
+                    AllowClear="True"
+                    VerticalOptions="Center"       
+                    WidthRequest="220"
+                    IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={RelativeSource AncestorType={x:Type ContentPage}}}">
+                    <material:DropdownField.Icon>
+                        <FontImageSource
+                Size="14"
+                FontFamily="FontAwesome5Solid"
+                Glyph="&#xf3c5;" />
+                    </material:DropdownField.Icon>
+                </material:DropdownField>
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Grid.Column="4" HorizontalOptions="Fill" Spacing="10"
+                       IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                       IsVisible="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={RelativeSource AncestorType={x:Type ContentPage}}}">
+                <Button Text="" Clicked="ButtonAddNew_Clicked" BackgroundColor="DarkSlateGray" TextColor="White" HeightRequest="45" WidthRequest="45" Padding="0">
+                    <Button.ImageSource>
+                        <FontImageSource 
+                Size="28"
+                FontFamily="MaterialSharp"
+                Glyph="{x:Static uranium:MaterialSharp.Add_business}"/>
+                    </Button.ImageSource>
+                </Button>
+
+                <Button Text="" Clicked="ButtonPromo_Clicked" BackgroundColor="DeepPink" TextColor="White" HeightRequest="45" WidthRequest="45" Padding="0" IsVisible="True">
+                    <Button.ImageSource>
+                        <FontImageSource 
+                Size="28"
+                FontFamily="MaterialSharp"
+                Glyph="{x:Static uranium:MaterialSharp.Price_change}"/>
+                    </Button.ImageSource>
+                </Button>
+
+                <Button Text="Guardar" Clicked="ButtonSave_Clicked" BackgroundColor="LimeGreen" TextColor="White" HeightRequest="45" WidthRequest="120" Padding="0">
+                    <Button.ImageSource>
+                        <FontImageSource 
+            Size="30"
+            FontFamily="MaterialSharp"
+            Glyph="{x:Static uranium:MaterialSharp.Save_as}" />
+                    </Button.ImageSource>
+                </Button>
+
+                <Button x:Name="btnSend" Text="" Clicked="ButtonSync_Clicked" 
+            BackgroundColor="DodgerBlue" 
+            TextColor="White" 
+            HeightRequest="43" 
+            WidthRequest="43" 
+            Padding="0">
+                    <Button.ImageSource>
+                        <FontImageSource 
+                Size="30"
+                FontFamily="MaterialSharp"
+                Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
+                    </Button.ImageSource>
+                </Button>
+
+            </HorizontalStackLayout>
+        </Grid>
+        
+        <Grid RowDefinitions="Auto,Auto,*,Auto" Grid.Column="1" Grid.Row="1">            
             <!--<Label Grid.Row="1" Grid.Column="0" Text="TITULO CABECERAS" HorizontalOptions="Center"></Label>-->
             <!--<Grid BackgroundColor="LightGray" 
                   Grid.Row="1" 
@@ -329,7 +333,7 @@
                     EmptyView="No hay productos seleccionados..."
                     SelectionMode="Single"
                     SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-                    HorizontalOptions="Start"
+                    HorizontalOptions="Fill"
                     SelectionChanged="detail_SelectionChanged">
                     <CollectionView.Header>
                         <!--<customrowsheaders:SaleOrderLineRowHeader Item="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=OrdersLinesHeader}" HorizontalOptions="Fill" />-->
@@ -469,7 +473,7 @@
                                 HorizontalOptions="End"
                                 Grid.Column="10"/>
                             
-                            <StackLayout Grid.Column="12" MinimumWidthRequest="70"></StackLayout>
+                            <StackLayout Grid.Column="12" MinimumWidthRequest="20"></StackLayout>
 
                         </Grid>
 
@@ -486,11 +490,9 @@
 
                             <customrowsv2:SaleOrderLineRow
                                 Item="{Binding .}"
-                                HorizontalOptions="Fill"    
                                 EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=EditCommand}"
                                 DeleteCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=DeleteCommand}"
-                                LockEdition="{Binding LockEdition, Source={RelativeSource AncestorType={x:Type ContentPage}}}"/>
-                            
+                                LockEdition="{Binding LockEdition, Source={RelativeSource AncestorType={x:Type ContentPage}}}"/>                            
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>

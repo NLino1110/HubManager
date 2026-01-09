@@ -81,10 +81,27 @@ namespace DMSA.Sync.Core.Database.Sqlite
             if(filter_category > 0)
                 q = q.Where(x => x._general_categoria_id == filter_category);
 
+            //filter_stock == 1 > 5
+            //filter_stock == 2 > 25
+            //filter_stock == 3 > 50
+            //filter_stock == 4 > 75
+            //filter_stock == 5 > 100
             if (filter_stock == 1)
-                q = q.Where(x => x.cantidad_disponible > 0);            
+                q = q.Where(x => x.cantidad_disponible > 5);
 
-            if(filter_status == 1) // Activos
+            if (filter_stock == 2)
+                q = q.Where(x => x.cantidad_disponible > 25);
+
+            if (filter_stock == 3)
+                q = q.Where(x => x.cantidad_disponible > 50);
+
+            if (filter_stock == 4)
+                q = q.Where(x => x.cantidad_disponible > 75);
+
+            if (filter_stock == 5)
+                q = q.Where(x => x.cantidad_disponible > 100);
+
+            if (filter_status == 1) // Activos
             {
                 q = q.Where(x => x.active == true);
             }

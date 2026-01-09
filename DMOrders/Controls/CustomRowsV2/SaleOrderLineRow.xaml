@@ -12,19 +12,14 @@
         </ResourceDictionary>
     </ContentView.Resources>
 
-
-    <Grid
-        Padding="4"
-        ColumnSpacing="8"
-        HorizontalOptions="Fill">
-
+    <Grid Padding="4" ColumnSpacing="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
@@ -47,11 +42,7 @@
         TextColor="Green"/>
 
         <!-- Code + SKU -->
-        <HorizontalStackLayout
-        Grid.Row="0"
-        Grid.Column="1"
-        Spacing="6">
-
+        <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="6">
             <Label
             Text="{Binding Item.product_code, Source={x:Reference Root}}"
             FontSize="14"
