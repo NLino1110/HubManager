@@ -72,11 +72,39 @@ public partial class AccountPaymentView : ContentPage
         Console.WriteLine("Entry tapped!");
     }
 
+    //protected override bool OnBackButtonPressed()
+    //{
+    //    //Debug.WriteLine("Regresar!!");
+    //    //return base.OnBackButtonPressed();
+    //    Toast.Make("Use los botones GUARDAR/CANCELAR").Show();
+    //    return true;
+    //}
+
     protected override bool OnBackButtonPressed()
     {
-        //Debug.WriteLine("Regresar!!");
-        //return base.OnBackButtonPressed();
-        Toast.Make("Use los botones GUARDAR/CANCELAR").Show();
+        var tcs = new TaskCompletionSource<bool>();
+
+        Dispatcher.Dispatch(async () =>
+        {
+            //if (LockEdition)
+            //{
+            //    await Navigation.PopModalAsync();
+            //}
+
+            //if (SearchProductView.IsVisible)
+            //{
+            //    await Toast.Make("Primero cierre la búsqueda de productos.").Show();
+            //    return;
+            //}
+
+            var leave = await DisplayAlert("Atención", "Los cambios que haya realizado no se guardarán. ¿Desea continuar?", "Si", "No");
+
+            if (leave)
+            {
+                await Navigation.PopAsync();
+            }
+        });
+
         return true;
     }
 

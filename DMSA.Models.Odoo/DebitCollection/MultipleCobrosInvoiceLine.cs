@@ -7,6 +7,8 @@ namespace DMSA.Models.Odoo.DebitCollection
     [Table("multiple_cobros_invoice_line")]
     public class MultipleCobrosInvoiceLine : OdooEntity
     {
+        [PrimaryKey]
+        [AutoIncrement]
         [Column("id")]
         public int Id { get; set; }
 

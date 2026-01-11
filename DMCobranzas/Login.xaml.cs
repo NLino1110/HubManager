@@ -172,7 +172,7 @@ public partial class Login : ContentPage
 
         if (App.Session.odooConnection.IsTestMode)
         {
-            txtUser.Text = "rchonillo@macronegocios.ec";
+            txtUser.Text = "jchonillo@macronegocios.ec";
             txtPassword.Text = "mnsa_18";
         }
 

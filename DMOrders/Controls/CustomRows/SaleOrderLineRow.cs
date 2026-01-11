@@ -7,6 +7,7 @@ using System.Windows.Input;
 
 namespace DMOrders.Controls.CustomRows
 {
+    [Obsolete("Eliminar")]
     [XamlCompilation(XamlCompilationOptions.Compile)]
 
     public class SaleOrderLineRow : RowAdvance<sale_order_line>

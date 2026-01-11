@@ -4,7 +4,7 @@
              xmlns:material="clr-namespace:UraniumUI.Material.Resources;assembly=UraniumUI.Material"
              xmlns:local="clr-namespace:DMOrders"
              x:Class="DMOrders.App">
-    <Application.Resources>
+    <Application.Resources>        
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary x:Name="appColors" Source="Resources/Styles/Colors.xaml" />

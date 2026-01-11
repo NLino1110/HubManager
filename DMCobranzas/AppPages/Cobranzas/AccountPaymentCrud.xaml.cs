@@ -1,26 +1,13 @@
-using ApiManager;
-
-using DMCobranzas.Models;
 using DMCobranzas.Settings.helpers;
 using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Core;
-using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Maui.Sample.Models;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using DMSA.Models.MovilCobranzas.Api;
 using DMSA.Models.Odoo.Native;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Input;
-using Microsoft.Maui.Controls.Internals;
-using System.Data.Common;
 using DMSA.Models.Odoo.DMCobranzas;
 using CommunityToolkit.Maui.Extensions;
 using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
-using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.DebitCollection;
 
 namespace DMCobranzas.Controls.Modals;
@@ -633,20 +620,21 @@ public partial class AccountPaymentCrud : ContentPage
             //var selAccType = account_Journal_Types.Where(x => x.code == selDiario.type).FirstOrDefault();
             //if (selAccType != null)
             //{   
-                LoadingEditionData = true;
+            LoadingEditionData = true;
 
-                if (account_Journals == null)
-                {
-                    account_Journals = (await accountJournalDb.GetItemsAsync()).Where(j =>
-                        j._company_id == Sel_Company_Id.id).ToList();
-                    account_Journals = account_Journals.OrderBy(j => j.name).ToList();
-                    //Se asigna lista al picker
-                    pickerDiario.ItemsSource = account_Journals;
-                }
+            if (account_Journals == null)
+            {
+                account_Journals = (await accountJournalDb.GetItemsAsync()).Where(j =>
+                    j._company_id == Sel_Company_Id.id).ToList();
+                account_Journals = account_Journals.OrderBy(j => j.name).ToList();
+                //Se asigna lista al picker
+                pickerDiario.ItemsSource = account_Journals;
+                pickerDiario.ItemDisplayBinding = new Binding("name");
+            }
                 
                 //Ahora desde memoria
-                var selDiarioMemory = account_Journals.Where(x => x.id == selDiario.id).FirstOrDefault();
-                pickerDiario.SelectedItem = selDiarioMemory;
+            var selDiarioMemory = account_Journals.Where(x => x.id == selDiario.id).FirstOrDefault();
+            pickerDiario.SelectedItem = selDiarioMemory;
 
                 //Cargando métodos de pago
                 //ObservableCollection<inbound_payment_method> l_inbound = new ObservableCollection<inbound_payment_method>();
@@ -664,48 +652,48 @@ public partial class AccountPaymentCrud : ContentPage
 
                 //pickerPaymentMethod.SelectedItem = paymentLine;
 
-                if (selDiario.type == "bank")
-                {
-                    ChequeGroup.IsVisible = false;
-                    CreditCardGroup.IsVisible = false;
-                }
+            if (selDiario.type == "bank")
+            {
+                ChequeGroup.IsVisible = false;
+                CreditCardGroup.IsVisible = false;
+            }
 
-                if (selDiario.type == "credit" && selDiario.aplica_tarjeta)
-                {
-                    ChequeGroup.IsVisible = false;
-                    CreditCardGroup.IsVisible = true;
+            if (selDiario.type == "credit" && selDiario.aplica_tarjeta)
+            {
+                ChequeGroup.IsVisible = false;
+                CreditCardGroup.IsVisible = true;
 
-                    txtReferenciaTc.Text = ""; //INDEFINIDO--//accountPayment.CardId;
-                    txtAuthTc.Text = accountPayment.CardVoucher;
-                    txtLoteTc.Text = accountPayment.LoteVoucher;
-                }
+                txtReferenciaTc.Text = ""; //INDEFINIDO--//accountPayment.CardId;
+                txtAuthTc.Text = accountPayment.CardVoucher;
+                txtLoteTc.Text = accountPayment.LoteVoucher;
+            }
 
-                if (selDiario.type == "credit" && selDiario.aplica_cheque)
-                {
-                    ChequeGroup.IsVisible = true;
-                    CreditCardGroup.IsVisible = false;
-                }
+            if (selDiario.type == "credit" && selDiario.aplica_cheque)
+            {
+                ChequeGroup.IsVisible = true;
+                CreditCardGroup.IsVisible = false;
+            }
 
-                PartnerBankDb partnerBankDb = new PartnerBankDb(App.Session.odooConnection.DbNameSqlite);
+            PartnerBankDb partnerBankDb = new PartnerBankDb(App.Session.odooConnection.DbNameSqlite);
                 
-                var partnerBankItem = await partnerBankDb.GetItemAsync(x => x.id == accountPayment.BankId);
-                if (partnerBankItem != null)
-                {
-                    //Busqueda de banco
-                    BankDb bankDb = new BankDb(App.Session.odooConnection.DbNameSqlite);
-                    var bankItem = await bankDb.GetItemAsync(x=>x.id == partnerBankItem._bank_id);
+            var partnerBankItem = await partnerBankDb.GetItemAsync(x => x.id == accountPayment.BankId);
+            if (partnerBankItem != null)
+            {
+                //Busqueda de banco
+                BankDb bankDb = new BankDb(App.Session.odooConnection.DbNameSqlite);
+                var bankItem = await bankDb.GetItemAsync(x=>x.id == partnerBankItem._bank_id);
 
-                    txtCuenta.Text = partnerBankItem.acc_number;
-                    lblAccountBank.Text = bankItem.name;
-                    lblAccountHolder.Text = partnerBankItem.acc_holder_name;
-                    lblAccountType.Text = partnerBankItem.type_account;
-                    stackAccountInfo.IsVisible = true;
+                txtCuenta.Text = partnerBankItem.acc_number;
+                lblAccountBank.Text = bankItem.name;
+                lblAccountHolder.Text = partnerBankItem.acc_holder_name;
+                lblAccountType.Text = partnerBankItem.type_account;
+                stackAccountInfo.IsVisible = true;
 
-                    _res_partner_bank = partnerBankItem;
-                }
+                _res_partner_bank = partnerBankItem;
+            }
 
-                //Se sale del modo de carga de datos para edicion
-                LoadingEditionData = false;
+            //Se sale del modo de carga de datos para edicion
+            LoadingEditionData = false;
             //}
         }
 

@@ -1,17 +1,17 @@
 ﻿using DMSA.Models.Odoo.Base;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
+using SQLite;
 
 namespace DMSA.Models.Odoo.DebitCollection
 {
     [Table("multiple_cobros_invoice_line_ai")]
     public class MultipleCobrosInvoiceLineAi : OdooEntity
     {
+        [PrimaryKey]
+        [AutoIncrement]
+        [Column("id")]
+        public int Id { get; set; }
+
         [JsonProperty("company_id")]
         [Column("company_id")]
         public int company_id { get; set; }

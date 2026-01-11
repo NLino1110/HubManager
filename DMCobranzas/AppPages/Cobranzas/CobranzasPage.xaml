@@ -8,26 +8,25 @@
              xmlns:control="clr-namespace:DMCobranzas.Controls"
              xmlns:controlCustom="clr-namespace:DMCobranzas.Controls.CustomRows"
              Title="Cobranzas">
-    <StackLayout HorizontalOptions="Fill">
-
-        <StackLayout Orientation="Vertical" Margin="4" HorizontalOptions="Fill">
-            <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10, 0,0,0">
+    <StackLayout HorizontalOptions="FillAndExpand">
+        <StackLayout Orientation="Vertical" Margin="4" HorizontalOptions="FillAndExpand">
+            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" Margin="10, 0,0,0">
                 <Label Text="Empresa:" VerticalOptions="Center" WidthRequest="100" TextColor="DodgerBlue"></Label>
                 <Picker x:Name="SelectorCmp"
-                        Title=""                        
+                        Title=""
                         ItemDisplayBinding="{Binding name}"
                         SelectedIndexChanged="OnPickerSelectedIndexChanged"
                         VerticalOptions="Center"
                         Margin="0,0,0,0"
-                        HorizontalOptions="Fill"/>
+                        HorizontalOptions="FillAndExpand"/>
             </StackLayout>
-            <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10, 0,0,0">
+            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" Margin="10, 0,0,0">
                 <Label Text="F. desde:" VerticalOptions="Center" WidthRequest="100" TextColor="DodgerBlue"></Label>
-                <DatePicker x:Name="dateIni" HorizontalOptions="Fill" />
+                <DatePicker x:Name="dateIni" HorizontalOptions="FillAndExpand" />
             </StackLayout>
-            <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10, 0,0,0">
+            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" Margin="10, 0,0,0">
                 <Label Text="F. hasta:" VerticalOptions="Center" WidthRequest="100" TextColor="DodgerBlue"></Label>
-                <DatePicker x:Name="dateEnd" HorizontalOptions="Fill" />
+                <DatePicker x:Name="dateEnd" HorizontalOptions="FillAndExpand" />
             </StackLayout>
 
             <StackLayout Orientation="Horizontal" Margin="10">
@@ -51,8 +50,8 @@
                 </Button>
             </StackLayout>
 
-            <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10, 0,0,0">
-                <Entry x:Name="txtSearch" Text="" Placeholder="Buscar por Cliente" HorizontalOptions="Fill" FlexLayout.Shrink="50" FlexLayout.Grow="1"/>
+            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" Margin="10, 0,0,0">
+                <Entry x:Name="txtSearch" Text="" Placeholder="Buscar por Cliente" HorizontalOptions="FillAndExpand" FlexLayout.Shrink="50" FlexLayout.Grow="1"/>
             </StackLayout>
         </StackLayout>
 
@@ -61,12 +60,14 @@
         <!--<RefreshView x:Name="refreshView"
                      IsRefreshing="{Binding IsRefreshing}"
                         Command="{Binding RefreshCommand}">-->
-        <ScrollView x:Name="scrollViewResult" VerticalOptions="Fill" HorizontalOptions="Fill">
+        
             <CollectionView x:Name="collectionView"
                             ItemsSource="{Binding _items}" 
                             IsGrouped="True"
-                            HorizontalOptions="Fill"
-                            EmptyView="No existen datos para mostrar...">
+                            VerticalOptions="FillAndExpand" 
+                            HorizontalOptions="FillAndExpand"
+                            SelectionMode="Single"
+                            EmptyView="No existen datos para mostrar..." Margin="5">
                     <CollectionView.GroupHeaderTemplate>
                         <DataTemplate>
                             <!--<control:CustomHeaderView Title="{x:Binding Title}"
@@ -92,7 +93,7 @@
                     </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-            </ScrollView>
+            
         <!--</RefreshView>-->
     </StackLayout>
 </ContentPage>

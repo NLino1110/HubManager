@@ -8,6 +8,7 @@ using System.Windows.Input;
 
 namespace DMOrders.Controls.CustomRows.Headers
 {
+    [Obsolete("Eliminar")]
     [XamlCompilation(XamlCompilationOptions.Compile)]
 
     public class SaleOrderLineRowHeader : RowAdvance<SaleOrderLineHeader>
