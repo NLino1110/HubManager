@@ -561,6 +561,11 @@ public partial class UpdateData : ContentPage
             await serverPuller.DownloadAccountMoveRefund();
         }
 
+        if(chkGroup4.IsChecked)
+        {
+            await serverPuller.GetReceiptReceiptsLine();
+        }
+
         //await RefreshVat();
 
         obj.SetTotalPercentProgress(1);

@@ -45,5 +45,12 @@ namespace DMSA.Sync.Core.Database.Sqlite.DebitCollection
 
             return codigoRecibo;
         }
+
+        public string BuildName(MultipleCobrosInvoice accountPaymentHeader, int number_seq)
+        {
+            DateTime fechaActualDt = accountPaymentHeader.create_date;
+            string nameReturn = "CE/" + fechaActualDt.Year.ToString("D4") + "/" + number_seq.ToString("D6");
+            return nameReturn;
+        }
     }
 }

@@ -450,8 +450,10 @@ public partial class CobranzasPage : ContentPage
         Debug.WriteLine("EditItem");
 
         AccountPaymentView objPage = new AccountPaymentView();
+        
+        objPage.Disappearing += NewPayment_Disappearing;
         objPage.Sel_AccountPaymentHeader = (MultipleCobrosInvoice)obj;
-        objPage.editionMode = true;
+        objPage.editionMode = true;        
 
         //CobrosTabs objPage = new CobrosTabs();
 
@@ -541,10 +543,10 @@ public partial class CobranzasPage : ContentPage
             return;
         }
 
-        var _accountPaymentHeader = (MultipleCobrosInvoice)obj;
+        var _multipleCobrosInvoice = (MultipleCobrosInvoice)obj;
         
         await UITools.ShowLoadingPopup(this);
-        var result = await DebitCollection.SendPayment(_accountPaymentHeader, false);
+        var result = await DebitCollection.SendPayment(_multipleCobrosInvoice, false);
         await UITools.HideLoadingPopup();
 
         if (result.result.Count > 0 && result.error == null)

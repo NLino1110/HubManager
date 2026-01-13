@@ -74,6 +74,10 @@ namespace DMSA.Models.Odoo.DebitCollection
         public int subclasificacion_gasto_id { get; set; }
         [Column("receipt_receipts_id")] 
         public int receipt_receipts_id { get; set; }
+
+        [Column("receipt_receipts_line_id")]
+        public int receipt_receipts_line_id { get; set; }
+
         [Column("depositos_id")] 
         public int depositos_id { get; set; }
         [Column("display_name")] 
@@ -91,13 +95,17 @@ namespace DMSA.Models.Odoo.DebitCollection
         [Column("partner_retail_id")] 
         public int partner_retail_id { get; set; }
 
+        [Obsolete]
         public string recipe_name { get; set; }
         public string guid { get; set; }
         public string payment_status { get; set; }
-        public string model { get; set; }
-        public string manufacturer { get; set; }
-        public bool autosend { get; set; }
-        public string serial { get; set; }
+        public string device_app_version { get; set; }
+        public string device_idiom { get; set; }
+        public string device_model { get; set; }
+        public string device_manufacturer { get; set; }        
+        public string device_serial { get; set; }
+        public string origin_mobile_app { get; set; }
+        public string sync_mode { get; set; }
 
         [Ignore]
         [JsonIgnore]

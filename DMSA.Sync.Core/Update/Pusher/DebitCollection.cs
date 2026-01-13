@@ -16,6 +16,10 @@ namespace DMSA.Sync.Core.Update.Pusher
     {
         static public async Task<ApiResponseOdooRpcT<List<OdooRpcResultInt>>?> SendPayment(MultipleCobrosInvoice _accountPaymentHeader, bool autosend)
         {
+            string sync_mode = "manual";
+            if(autosend)
+                sync_mode = "automatic";
+
             ApiResponseOdooRpcT<List<OdooRpcResultInt>> resultTask = new ApiResponseOdooRpcT<List<OdooRpcResultInt>>()
             {
                 id = 0,
@@ -43,22 +47,50 @@ namespace DMSA.Sync.Core.Update.Pusher
             if (DeviceInfo.Current.Platform == DevicePlatform.Android ||
                     DeviceInfo.Current.Platform == DevicePlatform.iOS)
             {
-                _accountPaymentHeader.model = DeviceInfo.Idiom.ToString() + " - " + DeviceInfo.Current.Model;
-                _accountPaymentHeader.manufacturer = DeviceInfo.Current.Manufacturer;
-                _accountPaymentHeader.autosend = autosend;
+                _accountPaymentHeader.device_idiom = DeviceInfo.Idiom.ToString();
+                _accountPaymentHeader.device_model = DeviceInfo.Current.Model;
+                _accountPaymentHeader.device_manufacturer = DeviceInfo.Current.Manufacturer;
+                _accountPaymentHeader.sync_mode = sync_mode;
             }
 
             if (DeviceInfo.Current.Platform == DevicePlatform.WinUI)
             {
-                _accountPaymentHeader.model = DeviceInfo.Idiom.ToString() + " - " + "-";
-                _accountPaymentHeader.manufacturer = "-";
-                _accountPaymentHeader.autosend = autosend;
+                _accountPaymentHeader.device_idiom = DeviceInfo.Idiom.ToString();
+                _accountPaymentHeader.device_model = "-";
+                _accountPaymentHeader.device_manufacturer = "-";
+                _accountPaymentHeader.sync_mode = sync_mode;
+            }
+
+            int user_id = Constants.Session.CurrentUserFront.uid;
+
+            if (_accountPaymentHeader.receipt_receipts_id == 0)
+            {
+                var receiptReceiptsLineDb = new ReceiptReceiptsLineDb(Constants.Session.odooConnection.DbNameSqlite);
+                var receiptLines = (await receiptReceiptsLineDb.GetItemsAsync(x => x._sale_user_id == user_id && x.state == "draft"))
+                    .OrderBy(x=>x.number_seq)
+                    .Take(1)
+                    .ToList();
+
+                if (receiptLines.Count > 0)
+                {
+                    _accountPaymentHeader.receipt_receipts_id = receiptLines[0]._receipt_receipts_id;
+                    _accountPaymentHeader.receipt_receipts_line_id = receiptLines[0].number_seq;
+                    _accountPaymentHeader.name = cobReciboCabDb.BuildName(_accountPaymentHeader, _accountPaymentHeader.receipt_receipts_line_id);
+
+                    await cobReciboCabDb.UpdateAsync(_accountPaymentHeader);
+
+                    receiptLines[0].state = "used";
+                    await receiptReceiptsLineDb.UpdateAsync(receiptLines[0]);
+                }
             }
 
             //TODO: Se coloca directamente "unknow" ya que las nuevas versiones de Android
             // no permiten obtener el número de serie de los dispositivos
 
-            _accountPaymentHeader.serial = "unknown" + "-" + Constants.Session.AppVersion;
+            _accountPaymentHeader.device_serial = "unknown" + "-" + Constants.Session.AppVersion;
+
+            _accountPaymentHeader.device_app_version = Constants.Session.AppVersion;
+            _accountPaymentHeader.origin_mobile_app = "01";
 
             HubMultipleCobrosInvoice apiProcessor = new HubMultipleCobrosInvoice(Constants.Session);
 

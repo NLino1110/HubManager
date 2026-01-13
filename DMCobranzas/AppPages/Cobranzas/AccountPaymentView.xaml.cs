@@ -17,6 +17,7 @@ namespace DMCobranzas.Controls.Modals.TabbedPages;
 [XamlCompilation(XamlCompilationOptions.Compile)]
 public partial class AccountPaymentView : ContentPage
 {
+    private int subclasificacion_gasto_id_default = 73;
     public bool ClosingSaved { get; set; } = false;
 
     //public AccountPaymentHeader Sel_AccountPaymentHeader { get; set; }
@@ -404,6 +405,9 @@ public partial class AccountPaymentView : ContentPage
             //if (cobReciboCab != null && cobReciboCab.DETALLESPAGO!=null && cobReciboCab.DETALLESPAGO.Length > 0)
             if (Sel_AccountPaymentHeader != null)
             {
+                //Si entra en modo edición se bloquea
+                GridPartner.IsEnabled = false;
+
                 //dataItems = new CobReciboDet[0];
                 //var ls_dataItems = JsonConvert.DeserializeObject<List<AccountPayment>>(cobReciboCab.DETALLESPAGO);
                 var accountPaymentDb = new MultipleCobrosInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
@@ -492,8 +496,7 @@ public partial class AccountPaymentView : ContentPage
             //string fechaActual = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0,10).Trim();
 
             //string fechaActual = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                        
-
+            
             //Guardar info
             MultipleCobrosInvoice accountPaymentHeader = new MultipleCobrosInvoice();
             accountPaymentHeader.company_id = Sel_AccountPaymentHeader.company_id;
@@ -510,7 +513,7 @@ public partial class AccountPaymentView : ContentPage
             accountPaymentHeader.create_uid = App.Session.CurrentUserFront.uid;
             accountPaymentHeader.user_id = App.Session.CurrentUserFront.uid;
             accountPaymentHeader.center_id = App.Session.odooConnection.res_center_default;
-            accountPaymentHeader.subclasificacion_gasto_id = 73;
+            accountPaymentHeader.subclasificacion_gasto_id = subclasificacion_gasto_id_default;
 
             accountPaymentHeader.partner_id = Sel_AccountPaymentHeader.partner_id;
             accountPaymentHeader.partner_name = Sel_AccountPaymentHeader.partner_name;
@@ -593,7 +596,7 @@ public partial class AccountPaymentView : ContentPage
             accountPaymentHeader.create_uid = App.Session.CurrentUserFront.uid;
             accountPaymentHeader.user_id = App.Session.CurrentUserFront.uid;
             accountPaymentHeader.center_id = App.Session.odooConnection.res_center_default;
-            accountPaymentHeader.subclasificacion_gasto_id = 73;
+            accountPaymentHeader.subclasificacion_gasto_id = subclasificacion_gasto_id_default;
 
             accountPaymentHeader.amount = (float) totalPagado; //.ToString(App.Session.ApplicationCultureInfo);
             accountPaymentHeader.total_due = (float) Sel_Res_Partner.total_due;
