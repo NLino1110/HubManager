@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace DMSA.Models.General.Responses
 {
+    [Obsolete]
     //Estructura para respuesta de acción PARAMETROS_CXC
     public class ApiResponse_OBTENER_FAC_NOTACREDITO_DET : ApiResponseOdoo
     {

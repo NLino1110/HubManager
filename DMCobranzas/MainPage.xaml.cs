@@ -1,18 +1,21 @@
-﻿using Microsoft.Maui.ApplicationModel.Communication;
-using RestSharp;
-using static DMCobranzas.DetailModal;
-using CommunityToolkit.Maui.Alerts;
+﻿using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
-using DMCobranzas.Settings;
-using System.Diagnostics;
-using DMCobranzas.Models;
-using DMCobranzas.Services.ApiHub;
+using CommunityToolkit.Maui.Sample;
 using CommunityToolkit.Maui.Sample.Models;
 using CommunityToolkit.Maui.Sample.ViewModels.Views;
-using DMCobranzas.Settings.helpers;
-using CommunityToolkit.Maui.Sample;
 using CommunityToolkit.Maui.Views;
+using DMCobranzas.Models;
+using DMCobranzas.Services.ApiHub;
+using DMCobranzas.Settings;
+using DMCobranzas.Settings.helpers;
+using DMSA.Models.Odoo.DebitCollection;
+using DMSA.Sync.Core.Database.Sqlite.DebitCollection;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
+using DMSA.Sync.Core.Update.Pusher;
+using Microsoft.Maui.ApplicationModel.Communication;
+using RestSharp;
+using System.Diagnostics;
+using static DMCobranzas.DetailModal;
 
 namespace DMCobranzas;
 public partial class MainPage : ContentPage
@@ -84,8 +87,13 @@ public partial class MainPage : ContentPage
                 return;
             }
 
-            AccountPaymentHeaderDb _accountPaymentHeaderDb = new AccountPaymentHeaderDb(App.Session.odooConnection.DbNameSqlite);
-            var resultItems = await _accountPaymentHeaderDb.GetItemsPendingAsync(App.Session.CurrentUser.uid);
+            MultipleCobrosInvoiceDb _accountPaymentHeaderDb = new MultipleCobrosInvoiceDb(App.Session.odooConnection.DbNameSqlite);
+            var resultItems = await _accountPaymentHeaderDb.GetItemsAsync(i => i.user_id == App.Session.CurrentUser.uid &&
+                Convert.ToDateTime(i.create_date).Date != DateTime.Today &&
+                (i.payment_status == DMSA.Models.CobrosEstados.ENVIANDO ||
+                i.payment_status == DMSA.Models.CobrosEstados.ERROR ||
+                i.payment_status == DMSA.Models.CobrosEstados.PENDIENTE));
+
             if(resultItems.Count > 0)
             {
                 await UITools.ShowLoadingPopup(this);
@@ -94,7 +102,7 @@ public partial class MainPage : ContentPage
                 {
                     foreach (var item in resultItems)
                     {
-                        await SendController.SendPayment(item, true);
+                        await DebitCollection.SendPayment(item, true);
                     }
                 }
                 catch(Exception ex)

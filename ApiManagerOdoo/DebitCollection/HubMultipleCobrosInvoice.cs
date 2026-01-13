@@ -28,6 +28,33 @@ namespace ApiManager
             _modelname = "multiple.cobros.invoice";
         }
 
+        public async Task<ApiResponseOdooRpcT<List<OdooRpcResultInt>>?> Create(MultipleCobrosInvoice SendObject)
+        {
+            var kwargs = new { specification = new {} };
+
+            var settings = new JsonSerializerSettings
+            {
+                DateFormatString = "yyyy-MM-dd HH:mm:ss",
+            };
+
+            var serialized = JsonConvert.SerializeObject(SendObject, settings);
+
+            var newJObject = JObject.Parse(serialized);
+
+            //JObjectExtensions.RenameProperty(newJObject, "_partner_id", "partner_id");
+            JObjectExtensions.RemoveProperty(newJObject, "recipe_name");
+            JObjectExtensions.RemoveProperty(newJObject, "guid");
+            JObjectExtensions.RemoveProperty(newJObject, "payment_status");
+            JObjectExtensions.RemoveProperty(newJObject, "model");
+            JObjectExtensions.RemoveProperty(newJObject, "manufacturer");
+            JObjectExtensions.RemoveProperty(newJObject, "autosend");
+            JObjectExtensions.RemoveProperty(newJObject, "serial");
+
+            object[] args = new object[] { new object[] {}, newJObject };
+
+            return await CallMethod<ApiResponseOdooRpcT<List<OdooRpcResultInt>>>(EndPointApi, Method.Post, args, kwargs, "multiple.cobros.invoice", "web_save");
+        }
+
         public async Task<ApiResponseOdooRpc?> GetCount(DateTime dateIni, DateTime dateEnd)
         {
             object[] args = new object[] { };            
@@ -54,7 +81,7 @@ namespace ApiManager
             return await SearchRead<ApiResponseOdooRpcT<MultipleCobrosInvoice[]>>(args, _custom_args, kwargs, true);
         }
 
-        public async Task<ApiResponseOdooRpcT<AccountPaymentInvoiceLineSend[]>?> GetInvoiceLineSend(int parent_payment_id)
+        public async Task<ApiResponseOdooRpcT<MultipleCobrosInvoiceLine[]>?> GetInvoiceLineSend(int parent_payment_id)
         {
             var kwargs = new
             {
@@ -67,7 +94,7 @@ namespace ApiManager
             object[] _custom_args = new object[] {
                 new object[] { "parent_payment_id", "=", parent_payment_id },                
             };
-            return await SearchRead<ApiResponseOdooRpcT<AccountPaymentInvoiceLineSend[]>>("account.payment.invoice.line.send", args, _custom_args, kwargs, true);
+            return await SearchRead<ApiResponseOdooRpcT<MultipleCobrosInvoiceLine[]>>("account.payment.invoice.line.send", args, _custom_args, kwargs, true);
         }
 
         public async Task<ApiResponseOdooRpcT<MultipleCobrosInvoice[]>?> GetItemsFull(int uid, DateTime dateIni, DateTime dateEnd, int limit, int index)
@@ -109,23 +136,27 @@ namespace ApiManager
             return await Create<ApiResponseOdooRpcT<int>>(args, kwargs);
         }
 
-        public async Task<ApiResponseOdooRpcT<int>?> SendPayments(AccountPaymentSend SendObject)
+        public async Task<ApiResponseOdooRpcT<List<OdooRpcResultInt>>?> SendPayments(MultipleCobrosInvoiceLine SendObject)
         {
-            JsonSerializerSettings settings = new JsonSerializerSettings();
-            settings.DateFormatString = "yyyy-MM-dd HH:mm:ss";
-            settings.ContractResolver = new IgnorePropertyResolver("payment_invoice_line_ids");
-            var kwargs = new { };
+            var settings = new JsonSerializerSettings
+            {
+                DateFormatString = "yyyy-MM-dd HH:mm:ss",
+            };
+            
+            //settings.ContractResolver = new IgnorePropertyResolver("payment_invoice_line_ids");
+            var kwargs = new { specification = new { } };
 
             var serialized = JsonConvert.SerializeObject(SendObject, settings);
 
             var newJObject = JObject.Parse(serialized);
 
-            object[] args = new object[] { newJObject };
+            object[] args = new object[] { new object[] { }, newJObject };
 
-            return await Create<ApiResponseOdooRpcT<int>>(args, kwargs, "account.payment.send");
+            //return await Create<ApiResponseOdooRpcT<int>>(args, kwargs, "multiple.cobros.invoice.line");
+            return await CallMethod<ApiResponseOdooRpcT<List<OdooRpcResultInt>>>(EndPointApi, Method.Post, args, kwargs, "multiple.cobros.invoice.line", "web_save");
         }
 
-        public async Task<ApiResponseOdooRpcT<int>?> SendPaymentsInvoiceLine(AccountPaymentInvoiceLineSend SendObject)
+        public async Task<ApiResponseOdooRpcT<int>?> SendPaymentsInvoiceLine(MultipleCobrosInvoiceLineAi SendObject)
         {            
             var kwargs = new { };
 

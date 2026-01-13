@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace DMSA.Models.General
 {
+    [Obsolete]
     //Estructura para respuesta de acción PARAMETROS_CXC
     public class ApiResponse_PARAMETROS_CXC
     {

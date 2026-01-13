@@ -7,13 +7,6 @@ using System.Threading.Tasks;
 
 namespace DMSA.Models.Odoo.General.Responses
 {
-    //public class ApiResponseOdooRpc
-    //{
-    //    public string jsonrpc { get; set; }
-    //    public int id { get; set; }
-    //    public int result { get; set; }
-    //}
-
     public class ApiResponseOdooRpc
     {
         public string jsonrpc { get; set; }
@@ -21,24 +14,4 @@ namespace DMSA.Models.Odoo.General.Responses
         public int result { get; set; }
         public Error? error { get; set; }
     }
-
-    //public class __Error
-    //{
-    //    public int code { get; set; }
-    //    public string message { get; set; }
-    //    public Data data { get; set; }
-    //}
-
-    //public class __Data
-    //{
-    //    public string name { get; set; }
-    //    public string debug { get; set; }
-    //    public string message { get; set; }
-    //    public string[] arguments { get; set; }
-    //    public Context context { get; set; }
-    //}
-
-    //public class __Context
-    //{
-    //}
 }

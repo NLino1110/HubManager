@@ -287,8 +287,7 @@ public partial class AccountPaymentCrud : ContentPage
             await LoadPaymentLines();
         }
 
-        ChequeGroup.IsVisible = false;
-        CreditCardGroup.IsVisible = false;
+        SetDirectPayment();
 
         await UITools.HideLoading(_absoluteLayout);
 
@@ -344,24 +343,28 @@ public partial class AccountPaymentCrud : ContentPage
             switch (type_value)
             {
                 case "transfer":
-                case "deposito":
-                case "check_day":
+                case "deposito":                
                 case "cash":
-                    
-                    q = await db.GetItemsAsync(x=> x.type == "bank");
-
+                    {
+                        q = await db.GetItemsAsync(x => x.type == "bank");
+                        SetDirectPayment();
+                    }
                     break;
 
                 case "check":
-                    
-                    q = await db.GetItemsAsync(x=> x.type == "bank" && x.aplica_cheque == true);
-
+                case "check_day":
+                {
+                    q = await db.GetItemsAsync(x => x.type == "bank" && x.aplica_cheque == true);
+                        SetCheckPayment();
+                }
                     break;
 
                 case "credit_card":
-                    
-                    q = await db.GetItemsAsync(x=> x.type == "credit" && x.aplica_tarjeta == true);
-                    
+                    {
+                        q = await db.GetItemsAsync(x => x.type == "credit" && x.aplica_tarjeta == true);
+                        SetCreditCardPayment();
+                        
+                    }
                     break;
 
                 case "otros":
@@ -423,6 +426,67 @@ public partial class AccountPaymentCrud : ContentPage
             //        }
             //    }
         }
+    }
+
+    private void SetDirectPayment()
+    {
+        txtDepositoConfirmar.IsVisible = true;
+        txtMonto.IsVisible = true;
+        txtFDeposito.IsVisible = true; //Fecha deposito-Fecha Pago
+        txtBancoDeposito.IsVisible = true;
+        txtBancoCuenta.IsVisible = true;
+
+        txtReferenciaTc.IsVisible = false;
+        txtAuthTc.IsVisible = false;
+        txtLoteTc.IsVisible = false;
+        txtLoteTc2.IsVisible = false;
+        txtDeposito.IsVisible = false;
+        txtCuenta.IsVisible = false;
+
+        ChequeGroup.IsVisible = false;
+
+        pickerFecDeposito.IsVisible = false;
+    }
+
+    private void SetCheckPayment()
+    {
+        txtDepositoConfirmar.IsVisible = true;
+        txtMonto.IsVisible = true;
+        txtFDeposito.IsVisible = true; //Fecha deposito-Fecha Pago
+        txtBancoDeposito.IsVisible = true;
+        txtBancoCuenta.IsVisible = true;
+
+        txtReferenciaTc.IsVisible = false;
+        txtAuthTc.IsVisible = false;
+        txtLoteTc.IsVisible = false;
+        txtLoteTc2.IsVisible = false;
+
+        txtDeposito.IsVisible = true;
+        txtCuenta.IsVisible = true;
+
+        ChequeGroup.IsVisible = true;
+
+        pickerFecDeposito.IsVisible = true;
+    }
+
+    private void SetCreditCardPayment()
+    {
+        txtDepositoConfirmar.IsVisible = false;
+        txtMonto.IsVisible = true;
+        txtFDeposito.IsVisible = true; //Fecha deposito-Fecha Pago
+        txtBancoDeposito.IsVisible = false;
+        txtBancoCuenta.IsVisible = false;
+
+        txtReferenciaTc.IsVisible = true;
+        txtAuthTc.IsVisible = true;
+        txtLoteTc.IsVisible = true;
+        txtLoteTc2.IsVisible = true;
+        txtDeposito.IsVisible = false;
+        txtCuenta.IsVisible = false;
+        
+        ChequeGroup.IsVisible = false;
+
+        pickerFecDeposito.IsVisible = false;
     }
 
     private async void PickerDiario_SelectedIndexChanged(object sender, EventArgs e)
@@ -654,14 +718,12 @@ public partial class AccountPaymentCrud : ContentPage
 
             if (selDiario.type == "bank")
             {
-                ChequeGroup.IsVisible = false;
-                CreditCardGroup.IsVisible = false;
+                SetDirectPayment();
             }
 
             if (selDiario.type == "credit" && selDiario.aplica_tarjeta)
             {
-                ChequeGroup.IsVisible = false;
-                CreditCardGroup.IsVisible = true;
+                SetCreditCardPayment();
 
                 txtReferenciaTc.Text = ""; //INDEFINIDO--//accountPayment.CardId;
                 txtAuthTc.Text = accountPayment.CardVoucher;
@@ -670,8 +732,7 @@ public partial class AccountPaymentCrud : ContentPage
 
             if (selDiario.type == "credit" && selDiario.aplica_cheque)
             {
-                ChequeGroup.IsVisible = true;
-                CreditCardGroup.IsVisible = false;
+                SetCheckPayment();
             }
 
             PartnerBankDb partnerBankDb = new PartnerBankDb(App.Session.odooConnection.DbNameSqlite);
@@ -697,7 +758,7 @@ public partial class AccountPaymentCrud : ContentPage
             //}
         }
 
-        txtValor.Text = accountPayment.MontoAplicadoTotal.ToString(); //.ToString(App.Session.ApplicationCultureInfo);
+        txtValor.Text = accountPayment.Amount.ToString(); //.ToString(App.Session.ApplicationCultureInfo);
         pickerFecCobro.Date = (DateTime) accountPayment.PaymentDate;
         txtRef.Text = accountPayment.Circular;
         txtNCheque.Text = accountPayment.NumberCheckText;
@@ -850,6 +911,12 @@ public partial class AccountPaymentCrud : ContentPage
 
         accountPaymentLines = accountPaymentLinesMem.ToArray();
 
+        //int repeat = 3;
+        //accountPaymentLines = Enumerable
+        //    .Repeat(accountPaymentLinesMem, repeat)
+        //    .SelectMany(x => x)
+        //    .ToArray();
+
         lblCounter.Text = "Total de documentos " + accountPaymentLines.Length.ToString();
         collectionView.ItemsSource = accountPaymentLines;
     }
@@ -861,14 +928,8 @@ public partial class AccountPaymentCrud : ContentPage
         //pickerTarjetas.IsVisible = false;
         //pickerTipCheque.IsVisible = false;
         pickerFecCobro.IsVisible = false;
-        //pickerIndicador.IsVisible = false;
-        txtGirador.IsVisible = false;
-        txtNCtaCheque.IsVisible = false;
-        txtNCheque.IsVisible = false;
-        txtNDeposito.IsVisible = false;
-        pickerFecDeposito.IsVisible = false;
-        txtNTarjeta.IsVisible = false;
-        txtNLote.IsVisible = false;
+        //pickerIndicador.IsVisible = false;        
+        pickerFecDeposito.IsVisible = false;        
     }
 
     async void OnPickerTipoDiarioSelectedIndexChanged(object sender, EventArgs e)
@@ -982,12 +1043,12 @@ public partial class AccountPaymentCrud : ContentPage
         //if (!isWindows)
         //    returnResultPopup.Size = this.popupSizeConstants.Large;
 
-        var result = await this.ShowPopupAsync(returnResultPopup);
+        var result = await this.ShowPopupAsync <res_partner_bank> (returnResultPopup);
 
-        if (result != null)
+        if (result.Result != null)
         {
             PartnerBankDb partnerBankDb = new PartnerBankDb(App.Session.odooConnection.DbNameSqlite);
-            var new_partnerBank = (res_partner_bank)result;
+            var new_partnerBank = (res_partner_bank)result.Result;
             
             _res_partner_bank = new_partnerBank;
 
@@ -1053,11 +1114,11 @@ public partial class AccountPaymentCrud : ContentPage
         //if (!isWindows)
         //    returnResultPopup.Size = popupSizeConstants.Large;
 
-        var result = await PopupExtensions.ShowPopupAsync(this, returnResultPopup);
+        var result = await PopupExtensions.ShowPopupAsync<res_partner_bank>(this, returnResultPopup);
         
-        if (result != null)
+        if (result.Result != null)
         {
-            res_partner_bank Sel_Res_PartnerBank = (res_partner_bank) result;
+            res_partner_bank Sel_Res_PartnerBank = result.Result;
             _res_partner_bank = Sel_Res_PartnerBank;
 
             txtCuenta.Text = Sel_Res_PartnerBank.acc_number;
@@ -1122,7 +1183,7 @@ public partial class AccountPaymentCrud : ContentPage
         accountPayment.PartnerType = "customer";
         accountPayment.PaymentType = "inbound";
         accountPayment.PaymentDate = pickerFecCobro.Date;
-
+        
         AppParameter selPaymentM = null;
         //accountPayment.payment_method_line_id = 0;
         accountPayment.NumberCheckText = txtNCheque.Text;
@@ -1227,7 +1288,7 @@ public partial class AccountPaymentCrud : ContentPage
         if (unicodevalue == 61641)
         {
             // Animación de rotación
-            await btnTopTools.RotateTo(90, 200); // Rotar 360 grados en 1000 milisegundos
+            await btnTopTools.RotateTo(90, 100); // Rotar 360 grados en 1000 milisegundos
             btnTopTools.Rotation = 0; // Restablecer la rotación después de la animación
             fntSrc.Glyph = "\uf00d";
             TopTools.IsVisible = true;
@@ -1235,7 +1296,7 @@ public partial class AccountPaymentCrud : ContentPage
         else
         {
             // Animación de rotación
-            await btnTopTools.RotateTo(-90, 200); // Rotar 360 grados en 1000 milisegundos
+            await btnTopTools.RotateTo(-90, 100); // Rotar 360 grados en 1000 milisegundos
             btnTopTools.Rotation = 0; // Restablecer la rotación después de la animación
             fntSrc.Glyph = "\uf0c9";
             TopTools.IsVisible = false;

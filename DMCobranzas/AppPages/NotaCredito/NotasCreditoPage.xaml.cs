@@ -1,10 +1,5 @@
 //using CloudKit;
 using ApiManager;
-using DMCobranzas.Controls.Modals;
-using DMCobranzas.Models;
-using DMCobranzas.Models.Specials;
-using DMCobranzas.Services.ApiHub;
-using DMCobranzas.Settings.helpers;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Sample;
 using CommunityToolkit.Maui.Sample.Models;
@@ -13,9 +8,17 @@ using CommunityToolkit.Maui.Sample.Pages;
 using CommunityToolkit.Maui.Sample.ViewModels.Views;
 using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Mvvm.Collections;
+using DMCobranzas.Controls.Modals;
+using DMCobranzas.Models;
+using DMCobranzas.Models.Specials;
+using DMCobranzas.Services.ApiHub;
+using DMCobranzas.Settings.helpers;
 using DMSA.Models.General;
+using DMSA.Models.Odoo.DMCobranzas;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
+using DMSA.Sync.Core.Database.Sqlite.Payments;
+using DMSA.Sync.Core.Update.Pusher;
 using Microsoft.Maui.Graphics;
 using System.Collections.ObjectModel;
 //using Microsoft.Maui.Controls.Compatibility;
@@ -23,8 +26,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Input;
 using System.Xml.Linq;
-using DMSA.Models.Odoo.DMCobranzas;
-using DMSA.Sync.Core.Database.Sqlite.Payments;
 
 namespace DMCobranzas.AppPages.NotaCredito;
 
@@ -299,7 +300,7 @@ public partial class NotasCreditoPage : ContentPage
 
         await UITools.ShowLoadingPopup(this);
 
-        var resultCheck = await SendController.CheckCreditNoteOverdraf(_accountMoveSendHeader);
+        var resultCheck = await DebitCollection.CheckCreditNoteOverdraf(_accountMoveSendHeader);
 
         if (resultCheck.result.Length > 0)
         {
@@ -315,7 +316,7 @@ public partial class NotasCreditoPage : ContentPage
             return;
         }
 
-        var result = await SendController.SendRequestCreditNote(_accountMoveSendHeader);
+        var result = await DebitCollection.SendRequestCreditNote(_accountMoveSendHeader);
 
         if (result.result > 0)
         {

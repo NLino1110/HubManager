@@ -20,7 +20,7 @@ namespace DMSA.Models.General.Responses
     //    public bool final { get; set; }
     //    public FacNotaCreditoCab[]? data { get; set; }
     //}
-
+    [Obsolete]
     public class ApiResponse_OBTENER_FAC_NOTACREDITO_CAB: ApiResponseOdoo
     {
         public FacNotaCreditoCab[]? data { get; set; }

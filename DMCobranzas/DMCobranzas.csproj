@@ -132,6 +132,7 @@
 	<ItemGroup>
 	  <Compile Remove="Controls\ProgressBarAnimationBehaviorPage.xaml.cs" />
 	  <Compile Remove="Login_deprecated.xaml.cs" />
+	  <Compile Remove="Models\SendController.cs" />
 	  <Compile Remove="Services\Update\ServerPuller.Accounting.cs" />
 	  <Compile Remove="Services\Update\ServerPuller.cs" />
 	  <Compile Remove="Services\Update\ServerPuller.ProductExtras.cs" />

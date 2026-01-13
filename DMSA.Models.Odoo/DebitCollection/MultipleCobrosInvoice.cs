@@ -108,12 +108,12 @@ namespace DMSA.Models.Odoo.DebitCollection
         public float total_due { get; set; }
 
         [JsonIgnore]
-        public string EMAILCLIENTE { get; set; }
+        public string partner_email { get; set; }
 
         [JsonIgnore]
         public string CERRADO { get; set; }
 
         [JsonIgnore]
-        public string NOMBREUSUARIO { get; set; }
+        public string user_name { get; set; }
     }
 }

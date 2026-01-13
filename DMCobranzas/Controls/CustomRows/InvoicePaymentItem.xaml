@@ -108,7 +108,8 @@
                 HeightRequest="40"
                 Keyboard="Numeric"
                 HorizontalTextAlignment="End"
-                Placeholder="Pago"/>
+                Placeholder="Pago"
+                TextChanged="EntryPagoImporte_TextChanged"/>
 
             <!-- Botón limpiar -->
             <Button

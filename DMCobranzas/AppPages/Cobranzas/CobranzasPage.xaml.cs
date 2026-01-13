@@ -16,6 +16,7 @@ using DMSA.Models.Odoo.DebitCollection;
 using DMSA.Models.Odoo.Native;
 using DMSA.Sync.Core.Database.Sqlite.DebitCollection;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
+using DMSA.Sync.Core.Update.Pusher;
 using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -222,7 +223,7 @@ public partial class CobranzasPage : ContentPage
                  x.create_date >= dateIni.Date && 
                  x.create_date <= dateEndField &&                                   
                  x.partner_name.Contains(text_search) &&
-                 x.create_uid == App.Session.CurrentUser.uid);
+                 x.create_uid == App.Session.CurrentUserFront.uid);
 
             //Se ordenan los registros por FECHA
             //ls_items.Sort((x, y) => x.FECHA.CompareTo(y.FECHA));
@@ -373,7 +374,7 @@ public partial class CobranzasPage : ContentPage
                 closing_amount = monto_total,
                 datetime_closing = DateTime.Now,
                 closing_details = JsonConvert.SerializeObject(wholeAccountPayments),
-                uid = App.Session.CurrentUser.uid,
+                uid = App.Session.CurrentUserFront.uid,
             };
 
             AccountPaymentDailyDb cobcierre = new AccountPaymentDailyDb(App.Session.odooConnection.DbNameSqlite);
@@ -540,13 +541,13 @@ public partial class CobranzasPage : ContentPage
             return;
         }
 
-        AccountPaymentHeader _accountPaymentHeader = (AccountPaymentHeader)obj;
+        var _accountPaymentHeader = (MultipleCobrosInvoice)obj;
         
         await UITools.ShowLoadingPopup(this);
-        var result = await SendController.SendPayment(_accountPaymentHeader, false);
+        var result = await DebitCollection.SendPayment(_accountPaymentHeader, false);
         await UITools.HideLoadingPopup();
 
-        if (result.result > 0 && result.error == null)
+        if (result.result.Count > 0 && result.error == null)
         {
             await Toast.Make("Envío de pagos correcto").Show();
         }

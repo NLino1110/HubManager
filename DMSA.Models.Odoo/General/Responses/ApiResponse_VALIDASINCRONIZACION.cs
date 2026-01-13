@@ -20,6 +20,7 @@ namespace DMSA.Models.General.Responses
     //    //public string? mensaje { get; set; }
     //}
 
+
     public class ApiResponse_VALIDASINCRONIZACION
     {
         public bool success { get; set; }

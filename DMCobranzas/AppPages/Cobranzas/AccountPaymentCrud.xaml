@@ -31,7 +31,7 @@
                    Text="PAGO-CLIENTE NOMBRE" 
                    VerticalOptions="Center" 
                    Margin="2,0,0,0" 
-                   TextColor="DarkBlue" 
+                   TextColor="GhostWhite" 
                    FontSize="18" 
                    FontAttributes="Bold"
                    AbsoluteLayout.LayoutFlags="All"
@@ -119,23 +119,44 @@
                     *">
 
                 <StackLayout Grid.Row="0" Grid.Column="0">
-                    <Label Text="Tipo emisión:" FontAttributes="Bold"/>
+                    <!--<Label Text="Tipo emisión:" FontAttributes="Bold"/>-->
                     <Picker x:Name="pickerPaymentMethod" Title="Tipo emisión"/>
 
-                    <Label Text="Diario:" FontAttributes="Bold"/>
-                    <Picker x:Name="pickerDiario"/>
+                    <!--<Label Text="Diario:" FontAttributes="Bold"/>-->
+                    <Picker x:Name="pickerDiario" Title="Diario"/>
                     <Entry x:Name="txtRef" Placeholder="Memo"/>
                 </StackLayout>
 
-                <StackLayout Grid.Row="0" Grid.Column="1">
-                    <Entry x:Name="txtGirador" Placeholder="Girador"/>
-                    <Entry x:Name="txtNCtaCheque" Placeholder="Cuenta Cheque" Keyboard="Numeric"/>
-                    <Entry x:Name="txtNDeposito" Placeholder="No. Deposito" Keyboard="Numeric"/>
-                    <Entry x:Name="txtNTarjeta" Placeholder="No. Tarjeta" Keyboard="Numeric"/>
-                    <Entry x:Name="txtNLote" Placeholder="No. Lote" Keyboard="Numeric"/>
+                <StackLayout x:Name="DirectGroup" Grid.Row="0" Grid.Column="1">
+                    <Entry x:Name="txtDepositoConfirmar" Placeholder="Deposito por Confirmar" IsVisible="False"/>
+                    <Entry x:Name="txtMonto" Placeholder="Monto" Keyboard="Numeric"/>
+                    
+                    <Entry x:Name="txtFDeposito" Placeholder="Fecha Deposito" Keyboard="Numeric"/>
+                    <DatePicker x:Name="pickerFecCobro"/>
+                    
+                    <Entry x:Name="txtBancoDeposito" Placeholder="Banco" Keyboard="Numeric"/>
+                    <Entry x:Name="txtBancoCuenta" Placeholder="Numero Cuenta" Keyboard="Numeric"/>
+                    <Entry x:Name="txtReferenciaTc" Placeholder="Card Voucher" IsVisible="False"/>
+                    <Entry x:Name="txtAuthTc" Placeholder="Lote Vouche" IsVisible="False"/>
+                    <Entry x:Name="txtLoteTc" Placeholder="Card Bin Text" IsVisible="False"/>
+                    <Entry x:Name="txtLoteTc2" Placeholder="..."/>                    
                 </StackLayout>
 
-                <Grid Grid.Row="1" Grid.ColumnSpan="2"
+                <StackLayout x:Name="ChequeGroup" Grid.Row="1" Grid.Column="1" IsVisible="False">
+
+                    <Entry x:Name="txtDeposito" Placeholder="Deposito confirmar?"/>
+                    <Entry x:Name="txtNCheque" Placeholder="Número de Cheque"/>
+
+                    <Grid ColumnDefinitions="*,Auto,Auto">
+                        <Entry Grid.Column="0" x:Name="txtCuenta" Placeholder="Cuenta bancaria" PlaceholderColor="Gray" IsReadOnly="True"/>
+                        <Button Grid.Column="1" Clicked="btnCuenta_Clicked"/>
+                        <Button Grid.Column="2" Clicked="btnNewAccountBank_Clicked"/>
+                    </Grid>
+
+                    <DatePicker x:Name="pickerFecDeposito"/>
+                </StackLayout>
+                
+                <Grid Grid.Row="2" Grid.ColumnSpan="2"
                       RowDefinitions="*,*"
                       ColumnDefinitions="Auto,*,Auto"
                       VerticalOptions="Center">
@@ -155,48 +176,7 @@
                         </Button.ImageSource>
                     </Button>
                 </Grid>
-
-                <Grid Grid.Row="2" Grid.ColumnSpan="2"
-                      ColumnDefinitions="Auto,Auto,Auto" IsVisible="False">
-                    <StackLayout Orientation="Vertical">
-                        <StackLayout Orientation="Horizontal">
-                            <Label Text="Fecha de cobro:" FontAttributes="Bold"/>
-                            <DatePicker x:Name="pickerFecCobro"/>
-                        </StackLayout>
-                        <StackLayout Orientation="Horizontal">
-                            <CheckBox x:Name="chkIsAdvance"/>
-                            <Label Text="Es anticipo" FontAttributes="Bold"/>
-                        </StackLayout>                        
-                    </StackLayout>                    
-                </Grid>
-
-                <Grid x:Name="CreditCardGroup"
-                      IsVisible="False"
-                      Grid.Row="3"
-                      Grid.ColumnSpan="2"
-                      ColumnDefinitions="*,*,*">
-                    <Entry x:Name="txtReferenciaTc" Placeholder="Referencia TC"/>
-                    <Entry x:Name="txtAuthTc" Placeholder="Autorización TC"/>
-                    <Entry x:Name="txtLoteTc" Placeholder="Lote TC"/>
-                </Grid>
-
-                <Grid x:Name="ChequeGroup"
-                      IsVisible="False"
-                      Grid.Row="4"
-                      Grid.ColumnSpan="2"
-                      ColumnDefinitions="Auto,*,Auto,Auto"
-                      RowDefinitions="Auto,Auto">
-                    <Label Text="Cta. No:"/>
-                    <Entry x:Name="txtCuenta" Grid.Column="1" IsReadOnly="True"/>
-                    <Button Grid.Column="2" Clicked="btnCuenta_Clicked"/>
-                    <Button Grid.Column="3" Clicked="btnNewAccountBank_Clicked"/>
-
-                    <Entry Grid.Row="1" Grid.ColumnSpan="2"
-                           x:Name="txtNCheque"
-                           Placeholder="Número de Cheque"/>
-                    <DatePicker Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2"
-                                x:Name="pickerFecDeposito"/>
-                </Grid>
+                
 
                 <Grid Grid.Row="5" Grid.ColumnSpan="2"
                       ColumnDefinitions="Auto,Auto">
@@ -249,8 +229,10 @@
                     </Label>
                 </StackLayout>
                 
-                <ScrollView Grid.Row="6" Grid.ColumnSpan="2" VerticalOptions="Fill" HorizontalOptions="Fill">
-                    <CollectionView x:Name="collectionView">
+                <!--<ScrollView Grid.Row="6" Grid.ColumnSpan="2" VerticalOptions="Fill" HorizontalOptions="Fill">-->
+                    <CollectionView x:Name="collectionView" Grid.Row="6" Grid.ColumnSpan="2" 
+                                    VerticalOptions="Fill" 
+                                    HorizontalOptions="Fill">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <!--<control:InvoicePaymentItemV2 dataItem="{Binding .}"></control:InvoicePaymentItemV2>-->
@@ -258,7 +240,7 @@
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
-                </ScrollView>
+                <!--</ScrollView>-->
             </Grid>
         </ScrollView>
                 

@@ -9,7 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace DMSA.Models.General.Responses
-{    
+{
+    [Obsolete]
     public class ApiResponse_OBTENER_CARTERA_CAB : ApiResponseOdoo
     {
         //public bool success { get; set; }

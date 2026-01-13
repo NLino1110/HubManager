@@ -505,18 +505,23 @@ public partial class AccountPaymentView : ContentPage
                 accountPaymentHeader.id = Sel_AccountPaymentHeader.id;
             }
 
+            accountPaymentHeader.date = fechaActual;
             accountPaymentHeader.create_date = fechaActual;
-            accountPaymentHeader.create_uid = App.Session.CurrentUser.uid;
+            accountPaymentHeader.create_uid = App.Session.CurrentUserFront.uid;
+            accountPaymentHeader.user_id = App.Session.CurrentUserFront.uid;
+            accountPaymentHeader.center_id = App.Session.odooConnection.res_center_default;
+            accountPaymentHeader.subclasificacion_gasto_id = 73;
+
             accountPaymentHeader.partner_id = Sel_AccountPaymentHeader.partner_id;
             accountPaymentHeader.partner_name = Sel_AccountPaymentHeader.partner_name;
             accountPaymentHeader.amount = (float) totalPagado; //.ToString(App.Session.ApplicationCultureInfo);
             accountPaymentHeader.total_due = Sel_AccountPaymentHeader.total_due;
             accountPaymentHeader.payment_status = DMSA.Models.CobrosEstados.PENDIENTE;
             //
-            accountPaymentHeader.EMAILCLIENTE = Sel_AccountPaymentHeader.EMAILCLIENTE;
+            accountPaymentHeader.partner_email = Sel_AccountPaymentHeader.partner_email;
             accountPaymentHeader.CERRADO = "N";
-            accountPaymentHeader.NOMBREUSUARIO = App.Session.CurrentUser.nombres;
-
+            accountPaymentHeader.user_name = App.Session.CurrentUserFront.nombres;
+            accountPaymentHeader.state = "draft";
             List<MultipleCobrosInvoiceLine> _accountPayment = new List<MultipleCobrosInvoiceLine>();
 
             //Se obtienen las formas de pago para almacenar            
@@ -583,16 +588,21 @@ public partial class AccountPaymentView : ContentPage
             accountPaymentHeader.partner_name = Sel_Res_Partner.name;
             accountPaymentHeader.partner_id = Sel_Res_Partner.id;
 
+            accountPaymentHeader.date = fechaActual;
             accountPaymentHeader.create_date = fechaActual;
-            accountPaymentHeader.create_uid = App.Session.CurrentUser.uid;
-            
+            accountPaymentHeader.create_uid = App.Session.CurrentUserFront.uid;
+            accountPaymentHeader.user_id = App.Session.CurrentUserFront.uid;
+            accountPaymentHeader.center_id = App.Session.odooConnection.res_center_default;
+            accountPaymentHeader.subclasificacion_gasto_id = 73;
+
             accountPaymentHeader.amount = (float) totalPagado; //.ToString(App.Session.ApplicationCultureInfo);
             accountPaymentHeader.total_due = (float) Sel_Res_Partner.total_due;
             accountPaymentHeader.payment_status = DMSA.Models.CobrosEstados.PENDIENTE;
             //
-            accountPaymentHeader.EMAILCLIENTE = Sel_Res_Partner.email;
+            accountPaymentHeader.partner_email = Sel_Res_Partner.email;
             accountPaymentHeader.CERRADO = "N";
-            accountPaymentHeader.NOMBREUSUARIO = App.Session.CurrentUser.nombres;
+            accountPaymentHeader.user_name = App.Session.CurrentUserFront.nombres;
+            accountPaymentHeader.state = "draft";
 
             List<MultipleCobrosInvoiceLine> _accountPayment = new List<MultipleCobrosInvoiceLine>();
 
