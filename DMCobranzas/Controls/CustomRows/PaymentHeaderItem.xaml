@@ -145,7 +145,7 @@
                 Grid.Column="0"
                 FontSize="12"
                 TextColor="Blue"
-                Text="{Binding Item.name, Source={x:Reference Root}}" />
+                Text="{Binding Item.recipe_name, Source={x:Reference Root}}" />
 
             <Label
                 Grid.Row="2"

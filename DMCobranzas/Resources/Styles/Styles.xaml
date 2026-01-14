@@ -390,9 +390,9 @@
     </Style>
 
     <Style TargetType="NavigationPage">
-        <Setter Property="BarBackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Gray950}}" />
-        <Setter Property="BarTextColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource White}}" />
-        <Setter Property="IconColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource White}}" />
+        <Setter Property="BarBackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Gray950}}" />        
+        <Setter Property="BarTextColor" Value="{AppThemeBinding Light={StaticResource SurfaceVariant}, Dark={StaticResource White}}" />
+        <Setter Property="IconColor" Value="{AppThemeBinding Light={StaticResource SurfaceVariant}, Dark={StaticResource White}}" />        
     </Style>
 
     <Style TargetType="TabbedPage">

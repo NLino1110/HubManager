@@ -95,7 +95,6 @@ namespace DMSA.Models.Odoo.DebitCollection
         [Column("partner_retail_id")] 
         public int partner_retail_id { get; set; }
 
-        [Obsolete]
         public string recipe_name { get; set; }
         public string guid { get; set; }
         public string payment_status { get; set; }

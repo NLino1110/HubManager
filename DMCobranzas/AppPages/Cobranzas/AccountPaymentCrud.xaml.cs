@@ -1,14 +1,15 @@
-using DMCobranzas.Settings.helpers;
 using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Sample.Models;
-using DMSA.Models.Odoo.Native;
-using System.Diagnostics;
-using System.Windows.Input;
-using DMSA.Models.Odoo.DMCobranzas;
 using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Maui.Sample.Models;
+using DMCobranzas.Settings.helpers;
+using DMSA.Models.Odoo.Accounting;
+using DMSA.Models.Odoo.DebitCollection;
+using DMSA.Models.Odoo.DMCobranzas;
+using DMSA.Models.Odoo.Native;
 using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
-using DMSA.Models.Odoo.DebitCollection;
+using System.Diagnostics;
+using System.Windows.Input;
 
 namespace DMCobranzas.Controls.Modals;
 
@@ -431,15 +432,13 @@ public partial class AccountPaymentCrud : ContentPage
     private void SetDirectPayment()
     {
         txtDepositoConfirmar.IsVisible = true;
-        txtMonto.IsVisible = true;
         txtFDeposito.IsVisible = true; //Fecha deposito-Fecha Pago
         txtBancoDeposito.IsVisible = true;
         txtBancoCuenta.IsVisible = true;
 
-        txtReferenciaTc.IsVisible = false;
+        txtBinTc.IsVisible = false;
         txtAuthTc.IsVisible = false;
-        txtLoteTc.IsVisible = false;
-        txtLoteTc2.IsVisible = false;
+        txtLoteTc.IsVisible = false;        
         txtDeposito.IsVisible = false;
         txtCuenta.IsVisible = false;
 
@@ -450,17 +449,15 @@ public partial class AccountPaymentCrud : ContentPage
 
     private void SetCheckPayment()
     {
-        txtDepositoConfirmar.IsVisible = true;
-        txtMonto.IsVisible = true;
+        txtDepositoConfirmar.IsVisible = true;        
         txtFDeposito.IsVisible = true; //Fecha deposito-Fecha Pago
         txtBancoDeposito.IsVisible = true;
         txtBancoCuenta.IsVisible = true;
 
-        txtReferenciaTc.IsVisible = false;
+        txtBinTc.IsVisible = false;
         txtAuthTc.IsVisible = false;
         txtLoteTc.IsVisible = false;
-        txtLoteTc2.IsVisible = false;
-
+        
         txtDeposito.IsVisible = true;
         txtCuenta.IsVisible = true;
 
@@ -471,16 +468,14 @@ public partial class AccountPaymentCrud : ContentPage
 
     private void SetCreditCardPayment()
     {
-        txtDepositoConfirmar.IsVisible = false;
-        txtMonto.IsVisible = true;
+        txtDepositoConfirmar.IsVisible = false;        
         txtFDeposito.IsVisible = true; //Fecha deposito-Fecha Pago
         txtBancoDeposito.IsVisible = false;
         txtBancoCuenta.IsVisible = false;
 
-        txtReferenciaTc.IsVisible = true;
+        txtBinTc.IsVisible = true;
         txtAuthTc.IsVisible = true;
-        txtLoteTc.IsVisible = true;
-        txtLoteTc2.IsVisible = true;
+        txtLoteTc.IsVisible = true;        
         txtDeposito.IsVisible = false;
         txtCuenta.IsVisible = false;
         
@@ -603,7 +598,7 @@ public partial class AccountPaymentCrud : ContentPage
 
         decimal residualAmount = 0;
 
-        totalPayment = (decimal) ParseTool.StringToDouble(txtValor.Text);
+        totalPayment = (decimal) ParseTool.StringToDouble(txtMonto.Text);
 
         int lineCounter = 0;
         foreach (var accountMoveItem in accMovesByCustomer)
@@ -724,8 +719,8 @@ public partial class AccountPaymentCrud : ContentPage
             if (selDiario.type == "credit" && selDiario.aplica_tarjeta)
             {
                 SetCreditCardPayment();
-
-                txtReferenciaTc.Text = ""; //INDEFINIDO--//accountPayment.CardId;
+                                
+                txtBinTc.Text = accountPayment.CardBinText;
                 txtAuthTc.Text = accountPayment.CardVoucher;
                 txtLoteTc.Text = accountPayment.LoteVoucher;
             }
@@ -758,9 +753,10 @@ public partial class AccountPaymentCrud : ContentPage
             //}
         }
 
-        txtValor.Text = accountPayment.Amount.ToString(); //.ToString(App.Session.ApplicationCultureInfo);
+        txtMonto.Text = accountPayment.Amount.ToString(); //.ToString(App.Session.ApplicationCultureInfo);
         pickerFecCobro.Date = (DateTime) accountPayment.PaymentDate;
-        txtRef.Text = accountPayment.Circular;
+        txtRef.Text = accountPayment.Resumen;
+        txtCircular.Text = accountPayment.Circular;
         txtNCheque.Text = accountPayment.NumberCheckText;
     }
 
@@ -1153,7 +1149,7 @@ public partial class AccountPaymentCrud : ContentPage
     {
         double totalPagadoDbl = 0;
 
-        if (!double.TryParse(txtValor.Text, out totalPagadoDbl) || totalPagadoDbl == 0)
+        if (!double.TryParse(txtMonto.Text, out totalPagadoDbl) || totalPagadoDbl == 0)
         {
             await Toast.Make("No se han ingresado valores correctos, no se puede guardar.").Show();
             return;
@@ -1177,6 +1173,7 @@ public partial class AccountPaymentCrud : ContentPage
         accountPayment.CompanyId = Sel_Company_Id.id;
 
         accountPayment.Resumen = txtRef.Text;
+        accountPayment.Circular = txtCircular.Text;
         accountPayment.PartnerId = _res_partner.id;
         accountPayment.JournalId = ((account_journal)pickerDiario.SelectedItem).id;
         accountPayment.journal_name = ((account_journal)pickerDiario.SelectedItem).name;
@@ -1194,25 +1191,45 @@ public partial class AccountPaymentCrud : ContentPage
             selPaymentM = (AppParameter)pickerPaymentMethod.SelectedItem;
             //accountPayment.payment_method_line_id = 1; // selPaymentM.value;
 
-            if (selPaymentM.value == "credit") //&& aplica_tarjeta
-            {                
-                if (txtReferenciaTc.Text != null && txtReferenciaTc.Text.Trim() != "" &&
+            //"transfer":
+            //"deposito":
+            //"cash":
+            //"check_day":
+            //"check":
+            //credit_card
+            //otros
+
+            //accountPayment.DepositosConfirmarId = txtDepositoConfirmar.Text;
+            //txtMonto
+            //txtFDeposito
+            accountPayment.WithdrawalDate = pickerFecCobro.Date;            
+            //accountPayment.BankId = txtBancoDeposito.Text;
+            //txtBancoCuenta
+
+            if (selPaymentM.name == "credit_card") //&& aplica_tarjeta
+            {
+                if (txtBinTc.Text != null && txtBinTc.Text.Trim() != "" &&
                     txtAuthTc.Text != null && txtAuthTc.Text.Trim() != "" &&
                     txtLoteTc.Text != null && txtLoteTc.Text.Trim() != "")
                 {
-                    accountPayment.CardBinText = txtReferenciaTc.Text;
+                    accountPayment.CardBinText = txtBinTc.Text;
                     accountPayment.CardVoucher = txtAuthTc.Text;
                     accountPayment.LoteVoucher = txtLoteTc.Text;
                 }
                 else
                 {
-                    await Toast.Make("Los pagos con tarjeta de crédito requieren Referencia, Autorización y Lote.").Show();
+                    await Toast.Make("Los pagos con tarjeta de crédito requieren Bin, Voucher y Lote.").Show();
                     return;
                 }
             }
 
-            if(selPaymentM.value == "credit") // && aplica_cheque
+            if(selPaymentM.name == "check_day" || selPaymentM.name == "check") // && aplica_cheque
             {
+                //accountPayment.AccHolderName = 
+                //accountPayment.CityId = 
+                //accountPayment.PaymentDate =                 
+                //accountPayment.NumberCheckText = txtNCheque.Text;
+
                 if (_res_partner_bank != null)
                 {
                     accountPayment.PartnerBankId = _res_partner_bank.id;
@@ -1224,11 +1241,11 @@ public partial class AccountPaymentCrud : ContentPage
                     return;
                 }
             }
-        }       
+        }
 
         //accountPayment.numero_retencion = "0";
-        txtValor.Text = ParseTool.StringValueFix(txtValor.Text);
-        accountPayment.Amount = (decimal)ParseTool.StringToDouble(txtValor.Text); //.ToString(App.Session.ApplicationCultureInfo);
+        txtMonto.Text = ParseTool.StringValueFix(txtMonto.Text);
+        accountPayment.Amount = (decimal)ParseTool.StringToDouble(txtMonto.Text); //.ToString(App.Session.ApplicationCultureInfo);
 
         List<MultipleCobrosInvoiceLineAi> linesL = new List<MultipleCobrosInvoiceLineAi>();
         if (accountPaymentLines != null)

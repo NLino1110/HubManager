@@ -42,6 +42,7 @@ namespace ApiManager
             var newJObject = JObject.Parse(serialized);
 
             //JObjectExtensions.RenameProperty(newJObject, "_partner_id", "partner_id");
+            JObjectExtensions.RemoveProperty(newJObject, "name");
             JObjectExtensions.RemoveProperty(newJObject, "recipe_name");
             JObjectExtensions.RemoveProperty(newJObject, "guid");
             JObjectExtensions.RemoveProperty(newJObject, "payment_status");

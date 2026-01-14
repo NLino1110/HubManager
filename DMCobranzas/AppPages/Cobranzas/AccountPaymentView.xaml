@@ -4,21 +4,21 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              x:Class="DMCobranzas.Controls.Modals.TabbedPages.AccountPaymentView"
-             xmlns:control="clr-namespace:DMCobranzas.Controls"
+             xmlns:control="clr-namespace:DMCobranzas.Controls"             
              Title="PAGOS">
     <ContentPage.ToolbarItems>
         <ToolbarItem x:Name="btnSave" Text="GUARDAR" Clicked="btnSave_Clicked">
             <ToolbarItem.IconImageSource>
                 <FontImageSource FontFamily="FontAwesome5Solid"
                          Glyph="&#xf0c7;"
-                         Color="Black" />                
+                         Color="Wheat" />                
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
         <ToolbarItem x:Name="btnCancel" Text="CANCELAR" Clicked="btnClose_Clicked">
             <ToolbarItem.IconImageSource>
                 <FontImageSource FontFamily="FontAwesome5Solid"
                          Glyph="&#xf410;"
-                         Color="Black" />                
+                         Color="Wheat" />                
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
     </ContentPage.ToolbarItems>

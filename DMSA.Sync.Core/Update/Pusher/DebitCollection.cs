@@ -34,12 +34,11 @@ namespace DMSA.Sync.Core.Update.Pusher
             {
                 string fechaActual = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0, 10);
                 //string secuencia_final = cobReciboCabDb.GenerarCodigoRecibo(_accountPaymentHeader.uid, _accountPaymentHeader.company_id, fechaActual, _accountPaymentHeader.id.ToString());
-
-                string secuencia_final = await cobReciboCabDb.BuildRecipeName(_accountPaymentHeader);
+                //string secuencia_final = await cobReciboCabDb.BuildRecipeName(_accountPaymentHeader);
 
                 string newGuid = Guid.NewGuid().ToString("N");
                 _accountPaymentHeader.guid = newGuid;
-                _accountPaymentHeader.recipe_name = secuencia_final;
+                //_accountPaymentHeader.recipe_name = secuencia_final;
                 _accountPaymentHeader.payment_status = DMSA.Models.CobrosEstados.ENVIANDO;
                 await cobReciboCabDb.UpdateAsync(_accountPaymentHeader);
             }
@@ -62,6 +61,7 @@ namespace DMSA.Sync.Core.Update.Pusher
             }
 
             int user_id = Constants.Session.CurrentUserFront.uid;
+            string user_name = Constants.Session.CurrentUserFront.username;
 
             if (_accountPaymentHeader.receipt_receipts_id == 0)
             {
@@ -75,7 +75,7 @@ namespace DMSA.Sync.Core.Update.Pusher
                 {
                     _accountPaymentHeader.receipt_receipts_id = receiptLines[0]._receipt_receipts_id;
                     _accountPaymentHeader.receipt_receipts_line_id = receiptLines[0].number_seq;
-                    _accountPaymentHeader.name = cobReciboCabDb.BuildName(_accountPaymentHeader, _accountPaymentHeader.receipt_receipts_line_id);
+                    _accountPaymentHeader.recipe_name = cobReciboCabDb.BuildName(_accountPaymentHeader, user_name, _accountPaymentHeader.receipt_receipts_line_id);
 
                     await cobReciboCabDb.UpdateAsync(_accountPaymentHeader);
 
@@ -90,7 +90,7 @@ namespace DMSA.Sync.Core.Update.Pusher
             _accountPaymentHeader.device_serial = "unknown" + "-" + Constants.Session.AppVersion;
 
             _accountPaymentHeader.device_app_version = Constants.Session.AppVersion;
-            _accountPaymentHeader.origin_mobile_app = "01";
+            _accountPaymentHeader.origin_mobile_app = Constants.Session.AppCodeOdoo;
 
             HubMultipleCobrosInvoice apiProcessor = new HubMultipleCobrosInvoice(Constants.Session);
 

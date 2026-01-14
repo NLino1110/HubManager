@@ -607,14 +607,45 @@ public partial class AccountPaymentView : ContentPage
             accountPaymentHeader.user_name = App.Session.CurrentUserFront.nombres;
             accountPaymentHeader.state = "draft";
 
+            //List<ReceiptReceiptsLine> receiptLines = new List<ReceiptReceiptsLine>();
+            //var receiptReceiptsLineDb = new ReceiptReceiptsLineDb(App.Session.odooConnection.DbNameSqlite);
+
+            //if (accountPaymentHeader.receipt_receipts_id == 0)
+            //{
+                
+            //    receiptLines = (await receiptReceiptsLineDb.GetItemsAsync(x => x._sale_user_id == accountPaymentHeader.user_id && x.state == "draft"))
+            //        .OrderBy(x => x.number_seq)
+            //        .Take(1)
+            //        .ToList();
+
+            //    if (receiptLines.Count > 0)
+            //    {
+            //        accountPaymentHeader.receipt_receipts_id = receiptLines[0]._receipt_receipts_id;
+            //        accountPaymentHeader.receipt_receipts_line_id = receiptLines[0].number_seq;
+            //        accountPaymentHeader.recipe_name = database.BuildName(accountPaymentHeader, 
+            //            App.Session.CurrentUserFront.username, 
+            //            accountPaymentHeader.receipt_receipts_line_id);
+
+            //        //await database.UpdateAsync(accountPaymentHeader);
+
+            //        receiptLines[0].state = "used";
+            //        await receiptReceiptsLineDb.UpdateAsync(receiptLines[0]);
+            //    }
+            //}
+
             List<MultipleCobrosInvoiceLine> _accountPayment = new List<MultipleCobrosInvoiceLine>();
 
             //Se obtienen las formas de pago para almacenar            
             _accountPayment = accountPayments.ToList();
 
-            //List<detallesDocumentos> DetallesDocumentos = new List<detallesDocumentos>();
-
             await database.InsertAsync(accountPaymentHeader);
+
+            //Se actualiza el estado del recibo utilizado
+            //if (receiptLines.Count > 0)
+            //{
+            //    receiptLines[0].state = "used";
+            //    await receiptReceiptsLineDb.UpdateAsync(receiptLines[0]);
+            //}
 
             //Se obtiene el nuevo ID
             int newId = accountPaymentHeader.id;

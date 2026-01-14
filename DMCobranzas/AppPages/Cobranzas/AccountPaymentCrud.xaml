@@ -106,7 +106,7 @@
         </AbsoluteLayout>
 
         <ScrollView Grid.Row="1">
-            <Grid RowSpacing="10"
+            <Grid RowSpacing="3"
                   ColumnSpacing="10"
                   Padding="10"
                   ColumnDefinitions="*,*"
@@ -124,22 +124,21 @@
 
                     <!--<Label Text="Diario:" FontAttributes="Bold"/>-->
                     <Picker x:Name="pickerDiario" Title="Diario"/>
-                    <Entry x:Name="txtRef" Placeholder="Memo"/>
+                    <Entry x:Name="txtCircular" Placeholder="Glosa"/>
+                    <Entry x:Name="txtRef" Placeholder="Resumen"/>
                 </StackLayout>
 
                 <StackLayout x:Name="DirectGroup" Grid.Row="0" Grid.Column="1">
                     <Entry x:Name="txtDepositoConfirmar" Placeholder="Deposito por Confirmar" IsVisible="False"/>
-                    <Entry x:Name="txtMonto" Placeholder="Monto" Keyboard="Numeric"/>
-                    
+                                        
                     <Entry x:Name="txtFDeposito" Placeholder="Fecha Deposito" Keyboard="Numeric"/>
                     <DatePicker x:Name="pickerFecCobro"/>
                     
                     <Entry x:Name="txtBancoDeposito" Placeholder="Banco" Keyboard="Numeric"/>
-                    <Entry x:Name="txtBancoCuenta" Placeholder="Numero Cuenta" Keyboard="Numeric"/>
-                    <Entry x:Name="txtReferenciaTc" Placeholder="Card Voucher" IsVisible="False"/>
+                    <Entry x:Name="txtBancoCuenta" Placeholder="Numero Cuenta" Keyboard="Numeric"/>                    
+                    <Entry x:Name="txtBinTc" Placeholder="Bin" IsVisible="False"/>
                     <Entry x:Name="txtAuthTc" Placeholder="Lote Vouche" IsVisible="False"/>
-                    <Entry x:Name="txtLoteTc" Placeholder="Card Bin Text" IsVisible="False"/>
-                    <Entry x:Name="txtLoteTc2" Placeholder="..."/>                    
+                    <Entry x:Name="txtLoteTc" Placeholder="Card Bin Text" IsVisible="False"/>                    
                 </StackLayout>
 
                 <StackLayout x:Name="ChequeGroup" Grid.Row="1" Grid.Column="1" IsVisible="False">
@@ -155,40 +154,52 @@
 
                     <DatePicker x:Name="pickerFecDeposito"/>
                 </StackLayout>
-                
-                <Grid Grid.Row="2" Grid.ColumnSpan="2"
-                      RowDefinitions="*,*"
-                      ColumnDefinitions="Auto,*,Auto"
-                      VerticalOptions="Center">
-                    
-                    <Label Grid.Row="1" Grid.Column="0" Text="VALOR $:" FontAttributes="Bold" VerticalOptions="Center" Margin="0,0,20,0"/>
-                    <Entry Grid.Row="1" Grid.Column="1" x:Name="txtValor" Keyboard="Numeric"/>
-                    <Button Grid.Row="1" Grid.Column="2"
-                            x:Name="btnLoadDocs"
-                            Text="Facturas"
-                            BackgroundColor="YellowGreen" 
-                            Clicked="btnLoadDocs_Clicked">
-                        <Button.ImageSource>
-                            <FontImageSource FontFamily="FontAwesome5Solid"
-                            Glyph="&#xf0ae;"
-                            Color="White" 
-                            Size="16"/>                            
-                        </Button.ImageSource>
-                    </Button>
-                </Grid>
-                
 
-                <Grid Grid.Row="5" Grid.ColumnSpan="2"
-                      ColumnDefinitions="Auto,Auto">
+                <FlexLayout
+                    Grid.Row="5" 
+                    Grid.ColumnSpan="2"
+                    Direction="Row"
+                    Wrap="Wrap"
+                    JustifyContent="SpaceBetween"
+                    AlignItems="Center"
+                    Margin="0"
+                    Padding="10"
+                    BackgroundColor="#F8F8F8">
+
                     <Label x:Name="lblCounter"
                            Text="Total de documentos 0"
-                           FontAttributes="Bold"/>
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"/>
+                    
                     <Label x:Name="lblMonto"
                            Grid.Column="1"
                            Text="$"
                            TextColor="Red"
-                           FontAttributes="Bold" Margin="30,0,0,0"/>
-                </Grid>
+                           FontAttributes="Bold" 
+                           Margin="0,0,0,0"
+                           VerticalOptions="Center"/>
+
+                    <HorizontalStackLayout Grid.Row="0" Grid.Column="2" VerticalOptions="Center">
+                            <Label Text="Monto $:" FontAttributes="Bold" VerticalOptions="Center" Margin="0,0,10,0"/>
+                            <Entry x:Name="txtMonto" 
+                                   BackgroundColor="GhostWhite" 
+                                   MinimumWidthRequest="130" 
+                                   Keyboard="Numeric" 
+                                   HorizontalTextAlignment="End"/>
+                            <Button x:Name="btnLoadDocs"
+                                    Text="Facturas"
+                                    BackgroundColor="YellowGreen" 
+                                    Clicked="btnLoadDocs_Clicked">
+                            <Button.ImageSource>
+                                <FontImageSource FontFamily="FontAwesome5Solid"
+                                    Glyph="&#xf0ae;"
+                                    Color="White" 
+                                    Size="16"/>
+                            </Button.ImageSource>
+                        </Button>
+                    </HorizontalStackLayout>
+
+                </FlexLayout>
 
                 <StackLayout IsVisible="false"
                          BackgroundColor="LightGoldenrodYellow" 
