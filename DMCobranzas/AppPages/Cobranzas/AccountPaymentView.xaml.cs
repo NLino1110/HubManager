@@ -171,7 +171,7 @@ public partial class AccountPaymentView : ContentPage
 
         AccountPaymentCrud obj = new AccountPaymentCrud(Sel_Res_Partner);
         obj.Sel_Company_Id = Sel_Company_Id;
-        obj.accountPaymentHeader = Sel_AccountPaymentHeader;
+        obj.multipleCobrosInvoice = Sel_AccountPaymentHeader;
         obj.isNewData = true;
 
         //obj._cobCarteraCab = _cobCarteraCab;
@@ -202,9 +202,9 @@ public partial class AccountPaymentView : ContentPage
 
         AccountPaymentCrud obj = new AccountPaymentCrud(Sel_Res_Partner);
         obj.isNewData = false;
-        obj.accountPayment = (MultipleCobrosInvoiceLine)objParam;
-        obj.itemIndex = accountPayments.ToList().IndexOf(obj.accountPayment);
-        obj.accountPaymentHeader = Sel_AccountPaymentHeader;
+        obj.multipleCobrosInvoiceLine = (MultipleCobrosInvoiceLine)objParam;
+        obj.itemIndex = accountPayments.ToList().IndexOf(obj.multipleCobrosInvoiceLine);
+        obj.multipleCobrosInvoice = Sel_AccountPaymentHeader;
 
         //Se asigna la empresa seleccionada
         //obj.empresa = se;
@@ -301,7 +301,7 @@ public partial class AccountPaymentView : ContentPage
                     
 
                     //Se asigna para posteriormente almacenar
-                    cobReciboDet = ((AccountPaymentCrud)sender).accountPayment;
+                    cobReciboDet = ((AccountPaymentCrud)sender).multipleCobrosInvoiceLine;
                     //FacNotaCreditoDet[] facturasItems = ((AccountPaymentCrud)sender).facturasItems;
 
                     //TODO: REVISAR ESTA ASIGNACION parece innecesaria
@@ -325,12 +325,12 @@ public partial class AccountPaymentView : ContentPage
 
 
                     MultipleCobrosInvoiceLine cobReciboDet = new MultipleCobrosInvoiceLine();
-                    cobReciboDet = ((AccountPaymentCrud)sender).accountPayment;
+                    cobReciboDet = ((AccountPaymentCrud)sender).multipleCobrosInvoiceLine;
 
                     //TODO: PARECE INNECESARIO
                     //cobReciboDet.valor = ParseTool.StringToDouble(cobReciboDet.valor).ToString(App.Session.ApplicationCultureInfo);
 
-                    nList[((AccountPaymentCrud)sender).itemIndex] = ((AccountPaymentCrud)sender).accountPayment;
+                    nList[((AccountPaymentCrud)sender).itemIndex] = ((AccountPaymentCrud)sender).multipleCobrosInvoiceLine;
                     accountPayments = nList.ToArray();
                     Debug.WriteLine("Guardado cambios");
                 });

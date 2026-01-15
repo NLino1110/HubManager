@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:pages="clr-namespace:DMOrders.Pages.Sys"
+             x:Class="DMOrders.Pages.Sys.ConnectionsMain">
+
+    <Grid x:Name="RootLayout">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="180"/>            
+            <RowDefinition Height="*"/>            
+        </Grid.RowDefinitions>
+
+        <Grid
+            BackgroundColor="Blue"
+            Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Text="Cerrar"
+                    Padding="10,0,10,0"
+                    BackgroundColor="YellowGreen"
+                    Clicked="btnClose_Clicked">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+                                     Color="White"
+                                     Size="20"
+                                     Glyph="&#xf060;"/>
+                </Button.ImageSource>
+            </Button>
+
+            <Label Grid.Column="1"
+                   Text="Configuración"
+                   FontSize="20"
+                   TextColor="White"
+                   VerticalOptions="Center"
+                   HorizontalOptions="Center"/>
+        </Grid>
+
+        <pages:Connections
+            Grid.Row="1"
+            IsVisible="True"/>
+
+        <Grid x:Name="BottomPanel"
+              BackgroundColor="Red"
+              HeightRequest="200"
+              VerticalOptions="End"
+              TranslationY="20"
+              Grid.Row="1">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Tapped="BottomPanel_Tapped" />
+            </Grid.GestureRecognizers>
+
+            <StackLayout Padding="20">
+                <Label Text="Opciones avanzadas"
+                       TextColor="White"
+                       FontSize="18"
+                       FontAttributes="Bold" />
+                <Label Text="Contenido extra…" TextColor="White" />
+            </StackLayout>
+        </Grid>
+
+    </Grid>
+</ContentPage>

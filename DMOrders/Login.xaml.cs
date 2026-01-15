@@ -241,7 +241,9 @@ public partial class Login : ContentPage
         
         //SettingsPage objPage = new SettingsPage();
 
-        Connections objPage = new Connections();
+        //Connections objPage = new Connections();
+        ConnectionsMain objPage = new ConnectionsMain();
+
         objPage.Disappearing += ObjSettingPage_Disappearing;
         await Navigation.PushModalAsync(objPage);
     }

@@ -1,3 +1,4 @@
+using CommunityToolkit.Maui.Alerts;
 using DMSA.Models.Odoo.Abstract;
 using DMSA.Sync.Core.Database.Sqlite;
 
@@ -46,8 +47,7 @@ public partial class Connections : TabbedPage
 
         var vm = BindingContext as OdooConnectionsViewModel;
         await vm.RemoveAll();
-        //await appSettingsDb.InitDefault();
-        //await DisplayAlert("Rehacer configuración", "Realizado cierre la aplicación y vuelva a abrirla","Ok");
+        await Toast.Make("Ejecución correcta...").Show();
     }
 
     private void ConnectionsCollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
