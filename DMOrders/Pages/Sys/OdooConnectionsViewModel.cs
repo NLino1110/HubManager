@@ -177,5 +177,13 @@ namespace DMOrders.Pages.Sys
                 StatusMessage = "Select a connection to delete.";
             }
         }
+
+        public async Task RemoveAll()
+        {
+            _connections = new ObservableCollection<OdooConnection>();
+            await _database.DeleteAllAsync(x => x.Id > 0);
+            await _database.InitDefault();
+            LoadConnections();
+        }
     }
 }

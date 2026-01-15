@@ -23,14 +23,16 @@ namespace DMSA.Sync.Core.Database.Sqlite
             
             foreach(var itemSetting in appSettings.LoadDefault())
             {
-                //var foundItem = await GetItem(itemSetting.Name);
-                //if (foundItem == null)
-                //{
-                //    await Database.InsertAsync(itemSetting);
-                //}
-                var foundItem = await GetItemById(itemSetting.Id);
-                if(foundItem == null)
-                    await Database.InsertOrReplaceAsync(itemSetting);
+                try
+                {
+                    var foundItem = await GetItemById(itemSetting.Id);
+                    if (foundItem == null)
+                        await Database.InsertOrReplaceAsync(itemSetting);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"OdooConnectionDb.InitDefault Exception: {ex.Message}");
+                }
             }
 
             return 0;

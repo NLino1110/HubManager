@@ -173,7 +173,8 @@ namespace DMSA.Sync.Core.Database.Sqlite
         public async Task<int> Truncate()
         {
             await Init();
-            return await Database.DeleteAllAsync<T>();
+            int deleted = await Database.DeleteAllAsync<T>();
+            return deleted;
         }
 
         public async Task<int> DeleteAsync(T item)

@@ -1,10 +1,5 @@
-using ApiManager;
 using DMSA.Models.Odoo.Abstract;
-using DMSA.Models.Odoo.Specials;
 using DMSA.Sync.Core.Database.Sqlite;
-using Microsoft.Maui.Controls;
-using System.Diagnostics;
-using System.IO.Compression;
 
 namespace DMOrders.Pages.Sys;
 
@@ -39,6 +34,20 @@ public partial class Connections : TabbedPage
     private async void btnSendCloud_Clicked(object sender, EventArgs e)
     {        
         
+    }
+
+    private async void btnRebuildSettings_Clicked(object sender, EventArgs e)
+    {
+        bool result = await DisplayAlert("Rehacer configuración", "¿Desea continuar?", "Sí", "No");
+        if (!result)
+        {
+            return;
+        }
+
+        var vm = BindingContext as OdooConnectionsViewModel;
+        await vm.RemoveAll();
+        //await appSettingsDb.InitDefault();
+        //await DisplayAlert("Rehacer configuración", "Realizado cierre la aplicación y vuelva a abrirla","Ok");
     }
 
     private void ConnectionsCollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
