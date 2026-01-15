@@ -71,6 +71,7 @@
 	
 
 	<ItemGroup>
+	  <Compile Remove="Controls\CustomRowsV2\ActivityRow.xaml.cs" />
 	  <Compile Remove="Controls\CustomRows\BrandRow.cs" />
 	  <Compile Remove="Controls\PopupSelectBrand.cs" />
 	  <Compile Remove="Pages\Fragments\Orders\modals\CatalogViewer.xaml.cs" />
@@ -79,6 +80,7 @@
 	
 
 	<ItemGroup>
+	  <MauiXaml Remove="Controls\CustomRowsV2\ActivityRow.xaml" />
 	  <MauiXaml Remove="Pages\Fragments\Orders\modals\CatalogViewer.xaml" />
 	  <MauiXaml Remove="Pages\Sys\ConnectionForm.xaml" />
 	</ItemGroup>
@@ -158,13 +160,13 @@
 	  <MauiXaml Update="Controls\ConfettiOverlay.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Controls\CustomRowsV2\ActivityRow.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
 	  <MauiXaml Update="Controls\CustomRowsV2\SaleOrderLineRow.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Controls\CustomRows\Lite\AccountAnalyticLineRow.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Controls\CustomRows\Lite\ActivityRow.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Controls\CustomRows\Lite\MarcaRow.xaml">

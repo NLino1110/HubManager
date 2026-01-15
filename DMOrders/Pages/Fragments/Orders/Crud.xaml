@@ -38,7 +38,7 @@
         </modals:CatalogViewerInner>
 
         <Grid Grid.Row="1" 
-                  Grid.Column="0"
+                 Grid.Column="0"
                  Padding="10"
                  RowDefinitions="Auto,Auto" 
                  WidthRequest="220">
@@ -303,40 +303,27 @@
 
             </HorizontalStackLayout>
         </Grid>
-        
-        <Grid RowDefinitions="Auto,Auto,*,Auto" Grid.Column="1" Grid.Row="1">            
-            <!--<Label Grid.Row="1" Grid.Column="0" Text="TITULO CABECERAS" HorizontalOptions="Center"></Label>-->
-            <!--<Grid BackgroundColor="LightGray" 
-                  Grid.Row="1" 
-                  Grid.Column="1" 
-                  ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" 
-                  RowDefinitions="Auto" 
-                  HorizontalOptions="Fill">
-                <Label Grid.Column="0" FontAttributes="Bold" Text="No" WidthRequest="50" FontSize="11" ></Label>
-                <Label Grid.Column="1" FontAttributes="Bold" Text="ARTICULO" WidthRequest="140" FontSize="11"></Label>
-                <Label Grid.Column="2" FontAttributes="Bold" Text="UNIDAD" WidthRequest="90" FontSize="11"></Label>
-                <Label Grid.Column="3" FontAttributes="Bold" Text="CNTREAL" WidthRequest="95" FontSize="11"></Label>
-                <Label Grid.Column="4" FontAttributes="Bold" Text="CNTDSP" WidthRequest="200" FontSize="11"></Label>
-                <Label Grid.Column="5" FontAttributes="Bold" Text="PRECIO" WidthRequest="90" FontSize="11"></Label>
-                <Label Grid.Column="6" FontAttributes="Bold" Text="PRE+IVA" WidthRequest="90" FontSize="11"></Label>
-                <Label Grid.Column="7" FontAttributes="Bold" Text="SUBTOT(SI)" WidthRequest="100" FontSize="11"></Label>
-                <Label Grid.Column="8" FontAttributes="Bold" Text="%DESC." WidthRequest="90" FontSize="11"></Label>
-                <Label Grid.Column="9" FontAttributes="Bold" Text="$DESC." WidthRequest="100" FontSize="11"></Label>
-                <Label Grid.Column="10" FontAttributes="Bold" Text="IMP." WidthRequest="100" FontSize="11"></Label>
-                <Label Grid.Column="11" FontAttributes="Bold" Text="TOTAL" WidthRequest="100" FontSize="11"></Label>                
-            </Grid>-->
 
-            <Grid RowDefinitions="*" ColumnDefinitions="*" Grid.Row="2" HorizontalOptions="Fill">
+        <Grid RowDefinitions="Auto,Auto,*,Auto" Grid.Column="1" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
                 <CollectionView
                     x:Name="OrderLinesCl"
+                    Grid.Row="2"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
                     ItemsSource="{Binding OrderLines}" 
                     EmptyView="No hay productos seleccionados..."
                     SelectionMode="Single"
                     SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-                    HorizontalOptions="Fill"
+                    HorizontalOptions="FillAndExpand"
+                    VerticalOptions="FillAndExpand"
+                    MaximumWidthRequest="1100"
                     SelectionChanged="detail_SelectionChanged">
-                    <CollectionView.Header>
-                        <!--<customrowsheaders:SaleOrderLineRowHeader Item="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=OrdersLinesHeader}" HorizontalOptions="Fill" />-->
+                    <CollectionView.Header>                        
                         <Grid
                             ColumnSpacing="8"
                             Padding="4"
@@ -363,7 +350,6 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
 
-                            <!-- idLabel -->
                             <Label 
                                 Text="N°"
                                 FontAttributes="Bold"
@@ -374,7 +360,6 @@
                                 Padding="0"
                                 Margin="0"/>
 
-                            <!-- codeLabel -->
                             <Label 
                                 Text="ARTICULO"
                                 FontAttributes="Bold"
@@ -383,7 +368,6 @@
                                 HorizontalOptions="Start"
                                 Grid.Column="1"/>
 
-                            <!-- nameLabel -->
                             <Label 
                                 Text="UNIDAD"
                                 FontAttributes="Bold"
@@ -392,7 +376,6 @@
                                 HorizontalOptions="Start"
                                 Grid.Column="2"/>
 
-                            <!-- qty_real -->
                             <Label 
                                 Text="CNTREAL"
                                 FontAttributes="Bold"
@@ -401,7 +384,6 @@
                                 HorizontalOptions="Fill"
                                 Grid.Column="3"/>
 
-                            <!-- qty -->
                             <Label 
                                 Text="CNTDSP"
                                 FontAttributes="Bold"
@@ -410,7 +392,6 @@
                                 HorizontalOptions="Fill"
                                 Grid.Column="4"/>
 
-                            <!-- priceLabel -->
                             <Label 
                                 Text="PRECIO"
                                 FontAttributes="Bold"
@@ -419,16 +400,6 @@
                                 HorizontalOptions="End"
                                 Grid.Column="5"/>
 
-                            <!-- priceUnitLabel -->
-                            <!--<Label 
-                                Text="PRE+IVA"
-                                FontAttributes="Bold"
-                                FontSize="11"
-                                TextColor="Black"
-                                HorizontalOptions="End"
-                                Grid.Column="6"/>-->
-
-                            <!-- subtotalLabel -->
                             <Label 
                                 Text="SUBTOT"
                                 FontAttributes="Bold"
@@ -436,8 +407,7 @@
                                 TextColor="Black"
                                 HorizontalOptions="End"
                                 Grid.Column="6"/>
-
-                            <!-- discountPercentLabel -->
+                            
                             <Label 
                                 Text="%DESC."
                                 FontAttributes="Bold"
@@ -445,8 +415,7 @@
                                 TextColor="Black"
                                 HorizontalOptions="End"
                                 Grid.Column="7"/>
-
-                            <!-- discountLabel -->
+                            
                             <Label 
                                 Text="$DESC."
                                 FontAttributes="Bold"
@@ -455,7 +424,6 @@
                                 HorizontalOptions="End"
                                 Grid.Column="8"/>
 
-                            <!-- taxLabel -->
                             <Label 
                                 Text="IMPUESTO"
                                 FontAttributes="Bold"
@@ -464,7 +432,6 @@
                                 HorizontalOptions="End"
                                 Grid.Column="9"/>
 
-                            <!-- totalLabel -->
                             <Label 
                                 Text="TOTAL"
                                 FontAttributes="Bold"
@@ -480,13 +447,6 @@
                     </CollectionView.Header>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            
-                            <!--<customrows:SaleOrderLineRow
-                                Item="{Binding .}"
-                                HorizontalOptions="Fill"
-                                SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference OrderLinesCl}}"
-                                EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=EditCommand}"
-                                DeleteCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=DeleteCommand}"/>-->
 
                             <customrowsv2:SaleOrderLineRow
                                 Item="{Binding .}"
@@ -496,9 +456,9 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-            </Grid>
 
-            <Grid Grid.Row="3" Grid.Column="3" HorizontalOptions="Fill" ColumnDefinitions="*,*,Auto">
+            <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" HorizontalOptions="FillAndExpand" ColumnDefinitions="*,*,Auto">
+                
                 <CollectionView
                         Grid.Row="0" 
                         Grid.Column="0"
@@ -506,7 +466,7 @@
                         ItemsSource="{Binding ItemsDataBenefits}" 
                         EmptyView="No hay promociones aplicables..."
                         SelectionMode="Single"
-                        HorizontalOptions="Fill"
+                        HorizontalOptions="FillAndExpand"
                     IsVisible="False">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
@@ -572,7 +532,6 @@
                         VerticalTextAlignment="Center"></Label>
 
                     <Label Text="Neto:" Grid.Row="3" Grid.Column="0" FontSize="11" IsVisible="False"></Label>
-                    <!--<Label Text="Total:" Grid.Row="3" Grid.Column="0" FontSize="11"></Label>-->
                     <Label Grid.Row="3" Grid.Column="1" Text="{Binding Neto, StringFormat='${0:N4}'}" 
                      FontSize="11" 
                      FontAttributes="Bold"
@@ -605,16 +564,7 @@
                         HorizontalTextAlignment="End"
                         VerticalTextAlignment="Center"></Label>
 
-                </Grid>
-                <!--<VerticalStackLayout Grid.Column="2" HorizontalOptions="End" Margin="0" BackgroundColor="LightGray" WidthRequest="200">
-                    <Label Text="Subtotal:" FontSize="10" FontAttributes="Bold"></Label>
-                    <Label FontSize="10" FontAttributes="Bold" Text="{Binding Subtotal}"></Label>
-                    
-                    <Label Text="NETO:" FontSize="10" FontAttributes="Bold"></Label>
-                    <Label Text="IMPUESTO:" FontSize="10" FontAttributes="Bold"></Label>
-                    <Label Text="COMP.SOLIDARIA:" FontSize="10" FontAttributes="Bold"></Label>
-                    <Label Text="TOTAL:" FontSize="10" FontAttributes="Bold"></Label>
-                </VerticalStackLayout>-->
+                </Grid>                
             </Grid>
 
         </Grid>

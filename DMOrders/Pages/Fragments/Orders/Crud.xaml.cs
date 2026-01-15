@@ -183,7 +183,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         EditCommand = new Command(EditItem);
         DeleteCommand = new Command(DeleteItem);
 
-        SearchProductView.PropertyChanged += SearchProductView_PropertyChanged;
+        //SearchProductView.PropertyChanged += SearchProductView_PropertyChanged;
     }
 
     private void SearchProductView_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)

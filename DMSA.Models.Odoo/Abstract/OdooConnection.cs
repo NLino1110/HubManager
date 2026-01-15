@@ -158,6 +158,51 @@ namespace DMSA.Models.Odoo.Abstract
                 DbName = "qa.macronegocios",
                 Username = "admin",
                 Password = CryptoHelper.Encrypt("demo"),
+                Active = false,
+                HostDump = "https://192.168.204.66:2443",
+                DumpService = "/resources/tmp/android/sqlite/",
+                DbLimitDefault = 300,
+                IsProduction = true,
+                IsTestMode = false,
+                DataToleranceDays = 365,
+                sale_channel_default = 8,
+                res_center_default = 49,
+                prefix_db = "qa1_"
+            }
+            );
+
+            defaultSettings.Add(new OdooConnection()
+            {
+                Id = 4,
+                CompanyId = 1,
+                Name = "DMujeres",
+                Host = "http://qa.dmujeres/",
+                DbName = "qa.dmujeres",
+                Username = "admin",
+                Password = CryptoHelper.Encrypt("demo"),
+                Active = false,
+                HostDump = "https://192.168.204.66:2443",
+                DumpService = "/resources/tmp/android/sqlite/",
+                DbLimitDefault = 300,
+                IsProduction = true,
+                IsTestMode = false,
+                DataToleranceDays = 365,
+                sale_channel_default = 3,
+                res_center_default = 2,
+                prefix_db = "qa1_"
+            }
+            );
+
+
+            defaultSettings.Add(new OdooConnection()
+            {
+                Id = 5,
+                CompanyId = 1,
+                Name = "Macronegocios Prod",
+                Host = "https://www.macronegocios.ec/",
+                DbName = "macronegocios",
+                Username = "admin",
+                Password = CryptoHelper.Encrypt("demo"),
                 Active = true,
                 HostDump = "https://192.168.204.66:2443",
                 DumpService = "/resources/tmp/android/sqlite/",
@@ -173,11 +218,11 @@ namespace DMSA.Models.Odoo.Abstract
 
             defaultSettings.Add(new OdooConnection()
             {
-                Id = 4,
+                Id = 6,
                 CompanyId = 1,
-                Name = "DMujeres",
-                Host = "http://qa.dmujeres/",
-                DbName = "qa.dmujeres",
+                Name = "DMujeres Prod",
+                Host = "https://www.dmujeressa.ec/",
+                DbName = "dmujeressa",
                 Username = "admin",
                 Password = CryptoHelper.Encrypt("demo"),
                 Active = true,

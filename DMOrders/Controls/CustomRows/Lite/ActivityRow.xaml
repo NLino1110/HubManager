@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Name="ThisRow"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:converters="clr-namespace:DMOrders.Converters"
+    xmlns:local="clr-namespace:DMOrders.Controls.CustomRows"
+    x:Class="DMOrders.Controls.CustomRows.Lite.ActivityRow">
+
+        <ContentView.Resources>
+            <ResourceDictionary>
+                <converters:DateToDashConverter x:Key="DateToDashConverter"/>
+                <converters:StateToLabelConverter x:Key="StateToLabelConverter"/>
+            </ResourceDictionary>
+        </ContentView.Resources>
+    <Border
+    x:Name="RootBorder"
+    BindingContext="{Binding .}"
+    Stroke="LightGray"
+    StrokeThickness="0.6"    
+    StrokeShape="RoundRectangle 3">
+        
+        <Grid x:Name="MainGrid"
+          ColumnSpacing="0"
+          RowSpacing="0"
+              Padding="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="42" />
+                <ColumnDefinition Width="2.5*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="28" />
+            </Grid.ColumnDefinitions>
+
+            <Label x:Name="labelId"
+               Grid.Column="0"
+               HorizontalOptions="Center"
+               VerticalOptions="Center"
+               TextColor="Black"
+               FontSize="12"
+               BackgroundColor="Transparent"
+               Padding="0"
+               Margin="0"
+               HorizontalTextAlignment="Center"
+               LineBreakMode="NoWrap"
+               MaxLines="1"               
+               Text="{Binding id}" />
+
+            <Label x:Name="labelSellerName"
+               Grid.Column="1"
+               HorizontalOptions="Center"
+               VerticalOptions="Center"
+               FontSize="11"
+               BackgroundColor="Transparent"
+               LineBreakMode="TailTruncation"
+               MaxLines="1"
+               HorizontalTextAlignment="Center"
+               Margin="6,0"
+               Text="{Binding display_username}" />
+
+            <Label x:Name="labelPlanningDate"
+               Grid.Column="2"
+               HorizontalOptions="Center"
+               VerticalOptions="Center"
+               FontSize="12"
+               BackgroundColor="Transparent"
+               LineBreakMode="NoWrap"
+               MaxLines="1"
+               Text="{Binding date_assign}" />
+
+            <Label x:Name="labelWriteDate"
+               Grid.Column="3"
+               HorizontalOptions="Center"
+               VerticalOptions="Center"
+               FontSize="12"
+               BackgroundColor="Transparent"
+               LineBreakMode="NoWrap"
+               MaxLines="1"
+               Text="{Binding date_synchronized, Converter={StaticResource DateToDashConverter}}" />
+
+            <Label x:Name="labelState"
+               Grid.Column="4"
+               HorizontalOptions="Center"
+               VerticalOptions="Center"
+               FontSize="12"
+               BackgroundColor="Transparent"
+               LineBreakMode="TailTruncation"
+               MaxLines="1"/>
+
+            <HorizontalStackLayout Grid.Column="5"
+                               HorizontalOptions="End"
+                               VerticalOptions="Center"
+                               Spacing="0"
+                               Padding="0"
+                               Margin="0">
+
+                <Button x:Name="buttonEdit"
+                    HeightRequest="28"
+                    WidthRequest="28"
+                    BackgroundColor="DodgerBlue"
+                    TextColor="White"
+                    FontSize="12"
+                    CornerRadius="4"
+                    Padding="0"
+                    Margin="0"
+                    Command="{Binding EditCommand, Source={x:Reference ThisRow}}"
+                    CommandParameter="{Binding BindingContext, Source={x:Reference ThisRow}}">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FontAwesome5Solid"
+                                     Glyph="&#xf303;"
+                                     Color="White"
+                                     Size="14"
+                                     FontAutoScalingEnabled="True" />
+                    </Button.ImageSource>
+                </Button>
+
+                <Button x:Name="buttonDelete"
+                    HeightRequest="28"
+                    WidthRequest="28"
+                    BackgroundColor="OrangeRed"
+                    TextColor="White"
+                    FontSize="12"
+                    CornerRadius="4"
+                    Padding="0"
+                    Margin="0"
+                    IsVisible="False">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FontAwesome5Solid"
+                                     Glyph="&#xf2ed;"
+                                     Color="White"
+                                     Size="14"
+                                     FontAutoScalingEnabled="True" />
+                    </Button.ImageSource>
+                </Button>
+            </HorizontalStackLayout>
+        </Grid>
+    </Border>
+</ContentView>
