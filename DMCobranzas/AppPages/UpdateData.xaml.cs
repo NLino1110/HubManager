@@ -466,7 +466,7 @@ public partial class UpdateData : ContentPage
         TimeSpan span = (DateTime.Now - dtInitialize);
 
         lblUpdatedInfo.Text += ", finalizada: " + DateTime.Now +
-            " (" + String.Format("{0} d�as, {1} horas, {2} minutos, {3} segundos)",
+            " (" + String.Format("{0} días, {1} horas, {2} minutos, {3} segundos)",
             span.Days, span.Hours, span.Minutes, span.Seconds);
 
         await obj.DisplayAlert("Actualización", "Actualización terminada", "Aceptar");        
@@ -476,59 +476,8 @@ public partial class UpdateData : ContentPage
 
     private async Task LaunchOnlineUpdate(ProgressBarAnimationBehaviorPage obj)
     {
-        //Actualización por Cache
-        //if (chkGroup1.IsChecked)
-        //{
-        //    await serverPuller.PullPromotions();
-        //}
-
-        //obj.SetTotalPercentProgress(0.30);
-
-        //if (chkGroup2.IsChecked)
-        //{
-        //    await serverPuller.ProductMarca();
-        //    await serverPuller.OnlineSyncCategoria();
-        //    await serverPuller.OnlineSyncSubcategoria();
-        //    await serverPuller.OnlineSyncProductLinea();
-        //    await serverPuller.OnlineSyncProductGrupoTipo();
-        //    await serverPuller.OnlineCalificacionCrediticia();            
-        //    obj.SetTotalPercentProgress(0.80);
-        //}
-
-        //if(chkGroup3.IsChecked)
-        //{            
-        //    //await serverPuller.OnlineSyncResPartner();
-        //    await serverPuller.OnlineSyncResPartnerFull();
-        //}
-
-        //if(chkGroup4.IsChecked)
-        //{
-        //    await serverPuller.OnlineSyncProductPricelist();
-        //    await serverPuller.OnlineSyncProductPricelistItem();            
-        //    await serverPuller.OnlineSyncProductProduct();
-        //    await serverPuller.OnlineAccountTaxes();
-        //}
-
-        //if (chkGroup5.IsChecked)
-        //{
-        //    await serverPuller.OnlineSyncStockWarehouse(false);
-        //    await serverPuller.OnlineSyncStockLocation();            
-        //    await serverPuller.OnlineSyncStockQuant();
-        //    await serverPuller.UomUom(true);
-
-        //    await serverPuller.OnlineSyncWmsStockQuant();
-        //    await serverPuller.UpdateWmsStockQuant();
-        //    //
-        //    //await serverPuller.FixInventory();
-        //}
-
-        //if(chkGroup6.IsChecked)
-        //{
-        //    await serverPuller.SyncSaleOrders();
-        //}
-
         CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-        string text = "";
+        string text = "Actualización en linea";
         ToastDuration duration = ToastDuration.Short;
         double fontSize = 14;
         var toast = Toast.Make(text, duration, fontSize);
@@ -556,6 +505,9 @@ public partial class UpdateData : ContentPage
 
         if(chkGroup2.IsChecked)
         {
+            await serverPuller.GetTarjetas();
+            await serverPuller.GetTarjetasTipoPago();
+            await serverPuller.GetTarjetasPlazosBanco();
             await serverPuller.OnlineSyncPaymentHeader();
             await serverPuller.OnlineSyncAccountPaymentDaily();
             await serverPuller.DownloadAccountMoveRefund();

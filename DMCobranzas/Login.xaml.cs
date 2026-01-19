@@ -37,14 +37,29 @@ public partial class Login : ContentPage
     private const double TimeToReset = 2000;
 
     private bool _isFirstAppearing = true;
+
+    public List<string> ListaOpciones { get; set; }
+    public string OpcionSeleccionada { get; set; }
+
     public Login()
     {
-        InitializeComponent();        
+        InitializeComponent();
+
+        
     }
 
     public Login(IEnumerable<IDialogService> dialogServices)
     {
         InitializeComponent();
+
+        ListaOpciones = new List<string>
+        {
+            "Rojo",
+            "Verde",
+            "Azul"
+        };
+
+        OpcionSeleccionada = "Verde";
     }
 
     public static class ToastHelper

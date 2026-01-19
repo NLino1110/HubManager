@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="DMCobranzas.Controls.CustomPickerPopup">
+    <VerticalStackLayout Padding="10" BackgroundColor="Red">
+        <CollectionView x:Name="ListView"
+                        SelectionMode="Single"
+                        WidthRequest="200"
+                        HeightRequest="200" BackgroundColor="Beige">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Padding="10">
+                        <Label Text="{Binding}" />
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </VerticalStackLayout>
+</toolkit:Popup>

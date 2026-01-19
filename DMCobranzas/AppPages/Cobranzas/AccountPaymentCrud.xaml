@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="DMCobranzas.Controls.Modals.AccountPaymentCrud"
+             xmlns:beebtech="clr-namespace:BeebTech.Controls.UI;assembly=BeebTech.Controls"
              xmlns:control="clr-namespace:DMCobranzas.Controls"
              xmlns:controlLite="clr-namespace:DMCobranzas.Controls.CustomRows"
              Title="CobroNuevo">
@@ -128,31 +129,43 @@
                     <Entry x:Name="txtRef" Placeholder="Resumen"/>
                 </StackLayout>
 
-                <StackLayout x:Name="DirectGroup" Grid.Row="0" Grid.Column="1">
+                <StackLayout x:Name="DirectGroup" Grid.Row="0" Grid.Column="1" VerticalOptions="FillAndExpand">
                     <Entry x:Name="txtDepositoConfirmar" Placeholder="Deposito por Confirmar" IsVisible="False"/>
-                                        
-                    <Entry x:Name="txtFDeposito" Placeholder="Fecha Deposito" Keyboard="Numeric"/>
-                    <DatePicker x:Name="pickerFecCobro"/>
                     
-                    <Entry x:Name="txtBancoDeposito" Placeholder="Banco" Keyboard="Numeric"/>
-                    <Entry x:Name="txtBancoCuenta" Placeholder="Numero Cuenta" Keyboard="Numeric"/>                    
+                    <!--<DatePicker x:Name="pickerFecDeposito"/>-->
+                    <DatePicker x:Name="pickerFechaPago"/>
+
+                    <Entry x:Name="txtBancoCuenta" Placeholder="Numero Cuenta" Keyboard="Numeric"/>
+                    <Entry x:Name="txtBancoDeposito" Placeholder="Banco" Keyboard="Numeric"/>                    
                     <Entry x:Name="txtBinTc" Placeholder="Bin" IsVisible="False"/>
                     <Entry x:Name="txtAuthTc" Placeholder="Lote Vouche" IsVisible="False"/>
                     <Entry x:Name="txtLoteTc" Placeholder="Card Bin Text" IsVisible="False"/>                    
                 </StackLayout>
 
-                <StackLayout x:Name="ChequeGroup" Grid.Row="1" Grid.Column="1" IsVisible="False">
+                <StackLayout Grid.Row="1" Grid.Column="1">
 
-                    <Entry x:Name="txtDeposito" Placeholder="Deposito confirmar?"/>
+                    <!--<Entry x:Name="txtDeposito" Placeholder="Deposito confirmar?"/>-->
                     <Entry x:Name="txtNCheque" Placeholder="Número de Cheque"/>
+                    <Entry x:Name="txtChequeTitular" Placeholder="Titular"/>
+                    <Entry x:Name="txtChequeCiudad" Placeholder="Ciudad"/>
 
-                    <Grid ColumnDefinitions="*,Auto,Auto">
+                    <!--<Grid ColumnDefinitions="*,Auto,Auto" IsVisible="False">
                         <Entry Grid.Column="0" x:Name="txtCuenta" Placeholder="Cuenta bancaria" PlaceholderColor="Gray" IsReadOnly="True"/>
                         <Button Grid.Column="1" Clicked="btnCuenta_Clicked"/>
                         <Button Grid.Column="2" Clicked="btnNewAccountBank_Clicked"/>
-                    </Grid>
+                    </Grid>-->
 
-                    <DatePicker x:Name="pickerFecDeposito"/>
+                    <DatePicker x:Name="pickerFechaCheque"/>
+
+                    <Picker x:Name="pickerCardId" Title="Tarjeta"/>
+
+                    <!--<Entry x:Name="txtBankTcId" Placeholder="Banco Emisor -> Visa - Mastercard"/>-->
+
+                    <beebtech:DropdownField x:Name="ddBankTcId" Title="Banco Emisor"/>
+
+                    <Picker x:Name="pickerPaymentTypeId" Title="Tipo de pago"/>
+
+                    <Picker x:Name="pickerPlanId" Title="Plan/Plazo Banco"/>
                 </StackLayout>
 
                 <FlexLayout

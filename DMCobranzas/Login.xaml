@@ -5,6 +5,7 @@
     xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
     xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
     xmlns:beebtech="clr-namespace:BeebTech.Controls.UI;assembly=BeebTech.Controls"
+    xmlns:controls="clr-namespace:DMCobranzas.Controls"
     xmlns:DMCobranzas="clr-namespace:DMCobranzas"
     x:Class="DMCobranzas.Login"
     Title="Cobranzas Login"
@@ -86,6 +87,11 @@
 
                         <!-- Login -->
                         <VerticalStackLayout x:Name="LoginSelector" Spacing="10">
+
+                            <!--<controls:CustomPicker
+    Items="{Binding ListaOpciones}"
+    SelectedItem="{Binding OpcionSeleccionada}" />-->
+
                             <beebtech:DropdownField x:Name="ddCompany" Title="Compañia"/>
                             <beebtech:TextField x:Name="txtUser"
                                                 Title="Usuario"

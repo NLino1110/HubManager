@@ -22,6 +22,7 @@ using RestSharp;
 
 namespace ApiManager
 {
+    [Obsolete]
     public class HubTarjetas
     {
         string EndPointServer = "";
