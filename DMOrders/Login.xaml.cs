@@ -237,12 +237,12 @@ public partial class Login : ContentPage
     {
         // Aquí ejecutarás la acción deseada después de 6 toques
         //Debug.WriteLine("Acción ejecutada después de 6 toques");
-        Debug.WriteLine("SettingsPage");
+        Debug.WriteLine("SettingsPage");    
         
         //SettingsPage objPage = new SettingsPage();
 
-        //Connections objPage = new Connections();
-        ConnectionsMain objPage = new ConnectionsMain();
+        Connections objPage = new Connections();
+        //ConnectionsMain objPage = new ConnectionsMain();
 
         objPage.Disappearing += ObjSettingPage_Disappearing;
         await Navigation.PushModalAsync(objPage);

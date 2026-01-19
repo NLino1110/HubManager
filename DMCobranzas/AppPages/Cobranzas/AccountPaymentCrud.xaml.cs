@@ -36,6 +36,9 @@ public partial class AccountPaymentCrud : ContentPage
     public bool saveData { get; set; } = false;
     public bool isNewData { get; set; } = false;
     public int itemIndex { get; set; } = -1;
+
+    List<AppParameter> tipoEmision { get; set; }
+
     List<account_journal_type> account_Journal_Types { get; set; }
     List<account_journal> account_Journals { get; set; }
     //st_formaspago[] formaspagos { get; set; }
@@ -122,6 +125,19 @@ public partial class AccountPaymentCrud : ContentPage
         };
         timer.Start();
     }
+
+    private async void OnExpandedChanged(object sender, CommunityToolkit.Maui.Core.ExpandedChangedEventArgs e)
+    {
+        if (e.IsExpanded)
+        {
+            await ArrowIcon.RotateTo(0, 200, Easing.CubicIn);
+        }
+        else
+        {
+            await ArrowIcon.RotateTo(180, 200, Easing.CubicOut);            
+        }
+    }
+
 
     protected override bool OnBackButtonPressed()
     {
@@ -308,7 +324,8 @@ public partial class AccountPaymentCrud : ContentPage
 
         //Task.WaitAll(task);
 
-        List<AppParameter> tipoEmision = new List<AppParameter>();
+        tipoEmision = new List<AppParameter>();
+
         tipoEmision.Add(new AppParameter() { name = "transfer", value = "Trasferencia" });
         tipoEmision.Add(new AppParameter() { name = "deposito", value = "Depósito" });
         tipoEmision.Add(new AppParameter() { name = "cash", value = "Efectivo" });
@@ -354,8 +371,11 @@ public partial class AccountPaymentCrud : ContentPage
             ddBankTcId.ItemsSource = Banks;
             ddBankTcId.ItemDisplayBinding = new Binding("name");
             ddBankTcId.SelectedItem = Banks[0];
-            //ddBankTcId.SelectedItemChanged += DdfCustomer_SelectedItemChanged;
-            //selected_partner = Partners[0];
+
+            ddBank.ItemsSource = Banks;
+            ddBank.ItemDisplayBinding = new Binding("name");
+            ddBank.SelectedItem = Banks[0];
+            ddBankTcId.SelectedItemChanged += DdBankTcId_SelectedItemChanged; ;            
         });
 
         TarjetasTipoPagoDb tarjetasTipoPagoDb = new TarjetasTipoPagoDb(App.Session.odooConnection.DbNameSqlite);
@@ -368,13 +388,26 @@ public partial class AccountPaymentCrud : ContentPage
         InitializingForm = false;
     }
 
-    private void PickerPaymentTypeId_SelectedIndexChanged(object sender, EventArgs e)
+    private async void DdBankTcId_SelectedItemChanged(object sender, object e)
     {
-        
+        await RefreshPlan();
+    }
+
+    private async void PickerPaymentTypeId_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        await RefreshPlan();
     }
 
     private async void PickerCardId_SelectedIndexChanged(object sender, EventArgs e)
     {
+        await RefreshPlan();
+    }
+
+    private async Task RefreshPlan()
+    {
+        if (LoadingEditionData)
+            return;
+
         int selected_journal = 0;
         int selected_bank = 0;
         //int selected_card = 0;
@@ -382,12 +415,12 @@ public partial class AccountPaymentCrud : ContentPage
 
         if (pickerDiario.SelectedIndex != -1)
         {
-            var journal = (account_journal) pickerDiario.SelectedItem;
+            var journal = (account_journal)pickerDiario.SelectedItem;
             selected_journal = journal.id;
         }
         if (ddBankTcId.SelectedItem != null)
         {
-            var bank = (Bank_Id) ddBankTcId.SelectedItem;
+            var bank = (Bank_Id)ddBankTcId.SelectedItem;
             selected_bank = bank.id;
         }
         //if (pickerCardId.SelectedIndex != -1)
@@ -397,7 +430,7 @@ public partial class AccountPaymentCrud : ContentPage
         //}
         if (pickerPaymentTypeId.SelectedIndex != -1)
         {
-            var payment_type = (TarjetasTipoPago) pickerPaymentTypeId.SelectedItem;
+            var payment_type = (TarjetasTipoPago)pickerPaymentTypeId.SelectedItem;
             _pos_tipo_pago = payment_type.id;
         }
 
@@ -410,8 +443,9 @@ public partial class AccountPaymentCrud : ContentPage
         pickerPlanId.ItemsSource = plazosBancosItems;
         pickerPlanId.ItemDisplayBinding = new Binding("display_name");
         pickerPlanId.SelectedIndex = 0;
-
     }
+
+
 
     private async void pickerPaymentMethod_SelectedIndexChanged(object sender, EventArgs e)
     {
@@ -461,6 +495,8 @@ public partial class AccountPaymentCrud : ContentPage
                         q = await db.GetItemsAsync(x => x.type == "credit" && x.aplica_tarjeta == true);
                         SetCreditCardPayment();
                         
+                        if(string.IsNullOrEmpty(txtChequeTitular.Text))
+                            txtChequeTitular.Text = _res_partner.name;
                     }
                     break;
 
@@ -529,7 +565,7 @@ public partial class AccountPaymentCrud : ContentPage
     {
         txtDepositoConfirmar.IsVisible = true;
         pickerFechaPago.IsVisible = true;
-        txtBancoDeposito.IsVisible = true;
+        ddBank.IsVisible = true;
         txtBancoCuenta.IsVisible = true;
 
         txtBinTc.IsVisible = false;
@@ -552,7 +588,7 @@ public partial class AccountPaymentCrud : ContentPage
     {
         txtDepositoConfirmar.IsVisible = true;
         pickerFechaPago.IsVisible = false;
-        txtBancoDeposito.IsVisible = true;
+        ddBank.IsVisible = true;
         txtBancoCuenta.IsVisible = true;
 
         txtBinTc.IsVisible = false;
@@ -575,7 +611,7 @@ public partial class AccountPaymentCrud : ContentPage
     {
         txtDepositoConfirmar.IsVisible = false;
         pickerFechaPago.IsVisible = true;
-        txtBancoDeposito.IsVisible = true;
+        ddBank.IsVisible = true;
         txtBancoCuenta.IsVisible = true;
 
         txtBinTc.IsVisible = false;
@@ -598,7 +634,7 @@ public partial class AccountPaymentCrud : ContentPage
     {
         txtDepositoConfirmar.IsVisible = false;
         pickerFechaPago.IsVisible = true;
-        txtBancoDeposito.IsVisible = false;
+        ddBank.IsVisible = false;
         txtBancoCuenta.IsVisible = false;
 
         txtBinTc.IsVisible = true;
@@ -640,52 +676,6 @@ public partial class AccountPaymentCrud : ContentPage
         //}
     }
 
-    //private async Task LoadPaymentLinesForEdit()
-    //{
-    //    AccountPaymentInvoiceLineDb accountPaymentLines = new AccountPaymentInvoiceLineDb();
-
-    //    var apl = accountPaymentLines.GetItemsAsync(accountPayment);
-
-    //    if (apl.Count() > 0)
-    //    {
-    //        accountPayment.lines = apl.ToArray();
-
-    //        List<FacNotaCreditoDetAuxiliar> facNotaCreditoDetAuxiliars = new List<FacNotaCreditoDetAuxiliar>();
-    //        FacNotaCreditoCabDb fncDbCab = new FacNotaCreditoCabDb();
-    //        FacNotaCreditoDetDb fncDbDet = new FacNotaCreditoDetDb();
-    //        var headersFacNc = (await fncDbCab.GetItemsByClientAsync(accountPaymentHeader.CODEMPRESA, accountPaymentHeader.CODCLIENTE)).ToArray();
-
-    //        foreach (var factdet in accountPayment.lines)
-    //        {
-    //            FacNotaCreditoDetAuxiliar itemN = new FacNotaCreditoDetAuxiliar();
-    //            itemN.line_id = factdet.invoice_line_id;
-    //            itemN.ARTICULO = factdet.invoice_line_id_name;
-    //            itemN.NUMCMPRVENTA = factdet.parent_payment_id;
-
-    //            var detFacNc = (await fncDbDet.GetItemByLineIdAsync(factdet.invoice_line_id));
-
-    //            if (detFacNc != null)
-    //            {
-    //                var facParent = headersFacNc.Where(i => i.NUMCMPRVENTA.Equals(detFacNc.NUMCMPRVENTA)).FirstOrDefault();
-
-    //                if (facParent != null)
-    //                {
-    //                    itemN.NUMDOCUMENTO = facParent.NUMDOCUMENTO;
-    //                    itemN.FECHAREGISTRO = facParent.FECHAREGISTRO;
-    //                }
-    //            }
-
-    //            itemN.reconcile_amount = factdet.reconcile_amount;
-    //            facNotaCreditoDetAuxiliars.Add(itemN);
-    //        }
-
-    //        facturasItems = facNotaCreditoDetAuxiliars.ToArray();
-
-    //        lblCounter.Text = "Total de documentos " + facturasItems.Length.ToString();
-    //        collectionView.ItemsSource = facturasItems.ToArray();
-
-    //    }
-    //}
 
     private async Task<string> GetSellerName(int company_id, int user_id)
     {
@@ -802,18 +792,54 @@ public partial class AccountPaymentCrud : ContentPage
     }
 
     private async Task LoadDataForEdition()
-    {       
+    {
+        LoadingEditionData = true;
+
+        var tipoEmisionSelected = tipoEmision.Where(x => x.name == multipleCobrosInvoiceLine.Type).FirstOrDefault();
+
+        pickerPaymentMethod.SelectedItem = tipoEmisionSelected;
+
         AccountJournalDb accountJournalDb = new AccountJournalDb(App.Session.odooConnection.DbNameSqlite);
              
         var selDiario = await accountJournalDb.GetItemAsync(x=>x.id == multipleCobrosInvoiceLine.JournalId);
 
-        if (selDiario != null)
+        switch(tipoEmisionSelected.name)
         {
-            //var selAccType = account_Journal_Types.Where(x => x.code == selDiario.type).FirstOrDefault();
-            //if (selAccType != null)
-            //{   
-            LoadingEditionData = true;
+            case "transfer":
+                {
+                    SetDirectPayment();
+                }
+                break;
+            case "deposito":
+                {
+                    SetDirectPayment();
+                }
+                break;
+            case "cash":
+                {
+                    SetDirectPayment();
+                }
+                break;
+            case "check_today":
+                {
+                    SetCheckPayment();
+                }
+                break;
+            case "check":
+                {
+                    SetCheckPostPayment();
+                }
+                break;
+            case "credit_card":
+                {
+                    SetCreditCardPayment();
+                }
+                break;
 
+        }
+
+        if (selDiario != null)
+        {   
             if (account_Journals == null)
             {
                 account_Journals = (await accountJournalDb.GetItemsAsync()).Where(j =>
@@ -824,74 +850,50 @@ public partial class AccountPaymentCrud : ContentPage
                 pickerDiario.ItemDisplayBinding = new Binding("name");
             }
                 
-                //Ahora desde memoria
+            //Ahora desde memoria
             var selDiarioMemory = account_Journals.Where(x => x.id == selDiario.id).FirstOrDefault();
             pickerDiario.SelectedItem = selDiarioMemory;
-
-                //Cargando métodos de pago
-                //ObservableCollection<inbound_payment_method> l_inbound = new ObservableCollection<inbound_payment_method>();
-                //InboundPaymentMethodDb inboundPaymentMethodDb = new InboundPaymentMethodDb(App.Session.odooConnection.DbNameSqlite);                
-                //l_inbound = new ObservableCollection<inbound_payment_method>(await inboundPaymentMethodDb.GetItemsByParentAsync(accountPayment.journal_id));
-
-                ////pickerPaymentMethod.ItemsSource = l_inbound;
-                //var paymentLine = l_inbound.Where(p => p.id == accountPayment.Type).FirstOrDefault();
-                
-                //if (paymentLine == null)
-                //{
-                //    LoadingEditionData = false;
-                //    return;
-                //}
-
-                //pickerPaymentMethod.SelectedItem = paymentLine;
-
-            if (selDiario.type == "bank")
-            {
-                SetDirectPayment();
-            }
-
-            if (selDiario.type == "credit" && selDiario.aplica_tarjeta)
-            {
-                SetCreditCardPayment();
-                                
-                txtBinTc.Text = multipleCobrosInvoiceLine.CardBinText;
-                txtAuthTc.Text = multipleCobrosInvoiceLine.CardVoucher;
-                txtLoteTc.Text = multipleCobrosInvoiceLine.LoteVoucher;
-            }
-
-            if (selDiario.type == "credit" && selDiario.aplica_cheque)
-            {
-                SetCheckPayment();
-                //SetCheckPostPayment();
-            }
-
-            PartnerBankDb partnerBankDb = new PartnerBankDb(App.Session.odooConnection.DbNameSqlite);
-                
-            var partnerBankItem = await partnerBankDb.GetItemAsync(x => x.id == multipleCobrosInvoiceLine.BankId);
-            if (partnerBankItem != null)
-            {
-                //Busqueda de banco
-                BankDb bankDb = new BankDb(App.Session.odooConnection.DbNameSqlite);
-                var bankItem = await bankDb.GetItemAsync(x=>x.id == partnerBankItem._bank_id);
-
-                txtBancoCuenta.Text = partnerBankItem.acc_number;
-                lblAccountBank.Text = bankItem.name;
-                lblAccountHolder.Text = partnerBankItem.acc_holder_name;
-                lblAccountType.Text = partnerBankItem.type_account;
-                stackAccountInfo.IsVisible = true;
-
-                _res_partner_bank = partnerBankItem;
-            }
-
-            //Se sale del modo de carga de datos para edicion
-            LoadingEditionData = false;
-            //}
         }
+
+        txtBinTc.Text = multipleCobrosInvoiceLine.CardBinText;
+        txtAuthTc.Text = multipleCobrosInvoiceLine.CardVoucher;
+        txtLoteTc.Text = multipleCobrosInvoiceLine.LoteVoucher;
+
+        txtChequeTitular.Text = multipleCobrosInvoiceLine.AccHolderName;
+        txtChequeCiudad.Text = multipleCobrosInvoiceLine.CityId.ToString();
+        pickerFechaCheque.Date = multipleCobrosInvoiceLine.WithdrawalDate.Value;
+
+        //pickerCardId.SelectedItem
+        //ddBankTcId.SelectedItem
+        //pickerPaymentTypeId.SelectedItem
+        //pickerPlanId.SelectedItem
+
+        PartnerBankDb partnerBankDb = new PartnerBankDb(App.Session.odooConnection.DbNameSqlite);
+
+        var partnerBankItem = await partnerBankDb.GetItemAsync(x => x.id == multipleCobrosInvoiceLine.BankId);
+        if (partnerBankItem != null)
+        {
+            //Busqueda de banco
+            BankDb bankDb = new BankDb(App.Session.odooConnection.DbNameSqlite);
+            var bankItem = await bankDb.GetItemAsync(x => x.id == partnerBankItem._bank_id);
+
+            txtBancoCuenta.Text = partnerBankItem.acc_number;
+            lblAccountBank.Text = bankItem.name;
+            lblAccountHolder.Text = partnerBankItem.acc_holder_name;
+            lblAccountType.Text = partnerBankItem.type_account;
+            stackAccountInfo.IsVisible = true;
+
+            _res_partner_bank = partnerBankItem;
+        }
+
 
         txtMonto.Text = multipleCobrosInvoiceLine.Amount.ToString(); //.ToString(App.Session.ApplicationCultureInfo);
         pickerFechaPago.Date = (DateTime) multipleCobrosInvoiceLine.PaymentDate;
         txtRef.Text = multipleCobrosInvoiceLine.Resumen;
         txtCircular.Text = multipleCobrosInvoiceLine.Circular;
         txtNCheque.Text = multipleCobrosInvoiceLine.NumberCheckText;
+
+        LoadingEditionData = false;
     }
         
     private async Task LoadPaymentLines()
@@ -941,110 +943,6 @@ public partial class AccountPaymentCrud : ContentPage
         lblCounter.Text = "Total de documentos " + multipleCobrosInvoiceLineAi.Length.ToString();
         collectionView.ItemsSource = multipleCobrosInvoiceLineAi;
     }
-
-    //void HideFields()
-    //{
-    //    //pickerCuentas.IsVisible = false;
-    //    //pickerBancos.IsVisible = false;
-    //    //pickerTarjetas.IsVisible = false;
-    //    //pickerTipCheque.IsVisible = false;
-    //    pickerFecCobro.IsVisible = false;
-    //    //pickerIndicador.IsVisible = false;        
-    //    pickerFecDeposito.IsVisible = false;        
-    //}
-
-    //////async void OnPickerTipoDiarioSelectedIndexChanged(object sender, EventArgs e)
-    //////{
-    //////    if (LoadingEditionData)
-    //////        return;
-                    
-    //////    var picker = (Picker) sender;
-    //////    int selectedIndex = picker.SelectedIndex;
-
-    //////    if (selectedIndex != -1)
-    //////    {
-    //////        switch (account_Journal_Types[selectedIndex].code)
-    //////        {
-    //////            case "bank":
-    //////                {
-    //////                    AccountJournalDb db = new AccountJournalDb(App.Session.odooConnection.DbNameSqlite);
-    //////                    account_Journals = (await db.GetItemsAsync()).Where(
-    //////                        j=>j.type == account_Journal_Types[selectedIndex].code &&
-    //////                        j._company_id == Sel_Company_Id.id).ToList();
-
-    //////                    pickerDiario.ItemsSource = account_Journals;
-    //////                    pickerDiario.ItemDisplayBinding = new Binding("name");
-    //////                    pickerDiario.SelectedIndex = 0;
-    //////                }
-    //////                break;
-    //////            case "cash":
-    //////                {
-    //////                    AccountJournalDb db = new AccountJournalDb(App.Session.odooConnection.DbNameSqlite);
-    //////                    account_Journals = (await db.GetItemsAsync()).Where(
-    //////                        j => j.type == account_Journal_Types[selectedIndex].code &&
-    //////                        j._company_id == Sel_Company_Id.id).ToList();
-
-    //////                    pickerDiario.ItemsSource = account_Journals;
-    //////                    pickerDiario.ItemDisplayBinding = new Binding("name");
-    //////                    pickerDiario.SelectedIndex = 0;
-    //////                }
-    //////                break;
-    //////        }
-
-    //////        //monkeyNameLabel.Text = picker.Items[selectedIndex];
-    //////        ////Debug.WriteLine( picker.Items[selectedIndex] );
-    //////        ////Debug.WriteLine(formaspagos[selectedIndex].codigo);
-    //////        ////Debug.WriteLine(formaspagos[selectedIndex].descripcion);
-    //////        ////selFormaspagos = formaspagos[selectedIndex];
-    //////        ////picker.SelectedItem = selFormaspagos;
-
-    //////        ////switch (formaspagos[selectedIndex].codigo)
-    //////        ////{
-    //////        ////    case "EF":
-    //////        ////        {
-    //////        ////            HideFields();
-    //////        ////        }
-    //////        ////        break;
-    //////        ////    case "CH":
-    //////        ////        {
-    //////        ////            HideFields();
-    //////        ////            pickerTipCheque.IsVisible = true;
-    //////        ////            pickerFecCobro.IsVisible = true;
-    //////        ////            pickerIndicador.IsVisible = true;
-    //////        ////            pickerBancos.IsVisible = true;
-    //////        ////            txtGirador.IsVisible = true;
-    //////        ////            txtNCtaCheque.IsVisible = true;
-    //////        ////            txtNCheque.IsVisible = true;
-    //////        ////        }
-    //////        ////        break;
-    //////        ////    case "DP":
-    //////        ////        {
-    //////        ////            HideFields();
-    //////        ////            pickerCuentas.IsVisible = true;
-    //////        ////            txtNDeposito.IsVisible = true;
-    //////        ////            pickerFecDeposito.IsVisible= true;
-    //////        ////        }
-    //////        ////        break;
-    //////        ////    case "TJ":
-    //////        ////        {
-    //////        ////            HideFields();
-    //////        ////            pickerBancos.IsVisible = true;
-    //////        ////            pickerTarjetas.IsVisible = true;
-    //////        ////            txtNTarjeta.IsVisible = true;
-    //////        ////            txtNLote.IsVisible = true;                        
-    //////        ////        }
-    //////        ////        break;
-    //////        ////    case "TRANBAN":
-    //////        ////        {
-    //////        ////            HideFields();
-    //////        ////            pickerCuentas.IsVisible= true;
-    //////        ////            txtNDeposito.IsVisible = true;
-    //////        ////            pickerFecDeposito.IsVisible = true;
-    //////        ////        }
-    //////        ////        break;
-    //////        ////}            
-    //////    }
-    //////}
 
     private async void btnLoadDocs_Clicked(object sender, EventArgs e)
     {
@@ -1200,6 +1098,9 @@ public partial class AccountPaymentCrud : ContentPage
         multipleCobrosInvoiceLine.Resumen = txtRef.Text;
         multipleCobrosInvoiceLine.Circular = txtCircular.Text;
         multipleCobrosInvoiceLine.PartnerId = _res_partner.id;
+
+        multipleCobrosInvoiceLine.Type = ((AppParameter)pickerPaymentMethod.SelectedItem).name;
+
         multipleCobrosInvoiceLine.JournalId = ((account_journal)pickerDiario.SelectedItem).id;
         multipleCobrosInvoiceLine.journal_name = ((account_journal)pickerDiario.SelectedItem).name;
         multipleCobrosInvoiceLine.PartnerType = "customer";
@@ -1246,9 +1147,19 @@ public partial class AccountPaymentCrud : ContentPage
                     await Toast.Make("Los pagos con tarjeta de crédito requieren Bin, Voucher y Lote.").Show();
                     return;
                 }
+
+                var CardId = (TarjetasCredito) pickerCardId.SelectedItem;
+                var BankTc = (Bank_Id) ddBankTcId.SelectedItem;
+                var paymentType = (TarjetasTipoPago) pickerPaymentTypeId.SelectedItem;
+                var planTarjetasCredito = (TarjetasPlazosBanco)pickerPlanId.SelectedItem;
+
+                multipleCobrosInvoiceLine.CardId = CardId.id;
+                multipleCobrosInvoiceLine.BankTcId = BankTc.id;
+                multipleCobrosInvoiceLine.PaymentTypeId = paymentType.id;
+                multipleCobrosInvoiceLine.PlanId = planTarjetasCredito.id;                
             }
 
-            if(selPaymentM.name == "check_day" || selPaymentM.name == "check") // && aplica_cheque
+            if (selPaymentM.name == "check_day" || selPaymentM.name == "check") // && aplica_cheque
             {
                 //accountPayment.AccHolderName = 
                 //accountPayment.CityId = 
