@@ -9,16 +9,13 @@
             <converters:DateToDaysConverter x:Key="DateToDaysConverter" />
         </ResourceDictionary>
     </ContentView.Resources>
-    <Frame
-        BorderColor="LightGray"
+    <Border
+        StrokeThickness="0.2"
         Padding="2"
         Margin="1"
-        BackgroundColor="WhiteSmoke"
-        CornerRadius="0"
+        BackgroundColor="Transparent"        
         MinimumHeightRequest="30">
-
-        <Grid
-            BackgroundColor="WhiteSmoke"
+        <Grid            
             HorizontalOptions="Fill">
 
             <Grid.RowDefinitions>
@@ -39,12 +36,21 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
+            <Label
+                Text="{Binding invoice_id}"
+                Grid.Row="0"
+                Grid.Column="0"
+                Grid.ColumnSpan="2"
+                FontSize="10"
+                FontAttributes="Bold"
+                TextColor="DimGray"/>
+
             <!-- Documento -->
             <Label
                 x:Name="labelArticulo"
                 Text="{Binding invoice_name}"
                 Grid.Row="0"
-                Grid.Column="0"
+                Grid.Column="1"
                 Grid.ColumnSpan="2"
                 FontSize="12"
                 FontAttributes="Bold"/>
@@ -133,5 +139,5 @@
             </Button>
 
         </Grid>
-    </Frame>
+    </Border>
 </ContentView>

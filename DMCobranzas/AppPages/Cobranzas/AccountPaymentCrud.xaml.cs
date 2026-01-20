@@ -20,13 +20,10 @@ namespace DMCobranzas.Controls.Modals;
 public partial class AccountPaymentCrud : ContentPage
 {
     public ObservableCollection<Bank_Id> Banks { get; set; } = new();
-
     public res_partner _res_partner { get; set; }
     public res_partner_bank _res_partner_bank { get; set; }
-
     //Arreglo representantivo de las lineas de pago
     public MultipleCobrosInvoiceLineAi[] multipleCobrosInvoiceLineAi { get; set; }
-
     public res_company Sel_Company_Id { get; set; }
     //public res_company res_Company { get; set; }
     public MultipleCobrosInvoice multipleCobrosInvoice { get; set; }
@@ -41,13 +38,9 @@ public partial class AccountPaymentCrud : ContentPage
 
     List<account_journal_type> account_Journal_Types { get; set; }
     List<account_journal> account_Journals { get; set; }
-    //st_formaspago[] formaspagos { get; set; }
-    //st_bancos[] bancos { get; set; }
-    //st_cuentas[] cuentas { get; set; }
-    //st_tarjetas[] tarjetas { get; set; }
-    //st_formaspago selFormaspagos { get; set; }
-    //Parametros[] tipoCheque { get; set; }
-    //Parametros[] indicador { get; set; }
+    List<TarjetasCredito> tarjetasItems { get; set; }
+    List<TarjetasTipoPago> tarjetasTipoPagoItems { get; set; }
+
     private bool LoadingEditionData { get; set; } = false;
     private bool InitializingForm { get; set; } = false;
     //private account_journal selDiarioAux { get; set; }
@@ -216,24 +209,24 @@ public partial class AccountPaymentCrud : ContentPage
         //var toast = Toast.Make(text, duration, fontSize);            
 
         //Se asume que el resultado devuelto desde la base de datos está en la primera fila
-        account_Journal_Types = new List<account_journal_type>();
-        account_Journal_Types.Add(
-            new account_journal_type()
-            {
-                id = 1,
-                code = "bank",
-                name = "Banco"
-            }
-        );
+        //account_Journal_Types = new List<account_journal_type>();
+        //account_Journal_Types.Add(
+        //    new account_journal_type()
+        //    {
+        //        id = 1,
+        //        code = "bank",
+        //        name = "Banco"
+        //    }
+        //);
 
-        account_Journal_Types.Add(
-            new account_journal_type()
-            {
-                id = 2,
-                code = "cash",
-                name = "Efectivo"
-            }
-        );
+        //account_Journal_Types.Add(
+        //    new account_journal_type()
+        //    {
+        //        id = 2,
+        //        code = "cash",
+        //        name = "Efectivo"
+        //    }
+        //);
 
         //pickerTipoDiario.ItemsSource = account_Journal_Types;
         //pickerTipoDiario.ItemDisplayBinding = new Binding("name");
@@ -340,7 +333,7 @@ public partial class AccountPaymentCrud : ContentPage
         pickerPaymentMethod.SelectedIndexChanged += pickerPaymentMethod_SelectedIndexChanged;
 
         var tarjetasCreditoDb = new TarjetasCreditoDb(App.Session.odooConnection.DbNameSqlite);
-        var tarjetasItems = (await tarjetasCreditoDb.GetItemsAsync(x=> x.active)).ToList();
+        tarjetasItems = (await tarjetasCreditoDb.GetItemsAsync(x=> x.active)).ToList();
         pickerCardId.ItemsSource = tarjetasItems;
         pickerCardId.ItemDisplayBinding = new Binding("display_name");
         pickerCardId.SelectedIndex = 0;
@@ -375,11 +368,11 @@ public partial class AccountPaymentCrud : ContentPage
             ddBank.ItemsSource = Banks;
             ddBank.ItemDisplayBinding = new Binding("name");
             ddBank.SelectedItem = Banks[0];
-            ddBankTcId.SelectedItemChanged += DdBankTcId_SelectedItemChanged; ;            
+            ddBankTcId.SelectedItemChanged += DdBankTcId_SelectedItemChanged;
         });
 
         TarjetasTipoPagoDb tarjetasTipoPagoDb = new TarjetasTipoPagoDb(App.Session.odooConnection.DbNameSqlite);
-        var tarjetasTipoPagoItems = (await tarjetasTipoPagoDb.GetItemsAsync(x => x.active)).ToList();
+        tarjetasTipoPagoItems = (await tarjetasTipoPagoDb.GetItemsAsync(x => x.active)).ToList();
         pickerPaymentTypeId.ItemsSource = tarjetasTipoPagoItems;
         pickerPaymentTypeId.ItemDisplayBinding = new Binding("display_name");
         pickerPaymentTypeId.SelectedIndex = 0;
@@ -445,8 +438,6 @@ public partial class AccountPaymentCrud : ContentPage
         pickerPlanId.SelectedIndex = 0;
     }
 
-
-
     private async void pickerPaymentMethod_SelectedIndexChanged(object sender, EventArgs e)
     {
         if (LoadingEditionData)
@@ -501,9 +492,9 @@ public partial class AccountPaymentCrud : ContentPage
                     break;
 
                 case "otros":
-                    
-                    q = await db.GetItemsAsync(x=> x.type == "credit" && x.aplica_tarjeta == false);
-                    
+                    {
+                        q = await db.GetItemsAsync(x => x.type == "credit" && x.aplica_tarjeta == false);
+                    }
                     break;
 
                 default:
@@ -863,9 +854,15 @@ public partial class AccountPaymentCrud : ContentPage
         txtChequeCiudad.Text = multipleCobrosInvoiceLine.CityId.ToString();
         pickerFechaCheque.Date = multipleCobrosInvoiceLine.WithdrawalDate.Value;
 
-        //pickerCardId.SelectedItem
-        //ddBankTcId.SelectedItem
-        //pickerPaymentTypeId.SelectedItem
+        var tarjeta = tarjetasItems.Where(x => x.id == multipleCobrosInvoiceLine.CardId).FirstOrDefault();
+        pickerCardId.SelectedItem = tarjeta;
+
+        var bancoTarjeta = Banks.Where(x => x.id == multipleCobrosInvoiceLine.BankTcId).FirstOrDefault();
+        ddBankTcId.SelectedItem = bancoTarjeta;
+
+        var tarjetaTipoPago = tarjetasTipoPagoItems.Where(x => x.id == multipleCobrosInvoiceLine.PaymentTypeId).FirstOrDefault();
+        pickerPaymentTypeId.SelectedItem = tarjetaTipoPago;
+        
         //pickerPlanId.SelectedItem
 
         PartnerBankDb partnerBankDb = new PartnerBankDb(App.Session.odooConnection.DbNameSqlite);
@@ -1181,7 +1178,12 @@ public partial class AccountPaymentCrud : ContentPage
 
         //accountPayment.numero_retencion = "0";
         txtMonto.Text = ParseTool.StringValueFix(txtMonto.Text);
-        multipleCobrosInvoiceLine.Amount = (decimal)ParseTool.StringToDouble(txtMonto.Text); //.ToString(App.Session.ApplicationCultureInfo);
+
+        //multipleCobrosInvoiceLine.Amount = (decimal)ParseTool.StringToDouble(txtMonto.Text); //.ToString(App.Session.ApplicationCultureInfo);
+        //multipleCobrosInvoiceLine.Diferencia = multipleCobrosInvoiceLine.Amount;
+
+        multipleCobrosInvoiceLine.Amount = 0;
+        multipleCobrosInvoiceLine.Diferencia = 0;
 
         List<MultipleCobrosInvoiceLineAi> linesL = new List<MultipleCobrosInvoiceLineAi>();
         if (multipleCobrosInvoiceLineAi != null)

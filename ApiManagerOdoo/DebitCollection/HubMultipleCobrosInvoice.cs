@@ -51,6 +51,9 @@ namespace ApiManager
             JObjectExtensions.RemoveProperty(newJObject, "autosend");
             JObjectExtensions.RemoveProperty(newJObject, "serial");
 
+            //JObjectExtensions.RemoveProperty(newJObject, "partner_retail_id");
+            //SendObject.partner_retail_id = 0;
+
             object[] args = new object[] { new object[] {}, newJObject };
 
             return await CallMethod<ApiResponseOdooRpcT<List<OdooRpcResultInt>>>(EndPointApi, Method.Post, args, kwargs, "multiple.cobros.invoice", "web_save");

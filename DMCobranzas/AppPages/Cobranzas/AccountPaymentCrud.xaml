@@ -50,12 +50,13 @@
                             Text="GUARDAR" 
                             FontSize="12" 
                             Clicked="btnSave_Clicked" 
-                            Margin="1" 
+                            Margin="0" 
                             BackgroundColor="DodgerBlue" 
                             CornerRadius="2"
                             FontAttributes="Bold"
                             HeightRequest="28"
-                            Padding="10,0,10,0">
+                            Padding="10,0,10,0"
+                            VerticalOptions="Center">
                         <Button.ImageSource>
                             <FontImageSource FontFamily="FontAwesome5Solid"
                              Glyph="&#xf0c7;"
@@ -67,7 +68,7 @@
                     <Button x:Name="btnCancel" Text="SALIR" 
                             FontSize="12" 
                             Clicked="btnCancel_Clicked" 
-                            Margin="1" 
+                            Margin="0" 
                             BackgroundColor="OrangeRed" FontAttributes="Bold"
                             CornerRadius="2"
                             HeightRequest="28"
@@ -285,7 +286,8 @@
                 <!--<ScrollView Grid.Row="6" Grid.ColumnSpan="2" VerticalOptions="Fill" HorizontalOptions="Fill">-->
                     <CollectionView x:Name="collectionView" Grid.Row="6" Grid.ColumnSpan="2" 
                                     VerticalOptions="Fill" 
-                                    HorizontalOptions="Fill">
+                                    HorizontalOptions="Fill"
+                                    SelectionMode="Single">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <!--<control:InvoicePaymentItemV2 dataItem="{Binding .}"></control:InvoicePaymentItemV2>-->

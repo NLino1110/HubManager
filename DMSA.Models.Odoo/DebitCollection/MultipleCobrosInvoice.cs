@@ -92,8 +92,8 @@ namespace DMSA.Models.Odoo.DebitCollection
         public DateTime write_date { get; set; }
         [Column("proceso_caja_id")] 
         public int proceso_caja_id { get; set; }
-        [Column("partner_retail_id")] 
-        public int partner_retail_id { get; set; }
+        //[Column("partner_retail_id")] 
+        //public int partner_retail_id { get; set; }
 
         public string recipe_name { get; set; }
         public string guid { get; set; }
