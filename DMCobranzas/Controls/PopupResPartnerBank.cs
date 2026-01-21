@@ -16,6 +16,7 @@ using Microsoft.Maui.Layouts;
 using Microsoft.Maui.Graphics;
 using System.ComponentModel;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
+using DMSA.Models.Odoo.Accounting;
 
 namespace DMCobranzas.Controls
 {
@@ -634,9 +635,9 @@ namespace DMCobranzas.Controls
                 _pickerCurrency.ItemDisplayBinding = new Binding("description");
                 _pickerCurrency.SelectedIndex = 0;
 
-                ObservableCollection<Bank_Id> l_banks = new ObservableCollection<Bank_Id>();                
+                ObservableCollection<ResBank> l_banks = new ObservableCollection<ResBank>();                
                 BankDb bankDb = new BankDb(App.Session.odooConnection.DbNameSqlite);
-                l_banks = new ObservableCollection<Bank_Id>( (await bankDb.GetItemsAsync()).OrderBy(i=>i.name) );
+                l_banks = new ObservableCollection<ResBank>( (await bankDb.GetItemsAsync()).OrderBy(i=>i.name) );
 
                 _pickerBank.ItemsSource = l_banks;
                 _pickerBank.ItemDisplayBinding = new Binding("name");
@@ -689,8 +690,8 @@ namespace DMCobranzas.Controls
             new_Partner_Bank.acc_number = _inputAccNumber.Text != null ? _inputAccNumber.Text : "";
             new_Partner_Bank.acc_holder_name = _inputAccHolderName.Text !=null ? _inputAccHolderName.Text : "";
             new_Partner_Bank.use_bank_type = ((use_bank_type) _pickerUseBankType.SelectedItem).name;
-            new_Partner_Bank._bank_id = ((Bank_Id) _pickerBank.SelectedItem).id;
-            new_Partner_Bank.bank_name = ((Bank_Id)_pickerBank.SelectedItem).name;
+            new_Partner_Bank._bank_id = ((ResBank) _pickerBank.SelectedItem).id;
+            new_Partner_Bank.bank_name = ((ResBank)_pickerBank.SelectedItem).name;
             new_Partner_Bank._currency_id = ((currency_struct) _pickerCurrency.SelectedItem).id;
             new_Partner_Bank.allow_out_payment = _switchAllowOutPayment.IsToggled;
 
@@ -714,7 +715,7 @@ namespace DMCobranzas.Controls
                 return;
             }
 
-            string BankName = ((Bank_Id)_pickerBank.SelectedItem).name;
+            string BankName = ((ResBank)_pickerBank.SelectedItem).name;
 
             try
             {

@@ -1,4 +1,5 @@
 ﻿using DMSA.Models.Odoo.Base;
+using DMSA.Models.Odoo.Native;
 using Newtonsoft.Json;
 using SQLite;
 
@@ -147,15 +148,15 @@ namespace DMSA.Models.Odoo.DebitCollection
 
         [JsonProperty("motivos_no_cuadratura_id")]
         [Column("motivos_no_cuadratura_id")]
-        public long? MotivosNoCuadraturaId { get; set; }
+        public int? MotivosNoCuadraturaId { get; set; }
 
         [JsonProperty("check_line_id")]
         [Column("check_line_id")]
-        public long? CheckLineId { get; set; }
+        public int? CheckLineId { get; set; }
 
         [JsonProperty("pf_check_line_id")]
         [Column("pf_check_line_id")]
-        public long? PfCheckLineId { get; set; }
+        public int? PfCheckLineId { get; set; }
 
         // ---------- TARJETAS ----------
 
@@ -232,13 +233,24 @@ namespace DMSA.Models.Odoo.DebitCollection
 
         //[Column("account_move_line_search_ids")]
         //public List<long> AccountMoveLineSearchIds { get; set; }
-        [Ignore]
-        [JsonIgnore]        
-        public MultipleCobrosInvoiceLineAi[] lines { get; set; }
 
+        //Este campo se utiliza para la carga de datos
         [Ignore]
         [JsonIgnore]
-        public List<object> lines_obj { get; set; }
+        public MultipleCobrosInvoiceLineAi[] lines { get; set; }
+
+        public bool ShouldDeserializeMultipleCobrosInvoiceLineAi()
+        {
+            return false;
+        }
+        //Este campo se utiliza para el envío de datos
+        [Ignore]
+        [JsonProperty("multiple_cobros_invoice_line_ai")]
+        public List<MultipleCobrosInvoiceLineAiWrapper> MultipleCobrosInvoiceLineAi { get; set; }
+
+        //[Ignore]
+        //[JsonIgnore]
+        //public List<object> lines_obj { get; set; }
 
         [JsonIgnore]
         public int sequence { get; set; }

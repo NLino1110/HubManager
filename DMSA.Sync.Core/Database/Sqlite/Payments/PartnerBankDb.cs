@@ -1,4 +1,5 @@
-﻿using DMSA.Models.Odoo.Native;
+﻿using DMSA.Models.Odoo.Accounting;
+using DMSA.Models.Odoo.Native;
 using SQLite;
 
 namespace DMSA.Sync.Core.Database.Sqlite.Payments
@@ -36,7 +37,7 @@ namespace DMSA.Sync.Core.Database.Sqlite.Payments
             await Init();
             //var result = await Database.Table<res_partner_bank>().Where(i => i.PartnerId == partner_id).ToListAsync();
             var result = await Database.Table<res_partner_bank>().Where(i => i._partner_id == partner_id).ToListAsync();
-            var resultbank = await Database.Table<Bank_Id>().ToListAsync();
+            var resultbank = await Database.Table<ResBank>().ToListAsync();
 
             foreach (var item in result)
             {
@@ -60,7 +61,7 @@ namespace DMSA.Sync.Core.Database.Sqlite.Payments
             //var result = await Database.Table<res_partner_bank>().Where(i => i.PartnerId == partner_id).ToListAsync();
             var result = await Database.Table<res_partner_bank>().ToListAsync();
 
-            var resultbank = await Database.Table<Bank_Id>().ToListAsync();
+            var resultbank = await Database.Table<ResBank>().ToListAsync();
 
             foreach (var item in result) 
             {

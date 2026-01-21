@@ -25,6 +25,7 @@ namespace ApiManager
             "invoice_date",
             "invoice_date_due",
             "payment_state",
+            "state",
             "move_type",
             "journal_id",
             "amount_residual",
@@ -40,6 +41,7 @@ namespace ApiManager
             "reversed_entry_id",
             "ref",
             "refund_invoice_ids",
+            "docnum_mask",
             "create_date",
             "write_date",
             //"printer_id"
@@ -66,6 +68,21 @@ namespace ApiManager
         //private IConfiguration configuration { get; set; }
         //private static readonly IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddEnvironmentVariables().Build();
 
+        public async Task<ApiResponseOdooRpc?> GetHeaderCount(int year, int month, int day)
+        {
+            //string _EndPointApi = "/api/account.move";
+            //string domains = $"domain=[('invoice_date','>=','{apiRequestOdoo_V1.dateIni.ToString("yyyy-MM-dd")}')]";
+
+            object[] args = new object[] { };
+
+            object[] _custom_args = new object[] {
+                new object[] { "write_date", ">=", $"{year}-{month:00}-{day:00} 23:59:59" },
+                new object[] { "state", "!=", "draft" },
+                new object[] { "invoice_date", "!=", false },
+            };
+            return await GetCount(args, _custom_args);
+        }
+
         public async Task<ApiResponseOdooRpcT<account_move[]>?> GetAccountMoves(DateTime dateIni, int limit, int index)
         {            
             var kwargs = new
@@ -77,7 +94,9 @@ namespace ApiManager
 
             object[] args = new object[] { };
             object[] _custom_args = new object[] {
-                new object[] { "invoice_date", ">=", dateIni.ToString("yyyy-MM-dd") }
+                new object[] { "write_date", ">=", dateIni.ToString("yyyy-MM-dd") },
+                new object[] { "state", "!=", "draft" },
+                new object[] { "invoice_date", "!=", false },
             };
             return await SearchRead<ApiResponseOdooRpcT<account_move[]>>(args, _custom_args, kwargs, true);
         }
@@ -148,6 +167,7 @@ namespace ApiManager
         //    };
         //}
 
+        [Obsolete]
         public async Task<ApiResponseOdooRpcT<account_move[]>?> GetAccountMovesByDate(int year, int month, int day, int limit, int index)
         {
             //string fields = "fields=['id','name','partner_id','invoice_date','invoice_date_due','payment_state','move_type','journal_id','amount_residual','amount_untaxed_signed','amount_total_signed','amount_total','amount_tax','l10n_latam_document_type_id','invoice_user_id','company_id','team_id','invoice_line_ids','reversed_entry_id','ref','refund_invoice_ids','printer_id']";
@@ -168,6 +188,7 @@ namespace ApiManager
             return await SearchRead<ApiResponseOdooRpcT<account_move[]>>(args, _custom_args, kwargs, true);
         }
 
+        [Obsolete]
         public async Task<ApiResponseOdooRpc?> GetHeaderCountByWriteDate(int year, int month, int day)
         {
             object[] args = new object[] { };
@@ -179,6 +200,7 @@ namespace ApiManager
             return await GetCount(args, _custom_args);
         }
 
+        [Obsolete]
         public async Task<ApiResponseOdooRpcT<account_move[]>?> GetAccountMovesByWriteDate(int year, int month, int day, int limit, int index)
         {
             //string fields = "fields=['id','name','partner_id','invoice_date','invoice_date_due','payment_state','move_type','journal_id','amount_residual','amount_untaxed_signed','amount_total_signed','amount_total','amount_tax','l10n_latam_document_type_id','invoice_user_id','company_id','team_id','invoice_line_ids','reversed_entry_id','ref','refund_invoice_ids','printer_id']";
@@ -198,6 +220,7 @@ namespace ApiManager
             return await SearchRead<ApiResponseOdooRpcT<account_move[]>>(args, _custom_args, kwargs, true);
         }
 
+        [Obsolete]
         public async Task<ApiResponseOdooRpcT<account_move[]>?> GetAccountMovesByWriteDate_dl(int year, int month, int day, int limit, int index)
         {
             string[] fields_array = {
@@ -221,6 +244,7 @@ namespace ApiManager
 
         }
 
+        [Obsolete]
         public async Task<ApiResponseOdooRpcT<account_move[]>?> GetByCreateDate_dl(int year, int month, int day, int limit, int index)
         {
             string[] fields_array = {
@@ -244,37 +268,7 @@ namespace ApiManager
             return await SearchRead<ApiResponseOdooRpcT<account_move[]>>(args, _custom_args, kwargs, true);
         }
 
-        public async Task<ApiResponseOdooRpc?> GetHeaderCount(int year, int month, int day)
-        {
-            //string _EndPointApi = "/api/account.move";
-            //string domains = $"domain=[('invoice_date','>=','{apiRequestOdoo_V1.dateIni.ToString("yyyy-MM-dd")}')]";
 
-            object[] args = new object[] { };
-            
-            object[] _custom_args = new object[] {
-                new object[] { "invoice_date", ">=", $"{year}-{month:00}-{day:00} 23:59:59" },
-                //new object[] { "invoice_date", "!=", false },
-            };
-            return await GetCount(args, _custom_args);
-        }
-
-        /////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-        ///
-
-        /// <summary>
-        /// ///////////////////////////////////////////////////////////////////////////////////
-        /// </summary>
-        /// <param name="apiRequestOdoo_V1"></param>
-        /// <returns></returns>
 
         //public async Task<ApiResponseOdoo?> __GetDetailCount(ApiRequestOdoo_v1 apiRequestOdoo_V1)
         //{
@@ -363,165 +357,5 @@ namespace ApiManager
         //    };
         //}
 
-        //public async Task<ApiResponseOdoo?> __GetAccountMoveLinesCountByWriteDate(ApiRequestOdoo_v1 apiRequestOdoo_V1, int year, int month, int day)
-        //{
-        //    string _EndPointApi = "/api/account.move.line";
-        //    string api_key = _appSession.CurrentUser.api_key;
-        //    string domains = $"domain=[('create_date','>','{year}-{month:00}-{day:00} 23:59:59')]";
-        //    string EndPointParams = "";
-        //    EndPointParams = $"/search_count?api_key={api_key}&{domains}";
-
-        //    var restRequest = new RestRequest(_EndPointApi + EndPointParams);
-        //    restRequest.RequestFormat = DataFormat.Json;
-        //    var result = await _client.RestClient().ExecuteGetAsync(restRequest);
-        //    //Console.WriteLine(result);
-
-        //    if (result != null && result.Content != null & result.Content != "")
-        //    {
-        //        var resultNative = JsonConvert.DeserializeObject<ApiResponseOdoo>(result.Content);
-        //        return resultNative;
-        //    }
-
-        //    return new ApiResponseOdoo()
-        //    {
-        //        responseCode = 500,
-        //        count = 0,
-        //        message = "Error al obtener datos."
-        //    };
-        //}
-
-        //public async Task<ApiResponse_account_move_line?> __GetAccountMoveLinesByDate(ApiRequestOdoo_v1 apiRequestOdoo_V1, int year, int month, int day)
-        //{
-        //    string _EndPointApi = "/api/account.move.line";
-
-        //    string api_key = _appSession.CurrentUser.api_key;
-        //    string fields = "fields=['id','move_id','sequence','name','product_id','quantity','price_unit','price_subtotal','discount_balance','price_total','discount_percentage','tax_ids','analytic_line_ids','display_type','account_id','create_date','write_date']";
-        //    //string domains = "domain=[('invoice_date','>=','2023-08-29'),('invoice_date','<=','2023-08-29')]";            
-        //    string domains = $"domain=[('create_date','>=','{year}-{month:00}-{day:00} 00:00:00'),('create_date','<=','{year}-{month:00}-{day:00} 23:59:59')]";
-        //    //string domains = $"domain=[('id','in',('8471', '8474'))]";
-        //    string limit = $"limit={apiRequestOdoo_V1.limit}";
-
-        //    string offset = $"offset={apiRequestOdoo_V1.index * apiRequestOdoo_V1.limit}";
-        //    string EndPointParams = $"/search?api_key={api_key}&{fields}&{domains}&{limit}&{offset}";
-        //    EndPointParams = $"/search?api_key={api_key}&{fields}&{domains}&{limit}&{offset}";
-
-        //    var restRequest = new RestRequest(_EndPointApi + EndPointParams);
-        //    restRequest.RequestFormat = DataFormat.Json;
-        //    var result = await _client.RestClient().ExecuteGetAsync(restRequest);
-        //    //Console.WriteLine(result);
-
-        //    if (result != null && result.Content != null & result.Content != "")
-        //    {
-        //        var resultNative = JsonConvert.DeserializeObject<ApiResponse_account_move_line>(result.Content);
-        //        return resultNative;
-        //    }
-
-        //    return new ApiResponse_account_move_line()
-        //    {
-        //        responseCode = 500,
-        //        message = "Error al obtener datos."
-        //    };
-        //}
-
-        //public async Task<ApiResponse_account_move_line?> __GetAccountMoveLinesByWriteDate(ApiRequestOdoo_v1 apiRequestOdoo_V1, int year, int month, int day)
-        //{
-        //    string _EndPointApi = "/api/account.move.line";
-
-        //    string api_key = _appSession.CurrentUser.api_key;
-        //    string fields = "fields=['id','move_id','sequence','name','product_id','quantity','price_unit','price_subtotal','discount_balance','price_total','discount_percentage','tax_ids','analytic_line_ids','display_type','account_id','create_date','write_date']";
-        //    //string domains = "domain=[('invoice_date','>=','2023-08-29'),('invoice_date','<=','2023-08-29')]";            
-        //    string domains = $"domain=[('create_date','>','{year}-{month:00}-{day:00} 23:59:59')]";
-        //    //string domains = $"domain=[('id','in',('8471', '8474'))]";
-        //    string limit = $"limit={apiRequestOdoo_V1.limit}";
-
-        //    string offset = $"offset={apiRequestOdoo_V1.index * apiRequestOdoo_V1.limit}";
-        //    string EndPointParams = $"/search?api_key={api_key}&{fields}&{domains}&{limit}&{offset}";
-        //    EndPointParams = $"/search?api_key={api_key}&{fields}&{domains}&{limit}&{offset}";
-
-        //    var restRequest = new RestRequest(_EndPointApi + EndPointParams);
-        //    restRequest.RequestFormat = DataFormat.Json;
-        //    var result = await _client.RestClient().ExecuteGetAsync(restRequest);
-        //    //Console.WriteLine(result);
-
-        //    if (result != null && result.Content != null & result.Content != "")
-        //    {
-        //        var resultNative = JsonConvert.DeserializeObject<ApiResponse_account_move_line>(result.Content);
-        //        return resultNative;
-        //    }
-
-        //    return new ApiResponse_account_move_line()
-        //    {
-        //        responseCode = 500,
-        //        message = "Error al obtener datos."
-        //    };
-        //}
-
-        //public async Task<ApiResponse_account_move_line?> __GetAccountMoveLinesByWriteDate_dl(ApiRequestOdoo_v1 apiRequestOdoo_V1, int year, int month, int day)
-        //{
-        //    string _EndPointApi = "/api/account.move.line";
-
-        //    string api_key = _appSession.CurrentUser.api_key;
-        //    //string fields = "fields=['id','move_id','sequence','name','product_id','quantity','price_unit','price_subtotal','discount_balance','price_total','discount_percentage','tax_ids','analytic_line_ids','display_type','account_id','create_date','write_date']";
-        //    string fields = "fields=['id','write_date']";
-        //    //string domains = "domain=[('invoice_date','>=','2023-08-29'),('invoice_date','<=','2023-08-29')]";            
-        //    string domains = $"domain=[('write_date','>','{year}-{month:00}-{day:00} 23:59:59')]";
-        //    //string domains = $"domain=[('id','in',('8471', '8474'))]";
-        //    string limit = $"limit={apiRequestOdoo_V1.limit}";
-
-        //    string offset = $"offset={apiRequestOdoo_V1.index * apiRequestOdoo_V1.limit}";
-        //    string EndPointParams = $"/search?api_key={api_key}&{fields}&{domains}&{limit}&{offset}";
-        //    EndPointParams = $"/search?api_key={api_key}&{fields}&{domains}&{limit}&{offset}";
-
-        //    var restRequest = new RestRequest(_EndPointApi + EndPointParams);
-        //    restRequest.RequestFormat = DataFormat.Json;
-        //    var result = await _client.RestClient().ExecuteGetAsync(restRequest);
-        //    //Console.WriteLine(result);
-
-        //    if (result != null && result.Content != null & result.Content != "")
-        //    {
-        //        var resultNative = JsonConvert.DeserializeObject<ApiResponse_account_move_line>(result.Content);
-        //        return resultNative;
-        //    }
-
-        //    return new ApiResponse_account_move_line()
-        //    {
-        //        responseCode = 500,
-        //        message = "Error al obtener datos."
-        //    };
-        //}
-
-        //public async Task<ApiResponse_account_move_line?> __GetAccountMoveLineByCreateDate_dl(ApiRequestOdoo_v1 apiRequestOdoo_V1, int year, int month, int day)
-        //{
-        //    string _EndPointApi = "/api/account.move.line";
-
-        //    string api_key = _appSession.CurrentUser.api_key;
-        //    //string fields = "fields=['id','move_id','sequence','name','product_id','quantity','price_unit','price_subtotal','discount_balance','price_total','discount_percentage','tax_ids','analytic_line_ids','display_type','account_id','create_date','write_date']";
-        //    string fields = "fields=['id','create_date','write_date']";
-        //    //string domains = "domain=[('invoice_date','>=','2023-08-29'),('invoice_date','<=','2023-08-29')]";            
-        //    string domains = $"domain=[('create_date','>','{year}-{month:00}-{day:00} 23:59:59')]";
-        //    //string domains = $"domain=[('id','in',('8471', '8474'))]";
-        //    string limit = $"limit={apiRequestOdoo_V1.limit}";
-
-        //    string offset = $"offset={apiRequestOdoo_V1.index * apiRequestOdoo_V1.limit}";
-        //    string EndPointParams = $"/search?api_key={api_key}&{fields}&{domains}&{limit}&{offset}";
-        //    EndPointParams = $"/search?api_key={api_key}&{fields}&{domains}&{limit}&{offset}";
-
-        //    var restRequest = new RestRequest(_EndPointApi + EndPointParams);
-        //    restRequest.RequestFormat = DataFormat.Json;
-        //    var result = await _client.RestClient().ExecuteGetAsync(restRequest);
-        //    //Console.WriteLine(result);
-
-        //    if (result != null && result.Content != null & result.Content != "")
-        //    {
-        //        var resultNative = JsonConvert.DeserializeObject<ApiResponse_account_move_line>(result.Content);
-        //        return resultNative;
-        //    }
-
-        //    return new ApiResponse_account_move_line()
-        //    {
-        //        responseCode = 500,
-        //        message = "Error al obtener datos."
-        //    };
-        //}
     }
 }

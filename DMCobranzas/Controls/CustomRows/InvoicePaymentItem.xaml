@@ -30,8 +30,9 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
@@ -40,7 +41,16 @@
                 Text="{Binding invoice_id}"
                 Grid.Row="0"
                 Grid.Column="0"
-                Grid.ColumnSpan="2"
+                Grid.ColumnSpan="0"
+                FontSize="10"
+                FontAttributes="Bold"
+                TextColor="DimGray"/>
+
+            <Label
+                Text="{Binding docnum_mask}"
+                Grid.Row="0"
+                Grid.Column="1"
+                Grid.ColumnSpan="0"
                 FontSize="10"
                 FontAttributes="Bold"
                 TextColor="DimGray"/>
@@ -50,8 +60,8 @@
                 x:Name="labelArticulo"
                 Text="{Binding invoice_name}"
                 Grid.Row="0"
-                Grid.Column="1"
-                Grid.ColumnSpan="2"
+                Grid.Column="2"
+                Grid.ColumnSpan="0"
                 FontSize="12"
                 FontAttributes="Bold"/>
 
@@ -60,7 +70,7 @@
                 x:Name="labelTotal"
                 Text="{Binding amount_total, StringFormat='($ {0:N2})'}"
                 Grid.Row="0"
-                Grid.Column="2"
+                Grid.Column="3"
                 FontSize="12"
                 FontAttributes="Bold"
                 TextColor="Black"/>

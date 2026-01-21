@@ -19,7 +19,7 @@ namespace DMCobranzas.Controls.Modals;
 [XamlCompilation(XamlCompilationOptions.Compile)]
 public partial class AccountPaymentCrud : ContentPage
 {
-    public ObservableCollection<Bank_Id> Banks { get; set; } = new();
+    public ObservableCollection<ResBank> Banks { get; set; } = new();
     public res_partner _res_partner { get; set; }
     public res_partner_bank _res_partner_bank { get; set; }
     //Arreglo representantivo de las lineas de pago
@@ -40,6 +40,7 @@ public partial class AccountPaymentCrud : ContentPage
     List<account_journal> account_Journals { get; set; }
     List<TarjetasCredito> tarjetasItems { get; set; }
     List<TarjetasTipoPago> tarjetasTipoPagoItems { get; set; }
+    List<TarjetasPlazosBanco> plazosBancosItems { get; set; }
 
     private bool LoadingEditionData { get; set; } = false;
     private bool InitializingForm { get; set; } = false;
@@ -277,7 +278,7 @@ public partial class AccountPaymentCrud : ContentPage
         {
             if (_res_partner != null)
             {
-                lblTitle.Text = "EDICIÓN - " + _res_partner.name;
+                lblTitle.Text = "EDICIÓN - " + _res_partner.id + "-" + _res_partner.name;
             }
 
             //await LoadPaymentLinesForEdit();
@@ -352,8 +353,8 @@ public partial class AccountPaymentCrud : ContentPage
         {
             Banks =
             [
-                new Bank_Id { id = 0, name = "No seleccionada" },
-                new Bank_Id { id = -1, name = "🔍 Buscar..." }
+                new ResBank { id = 0, name = "No seleccionada" },
+                new ResBank { id = -1, name = "🔍 Buscar..." }
             ];
 
             foreach (var partnerItem in bankItems)
@@ -383,24 +384,31 @@ public partial class AccountPaymentCrud : ContentPage
 
     private async void DdBankTcId_SelectedItemChanged(object sender, object e)
     {
+        if (LoadingEditionData)
+            return;
+
         await RefreshPlan();
     }
 
     private async void PickerPaymentTypeId_SelectedIndexChanged(object sender, EventArgs e)
     {
+        if (LoadingEditionData)
+            return;
+
         await RefreshPlan();
     }
 
     private async void PickerCardId_SelectedIndexChanged(object sender, EventArgs e)
     {
+        if (LoadingEditionData)
+            return;
+
         await RefreshPlan();
     }
 
     private async Task RefreshPlan()
     {
-        if (LoadingEditionData)
-            return;
-
+        
         int selected_journal = 0;
         int selected_bank = 0;
         //int selected_card = 0;
@@ -413,7 +421,7 @@ public partial class AccountPaymentCrud : ContentPage
         }
         if (ddBankTcId.SelectedItem != null)
         {
-            var bank = (Bank_Id)ddBankTcId.SelectedItem;
+            var bank = (ResBank)ddBankTcId.SelectedItem;
             selected_bank = bank.id;
         }
         //if (pickerCardId.SelectedIndex != -1)
@@ -428,7 +436,7 @@ public partial class AccountPaymentCrud : ContentPage
         }
 
         var tarjetasPlazosBancoDb = new TarjetasPlazosBancoDb(App.Session.odooConnection.DbNameSqlite);
-        var plazosBancosItems = (await tarjetasPlazosBancoDb.GetItemsAsync(
+        plazosBancosItems = (await tarjetasPlazosBancoDb.GetItemsAsync(
             x => x._account_journal_id == selected_journal &&
             x._bank_id == selected_bank &&
             x._pos_tipo_pago == _pos_tipo_pago)).ToList();
@@ -702,7 +710,7 @@ public partial class AccountPaymentCrud : ContentPage
 
         var accMovesByCustomer = await accountMoveDb.GetItemsByPartnerAndCompany(_res_partner, Sel_Company_Id);
 
-        List<MultipleCobrosInvoiceLineAi> accountPaymentInvoiceLineAuxiliars = new List<MultipleCobrosInvoiceLineAi>();
+        List<MultipleCobrosInvoiceLineAi> multipleCobrosInvoiceLinesAiAux = new List<MultipleCobrosInvoiceLineAi>();
 
         decimal totalResidualPayment = 0;
         decimal totalPayment = 0;
@@ -718,10 +726,10 @@ public partial class AccountPaymentCrud : ContentPage
         foreach (var accountMoveItem in accMovesByCustomer)
         {
             lineCounter++;
-            MultipleCobrosInvoiceLineAi accountPaymentInvoiceLineAuxiliar = new MultipleCobrosInvoiceLineAi();
-            accountPaymentInvoiceLineAuxiliar.multiple_cobros_invoice_line_id = accountMoveItem.id;
+            MultipleCobrosInvoiceLineAi cobrosInvoiceLineAiAux = new MultipleCobrosInvoiceLineAi();
+            cobrosInvoiceLineAiAux.multiple_cobros_invoice_line_id = accountMoveItem.id;
 
-            accountPaymentInvoiceLineAuxiliar.invoice_line_id = 0;
+            cobrosInvoiceLineAiAux.invoice_line_id = 0;
 
             AccountMoveLineDb accountMoveLineDb = new AccountMoveLineDb(App.Session.odooConnection.DbNameSqlite);
             //var itemMoveLine = await accountMoveLineDb.GetItemsByParentAsync(accountMoveItem.id);
@@ -730,7 +738,7 @@ public partial class AccountPaymentCrud : ContentPage
 
             if (itemPaymentTerm != null)
             {
-                accountPaymentInvoiceLineAuxiliar.invoice_line_id = itemPaymentTerm.id;
+                cobrosInvoiceLineAiAux.invoice_line_id = itemPaymentTerm.id;
             }
             else
             {
@@ -741,41 +749,39 @@ public partial class AccountPaymentCrud : ContentPage
             }
 
             //accountPaymentInvoiceLineAuxiliar.invoice_line_id_name = accountMoveItem.name;
-            accountPaymentInvoiceLineAuxiliar.invoice_id = accountMoveItem.id;
-            accountPaymentInvoiceLineAuxiliar.invoice_name = accountMoveItem.name;            
-            accountPaymentInvoiceLineAuxiliar.invoice_date = accountMoveItem.invoice_date; 
-            accountPaymentInvoiceLineAuxiliar.invoice_date_due = accountMoveItem.invoice_date_due;
-            //accountPaymentInvoiceLineAuxiliar.invoice_origin = accountMoveItem.invoice_origin;
-            accountPaymentInvoiceLineAuxiliar.amount_asigned = accountMoveItem.amount_total;
-            accountPaymentInvoiceLineAuxiliar.amount_residual = accountMoveItem.amount_residual;
+            cobrosInvoiceLineAiAux.invoice_id = accountMoveItem.id;
+            cobrosInvoiceLineAiAux.invoice_name = accountMoveItem.name;
+            cobrosInvoiceLineAiAux.docnum_mask = accountMoveItem.docnum_mask;
+            cobrosInvoiceLineAiAux.invoice_date = accountMoveItem.invoice_date; 
+            cobrosInvoiceLineAiAux.invoice_date_due = accountMoveItem.invoice_date_due;            
+            cobrosInvoiceLineAiAux.amount_asigned = accountMoveItem.amount_total;
+            cobrosInvoiceLineAiAux.amount_residual = accountMoveItem.amount_residual;
 
-            residualAmount += accountPaymentInvoiceLineAuxiliar.amount_residual;
-
-            //////////////////////////////////////////////////////////////
+            residualAmount += cobrosInvoiceLineAiAux.amount_residual;
 
             totalResidualPayment = totalPayment - totalApplied;
 
-            accountPaymentInvoiceLineAuxiliar.seller = await GetSellerName(accountMoveItem._company_id, accountMoveItem._invoice_user_id);
+            cobrosInvoiceLineAiAux.seller = await GetSellerName(accountMoveItem._company_id, accountMoveItem._invoice_user_id);
             
             if (totalResidualPayment > 0)
             {
                 //valorSaldoDocumento = accountPaymentInvoiceLineAuxiliar.invoice_amount_residual; // (+parseFloat("" + data[i].VALORSALDO.replace(",", "")).toFixed(2) - +parseFloat("" + data[i].VALORCHEQUE.replace(",", "")).toFixed(2)) * 1;
-                totalInvoicePayment = (totalResidualPayment < accountPaymentInvoiceLineAuxiliar.amount_residual) ? totalResidualPayment : accountPaymentInvoiceLineAuxiliar.amount_residual; 
+                totalInvoicePayment = (totalResidualPayment < cobrosInvoiceLineAiAux.amount_residual) ? totalResidualPayment : cobrosInvoiceLineAiAux.amount_residual; 
                 //((valorFaltaAplicar < valorSaldoDocumento) ? valorFaltaAplicar : valorSaldoDocumento);
                 //docItem.VALORXAPLICAR = "" + valorAplicaDocumento;
-                accountPaymentInvoiceLineAuxiliar.amount_asigned = totalInvoicePayment; 
+                cobrosInvoiceLineAiAux.amount_asigned = totalInvoicePayment; 
                 totalApplied += totalInvoicePayment;
             }
             else
             {
-                accountPaymentInvoiceLineAuxiliar.amount_asigned = 0;
+                cobrosInvoiceLineAiAux.amount_asigned = 0;
                 //docItem.BLOQUEADO = "N";
             }
-            accountPaymentInvoiceLineAuxiliars.Add(accountPaymentInvoiceLineAuxiliar);
+            multipleCobrosInvoiceLinesAiAux.Add(cobrosInvoiceLineAiAux);
         }
 
-        accountPaymentInvoiceLineAuxiliars = accountPaymentInvoiceLineAuxiliars.OrderBy(x => x.invoice_date).ToList();
-        multipleCobrosInvoiceLineAi = accountPaymentInvoiceLineAuxiliars.ToArray();
+        multipleCobrosInvoiceLinesAiAux = multipleCobrosInvoiceLinesAiAux.OrderBy(x => x.invoice_date).ToList();
+        multipleCobrosInvoiceLineAi = multipleCobrosInvoiceLinesAiAux.ToArray();
 
         lblCounter.Text = "Total de documentos " + multipleCobrosInvoiceLineAi.Length.ToString();
         lblMonto.Text = "($ " + residualAmount.ToString() + ")";
@@ -862,8 +868,12 @@ public partial class AccountPaymentCrud : ContentPage
 
         var tarjetaTipoPago = tarjetasTipoPagoItems.Where(x => x.id == multipleCobrosInvoiceLine.PaymentTypeId).FirstOrDefault();
         pickerPaymentTypeId.SelectedItem = tarjetaTipoPago;
-        
-        //pickerPlanId.SelectedItem
+
+        await RefreshPlan();
+
+        //var tarjetasPlazosBancoDb = new TarjetasPlazosBancoDb(App.Session.odooConnection.DbNameSqlite);
+        var plazosBancosItem = plazosBancosItems.Where(x => x.id == multipleCobrosInvoiceLine.PlanId).FirstOrDefault();
+        pickerPlanId.SelectedItem = plazosBancosItem;
 
         PartnerBankDb partnerBankDb = new PartnerBankDb(App.Session.odooConnection.DbNameSqlite);
 
@@ -1146,7 +1156,7 @@ public partial class AccountPaymentCrud : ContentPage
                 }
 
                 var CardId = (TarjetasCredito) pickerCardId.SelectedItem;
-                var BankTc = (Bank_Id) ddBankTcId.SelectedItem;
+                var BankTc = (ResBank) ddBankTcId.SelectedItem;
                 var paymentType = (TarjetasTipoPago) pickerPaymentTypeId.SelectedItem;
                 var planTarjetasCredito = (TarjetasPlazosBanco)pickerPlanId.SelectedItem;
 
@@ -1179,11 +1189,11 @@ public partial class AccountPaymentCrud : ContentPage
         //accountPayment.numero_retencion = "0";
         txtMonto.Text = ParseTool.StringValueFix(txtMonto.Text);
 
-        //multipleCobrosInvoiceLine.Amount = (decimal)ParseTool.StringToDouble(txtMonto.Text); //.ToString(App.Session.ApplicationCultureInfo);
-        //multipleCobrosInvoiceLine.Diferencia = multipleCobrosInvoiceLine.Amount;
-
-        multipleCobrosInvoiceLine.Amount = 0;
+        multipleCobrosInvoiceLine.Amount = (decimal)ParseTool.StringToDouble(txtMonto.Text); //.ToString(App.Session.ApplicationCultureInfo);
         multipleCobrosInvoiceLine.Diferencia = 0;
+
+        //multipleCobrosInvoiceLine.Amount = 0;
+        //multipleCobrosInvoiceLine.Diferencia = 0;
 
         List<MultipleCobrosInvoiceLineAi> linesL = new List<MultipleCobrosInvoiceLineAi>();
         if (multipleCobrosInvoiceLineAi != null)

@@ -3,9 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:converters="clr-namespace:DMCobranzas.Converters"
              x:Class="DMCobranzas.Controls.Modals.TabbedPages.AccountPaymentView"
              xmlns:control="clr-namespace:DMCobranzas.Controls"             
              Title="PAGOS">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:TipoEmisionConverter x:Key="TipoEmisionConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <ContentPage.ToolbarItems>
         <ToolbarItem x:Name="btnSave" Text="GUARDAR" Clicked="btnSave_Clicked">
             <ToolbarItem.IconImageSource>
@@ -55,6 +61,8 @@
                     
                     <!--<Label Text="CLIENTE:" VerticalTextAlignment="Center" TextColor="DimGray"></Label>-->
                     <Entry x:Name="txtCliente"
+                           Placeholder="Seleccione un cliente..."
+                           PlaceholderColor="SlateGray"
                            HorizontalOptions="FillAndExpand" 
                            IsReadOnly="True"
                            MinimumWidthRequest="190"
@@ -67,11 +75,31 @@
                         </Entry.GestureRecognizers>
                     </Entry>
 
+                    <Button 
+                         Grid.Column="1"
+                         CornerRadius="5"
+                         Text=""
+                         BackgroundColor="Transparent"                            
+                         Clicked="HandleReturnResultPopupButtonClicked"                         
+                         WidthRequest="2"                         
+                         HeightRequest="2"
+                         Margin="3"
+                         Padding="5">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid"
+								Color="DimGray"
+								Size="12"
+								FontAutoScalingEnabled="True"                                                         
+								Glyph="&#xf002;" />
+                        </Button.ImageSource>
+                    </Button>
+                    
                     <Button
-                        Grid.Column="1"                        
+                        Grid.Column="2"                        
                         WidthRequest="20"                        
                         HeightRequest="20"
                         CornerRadius="5"
+                        Margin="0,0,5,0"
                         x:Name="btnRemoveCustomer" 						
                         Clicked="btnRemoveCustomer_Clicked"                        
 						BackgroundColor="Transparent">
@@ -82,26 +110,7 @@
 											FontAutoScalingEnabled="True"                                                         
 											Glyph="&#xf00d;" />
                         </Button.ImageSource>
-                    </Button>
-
-                    <Button 
-                     Grid.Column="2"
-                     CornerRadius="5"
-                     Text=""
-                         BackgroundColor="Transparent"                            
-                         Clicked="HandleReturnResultPopupButtonClicked"                         
-                         WidthRequest="2"                         
-                         HeightRequest="2"
-                         Margin="3"
-                         Padding="5">
-                        <Button.ImageSource>
-                            <FontImageSource FontFamily="FontAwesome5Solid"
-										Color="DimGray"
-										Size="12"
-										FontAutoScalingEnabled="True"                                                         
-										Glyph="&#xf078;" />
-                        </Button.ImageSource>
-                    </Button>
+                    </Button>                    
                 </Grid>
                 
                 <Button
@@ -166,7 +175,19 @@
                            Grid.ColumnSpan="2"
                            FontAttributes="Bold"
                            TextColor="DimGray" IsVisible="False"></Label>
-                
+
+                    <Label HorizontalOptions="Center" 
+                        Text="Id:" 
+                        VerticalTextAlignment="Center"  
+                        FontAttributes="Bold"
+                        TextColor="DimGray"></Label>
+
+                    <Label HorizontalOptions="Center" 
+                        Text="{Binding Sel_MultipleCobrosInvoice.id}" 
+                        VerticalTextAlignment="Center"  
+                        FontAttributes="Bold"
+                        TextColor="DimGray"></Label>
+
                     <Label HorizontalOptions="Center" 
                         Text="Secuencial Recibo:" 
                         VerticalTextAlignment="Center"  
@@ -174,7 +195,8 @@
                         TextColor="DimGray"></Label>
 
                     <Label HorizontalOptions="Center" 
-                            Text="0001" 
+                           x:Name="lblReceiptReceipt"
+                            Text="0000" 
                             VerticalTextAlignment="Center"  
                             FontAttributes="Bold"
                             TextColor="DimGray"></Label>
@@ -217,8 +239,8 @@
             </Grid>
         </Border>
         
-        <ScrollView VerticalOptions="FillAndExpand">
-            <CollectionView x:Name="collectionView">
+        <!--<ScrollView VerticalOptions="FillAndExpand">-->
+            <CollectionView x:Name="collectionView" SelectionMode="Single">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <SwipeView x:Name="swipeView" IsClippedToBounds="true">
@@ -268,8 +290,8 @@
                                 </SwipeItems>
                             </SwipeView.RightItems>
                             <!-- Content -->
-                            <Border Padding="15" Margin="0" BackgroundColor="WhiteSmoke" StrokeThickness="0.3">
-                                <Grid HorizontalOptions="FillAndExpand" BackgroundColor="WhiteSmoke">
+                            <Border Padding="10" Margin="0" BackgroundColor="Transparent" StrokeThickness="0.3">
+                                <Grid HorizontalOptions="FillAndExpand" BackgroundColor="Transparent">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
@@ -281,7 +303,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <Label Grid.Row="0" Grid.Column="0" Text="{Binding Type}" VerticalOptions="Center"></Label>
+                                    <Label Grid.Row="0" Grid.Column="0" Text="{Binding Type, Converter={StaticResource TipoEmisionConverter}}" VerticalOptions="Center"></Label>
                                     <Label Grid.Row="0" Grid.Column="1" Text="{Binding JournalId}" VerticalOptions="Center"></Label>
                                     <Label Grid.Row="0" Grid.Column="2" Text="{Binding journal_name}" VerticalOptions="Center"></Label>
                                     <Label Grid.Row="0" Grid.Column="3" Text="{Binding Amount, StringFormat='$ {0}'}" VerticalOptions="Center"></Label>
@@ -389,6 +411,6 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-        </ScrollView>
+        <!--</ScrollView>-->
     </StackLayout>
 </ContentPage>

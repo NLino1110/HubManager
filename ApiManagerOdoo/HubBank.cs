@@ -1,6 +1,6 @@
 ﻿using ApiManagerOdoo.Base;
+using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.General.Responses;
-using DMSA.Models.Odoo.Native;
 using DMSA.Models.Security;
 
 
@@ -13,7 +13,10 @@ namespace ApiManager
             "name",
             "street",
             "street2",
-            "city"
+            "city",
+            "bic",
+            "create_date",
+            "write_date",
         };
 
         public HubBank(AppSession _setAppSession) : base(_setAppSession)
@@ -32,7 +35,7 @@ namespace ApiManager
             return await GetCount(args, _custom_args);
         }
 
-        public async Task<ApiResponseOdooRpcT<Bank_Id[]>?> GetAll(string bank_ids)
+        public async Task<ApiResponseOdooRpcT<ResBank[]>?> GetAll(string bank_ids)
         {
             int limit = 100;
             int index = 0;
@@ -50,10 +53,10 @@ namespace ApiManager
                     "id","in",bank_ids
                 },
             };
-            return await SearchRead<ApiResponseOdooRpcT<Bank_Id[]>>(args, _custom_args, kwargs);
+            return await SearchRead<ApiResponseOdooRpcT<ResBank[]>>(args, _custom_args, kwargs);
         }
 
-        public async Task<ApiResponseOdooRpcT<Bank_Id[]>?> GetAll(DateTime dateIni, int limit, int index)
+        public async Task<ApiResponseOdooRpcT<ResBank[]>?> GetAll(DateTime dateIni, int limit, int index)
         {
             var kwargs = new
             {
@@ -66,7 +69,7 @@ namespace ApiManager
             object[] _custom_args = new object[] {
                 
             };
-            return await SearchRead<ApiResponseOdooRpcT<Bank_Id[]>>(args, _custom_args, kwargs, true);
+            return await SearchRead<ApiResponseOdooRpcT<ResBank[]>>(args, _custom_args, kwargs, true);
         }
     }
 }

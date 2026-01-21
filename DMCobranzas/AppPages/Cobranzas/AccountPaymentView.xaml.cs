@@ -34,9 +34,9 @@ public partial class AccountPaymentView : ContentPage
     public MultipleCobrosInvoiceLine[] accountPayments { get; set; } = new MultipleCobrosInvoiceLine[0];
 
     public static readonly BindableProperty _cobReciboCabProperty =
-            BindableProperty.Create(nameof(Sel_AccountPaymentHeader), typeof(MultipleCobrosInvoice), typeof(AccountPaymentView));
+            BindableProperty.Create(nameof(Sel_MultipleCobrosInvoice), typeof(MultipleCobrosInvoice), typeof(AccountPaymentView));
 
-    public MultipleCobrosInvoice Sel_AccountPaymentHeader
+    public MultipleCobrosInvoice Sel_MultipleCobrosInvoice
     {
         get => (MultipleCobrosInvoice)GetValue(_cobReciboCabProperty);
         set => SetValue(_cobReciboCabProperty, value);
@@ -171,7 +171,7 @@ public partial class AccountPaymentView : ContentPage
 
         AccountPaymentCrud obj = new AccountPaymentCrud(Sel_Res_Partner);
         obj.Sel_Company_Id = Sel_Company_Id;
-        obj.multipleCobrosInvoice = Sel_AccountPaymentHeader;
+        obj.multipleCobrosInvoice = Sel_MultipleCobrosInvoice;
         obj.isNewData = true;
 
         //obj._cobCarteraCab = _cobCarteraCab;
@@ -204,7 +204,7 @@ public partial class AccountPaymentView : ContentPage
         obj.isNewData = false;
         obj.multipleCobrosInvoiceLine = (MultipleCobrosInvoiceLine)objParam;
         obj.itemIndex = accountPayments.ToList().IndexOf(obj.multipleCobrosInvoiceLine);
-        obj.multipleCobrosInvoice = Sel_AccountPaymentHeader;
+        obj.multipleCobrosInvoice = Sel_MultipleCobrosInvoice;
 
         //Se asigna la empresa seleccionada
         //obj.empresa = se;
@@ -383,27 +383,28 @@ public partial class AccountPaymentView : ContentPage
         {
             if (Sel_Res_Partner == null)
             {
-                ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
-                //Sel_Res_Partner = await resPartnerDb.GetItem(Sel_AccountPaymentHeader.partner_id);
-                Sel_Res_Partner = await resPartnerDb.GetItemsAsync(Sel_AccountPaymentHeader.company_id, Sel_AccountPaymentHeader.partner_id);
+                ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);                
+                Sel_Res_Partner = await resPartnerDb.GetItemsAsync(Sel_MultipleCobrosInvoice.company_id, Sel_MultipleCobrosInvoice.partner_id);
                 txtCliente.Text = Sel_Res_Partner.id + "-" + Sel_Res_Partner.name;
             }
 
             if (Sel_Company_Id == null)
             {
-                var cemp = App.Session.CurrentUserFront.empresas.Where(c => c.id == Sel_AccountPaymentHeader.company_id).FirstOrDefault();
+                var cemp = App.Session.CurrentUserFront.empresas.Where(c => c.id == Sel_MultipleCobrosInvoice.company_id).FirstOrDefault();
 
                 Sel_Company_Id = new res_company
                 {
-                    id = Sel_AccountPaymentHeader.company_id,
+                    id = Sel_MultipleCobrosInvoice.company_id,
                     name = cemp.name
                 };
 
-                Title = "Pagos-" + Sel_Company_Id.name;
+                Title = "Cobros-" + Sel_Company_Id.name;
             }
 
+            lblReceiptReceipt.Text = Sel_MultipleCobrosInvoice.receipt_receipts_id.ToString();
+
             //if (cobReciboCab != null && cobReciboCab.DETALLESPAGO!=null && cobReciboCab.DETALLESPAGO.Length > 0)
-            if (Sel_AccountPaymentHeader != null)
+            if (Sel_MultipleCobrosInvoice != null)
             {
                 //Si entra en modo edición se bloquea
                 GridPartner.IsEnabled = false;
@@ -411,7 +412,7 @@ public partial class AccountPaymentView : ContentPage
                 //dataItems = new CobReciboDet[0];
                 //var ls_dataItems = JsonConvert.DeserializeObject<List<AccountPayment>>(cobReciboCab.DETALLESPAGO);
                 var accountPaymentDb = new MultipleCobrosInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
-                var ls_accountPayments = await accountPaymentDb.GetItemsAsync(x=>x.MultipleCobrosInvoiceId == Sel_AccountPaymentHeader.id);
+                var ls_accountPayments = await accountPaymentDb.GetItemsAsync(x=>x.MultipleCobrosInvoiceId == Sel_MultipleCobrosInvoice.id);
                 accountPayments = ls_accountPayments.ToArray();
 
                 var accountPaymentLines = new MultipleCobrosInvoiceLineAiDb(App.Session.odooConnection.DbNameSqlite);
@@ -489,7 +490,7 @@ public partial class AccountPaymentView : ContentPage
         //var cliente = dataResult.Where(cc => cc.CODEMPRESA == _cobCarteraCab.CODEMPRESA &&
         //cc.CODCLIENTE == _cobCarteraCab.CODCLIENTE).FirstOrDefault();
 
-        if (Sel_AccountPaymentHeader != null)
+        if (Sel_MultipleCobrosInvoice != null)
         {
             //TODO: SI GUARDA Y SE ENVÍA CON LA FECHA CORTADA NO GUARDA BIEN EL API
             // NO CORTAR LA FECHA AQUÍ
@@ -499,13 +500,13 @@ public partial class AccountPaymentView : ContentPage
             
             //Guardar info
             MultipleCobrosInvoice accountPaymentHeader = new MultipleCobrosInvoice();
-            accountPaymentHeader.company_id = Sel_AccountPaymentHeader.company_id;
+            accountPaymentHeader.company_id = Sel_MultipleCobrosInvoice.company_id;
 
             //Update
-            if (Sel_AccountPaymentHeader != null)
+            if (Sel_MultipleCobrosInvoice != null)
             {
-                accountPaymentHeader.recipe_name = Sel_AccountPaymentHeader.recipe_name;
-                accountPaymentHeader.id = Sel_AccountPaymentHeader.id;
+                accountPaymentHeader.recipe_name = Sel_MultipleCobrosInvoice.recipe_name;
+                accountPaymentHeader.id = Sel_MultipleCobrosInvoice.id;
             }
 
             accountPaymentHeader.date = fechaActual;
@@ -515,13 +516,13 @@ public partial class AccountPaymentView : ContentPage
             accountPaymentHeader.center_id = App.Session.odooConnection.res_center_default;
             accountPaymentHeader.subclasificacion_gasto_id = subclasificacion_gasto_id_default;
 
-            accountPaymentHeader.partner_id = Sel_AccountPaymentHeader.partner_id;
-            accountPaymentHeader.partner_name = Sel_AccountPaymentHeader.partner_name;
+            accountPaymentHeader.partner_id = Sel_MultipleCobrosInvoice.partner_id;
+            accountPaymentHeader.partner_name = Sel_MultipleCobrosInvoice.partner_name;
             accountPaymentHeader.amount = (float) totalPagado; //.ToString(App.Session.ApplicationCultureInfo);
-            accountPaymentHeader.total_due = Sel_AccountPaymentHeader.total_due;
+            accountPaymentHeader.total_due = Sel_MultipleCobrosInvoice.total_due;
             accountPaymentHeader.payment_status = DMSA.Models.CobrosEstados.PENDIENTE;
             //
-            accountPaymentHeader.partner_email = Sel_AccountPaymentHeader.partner_email;
+            accountPaymentHeader.partner_email = Sel_MultipleCobrosInvoice.partner_email;
             accountPaymentHeader.CERRADO = "N";
             accountPaymentHeader.user_name = App.Session.CurrentUserFront.nombres;
             accountPaymentHeader.state = "draft";
@@ -681,7 +682,8 @@ public partial class AccountPaymentView : ContentPage
     private void btnRemoveCustomer_Clicked(object sender, EventArgs e)
     {
         //_res_partnerItem = null;
-        txtCliente.Text = "<NO SELECCIONADO>";
+        txtCliente.Text = "";
+        //txtCliente.Placeholder = "Seleccione un cliente...";
         //ClearItems();
     }
 

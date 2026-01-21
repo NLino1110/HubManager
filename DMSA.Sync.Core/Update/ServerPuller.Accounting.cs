@@ -759,12 +759,6 @@ namespace DMSA.Sync.Core.Update
 
             obj.SetPercentProgress(0.10);
 
-            //_appSession.EndPointServer = "http://192.168.204.32:8069";
-            //_appSession.CurrentUser = new User()
-            //{
-            //    api_key = "110C6C7QU1YSWT6HW0MNXWL48L7802TG"
-            //};
-
             DateTime dateTimeIni = DateTime.Now;
 
             //await ProcessFacHeaderOdoo(_appSession, apiRequest);

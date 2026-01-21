@@ -74,7 +74,7 @@ namespace DMSA.Sync.Core.Update.Pusher
                 if (receiptLines.Count > 0)
                 {
                     _accountPaymentHeader.receipt_receipts_id = receiptLines[0]._receipt_receipts_id;
-                    _accountPaymentHeader.receipt_receipts_line_id = receiptLines[0].number_seq;
+                    _accountPaymentHeader.receipt_receipts_line_id = receiptLines[0].id;
                     _accountPaymentHeader.recipe_name = cobReciboCabDb.BuildName(_accountPaymentHeader, user_name, _accountPaymentHeader.receipt_receipts_line_id);
 
                     await cobReciboCabDb.UpdateAsync(_accountPaymentHeader);
@@ -179,23 +179,18 @@ namespace DMSA.Sync.Core.Update.Pusher
                     //  ]
                     //]
 
-                    List<object> listLines = new List<object>();
+                    var listLines = new List<MultipleCobrosInvoiceLineAiWrapper>();
 
                     foreach (var line in payment.lines)
                     {
-                        listLines.Add(new List<object>
-                        {
-                            0,
-                            0,
-                            line
-                        });
+                        listLines.Add(new MultipleCobrosInvoiceLineAiWrapper(line));
                     }
 
-                    payment.lines_obj = listLines;
+                    payment.MultipleCobrosInvoiceLineAi = listLines;
                 }
                 else
                 {
-                    payment.lines_obj = new List<object>();
+                    payment.MultipleCobrosInvoiceLineAi = new List<MultipleCobrosInvoiceLineAiWrapper>();
                 }
 
                 //TODO: Verificar si esta linea es necesaria
@@ -275,16 +270,21 @@ namespace DMSA.Sync.Core.Update.Pusher
                 {
                     JsonSerializerSettings settings = new JsonSerializerSettings();
                     settings.DateFormatString = "yyyy-MM-dd HH:mm:ss";
-                    settings.ContractResolver = new IncludeJsonIgnoreResolver();
+                    //settings.ContractResolver = new IncludeJsonIgnoreResolver();
+                    //multiple_cobros_invoice_line_ai
+                    settings.ContractResolver = new IgnorePropertyResolver("multiple_cobros_invoice_line_ai");
 
-                    Console.WriteLine(paymentItem);
+                    //Console.WriteLine(paymentItem);
 
                     string jsonPaymentItem = JsonConvert.SerializeObject(paymentItem, settings);
                     MultipleCobrosInvoiceLine objPaymentSend = JsonConvert.DeserializeObject<MultipleCobrosInvoiceLine>(jsonPaymentItem, settings);
 
                     string JsonAccountPaymentSendLines = JsonConvert.SerializeObject(paymentItem.lines, settings);
                     objPaymentSend.lines = JsonConvert.DeserializeObject<MultipleCobrosInvoiceLineAi[]>(JsonAccountPaymentSendLines);
-                    paymentSendList.Add(objPaymentSend);
+
+                    //paymentSendList.Add(objPaymentSend);
+
+                    paymentSendList.Add(paymentItem);
                 }
 
                 paymentSend = paymentSendList.ToArray();
@@ -297,22 +297,22 @@ namespace DMSA.Sync.Core.Update.Pusher
                 //{
                     foreach (var payment in paymentSend)
                     {
-                        var lines = payment.lines;
-                        payment.lines = Array.Empty<MultipleCobrosInvoiceLineAi>();
+                        //var lines = payment.lines;
+                        //payment.lines = Array.Empty<MultipleCobrosInvoiceLineAi>();
                         payment.MultipleCobrosInvoiceId = resultTask.result[0].id;
 
                         var paymentsResult = await accountPaymentHeader.SendPayments(payment);
                         
                         if (paymentsResult != null && paymentsResult.result != null && paymentsResult.result.Count > 0)
                         {
-                            if (lines != null)
-                            {
-                                foreach (var paymentLine in lines)
-                                {
-                                    //paymentLine.multiple_cobros_invoice_line_id = paymentsResult.result;
-                                    //var lineResult = await accountPaymentHeader.SendPaymentsInvoiceLine(paymentLine);
-                                }
-                            }
+                            //if (lines != null)
+                            //{
+                            //    foreach (var paymentLine in lines)
+                            //    {
+                            //        //paymentLine.multiple_cobros_invoice_line_id = paymentsResult.result;
+                            //        //var lineResult = await accountPaymentHeader.SendPaymentsInvoiceLine(paymentLine);
+                            //    }
+                            //}
                         }
                     }
                 //}

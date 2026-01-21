@@ -26,6 +26,10 @@
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
     <AndroidSigningKeyStore>upload-keystore.jks</AndroidSigningKeyStore>
   </PropertyGroup>
+	<PropertyGroup>
+		<AndroidUseAapt2>true</AndroidUseAapt2>
+		<AndroidAapt2Version>7.4.2</AndroidAapt2Version>		
+	</PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|AnyCPU'">
     <AndroidKeyStore>True</AndroidKeyStore>
     <AndroidSigningStorePass>2appmujeresapp022</AndroidSigningStorePass>

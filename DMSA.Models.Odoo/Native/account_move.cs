@@ -18,12 +18,13 @@ namespace DMSA.Models.Odoo.Native
         [PrimaryKey]
         public int id { get; set; }
         [JsonProperty("name")]
-        public string name { get; set; }
-        
+        public string name { get; set; }        
         public string invoice_origin { get; set; }
+        public string docnum_mask { get; set; }
         public DateTime invoice_date { get; set; }
         public DateTime invoice_date_due { get; set; }
         public string payment_state { get; set; }
+        public string state { get; set; }
         public string move_type { get; set; }
         public string l10n_ec_authorization_number { get; set; }
 

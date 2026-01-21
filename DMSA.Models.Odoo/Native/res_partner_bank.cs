@@ -82,14 +82,7 @@ namespace DMSA.Models.Odoo.Native
     //    public int id { get; set; }
     //    public string name { get; set; }
     //}
-
-    public class Bank_Id
-    {
-        [PrimaryKey]
-        public int id { get; set; }
-        public string name { get; set; }
-    }
-
+    
     public class Currency_Id
     {
         [PrimaryKey]

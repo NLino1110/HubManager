@@ -1,4 +1,5 @@
 ﻿using CobranzasDMSA_Odoo.Models;
+using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.Native;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,6 @@ namespace DMSA.Models.Odoo.General.Responses
     [Obsolete("Debe ser eliminado.")]
     public class ApiResponseBank: ApiResponseOdoo
     {        
-        public Bank_Id[] data { get; set; }
+        public ResBank[] data { get; set; }
     }
 }

@@ -452,7 +452,7 @@ public partial class CobranzasPage : ContentPage
         AccountPaymentView objPage = new AccountPaymentView();
         
         objPage.Disappearing += NewPayment_Disappearing;
-        objPage.Sel_AccountPaymentHeader = (MultipleCobrosInvoice)obj;
+        objPage.Sel_MultipleCobrosInvoice = (MultipleCobrosInvoice)obj;
         objPage.editionMode = true;        
 
         //CobrosTabs objPage = new CobrosTabs();

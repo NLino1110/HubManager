@@ -160,7 +160,8 @@ namespace ApiManager
             return await CallMethod<ApiResponseOdooRpcT<List<OdooRpcResultInt>>>(EndPointApi, Method.Post, args, kwargs, "multiple.cobros.invoice.line", "web_save");
         }
 
-        public async Task<ApiResponseOdooRpcT<int>?> SendPaymentsInvoiceLine(MultipleCobrosInvoiceLineAi SendObject)
+        
+        public async Task<ApiResponseOdooRpcT<int>?> SendPaymentsInvoiceLineAi(MultipleCobrosInvoiceLineAi SendObject)
         {            
             var kwargs = new { };
 

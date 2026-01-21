@@ -314,7 +314,7 @@ public partial class UpdateData : ContentPage
     private async void UploadData(object sender, EventArgs e)
     {
         bool answer = await DisplayAlert("Enviar datos al servidor?",
-            "Esto realizar� la sincronizaci�n con el servidor (Odoo).",
+            "Esto realizará la sincronización con el servidor (Odoo).",
             "Sincronizar",
             "Cancelar");
         //Debug.WriteLine("Answer: " + answer);
@@ -402,7 +402,7 @@ public partial class UpdateData : ContentPage
             BoxViewServerStatusOdoo.Color = Colors.SaddleBrown;
             lblServerStatusOdoo.Text = "Servidor Odoo (x)";
 
-            await obj.DisplayAlert("Error de actualizaci�n", "El servidor de datos no est� disponible.", "Aceptar");
+            await obj.DisplayAlert("Error de actualización", "El servidor de datos no está disponible.", "Aceptar");
             await Navigation.PopModalAsync();           
         }
 

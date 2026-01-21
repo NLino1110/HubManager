@@ -1,14 +1,26 @@
 ﻿using DMSA.Models.Odoo.Base;
+using DMSA.Models.Odoo.Native;
 using Newtonsoft.Json;
 using SQLite;
 
 namespace DMSA.Models.Odoo.DebitCollection
 {
+    public class MultipleCobrosInvoiceLineAiWrapper : List<object>
+    {
+        public MultipleCobrosInvoiceLineAiWrapper(MultipleCobrosInvoiceLineAi line)
+        {
+            Add(0);
+            Add(0);
+            Add(line);
+        }
+    }
+
     [Table("multiple_cobros_invoice_line_ai")]
     public class MultipleCobrosInvoiceLineAi : OdooEntity
     {
         [PrimaryKey]
         [AutoIncrement]
+        [JsonProperty("id")]
         [Column("id")]
         public int Id { get; set; }
 
@@ -18,9 +30,12 @@ namespace DMSA.Models.Odoo.DebitCollection
         [JsonProperty("invoice_id")]
         [Column("invoice_id")]
         public int invoice_id { get; set; }
+
+        [JsonIgnore]
         [JsonProperty("invoice_name")]
         [Column("invoice_name")]
         public string invoice_name { get; set; }
+
         [JsonProperty("invoice_line_id")]
         [Column("invoice_line_id")]
         public int invoice_line_id { get; set; }
@@ -46,12 +61,18 @@ namespace DMSA.Models.Odoo.DebitCollection
         [Column("type_invoice")]
         public string type_invoice { get; set; } //out_invoice
 
+        [JsonIgnore]
         public DateTime invoice_date { get; set; }
+        [JsonIgnore]
         public DateTime invoice_date_due { get; set; }
 
-
+        [JsonIgnore]
         [JsonProperty("seller")]
         [Column("seller")]
         public string seller { get; set; }
+                
+        [JsonIgnore]
+        [Column("docnum_mask")]
+        public string docnum_mask { get; set; }
     }
 }
