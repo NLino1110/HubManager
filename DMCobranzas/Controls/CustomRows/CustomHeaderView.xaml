@@ -10,11 +10,10 @@
         Margin="0"
         Padding="0">
         <Border
-            BackgroundColor="SlateGray"
-            StrokeThickness="0.2"
+            BackgroundColor="GhostWhite"
+            StrokeThickness="0.1"
             Padding="0"
-            Margin="0"
-            HeightRequest="35"
+            Margin="0"            
             VerticalOptions="Center">
 
             <Grid Padding="0" ColumnSpacing="0">
@@ -31,7 +30,7 @@
                 <Label
                     Grid.Column="0"
                     Text="{Binding BindingContext.Title, Source={x:Reference Root}}"
-                    TextColor="WhiteSmoke"
+                    TextColor="LightSlateGray"
                     FontSize="14"
                     FontAttributes="Bold"
                     VerticalOptions="Center"
@@ -67,11 +66,12 @@
                         VerticalOptions="Start"                        
                         CornerRadius="2"
                         BorderColor="DodgerBlue"
-                        BorderWidth="1"
-                        BackgroundColor="GhostWhite"
+                        BorderWidth="0.5"
+                        BackgroundColor="White"
                         FontAttributes="Bold"
                         FontSize="8"
-                        TextColor="DodgerBlue"                    
+                        TextColor="DodgerBlue"
+                        Padding="5"
                         IsVisible="{Binding ShowButton1, Source={x:Reference Root}}"
                         Command="{Binding Button1Command, Source={x:Reference Root}}"
                         CommandParameter="{Binding CommandParameter, Source={x:Reference Root}}" />
@@ -80,12 +80,13 @@
                         Text="CIERRE"
                         CornerRadius="2"
                         BorderColor="DodgerBlue"
-                        BorderWidth="1"
-                        BackgroundColor="GhostWhite"
+                        BorderWidth="0.5"
+                        BackgroundColor="White"
                         FontAttributes="Bold"
                         FontSize="8"
                         TextColor="DodgerBlue"
                         Margin="0"
+                        Padding="5"
                         IsVisible="{Binding ShowButton2, Source={x:Reference Root}}"
                         Command="{Binding Button2Command, Source={x:Reference Root}}"
                         CommandParameter="{Binding CommandParameter, Source={x:Reference Root}}" />

@@ -507,17 +507,16 @@ public partial class CobranzasPage : ContentPage
                     }   
                 }
                 break;
-            case "AccountPaymentHeader":
+            case "MultipleCobrosInvoice":
                 {
                     //printTemplate = await processor.Template_CobReciboCab((AccountPaymentHeader)obj);
                     printTemplate = await processor.Template_AccountPaymentHeader_v2((MultipleCobrosInvoice)obj);
-                    var _itemGroup = (AccountPaymentHeader)obj;
+                    var _itemGroup = (MultipleCobrosInvoice)obj;
                     
                     res_company[] Empresas = null;
                     Empresas = App.Session.CurrentUserFront.empresas;
                     var res_CompanyData = Empresas.ToList().Where(i => i.id == _itemGroup.company_id).FirstOrDefault();
-                    objPage.res_Company = res_CompanyData;
-                        
+                    objPage.res_Company = res_CompanyData;                        
                 }
                 break;
         }

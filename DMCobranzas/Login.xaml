@@ -36,10 +36,18 @@
     <!--<ScrollView>-->        
         <Grid>            
             <!-- Fondo -->
-            <Image Source="logo_macronegocios.png"
+        <Image Source="logo_macronegocios.png"
+           Aspect="AspectFit"
+           Opacity="0.3"
+           WidthRequest="250"           
+           HorizontalOptions="Center"
+           VerticalOptions="Start"
+           Margin="10"/>
+            
+        <!--<Image Source="logo_macronegocios.png"
                    Aspect="AspectFill"
                    Opacity="0.3"
-                   Margin="-50"/>
+                   Margin="-50"/>-->
 
             <VerticalStackLayout VerticalOptions="Center" Padding="10" Spacing="10">
                 <!-- Panel de contenido -->

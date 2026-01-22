@@ -110,8 +110,8 @@ namespace DMSA.Models.Odoo.Abstract
                     Id = 1,
                     CompanyId = 1,
                     Name = "Macronegocios Test",
-                    Host = "https://www.dmujeressa.ec/",
-                    DbName = "dmujerestest",
+                    Host = "https://qa.dmujeressa.ec/",
+                    DbName = "qa",
                     Username = "admin",
                     Password = CryptoHelper.Encrypt("demo"),
                     Active = true,
@@ -121,8 +121,8 @@ namespace DMSA.Models.Odoo.Abstract
                     IsProduction = false,
                     IsTestMode = true,
                     DataToleranceDays = 365,
-                    sale_channel_default = 8,
-                    res_center_default = 49,
+                    sale_channel_default = 3,
+                    res_center_default = 2,
                     prefix_db = "test_"
                 }
             );

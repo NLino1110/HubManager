@@ -6,27 +6,33 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:control="clr-namespace:DMCobranzas.Controls"
              xmlns:controlLite="clr-namespace:DMCobranzas.Controls.CustomRows"
-             Title="Cobro">    
-    <!--<ContentPage.ToolbarItems>-->
-        <!--<ToolbarItem x:Name="btnSave" Text="GUARDAR ABONO" Clicked="btnSave_Clicked">
+             Title="Cobro">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem x:Name="btnSaveTool" Order="Primary" Priority="0" Text="GUARDAR" Clicked="btnSave_Clicked">            
             <ToolbarItem.IconImageSource>
                 <FontImageSource FontFamily="FontAwesome5Solid"
                                  Glyph="&#xf0c7;"
-                                 Color="White" />
-                --><!-- Icono de notificaciones --><!--
+                                 Color="White" />                 
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
-        <ToolbarItem x:Name="btnCancel" Text="CANCELAR" Clicked="btnCancel_Clicked">
+        <ToolbarItem x:Name="btnCancelTool" Order="Primary" Priority="1" Text="SALIR" Clicked="btnCancel_Clicked">
             <ToolbarItem.IconImageSource>
                 <FontImageSource FontFamily="FontAwesome5Solid"
                                  Glyph="&#xf410;"
-                                 Color="White" />
-                --><!-- Icono de notificaciones --><!--
+                                 Color="White" />                 
             </ToolbarItem.IconImageSource>
-        </ToolbarItem>-->
-    <!--</ContentPage.ToolbarItems>-->
+        </ToolbarItem>
+        <ToolbarItem Text="Guardar"
+                 Order="Secondary"
+                 Clicked="btnSave_Clicked"/>
+
+        <ToolbarItem Text="Salir"
+                 Order="Secondary"
+                 Clicked="btnCancel_Clicked"/>
+
+    </ContentPage.ToolbarItems>
     <Grid RowDefinitions="Auto,*" ColumnDefinitions="*">
-        <AbsoluteLayout Margin="0" MinimumHeightRequest="0" Padding="0" BackgroundColor="{StaticResource Primary}" ZIndex="10">            
+        <AbsoluteLayout Margin="0" MinimumHeightRequest="0" Padding="0" BackgroundColor="{StaticResource Primary}" ZIndex="100" IsVisible="True">            
             <StackLayout Orientation="Horizontal"
                          AbsoluteLayout.LayoutFlags="All"
                          AbsoluteLayout.LayoutBounds="0, 0.30, 1, 0.5"

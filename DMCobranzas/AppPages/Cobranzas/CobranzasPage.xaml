@@ -57,10 +57,7 @@
 
         <AbsoluteLayout x:Name="_absoluteLayout" HorizontalOptions="Center" VerticalOptions="Center" BackgroundColor="GhostWhite">
         </AbsoluteLayout>
-        <!--<RefreshView x:Name="refreshView"
-                     IsRefreshing="{Binding IsRefreshing}"
-                        Command="{Binding RefreshCommand}">-->
-        
+                
             <CollectionView x:Name="collectionView"
                             ItemsSource="{Binding _items}" 
                             IsGrouped="True"
@@ -69,18 +66,12 @@
                             SelectionMode="Single"
                             EmptyView="No existen datos para mostrar..." Margin="5">
                     <CollectionView.GroupHeaderTemplate>
-                        <DataTemplate>
-                            <!--<control:CustomHeaderView Title="{x:Binding Title}"
-                                                  CommandParameter="{Binding .}"
-                                                  ShowButton2="{x:Binding showButtonCierre}"
-                                                  Button1Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ReporteDiaCommand}"
-                                                  Button2Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CerrarDiaCommand}">
-                            </control:CustomHeaderView>-->
+                        <DataTemplate>                           
                         <controlCustom:CustomHeaderView Title="{x:Binding Title}"
-                      CommandParameter="{Binding .}"
-                      ShowButton2="{x:Binding showButtonCierre}"
-                      Button1Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ReporteDiaCommand}"
-                      Button2Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CerrarDiaCommand}">
+                              CommandParameter="{Binding .}"
+                              ShowButton2="{x:Binding showButtonCierre}"
+                              Button1Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ReporteDiaCommand}"
+                              Button2Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CerrarDiaCommand}">
                         </controlCustom:CustomHeaderView>
                     </DataTemplate>
                     </CollectionView.GroupHeaderTemplate>
@@ -93,7 +84,21 @@
                     </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-            
-        <!--</RefreshView>-->
+
+        <!--<Grid
+    BackgroundColor="#80000000"
+    IsVisible="{Binding IsLoading}"
+    VerticalOptions="Fill"
+    HorizontalOptions="Fill"
+    ZIndex="10">
+            <ActivityIndicator 
+        IsRunning="{Binding IsLoading}" 
+        Color="MediumVioletRed"
+        WidthRequest="100"
+        HeightRequest="100"
+        VerticalOptions="Center"
+        HorizontalOptions="Center" />
+        </Grid>-->
+        
     </StackLayout>
 </ContentPage>
