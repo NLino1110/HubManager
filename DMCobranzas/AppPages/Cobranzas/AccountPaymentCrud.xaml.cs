@@ -144,8 +144,8 @@ public partial class AccountPaymentCrud : ContentPage
             if (leave)
             {
                 //await Navigation.PushAsync(new MainPage());
-                base.OnBackButtonPressed();
-                //await Navigation.PopModalAsync();
+                //base.OnBackButtonPressed();
+                await Navigation.PopAsync();                
             }
         });
 
@@ -278,7 +278,7 @@ public partial class AccountPaymentCrud : ContentPage
         {
             if (_res_partner != null)
             {
-                lblTitle.Text = "EDICIÓN - " + _res_partner.id + "-" + _res_partner.name;
+                Title = "EDICIÓN - " + _res_partner.id + "-" + _res_partner.name;
             }
 
             //await LoadPaymentLinesForEdit();
@@ -294,7 +294,7 @@ public partial class AccountPaymentCrud : ContentPage
         {
             if (_res_partner != null)
             {
-                lblTitle.Text = "NUEVO - " + _res_partner.name;
+                Title = "NUEVO - " + _res_partner.name;
             }
 
             //await LoadPaymentLinesForNew();
@@ -1155,6 +1155,12 @@ public partial class AccountPaymentCrud : ContentPage
                     return;
                 }
 
+                if(txtBinTc.Text.Trim().Length < 6)
+                {
+                    await Toast.Make("Ingrese al menos 6 dígitos para el BIN.").Show();
+                    return;
+                }
+
                 var CardId = (TarjetasCredito) pickerCardId.SelectedItem;
                 var BankTc = (ResBank) ddBankTcId.SelectedItem;
                 var paymentType = (TarjetasTipoPago) pickerPaymentTypeId.SelectedItem;
@@ -1163,7 +1169,7 @@ public partial class AccountPaymentCrud : ContentPage
                 multipleCobrosInvoiceLine.CardId = CardId.id;
                 multipleCobrosInvoiceLine.BankTcId = BankTc.id;
                 multipleCobrosInvoiceLine.PaymentTypeId = paymentType.id;
-                multipleCobrosInvoiceLine.PlanId = planTarjetasCredito.id;                
+                multipleCobrosInvoiceLine.PlanId = planTarjetasCredito.id;
             }
 
             if (selPaymentM.name == "check_day" || selPaymentM.name == "check") // && aplica_cheque
@@ -1218,7 +1224,7 @@ public partial class AccountPaymentCrud : ContentPage
 
         Debug.WriteLine("Guardar Datos");
         saveData = true;
-        await Navigation.PopModalAsync();
+        await Navigation.PopAsync();
     }
     
     private async void btnCancel_Clicked(object sender, EventArgs e)

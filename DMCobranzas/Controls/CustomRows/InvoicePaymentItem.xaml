@@ -4,147 +4,112 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:converters="clr-namespace:DMCobranzas.Converters"
              x:Class="DMCobranzas.Controls.CustomRows.InvoicePaymentItem">
+
     <ContentView.Resources>
         <ResourceDictionary>
             <converters:DateToDaysConverter x:Key="DateToDaysConverter" />
         </ResourceDictionary>
     </ContentView.Resources>
+
     <Border
-        StrokeThickness="0.2"
+        StrokeThickness="0.1"
         Padding="2"
-        Margin="1"
-        BackgroundColor="Transparent"        
-        MinimumHeightRequest="30">
-        <Grid            
-            HorizontalOptions="Fill">
+        Margin="2"
+        BackgroundColor="Transparent"
+        MinimumHeightRequest="70">
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+        <!-- GRID PRINCIPAL -->
+        <Grid ColumnDefinitions="*,80,50"
+              RowDefinitions="Auto">
 
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+            <!-- ===================== -->
+            <!-- BLOQUE DE INFORMACIÓN -->
+            <!-- ===================== -->
+            <Grid Grid.Column="0"
+                  RowDefinitions="Auto,Auto,Auto,Auto"
+                  ColumnDefinitions="Auto,Auto,*">
 
-            <Label
-                Text="{Binding invoice_id}"
-                Grid.Row="0"
-                Grid.Column="0"
-                Grid.ColumnSpan="0"
-                FontSize="10"
-                FontAttributes="Bold"
-                TextColor="DimGray"/>
+                <!-- Fila 1 -->
+                <!--<Label Text="{Binding invoice_id}"
+                       FontSize="10"
+                       FontAttributes="Bold"
+                       TextColor="DimGray"/>-->
 
-            <Label
-                Text="{Binding docnum_mask}"
-                Grid.Row="0"
-                Grid.Column="1"
-                Grid.ColumnSpan="0"
-                FontSize="10"
-                FontAttributes="Bold"
-                TextColor="DimGray"/>
+                <Label Text="{Binding docnum_mask}"
+                       Grid.Column="1"
+                       FontSize="11"
+                       FontAttributes="Bold"
+                       TextColor="DimGray"/>
 
-            <!-- Documento -->
-            <Label
-                x:Name="labelArticulo"
-                Text="{Binding invoice_name}"
-                Grid.Row="0"
-                Grid.Column="2"
-                Grid.ColumnSpan="0"
-                FontSize="12"
-                FontAttributes="Bold"/>
+                <!--<Label Text="{Binding invoice_name}"
+                       Grid.Column="2"
+                       FontSize="12"
+                       FontAttributes="Bold"
+                       LineBreakMode="TailTruncation"/>-->
 
-            <!-- Total -->
-            <Label
-                x:Name="labelTotal"
-                Text="{Binding amount_total, StringFormat='($ {0:N2})'}"
-                Grid.Row="0"
-                Grid.Column="3"
-                FontSize="12"
-                FontAttributes="Bold"
-                TextColor="Black"/>
+                <!-- Fila 2 -->
+                <Label Grid.Row="1"
+                       Grid.ColumnSpan="3"
+                       Text="{Binding seller, StringFormat='VEND: {0}'}"
+                       FontSize="11"
+                       FontAttributes="Bold"/>
 
-            <!-- Vendedor -->
-            <Label
-                x:Name="labelVendedor"
-                Text="{Binding seller, StringFormat='VEND: {0}'}"
-                Grid.Row="1"
-                Grid.Column="0"
-                Grid.ColumnSpan="3"
-                FontSize="12"
-                FontAttributes="Bold"/>
+                <!-- Fila 3 -->
+                <StackLayout Grid.Row="2"
+                             Grid.ColumnSpan="3"
+                             Orientation="Horizontal"
+                             Spacing="10">
 
-            <!-- Fecha -->
-            <Label
-                x:Name="labelFechaRegistro"
-                Text="{Binding invoice_date, StringFormat='FECHA: {0:dd/MM/yyyy}'}"
-                Grid.Row="2"
-                Grid.Column="0"
-                FontSize="12"
-                FontAttributes="Bold"/>
+                    <Label Text="{Binding invoice_date, StringFormat='FECHA: {0:dd/MM/yyyy}'}"
+                           FontSize="11"
+                           FontAttributes="Bold"/>
 
-            <!-- Días -->
-            <Label
-                x:Name="labelDias"
-                Text="{Binding invoice_date, Converter={StaticResource DateToDaysConverter}, StringFormat='(DIAS: {0})'}"
-                Grid.Row="2"
-                Grid.Column="1"
-                Margin="5,0,0,0"
-                FontSize="12"
-                FontAttributes="Bold"/>
+                    <Label Text="{Binding invoice_date, Converter={StaticResource DateToDaysConverter}, StringFormat='DIAS: {0}'}"
+                           FontSize="11"
+                           FontAttributes="Bold"/>
+                </StackLayout>
 
-            <!-- Saldo -->
-            <Label
-                x:Name="labelAmountResidual"
-                Text="{Binding amount_residual, StringFormat='SALDO: ${0:N2}'}"
-                Grid.Row="3"
-                Grid.Column="0"
-                FontSize="12"
-                FontAttributes="Bold"
-                TextColor="Red"/>
+                <!-- Fila 4 -->
+                <Label Grid.Row="3"
+                       Grid.ColumnSpan="3"
+                       Text="{Binding amount_residual, StringFormat='SALDO: $ {0:N2}'}"
+                       FontSize="12"
+                       FontAttributes="Bold"
+                       TextColor="Red"/>
+            </Grid>
 
-            <!-- Importe -->
-            <Entry
-                x:Name="entryPagoImporte"
-                Text="{Binding amount_asigned}"
-                Grid.Column="5"
-                Grid.RowSpan="4"
-                WidthRequest="75"
-                HeightRequest="40"
-                Keyboard="Numeric"
-                HorizontalTextAlignment="End"
-                Placeholder="Pago"
-                TextChanged="EntryPagoImporte_TextChanged"/>
+            <!-- ========= -->
+            <!-- ENTRY     -->
+            <!-- ========= -->
+            <Entry Grid.Column="1"
+                   x:Name="entryPagoImporte"
+                   Text="{Binding amount_asigned}"
+                   WidthRequest="75"
+                   HeightRequest="40"
+                   Keyboard="Numeric"
+                   HorizontalTextAlignment="End"
+                   VerticalOptions="Center"
+                   Placeholder="Pago"
+                   TextChanged="EntryPagoImporte_TextChanged"/>
 
-            <!-- Botón limpiar -->
-            <Button
-                Grid.Column="6"
-                Grid.RowSpan="4"
-                WidthRequest="40"
-                HeightRequest="35"
-                CornerRadius="25"
-                BackgroundColor="OrangeRed"
-                Command="{Binding ClearValueCommand, Source={x:Reference Name=ThisRow}}"
-                CommandParameter="{Binding .}"
-                HorizontalOptions="Center"
-                Padding="0,0,3,0">
+            <!-- ========= -->
+            <!-- BOTÓN     -->
+            <!-- ========= -->
+            <Button Grid.Column="2"
+                    WidthRequest="40"
+                    HeightRequest="40"
+                    CornerRadius="20"
+                    BackgroundColor="OrangeRed"
+                    Command="{Binding ClearValueCommand, Source={x:Reference Name=ThisRow}}"
+                    CommandParameter="{Binding .}"
+                    Padding="0"
+                    VerticalOptions="Center">
+
                 <Button.ImageSource>
-                    <FontImageSource
-                        FontFamily="FontAwesome5Solid"
-                        Glyph="&#xf55a;"
-                        Color="White"
-                        Size="13"/>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+                                     Glyph="&#xf55a;"
+                                     Color="White"
+                                     Size="14"/>
                 </Button.ImageSource>
             </Button>
 

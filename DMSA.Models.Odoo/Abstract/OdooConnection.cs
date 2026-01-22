@@ -94,7 +94,6 @@ namespace DMSA.Models.Odoo.Abstract
         [Column("prefix_db")]
         public string prefix_db { get; set; }
 
-
         [Column("stage_id")]
         public int stage_id { get; set; }
         [Column("project_id")]
@@ -105,13 +104,36 @@ namespace DMSA.Models.Odoo.Abstract
         public List<OdooConnection> LoadDefault()
         {
             List<OdooConnection> defaultSettings = new List<OdooConnection>();
+            
+            defaultSettings.Add(new OdooConnection()
+                {
+                    Id = 1,
+                    CompanyId = 1,
+                    Name = "Macronegocios Test",
+                    Host = "https://www.dmujeressa.ec/",
+                    DbName = "dmujerestest",
+                    Username = "admin",
+                    Password = CryptoHelper.Encrypt("demo"),
+                    Active = true,
+                    HostDump = "https://192.168.204.66:2443",
+                    DumpService = "/resources/tmp/android/sqlite/",
+                    DbLimitDefault = 300,
+                    IsProduction = false,
+                    IsTestMode = true,
+                    DataToleranceDays = 365,
+                    sale_channel_default = 8,
+                    res_center_default = 49,
+                    prefix_db = "test_"
+                }
+            );
+
             defaultSettings.Add(new OdooConnection()
             {
-                Id = 1,
+                Id = 2,
                 CompanyId = 1,
                 Name = "Macronegocios (DEV)",
                 Host = "https://dev-qa.macronegocios/",
-                DbName = "qamacronegocios",
+                DbName = "qa.macronegocios",
                 Username = "admin",
                 Password = CryptoHelper.Encrypt("demo"),
                 Active = true,
@@ -129,7 +151,7 @@ namespace DMSA.Models.Odoo.Abstract
 
             defaultSettings.Add(new OdooConnection()
             {
-                Id = 2,
+                Id = 3,
                 CompanyId = 1,
                 Name = "DMujeres (DEV)",
                 Host = "http://localhost:8069/",
@@ -151,7 +173,7 @@ namespace DMSA.Models.Odoo.Abstract
 
             defaultSettings.Add(new OdooConnection()
             {
-                Id = 3,
+                Id = 4,
                 CompanyId = 1,
                 Name = "Macronegocios",
                 Host = "http://qa.macronegocios/",
@@ -173,7 +195,7 @@ namespace DMSA.Models.Odoo.Abstract
 
             defaultSettings.Add(new OdooConnection()
             {
-                Id = 4,
+                Id = 5,
                 CompanyId = 1,
                 Name = "DMujeres",
                 Host = "http://qa.dmujeres/",
@@ -196,7 +218,7 @@ namespace DMSA.Models.Odoo.Abstract
 
             defaultSettings.Add(new OdooConnection()
             {
-                Id = 5,
+                Id = 6,
                 CompanyId = 1,
                 Name = "Macronegocios Prod",
                 Host = "https://www.macronegocios.ec/",
@@ -218,7 +240,7 @@ namespace DMSA.Models.Odoo.Abstract
 
             defaultSettings.Add(new OdooConnection()
             {
-                Id = 6,
+                Id = 7,
                 CompanyId = 1,
                 Name = "DMujeres Prod",
                 Host = "https://www.dmujeressa.ec/",

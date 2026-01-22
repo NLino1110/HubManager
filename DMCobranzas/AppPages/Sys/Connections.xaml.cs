@@ -1,3 +1,4 @@
+using CommunityToolkit.Maui.Alerts;
 using DMSA.Models.Odoo.Abstract;
 using DMSA.Sync.Core.Database.Sqlite;
 using UraniumUI.Material.Controls;
@@ -31,6 +32,24 @@ public partial class Connections : TabbedPage
     private async void btnClose_Clicked(object sender, EventArgs e)
     {
         await Navigation.PopModalAsync();
+    }
+
+    private async void btnSendCloud_Clicked(object sender, EventArgs e)
+    {        
+        
+    }
+
+    private async void btnRebuildSettings_Clicked(object sender, EventArgs e)
+    {
+        bool result = await DisplayAlert("Rehacer configuración", "¿Desea continuar?", "Sí", "No");
+        if (!result)
+        {
+            return;
+        }
+
+        var vm = BindingContext as OdooConnectionsViewModel;
+        await vm.RemoveAll();
+        await Toast.Make("Ejecución correcta...").Show();
     }
 
     private void ConnectionsCollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)

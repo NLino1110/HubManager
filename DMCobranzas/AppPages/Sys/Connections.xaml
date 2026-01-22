@@ -123,6 +123,36 @@
                     Title="Path"
                     BorderThickness="0.4"
                     Icon="{FontImageSource FontFamily=FontAwesome5Solid, Glyph='&#xf7d9;'}" />
+
+            <Button Text="Enviar a storage" 
+                    Padding="10,0,10,0" 
+                    Clicked="btnSendCloud_Clicked" 
+                    BackgroundColor="BlueViolet"
+                    TextColor="White"
+                    IsVisible="False">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+                        Color="White"
+                        Size="20"
+                        FontAutoScalingEnabled="True"
+                        Glyph="&#xf093;" />
+                </Button.ImageSource>
+            </Button>
+
+            <Button Text="Rehacer configuración" 
+        Padding="10,0,10,0" 
+        Clicked="btnRebuildSettings_Clicked" 
+        BackgroundColor="BlueViolet"
+        TextColor="White"
+        IsVisible="True">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+            Color="White"
+            Size="20"
+            FontAutoScalingEnabled="True"
+            Glyph="&#xf093;" />
+                </Button.ImageSource>
+            </Button>
         </VerticalStackLayout>
     </ContentPage>
 </TabbedPage>

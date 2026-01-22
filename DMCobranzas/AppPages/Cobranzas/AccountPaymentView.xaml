@@ -166,7 +166,7 @@
                     </Button.ImageSource>
                 </Button>-->
 
-                <HorizontalStackLayout Grid.Column="0" Grid.Row="2" Spacing="15" Margin="10">
+                <HorizontalStackLayout Grid.Column="0" Grid.Row="2" Spacing="10" Margin="10">
                     <Label HorizontalOptions="Center" 
                            Text="Cada línea de pago es un registro individual en Odoo." 
                            VerticalTextAlignment="Center"  
@@ -192,20 +192,21 @@
                         Text="Secuencial Recibo:" 
                         VerticalTextAlignment="Center"  
                         FontAttributes="Bold"
-                        TextColor="DimGray"></Label>
+                        TextColor="DimGray" IsVisible="False"></Label>
 
                     <Label HorizontalOptions="Center" 
                            x:Name="lblReceiptReceipt"
                             Text="0000" 
                             VerticalTextAlignment="Center"  
                             FontAttributes="Bold"
-                            TextColor="DimGray"></Label>
+                            TextColor="DimGray" IsVisible="False"></Label>
 
                     <Label x:Name="txtTotalPagado" 
                            HorizontalOptions="Center" 
                            Text="TOTAL PAGO: $ 0.00" 
                            VerticalTextAlignment="Center"  
-                           FontAttributes="Bold"></Label>
+                           FontAttributes="Bold"
+                           Margin="20,0,0,0"></Label>
 
                     <Label x:Name="txtTotalAplicado" 
                            HorizontalOptions="Center" 

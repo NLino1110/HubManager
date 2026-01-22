@@ -6,8 +6,7 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:control="clr-namespace:DMCobranzas.Controls"
              xmlns:controlLite="clr-namespace:DMCobranzas.Controls.CustomRows"
-             Title="CobroNuevo">
-    
+             Title="Cobro">    
     <!--<ContentPage.ToolbarItems>-->
         <!--<ToolbarItem x:Name="btnSave" Text="GUARDAR ABONO" Clicked="btnSave_Clicked">
             <ToolbarItem.IconImageSource>
@@ -26,21 +25,11 @@
             </ToolbarItem.IconImageSource>
         </ToolbarItem>-->
     <!--</ContentPage.ToolbarItems>-->
-    <Grid RowDefinitions="Auto,*"
-          ColumnDefinitions="*">
-        <AbsoluteLayout Margin="0" MinimumHeightRequest="50" Padding="0" BackgroundColor="{StaticResource Primary}">
-            <Label x:Name="lblTitle" 
-                   Text="PAGO-CLIENTE NOMBRE" 
-                   VerticalOptions="Center" 
-                   Margin="2,0,0,0" 
-                   TextColor="GhostWhite" 
-                   FontSize="18" 
-                   FontAttributes="Bold"
-                   AbsoluteLayout.LayoutFlags="All"
-                   AbsoluteLayout.LayoutBounds="0, 0.5, 1, 1"></Label>
+    <Grid RowDefinitions="Auto,*" ColumnDefinitions="*">
+        <AbsoluteLayout Margin="0" MinimumHeightRequest="0" Padding="0" BackgroundColor="{StaticResource Primary}" ZIndex="10">            
             <StackLayout Orientation="Horizontal"
                          AbsoluteLayout.LayoutFlags="All"
-                         AbsoluteLayout.LayoutBounds="0, 1, 1, 0.5"
+                         AbsoluteLayout.LayoutBounds="0, 0.30, 1, 0.5"
                          HorizontalOptions="End"
                          VerticalOptions="Center">
                 <StackLayout Orientation="Horizontal" x:Name="TopTools" IsVisible="False" 
@@ -99,13 +88,10 @@
                             <FontImageSource FontFamily="FontAwesome5Solid"
                                              Glyph="&#xf0c9;"
                                              Color="White" Size="18"/>
-                            <!-- Icono de notificaciones -->
                         </Button.ImageSource>
                     </Button>
                 </StackLayout>
-
-
-                </StackLayout>
+            </StackLayout>
         </AbsoluteLayout>
 
         <ScrollView Grid.Row="1">
@@ -175,8 +161,8 @@
                                     <Entry x:Name="txtBancoCuenta" Placeholder="Numero Cuenta" Keyboard="Numeric"/>
                                     <!--<Entry x:Name="txtBancoDeposito" Placeholder="Banco" Keyboard="Numeric"/>-->
                                     <beebtech:DropdownField x:Name="ddBank" Title="Banco"/>
-                                    <Entry x:Name="txtBinTc" Placeholder="Bin" IsVisible="False"/>
-                                    <Entry x:Name="txtAuthTc" Placeholder="Lote Vouche" IsVisible="False"/>
+                                <Entry x:Name="txtBinTc" Placeholder="Bin 6 dígitos" IsVisible="False" Keyboard="Numeric" MaxLength="6"/>
+                                <Entry x:Name="txtAuthTc" Placeholder="Lote Vouche" IsVisible="False"/>
                                     <Entry x:Name="txtLoteTc" Placeholder="Card Bin Text" IsVisible="False"/>
 
                                 <Entry x:Name="txtNCheque" Placeholder="Número de Cheque"/>

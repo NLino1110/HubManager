@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Mvvm.Input;
 using DMCobranzas.AppPages;
 using DMCobranzas.AppPages.Sys;
 using DMCobranzas.Controls.Tools;
@@ -16,6 +17,7 @@ using System.Buffers;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Timers;
+using System.Windows.Input;
 using UraniumUI.Dialogs;
 
 namespace DMCobranzas;
@@ -44,8 +46,16 @@ public partial class Login : ContentPage
     public Login()
     {
         InitializeComponent();
+        BindingContext = this;        
+    }
 
-        
+
+    [RelayCommand]
+    private async void ShowConnections()
+    {
+        Connections objPage = new Connections();
+        objPage.Disappearing += ObjSettingPage_Disappearing;
+        await Navigation.PushModalAsync(objPage);
     }
 
     public Login(IEnumerable<IDialogService> dialogServices)
@@ -60,6 +70,8 @@ public partial class Login : ContentPage
         };
 
         OpcionSeleccionada = "Verde";
+
+        BindingContext = this;        
     }
 
     public static class ToastHelper
@@ -86,7 +98,7 @@ public partial class Login : ContentPage
 
     public async Task SetupLogin()
     {        
-        SetupTapGesture();
+        //SetupTapGesture();
                 
         OdooConnectionItems = new ObservableCollection<OdooConnection>();
         ddCompany.ItemsSource = OdooConnectionItems;
@@ -919,5 +931,41 @@ public partial class Login : ContentPage
             // Esto ocurre cada vez que vuelvas a la página
             Console.WriteLine("La página ya apareció antes.");
         }        
+    }
+
+    private CancellationTokenSource _longPressCts;
+    private bool _executed;
+    private const int LONG_PRESS_MS = 1500;
+
+    private async void DragGestureRecognizer_DragStarting(object sender, DragStartingEventArgs e)
+    {
+        if (_executed)
+            return;
+
+        Debug.WriteLine("Drag iniciado");
+
+        _longPressCts = new CancellationTokenSource();
+        _executed = false;
+
+        try
+        {
+            await Task.Delay(LONG_PRESS_MS, _longPressCts.Token);
+
+            _executed = true;
+            Debug.WriteLine("LONG PRESS EJECUTADO");
+
+            ShowConnectionsCommand?.Execute(null);
+        }
+        catch (TaskCanceledException)
+        {
+            Debug.WriteLine("Cancelado");
+        }
     }    
+
+    private void DropGestureRecognizer_Drop(object sender, DropEventArgs e)
+    {
+        Debug.WriteLine("Drop → cancelar");
+        _longPressCts?.Cancel();
+        _executed = false;
+    }
 }

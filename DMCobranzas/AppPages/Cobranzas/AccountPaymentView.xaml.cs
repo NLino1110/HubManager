@@ -173,18 +173,11 @@ public partial class AccountPaymentView : ContentPage
         obj.Sel_Company_Id = Sel_Company_Id;
         obj.multipleCobrosInvoice = Sel_MultipleCobrosInvoice;
         obj.isNewData = true;
-
-        //obj._cobCarteraCab = _cobCarteraCab;
-
-        //obj.Sel_Company_Id = Sel_Company_Id;
-        //Se asigna la empresa seleccionada
-        //obj.empresa = se;
-        //Se asigna título
-        //obj.Title = "Cartera Clientes/" + se.nombre;
-
-        //await Navigation.PushAsync(obj, false);
-        await Navigation.PushModalAsync(obj, false);
         obj.Disappearing += accountPaymentCrud_Disappearing;
+        await Navigation.PushAsync(obj, false);        
+        //await Navigation.PushModalAsync(obj, false);
+        //await Navigation.PushModalAsync(new NavigationPage(obj), false);
+
     }
 
     public ICommand EditItemCommand { get; set; }
@@ -211,10 +204,9 @@ public partial class AccountPaymentView : ContentPage
         //Se asigna título
         //obj.Title = "Cartera Clientes/" + se.nombre;
 
-        await Navigation.PushModalAsync(obj, false);
-        //await Navigation.PushModalAsync(obj, true);
-
+        //await Navigation.PushModalAsync(obj, false);
         obj.Disappearing += accountPaymentCrud_Disappearing;
+        await Navigation.PushAsync(obj, false);
     }
 
     public ICommand DeleteItemCommand { get; set; }

@@ -14,6 +14,7 @@ using System.Buffers;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Timers;
+using System.Windows.Input;
 using UraniumUI.Dialogs;
 using UraniumUI.Material.Controls;
 
@@ -36,14 +37,39 @@ public partial class Login : ContentPage
     private const double TimeToReset = 2000;
 
     private bool _isFirstAppearing = true;
+
+    public ICommand ActionCommand { get; set; }
+
+    //public ICommand ActionCommand
+    //{
+    //    get => (ICommand)GetValue(ActionCommandProperty);
+    //    set => SetValue(ActionCommandProperty, value);
+    //}
+
+    //public static readonly BindableProperty ActionCommandProperty =
+    //   BindableProperty.Create(
+    //       nameof(ActionCommand),
+    //       typeof(ICommand),
+    //       typeof(Login),
+    //       null);
+
     public Login()
     {
-        InitializeComponent();        
+        InitializeComponent();
+
+        //ActionCommand = new Command(ShowConnections);
+    }
+
+    private async void ShowConnections()
+    {
+        SettingsPage objPage = new SettingsPage();
+        await Navigation.PushModalAsync(objPage);
     }
 
     public Login(IEnumerable<IDialogService> dialogServices)
     {
         InitializeComponent();
+        //ActionCommand = new Command(ShowConnections);
     }
 
     public static class ToastHelper
