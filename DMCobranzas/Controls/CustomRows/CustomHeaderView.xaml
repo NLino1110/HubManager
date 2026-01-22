@@ -16,9 +16,9 @@
             Margin="0"            
             VerticalOptions="Center">
 
-            <Grid Padding="0" ColumnSpacing="0">
+            <Grid Padding="5" ColumnSpacing="0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
+                    <RowDefinition Height="0.5*" />
                 </Grid.RowDefinitions>
 
                 <Grid.ColumnDefinitions>
@@ -60,10 +60,9 @@
                             VerticalTextAlignment="Center"
                             HorizontalTextAlignment="Center" />
                     </StackLayout>-->
-                    
-                    <Button                        
-                        Text="REPORTE"
-                        VerticalOptions="Start"                        
+                    <HorizontalStackLayout Padding="10" MaximumHeightRequest="50">
+                    <Button
+                        Text="REPORTE"                        
                         CornerRadius="2"
                         BorderColor="DodgerBlue"
                         BorderWidth="0.5"
@@ -71,7 +70,8 @@
                         FontAttributes="Bold"
                         FontSize="8"
                         TextColor="DodgerBlue"
-                        Padding="5"
+                        Padding="15,0,15,0"
+                        Margin="2"
                         IsVisible="{Binding ShowButton1, Source={x:Reference Root}}"
                         Command="{Binding Button1Command, Source={x:Reference Root}}"
                         CommandParameter="{Binding CommandParameter, Source={x:Reference Root}}" />
@@ -85,11 +85,12 @@
                         FontAttributes="Bold"
                         FontSize="8"
                         TextColor="DodgerBlue"
-                        Margin="0"
-                        Padding="5"
+                        Padding="15,0,15,0"
+                        Margin="2"
                         IsVisible="{Binding ShowButton2, Source={x:Reference Root}}"
                         Command="{Binding Button2Command, Source={x:Reference Root}}"
                         CommandParameter="{Binding CommandParameter, Source={x:Reference Root}}" />
+                    </HorizontalStackLayout>
                 </HorizontalStackLayout>
             </Grid>
         </Border>

@@ -32,7 +32,7 @@
 
     </ContentPage.ToolbarItems>
     <Grid RowDefinitions="Auto,*" ColumnDefinitions="*">
-        <AbsoluteLayout Margin="0" MinimumHeightRequest="0" Padding="0" BackgroundColor="{StaticResource Primary}" ZIndex="100" IsVisible="True">            
+        <AbsoluteLayout Margin="0" MinimumHeightRequest="0" Padding="0" BackgroundColor="{StaticResource Primary}" ZIndex="100" IsVisible="False">            
             <StackLayout Orientation="Horizontal"
                          AbsoluteLayout.LayoutFlags="All"
                          AbsoluteLayout.LayoutBounds="0, 0.30, 1, 0.5"

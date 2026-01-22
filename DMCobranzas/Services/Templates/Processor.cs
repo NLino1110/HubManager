@@ -352,9 +352,9 @@ namespace DMCobranzas.Services.Templates
                     TicketString += $"RECIBO # {_accountPaymentHeader.recipe_name}" + Environment.NewLine;
                     TicketString += $"CLIENTE: ({_accountPaymentHeader.partner_id}) {_accountPaymentHeader.partner_name}" + Environment.NewLine;
 
-                    if (_accountPaymentHeader.payment_status == DMSA.Models.CobrosEstados.PENDIENTE || _accountPaymentHeader.payment_status == DMSA.Models.CobrosEstados.ENVIANDO)
+                    if (_accountPaymentHeader.payment_status == DMSA.Models.CobrosEstados.PENDIENTE || _accountPaymentHeader.payment_status == DMSA.Models.CobrosEstados.PROCESANDO)
                         TicketString += "Estado: NO PROCESADO" + Environment.NewLine;
-                    else if (_accountPaymentHeader.payment_status == DMSA.Models.CobrosEstados.RECIBIDO)
+                    else if (_accountPaymentHeader.payment_status == DMSA.Models.CobrosEstados.ENVIADO)
                         TicketString += "Estado: PROCESADO" + Environment.NewLine;
                     else
                         TicketString += "Estado: " + _accountPaymentHeader.payment_status + Environment.NewLine;

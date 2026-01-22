@@ -1,104 +1,131 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              x:Class="DMCobranzas.AppPages.CobranzasPage"
              xmlns:local="clr-namespace:DMCobranzas"
              xmlns:control="clr-namespace:DMCobranzas.Controls"
              xmlns:controlCustom="clr-namespace:DMCobranzas.Controls.CustomRows"
              Title="Cobranzas">
-    <StackLayout HorizontalOptions="FillAndExpand">
-        <StackLayout Orientation="Vertical" Margin="4" HorizontalOptions="FillAndExpand">
-            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" Margin="10, 0,0,0">
-                <Label Text="Empresa:" VerticalOptions="Center" WidthRequest="100" TextColor="DodgerBlue"></Label>
-                <Picker x:Name="SelectorCmp"
-                        Title=""
-                        ItemDisplayBinding="{Binding name}"
-                        SelectedIndexChanged="OnPickerSelectedIndexChanged"
-                        VerticalOptions="Center"
-                        Margin="0,0,0,0"
-                        HorizontalOptions="FillAndExpand"/>
-            </StackLayout>
-            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" Margin="10, 0,0,0">
-                <Label Text="F. desde:" VerticalOptions="Center" WidthRequest="100" TextColor="DodgerBlue"></Label>
-                <DatePicker x:Name="dateIni" HorizontalOptions="FillAndExpand" />
-            </StackLayout>
-            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" Margin="10, 0,0,0">
-                <Label Text="F. hasta:" VerticalOptions="Center" WidthRequest="100" TextColor="DodgerBlue"></Label>
-                <DatePicker x:Name="dateEnd" HorizontalOptions="FillAndExpand" />
+
+    <!-- ROOT -->
+    <Grid>
+
+        <!-- CONTENIDO -->
+        <Grid RowDefinitions="Auto,*">
+
+            <!-- FILTROS -->
+            <StackLayout Grid.Row="0" Margin="4">
+
+                <StackLayout Orientation="Horizontal" Margin="10,0,0,0">
+                    <Label Text="Empresa:" WidthRequest="100" TextColor="DodgerBlue" VerticalOptions="Center"/>
+                    <Picker x:Name="SelectorCmp"
+                            ItemDisplayBinding="{Binding name}"
+                            SelectedIndexChanged="OnPickerSelectedIndexChanged"
+                            HorizontalOptions="FillAndExpand"/>
+                </StackLayout>
+
+                <StackLayout Orientation="Horizontal" Margin="10,0,0,0">
+                    <Label Text="F. desde:" WidthRequest="100" TextColor="DodgerBlue" VerticalOptions="Center"/>
+                    <DatePicker x:Name="dateIni" HorizontalOptions="FillAndExpand"/>
+                </StackLayout>
+
+                <StackLayout Orientation="Horizontal" Margin="10,0,0,0">
+                    <Label Text="F. hasta:" WidthRequest="100" TextColor="DodgerBlue" VerticalOptions="Center"/>
+                    <DatePicker x:Name="dateEnd" HorizontalOptions="FillAndExpand"/>
+                </StackLayout>
+
+                <StackLayout Orientation="Horizontal" Margin="10">
+                    <Button Text="Buscar" BackgroundColor="DodgerBlue" HeightRequest="35" Clicked="btnBuscar_Clicked">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid"
+                                             Glyph="&#xf002;"
+                                             Color="White"
+                                             Size="14"/>
+                        </Button.ImageSource>
+                    </Button>
+
+                    <Button Text="Nuevo Pago" BackgroundColor="DodgerBlue" HeightRequest="35" Margin="5"
+                            Clicked="NewPayment">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid"
+                                             Glyph="&#xf788;"
+                                             Color="White"
+                                             Size="14"/>
+                        </Button.ImageSource>
+                    </Button>
+                </StackLayout>
+
+                <Border Stroke="LightGray"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 6"
+                    Padding="5,1,5,1">
+                    <Grid ColumnDefinitions="Auto,*">
+                        <Image Margin="5,0" VerticalOptions="Center">
+                            <Image.Source>
+                                <FontImageSource
+                                    FontFamily="FontAwesome5Solid"
+                                    Glyph="&#xf002;"
+                                    Color="Gray"
+                                    Size="16"/>
+                            </Image.Source>
+                        </Image>
+
+                        <Entry Grid.Column="1" x:Name="txtSearch"
+                               Placeholder="Buscar por Cliente"
+                               BackgroundColor="Transparent"/>
+                    </Grid>
+                </Border>
+
+
             </StackLayout>
 
-            <StackLayout Orientation="Horizontal" Margin="10">
-                <Button CornerRadius="2" BackgroundColor="DodgerBlue" Text="Buscar" Margin="2" Clicked="btnBuscar_Clicked" HeightRequest="35" Padding="10,0,10,0">
-                    <Button.ImageSource>
-                        <FontImageSource FontFamily="FontAwesome5Solid"
-                                         Color="White"
-                                         Size="14"
-                                         FontAutoScalingEnabled="True"                                                         
-                                         Glyph="&#xf002;" />
-                    </Button.ImageSource>
-                </Button>
-                <Button CornerRadius="2" Text="Nuevo Pago" Margin="5" Clicked="NewPayment" BackgroundColor="DodgerBlue" HeightRequest="35" Padding="10,0,10,0">
-                    <Button.ImageSource>
-                        <FontImageSource FontFamily="FontAwesome5Solid"
-                                         Color="White"
-                                         Size="14"
-                                         FontAutoScalingEnabled="True"                                                         
-                                         Glyph="&#xf788;" />
-                    </Button.ImageSource>
-                </Button>
-            </StackLayout>
-
-            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" Margin="10, 0,0,0">
-                <Entry x:Name="txtSearch" Text="" Placeholder="Buscar por Cliente" HorizontalOptions="FillAndExpand" FlexLayout.Shrink="50" FlexLayout.Grow="1"/>
-            </StackLayout>
-        </StackLayout>
-
-        <AbsoluteLayout x:Name="_absoluteLayout" HorizontalOptions="Center" VerticalOptions="Center" BackgroundColor="GhostWhite">
-        </AbsoluteLayout>
-                
-            <CollectionView x:Name="collectionView"
-                            ItemsSource="{Binding _items}" 
+            <!-- LISTA -->
+            <CollectionView Grid.Row="1"
+                            x:Name="collectionView"
+                            ItemsSource="{Binding _items}"
                             IsGrouped="True"
-                            VerticalOptions="FillAndExpand" 
-                            HorizontalOptions="FillAndExpand"
-                            SelectionMode="Single"
-                            EmptyView="No existen datos para mostrar..." Margin="5">
-                    <CollectionView.GroupHeaderTemplate>
-                        <DataTemplate>                           
-                        <controlCustom:CustomHeaderView Title="{x:Binding Title}"
-                              CommandParameter="{Binding .}"
-                              ShowButton2="{x:Binding showButtonCierre}"
-                              Button1Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ReporteDiaCommand}"
-                              Button2Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CerrarDiaCommand}">
-                        </controlCustom:CustomHeaderView>
-                    </DataTemplate>
-                    </CollectionView.GroupHeaderTemplate>
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <!--<control:PaymentHeaderItem DataItem="{x:Binding .}">
-                            </control:PaymentHeaderItem>-->
-                        <controlCustom:PaymentHeaderItem Item="{x:Binding .}">
-                        </controlCustom:PaymentHeaderItem>
-                    </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                            SelectionMode="None"
+                            Margin="5"
+                            EmptyView="No existen datos para mostrar...">
 
-        <!--<Grid
-    BackgroundColor="#80000000"
-    IsVisible="{Binding IsLoading}"
-    VerticalOptions="Fill"
-    HorizontalOptions="Fill"
-    ZIndex="10">
-            <ActivityIndicator 
-        IsRunning="{Binding IsLoading}" 
-        Color="MediumVioletRed"
-        WidthRequest="100"
-        HeightRequest="100"
-        VerticalOptions="Center"
-        HorizontalOptions="Center" />
-        </Grid>-->
-        
-    </StackLayout>
+                <CollectionView.GroupHeaderTemplate>
+                    <DataTemplate>
+                        <controlCustom:CustomHeaderView
+                            Title="{x:Binding Title}"
+                            CommandParameter="{Binding .}"
+                            ShowButton2="{x:Binding showButtonCierre}"
+                            Button1Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ReporteDiaCommand}"
+                            Button2Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CerrarDiaCommand}"/>
+                    </DataTemplate>
+                </CollectionView.GroupHeaderTemplate>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <controlCustom:PaymentHeaderItem Item="{x:Binding .}"/>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+
+            <!-- OVERLAY LOADING (SIEMPRE AL FRENTE) -->
+            <Grid 
+                Grid.Row="1" 
+                  BackgroundColor="#80000000"
+                  IsVisible="{Binding IsLoading}"
+                  ZIndex="999">
+
+                <ActivityIndicator IsRunning="{Binding IsLoading}"
+                       Color="MediumVioletRed"
+                       WidthRequest="100"
+                       HeightRequest="100"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"/>
+            </Grid>            
+        </Grid>
+        <!--<AbsoluteLayout x:Name="_absoluteLayout" HorizontalOptions="Center" VerticalOptions="Center" BackgroundColor="GhostWhite">
+        </AbsoluteLayout>-->
+    </Grid>
 </ContentPage>
+
+
+                

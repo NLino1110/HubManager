@@ -15,7 +15,6 @@
     Appearing="ContentPage_Appearing"
     x:Name="PageRoot">
 
-    <!-- ESTILOS -->
     <ContentPage.Resources>
         <Style x:Key="labelRedStyle" TargetType="Label">
             <Setter Property="HorizontalOptions" Value="Center"/>

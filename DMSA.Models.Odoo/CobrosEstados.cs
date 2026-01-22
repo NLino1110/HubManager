@@ -9,8 +9,8 @@ namespace DMSA.Models
     public static class CobrosEstados
     {
         public static string PENDIENTE = "PENDIENTE";
-        public static string ENVIANDO = "ENVIANDO";
+        public static string PROCESANDO = "PROCESANDO";
         public static string ERROR = "ERROR";
-        public static string RECIBIDO = "RECIBIDO";
+        public static string ENVIADO = "ENVIADO";
     }
 }

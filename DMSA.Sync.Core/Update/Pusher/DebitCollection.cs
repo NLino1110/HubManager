@@ -39,7 +39,7 @@ namespace DMSA.Sync.Core.Update.Pusher
                 string newGuid = Guid.NewGuid().ToString("N");
                 _accountPaymentHeader.guid = newGuid;
                 //_accountPaymentHeader.recipe_name = secuencia_final;
-                _accountPaymentHeader.payment_status = DMSA.Models.CobrosEstados.ENVIANDO;
+                _accountPaymentHeader.payment_status = DMSA.Models.CobrosEstados.PROCESANDO;
                 await cobReciboCabDb.UpdateAsync(_accountPaymentHeader);
             }
 
@@ -238,7 +238,7 @@ namespace DMSA.Sync.Core.Update.Pusher
 
                     //await Toast.Make("Envío de cobro correcto").Show();
                     Debug.WriteLine("Terminado envío!");
-                    _accountPaymentHeader.payment_status = DMSA.Models.CobrosEstados.RECIBIDO;
+                    _accountPaymentHeader.payment_status = DMSA.Models.CobrosEstados.ENVIADO;
                     _accountPaymentHeader.write_date = DateTime.Now;
                     await cobReciboCabDb.UpdateAsync(_accountPaymentHeader);
                     everyThingOk = true;

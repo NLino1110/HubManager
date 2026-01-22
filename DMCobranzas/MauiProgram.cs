@@ -99,10 +99,10 @@ namespace DMCobranzas
                     fonts.AddFont("Consolas.ttf", "Consolas");
                     fonts.AddFont("Consoles.otf", "Consoles");
                 })
-                //.UseUraniumUIBlurs()
+                .UseUraniumUIBlurs()
                 .UseMauiCommunityToolkit()
                 .UseUraniumUI()
-                //.UseUraniumUIMaterial()
+                .UseUraniumUIMaterial()
                 .UseBeebTechControls();
 
             App.Session = new AppSession();

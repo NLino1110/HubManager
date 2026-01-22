@@ -27,8 +27,21 @@ namespace DMCobranzas.AppPages;
 [XamlCompilation(XamlCompilationOptions.Compile)]
 public partial class CobranzasPage : ContentPage
 {
-    
-    public bool IsRefreshing = true;
+    private bool _isLoading;
+    public bool IsLoading
+    {
+        get => _isLoading;
+        set
+        {
+            _isLoading = value;
+            OnPropertyChanged(nameof(IsLoading));
+            Debug.WriteLine("_isLoading");
+            Debug.WriteLine(_isLoading);
+        }
+    }
+
+
+    //public bool IsRefreshing = true;
 
     private bool isFirtAppears = true;
 
@@ -180,15 +193,21 @@ public partial class CobranzasPage : ContentPage
     }
     
     private async Task LoadData()
-    {        
+    {
         //collectionView: Contiene una referencia directa que en teoría debería bastar para que se 
         // actualice la visualizacion de forma directa, no lo logra, por lo cual se están realizando
         // 2 asignaciones. Considerar optimización para evitar dicho comportamiento.
 
-        if (UITools.LoadingNow())
+        //if (UITools.LoadingNow())
+        //    return;
+
+        //await UITools.ShowLoading(_absoluteLayout);
+
+        if (IsLoading)
             return;
 
-        await UITools.ShowLoading(_absoluteLayout);        
+        IsLoading = true;
+
         Debug.WriteLine("Load data.....");
 
         try
@@ -217,7 +236,16 @@ public partial class CobranzasPage : ContentPage
             //    App.Session.CurrentUser.uid,
             //    true);
 
-            string text_search = txtSearch.Text.Trim();
+            string text_search = txtSearch.Text;
+
+            if (string.IsNullOrWhiteSpace(text_search))
+            {
+                text_search = "";
+            }
+            else
+            {
+                text_search = text_search.Trim();
+            }
 
             var ls_items = await database.GetItemsAsync(x=> x.company_id == SelCompany.id && 
                  x.create_date >= dateIni.Date && 
@@ -238,7 +266,7 @@ public partial class CobranzasPage : ContentPage
             foreach (var _paymentHeaderItem in ls_items)
             {
 
-                if(_paymentHeaderItem.payment_status == DMSA.Models.CobrosEstados.ENVIANDO)
+                if(_paymentHeaderItem.payment_status == DMSA.Models.CobrosEstados.PROCESANDO)
                 {
                     // Obtén la fecha y hora actual
                     DateTime fechaActual = DateTime.Now;
@@ -275,14 +303,16 @@ public partial class CobranzasPage : ContentPage
             Debug.WriteLine("Error: " + ex.Message);
         }
 
-        await UITools.HideLoading(_absoluteLayout);
+        //await UITools.HideLoading(_absoluteLayout);
+
+        IsLoading = false;
     }
 
     private bool PermitirCerrar(ItemsGroup group)
     {
         foreach (var itemgroup in group)
         {
-            if (itemgroup.payment_status == DMSA.Models.CobrosEstados.PENDIENTE || itemgroup.payment_status == DMSA.Models.CobrosEstados.ENVIANDO)
+            if (itemgroup.payment_status == DMSA.Models.CobrosEstados.PENDIENTE || itemgroup.payment_status == DMSA.Models.CobrosEstados.PROCESANDO)
                 return false;
         }
 
@@ -345,7 +375,7 @@ public partial class CobranzasPage : ContentPage
             for (int i = 0; i < itemsCobros.Count(); i++)
             {
                 // Validacion Estado del cobro
-                if (itemsCobros[i].payment_status == DMSA.Models.CobrosEstados.PENDIENTE || itemsCobros[i].payment_status == DMSA.Models.CobrosEstados.ENVIANDO)
+                if (itemsCobros[i].payment_status == DMSA.Models.CobrosEstados.PENDIENTE || itemsCobros[i].payment_status == DMSA.Models.CobrosEstados.PROCESANDO)
                 {
                     // Cierra Espera
                     //loading.dismiss();

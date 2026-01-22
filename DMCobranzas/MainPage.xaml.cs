@@ -90,7 +90,7 @@ public partial class MainPage : ContentPage
             MultipleCobrosInvoiceDb _accountPaymentHeaderDb = new MultipleCobrosInvoiceDb(App.Session.odooConnection.DbNameSqlite);
             var resultItems = await _accountPaymentHeaderDb.GetItemsAsync(i => i.user_id == App.Session.CurrentUser.uid &&
                 Convert.ToDateTime(i.create_date).Date != DateTime.Today &&
-                (i.payment_status == DMSA.Models.CobrosEstados.ENVIANDO ||
+                (i.payment_status == DMSA.Models.CobrosEstados.PROCESANDO ||
                 i.payment_status == DMSA.Models.CobrosEstados.ERROR ||
                 i.payment_status == DMSA.Models.CobrosEstados.PENDIENTE));
 

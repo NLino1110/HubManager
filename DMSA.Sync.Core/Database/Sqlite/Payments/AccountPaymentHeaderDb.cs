@@ -103,7 +103,7 @@ namespace DMSA.Sync.Core.Database.Sqlite.Payments
             var datos = await Database.Table<AccountPaymentHeader>().ToListAsync();
             var result = datos.Where(i => i.uid == uid &&
             Convert.ToDateTime(i.create_datetime).Date != DateTime.Today && 
-            (i.payment_status == DMSA.Models.CobrosEstados.ENVIANDO ||
+            (i.payment_status == DMSA.Models.CobrosEstados.PROCESANDO ||
             i.payment_status == DMSA.Models.CobrosEstados.ERROR ||
             i.payment_status == DMSA.Models.CobrosEstados.PENDIENTE)).ToList();
 
