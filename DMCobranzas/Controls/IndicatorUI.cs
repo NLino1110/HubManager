@@ -9,6 +9,34 @@ namespace DMCobranzas.Controls
 {
     public class IndicatorUI : ContentView
     {
+        public static readonly BindableProperty TextProperty =
+            BindableProperty.Create(
+                nameof(Text),
+                typeof(string),
+                typeof(IndicatorUI),
+                "\uf0a5"
+            );
+
+        public string Text
+        {
+            get => (string)GetValue(TextProperty);
+            set => SetValue(TextProperty, value);
+        }
+
+        public static readonly BindableProperty TextColorProperty =
+            BindableProperty.Create(
+                nameof(TextColor),
+                typeof(Color),
+                typeof(IndicatorUI),
+                Color.FromArgb("FFCC99") // ← color actual por defecto
+            );
+
+        public Color TextColor
+        {
+            get => (Color)GetValue(TextColorProperty);
+            set => SetValue(TextColorProperty, value);
+        }
+
         public IndicatorUI()
         {
             Border border = new Border
@@ -36,13 +64,16 @@ namespace DMCobranzas.Controls
 
             Label label = new Label
             {
-                Text = "\uf0a5",
+                //Text = "\uf0a5",
                 FontFamily = "FontAwesome5Solid",
                 TextColor = Color.FromArgb("FFCC99"), //Colors.Orange,
                 FontSize = 17,
                 TextTransform = TextTransform.Uppercase,
                 FontAttributes = FontAttributes.Bold
             };
+
+            label.SetBinding(Label.TextProperty, new Binding(nameof(Text), source: this));
+            label.SetBinding(Label.TextColorProperty, new Binding(nameof(TextColor), source: this));
 
             border.Content = label;
             border.SetBinding(IsVisibleProperty, new Binding(nameof(IsVisible), source: this));

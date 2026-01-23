@@ -599,13 +599,14 @@ public partial class AccountPaymentView : ContentPage
             accountPaymentHeader.CERRADO = "N";
             accountPaymentHeader.user_name = App.Session.CurrentUserFront.nombres;
             accountPaymentHeader.state = "draft";
+            accountPaymentHeader.note = "DESDE APLICACIÓN MÓVIL";
 
             //List<ReceiptReceiptsLine> receiptLines = new List<ReceiptReceiptsLine>();
             //var receiptReceiptsLineDb = new ReceiptReceiptsLineDb(App.Session.odooConnection.DbNameSqlite);
 
             //if (accountPaymentHeader.receipt_receipts_id == 0)
             //{
-                
+
             //    receiptLines = (await receiptReceiptsLineDb.GetItemsAsync(x => x._sale_user_id == accountPaymentHeader.user_id && x.state == "draft"))
             //        .OrderBy(x => x.number_seq)
             //        .Take(1)

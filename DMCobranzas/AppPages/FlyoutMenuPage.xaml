@@ -43,19 +43,19 @@
     </ContentPage.Resources>
     <ScrollView>
         <VerticalStackLayout BackgroundColor="GhostWhite">
-            <HorizontalStackLayout HorizontalOptions="FillAndExpand" BackgroundColor="FloralWhite">
+            <HorizontalStackLayout HorizontalOptions="FillAndExpand" BackgroundColor="GhostWhite">
                 <StackLayout Padding="10,10,10,10" BackgroundColor="WhiteSmoke">
                 <Image
                 Source="user_svgrepo_com.png"
                 SemanticProperties.Description="Avantar profile picture"
-                HeightRequest="70"
+                HeightRequest="50"
                 HorizontalOptions="Center" />
                 </StackLayout>
 
                 <VerticalStackLayout VerticalOptions="Center" Padding="15,5,15,15">
                     <Label
                 Text="@username"                
-                FontSize="18"
+                FontSize="13"
                         x:Name="txtUser"
                 HorizontalOptions="Start" 
                         FontAttributes="Bold"
@@ -72,7 +72,7 @@
                         x:Name="txtEnvironment"
                 HorizontalOptions="Start" />
                     <Button
-                        BackgroundColor="Red"
+                        BackgroundColor="CadetBlue"
                         x:Name="btnLogout"
                         Text="SALIR"
                         SemanticProperties.Hint=""
@@ -80,7 +80,7 @@
                         HorizontalOptions="Start" 
                         FontSize="12"
                         CornerRadius="2"
-                        HeightRequest="25"
+                        HeightRequest="20"
                         FontAttributes="Bold"
                         Padding="5,2,5,2">
                         <Button.ImageSource>

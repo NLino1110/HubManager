@@ -513,6 +513,11 @@ public partial class UpdateData : ContentPage
             await serverPuller.DownloadAccountMoveRefund();
         }
 
+        if (chkGroup3.IsChecked)
+        {
+            await serverPuller.GetCities();
+        }
+
         if(chkGroup4.IsChecked)
         {
             await serverPuller.GetReceiptReceiptsLine();

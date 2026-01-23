@@ -119,7 +119,7 @@ namespace DMSA.Models.Odoo.Abstract
                     DumpService = "/resources/tmp/android/sqlite/",
                     DbLimitDefault = 300,
                     IsProduction = false,
-                    IsTestMode = true,
+                    IsTestMode = false,
                     DataToleranceDays = 365,
                     sale_channel_default = 3,
                     res_center_default = 2,

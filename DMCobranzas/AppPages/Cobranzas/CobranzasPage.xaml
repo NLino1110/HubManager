@@ -66,7 +66,7 @@
                                     FontFamily="FontAwesome5Solid"
                                     Glyph="&#xf002;"
                                     Color="Gray"
-                                    Size="16"/>
+                                    Size="20"/>
                             </Image.Source>
                         </Image>
 

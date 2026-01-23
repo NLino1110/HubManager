@@ -119,7 +119,7 @@
 
                     <!--<Label Text="Diario:" FontAttributes="Bold"/>-->
                     <Picker x:Name="pickerDiario" Title="Diario"/>
-                    <Entry x:Name="txtCircular" Placeholder="Glosa"/>
+                    <!--<Entry x:Name="txtCircular" Placeholder="Glosa"/>-->
                     <Entry x:Name="txtRef" Placeholder="Resumen"/>
                 </StackLayout>
 
@@ -159,8 +159,8 @@
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <VerticalStackLayout>
-                                    <Entry x:Name="txtDepositoConfirmar" Placeholder="Deposito por Confirmar" IsVisible="False"/>
-
+                                    <!--<Entry x:Name="txtDepositoConfirmar" Placeholder="Deposito por Confirmar" IsVisible="False"/>-->
+                                    <Entry x:Name="txtCircular" Placeholder="Glosa"/>
                                     <!--<DatePicker x:Name="pickerFecDeposito"/>-->
                                     <DatePicker x:Name="pickerFechaPago"/>
 
@@ -173,7 +173,10 @@
 
                                 <Entry x:Name="txtNCheque" Placeholder="Número de Cheque"/>
                                 <Entry x:Name="txtChequeTitular" Placeholder="Titular"/>
-                                <Entry x:Name="txtChequeCiudad" Placeholder="Ciudad"/>
+                                <!--<Entry x:Name="txtChequeCiudad" Placeholder="Ciudad"/>-->
+
+                                <beebtech:DropdownField x:Name="ddResCity" Title="Ciudad"/>
+
                                 <DatePicker x:Name="pickerFechaCheque"/>
                                 <Picker x:Name="pickerCardId" Title="Tarjeta"/>
                                 <beebtech:DropdownField x:Name="ddBankTcId" Title="Banco Emisor"/>
@@ -279,7 +282,7 @@
                     <CollectionView x:Name="collectionView" Grid.Row="6" Grid.ColumnSpan="2" 
                                     VerticalOptions="Fill" 
                                     HorizontalOptions="Fill"
-                                    SelectionMode="Single">
+                                    SelectionMode="None">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <!--<control:InvoicePaymentItemV2 dataItem="{Binding .}"></control:InvoicePaymentItemV2>-->
