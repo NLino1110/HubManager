@@ -54,8 +54,31 @@ namespace DMSA.Sync.Core.Database.Sqlite
 
             await PreloadInfoData();
 
+            var idStr = filter_adic_commercial.ToString();
+
+            var exact_str = $"[{idStr}]";
+            var middle_str = $",{idStr},";
+            var start_str = $"[{idStr},";
+            var end_str = $",{idStr}]";
+
             //Excluimos los vendedores y filtramos cliente por vendedor
-            q = q.Where(x => x.is_salesman == false && x._adic_comercial_id == filter_adic_commercial);
+            q = q.Where(x =>
+                    x.is_salesman == false &&
+                    (
+                        x._adic_comercial_id == filter_adic_commercial ||
+                        (
+                            x.adic_comercial_secundarios_ids_json != null &&
+                            (                            
+                            x.adic_comercial_secundarios_ids_json == exact_str ||
+                            x.adic_comercial_secundarios_ids_json.Contains(middle_str) ||
+                            x.adic_comercial_secundarios_ids_json.Contains(start_str) ||
+                            x.adic_comercial_secundarios_ids_json.Contains(end_str)
+                            )
+                        )
+                    )
+                );
+
+            //q = q.Where(x => x.is_salesman == false && x._adic_comercial_id == filter_adic_commercial);
 
             // --- 1) Filtro por code (prioridad máxima, como tu método actual) ---
             if (!string.IsNullOrWhiteSpace(filter_code))

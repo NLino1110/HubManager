@@ -674,7 +674,7 @@ public partial class AccountPaymentCrud : ContentPage
         pickerPaymentTypeId.IsVisible = false;
         pickerPlanId.IsVisible = false;
 
-        txtCircular.Placeholder = "Deposito por confirmar";
+        txtCircular.Placeholder = "Número de comprobante";
     }
 
     private void SetCheckPayment()
@@ -699,7 +699,7 @@ public partial class AccountPaymentCrud : ContentPage
         pickerPaymentTypeId.IsVisible = false;
         pickerPlanId.IsVisible = false;
 
-        txtCircular.Placeholder = "Deposito por confirmar";
+        txtCircular.Placeholder = "Número de comprobante";
     }
 
     private void SetCheckPostPayment()
@@ -935,7 +935,7 @@ public partial class AccountPaymentCrud : ContentPage
 
         }
 
-        //if (selDiario != null)
+        //if (selDiario != null) 
         //{   
         //    if (account_Journals == null)
         //    {
@@ -1308,8 +1308,18 @@ public partial class AccountPaymentCrud : ContentPage
                 multipleCobrosInvoiceLine.PlanId = planTarjetasCredito.id;
             }
 
-            if (selPaymentM.name == "check_day" || selPaymentM.name == "check") // && aplica_cheque
+            if(selPaymentM.name == "check_day")
             {
+
+            }
+
+            if (selPaymentM.name == "check") // && aplica_cheque
+            {
+                if (pickerFechaCheque.Date <= DateTime.Today)
+                {
+                    await Toast.Make("La fecha del cheque debe ser mayor a la fecha actual.").Show();
+                    return;
+                }
                 //accountPayment.AccHolderName = 
                 //accountPayment.CityId = 
                 //accountPayment.PaymentDate = 

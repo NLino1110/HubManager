@@ -173,10 +173,12 @@
                 </ui:IndicatorLabelUI.Triggers>
             </ui:IndicatorLabelUI>
 
-            <ui:IndicatorUI
-                Grid.Row="0"
-                Grid.RowSpan="3"
-                Grid.Column="2"/>
+            <ui:IndicatorUI Text="&#xf0d9;" 
+                            TextColor="DodgerBlue" 
+                            Grid.Row="0"
+                            Grid.RowSpan="3"
+                            Grid.Column="2"
+                            VerticalOptions="Center"></ui:IndicatorUI>
 
             <StackLayout
                 Orientation="Horizontal"

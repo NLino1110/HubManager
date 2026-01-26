@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BeebTech.Maui.Controls.TitledEntry"
+             x:Name="root">
+    <VerticalStackLayout>
+        <Border Padding="0,0,0,0" BackgroundColor="White" Stroke="LightGray" StrokeShape="RoundRectangle 4,4,4,4">
+            <Grid HeightRequest="56">
+
+                <!-- ENTRY BASE -->
+                <Entry x:Name="txtContent"
+                       
+           FontSize="16"
+           TextColor="{Binding TextColor}"
+           Text="{Binding Text}"
+           Keyboard="{Binding Keyboard}"
+           Completed="OnEntryCompleted"
+           BackgroundColor="Transparent"           
+           TextChanged="TxtContent_TextChanged"
+           Focused="TxtContent_Focused"
+           Unfocused="TxtContent_Unfocused"
+           IsPassword="{Binding HidePassword}" />
+
+                <!-- PLACEHOLDER FLOTANTE -->
+                <Label x:Name="lblPlaceholder"
+           Text="{Binding Placeholder}"
+           FontSize="14"
+           TextColor="Gray"
+           TranslationX="36"
+           TranslationY="16"
+           BackgroundColor="White"
+           Padding="4,0"
+           VerticalOptions="Start"
+           ZIndex="1" />
+
+                <!-- ICONO IZQUIERDO -->
+                <Image WidthRequest="20"
+           HeightRequest="20"
+           Margin="12,0,0,0"
+           HorizontalOptions="Start"
+           VerticalOptions="Center"
+           IsVisible="{Binding ShowIcon}"
+           ZIndex="2">
+                    <Image.Source>
+                        <FontImageSource FontFamily="{Binding FontFamily}"
+                             Glyph="{Binding Glyph}"
+                             Size="20"
+                             Color="{Binding IconColor}" />
+                    </Image.Source>
+                </Image>
+
+                <!-- ICONO PASSWORD -->
+                <ImageButton WidthRequest="32"
+                 HeightRequest="32"
+                 Margin="0,0,8,0"
+                 HorizontalOptions="End"
+                 VerticalOptions="Center"
+                 BackgroundColor="Transparent"
+                 Clicked="OnImageButtonClicked"
+                 IsVisible="{Binding AllowHidePassword}"
+                 ZIndex="2">
+
+                    <ImageButton.Triggers>
+                        <DataTrigger TargetType="ImageButton"
+                         Binding="{Binding HidePassword}"
+                         Value="True">
+                            <Setter Property="Source">
+                                <Setter.Value>
+                                    <FontImageSource FontFamily="FontAwesome5Regular"
+                                         Glyph="&#xf06e;"
+                                         Size="18"
+                                         Color="{Binding HidePasswordColor}" />
+                                </Setter.Value>
+                            </Setter>
+                        </DataTrigger>
+
+                        <DataTrigger TargetType="ImageButton"
+                         Binding="{Binding HidePassword}"
+                         Value="False">
+                            <Setter Property="Source">
+                                <Setter.Value>
+                                    <FontImageSource FontFamily="FontAwesome5Regular"
+                                         Glyph="&#xf070;"
+                                         Size="18"
+                                         Color="{Binding HidePasswordColor}" />
+                                </Setter.Value>
+                            </Setter>
+                        </DataTrigger>
+                    </ImageButton.Triggers>
+                </ImageButton>
+
+            </Grid>
+
+        </Border>
+    </VerticalStackLayout>
+</ContentView>

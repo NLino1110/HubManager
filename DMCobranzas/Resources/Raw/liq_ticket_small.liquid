@@ -14,13 +14,13 @@ Estado: {{_accountPaymentHeader.payment_status}}
 {%- assign totalPendingAmount = 0 %}
 {%- for accountPaymentItem in _accountPayments %}
 ============F.PAGO===========
-{{accountPaymentItem.journal_name}}       ${{accountPaymentItem.amount}}
+{{accountPaymentItem.Type}}       ${{accountPaymentItem.Amount}}
  ===========DOCUMENTOS=========
 {%- for itemLine in accountPaymentItem.lines %}
- {{itemLine.invoice_line_id_name}}
- Abono: ${{itemLine.reconcile_amount}}
- Saldo: ${{itemLine.reconcile_amount}}
-{%- capture totalAmount %}{{totalAmount | plus:itemLine.reconcile_amount}}{% endcapture %}
+ {{itemLine.docnum_mask}}
+ Abono: ${{itemLine.amount_asigned}}
+ Saldo: ${{itemLine.amount_asigned}}
+{%- capture totalAmount %}{{totalAmount | plus:itemLine.amount_asigned}}{% endcapture %}
 {%- endfor %}
 {%- endfor %}
 ________________

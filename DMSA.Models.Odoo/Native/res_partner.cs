@@ -178,9 +178,24 @@ namespace DMSA.Models.Odoo.Native
         }
 
         [Ignore]
-        [JsonIgnore]
-        [Column("adic_comercial_secundarios_ids")]        
-        public string adic_comercial_secundarios_ids { get; set; }
+        [Column("adic_comercial_secundarios_ids")]
+        public JToken adic_comercial_secundarios_ids { get; set; }
+
+        [Column("adic_comercial_secundarios_ids_json")]
+        public string adic_comercial_secundarios_ids_json
+        {
+            get => SetIdsJson(adic_comercial_secundarios_ids);
+            set { }
+        }
+
+        //public string adic_comercial_secundarios_ids_json
+        //{
+        //    get => adic_comercial_secundarios_ids?.ToString(Formatting.None);
+        //    set => adic_comercial_secundarios_ids = string.IsNullOrEmpty(value)
+        //        ? null
+        //        : JToken.Parse(value);
+        //}
+
         [Column("adic_lunes")]
         public bool adic_lunes { get; set; }
         [Column("adic_martes")]

@@ -17,7 +17,6 @@ using System.Buffers;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Timers;
-using System.Windows.Input;
 using UraniumUI.Dialogs;
 
 namespace DMCobranzas;
@@ -547,6 +546,7 @@ public partial class Login : ContentPage
 
     private async void OnLoginClicked(object sender, EventArgs e)
     {
+        bool forwardLogin = false;
         if (App.Session.useOfflineMode)
         {
             await TryLoginAsyncOffline();
@@ -558,9 +558,28 @@ public partial class Login : ContentPage
             if (await TryLoginBackUserAsync())
             {
                 await UITools.SetNotifyLoadingPopup("Comprobado backuser...");
-                await TryLoginAsync();
+                forwardLogin  = await TryLoginAsync();
             }
             await UITools.HideLoadingPopup();
+        }
+
+        if(forwardLogin)
+        {
+            ShowCompanySelector();
+        }
+    }
+
+    private void ShowCompanySelector()
+    {
+        //LoginSelector.IsVisible = false;
+        //CompanySelector.IsVisible = true;
+
+        if (ddCompany.SelectedItem != null && ddAgency.SelectedItem != null)
+        {
+            App.Session.res_Company = SelCompany;
+            //App.Session.res_Store = (res_store) ddAgency.SelectedItem;
+            App.Session.res_center = (res_center)ddAgency.SelectedItem;
+            App.Current.MainPage = new AppFlyout();
         }
     }
 
@@ -624,8 +643,7 @@ public partial class Login : ContentPage
                 // Modo offline
                 if (App.Session.useOfflineMode)
                 {
-                    LoginSelector.IsVisible = false;
-                    CompanySelector.IsVisible = true;
+                    ShowCompanySelector();
 
                     userFound = userList.Where(
                         u => u.username == txtUser.Text &&
@@ -656,8 +674,7 @@ public partial class Login : ContentPage
                     return;
                 }
 
-                LoginSelector.IsVisible = false;
-                CompanySelector.IsVisible = true;
+                ShowCompanySelector();
 
                 //var companies = await Task.Run(async () => await PrepareCompanies(userFound));
 
@@ -692,15 +709,16 @@ public partial class Login : ContentPage
     }
 
     // Cambiar async void → async Task
-    public async Task TryLoginAsync()
+    public async Task<bool> TryLoginAsync()
     {   
+        bool resposeLogin = false;
         try
         {
             DateTime currentDate = DateTime.Now;
 
             User user = new User
             {
-                username = txtUser.Text,
+                username = txtUser.Text.Trim(),
                 password = CryptoHelper.Encrypt(txtPassword.Text),
                 databasename = App.Session.odooConnection.DbName
             };
@@ -711,7 +729,7 @@ public partial class Login : ContentPage
             if (user.username.Length <= 3 || user.password.Length <= 3)
             {
                 await Toast.Make("Datos incorrectos, verifique usuario y contraseña.").Show();
-                return;
+                return resposeLogin;
             }
         }
 #endif
@@ -751,7 +769,7 @@ public partial class Login : ContentPage
                 {
                     BtnTryLogin.IsEnabled = true;
                     Debug.WriteLine("Error en login offline");
-                    return;
+                    return resposeLogin;
                 }
             }
             else
@@ -765,7 +783,7 @@ public partial class Login : ContentPage
                     BtnTryLogin.IsEnabled = true;
                     await Toast.Make("Offline o servidor inválido! [Módulo de móvil debe estar instalado]").Show();
                     Debug.WriteLine("Offline o servidor inválido! [Módulo de móvil debe estar instalado]");
-                    return;
+                    return resposeLogin;
                 }
 
                 // Intentar login online
@@ -776,7 +794,7 @@ public partial class Login : ContentPage
                     BtnTryLogin.IsEnabled = true;
                     await Toast.Make($"{responseUser.error.message}: {responseUser.error.data.message}").Show();
                     Debug.WriteLine($"{responseUser.error.message}: {responseUser.error.data.message}");
-                    return;
+                    return resposeLogin;
                 }
 
                 if (responseUser?.result != null)
@@ -813,18 +831,17 @@ public partial class Login : ContentPage
                 {
                     await Toast.Make("Dato no coincide, verifique la fecha y hora de su dispositivo").Show();
                     BtnTryLogin.IsEnabled = true;
-                    return;
+                    return resposeLogin;
                 }
             }            
 
             // Configuración post-login
-             if (resultUser?.uid > 0)
-            {                
-                
+            if (resultUser?.uid > 0)
+            {
+                //
+                //ShowCompanySelector();
+                resposeLogin = true;
 
-                LoginSelector.IsVisible = false;
-                CompanySelector.IsVisible = true;
-                                
                 //var companies = await Task.Run(async () => await PrepareCompanies(userFound));
 
                 //ddCompany.ItemsSource = companies;
@@ -859,6 +876,8 @@ public partial class Login : ContentPage
         {
             BtnTryLogin.IsEnabled = true;            
         }
+
+        return resposeLogin;
     }
 
     public async Task<bool> TryLoginBackUserAsync()

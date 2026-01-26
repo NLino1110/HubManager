@@ -56,7 +56,7 @@ namespace ApiManager
                 "active",
                 "product_pricelist_id",
                 "adic_comercial_id",
-                //"adic_comercial_secundarios_ids",
+                "adic_comercial_secundarios_ids",
                 "adic_lunes",
                 "adic_martes",
                 "adic_miercoles",

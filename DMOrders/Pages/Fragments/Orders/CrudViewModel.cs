@@ -621,7 +621,7 @@ namespace DMOrders.Pages.Fragments.Orders
             }
             else
             {
-                var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, 1);
+                var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, qty_sol);
 
                 if (priceCalc.ExistsInPriceList)
                 {

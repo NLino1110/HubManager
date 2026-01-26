@@ -490,11 +490,12 @@ Glyph="{x:Static uranium:MaterialSharp.Check}" />
             <Grid.GestureRecognizers>
                 <PanGestureRecognizer PanUpdated="OnPanUpdated" />
             </Grid.GestureRecognizers>
-            <Grid x:Name="GridTitleSearch" RowDefinitions="*" ColumnDefinitions="*,*,*,*" BackgroundColor="LightGray">
-                <Label Grid.Column="0" Text="Producto" FontAttributes="Bold" Padding="5,0,0,0" HorizontalTextAlignment="Start"></Label>
-                <Label Grid.Column="1" Text="Unidad" FontAttributes="Bold" Padding="0,0,43,0" HorizontalTextAlignment="End"></Label>
-                <Label Grid.Column="2" Text="Precio" FontAttributes="Bold" Padding="0,0,83,0" HorizontalTextAlignment="End"></Label>
-                <Label Grid.Column="3" Text="Stock" FontAttributes="Bold" Padding="0,0,105,0" HorizontalTextAlignment="End"></Label>                
+            <Grid x:Name="GridTitleSearch" RowDefinitions="*" ColumnDefinitions="3.5*,*,*,*,45" BackgroundColor="LightGray">
+                <Label Grid.Column="0" Text="Producto" FontAttributes="Bold" HorizontalTextAlignment="Start"></Label>
+                <Label Grid.Column="1" Text="Unidad" FontAttributes="Bold" HorizontalTextAlignment="Center"></Label>
+                <Label Grid.Column="2" Text="Precio" FontAttributes="Bold" HorizontalTextAlignment="Center"></Label>
+                <Label Grid.Column="3" Text="Stock" FontAttributes="Bold" HorizontalTextAlignment="Center"></Label>
+                <Label Grid.Column="4" Text="-" TextColor="Transparent" FontAttributes="Bold" HorizontalTextAlignment="Center"></Label>
             </Grid>
             
             <!--<CollectionView

@@ -109,7 +109,7 @@ namespace DMSA.Models.Odoo.Abstract
                 {
                     Id = 1,
                     CompanyId = 1,
-                    Name = "Macronegocios Test",
+                    Name = "DMujeres SA Test",
                     Host = "https://qa.dmujeressa.ec/",
                     DbName = "qa",
                     Username = "admin",

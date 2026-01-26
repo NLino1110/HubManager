@@ -213,7 +213,7 @@
 	  <EmbeddedResource Include="Resources\Raw\liq_ticket_closing.txt" />
 	  <EmbeddedResource Include="Resources\Raw\liq_test.txt" />
 	  <EmbeddedResource Include="Resources\Raw\liq_ticket_small.liquid" />
-	  <EmbeddedResource Include="Resources\Raw\liq_ticket_small.txt" />
+	  <EmbeddedResource Include="Resources\Raw\excluded\liq_ticket_small.txt" />
 	  <EmbeddedResource Include="Resources\Raw\dotliquid_test.txt" />
 	</ItemGroup>
 

@@ -6,6 +6,7 @@
     xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
     xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
     xmlns:beebtech="clr-namespace:BeebTech.Controls.UI;assembly=BeebTech.Controls"
+    xmlns:beebtechMaui="clr-namespace:BeebTech.Maui.Controls;assembly=BeebTech.Maui.Controls"
     xmlns:controls="clr-namespace:DMCobranzas.Controls"
     xmlns:DMCobranzas="clr-namespace:DMCobranzas"
     x:Class="DMCobranzas.Login"
@@ -100,8 +101,13 @@
                             <!--<controls:CustomPicker
     Items="{Binding ListaOpciones}"
     SelectedItem="{Binding OpcionSeleccionada}" />-->
-
-                            <beebtech:DropdownField x:Name="ddCompany" Title="Compañia"/>
+                        <!--<beebtechMaui:TitledEntry Placeholder="Titulo" ShowIcon="True" IconColor="Aqua"></beebtechMaui:TitledEntry>
+                        <beebtechMaui:TitledEntry
+    Placeholder="Correo"
+    Glyph="&#xf0e0;"
+    FontFamily="FontAwesome5Solid"
+    IconColor="DodgerBlue" />-->
+                        <beebtech:DropdownField x:Name="ddCompany" Title="Compañia"/>
                             <beebtech:TextField x:Name="txtUser"
                                                 Title="Usuario"
                                                 BorderThickness="0.4"
