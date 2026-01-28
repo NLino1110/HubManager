@@ -245,14 +245,6 @@ namespace DMOrders.Pages.Fragments.Customers
             ////}
         }
 
-        private async Task ShowConfirmClient(ClienteAprobacion cliente)
-        {
-            //ConfirmClient obj = new ConfirmClient();
-            //obj.selectedCustomer = cliente;
-            //obj.BindingContextObj = ((MainViewModelCliAprob) BindingContext);
-            //await Navigation.PushModalAsync(obj, false);
-        }
-
         private void btnBuscar_Clicked(object sender, EventArgs e)
         {
             OnTapGestureRecognizerTapped(this, null);
@@ -347,16 +339,5 @@ namespace DMOrders.Pages.Fragments.Customers
 
             //vm.SelectItem(item);
         }
-
-        //public void SelectItem(res_partner item)
-        //{
-        //    if (item == null) return;
-
-        //    foreach (var i in ItemsData)
-        //        i.IsSelected = false;
-
-        //    item.IsSelected = true;
-        //    SelectedItem = item;
-        //}
     }
 }

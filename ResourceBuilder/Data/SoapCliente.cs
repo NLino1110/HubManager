@@ -67,7 +67,7 @@ namespace ResourceBuilder.Data
             RestClientOptions restClientOptions = new RestClientOptions();
             restClientOptions.RemoteCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
             restClientOptions.BaseUrl = new Uri($"{targetUri}");
-            restClientOptions.MaxTimeout = 30000;
+            //restClientOptions.MaxTimeout = 30000;
 
             RestClient restClient = new RestClient(restClientOptions);
 

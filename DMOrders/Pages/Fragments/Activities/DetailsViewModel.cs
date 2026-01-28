@@ -80,10 +80,13 @@ namespace DMOrders.Pages.Fragments.Activities
                 if(motivoItem != null)
                     item.motivo_display = motivoItem.name;
 
-                var partnerItem = await resPartnerDb.GetItemsAsync(item.company_id, item.partner_id);
-                
-                if(partnerItem != null)
-                    item.res_partner_display = partnerItem.name;
+                if (item.partner_id != null)
+                {
+                    var partnerItem = await resPartnerDb.GetItemsAsync(item.company_id, item.partner_id.Value);
+
+                    if (partnerItem != null)
+                        item.res_partner_display = partnerItem.name;
+                }
             }
             Activities = new ObservableCollection<AccountAnalyticLine>(items);
         }

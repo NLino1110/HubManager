@@ -8,7 +8,7 @@ using BlazorTable.Components.ServerSide;
 using BlazorTable.Interfaces;
 using CobranzasDMSA.Models.General.Core;
 using DataSourceManager;
-using Excubo.Generators.Blazor.ExperimentalDoNotUseYet;
+//using Excubo.Generators.Blazor.ExperimentalDoNotUseYet;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.QuickGrid;
 using Microsoft.AspNetCore.Components.Web;

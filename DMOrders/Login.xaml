@@ -116,6 +116,7 @@
                                Text="Version 0.1"
                                FontSize="12"
                                HorizontalOptions="Center"
+                               FontAttributes="Bold"
                                TextColor="Gray"/>
 
                         <Label x:Name="txtEnvironment"

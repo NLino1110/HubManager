@@ -161,13 +161,32 @@ public partial class Filters : ContentView
     {
         entryDocNumber.ClearValue();
         
-        Partners[0] = new res_partner { id = 0, name = "No seleccionada" };
-        ddfCustomer.SelectedItem = Partners[0];
+        //Partners[0] = new res_partner { id = 0, name = "No seleccionada" };
+        //ddfCustomer.SelectedItem = Partners[0];
         ddfStatus.SelectedItem = Status[0];        
         datePickerStart.Date = DateTime.Now.AddDays(-7);
         datePickerEnd.Date = DateTime.Now;
         //entryId.Text = "";
         //entryName.Text = "";
+        ClearFilters();
+    }
+
+    private void ClearFilters()
+    {
+        var partnersCopy = new ObservableCollection<res_partner>();
+
+        foreach (var b in Partners)
+        {
+            partnersCopy.Add(new res_partner
+            {
+                id = b.id,
+                name = b.name,
+            });
+        }
+
+        partnersCopy[0] = new res_partner { id = 0, name = "No seleccionada" };
+        Partners = partnersCopy;
+        ddfCustomer.SelectedItem = Partners[0];
     }
 
     internal int getStatus()

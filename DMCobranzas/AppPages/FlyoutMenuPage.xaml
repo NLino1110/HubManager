@@ -43,56 +43,83 @@
     </ContentPage.Resources>
     <ScrollView>
         <VerticalStackLayout BackgroundColor="GhostWhite">
-            <HorizontalStackLayout HorizontalOptions="FillAndExpand" BackgroundColor="GhostWhite">
-                <StackLayout Padding="10,10,10,10" BackgroundColor="WhiteSmoke">
-                <Image
-                Source="user_svgrepo_com.png"
-                SemanticProperties.Description="Avantar profile picture"
-                HeightRequest="50"
-                HorizontalOptions="Center" />
-                </StackLayout>
+            <Grid HorizontalOptions="FillAndExpand"
+                BackgroundColor="GhostWhite"
+                Padding="5"
+                ColumnDefinitions="Auto,*">
 
-                <VerticalStackLayout VerticalOptions="Center" Padding="15,5,15,15">
+                <Border
+                    StrokeThickness="0.3"
+                    Grid.Column="0"
+                    Padding="5"
+                    BackgroundColor="WhiteSmoke"
+                    VerticalOptions="Center">
+
+                    <Image
+                        Source="user_svgrepo_com.png"
+                        SemanticProperties.Description="Avantar profile picture"
+                        HeightRequest="50"
+                        WidthRequest="50"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center" />
+                </Border>
+
+                <Grid
+                        Grid.Column="1"
+                        Padding="5,0"
+                        VerticalOptions="Center"
+                        RowDefinitions="Auto,Auto,Auto,Auto">
+
                     <Label
-                Text="@username"                
-                FontSize="13"
+                        Grid.Row="0"
+                        Text="@username"
                         x:Name="txtUser"
-                HorizontalOptions="Start" 
+                        FontSize="13"
                         FontAttributes="Bold"
-                TextTransform="Uppercase"
-                />
+                        TextTransform="Uppercase"
+                        HorizontalOptions="Start" />
+
                     <Label
-                Text="@Fullname"
-                FontSize="13"
+                        Grid.Row="1"
+                        Text="@Fullname"
                         x:Name="txtName"
-                HorizontalOptions="Start" />
+                        FontSize="13"
+                        HorizontalOptions="Start" />
+
                     <Label
-                Text="@Env"
-                FontSize="13"
+                        Grid.Row="2"
+                        Text="@Env"
                         x:Name="txtEnvironment"
-                HorizontalOptions="Start" />
+                        FontSize="13"
+                        HorizontalOptions="Start" />
+
                     <Button
-                        BackgroundColor="CadetBlue"
+                        Grid.Row="3"
                         x:Name="btnLogout"
                         Text="SALIR"
-                        SemanticProperties.Hint=""
                         Clicked="TryLogout"
-                        HorizontalOptions="Start" 
-                        FontSize="12"
-                        CornerRadius="2"
-                        HeightRequest="20"
+                        BackgroundColor="CadetBlue"
+                        FontSize="9"
                         FontAttributes="Bold"
-                        Padding="5,2,5,2">
+                        CornerRadius="15"
+                        MaximumHeightRequest="50"
+                        HorizontalOptions="Start"
+                        Padding="5,0,5,0">
+
                         <Button.ImageSource>
-                            <FontImageSource FontFamily="FontAwesome5Solid"
-                                             Color="White"
-                                             Size="12"
-                                             FontAutoScalingEnabled="True"                                                         
-                                             Glyph="&#xf057;" />
+                            <FontImageSource
+                                FontFamily="FontAwesome5Solid"
+                                Glyph="&#xf057;"
+                                Color="White"
+                                Size="12"
+                                FontAutoScalingEnabled="True" />
                         </Button.ImageSource>
+
                     </Button>
-                </VerticalStackLayout>
-            </HorizontalStackLayout>
+                </Grid>
+
+            </Grid>
+
 
             <CollectionView x:Name="collectionView"
                     x:FieldModifier="public"

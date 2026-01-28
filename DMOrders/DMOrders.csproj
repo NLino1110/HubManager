@@ -31,18 +31,35 @@
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|AnyCPU'">
 	  <Optimize>True</Optimize>
 	  <AndroidStoreUncompressedFileExtensions></AndroidStoreUncompressedFileExtensions>
+	  <ApplicationVersion>4</ApplicationVersion>
+	  <AndroidPackageFormat>aab</AndroidPackageFormat>
+	  <AndroidUseAapt2>True</AndroidUseAapt2>
+	  <AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-ios|AnyCPU'">
 	  <Optimize>True</Optimize>
+	  <ApplicationVersion>4</ApplicationVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-maccatalyst|AnyCPU'">
 	  <Optimize>True</Optimize>
+	  <ApplicationVersion>4</ApplicationVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-windows10.0.19041.0|AnyCPU'">
 	  <Optimize>True</Optimize>
+	  <ApplicationVersion>4</ApplicationVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|AnyCPU'">
 	  <AndroidStoreUncompressedFileExtensions></AndroidStoreUncompressedFileExtensions>
+	  <ApplicationVersion>4</ApplicationVersion>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-ios|AnyCPU'">
+	  <ApplicationVersion>4</ApplicationVersion>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-maccatalyst|AnyCPU'">
+	  <ApplicationVersion>4</ApplicationVersion>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-windows10.0.19041.0|AnyCPU'">
+	  <ApplicationVersion>4</ApplicationVersion>
 	</PropertyGroup>
 	
 
@@ -136,11 +153,11 @@
 		<PackageReference Include="MPowerKit.VirtualizeListView" Version="2.7.1" />
 		
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-		<PackageReference Include="RestSharp" Version="112.1.0" />
+		<PackageReference Include="RestSharp" Version="113.1.0" />
 
 		<PackageReference Include="Plugin.BLE" Version="3.2.0" />
 		<PackageReference Include="SkiaSharp" Version="3.119.1" />
-		<PackageReference Include="SkiaSharp.QrCode" Version="0.9.0" />
+		<PackageReference Include="SkiaSharp.QrCode" Version="0.12.0" />
 		<PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="3.119.1" />
 		<PackageReference Include="SkiaSharp.Views.Maui.Core" Version="3.119.1" />
 		<PackageReference Include="Spinner.MAUI" Version="1.1.2" />

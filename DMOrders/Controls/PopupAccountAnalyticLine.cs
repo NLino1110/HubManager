@@ -156,30 +156,6 @@ namespace DMOrders.Controls
             Content = gridContent;
 
             PrepareForm();
-
-            //popupSizeChanged += OnPageSizeChanged;
-
-            //timer_eventController = Dispatcher.CreateTimer();
-            //timer_eventController.IsRepeating = true;
-            //timer_eventController.Interval = TimeSpan.FromMilliseconds(500);
-            //timer_eventController.Tick += async (s, e) =>
-            //{
-            //    //if (Parent != null)
-            //    //{
-            //    //    if (((ContentPage)Parent).Height != lastParentHeight)
-            //    //    {
-            //    //        if (lastParentHeight > 0)
-            //    //        {
-            //    //            //Lanzar evento de Giro
-            //    //            popupSizeChanged(this, EventArgs.Empty);
-            //    //        }
-
-            //    //        lastParentHeight = ((ContentPage)Parent).Height;
-            //    //        lastParentWidth = ((ContentPage)Parent).Width;
-            //    //    }
-            //    //}
-            //};
-            //timer_eventController.Start();
         }
 
         protected override void OnSizeAllocated(double width, double height)
@@ -697,10 +673,14 @@ namespace DMOrders.Controls
                         _inputReview.Text = analyticLine.name;
 
                         ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
-                        Sel_Res_Partner = await resPartnerDb.GetItemsAsync(analyticLine.company_id, analyticLine.partner_id);
-                        if (Sel_Res_Partner != null)
+
+                        if (analyticLine.partner_id != null)
                         {
-                            _inputResPartner.Text = Sel_Res_Partner.id.ToString() + " - " + Sel_Res_Partner.name;
+                            Sel_Res_Partner = await resPartnerDb.GetItemsAsync(analyticLine.company_id, analyticLine.partner_id.Value);
+                            if (Sel_Res_Partner != null)
+                            {
+                                _inputResPartner.Text = Sel_Res_Partner.id.ToString() + " - " + Sel_Res_Partner.name;
+                            }
                         }
 
                         //_pickerCompany.SelectedItem = lcompany.Where(i => i.id == analyticLine.company_id).FirstOrDefault();
@@ -821,7 +801,11 @@ namespace DMOrders.Controls
                 //new_PlanningSlot.id = 1;
                 //analyticLine.name = $"VISITA {Sel_Res_Partner.name}";
                 analyticLine.name = _inputReview.Text;
-                analyticLine.partner_id = Sel_Res_Partner.id;
+                if (Sel_Res_Partner != null)
+                {
+                    analyticLine.partner_id = Sel_Res_Partner.id;
+                }
+
                 analyticLine.company_id = App.Session.res_Company.id;
                 analyticLine.project_id = projectTask.project_id_;
                 analyticLine.task_id = projectTask.id;

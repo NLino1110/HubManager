@@ -222,7 +222,7 @@
 		<PackageReference Include="CommunityToolkit.Maui.Core" Version="12.3.0" />
 		<PackageReference Include="CommunityToolkit.Maui.Markup" Version="6.0.1" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-		<PackageReference Include="Fluid.Core" Version="2.30.0" />
+		<PackageReference Include="Fluid.Core" Version="2.31.0" />
 		<PackageReference Include="Microsoft.AppCenter" Version="5.0.7" />
 		<PackageReference Include="Microsoft.AppCenter.Analytics" Version="5.0.7" />
 		<PackageReference Include="Microsoft.AppCenter.Crashes" Version="5.0.7" />
@@ -230,9 +230,9 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.10" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 		<PackageReference Include="Plugin.BLE" Version="3.2.0" />
-		<PackageReference Include="RestSharp" Version="112.1.0" />
+		<PackageReference Include="RestSharp" Version="113.1.0" />
 		<PackageReference Include="SkiaSharp" Version="3.119.1" />
-		<PackageReference Include="SkiaSharp.QrCode" Version="0.9.0" />
+		<PackageReference Include="SkiaSharp.QrCode" Version="0.12.0" />
 		<!--<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />-->
 		<PackageReference Include="System.IO.Compression" Version="4.3.0" />
 		<PackageReference Include="System.Private.Uri" Version="4.3.2" />

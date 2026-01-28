@@ -24,7 +24,7 @@ namespace DMSA.Models.Odoo.DMOrders.tareas
         public decimal amount { get; set; }
         public decimal unit_amount { get; set; }
         public int motivo { get; set; }
-        public int partner_id { get; set; }
+        public int? partner_id { get; set; }
         public int user_id { get; set; }
         public int company_id { get; set; }
         public int currency_id { get; set; }

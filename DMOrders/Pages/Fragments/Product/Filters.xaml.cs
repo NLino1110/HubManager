@@ -290,10 +290,41 @@ public partial class Filters : ContentView
         //entryName.Text = "";
 
         ddfStatus.SelectedItem = Status[0];
-        Brands [0] = new product_marca { id = 0, name = "No seleccionada" };
+
+        ClearFilters();
+    }
+
+    private void ClearFilters()
+    {
+        var brandsCopy = new ObservableCollection<product_marca>();
+
+        foreach (var b in Brands)
+        {
+            brandsCopy.Add(new product_marca
+            {
+                id = b.id,
+                name = b.name,                
+            });
+        }
+
+        brandsCopy[0] = new product_marca { id = 0, name = "No seleccionada" };
+        Brands = brandsCopy;
         ddfBrands.SelectedItem = Brands[0];
-        Product_Categories[0] = new product_categoria { id = 0, name = "No seleccionada" };
-        ddfCategory.SelectedItem = Product_Categories[0];
+
+        var categoriesCopy = new ObservableCollection<product_categoria>();
+
+        foreach (var p in Product_Categories)
+        {
+            categoriesCopy.Add(new product_categoria
+            {
+                id = p.id,
+                name = p.name,
+            });
+        }
+
+        categoriesCopy[0] = new product_categoria { id = 0, name = "No seleccionada" };
+        Product_Categories = categoriesCopy;
+        ddfCategory.SelectedItem = Product_Categories[0];        
     }
 
     internal int getStatus()

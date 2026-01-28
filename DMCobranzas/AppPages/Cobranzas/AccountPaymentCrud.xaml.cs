@@ -334,7 +334,7 @@ public partial class AccountPaymentCrud : ContentPage
         pickerPaymentMethod.SelectedIndex = 0;
         pickerPaymentMethod.SelectedIndexChanged += pickerPaymentMethod_SelectedIndexChanged;
 
-        
+        await UpdateJournal("transfer");
 
         var tarjetasCreditoDb = new TarjetasCreditoDb(App.Session.odooConnection.DbNameSqlite);
         tarjetasItems = (await tarjetasCreditoDb.GetItemsAsync(x=> x.active)).ToList();
@@ -343,15 +343,15 @@ public partial class AccountPaymentCrud : ContentPage
         pickerCardId.SelectedIndex = 0;
         pickerCardId.SelectedIndexChanged += PickerCardId_SelectedIndexChanged;
 
-        int[] bank_ids = { 1,2,3,4, 5, 6, 7, 8, 9, 10, 12, 13 };
+        string[] bank_ids = { "10","30","17","36", "37", "32", "232", "42" };
 
         var bank = new BankDb(App.Session.odooConnection.DbNameSqlite);
-        var bankItems = (await bank.GetItemsAsync(x => bank_ids.Contains( x.id ))).ToList();
+        var bankItems = (await bank.GetItemsAsync(x => bank_ids.Contains( x.bic ))).ToList();
 
-        int[] cities_ids = { 88, 190, 3, 195, 194, 153, 147, 84, 86 };
+        string[] cities_ids = { "EC09001", "EC17001", "EC01001", "EC24001", "EC24003", "EC13001", "EC13008", "EC09007", "EC09009" };
 
         var cityDb = new ResCityDb(App.Session.odooConnection.DbNameSqlite);
-        var citiesItems = (await cityDb.GetItemsAsync(x => cities_ids.Contains(x.id))).ToList();
+        var citiesItems = (await cityDb.GetItemsAsync(x => cities_ids.Contains(x.zip))).ToList();
 
         //ddBankTcId.ItemsSource = tarjetasItems;
         //ddBankTcId.ItemDisplayBinding = new Binding("name");
@@ -555,7 +555,7 @@ public partial class AccountPaymentCrud : ContentPage
 
             pickerDiario.ItemsSource = account_Journals;
             pickerDiario.ItemDisplayBinding = new Binding("name");
-            pickerDiario.SelectedIndex = 0;
+            pickerDiario.SelectedIndex = -1;
 
             //    var paymentMethodSelected = (inbound_payment_method) picker.SelectedItem;
 
@@ -648,7 +648,7 @@ public partial class AccountPaymentCrud : ContentPage
         account_Journals = account_Journals.OrderBy(j => j.name).ToList();
         pickerDiario.ItemsSource = account_Journals;
         pickerDiario.ItemDisplayBinding = new Binding("name");
-        pickerDiario.SelectedIndex = 0;
+        pickerDiario.SelectedIndex = -1;
     }
 
 
@@ -1225,6 +1225,12 @@ public partial class AccountPaymentCrud : ContentPage
         multipleCobrosInvoiceLine.PartnerId = _res_partner.id;
 
         multipleCobrosInvoiceLine.Type = ((AppParameter)pickerPaymentMethod.SelectedItem).name;
+
+        if(pickerDiario.SelectedItem == null)
+        {
+            await Toast.Make("No se ha seleccionado el diario, no se puede guardar.").Show();
+            return;
+        }
 
         multipleCobrosInvoiceLine.JournalId = ((account_journal)pickerDiario.SelectedItem).id;
         multipleCobrosInvoiceLine.journal_name = ((account_journal)pickerDiario.SelectedItem).name;
