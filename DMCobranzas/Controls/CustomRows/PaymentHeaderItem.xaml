@@ -151,6 +151,7 @@
                 Grid.Row="2"
                 Grid.Column="0"
                 FontSize="12"
+                VerticalOptions="Center"
                 Text="{Binding Item.amount, StringFormat='$ {0:N2}', Source={x:Reference Root}}" />
 
             <ui:IndicatorLabelUI
@@ -158,7 +159,8 @@
                 Grid.Column="1"
                 Text="{Binding Item.payment_status, Source={x:Reference Root}}"
                 TextColor="White"
-                TextBackgroundColor="DarkSeaGreen">
+                TextBackgroundColor="DarkSeaGreen"
+                VerticalOptions="Center">
                 <ui:IndicatorLabelUI.Triggers>
                     <DataTrigger TargetType="ui:IndicatorLabelUI"
                                  Binding="{Binding Item.payment_status, Source={x:Reference Root}}"

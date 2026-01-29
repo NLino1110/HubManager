@@ -248,6 +248,10 @@ namespace DMSA.Models.Odoo.DebitCollection
         [JsonProperty("multiple_cobros_invoice_line_ai")]
         public List<MultipleCobrosInvoiceLineAiWrapper> MultipleCobrosInvoiceLineAi { get; set; }
 
+        [Ignore]
+        [JsonProperty("cuadratura_ids")]
+        public List<MultipleCobrosInvoiceLineCuadraturaWrapper> CuadraturaIds { get; set; }
+
         //[Ignore]
         //[JsonIgnore]
         //public List<object> lines_obj { get; set; }

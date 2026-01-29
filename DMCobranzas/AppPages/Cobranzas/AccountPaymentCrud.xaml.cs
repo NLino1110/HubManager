@@ -492,7 +492,17 @@ public partial class AccountPaymentCrud : ContentPage
             switch (type_value)
             {
                 case "transfer":
-                case "deposito":                
+                    {
+                        q = await db.GetItemsAsync(x => x.type == "bank");
+                        SetDirectPayment();
+                    }
+                    break;
+                case "deposito":
+                    {
+                        q = await db.GetItemsAsync(x => x.type == "bank");
+                        SetDepositPayment();
+                    }
+                    break;
                 case "cash":
                     {
                         q = await db.GetItemsAsync(x => x.type == "bank");
@@ -593,7 +603,17 @@ public partial class AccountPaymentCrud : ContentPage
         switch (type_value)
         {
             case "transfer":
+                {
+                    q = await db.GetItemsAsync(x => x.type == "bank");
+                    SetDirectPayment();
+                }
+                break;
             case "deposito":
+                {
+                    q = await db.GetItemsAsync(x => x.type == "bank");
+                    SetDepositPayment();
+                }
+                break;
             case "cash":
                 {
                     q = await db.GetItemsAsync(x => x.type == "bank");
@@ -658,6 +678,32 @@ public partial class AccountPaymentCrud : ContentPage
         pickerFechaPago.IsVisible = true;
         ddBank.IsVisible = true;
         txtBancoCuenta.IsVisible = true;
+
+        txtBinTc.IsVisible = false;
+        txtAuthTc.IsVisible = false;
+        txtLoteTc.IsVisible = false;
+
+        txtNCheque.IsVisible = false;
+        txtChequeTitular.IsVisible = false;
+        ddResCity.IsVisible = false;
+
+        pickerFechaCheque.IsVisible = false;
+
+        pickerCardId.IsVisible = false;
+        ddBankTcId.IsVisible = false;
+        pickerPaymentTypeId.IsVisible = false;
+        pickerPlanId.IsVisible = false;
+
+        txtCircular.Placeholder = "Número de comprobante";
+    }
+
+    private void SetDepositPayment()
+    {
+        //txtDepositoConfirmar.IsVisible = true;
+        pickerFechaPago.IsVisible = true;
+        
+        ddBank.IsVisible = false;
+        txtBancoCuenta.IsVisible = false;
 
         txtBinTc.IsVisible = false;
         txtAuthTc.IsVisible = false;
@@ -909,7 +955,7 @@ public partial class AccountPaymentCrud : ContentPage
                 break;
             case "deposito":
                 {
-                    SetDirectPayment();
+                    SetDepositPayment();
                 }
                 break;
             case "cash":

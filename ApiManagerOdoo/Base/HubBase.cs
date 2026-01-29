@@ -16,7 +16,7 @@ namespace ApiManagerOdoo.Base
     {
         private bool _disposed = false;
         private string CallKw = "web/dataset/call_kw";
-        public string EndPointServer { get; set; } //http://localhost:8069/
+        public string EndPointServer { get; set; }
         public string EndPointApi { get; set; }        
         public AppSession _appSession { get; set; }
         public string _modelname { get; set; }

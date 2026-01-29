@@ -14,7 +14,7 @@ namespace DMSA.Sync.Core.Update.Pusher
 {
     public static class DebitCollection
     {
-        static public async Task<ApiResponseOdooRpcT<List<OdooRpcResultInt>>?> SendPayment(MultipleCobrosInvoice _accountPaymentHeader, bool autosend)
+        static public async Task<ApiResponseOdooRpcT<List<OdooRpcResultInt>>?> SendPayment(MultipleCobrosInvoice multipleCobrosInvoice, bool autosend)
         {
             string sync_mode = "manual";
             if(autosend)
@@ -30,40 +30,42 @@ namespace DMSA.Sync.Core.Update.Pusher
 
             var cobReciboCabDb = new MultipleCobrosInvoiceDb(Constants.Session.odooConnection.DbNameSqlite);
 
-            if (_accountPaymentHeader.payment_status == DMSA.Models.CobrosEstados.PENDIENTE)
+            if (multipleCobrosInvoice.payment_status == DMSA.Models.CobrosEstados.PENDIENTE)
             {
                 string fechaActual = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0, 10);
                 //string secuencia_final = cobReciboCabDb.GenerarCodigoRecibo(_accountPaymentHeader.uid, _accountPaymentHeader.company_id, fechaActual, _accountPaymentHeader.id.ToString());
                 //string secuencia_final = await cobReciboCabDb.BuildRecipeName(_accountPaymentHeader);
 
                 string newGuid = Guid.NewGuid().ToString("N");
-                _accountPaymentHeader.guid = newGuid;
+                multipleCobrosInvoice.guid = newGuid;
                 //_accountPaymentHeader.recipe_name = secuencia_final;
-                _accountPaymentHeader.payment_status = DMSA.Models.CobrosEstados.PROCESANDO;
-                await cobReciboCabDb.UpdateAsync(_accountPaymentHeader);
+                multipleCobrosInvoice.payment_status = DMSA.Models.CobrosEstados.PROCESANDO;
+                await cobReciboCabDb.UpdateAsync(multipleCobrosInvoice);
             }
 
             if (DeviceInfo.Current.Platform == DevicePlatform.Android ||
                     DeviceInfo.Current.Platform == DevicePlatform.iOS)
             {
-                _accountPaymentHeader.device_idiom = DeviceInfo.Idiom.ToString();
-                _accountPaymentHeader.device_model = DeviceInfo.Current.Model;
-                _accountPaymentHeader.device_manufacturer = DeviceInfo.Current.Manufacturer;
-                _accountPaymentHeader.sync_mode = sync_mode;
+                multipleCobrosInvoice.device_idiom = DeviceInfo.Idiom.ToString();
+                multipleCobrosInvoice.device_model = DeviceInfo.Current.Model;
+                multipleCobrosInvoice.device_manufacturer = DeviceInfo.Current.Manufacturer;
+                multipleCobrosInvoice.sync_mode = sync_mode;
             }
 
             if (DeviceInfo.Current.Platform == DevicePlatform.WinUI)
             {
-                _accountPaymentHeader.device_idiom = DeviceInfo.Idiom.ToString();
-                _accountPaymentHeader.device_model = "-";
-                _accountPaymentHeader.device_manufacturer = "-";
-                _accountPaymentHeader.sync_mode = sync_mode;
+                multipleCobrosInvoice.device_idiom = DeviceInfo.Idiom.ToString();
+                multipleCobrosInvoice.device_model = "-";
+                multipleCobrosInvoice.device_manufacturer = "-";
+                multipleCobrosInvoice.sync_mode = sync_mode;
             }
 
             int user_id = Constants.Session.CurrentUserFront.uid;
             string user_name = Constants.Session.CurrentUserFront.username;
+            
+            
 
-            if (_accountPaymentHeader.receipt_receipts_id == 0)
+            if (multipleCobrosInvoice.receipt_receipts_id == 0)
             {
                 var receiptReceiptsLineDb = new ReceiptReceiptsLineDb(Constants.Session.odooConnection.DbNameSqlite);
                 var receiptLines = (await receiptReceiptsLineDb.GetItemsAsync(x => x._sale_user_id == user_id && x.state == "draft"))
@@ -73,11 +75,11 @@ namespace DMSA.Sync.Core.Update.Pusher
 
                 if (receiptLines.Count > 0)
                 {
-                    _accountPaymentHeader.receipt_receipts_id = receiptLines[0]._receipt_receipts_id;
-                    _accountPaymentHeader.receipt_receipts_line_id = receiptLines[0].id;
-                    _accountPaymentHeader.recipe_name = cobReciboCabDb.BuildName(_accountPaymentHeader, user_name, _accountPaymentHeader.receipt_receipts_line_id);
+                    multipleCobrosInvoice.receipt_receipts_id = receiptLines[0]._receipt_receipts_id;
+                    multipleCobrosInvoice.receipt_receipts_line_id = receiptLines[0].id;
+                    multipleCobrosInvoice.recipe_name = cobReciboCabDb.BuildName(multipleCobrosInvoice, user_name, multipleCobrosInvoice.receipt_receipts_line_id);
 
-                    await cobReciboCabDb.UpdateAsync(_accountPaymentHeader);
+                    await cobReciboCabDb.UpdateAsync(multipleCobrosInvoice);
 
                     receiptLines[0].state = "used";
                     await receiptReceiptsLineDb.UpdateAsync(receiptLines[0]);
@@ -87,24 +89,27 @@ namespace DMSA.Sync.Core.Update.Pusher
             //TODO: Se coloca directamente "unknow" ya que las nuevas versiones de Android
             // no permiten obtener el número de serie de los dispositivos
 
-            _accountPaymentHeader.device_serial = "unknown" + "-" + Constants.Session.AppVersion;
+            multipleCobrosInvoice.device_serial = "unknown" + "-" + Constants.Session.AppVersion;
 
-            _accountPaymentHeader.device_app_version = Constants.Session.AppVersion;
-            _accountPaymentHeader.origin_mobile_app = Constants.Session.AppCodeOdoo;
+            multipleCobrosInvoice.device_app_version = Constants.Session.AppVersion;
+            multipleCobrosInvoice.origin_mobile_app = Constants.Session.AppCodeOdoo;
 
             HubMultipleCobrosInvoice apiProcessor = new HubMultipleCobrosInvoice(Constants.Session);
 
             var accountPaymentDb = new MultipleCobrosInvoiceLineDb(Constants.Session.odooConnection.DbNameSqlite);
 
-            var paymentList = await accountPaymentDb.GetItemsAsync(x => x.MultipleCobrosInvoiceId == _accountPaymentHeader.id);
+            var paymentList = await accountPaymentDb.GetItemsAsync(x => x.MultipleCobrosInvoiceId == multipleCobrosInvoice.id);
 
             var accountPaymentLines = new MultipleCobrosInvoiceLineAiDb(Constants.Session.odooConnection.DbNameSqlite);
 
             bool everyThingOk = false;
             foreach (var payment in paymentList)
             {
+                
+
                 //Si partner_bank_id requiere verificacion/sincronizacion con Odoo
 
+                //TODO: Hay que eliminar esta parte de la logica
                 if (payment.PartnerBankId < 0)
                 {
                     PartnerBankDb bankDb = new PartnerBankDb(Constants.Session.odooConnection.DbNameSqlite);
@@ -157,6 +162,9 @@ namespace DMSA.Sync.Core.Update.Pusher
                 //TODO: Check this line
                 //payment.recipe_name = _accountPaymentHeader.recipe_name;
 
+                decimal? CuadraturaAmount = 0;
+                CuadraturaAmount = payment.Amount;
+
                 //Se consultan lineas de pagos de documentos
                 var apl = await accountPaymentLines.GetItemsAsync(x => x.multiple_cobros_invoice_line_id == payment.Id);
                 if (apl.Count > 0)
@@ -180,9 +188,10 @@ namespace DMSA.Sync.Core.Update.Pusher
                     //]
 
                     var listLines = new List<MultipleCobrosInvoiceLineAiWrapper>();
-
+                    
                     foreach (var line in payment.lines)
                     {
+                        CuadraturaAmount -= line.amount_asigned;
                         listLines.Add(new MultipleCobrosInvoiceLineAiWrapper(line));
                     }
 
@@ -193,21 +202,33 @@ namespace DMSA.Sync.Core.Update.Pusher
                     payment.MultipleCobrosInvoiceLineAi = new List<MultipleCobrosInvoiceLineAiWrapper>();
                 }
 
+                var CuadraturasIds = new List<MultipleCobrosInvoiceLineCuadraturaWrapper>();
+
+                if (CuadraturaAmount > 0)
+                {
+                    var CuadraturaItem = new MultipleCobrosInvoiceLineCuadratura();
+
+                    CuadraturaItem.account_cuadre_id = 1064;
+                    CuadraturaItem.amount = CuadraturaAmount;
+                    CuadraturaItem.partner_id = multipleCobrosInvoice.partner_id;
+                    CuadraturasIds.Add(new MultipleCobrosInvoiceLineCuadraturaWrapper(CuadraturaItem));                    
+                }
+
+                payment.CuadraturaIds = CuadraturasIds;
+
                 //TODO: Verificar si esta linea es necesaria
                 //payment.check_number = payment.number_check_customer;
                 payment.PartnerBankId = payment.PartnerBankId;
-
-
             }
 
-            resultTask = await apiProcessor.Create(_accountPaymentHeader);
+            resultTask = await apiProcessor.Create(multipleCobrosInvoice);
 
             if (resultTask == null)
             {
                 //await Toast.Make("Error: Datos!").Show();
-                _accountPaymentHeader.payment_status = DMSA.Models.CobrosEstados.ERROR;
-                _accountPaymentHeader.write_date = DateTime.Now;
-                await cobReciboCabDb.UpdateAsync(_accountPaymentHeader);
+                multipleCobrosInvoice.payment_status = DMSA.Models.CobrosEstados.ERROR;
+                multipleCobrosInvoice.write_date = DateTime.Now;
+                await cobReciboCabDb.UpdateAsync(multipleCobrosInvoice);
             }
             else
             {
@@ -238,17 +259,17 @@ namespace DMSA.Sync.Core.Update.Pusher
 
                     //await Toast.Make("Envío de cobro correcto").Show();
                     Debug.WriteLine("Terminado envío!");
-                    _accountPaymentHeader.payment_status = DMSA.Models.CobrosEstados.ENVIADO;
-                    _accountPaymentHeader.write_date = DateTime.Now;
-                    await cobReciboCabDb.UpdateAsync(_accountPaymentHeader);
+                    multipleCobrosInvoice.payment_status = DMSA.Models.CobrosEstados.ENVIADO;
+                    multipleCobrosInvoice.write_date = DateTime.Now;
+                    await cobReciboCabDb.UpdateAsync(multipleCobrosInvoice);
                     everyThingOk = true;
                 }
                 else
                 {
                     //await Toast.Make("Error: " + resultTask.message).Show();
-                    _accountPaymentHeader.payment_status = DMSA.Models.CobrosEstados.ERROR;
-                    _accountPaymentHeader.write_date = DateTime.Now;
-                    await cobReciboCabDb.UpdateAsync(_accountPaymentHeader);
+                    multipleCobrosInvoice.payment_status = DMSA.Models.CobrosEstados.ERROR;
+                    multipleCobrosInvoice.write_date = DateTime.Now;
+                    await cobReciboCabDb.UpdateAsync(multipleCobrosInvoice);
                     //everyThingOk = false;
                 }
             }
@@ -258,7 +279,7 @@ namespace DMSA.Sync.Core.Update.Pusher
                 //try
                 //{
                 var accountPaymentHeader = new HubMultipleCobrosInvoice(Constants.Session);
-                string jsonSerialized = JsonConvert.SerializeObject(_accountPaymentHeader);
+                string jsonSerialized = JsonConvert.SerializeObject(multipleCobrosInvoice);
                 MultipleCobrosInvoice objSend = JsonConvert.DeserializeObject<MultipleCobrosInvoice>(jsonSerialized);
                 objSend.lines = Array.Empty<MultipleCobrosInvoiceLine>();
 
@@ -272,7 +293,7 @@ namespace DMSA.Sync.Core.Update.Pusher
                     settings.DateFormatString = "yyyy-MM-dd HH:mm:ss";
                     //settings.ContractResolver = new IncludeJsonIgnoreResolver();
                     //multiple_cobros_invoice_line_ai
-                    settings.ContractResolver = new IgnorePropertyResolver("multiple_cobros_invoice_line_ai");
+                    settings.ContractResolver = new IgnorePropertyResolver("multiple_cobros_invoice_line_ai", "cuadratura_ids");
 
                     //Console.WriteLine(paymentItem);
 
