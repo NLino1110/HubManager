@@ -2,6 +2,9 @@
 using DMSA.Models.Odoo.Native;
 using Newtonsoft.Json;
 using SQLite;
+using System.ComponentModel;
+using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace DMSA.Models.Odoo.DebitCollection
 {
@@ -16,7 +19,7 @@ namespace DMSA.Models.Odoo.DebitCollection
     }
 
     [Table("multiple_cobros_invoice_line_ai")]
-    public class MultipleCobrosInvoiceLineAi : OdooEntity
+    public class MultipleCobrosInvoiceLineAi : OdooEntity, INotifyPropertyChanged
     {
         [PrimaryKey]
         [AutoIncrement]
@@ -48,9 +51,25 @@ namespace DMSA.Models.Odoo.DebitCollection
         [JsonProperty("amount_residual")]
         [Column("amount_residual")]
         public decimal amount_residual { get; set; }
+
+
+        private decimal _amount_asigned;
+
         [JsonProperty("amount_asigned")]
         [Column("amount_asigned")]
-        public decimal amount_asigned { get; set; }
+        public decimal amount_asigned
+        {
+            get => _amount_asigned;
+            set
+            {
+                if (_amount_asigned != value)
+                {
+                    _amount_asigned = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         [JsonProperty("multiple_cobros_invoice_line_id")]
         [Column("multiple_cobros_invoice_line_id")]
         public int multiple_cobros_invoice_line_id { get; set; }
@@ -74,5 +93,15 @@ namespace DMSA.Models.Odoo.DebitCollection
         [JsonIgnore]
         [Column("docnum_mask")]
         public string docnum_mask { get; set; }
+
+        [JsonIgnore]
+        [Ignore]
+        public bool EventsOn { get; set; } = true;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

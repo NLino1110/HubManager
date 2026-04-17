@@ -180,7 +180,9 @@ namespace DMOrders.Services.Promotions
         //    return TotalTimes;
         //}
 
-        private async Task<(bool exists, int totalTimes)> CheckPromoCenterAsync( List<PromoCenters> centers, int pricelist_id)
+        private async Task<(bool exists, int totalTimes)> CheckPromoCenterAsync( List<PromoCenters> centers, 
+            int pricelist_id, 
+            PromotionBenefit promotionBenefit)
         {
             bool exists = false;
             int totalTimes = 0;
@@ -197,7 +199,16 @@ namespace DMOrders.Services.Promotions
                     if (levels.Contains(pricelist_id))
                     {
                         exists = true;
+                        //No eliminar - funciona correctamente 
+                        // pero por ahora se pasara por alto
                         totalTimes += center.times_inv;
+
+                        //Si es que es descuento es ilimitado
+                        if (promotionBenefit._promotion_type_id == 6)
+                        {
+                            //----POR AHORA 1000
+                            totalTimes += 1000;
+                        }
                     }
                 }
             }
@@ -205,7 +216,7 @@ namespace DMOrders.Services.Promotions
             return (exists, totalTimes);
         }
 
-        [Obsolete("VErsio inestable")]
+        [Obsolete("Version inestable")]
         /// <summary>
         /// Evalúa promociones aplicables para un producto + cantidad en el contexto dado.
         /// - product: objeto product_product (puede ser null si la evaluación es por pedido).
@@ -249,8 +260,7 @@ namespace DMOrders.Services.Promotions
 
             foreach (var promo in candidates)
             {
-
-                var (inCenter, TotalTimesAllowed) = await CheckPromoCenterAsync(promo._centers_ids, pricelist_id);
+                var (inCenter, TotalTimesAllowed) = await CheckPromoCenterAsync(promo._centers_ids, pricelist_id, promo);
                 
                 Debug.WriteLine("inCenter");
                 Debug.WriteLine(inCenter);

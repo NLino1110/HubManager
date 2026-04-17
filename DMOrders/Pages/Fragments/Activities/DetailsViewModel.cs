@@ -1,7 +1,7 @@
 ﻿using DMOrders.Models; // Asegúrate de que aquí esté la definición de tu modelo Activity
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.DMOrders;
-using DMSA.Models.Odoo.DMOrders.tareas;
+using DMSA.Models.Odoo.Tareas;
 using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite.tareas;
 using System.Collections.ObjectModel;

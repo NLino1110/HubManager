@@ -6,8 +6,7 @@
             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
             xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
             xmlns:converters="clr-namespace:DMOrders.Converters"             
-            xmlns:local="clr-namespace:DMOrders.Pages.Fragments.Orders.modals"       
-            xmlns:customrows="clr-namespace:DMOrders.Controls.CustomRows"
+            xmlns:local="clr-namespace:DMOrders.Pages.Fragments.Orders.modals"            
              xmlns:customrowsLite="clr-namespace:DMOrders.Controls.CustomRows.Lite"
             xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
             xmlns:controls="clr-namespace:DMOrders.Controls"
@@ -21,36 +20,11 @@
             <converters:BoolToActivoConverter x:Key="BoolToActivoConverter"/>
             <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
             <converters:FalseStringToDashConverter x:Key="FalseToDashConverter" />
+            <converters:SelectionColorConverter x:Key="SelectionColorConverter"/>
         </ResourceDictionary>
-
-        <!--<DataTemplate x:Key="RowTemplate">
-            <customrows:ProductRow Item="{Binding .}" ActionButton="{Binding Source={x:Reference Root}, Path=ItemPickedCommand}" ShowSelectButton="True"/>
-        </DataTemplate>
-
-        <DataTemplate x:Key="GridTemplate">
-            <customrows:ProductCanvasRow Item="{Binding .}" ActionButton="{Binding Source={x:Reference Root}, Path=ItemPickedCommand}" ShowSelectButton="True"/>
-        </DataTemplate>
-
-        <DataTemplate x:Key="ViewerTemplate">
-            <customrows:ProductViewerRow Item="{Binding .}"/>
-        </DataTemplate>
-
-        <local:ProductTemplateSelector x:Key="ProductTemplateSelector"
-                                   ViewerTemplate="{StaticResource ViewerTemplate}"
-                                   RowTemplate="{StaticResource RowTemplate}"
-                                   GridTemplate="{StaticResource GridTemplate}" />-->
-
-        <DataTemplate x:Key="RowTemplate">            
-            <mpowerkit:VirtualizeListViewCell BackgroundColor="WhiteSmoke">
-                
-                <!--<customrows:ProductRow 
-            Item="{Binding .}" 
-            ActionButton="{Binding Source={x:Reference Root}, Path=ItemPickedCommand}" 
-            ShowSelectButton="True"/>-->
-
+        <DataTemplate x:Key="RowTemplate">
+            <mpowerkit:VirtualizeListViewCell BackgroundColor="{Binding IsSelected, Converter={StaticResource SelectionColorConverter}}">                
                 <Grid Padding="4" RowSpacing="2" ColumnSpacing="12">
-
-                    <!-- Definición del grid principal -->
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
@@ -63,8 +37,7 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="40" />
                     </Grid.ColumnDefinitions>
-
-                    <!-- Nombre -->
+       
                     <Label Grid.Row="0"
                        Grid.Column="0"
                        FontAttributes="Bold"
@@ -80,7 +53,7 @@
                         VerticalTextAlignment="Center"
                         HorizontalTextAlignment="Center"
                         WidthRequest="100"
-                       Text="{Binding uom_display}"/>
+                       Text="{Binding uom_sale_display}"/>
 
                     <Label Grid.Row="0"
                        Grid.Column="2"                       
@@ -128,53 +101,24 @@
                                               Glyph=&#xf067;,
                                               Color=White,
                                               Size=15}"
-                        Command="{Binding Source={x:Reference Root}, Path=ItemPickedCommand}"
+                        Command="{Binding Source={x:Reference Root}, Path=ItemPickedInternalCommand}"
                         CommandParameter="{Binding .}"/>
                 </Grid>
-
-
-                <mpowerkit:VirtualizeListViewCell.Triggers>
-                    <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="True">
-                        <Setter Property="BackgroundColor" Value="LightBlue"/>
-                    </DataTrigger>
-                    <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="False">
-                        <Setter Property="BackgroundColor" Value="WhiteSmoke"/>
-                    </DataTrigger>
-                </mpowerkit:VirtualizeListViewCell.Triggers>
             </mpowerkit:VirtualizeListViewCell>
         </DataTemplate>
 
         <DataTemplate x:Key="GridTemplate">
-            <mpowerkit:VirtualizeListViewCell BackgroundColor="WhiteSmoke">
-                <customrows:ProductCanvasRow 
-            Item="{Binding .}" 
-            ActionButton="{Binding Source={x:Reference Root}, Path=ItemPickedCommand}" 
-            ShowSelectButton="True" ShowPrice="True"/>
-                <mpowerkit:VirtualizeListViewCell.Triggers>
-                    <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="True">
-                        <Setter Property="BackgroundColor" Value="LightBlue"/>
-                    </DataTrigger>
-                    <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="False">
-                        <Setter Property="BackgroundColor" Value="WhiteSmoke"/>
-                    </DataTrigger>
-                </mpowerkit:VirtualizeListViewCell.Triggers>
+            <mpowerkit:VirtualizeListViewCell BackgroundColor="{Binding IsSelected, Converter={StaticResource SelectionColorConverter}}">                
+                <customrowsLite:ProductCanvasRow 
+                    Item="{Binding .}" 
+                    ActionButton="{Binding Source={x:Reference Root}, Path=ItemPickedCommand}" 
+                    ShowSelectButton="True" ShowPrice="True"/>
             </mpowerkit:VirtualizeListViewCell>
         </DataTemplate>
 
         <DataTemplate x:Key="ViewerTemplate">
-            <mpowerkit:VirtualizeListViewCell BackgroundColor="WhiteSmoke">
-                <!--<customrows:ProductViewerRow Item="{Binding .}"/>-->
-
-                <customrowsLite:ProductViewerRow Item="{Binding .}"/>
-                
-                <mpowerkit:VirtualizeListViewCell.Triggers>
-                    <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="True">
-                        <Setter Property="BackgroundColor" Value="LightBlue"/>
-                    </DataTrigger>
-                    <DataTrigger TargetType="mpowerkit:VirtualizeListViewCell" Binding="{Binding IsSelected}" Value="False">
-                        <Setter Property="BackgroundColor" Value="WhiteSmoke"/>
-                    </DataTrigger>
-                </mpowerkit:VirtualizeListViewCell.Triggers>
+            <mpowerkit:VirtualizeListViewCell BackgroundColor="{Binding IsSelected, Converter={StaticResource SelectionColorConverter}}">                
+                <customrowsLite:ProductViewerRow Item="{Binding .}"/>                
             </mpowerkit:VirtualizeListViewCell>
         </DataTemplate>
 
@@ -196,8 +140,8 @@
                     <FontImageSource
                         Color="White"
                         Size="18"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.Arrow_back}" />
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xf060;" />
                 </Button.ImageSource>
             </Button>
             <Label Grid.Row="0" Grid.Column="1" Margin="-60,0,0,0"
@@ -216,13 +160,12 @@
                     <FontImageSource
                         Color="White"
                         Size="18"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.Close}" />
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xf00d;" />
                 </Button.ImageSource>
             </Button>
         </Grid>
 
-        <!-- Grid Parametros -->
         <Grid BackgroundColor="WhiteSmoke" 
               RowDefinitions="Auto,Auto,Auto" 
               ColumnDefinitions="*,*,Auto" 
@@ -258,7 +201,7 @@
                 BorderThickness="0.4"
                 Grid.Row="2">
                 <material:DropdownField.Icon>
-                    <FontImageSource Size="18" FontFamily="MaterialRounded" Glyph="{x:Static uranium:MaterialRounded.Health_and_beauty}"  />
+                    <FontImageSource Size="18" FontFamily="FontAwesome5Solid" Glyph="&#xe066;"  />
                 </material:DropdownField.Icon>
             </material:DropdownField>
 
@@ -274,8 +217,8 @@
                 <material:DropdownField.Icon>
                     <FontImageSource
                         Size="18"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.Category}" />
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xf61f;" />
                 </material:DropdownField.Icon>
             </material:DropdownField>
 
@@ -291,8 +234,8 @@
                 <material:DropdownField.Icon>
                     <FontImageSource
                     Size="18"
-                    FontFamily="MaterialSharp"
-                    Glyph="{x:Static uranium:MaterialSharp.Category}" />
+                    FontFamily="FontAwesome5Solid"
+                    Glyph="&#xf61f;" />
                 </material:DropdownField.Icon>
             </material:DropdownField>
 
@@ -308,8 +251,8 @@
                 <material:DropdownField.Icon>
                     <FontImageSource
                         Size="18"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.Category}" />
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xf61f;" />
                 </material:DropdownField.Icon>
             </material:DropdownField>
 
@@ -335,9 +278,9 @@
                     Clicked="btnClear_Clicked">
                 <Button.ImageSource>
                     <FontImageSource 
-                        Size="18"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.Filter_list_off}" />
+                        Size="15"
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xe05e;" />
                 </Button.ImageSource>
             </Button>
 
@@ -351,17 +294,11 @@
                     Command="{Binding RefreshCommand}">
                 <Button.ImageSource>
                     <FontImageSource 
-            Size="18"
-            FontFamily="MaterialSharp"
-            Glyph="{x:Static uranium:MaterialSharp.Search}" />
+            Size="15"
+            FontFamily="FontAwesome5Solid"
+            Glyph="&#xf002;" />
                 </Button.ImageSource>
-            </Button>
-
-            <!--<material:RadioButtonGroupView>
-                <material:RadioButton Text="Option 1" IsChecked="True" />
-                <material:RadioButton Text="Option 2" />
-            </material:RadioButtonGroupView>-->        
-        
+            </Button>        
         </Grid>
 
         <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" Grid.Row="1" Grid.Column="1" Grid.RowSpan="2">
@@ -380,11 +317,11 @@
 
                 <Label Text="Unidad Vta.:"  FontSize="10" Grid.Row="1" Grid.Column="0"/>
                 <Label Grid.Row="1" Grid.Column="1" Text="{Binding Path=SelectedItem.uom_display}" 
-               FontSize="10" 
-               FontAttributes="Bold"
-               TextColor="#242322"
-                  HorizontalTextAlignment="Start"
-                  VerticalTextAlignment="Center"></Label>
+                    FontSize="10" 
+                    FontAttributes="Bold"
+                    TextColor="#242322"
+                    HorizontalTextAlignment="Start"
+                    VerticalTextAlignment="Center"></Label>
 
                 <Label Text="Stock:"  FontSize="10" Grid.Row="2" Grid.Column="0"/>
                 <Label Grid.Row="2" Grid.Column="1" Text="{Binding Path=SelectedItem.cantidad_disponible}" 
@@ -434,7 +371,6 @@
                 </VerticalStackLayout>
             </Border>
 
-
             <Button Grid.Row="2" Text="" BackgroundColor="LimeGreen" 
         TextColor="White" 
         FontAttributes="Bold" 
@@ -442,9 +378,9 @@
         Clicked="ApplyValueChanges">
                 <Button.ImageSource>
                     <FontImageSource 
-Size="20"
-FontFamily="MaterialSharp"
-Glyph="{x:Static uranium:MaterialSharp.Check}" />
+                    Size="15"
+                    FontFamily="FontAwesome5Solid"
+                    Glyph="&#xf00c;" />
                 </Button.ImageSource>
             </Button>
 
@@ -479,9 +415,9 @@ Glyph="{x:Static uranium:MaterialSharp.Check}" />
                   Clicked="ResetOriginalValues">
                 <Button.ImageSource>
                     <FontImageSource 
-            Size="20"
-            FontFamily="MaterialSharp"
-            Glyph="{x:Static uranium:MaterialSharp.Undo}" />
+                        Size="15"
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xf2ea;" />
                 </Button.ImageSource>
             </Button>
         </Grid>
@@ -496,26 +432,9 @@ Glyph="{x:Static uranium:MaterialSharp.Check}" />
                 <Label Grid.Column="2" Text="Precio" FontAttributes="Bold" HorizontalTextAlignment="Center"></Label>
                 <Label Grid.Column="3" Text="Stock" FontAttributes="Bold" HorizontalTextAlignment="Center"></Label>
                 <Label Grid.Column="4" Text="-" TextColor="Transparent" FontAttributes="Bold" HorizontalTextAlignment="Center"></Label>
-            </Grid>
-            
-            <!--<CollectionView
-                    Grid.Row="1"
-                    x:Name="MyCollectionView"
-                    ItemsSource="{Binding ItemsData}"
-                    EmptyView="Datos no encontrados..." 
-                    HorizontalOptions="Fill" 
-                    VerticalOptions="Fill"
-                    SelectionMode="Single"
-                    SelectedItem="{Binding SelectedItem, Mode=TwoWay}"                    
-                    IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}"
-                    ItemTemplate="{StaticResource ProductTemplateSelector}">
-                <CollectionView.ItemsLayout>
-                    <GridItemsLayout Orientation="Vertical" Span="4" />
-                </CollectionView.ItemsLayout>
-            </CollectionView>-->
+            </Grid>            
 
             <Grid Grid.Row="1">
-
                 <Grid
                     BackgroundColor="#80000000"
                     Opacity="{Binding IsLoading, Converter={StaticResource BoolToOpacityConverter}}"
@@ -549,28 +468,8 @@ Glyph="{x:Static uranium:MaterialSharp.Check}" />
                         </mpowerkit:VirtualizeListView.ItemsLayout>                        
                     </mpowerkit:VirtualizeListView>
                 </mpowerkit:FixedRefreshView>
-
-                <!--<Grid
-                    BackgroundColor="#80000000"
-                    IsVisible="{Binding IsLoading}"
-                    VerticalOptions="Fill"
-                    HorizontalOptions="Fill"
-                    ZIndex="10">
-                    <ActivityIndicator 
-                        IsRunning="{Binding IsLoading}" 
-                        Color="MediumVioletRed"
-                        WidthRequest="100"
-                        HeightRequest="100"
-                        VerticalOptions="Center"
-                        HorizontalOptions="Center" />
-                </Grid>-->
-
-
-
             </Grid>
-        </Grid>        
-
-        
+        </Grid>
 
         <Grid Grid.Row="3" Grid.ColumnSpan="2" ColumnDefinitions="*,Auto">
             <StackLayout Orientation="Horizontal" HorizontalOptions="Start" Margin="0,2" Grid.Column="0">
@@ -581,8 +480,8 @@ Glyph="{x:Static uranium:MaterialSharp.Check}" />
                         <FontImageSource x:Name="IconPrevious"
                             Color="Black"
                             Size="18"
-                            FontFamily="MaterialSharp"
-                            Glyph="{x:Static uranium:MaterialSharp.Skip_previous}" />
+                            FontFamily="FontAwesome5Solid"
+                            Glyph="&#xf104;" />
                     </Button.ImageSource>
                     <Button.Triggers>
                         <Trigger TargetType="Button" Property="IsEnabled" Value="False">
@@ -601,8 +500,8 @@ Glyph="{x:Static uranium:MaterialSharp.Check}" />
                     <Button.ImageSource>
                         <FontImageSource x:Name="IconNext"
              Size="18"
-             FontFamily="MaterialSharp"
-             Glyph="{x:Static uranium:MaterialSharp.Skip_next}"
+             FontFamily="FontAwesome5Solid"
+             Glyph="&#xf105;"
              Color="Black" />
                     </Button.ImageSource>
                     <Button.Triggers>
@@ -622,8 +521,8 @@ Glyph="{x:Static uranium:MaterialSharp.Check}" />
                 <Button.ImageSource>
                     <FontImageSource
                      Size="18"
-                     FontFamily="MaterialSharp"
-                     Glyph="{x:Static uranium:MaterialSharp.Check}"
+                     FontFamily="FontAwesome5Solid"
+                     Glyph="&#xf00c;"
                      Color="White" />
                 </Button.ImageSource>
             </Button>

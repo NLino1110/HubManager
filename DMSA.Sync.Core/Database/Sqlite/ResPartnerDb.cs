@@ -10,7 +10,17 @@ namespace DMSA.Sync.Core.Database.Sqlite
 
         public ResPartnerDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
+            
+        }
 
+        protected override async Task OnAfterInit()
+        {
+            await Database.RunInTransactionAsync(tran =>
+            {
+                tran.Execute("CREATE INDEX IF NOT EXISTS idx_res_partner__id ON res_partner(id)");
+                tran.Execute("CREATE INDEX IF NOT EXISTS idx_res_partner__name ON res_partner(name)");
+                tran.Execute("CREATE INDEX IF NOT EXISTS idx_res_partner__type ON res_partner(_type)");
+            });
         }
 
         public async Task PreloadInfoData()
@@ -114,9 +124,9 @@ namespace DMSA.Sync.Core.Database.Sqlite
             }
 
             if (filter_status == 1)
-                q = q.Where(x => x.active == true);
+                q = q.Where(x => x.misc_estado == "activo");
             else if(filter_status == 2)
-                q = q.Where(x => x.active == false);
+                q = q.Where(x => x.misc_estado == "inactivo");
 
             //if (filter_new == 1)
             //    q = q.Where(x => x.is_new);
@@ -215,7 +225,8 @@ namespace DMSA.Sync.Core.Database.Sqlite
                     await Database.Table<res_partner>().Take(0).ToListAsync();
                 }
 
-                return await Database.Table<res_partner>().Where(y =>
+                return await Database.Table<res_partner>().Where(y =>                
+                y._parent_id == 0 &&
                 (y._company_id == company_id || y._company_id == 0) && (
                 y.id == findCode ||
                 y.name.Contains(TextSearch) ||
@@ -224,6 +235,51 @@ namespace DMSA.Sync.Core.Database.Sqlite
                 ).Take(limit).ToListAsync();
             }
             //return Database.Table<account_journal>().ToList();
+        }
+
+        public async Task<List<res_partner>> GetItemsBySearchAsyncWithChannel(int company_id, string TextSearch, int limit)
+        {
+            await Init();
+
+            await PreloadInfoData();
+
+            int findCode = 0;
+
+            int.TryParse(TextSearch, out findCode);
+
+            var q = Database.Table<res_partner>();
+
+            if (findCode > 0)
+            {
+                q = Database.Table<res_partner>().Where(y =>
+                (y._company_id == company_id || y._company_id == 0) && (
+                y.id == findCode)
+                );
+            }
+            else
+            {
+                if (TextSearch.Length < 3)
+                {                    
+                    await Database.Table<res_partner>().Take(0).ToListAsync();
+                }
+
+                q = Database.Table<res_partner>().Where(y =>
+                (y._company_id == company_id || y._company_id == 0) && (
+                y.id == findCode ||
+                y.name.Contains(TextSearch) ||
+                y.email.Contains(TextSearch) ||
+                y.vat.Contains(TextSearch))
+                );
+            }            
+
+            var items = await q.Take(limit).ToListAsync();
+
+            foreach (var p in items)
+            {
+                p.display_channel_name = cachedChannels.TryGetValue(p._product_pricelist_id, out var channelName) ? channelName : "";
+            }
+
+            return items;
         }
 
         //public async Task<List<res_partner>> GetItemsByPartnerForPaymentAsync(res_partner res_Partner)
@@ -240,7 +296,6 @@ namespace DMSA.Sync.Core.Database.Sqlite
         {
             await Init();
             return await Database.Table<res_partner>().Where(i => i.id == id).FirstOrDefaultAsync();
-        }
-    
+        }    
     }
 }

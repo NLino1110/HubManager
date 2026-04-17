@@ -1,15 +1,16 @@
-﻿using DMSA.Sync.Core.Database.Sqlite.Sales;
+﻿using ApiManager;
+using DMSA.Sync.Core.Database.Sqlite.Sales;
 using System.Diagnostics;
 
 namespace DMSA.Sync.Core.Update
 {
     public partial class ServerPuller
     {
-        public async Task<bool> OnlineSyncProductPricelist()
+        public async Task<bool> OnlineSyncProductPricelist(Func<int, int, Task>? onProgress = null)
         {
             var stopwatch = Stopwatch.StartNew();
 
-            ApiManager.HubProductPricelist hubmanager = new ApiManager.HubProductPricelist(Constants.Session);
+            HubProductPricelist hubmanager = new HubProductPricelist(Constants.Session);
             var resultCount = await hubmanager.GetCount();
 
             if (resultCount.result == 0)
@@ -32,6 +33,9 @@ namespace DMSA.Sync.Core.Update
                     await database.InsertBatchAsync(responseAll.result);
                 }
 
+                if (onProgress != null)
+                    await onProgress(indice + 1, countTotal);
+
                 if (indice >= maxIndexExceeded)
                 {
                     Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
@@ -47,16 +51,16 @@ namespace DMSA.Sync.Core.Update
             return true;
         }
 
-        public async Task<bool> OnlineSyncProductPricelistItem()
+        public async Task<bool> OnlineSyncProductPricelistItem(Func<int, int, Task>? onProgress = null)
         {
             var stopwatch = Stopwatch.StartNew();
 
-            var hubmanager = new ApiManager.HubProductPricelistItem(Constants.Session);            
+            var hubmanager = new HubProductPricelistItem(Constants.Session);            
             var databaseItems = new ProductPricelistItemDb(DbNameSqlite);
             DateTime? lastDate = await databaseItems.GetLastWriteDateAsync(sync_date_since_lower);
             var database = new ProductPricelistDb(DbNameSqlite);
 
-            var activePriceLists = await database.GetItemsByStatus(true);
+            var activePriceLists = await database.GetItemsAsync(x=>x.active == true && x.use_mobile_app == true);
 
             foreach ( var activePriceList in activePriceLists)
             {
@@ -74,14 +78,17 @@ namespace DMSA.Sync.Core.Update
 
                 for (int indice = 0; indice <= countTotal; indice++)
                 {
-                    Debug.WriteLine("Página:" + indice);
+                    Debug.WriteLine("ProductPricelistItem Página:" + indice + " de " + countTotal);
 
-                    var responseAll = await hubmanager.GetByCreateDate(activePriceList.id, limit, indice, year, month, day);
+                    var responseAll = await hubmanager.GetByWriteDate(activePriceList.id, limit, indice, year, month, day);
 
                     if (responseAll.result != null && responseAll.result.Length > 0)
                     {
                         await databaseItems.InsertBatchAsync(responseAll.result);
                     }
+
+                    if (onProgress != null)
+                        await onProgress(indice, countTotal);
 
                     if (indice >= maxIndexExceeded)
                     {
@@ -89,7 +96,7 @@ namespace DMSA.Sync.Core.Update
                         break;
                     }
                 }
-            }            
+            }
 
             stopwatch.Stop();
 
@@ -98,7 +105,5 @@ namespace DMSA.Sync.Core.Update
 
             return true;
         }
-
-
     }
 }

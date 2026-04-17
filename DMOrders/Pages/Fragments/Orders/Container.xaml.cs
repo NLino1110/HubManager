@@ -57,4 +57,9 @@ public partial class Container : ContentView
     {
         //info.FillData(_data);
     }
+
+    public void ReloadFilter()
+    {
+        filterOrders.LoadTopCustomersAsync();
+    }
 }

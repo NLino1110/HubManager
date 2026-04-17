@@ -66,13 +66,12 @@ public partial class Filters : ContentView
 
         var date = datePickerEnd.Date;
 
-        // Combina solo la parte de fecha con hora 23:59:59
         return new DateTime(
-            date.Value.Year,
-            date.Value.Month,
-            date.Value.Day,
+            date.Year,
+            date.Month,
+            date.Day,
             23, 59, 59,
-            date.Value.Kind   // conserva el tipo (Local / UTC)
+            date.Kind
         );
     }
 }

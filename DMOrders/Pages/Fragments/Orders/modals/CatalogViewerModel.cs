@@ -107,13 +107,12 @@ namespace DMOrders.Pages.Fragments.Orders.modals
             }
         }
 
-        public ObservableCollection<product_brand> Brands { get; set; } = new();
+        //public ObservableCollection<product_brand> Brands { get; set; } = new();
 
         private string _lastFilterSignature;
 
         private string BuildFilterSignature() =>
             $"{filter_code}|{filter_name}|{filter_brand}|{filter_new}|{filter_stock}|{filter_sort}";
-
 
         public CatalogViewerModel()
         {

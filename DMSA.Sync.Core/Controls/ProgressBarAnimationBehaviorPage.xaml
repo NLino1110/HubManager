@@ -59,7 +59,7 @@
 
             <Label Text="Por favor espere hasta que termine el proceso..." Margin="0,30,0,0" TextColor="DimGray"/>
 
-            <Label Text="Considere utilizar la actualización por cache." Margin="0,30,0,0" TextColor="DimGray"/>
+            <Label Text="..." Margin="0,30,0,0" TextColor="DimGray"/>
             <!--<Button
                 x:Name="BtnUpdate"
                 Text="Ingresar"

@@ -1,21 +1,13 @@
-using DMCobranzas.Models;
-using DMCobranzas.Services;
-using DMCobranzas.AppPages.Printing;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
-using Microsoft.Maui;
-using Microsoft.Maui.Controls;
-using Newtonsoft.Json;
+using DMCobranzas.AppPages.Printing;
+using DMCobranzas.Services;
+using DMSA.Models.Odoo.Native;
+using SkiaSharp;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Threading;
-using System.Windows.Input;
-using static System.Net.Mime.MediaTypeNames;
-using System.Text.RegularExpressions;
-using SkiaSharp;
-using System.Xml.Linq;
 using System.Reflection;
-using DMSA.Models.Odoo.Native;
+using System.Text.RegularExpressions;
 
 namespace DMCobranzas.AppPages;
 
@@ -87,126 +79,125 @@ public class TextProcessor
     }
 }
 
-
-public partial class PrintView : ContentPage, IDisposable
+public partial class PrintView : ContentPage
 {
     public res_company res_Company { get; set; }
     string LocalTemplateContent { get; set; }
+    byte[] printData { get; set; }
 
-    public void setTemplate( string newTemplate)
+    private readonly IPrinterService _printer;
+
+    public void setTemplatePreview(string newTemplate)
     {
-        editor.Text = newTemplate;
+        //editor.Text = newTemplate;
+        previewWeb.Source = new HtmlWebViewSource
+        {
+            Html = newTemplate
+        };
         LocalTemplateContent = newTemplate;
     }
 
-    BluetoothPrinterManager btPrinterManager { get; set; }
+    public void setTemplatePlain(string newTemplatePlain)
+    {        
+        LocalTemplateContent = newTemplatePlain;
+    }
 
-    private ObservableCollection<DeviceLocal> m_deviceList { get; set; }
+    public void setData(byte[] printDataParam)
+    {
+        printData = printDataParam;        
+    }
+
+    //private ObservableCollection<DeviceLocal> m_deviceList { get; set; }
 
     public PrintView()
 	{
 		InitializeComponent();
-        m_deviceList = new ObservableCollection<DeviceLocal>();
-        btPrinterManager = new BluetoothPrinterManager();
-        
-        //PrintCommand = new Command(PrintItem);
+       
+        //editor.IsReadOnly = true;
 
-        editor.IsReadOnly = true;
-
+#if ANDROID
+        _printer = new BluetoothPrinterService();
+#elif WINDOWS
+        _printer = new BluetoothPrinterServiceWindows();
+#endif
         BindingContext = this;
     }
-    protected override void OnAppearing()
+
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
+        await ScanAndSelect();
 
-        IDispatcherTimer timer;
+        //IDispatcherTimer timer;
 
-        timer = Dispatcher.CreateTimer();
-        timer.Interval = TimeSpan.FromMilliseconds(500);
-        timer.IsRepeating = false;
-        timer.Tick += async (s, e) =>
-        {
-            await ScanAndSelect();
-            timer.Stop();
-        };
-        timer.Start();
+        //timer = Dispatcher.CreateTimer();
+        //timer.Interval = TimeSpan.FromMilliseconds(500);
+        //timer.IsRepeating = false;
+        //timer.Tick += async (s, e) =>
+        //{
+        //    await ScanAndSelect();
+        //    timer.Stop();
+        //};
+        //timer.Start();
     }
 
     private async Task ScanAndSelect()
     {
-        m_deviceList.Clear();
-        
         try
         {
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            string text = "No se han encontrado dispositivos emparejados, agregue la impresora y vuelva a intentar...";
-            ToastDuration duration = ToastDuration.Short;
+            string text = "No se han encontrado dispositivos emparejados, reinicie la impresora y vuelva a intentar...";
+            ToastDuration duration = ToastDuration.Long;
             double fontSize = 14;
+#if ANDROID
+            var listado = _printer.GetPairedDevices();
 
-            var foundDevices = btPrinterManager.GetPairedDevices();
-
-            //Cuando no haya dispositivos emparejados
-            if (foundDevices == null || (foundDevices != null && foundDevices.Count() == 0))
-            {
+            if (listado.Count() == 0)
+            {                
                 var toast = Toast.Make(text, duration, fontSize);
                 await toast.Show(cancellationTokenSource.Token);
                 return;
             }
 
-            bool foundPrinter = false;
-            string printerNameFound = "";
-            foreach (var device in foundDevices)
+            foreach (var printer_item in listado)
             {
-                //Por ahora asumimos que el primer dispositivo que contenga en su nombre 
-                // la palabra Printer, es un impresora compatible
-                if (device.Name.Contains("Printer"))
+                if (printer_item.Name.Contains("Printer"))
                 {
-                    printerNameFound = device.Name;
-                    foundPrinter = true;
-                    DeviceLocal ndl = new DeviceLocal()
-                    {
-                        Name = device.Name
-                    };
-
-                    m_deviceList.Add(ndl);
-
-                    btPrinterManager.setPrinterDevice(device);
-                    //await btm.createRfcommSocketToServiceRecord("0000eee2-0000-1000-8000-00805f9b34fb", "0000eee3-0000-1000-8000-00805f9b34fb");
-                    //bool statusSocketConnect = await btPrinterManager.createRfcommSocketToServiceRecord("0000eee2-0000-1000-8000-00805f9b34fb", "0000eee3-0000-1000-8000-00805f9b34fb");
-                    //await btm.Print("Prueba", "00001101-0000-1000-8000-00805F9B34FB", "00001101-0000-1000-8000-00805F9B34FB");
-                    //bool statusSocketConnect = await btPrinterManager.createRfcommSocketToServiceRecord("00001101-0000-1000-8000-00805F9B34FB", "00001101-0000-1000-8000-00805F9B34FB");
-                    //Para la impresora vieja
-                    bool statusSocketConnect = await btPrinterManager.createRfcommSocketToServiceRecord("000018f0-0000-1000-8000-00805f9b34fb", "00002af1-0000-1000-8000-00805f9b34fb");
-
-                    if (statusSocketConnect)
-                    {
-
-                    }
-
-                    //await btPrinterManager.createRfcommSocketToServiceRecord("e7810a71-73ae-499d-8c15-faa9aef0c3f2", "bef8d6c9-9c21-4c9e-b632-bd58c1009f9f");
+                    text += "\n" + printer_item.Name + " - " + printer_item.Address;
+                    var mac_add = printer_item.Address;
+                    //var mac_add = "5A:4A:CA:BB:A1:2A";
+                    await _printer.Connect(mac_add);
+                    text = "Impresora encontrada [" + printer_item.Name + "]";
+                    btnPrint.IsEnabled = true;
+                    await Toast.Make(text, duration, fontSize).Show();
                     break;
                 }
             }
+#elif WINDOWS
+            var listado = await _printer.GetPairedDevicesAsync();
 
-            //btm.setPrinter();
-
-            text = "Impresora no encontrada, agregue la impresora y vuelva a intentar...";
-
-            //Dispositivos emparejados pero la impresora no se encuentra en la lista
-            if (!foundPrinter)
-            {
+            if (listado.Count() == 0)
+            {                
                 var toast = Toast.Make(text, duration, fontSize);
                 await toast.Show(cancellationTokenSource.Token);
                 return;
             }
-            else
-            {
-                text = "Impresora seleccionada correctamente. " + printerNameFound;
-                var toast = Toast.Make(text, duration, fontSize);
-                await toast.Show(cancellationTokenSource.Token);
-            }
 
-            //myListView.ItemsSource = m_deviceList;
+            foreach (var printer_item in listado)
+            {
+                if (printer_item.Name.Contains("Printer"))
+                {
+                    text += "\n" + printer_item.Name + " - " + printer_item.Address;
+                    var mac_add = printer_item.Address;
+                    //var mac_add = "5A:4A:CA:BB:A1:2A";
+                    await _printer.Connect(mac_add);
+                    text = "Impresora encontrada [" + printer_item.Name + "]";
+                    btnPrint.IsEnabled = true;
+                    await Toast.Make(text, duration, fontSize).Show();
+                    break;
+                }
+            }
+#endif
         }
         catch (Exception exPrinting)
         {
@@ -225,37 +216,12 @@ public partial class PrintView : ContentPage, IDisposable
 
     void OnEditorTextChanged(object sender, TextChangedEventArgs e)
     {
-        //string oldText = e.OldTextValue;
-        //string newText = e.NewTextValue;
-        //string myText = editor.Text;
+        
     }
 
     void OnEditorCompleted(object sender, EventArgs e)
     {
-        //string text = ((Editor)sender).Text;
-    }
-
-    //////public async Task ShareFile()
-    //////{
-    //////    string fn = "Attachment.txt";
-    //////    string file = Path.Combine(FileSystem.CacheDirectory, fn);
-
-    //////    File.WriteAllText(file, "Hello World");
-
-    //////    await Share.Default.RequestAsync(new ShareFileRequest
-    //////    {
-    //////        Title = "Share text file",
-    //////        File = new ShareFile(file)
-    //////    });
-    //////}
-
-    public async Task ShareText(string text)
-    {
-        await Share.Default.RequestAsync(new ShareTextRequest
-        {
-            Text = text,
-            Title = "Share Text"
-        });
+       
     }
 
     public SKImage LoadEmbeddedImage()
@@ -354,7 +320,7 @@ public partial class PrintView : ContentPage, IDisposable
     }
 
 
-    public async Task<SKBitmap> CrearImagenDesdeTexto(string texto)
+    public async Task<SKBitmap> BuildImageFromText(string texto)
     {
         var textProcessor = new TextProcessor();
         var lineas = textProcessor.ProcessText(texto).ToArray();
@@ -376,7 +342,7 @@ public partial class PrintView : ContentPage, IDisposable
         //    Color = SKColors.Black
         //};
 
-        var canvasWidth = 600; // Ajusta según sea necesario
+        var canvasWidth = 620; // Ajusta según sea necesario
         var canvasHeight = multiploLinea * lineasCount;//1000; // Ajusta según sea necesario
 
         // Crear un lienzo de SkiaSharp con fondo blanco
@@ -408,7 +374,7 @@ public partial class PrintView : ContentPage, IDisposable
                     canvas.Save();
                     float angle = -45;
                     canvas.RotateDegrees(angle, canvasWidth / 2, canvasHeight / 2);
-                                        
+                    
                     for (float y = -canvasHeight; y < canvasHeight * 2; y += textHeight + 20)
                     {
                         for (float x = -canvasWidth; x < canvasWidth * 2; x += textWidth + 20)
@@ -516,15 +482,13 @@ public partial class PrintView : ContentPage, IDisposable
     private async void btnShare_Clicked(object sender, EventArgs e)
     {
         //await ShareText("Prueba de compartir!!");
-        var bmpImg = await CrearImagenDesdeTexto(LocalTemplateContent);
+        var bmpImg = await BuildImageFromText(LocalTemplateContent);
         await CompartirImagen(bmpImg, "tmp_img");
     }
 
-
-
+    [Obsolete("This method is deprecated. Use the new CleanPrintString method.")]
     public static string CleanPrintString(string input)
-    {
-        // Usa una expresión regular para eliminar caracteres especiales
+    {        
         string pattern = @"[^a-zA-Z0-9\s]";
         string cleanedString = Regex.Replace(input, pattern, "");
 
@@ -539,33 +503,8 @@ public partial class PrintView : ContentPage, IDisposable
 
         try
         {
-            const string ESC = "\x1B";
-            const string NewLine = "\n";
-
-            // Iniciar impresión
-            string initializePrinter = ESC + "@";
-            string setAlignmentLeft = ESC + "a" + "0";
-            string cutPaper = ESC + "d" + "\x08";
-            string lineFeed = NewLine;
-
-            //TODO: Se realiza esta depuración ya
-            // que no envía a imprimir correctamente
-            //string PrintString = CleanPrintString(LocalTemplateContent);            
-            string PrintString = LocalTemplateContent;
-            PrintString = initializePrinter +
-                         setAlignmentLeft +
-                         PrintString +                         
-                         lineFeed +
-                         cutPaper;
-
-            //TODO: Se imprimirá linea por línea hasta encontrar el bug
-            //await btPrinterManager.Print(PrintString);
-            string[] lines = PrintString.Split('\n');
-            foreach (var line in lines)
-            {
-                await btPrinterManager.Print(line.Trim());
-                await btPrinterManager.Print(NewLine);
-            }
+            
+            await _printer.Print(printData);
         }
         catch (Exception exPrinting)
         {
@@ -588,11 +527,22 @@ public partial class PrintView : ContentPage, IDisposable
     private void myListView_ItemSelected(object sender, SelectedItemChangedEventArgs e)
     {
         Debug.WriteLine("Seleccionado: " + e.SelectedItem);
-    }
+    }   
 
-    public void Dispose()
+    protected override void OnDisappearing()
     {
-        btPrinterManager.Dispose();
-        //throw new NotImplementedException();
+        base.OnDisappearing();
+
+#if ANDROID || WINDOWS
+        try
+        {
+            _printer?.Disconnect();
+            Debug.WriteLine("Printer disconnected");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("Error disconnecting printer: " + ex.Message);
+        }
+#endif
     }
 }

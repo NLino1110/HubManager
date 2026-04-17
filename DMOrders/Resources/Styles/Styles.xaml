@@ -405,9 +405,7 @@
 
                     <VisualState Name="Selected">
                         <VisualState.Setters>
-                            <Setter Property="BackgroundColor"
-                                Value="#FFE0B2"/>
-                            <!-- color que quieras -->
+                            <Setter Property="BackgroundColor" Value="#FFE0B2"/>
                         </VisualState.Setters>
                     </VisualState>
 

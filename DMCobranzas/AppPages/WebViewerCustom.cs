@@ -34,33 +34,30 @@ namespace DMCobranzas.AppPages
 
             var task = Task.Run(async () =>
             {
-                HubReportes reportes = new HubReportes(App.Session);
-                //App.Session.CurrentUser.empresas = "1";
-                int empresa = 0;
-                if(App.Session.CurrentUserFront.empresas.Length > 0)
-                {
-                    empresa = App.Session.CurrentUserFront.empresas[0].id;
-                }
-                var repResponse = await reportes.Comisiones(empresa, App.Session.CurrentUserFront.uid);
-                string finalUrlReport = App.Session.UrlReportServer + repResponse.url;
+                ////HubReportes reportes = new HubReportes(App.Session);
+                //////App.Session.CurrentUser.empresas = "1";
+                ////int empresa = 0;
+                ////if(App.Session.CurrentUserFront.empresas.Length > 0)
+                ////{
+                ////    empresa = App.Session.CurrentUserFront.empresas[0].id;
+                ////}
+                ////var repResponse = await reportes.Comisiones(empresa, App.Session.CurrentUserFront.uid);
+                ////string finalUrlReport = App.Session.UrlReportServer + repResponse.url;
 
-                var webView = new Microsoft.Maui.Controls.WebView
-                {
-                    Source = finalUrlReport //"https://www.google.com",
-                };
+                ////var webView = new Microsoft.Maui.Controls.WebView
+                ////{
+                ////    Source = finalUrlReport //"https://www.google.com",
+                ////};
 
-                webView.On<Microsoft.Maui.Controls.PlatformConfiguration.Android>()
-                .EnableZoomControls(true);
-                webView.On<Microsoft.Maui.Controls.PlatformConfiguration.Android>()
-                .DisplayZoomControls(true);
+                ////webView.On<Microsoft.Maui.Controls.PlatformConfiguration.Android>()
+                ////.EnableZoomControls(true);
+                ////webView.On<Microsoft.Maui.Controls.PlatformConfiguration.Android>()
+                ////.DisplayZoomControls(true);
 
-                grid.Add(webView);
+                ////grid.Add(webView);
             });
 
-            Task.WaitAll(task);
-
-
-            
+            Task.WaitAll(task);            
             
             //Etiqueta de prueba
             //grid.Add(new Label

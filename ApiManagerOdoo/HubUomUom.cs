@@ -1,6 +1,6 @@
 ﻿using ApiManagerOdoo.Base;
 using DMSA.Models.Odoo.General.Responses;
-using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Inventory;
 using DMSA.Models.Security;
 
 namespace ApiManager

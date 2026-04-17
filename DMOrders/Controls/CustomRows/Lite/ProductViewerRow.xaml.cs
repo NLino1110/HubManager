@@ -1,4 +1,5 @@
 using DMSA.Models.Odoo.Native;
+using DMSA.Sync.Core.Database.Sqlite;
 using System.Diagnostics;
 using System.Windows.Input;
 
@@ -6,10 +7,13 @@ namespace DMOrders.Controls.CustomRows.Lite;
 
 public partial class ProductViewerRow : ContentView
 {
-	public ProductViewerRow()
+    ProductProductPreviewDb productProductPreviewDb { get; set; }
+
+    public ProductViewerRow()
 	{
 		InitializeComponent();
-	}
+        productProductPreviewDb = new ProductProductPreviewDb(App.Session.odooConnection.DbNameSqliteStatic);
+    }
 
     // -------------------------
     // ITEM
@@ -65,14 +69,15 @@ public partial class ProductViewerRow : ContentView
         Activity.IsVisible = true;
         ProductImage.IsVisible = false;
 
-        _ = Task.Run(() =>
+        _ = Task.Run(async () =>
         {
             try
             {
-                if (!string.IsNullOrWhiteSpace(item.image_1920) &&
-                    !item.image_1920.Equals("false"))
-                {
-                    var bytes = Convert.FromBase64String(item.image_1920);
+                var Base64Source = await productProductPreviewDb.GetBase65_1920(item);
+
+                if (!string.IsNullOrWhiteSpace(Base64Source) && !Base64Source.Equals("false"))
+                {                    
+                    var bytes = Convert.FromBase64String(Base64Source);
                     var stream = new MemoryStream(bytes);
 
                     MainThread.BeginInvokeOnMainThread(() =>
@@ -89,6 +94,27 @@ public partial class ProductViewerRow : ContentView
                         FinishImageLoad();
                     });
                 }
+
+                //if (!string.IsNullOrWhiteSpace(item.image_1920) &&
+                //    !item.image_1920.Equals("false"))
+                //{
+                //    var bytes = Convert.FromBase64String(item.image_1920);
+                //    var stream = new MemoryStream(bytes);
+
+                //    MainThread.BeginInvokeOnMainThread(() =>
+                //    {
+                //        ProductImage.Source = ImageSource.FromStream(() => stream);
+                //        FinishImageLoad();
+                //    });
+                //}
+                //else
+                //{
+                //    MainThread.BeginInvokeOnMainThread(() =>
+                //    {
+                //        ProductImage.Source = "image_not_found_gray_opt.png";
+                //        FinishImageLoad();
+                //    });
+                //}
             }
             catch (Exception ex)
             {

@@ -1,7 +1,7 @@
 ﻿using ApiManagerOdoo.Base;
-using DMSA.Models.Odoo.DMOrders.tareas;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Tareas;
 using DMSA.Models.Odoo.Tools;
 using DMSA.Models.Security;
 using Newtonsoft.Json;

@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System;
+using System.Diagnostics;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace DMSA.Sync.Core
 {
-    using System;
-    using System.Diagnostics;
-    using System.Net.Http;
-    using System.Threading.Tasks;
 
     public class ApiChecker
     {

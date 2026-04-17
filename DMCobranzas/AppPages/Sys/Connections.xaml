@@ -1,96 +1,126 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <TabbedPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-            xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
-            x:Class="DMCobranzas.AppPages.Sys.Connections"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"                        
+            xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+            xmlns:controlsUI="clr-namespace:BeebTech.Maui.Controls.UI;assembly=BeebTech.Maui.Controls"
+            x:Class="DMCobranzas.AppPages.Sys.Connections"            
             Title="Configuración"
             BarBackgroundColor="White"
             BarTextColor="Black"
             SelectedTabColor="DodgerBlue"
-            UnselectedTabColor="Gray">
+            UnselectedTabColor="Gray"
+            NavigationPage.HasBackButton="True">
     <ContentPage Title="Conexiones">
         <ContentPage.Content>
             <Grid RowDefinitions="Auto,*,Auto" Padding="10">
-
-                <!-- FORMULARIO -->
-                <ScrollView Grid.Row="0">
+                <toolkit:Expander 
+                    x:Name="ExpanderCol0" Grid.Row="0" Grid.Column="0"
+                    IsExpanded="True" 
+                    VerticalOptions="FillAndExpand">
+                    <toolkit:Expander.Header>
+                        <StackLayout Orientation="Horizontal">
+                            <Label Text="Datos"></Label>
+                            <Image WidthRequest="18"
+                                   HeightRequest="18"
+                                   VerticalOptions="Center">
+                                <Image.Source>
+                                    <FontImageSource FontFamily="FontAwesome5Solid"
+                                         Glyph="&#xf0d7;"
+                                         Color="Black"
+                                         Size="25" />
+                                </Image.Source>
+                                <Image.Triggers>
+                                    <DataTrigger TargetType="Image"
+                                         Binding="{Binding Source={x:Reference ExpanderCol0}, Path=IsExpanded}"
+                                         Value="True">
+                                        <Setter Property="Rotation" Value="0" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Image"
+                                            Binding="{Binding Source={x:Reference ExpanderCol0}, Path=IsExpanded}"
+                                            Value="False">
+                                        <Setter Property="Rotation" Value="-180" />
+                                    </DataTrigger>
+                                </Image.Triggers>
+                            </Image>
+                        </StackLayout>
+                    </toolkit:Expander.Header>                    
                     <StackLayout Spacing="10">
-
-                        <Grid ColumnSpacing="10" RowSpacing="10" Padding="10">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"></RowDefinition>
-                                <RowDefinition Height="*"></RowDefinition>
-                                <RowDefinition Height="*"></RowDefinition>
-                                <RowDefinition Height="*"></RowDefinition>
-                                <RowDefinition Height="*"></RowDefinition>
-                                <RowDefinition Height="*"></RowDefinition>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
+                            <Grid ColumnSpacing="10" RowSpacing="10" Padding="10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
 
                             <!-- Columna 1 -->
-                            <material:TextField Title="Nombre" BorderThickness="0.4" Text="{Binding SelectedConnection.Name}" Grid.Row="0" Grid.Column="0"/>
-                            <material:TextField Title="Host" BorderThickness="0.4" Text="{Binding SelectedConnection.Host}" Grid.Row="1" Grid.Column="0"/>
-                            <material:TextField Title="Host Dump" BorderThickness="0.4" Text="{Binding SelectedConnection.HostDump}" Grid.Row="2" Grid.Column="0"/>
-                            <material:TextField Title="Dump Service" BorderThickness="0.4" Text="{Binding SelectedConnection.DumpService}" Grid.Row="3" Grid.Column="0"/>
+                            <controlsUI:TitledEntryLight Title="Nombre" Text="{Binding SelectedConnection.Name}" Grid.Row="0" Grid.Column="0"></controlsUI:TitledEntryLight>
+                            <controlsUI:TitledEntryLight Title="Host" Text="{Binding SelectedConnection.Host}" Grid.Row="1" Grid.Column="0"></controlsUI:TitledEntryLight>
+                            <controlsUI:TitledEntryLight Title="Host Dump" Text="{Binding SelectedConnection.HostDump}" Grid.Row="2" Grid.Column="0"></controlsUI:TitledEntryLight>
+                            <controlsUI:TitledEntryLight Title="Dump Service" Text="{Binding SelectedConnection.DumpService}" Grid.Row="3" Grid.Column="0"></controlsUI:TitledEntryLight>
 
                             <HorizontalStackLayout Grid.Row="4" Grid.Column="0" HorizontalOptions="Fill" Spacing="5">
-                                <material:TextField Title="Prefix" BorderThickness="0.4" Text="{Binding SelectedConnection.prefix_db}" MinimumWidthRequest="100"/>
-                                <material:TextField Title="Database Name" BorderThickness="0.4" Text="{Binding SelectedConnection.DbName}" MinimumWidthRequest="300"/>
+                                <controlsUI:TitledEntryLight Title="Prefix" Text="{Binding SelectedConnection.prefix_db}" MinimumWidthRequest="100"/>
+                                <controlsUI:TitledEntryLight Title="Database Name" Text="{Binding SelectedConnection.DbName}" MinimumWidthRequest="300"/>
                             </HorizontalStackLayout>
                             <!-- Columna 2 -->
-                            <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="15">
-                                <material:TextField Title="DB Limit Default" BorderThickness="0.4" Text="{Binding SelectedConnection.DbLimitDefault}"/>
-                                <material:TextField Title="Tolerancy Days" BorderThickness="0.4" Text="{Binding SelectedConnection.DataToleranceDays}"/>
-                                                            
-                            </HorizontalStackLayout>
+                                <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="15">
+                                <controlsUI:TitledEntryLight Title="DB Limit Default" Text="{Binding SelectedConnection.DbLimitDefault}"/>
+                                <controlsUI:TitledEntryLight Title="Tolerancy Days" Text="{Binding SelectedConnection.DataToleranceDays}"/>
+                                </HorizontalStackLayout>
 
-                            <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="15">
-                                <material:TextField Title="Company Id" BorderThickness="0.4" Text="{Binding SelectedConnection.CompanyId}" />
-                                <material:TextField Title="Sale Channel" BorderThickness="0.4" Text="{Binding SelectedConnection.sale_channel_default}"/>
-                                <material:TextField Title="Center Id" BorderThickness="0.4" Text="{Binding SelectedConnection.res_center_default}"/>
-                            </HorizontalStackLayout>
+                                <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="15">
+                                <controlsUI:TitledEntryLight Title="Company Id" Text="{Binding SelectedConnection.CompanyId}" />
+                                <controlsUI:TitledEntryLight Title="Sale Channel" Text="{Binding SelectedConnection.sale_channel_default}"/>
+                                <controlsUI:TitledEntryLight Title="Center Id" Text="{Binding SelectedConnection.res_center_default}"/>
+                                </HorizontalStackLayout>
 
-                            <HorizontalStackLayout Grid.Row="2" Grid.Column="1" Spacing="15">
-                                <material:TextField Title="Project Id" BorderThickness="0.4" Text="{Binding SelectedConnection.project_id}" />
-                                <material:TextField Title="Project Stage Id" BorderThickness="0.4" Text="{Binding SelectedConnection.stage_id}" />
-                            </HorizontalStackLayout>
+                                <HorizontalStackLayout Grid.Row="2" Grid.Column="1" Spacing="15">
+                                <controlsUI:TitledEntryLight Title="Project Id"  Text="{Binding SelectedConnection.project_id}" />
+                                <controlsUI:TitledEntryLight Title="Project Stage Id" Text="{Binding SelectedConnection.stage_id}" />
+                                </HorizontalStackLayout>
 
-                            <material:TextField Title="Username" BorderThickness="0.4" Text="{Binding SelectedConnection.Username}" Grid.Row="3" Grid.Column="1"/>
-                            <material:TextField Title="Password" BorderThickness="0.4" Text="{Binding SelectedConnection.Password}" Grid.Row="4" Grid.Column="1"/>
-                        </Grid>
+                            <controlsUI:TitledEntryLight Title="Username" Text="{Binding SelectedConnection.Username}" Grid.Row="3" Grid.Column="1"/>
+                            <controlsUI:TitledEntryLight Title="Password" Text="{Binding SelectedConnection.Password}" Grid.Row="4" Grid.Column="1"/>
+                            </Grid>
 
-                        <StackLayout Orientation="Horizontal" Spacing="10">
-                            <Label Text="Active" VerticalOptions="Center"/>
-                            <Switch IsToggled="{Binding SelectedConnection.Active}" />
-                            <Label Text="Production" VerticalOptions="Center"/>
-                            <Switch IsToggled="{Binding SelectedConnection.IsProduction}" />
-                            <Label Text="Test Mode" VerticalOptions="Center"/>
-                            <Switch IsToggled="{Binding SelectedConnection.IsTestMode}" />
-                        </StackLayout>
+                            <StackLayout Orientation="Horizontal" Spacing="10">
+                                <Label Text="Active" VerticalOptions="Center"/>
+                                <Switch IsToggled="{Binding SelectedConnection.Active}" />
+                                <Label Text="Production" VerticalOptions="Center"/>
+                                <Switch IsToggled="{Binding SelectedConnection.IsProduction}" />
+                                <Label Text="Test Mode" VerticalOptions="Center"/>
+                                <Switch IsToggled="{Binding SelectedConnection.IsTestMode}" />
+                                <Label Text="Load Email" VerticalOptions="Center"/>
+                                <Switch IsToggled="{Binding SelectedConnection.preload_email_domain}" />
+                            </StackLayout>
 
-                        <StackLayout Orientation="Horizontal" Spacing="10">
-                            <Button Text="Cerrar" Padding="10,0,10,0" Clicked="btnClose_Clicked" BackgroundColor="BlueViolet">
-                                <Button.ImageSource>
-                                    <FontImageSource FontFamily="FontAwesome5Solid"
+                            <StackLayout Orientation="Horizontal" Spacing="10">
+                                <Button Text="Cerrar" Padding="10,0,10,0" Clicked="btnClose_Clicked" BackgroundColor="BlueViolet">
+                                    <Button.ImageSource>
+                                        <FontImageSource FontFamily="FontAwesome5Solid"
 					                Color="White"
 					                Size="20"
 					                FontAutoScalingEnabled="True"
 					                Glyph="&#xf060;" />
-                                </Button.ImageSource>
-                            </Button>
-                            <Button Text="Save" Command="{Binding SaveCommand}" BackgroundColor="DodgerBlue" />
-                            <Button Text="New" Command="{Binding NewCommand}" BackgroundColor="CadetBlue" />
-                            <Button Text="Delete" Command="{Binding DeleteCommand}" BackgroundColor="Red"/>
+                                    </Button.ImageSource>
+                                </Button>
+                                <Button Text="Save" Command="{Binding SaveCommand}" BackgroundColor="DodgerBlue" />
+                                <Button Text="New" Command="{Binding NewCommand}" BackgroundColor="CadetBlue" />
+                                <Button Text="Delete" Command="{Binding DeleteCommand}" BackgroundColor="Red"/>
+                            </StackLayout>
                         </StackLayout>
+                        
+                    </toolkit:Expander>
 
-                    </StackLayout>
-                </ScrollView>
-
-                <!-- LISTADO -->
-                <CollectionView Grid.Row="1" ItemsSource="{Binding Connections}" SelectionMode="Single"
+                    <!-- LISTADO -->
+                <CollectionView Grid.Row="1" ItemsSource="{Binding ConnectionsItems}" SelectionMode="Single"
                             SelectedItem="{Binding SelectedConnection, Mode=TwoWay}">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
@@ -119,10 +149,12 @@
             <Label Text="Cuando está activado, la aplicación trabajará sin conexión a servidor." 
                    FontSize="Small" TextColor="Gray"/>
 
-            <material:TextField x:Name="lblDbPath"
+            <!--<material:TextField x:Name="lblDbPath"
                     Title="Path"
                     BorderThickness="0.4"
-                    Icon="{FontImageSource FontFamily=FontAwesome5Solid, Glyph='&#xf7d9;'}" />
+                Icon="{FontImageSource FontFamily=FontAwesome5Solid, Glyph='&#xf7d9;'}" />-->
+
+            <controlsUI:TitledEntryLight x:Name="lblDbPath" Title="Path" Grid.Row="0" Grid.Column="0"></controlsUI:TitledEntryLight>
 
             <Button Text="Enviar a storage" 
                     Padding="10,0,10,0" 
@@ -154,5 +186,66 @@
                 </Button.ImageSource>
             </Button>
         </VerticalStackLayout>
+    </ContentPage>
+    <ContentPage Title="Base de datos">
+        <Grid RowDefinitions="Auto,Auto,*">
+            <HorizontalStackLayout Grid.Row="0" Padding="10">
+                <Picker Grid.Row="1" 
+                        ItemsSource="{Binding ConnectionsItems}" 
+                        ItemDisplayBinding="{Binding DbNameSqlite}"
+                        SelectedIndexChanged="DbPicker_SelectedIndexChanged"/>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Grid.Row="1" Spacing="5">
+                <Button Text="Actualizar" 
+                    Padding="10,0,10,0" 
+                    Clicked="btnDBTask_Reload" 
+                    BackgroundColor="LimeGreen"
+                    TextColor="White"
+                    IsVisible="True">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FontAwesome5Solid"
+                        Color="White"
+                        Size="20"
+                        FontAutoScalingEnabled="True"
+                        Glyph="&#xf021;" />
+                    </Button.ImageSource>
+                </Button>
+                <Button Text="Compact" 
+                    Padding="10,0,10,0" 
+                    Clicked="btnDBTask_Compact" 
+                    BackgroundColor="BlueViolet"
+                    TextColor="White"
+                    IsVisible="True">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FontAwesome5Solid"
+                            Color="White"
+                            Size="20"
+                            FontAutoScalingEnabled="True"
+                            Glyph="&#xf71e;" />
+                    </Button.ImageSource>
+                </Button>
+            </HorizontalStackLayout>
+
+            <CollectionView Grid.Row="2" ItemsSource="{Binding Tables}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border>
+                            <Grid Padding="10" ColumnDefinitions="*,Auto">
+                                <Label Text="{Binding .}" VerticalOptions="Center"/>
+                                <Button 
+                        BackgroundColor="Red"
+                        TextColor="White"
+                        Text="Eliminar"
+                        Grid.Column="1"
+                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteTableCommand}"
+                        CommandParameter="{Binding .}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            
+        </Grid>
+        
     </ContentPage>
 </TabbedPage>

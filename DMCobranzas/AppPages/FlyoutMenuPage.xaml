@@ -7,6 +7,7 @@
              xmlns:printing="clr-namespace:DMCobranzas.AppPages.Printing"
              xmlns:nc="clr-namespace:DMCobranzas.AppPages.NotaCredito"
              xmlns:localmain="clr-namespace:DMCobranzas"
+             x:Name="ThisPage"
              Title="FlyoutMenuPage">
     <ContentPage.Resources>
         <!--<ResourceDictionary>
@@ -68,10 +69,21 @@
                         Grid.Column="1"
                         Padding="5,0"
                         VerticalOptions="Center"
-                        RowDefinitions="Auto,Auto,Auto,Auto">
+                        RowDefinitions="Auto,Auto,Auto,Auto,*"
+                    RowSpacing="5">
 
                     <Label
                         Grid.Row="0"
+                        Text="@connection"
+                        x:Name="txtConnection"
+                        TextColor="Green"
+                        FontSize="11"
+                        FontAttributes="Bold"
+                        TextTransform="Uppercase"
+                        HorizontalOptions="Start" />
+                    
+                    <Label
+                        Grid.Row="1"
                         Text="@username"
                         x:Name="txtUser"
                         FontSize="13"
@@ -80,51 +92,47 @@
                         HorizontalOptions="Start" />
 
                     <Label
-                        Grid.Row="1"
+                        Grid.Row="2"
                         Text="@Fullname"
                         x:Name="txtName"
-                        FontSize="13"
+                        FontSize="11"
                         HorizontalOptions="Start" />
 
                     <Label
-                        Grid.Row="2"
+                        Grid.Row="3"
                         Text="@Env"
                         x:Name="txtEnvironment"
                         FontSize="13"
                         HorizontalOptions="Start" />
 
                     <Button
-                        Grid.Row="3"
+                        Grid.Row="4"
                         x:Name="btnLogout"
                         Text="SALIR"
                         Clicked="TryLogout"
                         BackgroundColor="CadetBlue"
-                        FontSize="9"
+                        FontSize="11"
                         FontAttributes="Bold"
-                        CornerRadius="15"
-                        MaximumHeightRequest="50"
-                        HorizontalOptions="Start"
-                        Padding="5,0,5,0">
-
+                        CornerRadius="8"
+                        HeightRequest="30"
+                        HorizontalOptions="FillAndExpand"
+                        Padding="0">
                         <Button.ImageSource>
                             <FontImageSource
                                 FontFamily="FontAwesome5Solid"
-                                Glyph="&#xf057;"
+                                Glyph="&#xf2f5;"
                                 Color="White"
                                 Size="12"
                                 FontAutoScalingEnabled="True" />
                         </Button.ImageSource>
-
                     </Button>
                 </Grid>
-
             </Grid>
-
 
             <CollectionView x:Name="collectionView"
                     x:FieldModifier="public"
                     SelectionMode="Single" 
-                    Margin="5">
+                    Margin="0,0,0,0">
                 <CollectionView.Resources>
                     <Color x:Key="IconColorSelected">#FFF</Color>
                     <Color x:Key="IconColorNoSelected">#ACACAC</Color>
@@ -134,39 +142,33 @@
                         <local:FlyoutPageItem Title="Principal"
                                       IconSource="&#xf3fa;"
                                               FontFamily="FontAwesome5Solid"
+                                              ExecuteMode="Page"
                                       TargetType="{x:Type localmain:MainPage}" />
                         <local:FlyoutPageItem Title="Cobranza"
                                       IconSource="&#xf1ec;"
                                               FontFamily="FontAwesome5Solid"
-                                      TargetType="{x:Type local:CobranzasPage}" />
-                        <!--<local:FlyoutPageItem Title="Cobranzas v2"
-                                      IconSource="&#xf3d1;"
-                                              FontFamily="FontAwesome5Regular"
-                                      TargetType="{x:Type toolkit:MultiplePopupPage}" />-->
-                        <!--<local:FlyoutPageItem Title="Rep. Cumplimiento"
-                                      IconSource="&#xf200;"
-                                              FontFamily="FontAwesome5Solid"
-                                      TargetType="{x:Type local:WebViewerCustom}" />-->
+                                              ExecuteMode="Page"
+                                      TargetType="{x:Type local:CobranzasPage}" />                        
                         <local:FlyoutPageItem Title="Nota de Crédito"
                                       IconSource="&#xf49e;"
                                               FontFamily="FontAwesome5Solid"
+                                              ExecuteMode="Page"
                                       TargetType="{x:Type nc:NotasCreditoPage}" />
                         <local:FlyoutPageItem Title="Actualización"
                                       IconSource="&#xf7c0;"
                                               FontFamily="FontAwesome5Solid"
-                                      TargetType="{x:Type local:UpdateData}" />
-                        <!--<local:FlyoutPageItem Title="Configuración"
-                                      IconSource="&#xf085;"
-                                              FontFamily="FontAwesome5Solid"
-                                      TargetType="{x:Type local:SettingsPage}" />
-                        <local:FlyoutPageItem Title="Impresión"
-                                      IconSource="&#xf02f;"
-                                              FontFamily="FontAwesome5Solid"
-                                      TargetType="{x:Type printing:TestTool}" />-->
+                                              ExecuteMode="Page"
+                                      TargetType="{x:Type local:UpdateData}" />                        
                         <local:FlyoutPageItem Title="Acerca de.."
                                       IconSource="&#xf05a;"
                                               FontFamily="FontAwesome5Solid"
+                                              ExecuteMode="Page"
                                       TargetType="{x:Type localsys:About}" />
+                        <!--<local:FlyoutPageItem Title="Cerrar Sesión"
+                                      IconSource="&#xf2f5;"
+                                      FontFamily="FontAwesome5Solid"
+                                      ExecuteMode="Function"
+                                      TargetCommand="{Binding Source={x:Reference ThisPage}, Path=TryLogoutCommand}" />-->
                     </x:Array>
                 </CollectionView.ItemsSource>
                 <CollectionView.ItemTemplate>
@@ -178,7 +180,7 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="100*" />
+                                    <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
                                 <Image x:Name="imgMenuItem" Grid.Column="0" Margin="0">
                                     <Image.Source>

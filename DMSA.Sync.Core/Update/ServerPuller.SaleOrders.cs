@@ -1,4 +1,5 @@
-﻿using DMOrders.Services.Database.Sqlite;
+﻿using ApiManagerOdoo.Sale;
+using DMOrders.Services.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite;
 using System.Diagnostics;
 
@@ -10,7 +11,7 @@ namespace DMSA.Sync.Core.Update
         {
             var stopwatch = Stopwatch.StartNew();
 
-            var hubmanager = new ApiManager.HubSaleOrder(Constants.Session);
+            var hubmanager = new HubSaleOrder(Constants.Session);
             
             var database = new SaleOrderDb(DbNameSqlite);
 

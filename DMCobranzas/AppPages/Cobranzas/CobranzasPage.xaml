@@ -6,18 +6,11 @@
              xmlns:control="clr-namespace:DMCobranzas.Controls"
              xmlns:controlCustom="clr-namespace:DMCobranzas.Controls.CustomRows"
              Title="Cobranzas">
-
-    <!-- ROOT -->
-    <Grid>
-
-        <!-- CONTENIDO -->
-        <Grid RowDefinitions="Auto,*">
-
-            <!-- FILTROS -->
+    <Grid>        
+        <Grid RowDefinitions="Auto,*">           
             <StackLayout Grid.Row="0" Margin="4">
-
                 <StackLayout Orientation="Horizontal" Margin="10,0,0,0">
-                    <Label Text="Empresa:" WidthRequest="100" TextColor="DodgerBlue" VerticalOptions="Center"/>
+                    <Label Text="Empresa:" WidthRequest="70" TextColor="DodgerBlue" VerticalOptions="Center"/>
                     <Picker x:Name="SelectorCmp"
                             ItemDisplayBinding="{Binding name}"
                             SelectedIndexChanged="OnPickerSelectedIndexChanged"
@@ -25,17 +18,17 @@
                 </StackLayout>
 
                 <StackLayout Orientation="Horizontal" Margin="10,0,0,0">
-                    <Label Text="F. desde:" WidthRequest="100" TextColor="DodgerBlue" VerticalOptions="Center"/>
+                    <Label Text="F. desde:" WidthRequest="70" TextColor="DodgerBlue" VerticalOptions="Center"/>
                     <DatePicker x:Name="dateIni" HorizontalOptions="FillAndExpand"/>
                 </StackLayout>
 
                 <StackLayout Orientation="Horizontal" Margin="10,0,0,0">
-                    <Label Text="F. hasta:" WidthRequest="100" TextColor="DodgerBlue" VerticalOptions="Center"/>
+                    <Label Text="F. hasta:" WidthRequest="70" TextColor="DodgerBlue" VerticalOptions="Center"/>
                     <DatePicker x:Name="dateEnd" HorizontalOptions="FillAndExpand"/>
                 </StackLayout>
 
                 <StackLayout Orientation="Horizontal" Margin="10">
-                    <Button Text="Buscar" BackgroundColor="DodgerBlue" HeightRequest="35" Clicked="btnBuscar_Clicked">
+                    <Button CornerRadius="2" Text="Buscar" BackgroundColor="DodgerBlue" HeightRequest="35" Clicked="btnBuscar_Clicked">
                         <Button.ImageSource>
                             <FontImageSource FontFamily="FontAwesome5Solid"
                                              Glyph="&#xf002;"
@@ -44,11 +37,11 @@
                         </Button.ImageSource>
                     </Button>
 
-                    <Button Text="Nuevo Pago" BackgroundColor="DodgerBlue" HeightRequest="35" Margin="5"
+                    <Button CornerRadius="2" Text="Nuevo Cobro" BackgroundColor="DodgerBlue" HeightRequest="35" Margin="5"
                             Clicked="NewPayment">
                         <Button.ImageSource>
                             <FontImageSource FontFamily="FontAwesome5Solid"
-                                             Glyph="&#xf788;"
+                                             Glyph="&#xf067;"
                                              Color="White"
                                              Size="14"/>
                         </Button.ImageSource>
@@ -75,11 +68,8 @@
                                BackgroundColor="Transparent"/>
                     </Grid>
                 </Border>
-
-
             </StackLayout>
 
-            <!-- LISTA -->
             <CollectionView Grid.Row="1"
                             x:Name="collectionView"
                             ItemsSource="{Binding _items}"
@@ -87,7 +77,6 @@
                             SelectionMode="None"
                             Margin="5"
                             EmptyView="No existen datos para mostrar...">
-
                 <CollectionView.GroupHeaderTemplate>
                     <DataTemplate>
                         <controlCustom:CustomHeaderView
@@ -101,19 +90,16 @@
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <controlCustom:PaymentHeaderItem Item="{x:Binding .}"/>
+                        <controlCustom:MultipleCobrosInvoiceRow Item="{x:Binding .}"/>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
-
             </CollectionView>
 
-            <!-- OVERLAY LOADING (SIEMPRE AL FRENTE) -->
             <Grid 
                 Grid.Row="1" 
                   BackgroundColor="#80000000"
                   IsVisible="{Binding IsLoading}"
                   ZIndex="999">
-
                 <ActivityIndicator IsRunning="{Binding IsLoading}"
                        Color="MediumVioletRed"
                        WidthRequest="100"
@@ -122,8 +108,6 @@
                        VerticalOptions="Center"/>
             </Grid>            
         </Grid>
-        <!--<AbsoluteLayout x:Name="_absoluteLayout" HorizontalOptions="Center" VerticalOptions="Center" BackgroundColor="GhostWhite">
-        </AbsoluteLayout>-->
     </Grid>
 </ContentPage>
 

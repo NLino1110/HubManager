@@ -7,6 +7,7 @@ using Android.OS;
 using Android.Views.InputMethods;
 using Android.Views;
 using Android.Widget;
+using DMCobranzas.Platforms.Android;
 //using AndroidX.Activity;
 //using Xamarin.Forms;
 //using Microsoft.AppCenter;
@@ -49,6 +50,16 @@ namespace DMCobranzas
             base.OnCreate(saveInstanceState);
             //AppCenter.Start("ddce22e0-8e29-4098-a3b0-81039da36af1",
             //    typeof(Analytics), typeof(Crashes));
+
+            if (DeviceHelper.IsTablet())
+            {                
+                RequestedOrientation = ScreenOrientation.Landscape;
+            }
+            else
+            {                
+                RequestedOrientation = ScreenOrientation.Portrait;
+            }
+
             RequestAllPermission();
         }
 
@@ -94,79 +105,8 @@ namespace DMCobranzas
                 {
                     RequestPermissions(new string[] { permisosSolicitados[currentPermision] }, currentPermision);
                 }
-
-                ////int permisoCount = 2000;
-                ////foreach (var permiso in permisosSolicitados)
-                ////{
-                ////    // Haz algo con cada permiso solicitado, por ejemplo, imprímelo
-                ////    System.Diagnostics.Debug.WriteLine("Permiso solicitado: " + permiso);
-                ////    var statusPermi = CheckSelfPermission(permiso);
-                ////    System.Diagnostics.Debug.WriteLine(statusPermi);
-
-                ////    if (statusPermi != Permission.Granted)
-                ////    {
-                ////        if (permiso != "android.permission.POST_NOTIFICATIONS" &&
-                ////            permiso != "android.permission.ACCESS_BACKGROUND_LOCATION" &&
-                ////            permiso != "android.permission.READ_MEDIA_AUDIO" &&
-                ////            permiso != "android.permission.READ_MEDIA_VIDEO" &&
-                ////            permiso != "android.permission.READ_MEDIA_IMAGES" &&
-                ////            permiso != PackageName + ".DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION")
-                ////        {
-                ////            Timer timer = new Timer(TimerCallback, permiso, permisoCount, 0);
-
-                ////            //timer = new Timer(TimerCallback, null, 0, 2000);
-                ////            //timer = new Timer(TimerCallback, permiso, 0, 2000);
-                ////            timers.Add(timer);
-
-                ////            permisoCount += permisoCount;
-                ////        }
-                ////    }
-                ////}
             }
-
-            //System.Diagnostics.Debug.WriteLine("Permisos:");
-            
-            ////var status = CheckSelfPermission(Manifest.Permission.Bluetooth);
-            //var status = CheckSelfPermission(Manifest.Permission.BluetoothScan);
-
-            //System.Diagnostics.Debug.WriteLine(Manifest.Permission.BluetoothScan);
-            //System.Diagnostics.Debug.WriteLine(status);
-
-            //System.Diagnostics.Debug.WriteLine(Manifest.Permission.Bluetooth);
-            //System.Diagnostics.Debug.WriteLine(CheckSelfPermission(Manifest.Permission.Bluetooth));
-
-            //System.Diagnostics.Debug.WriteLine(Manifest.Permission.BluetoothAdmin);
-            //System.Diagnostics.Debug.WriteLine(CheckSelfPermission(Manifest.Permission.BluetoothAdmin));
-
-            //System.Diagnostics.Debug.WriteLine(Manifest.Permission.BluetoothAdvertise);
-            //System.Diagnostics.Debug.WriteLine(CheckSelfPermission(Manifest.Permission.BluetoothAdvertise));
-
-            //System.Diagnostics.Debug.WriteLine(Manifest.Permission.BluetoothConnect);
-            //System.Diagnostics.Debug.WriteLine(CheckSelfPermission(Manifest.Permission.BluetoothConnect));
-
-            //System.Diagnostics.Debug.WriteLine(Manifest.Permission.BluetoothPrivileged);
-            //System.Diagnostics.Debug.WriteLine(CheckSelfPermission(Manifest.Permission.BluetoothPrivileged));
-
-            //if (status != Permission.Granted)
-            //{
-            //    RequestPermissions(new string[] { Manifest.Permission.Bluetooth }, BT1_PERMISSION_CODE);
-            //}
         }
-
-        //private void TimerCallback(object state)
-        //{
-        //    RequestPermissions(new string[] { state.ToString() }, BT1_PERMISSION_CODE);
-
-        //    System.Diagnostics.Debug.WriteLine("Permisos solicitados:" + state.ToString());
-        //    //// Obtener el temporizador actual
-        //    //Timer timer = (Timer)state;
-
-        //    //// Detener el temporizador
-        //    //timer.Dispose();
-
-        //    //// Eliminar el temporizador de la lista
-        //    //timers.Remove(timer);
-        //}
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
         {
@@ -186,17 +126,6 @@ namespace DMCobranzas
 
                 System.Diagnostics.Debug.WriteLine("Permisos a solicitar:" + permisosPorSolicitar[currentPermision]);
                 RequestPermissions(new string[] { permisosPorSolicitar[currentPermision] }, currentPermision);
-
-                //if (grantResults[0] == Permission.Granted)
-                //{
-                //    // Permiso otorgado
-                //}
-                //else
-                //{
-                //    // Permiso denegado
-                //}
-
-                //System.Diagnostics.Debug.WriteLine("Permisos:" + grantResults[0].ToString());
             }
         }
     }

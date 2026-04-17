@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DMCobranzas.Controls.CustomRows.CreditNoteRequestDetailRow"             
+             x:Name="root">
+    <Border
+         StrokeThickness="0.3"  
+         Padding="5,0,5,0"
+         Margin="0"
+         BackgroundColor="Transparent"        
+         MinimumHeightRequest="60">
+
+        <Grid
+            ColumnSpacing="4"
+            RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+            ColumnDefinitions="*,*,Auto,Auto"
+            VerticalOptions="Center">
+
+            <Label
+                Grid.Row="0"
+                Grid.Column="0"
+                Grid.ColumnSpan="7"
+                FontAttributes="Bold"
+                FontSize="13"
+                Text="{Binding DataItem.display_name, Source={x:Reference root}}" />
+            
+            <Label
+                Grid.Row="1"
+                Grid.Column="0"
+                Grid.ColumnSpan="3"
+                FontAttributes="Bold"
+                TextColor="LightSlateGray"
+                FontSize="12"
+                Text="{Binding DataItem.docnum_mask, Source={x:Reference root}}" />
+
+            <Label
+                Grid.Row="2"
+                Grid.Column="0"
+                Grid.ColumnSpan="3"
+                FontAttributes="Bold"
+                TextColor="LightSlateGray"
+                FontSize="12"
+                Text="{Binding DataItem.invoice_date, Source={x:Reference root}, StringFormat='FECHA: {0:dd/MM/yyyy}'}" />
+
+            <Label
+    Grid.Row="3"
+    Grid.Column="0"
+    Grid.ColumnSpan="2"
+    FontSize="11"
+    FontAttributes="Bold"
+    TextColor="Black"
+    Text="{Binding DataItem.price_unit,
+           Source={x:Reference root},
+           StringFormat='PRECIO FACTURADO: ${0}'}" />
+            
+            <Label
+                Grid.Row="4"
+                Grid.Column="0"
+                FontSize="10"
+                FontAttributes="Bold"
+                TextColor="Green"
+                Text="{Binding DataItem.discount_percentage,
+                       Source={x:Reference root},
+                       StringFormat='% DESC. {0}'}" />
+            
+                  
+
+            <Label
+                Grid.Row="5"
+                Grid.Column="0"
+                Grid.ColumnSpan="3"
+                FontSize="11"
+                FontAttributes="Bold"
+                TextColor="Black"
+                Text="{Binding DataItem.quantity_available,
+               Source={x:Reference root},
+               StringFormat='CANT. DISP.: {0}'}" />
+
+            <VerticalStackLayout Grid.Row="2"
+                Grid.Column="2"
+                Grid.RowSpan="4" 
+                Spacing="2" 
+                VerticalOptions="Center"
+                Padding="0,0,0,5">
+                <Entry
+                    x:Name="entryCantidad"                  
+                    Keyboard="Numeric"
+                    VerticalOptions="FillAndExpand"
+                    HorizontalTextAlignment="End"
+                    Text="{Binding DataItem.quantity,
+                           Source={x:Reference root},
+                           Mode=TwoWay}" />
+                <Label Text="Cant. devuelta" 
+                       HorizontalTextAlignment="End" Style="{StaticResource EntryHintLabelStyle}" />
+            </VerticalStackLayout>
+
+            <HorizontalStackLayout  
+                Grid.Row="2"
+                 Grid.Column="5"
+                 Grid.RowSpan="4"
+                 Spacing="2"
+                 Margin="3">
+                <Button               
+                    WidthRequest="50"
+                    VerticalOptions="Fill"
+                    CornerRadius="5"
+                    BackgroundColor="Orange"
+                    Clicked="Button_Clicked">                    
+                    <Button.ImageSource>
+                        <FontImageSource
+                            FontFamily="FontAwesome5Solid"
+                            Glyph="&#xf55a;"
+                            Color="White"
+                            Size="15"/>
+                    </Button.ImageSource>
+                </Button>
+
+                <Button
+                    WidthRequest="50"
+                    VerticalOptions="Fill"
+                    CornerRadius="5"
+                    BackgroundColor="Red"
+                    Command="{Binding DeleteCommand,Source={x:Reference root}}"
+                    CommandParameter="{Binding BindingContext, Source={x:Reference root}}">
+                    <Button.ImageSource>
+                        <FontImageSource
+                            FontFamily="FontAwesome5Solid"
+                            Glyph="&#xf2ed;"
+                            Color="White"
+                            Size="15"/>
+                    </Button.ImageSource>
+                </Button>
+            </HorizontalStackLayout> 
+        </Grid>
+    </Border>
+</ContentView>

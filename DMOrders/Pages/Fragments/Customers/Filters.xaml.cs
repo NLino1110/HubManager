@@ -57,7 +57,7 @@ public partial class Filters : ContentView
         LoadProductPricelists();
     }
 
-    private async Task LoadProductPricelists()
+    public async Task LoadProductPricelists()
     {
         ProductPricelistDb productPriceListsDb = new ProductPricelistDb(App.Session.odooConnection.DbNameSqlite);
         

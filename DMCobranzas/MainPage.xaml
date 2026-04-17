@@ -82,7 +82,7 @@
                 
                 <Label
                 Text="Información General"                
-                FontSize="23"
+                FontSize="20"
                 HorizontalOptions="Center" 
                     FontAttributes="Bold" TextColor="DimGray"
                     Margin="5"/>
@@ -91,7 +91,7 @@
                 Text="Usuario:"
                 SemanticProperties.HeadingLevel="Level2"
                 SemanticProperties.Description=""
-                FontSize="18"
+                FontSize="15"
                 x:Name="txtUser"
                 HorizontalOptions="Start" />
                 <BoxView HeightRequest="1" Color="LightGray" Margin="3"/>
@@ -100,7 +100,7 @@
                 Text="Nombre:"
                 SemanticProperties.HeadingLevel="Level2"
                 SemanticProperties.Description=""
-                FontSize="18"
+                FontSize="15"
                 x:Name="txtName"
                 HorizontalOptions="Start" />
                 
@@ -110,7 +110,7 @@
                 Text="Ult. Actualización:"
                 SemanticProperties.HeadingLevel="Level2"
                 SemanticProperties.Description=""
-                FontSize="18"
+                FontSize="15"
                 x:Name="txtUpdated"
                 HorizontalOptions="Start" />
                 

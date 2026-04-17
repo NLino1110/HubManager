@@ -95,18 +95,23 @@ public partial class ConfettiOverlay : ContentView
         _animating = true;
 
         // ~33 ms (30 fps) para ahorrar batería; sube a 16 ms si lo quieres más fluido
-        Device.StartTimer(TimeSpan.FromMilliseconds(33), () =>
+        var timer = Dispatcher.CreateTimer();
+        timer.Interval = TimeSpan.FromMilliseconds(33);
+
+        timer.Tick += (s, e) =>
         {
             Canvas.InvalidateSurface();
+
             if (_sw.ElapsedMilliseconds >= DurationMs)
             {
                 _animating = false;
                 _sw.Stop();
                 IsVisible = false;
-                return false;
+                timer.Stop();
             }
-            return true;
-        });
+        };
+
+        timer.Start();
     }
 
     void OnPaintSurface(object? sender, SKPaintSurfaceEventArgs e)

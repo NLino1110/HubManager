@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BeebTech.Maui.Controls.Controls.OptionsSelector">
+    <VerticalStackLayout>
+        <CollectionView 
+           x:Name="ColViewType"
+           HeightRequest="44" Margin="0,0,0,15"
+           SelectionMode="Single" 
+           SelectedItem="{Binding Icon}"
+           SelectionChangedCommand="{Binding SelectionChangedCommand}"
+           SelectionChangedCommandParameter="{Binding Icon}"  
+           ItemsSource="{Binding Icons}"
+           EmptyView="Sin datos">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid RowDefinitions="Auto,4" RowSpacing="{StaticResource size60}"
+SemanticProperties.Description="{Binding Description}">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal">
+                                    <VisualState.Setters>
+                                        <Setter Property="BackgroundColor" Value="Transparent"/>
+                                        <Setter TargetName="SelectedIndicator" Property="BoxView.IsVisible" Value="False"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Selected">
+                                    <VisualState.Setters>
+                                        <Setter Property="BackgroundColor" Value="Transparent"/>
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter TargetName="SelectedIndicator" Property="BoxView.IsVisible" Value="True"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+
+                        <HorizontalStackLayout Spacing="5" Margin="5" Padding="0,7,0,0">
+                            <Image>
+                                <Image.Source>
+                                    <FontImageSource 
+                                       FontFamily="{Binding FontFamily}"                                                        
+                                   Size="15"
+                                   FontAutoScalingEnabled="True"                                                         
+                                   Glyph="{Binding IconSource}" 
+                                   Color="{AppThemeBinding Light={StaticResource DarkOnLightBackground},Dark={StaticResource LightOnDarkBackground}}"/>
+                                </Image.Source>
+                            </Image>
+                            <Label Grid.Column="1" Text="{Binding Description}"/>
+                        </HorizontalStackLayout>
+                        <BoxView x:Name="SelectedIndicator" Color="{StaticResource Primary}" HeightRequest="3" HorizontalOptions="Fill" Grid.Row="1"/>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="{StaticResource LayoutSpacing}"/>
+            </CollectionView.ItemsLayout>
+        </CollectionView>
+    </VerticalStackLayout>
+</ContentView>

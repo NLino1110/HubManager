@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8" ?>
-
 <ContentView
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -8,7 +7,14 @@
     xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
     BackgroundColor="Transparent"
     Padding="10"
+    xmlns:converters="clr-namespace:DMOrders.Converters"
     x:Name="Root">
+
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <converters:InverseBooleanConverter x:Key="InverseBool" />
+        </ResourceDictionary>
+    </ContentView.Resources>
 
     <VerticalStackLayout
         WidthRequest="800"
@@ -16,22 +22,6 @@
         BackgroundColor="WhiteSmoke"
         Padding="5">
 
-        <Grid 
-            BackgroundColor="#80000000"
-            IsVisible="{Binding IsLoading}"
-            VerticalOptions="Fill"
-            HorizontalOptions="Fill"
-            ZIndex="10">
-                        <ActivityIndicator 
-                IsRunning="{Binding IsLoading}" 
-                Color="MediumVioletRed"
-                WidthRequest="100"
-                HeightRequest="100"
-                VerticalOptions="Center"
-                HorizontalOptions="Center" />
-        </Grid>
-        
-        
         <!-- Título -->
         <Label
             Text="PROMOCIONES APLICABLES AL PEDIDO"
@@ -51,9 +41,9 @@
             <Label Text="CANTIDAD" WidthRequest="80" HorizontalTextAlignment="Start" FontAttributes="Bold" FontSize="11" />
             <Label Text="ESTADO" WidthRequest="100" HorizontalTextAlignment="Start" FontAttributes="Bold" FontSize="11" />
         </HorizontalStackLayout>
-
+        
         <!-- Lista principal -->
-        <Border StrokeThickness="1" StrokeLineCap="Flat" Padding="0" HeightRequest="200">
+        <Border StrokeThickness="1" StrokeLineCap="Flat" Padding="0" HeightRequest="200">            
             <CollectionView 
                 x:Name="ListaDetallesPromocion" 
                 ItemsSource="{Binding ItemsDataBenefits, Source={x:Reference Root}}"                
@@ -107,8 +97,8 @@
                 <Button.ImageSource>
                     <FontImageSource 
                         Size="25"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.Check_circle}" />
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xf058;" />
                 </Button.ImageSource>
             </Button>
             
@@ -133,7 +123,7 @@
         </HorizontalStackLayout>
 
         <!-- Cabecera de selección -->
-        <HorizontalStackLayout BackgroundColor="#DDDDDD"
+        <!--<HorizontalStackLayout BackgroundColor="#DDDDDD"
                                Padding="10,4,10,4">
 
             <Label Text="Nº" WidthRequest="40" FontAttributes="Bold" FontSize="11" />
@@ -141,110 +131,207 @@
             <Label Text="DESCRIP." WidthRequest="350" FontAttributes="Bold" FontSize="11" />
             <Label Text="UNIDAD" WidthRequest="60" FontAttributes="Bold" FontSize="11" />
             <Label Text="STOCK" WidthRequest="60" FontAttributes="Bold" FontSize="11" />
-            <!--<Label Text="PRECIO" WidthRequest="60" FontAttributes="Bold" FontSize="11" />-->
+            --><!--<Label Text="PRECIO" WidthRequest="60" FontAttributes="Bold" FontSize="11" />--><!--
             <Label Text="CANTIDAD" WidthRequest="60" FontAttributes="Bold" FontSize="11" />
             <Label Text="-" WidthRequest="60" FontAttributes="Bold" FontSize="11" />
-        </HorizontalStackLayout>
-
-        <!-- Lista de selección -->
-        <Border StrokeThickness="1" StrokeLineCap="Flat" HeightRequest="200">
-            <CollectionView x:Name="ListaDetallesSeleccion"
-                            EmptyView="No hay datos para mostrar..."
-                            ItemsSource="{Binding promoGiftsFiltered}"
-                            SelectionMode="Single"
-                            HorizontalOptions="Fill">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <HorizontalStackLayout Padding="10" Margin="8,0,8,0">
-                            <Label Text="{Binding id}" WidthRequest="40" VerticalTextAlignment="Center" FontSize="10"/>
-                            <Label Text="{Binding code}" WidthRequest="100" VerticalTextAlignment="Center" FontSize="10"/>
-                            <Label Text="{Binding name}" WidthRequest="350" VerticalTextAlignment="Center" FontSize="10"/>
-                            <Label Text="{Binding uom_display}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="10"/>
-                            <Label Text="{Binding qty_available}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="10"/>
-                            <!--<Label Text="{Binding list_price}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="12"/>-->
-                            <Label Text="{Binding qty_gift}" WidthRequest="50" VerticalTextAlignment="Center" FontSize="10"/>
-                            <Button Text="" 
-                                BackgroundColor="DodgerBlue" 
-                                TextColor="White" 
-                                HeightRequest="30"
-                                WidthRequest="30"
-                                Padding="0"
-                                Clicked="AddGiftAndSave">
-                                <Button.ImageSource>
-                                    <FontImageSource 
-                                        Size="22"                                        
+        </HorizontalStackLayout>-->
+        
+        <Grid>
+            <Border x:Name="BorderDiscount" StrokeThickness="1" StrokeLineCap="Flat" HeightRequest="200" IsVisible="False">            
+                <CollectionView x:Name="DiscountDetails"
+                    EmptyView="No hay datos para mostrar..."
+                    ItemsSource="{Binding promoDiscounts}"
+                    SelectionMode="None"
+                    HorizontalOptions="Fill">
+                    <CollectionView.HeaderTemplate>
+                        <DataTemplate>
+                            <HorizontalStackLayout BackgroundColor="#DDDDDD" Padding="10,4,10,4">
+                                <Label Text="Nº" WidthRequest="40" FontAttributes="Bold" FontSize="11" />
+                                <Label Text="CODIGO" WidthRequest="100" FontAttributes="Bold" FontSize="11" />
+                                <!--<Label Text="DESCRIP." WidthRequest="350" FontAttributes="Bold" FontSize="11" />-->
+                                <!--<Label Text="-" WidthRequest="60" FontAttributes="Bold" FontSize="11" />-->
+                                <!--<Label Text="-" WidthRequest="60" FontAttributes="Bold" FontSize="11" />-->                            
+                                <Label Text="DESC.MAX." WidthRequest="70" HorizontalTextAlignment="Start" FontAttributes="Bold" FontSize="11"/>
+                                <Label Text="DESC.APL." WidthRequest="70" HorizontalTextAlignment="Start" FontAttributes="Bold" FontSize="11"/>
+                                <Label Text="" WidthRequest="50"/>
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.HeaderTemplate>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <HorizontalStackLayout Padding="10" Margin="8,0,8,0">
+                                <Label Text="{Binding id}" WidthRequest="40" VerticalTextAlignment="Center" FontSize="10"/>
+                                <Label Text="{Binding code}" WidthRequest="100" VerticalTextAlignment="Center" FontSize="10"/>
+                                <!--<Label Text="{Binding name}" WidthRequest="250" VerticalTextAlignment="Center" FontSize="10"/>-->
+                                <!--<Label Text="{Binding uom_display}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="10"/>-->
+                                <!--<Label Text="{Binding qty_available}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="10"/>-->
+                                <Label Text="{Binding discount_base,StringFormat='{0}%'}" WidthRequest="70" VerticalTextAlignment="Center" FontSize="10"/>
+                                <Entry Text="{Binding discount, Mode=TwoWay}" MaxLength="3" Keyboard="Numeric" WidthRequest="70"></Entry>
+                                <Button Text="" 
+                                        BackgroundColor="LimeGreen" 
+                                        TextColor="White" 
+                                        HeightRequest="30"
+                                        WidthRequest="30"
+                                        Padding="0"
+                                        Clicked="Disc_Entry_Completed">
+                                    <Button.ImageSource>
+                                        <FontImageSource 
+                                        Size="13"
                                         FontFamily="FontAwesome5Solid"
-                                        Glyph="&#x2b;" />
-                                </Button.ImageSource>
-                                <Button.Triggers>
-                                    <DataTrigger TargetType="Button" Binding="{Binding allow_add_gift}" Value="False">
-                                        <Setter Property="IsVisible" Value="False"/>
-                                    </DataTrigger>
-
-                                    <DataTrigger TargetType="Button" Binding="{Binding allow_add_gift}" Value="True">
-                                        <Setter Property="IsVisible" Value="True"/>
-                                    </DataTrigger>
-                                </Button.Triggers>
-                            </Button>
-
-                            <Button Text="" 
+                                        Glyph="&#xf00c;" />
+                                    </Button.ImageSource>                                
+                                </Button>                            
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>            
+            </Border>
+        
+            <!-- Lista de selección -->
+            <Border x:Name="BorderBenefits" StrokeThickness="1" StrokeLineCap="Flat" HeightRequest="200">            
+                <CollectionView x:Name="ListaDetallesSeleccion"
+                                EmptyView="No hay datos para mostrar..."
+                                ItemsSource="{Binding promoGiftsFiltered}"
+                                SelectionMode="None"
+                                HorizontalOptions="Fill">
+                    <CollectionView.HeaderTemplate>
+                        <DataTemplate>
+                            <HorizontalStackLayout BackgroundColor="#DDDDDD" Padding="10,4,10,4">
+                                <Label Text="Nº" WidthRequest="40" FontAttributes="Bold" FontSize="11" />
+                                <Label Text="CODIGO" WidthRequest="100" FontAttributes="Bold" FontSize="11" />
+                                <Label Text="DESCRIP." WidthRequest="350" FontAttributes="Bold" FontSize="11" />
+                                <Label Text="UNIDAD" WidthRequest="60" FontAttributes="Bold" FontSize="11" />
+                                <Label Text="STOCK" WidthRequest="60" FontAttributes="Bold" FontSize="11" />
+                                <!--<Label Text="PRECIO" WidthRequest="60" FontAttributes="Bold" FontSize="11"/>-->
+                                <Label Text="CANTIDAD" WidthRequest="60" HorizontalTextAlignment="Start" FontAttributes="Bold" FontSize="11"/>
+                                <Label Text="" WidthRequest="50"/>
+                                <Label Text="" WidthRequest="50"/>
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.HeaderTemplate>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <HorizontalStackLayout Padding="10" Margin="8,0,8,0">
+                                <Label Text="{Binding id}" WidthRequest="40" VerticalTextAlignment="Center" FontSize="10"/>
+                                <Label Text="{Binding code}" WidthRequest="100" VerticalTextAlignment="Center" FontSize="10"/>
+                                <Label Text="{Binding name}" WidthRequest="350" VerticalTextAlignment="Center" FontSize="10"/>
+                                <Label Text="{Binding uom_display}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="10"/>
+                                <Label Text="{Binding qty_available}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="10"/>
+                                <!--<Label Text="{Binding list_price}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="12"/>-->
+                                <Label Text="{Binding qty_gift}" WidthRequest="50" VerticalTextAlignment="Center" FontSize="10" IsVisible="{Binding Source={x:Reference Root}, Path=BindingContext.EditQty, Converter={StaticResource InverseBool}}"/>
+                                <Entry Text="{Binding qty_gift_virtual, Mode=TwoWay}" Keyboard="Numeric" TextChanged="Qty_Entry_TextChanged" WidthRequest="50" IsVisible="{Binding Source={x:Reference Root}, Path=BindingContext.EditQty}"></Entry>
+                                <Button Text="" 
                                     BackgroundColor="DodgerBlue" 
                                     TextColor="White" 
                                     HeightRequest="30"
                                     WidthRequest="30"
                                     Padding="0"
-                                    Margin="10,0,0,0"
-                                    Clicked="SubstractGift">
-                                <Button.ImageSource>
-                                    <FontImageSource 
-                                        Size="11"
-                                        FontFamily="FontAwesome5Solid"
-                                        Glyph="&#xf068;" />
-                                </Button.ImageSource>
-                                <Button.Triggers>
-                                    <DataTrigger TargetType="Button" Binding="{Binding allow_add_gift}" Value="False">
-                                        <Setter Property="IsVisible" Value="False"/>
-                                    </DataTrigger>
+                                    Clicked="AddGiftAndSave">
+                                    <Button.ImageSource>
+                                        <FontImageSource 
+                                            Size="22"                                        
+                                            FontFamily="FontAwesome5Solid"
+                                            Glyph="&#x2b;" />
+                                    </Button.ImageSource>
+                                    <Button.Triggers>
+                                        <DataTrigger TargetType="Button" Binding="{Binding allow_add_gift}" Value="False">
+                                            <Setter Property="IsVisible" Value="False"/>
+                                        </DataTrigger>
 
-                                    <DataTrigger TargetType="Button" Binding="{Binding allow_add_gift}" Value="True">
-                                        <Setter Property="IsVisible" Value="True"/>
-                                    </DataTrigger>
-                                </Button.Triggers>
-                            </Button>
-                        </HorizontalStackLayout>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </Border>
+                                        <DataTrigger TargetType="Button" Binding="{Binding allow_add_gift}" Value="True">
+                                            <Setter Property="IsVisible" Value="True"/>
+                                        </DataTrigger>
+                                    </Button.Triggers>
+                                </Button>
 
+                                <Button Text="" 
+                                        BackgroundColor="DodgerBlue" 
+                                        TextColor="White" 
+                                        HeightRequest="30"
+                                        WidthRequest="30"
+                                        Padding="0"
+                                        Margin="1,0,0,0"
+                                        Clicked="SubstractGift">
+                                    <Button.ImageSource>
+                                        <FontImageSource 
+                                            Size="11"
+                                            FontFamily="FontAwesome5Solid"
+                                            Glyph="&#xf068;" />
+                                    </Button.ImageSource>
+                                    <Button.Triggers>
+                                        <DataTrigger TargetType="Button" Binding="{Binding allow_add_gift}" Value="False">
+                                            <Setter Property="IsVisible" Value="False"/>
+                                        </DataTrigger>
+
+                                        <DataTrigger TargetType="Button" Binding="{Binding allow_add_gift}" Value="True">
+                                            <Setter Property="IsVisible" Value="True"/>
+                                        </DataTrigger>
+                                    </Button.Triggers>
+                                </Button>
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Border>
+
+            <Grid
+                BackgroundColor="#80000000"
+                IsVisible="{Binding IsLoading}"
+                VerticalOptions="Fill"
+                HorizontalOptions="Fill"
+                ZIndex="10">
+                <ActivityIndicator 
+                    IsRunning="{Binding IsLoading}" 
+                    Color="MediumVioletRed"
+                    WidthRequest="100"
+                    HeightRequest="100"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center" />
+            </Grid>            
+        </Grid>
+                
         <!-- Botones finales -->
-        <HorizontalStackLayout HorizontalOptions="Fill" Spacing="10" Margin="5,5,5,5">
+        <HorizontalStackLayout HorizontalOptions="Fill" Spacing="5" Margin="5,5,5,5">
             <Button Text="Aplicar" 
                 BackgroundColor="HotPink" 
                 TextColor="White" 
                 HeightRequest="40"
                 WidthRequest="120"
                 Padding="0"
-                Clicked="OnCloseButtonClicked" IsVisible="True">
+                Clicked="OnApplyButtonClicked" IsVisible="True">
                 <Button.ImageSource>
                     <FontImageSource 
-            Size="25"
-            FontFamily="MaterialSharp"
-            Glyph="{x:Static uranium:MaterialSharp.Data_saver_on}" />
+            Size="20"
+            FontFamily="FontAwesome5Solid"
+            Glyph="&#xf150;" />
                 </Button.ImageSource>
             </Button>
-            <Button Text="Cerrar" 
+            <Button x:Name="btnApplyAndContinue" Text="Aplicar y Continuar" 
                 BackgroundColor="#4CAF50" 
+                TextColor="White"                     
+                HeightRequest="40"
+                WidthRequest="180"
+                Padding="0"
+                Clicked="OnApplyAndContinueButtonClicked" IsVisible="False">                
+                <Button.ImageSource>
+                    <FontImageSource 
+                        Size="20"
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xf35a;" />
+                </Button.ImageSource>
+            </Button>
+            <Button Text="Salir" 
+                BackgroundColor="PaleVioletRed" 
                 TextColor="White" 
                 HeightRequest="40"
                 WidthRequest="120"
                 Padding="0"
-                    Clicked="OnCloseButtonClicked">
+                Clicked="OnCloseButtonClicked">
                 <Button.ImageSource>
                     <FontImageSource 
-                        Size="25"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.Arrow_circle_right}" />
+                        Size="20"
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xf057;" />
                 </Button.ImageSource>
             </Button>
 
@@ -268,7 +355,7 @@
                 HorizontalOptions="Fill"
                 HorizontalTextAlignment="End" 
                 VerticalTextAlignment="Center"
-                Margin="250,0,0,0"/>
+                Margin="100,0,0,0"/>
 
             <Label Text="{Binding ComputeTotalQty}"
                FontAttributes="Bold"
@@ -325,7 +412,6 @@
                    Padding="0"
                    Margin="0"/>
             </HorizontalStackLayout>
-
         </HorizontalStackLayout>
     </VerticalStackLayout>
 </ContentView>

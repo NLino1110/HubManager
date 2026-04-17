@@ -1,11 +1,14 @@
 ﻿using CobranzasDMSA_Odoo.Models;
+using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DMOrders.Controls.Tools;
 using DMOrders.Models.Filters;
 using DMOrders.Pages.Sys;
 using DMSA.Models.Clientes;
 using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.Native;
+using DMSA.Sync.Core.Database.Sqlite;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Input;
@@ -18,6 +21,7 @@ namespace DMOrders.Pages.Fragments.Orders
     {
         public ICommand EditCommand { get; set; }
         public ICommand DeleteCommand { get; set; }
+        public ICommand ResetCommand { get; set; }
 
         public ContentView ViewParent
         {
@@ -49,6 +53,7 @@ namespace DMOrders.Pages.Fragments.Orders
             BindingContext = new ListViewModel(FiltersView);            
             EditCommand = new Command(EditItem);
             DeleteCommand = new Command(DeleteItem);
+            ResetCommand = new Command(ResetItem);
         }
 
         private void Current_MainDisplayInfoChanged(object sender, DisplayInfoChangedEventArgs e)
@@ -94,69 +99,14 @@ namespace DMOrders.Pages.Fragments.Orders
         }
 
         private async void btnSelectItem(object sender, EventArgs e)
-        {  
-
-            //////await Navigation.PopModalAsync(false);
-            ////Debug.WriteLine("Seleccionado");
-            Button btnItem = (Button) sender;
-            //////Se asume que el botón esta dentro de un template y a su vez dentro del DataGridRow
-            ////// por lo cual se asume que la conversión es a 2 niveles arriba 
+        {
+            Button btnItem = (Button) sender;            
 
             var data = btnItem.Parent.Parent;
 
             if (btnItem.Parent != null && btnItem.Parent.Parent != null)
             {
-                //var type = Assembly.Load("Maui.DataGrid").GetType("Maui.DataGrid.DataGridRow");
-                //if (type == null)
-                //{
-                //    Console.WriteLine("Tipo no encontrado.");
-                //    return;
-                //}
-
-                //var instance = Activator.CreateInstance(type);
-
-                //if (instance is View view)
-                //{
-
-                //    var touchBehavior = new TouchBehavior
-                //    {
-                //        LongPressDuration = 750
-                //    };
-
-                //    touchBehavior.SetBinding(
-                //        TouchBehavior.LongPressCommandProperty,
-                //        new Binding("IncreaseLongPressCountCommand")
-                //        {
-                //            Source = this.BindingContext
-                //        });
-
-                //    _dataGrid1.Behaviors.Add(touchBehavior);
-
-                //}                
-
-                //var dataProps = data.GetType().GetProperties();
-                //foreach (var prop in dataProps)
-                //{
-                //    var targetProp = type.GetProperty(prop.Name,
-                //        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
-                //    if (targetProp != null && targetProp.CanWrite)
-                //    {
-                //        var value = prop.GetValue(data);
-                //        targetProp.SetValue(instance, value);
-                //    }
-                //}
-
-                //var row = (Maui.DataGrid.DataGridRow) btnItem.Parent.Parent;
-                //var rowData = row.BindingContext;
-                ////    if (rowData is ClienteAprobacion cliente)
-                ////    {
-                ////        //Se realiza la seleccion manual de la fila, ya que si se hace clic en el botón no es automática
-                ////        _dataGrid1.SelectedItem = rowData;
-                ////        await ShowConfirmClient(cliente);
-                ////        // Ejemplo: muestra una alerta con los valores de las propiedades
-                ////        //DisplayAlert("Información", $"Propiedad1: {propiedad1}, Propiedad2: {propiedad2}", "Aceptar");
-                ////    }
+                
             }
         }
 
@@ -167,15 +117,7 @@ namespace DMOrders.Pages.Fragments.Orders
 
         private async void _dataGrid1_ItemRowTap(object sender, TappedEventArgs e)
         {
-            ////Debug.WriteLine("Tap Grid:" + sender.ToString());
-
-            ////var row = (Maui.DataGrid.DataGridRow) sender;            
-            ////var rowData = row.BindingContext;
-
-            ////if (rowData is ClienteAprobacion cliente)
-            ////{
-            ////    await ShowConfirmClient(cliente);
-            ////}
+            
         }
                 
         private void btnBuscar_Clicked(object sender, EventArgs e)
@@ -209,16 +151,71 @@ namespace DMOrders.Pages.Fragments.Orders
             Debug.WriteLine("MyCollectionView_SelectionChanged");
         }
 
+        private bool _isNavigating;
+
         private async void EditItem(object obj)
         {
-            Debug.WriteLine("EditItem");
-            Crud viewObj = new Crud();
-            viewObj.CurrentSaleOrder = (sale_order) obj;
-            viewObj.CurrentCompany = App.Session.res_Company;            
-            //objPage.editionMode = true;
-            viewObj.Disappearing += ViewObj_Disappearing;
-            await viewObj.PrepareForm();
-            await Navigation.PushModalAsync(viewObj);
+            if (_isNavigating) return;
+
+            _isNavigating = true;
+
+            try
+            {
+                var viewObj = new Crud();
+                viewObj.CurrentSaleOrder = (sale_order)obj;
+                viewObj.CurrentCompany = App.Session.res_Company;
+                await viewObj.PrepareForm();
+
+                //viewObj.Disappearing += ViewObj_Disappearing;
+                viewObj.Unloaded += (sender, e) =>
+                {
+                    _isNavigating = false;
+                    ((ListViewModel)this.BindingContext).LoadDataByTimer();
+                };
+
+                await Navigation.PushModalAsync(viewObj, false);
+            }
+            finally
+            {
+                //_isNavigating = false;
+            }
+        }
+
+        private async void ResetItem(object obj)
+        {
+            if(!App.Session.odooConnection.IsTestMode)
+            {
+                return;
+            }
+
+            if (_isNavigating) return;
+
+            var leave = await Application.Current.Windows[0].Page.DisplayAlert("Atención", "Desea marcar esta orden para resincronizar?", "Si", "No");
+
+            if (!leave)
+            {
+                return;
+            }
+
+            _isNavigating = true;
+
+            try
+            {
+                var saleOrderItem = (sale_order)obj;
+                Debug.WriteLine("Reset item " + saleOrderItem.erp_name);
+                Debug.WriteLine("TestMode " + App.Session.odooConnection.IsTestMode);
+
+                var saleOrderDb = new SaleOrderDb(App.Session.odooConnection.DbNameSqlite);
+                saleOrderItem.is_synchronized = false;
+                saleOrderItem.external_guid = null;
+                await saleOrderDb.UpdateAsync(saleOrderItem);
+                ((ListViewModel)this.BindingContext).LoadDataByTimer();
+                await Toast.Make("Orden marcada para resíncronización").Show();
+            }
+            finally
+            {
+                _isNavigating = false;
+            }
         }
 
         private async void DeleteItem(object obj)
@@ -247,6 +244,7 @@ namespace DMOrders.Pages.Fragments.Orders
             {
                 var mainPage = (MainPageTab)App.Current.MainPage;
                 mainPage.SelectTab("Clientes");
+                await Toast.Make("Seleccione un cliente para crear un nuevo pedido").Show();
             }
             catch (Exception ex)
             {

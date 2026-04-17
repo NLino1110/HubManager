@@ -72,28 +72,27 @@ namespace ApiManager
 
             object[] args = new object[] { };
             object[] _custom_args = new object[] {
-                new object[] {"create_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
-                //new object[] {"create_date", "<=", $"{year}-{month:00}-{day:00} 23:59:59" },
+                new object[] {"create_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },                
             };
             return await SearchRead<ApiResponseOdooRpcT<product_pricelist[]>>(args, _custom_args, kwargs);
         }
 
-        public async Task<ApiResponseOdooRpcT<product_pricelist[]>?> GetByCreateDateRange(int limit, int index, DateTime dateIni, DateTime dateEnd)
-        {
-            var kwargs = new
-            {
-                limit = limit,
-                offset = (index * limit),
-                fields = fields_array //new[] { "id", "name", "uom_id", "default_code", "categ_id", "type", "product_brand_id", "active", "macro_product_available", "sale_ok", "purchase_ok", "trade_ok" }
-            };
+        //public async Task<ApiResponseOdooRpcT<product_pricelist[]>?> GetByCreateDateRange(int limit, int index, DateTime dateIni, DateTime dateEnd)
+        //{
+        //    var kwargs = new
+        //    {
+        //        limit = limit,
+        //        offset = (index * limit),
+        //        fields = fields_array //new[] { "id", "name", "uom_id", "default_code", "categ_id", "type", "product_brand_id", "active", "macro_product_available", "sale_ok", "purchase_ok", "trade_ok" }
+        //    };
 
-            object[] args = new object[] { };
-            object[] _custom_args = new object[] {
-                new object[] {"create_date", ">=", dateIni.ToString("yyyy-MM-dd 00:00:00") },
-                new object[] {"create_date", "<=", dateEnd.ToString("yyyy-MM-dd 23:59:59") },
-            };
-            return await SearchRead<ApiResponseOdooRpcT<product_pricelist[]>>(args, _custom_args, kwargs, true);
-        }
+        //    object[] args = new object[] { };
+        //    object[] _custom_args = new object[] {
+        //        new object[] {"create_date", ">=", dateIni.ToString("yyyy-MM-dd 00:00:00") },
+        //        new object[] {"create_date", "<=", dateEnd.ToString("yyyy-MM-dd 23:59:59") },
+        //    };
+        //    return await SearchRead<ApiResponseOdooRpcT<product_pricelist[]>>(args, _custom_args, kwargs, true);
+        //}
 
         public async Task<ApiResponseOdooRpcT<product_pricelist[]>?> GetByWriteDate_dl(int year, int month, int day)
         {

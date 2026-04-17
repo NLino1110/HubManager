@@ -29,19 +29,19 @@ namespace DMSA.Models.Odoo.DebitCollection
         [Column("display_name")]
         public string display_name { get; set; }
 
-        [Ignore]
-        [JsonProperty("account_journal_id")]
-        [Column("account_journal_id")]
-        public JToken account_journal_id { get; set; }
+        //[Ignore]
+        //[JsonProperty("account_journal_id")]
+        //[Column("account_journal_id")]
+        //public JToken account_journal_id { get; set; }
 
-        [JsonIgnore]
-        [JsonProperty("_account_journal_id")]
-        [Column("_account_journal_id")]
-        public int _account_journal_id
-        {
-            get => GetId(account_journal_id);
-            set => account_journal_id = SetId(account_journal_id, value);
-        }
+        //[JsonIgnore]
+        //[JsonProperty("_account_journal_id")]
+        //[Column("_account_journal_id")]
+        //public int _account_journal_id
+        //{
+        //    get => GetId(account_journal_id);
+        //    set => account_journal_id = SetId(account_journal_id, value);
+        //}
 
         [Ignore]
         [JsonProperty("bank_id")]
@@ -98,9 +98,18 @@ namespace DMSA.Models.Odoo.DebitCollection
                 : JToken.Parse(value);
         }
 
+        [Ignore]
         [JsonProperty("cuotas_mensuales")]
-        [Column("cuotas_mensuales")]
-        public int cuotas_mensuales { get; set; }
+        public JToken cuotas_mensuales { get; set; }
+
+        [JsonIgnore]
+        [JsonProperty("_cuotas_mensuales")]
+        [Column("_cuotas_mensuales")]
+        public int _cuotas_mensuales
+        {
+            get => GetId(cuotas_mensuales);
+            set => cuotas_mensuales = SetId(cuotas_mensuales, value);
+        }
 
         [JsonProperty("porc_comision")]
         [Column("porc_comision")]

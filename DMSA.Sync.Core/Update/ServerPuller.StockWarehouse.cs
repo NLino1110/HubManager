@@ -1,6 +1,6 @@
-﻿using ApiManager;
+﻿using ApiManagerOdoo.Inventory;
 using DMSA.Models.Odoo.General.Responses;
-using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Inventory;
 using DMSA.Sync.Core.Database.Sqlite;
 
 namespace DMSA.Sync.Core.Update
@@ -16,7 +16,7 @@ namespace DMSA.Sync.Core.Update
                 return;
             }
 
-            ApiManager.HubStockWareHouse hubManagerInstance = new HubStockWareHouse(Constants.Session);
+            HubStockWareHouse hubManagerInstance = new HubStockWareHouse(Constants.Session);
             ApiResponseOdooRpcT<stock_warehouse[]> dataList = await hubManagerInstance.GetByCreateDate(limit, 0, year, month, day);
 
             if (dataList != null && dataList.result !=null && dataList.result.Length > 0)

@@ -12,6 +12,7 @@ namespace ApiManager
             "name",
             "active",
             "clave_externa",
+            //"use_mobile_app",
             "create_date",
             "write_date"
         };

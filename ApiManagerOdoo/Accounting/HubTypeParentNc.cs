@@ -18,6 +18,8 @@ namespace ApiManager
             "display_name",
             "nc_type",            
             "active",
+            "code",
+            "motivo_val_dev_nc",
             "create_date",
             "write_date"
         };

@@ -2,23 +2,22 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="BeebTech.Maui.Controls.CheckBoxEx"
-             x:Name="root"
-             MinimumWidthRequest="100">
-    <Grid HorizontalOptions="Fill" BackgroundColor="Transparent">
+             x:Name="root">
+    <Grid BackgroundColor="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="40"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <StackLayout Grid.Row="0" Grid.Column="0" VerticalOptions="Center">
-            <CheckBox x:Name="checkBox"                      
-                      Color="{Binding Source={x:Reference root}, Path=CheckBoxColor, Mode=TwoWay}"
-                      IsChecked="{Binding Source={x:Reference root}, Path=IsChecked, Mode=TwoWay}"
-                      ScaleX="1.3" ScaleY="1.3"/>
-        </StackLayout>
-        <StackLayout Grid.Row="0" Grid.Column="1" VerticalOptions="Center">
+
+        <CheckBox Grid.Row="0" Grid.Column="0" x:Name="checkBox"
+                    Color="{Binding Source={x:Reference root}, Path=CheckBoxColor, Mode=TwoWay}"
+                    IsChecked="{Binding Source={x:Reference root}, Path=IsChecked, Mode=TwoWay}"
+                    ScaleX="1.3" ScaleY="1.3"/>
+
+        <HorizontalStackLayout Grid.Row="0" Grid.Column="1" VerticalOptions="Center">
             <Label Text="{Binding Source={x:Reference root}, Path=LabelText}"
                    TextColor="{Binding Source={x:Reference root}, Path=TextColor, Mode=TwoWay}"
                     VerticalOptions="Center"
@@ -29,6 +28,6 @@
                     <TapGestureRecognizer Tapped="OnLabelTapped" />
                 </Label.GestureRecognizers>
             </Label>
-        </StackLayout>
+        </HorizontalStackLayout>
     </Grid>
 </ContentView>

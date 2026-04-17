@@ -1,4 +1,5 @@
 ﻿using DMOrders.Services.Database.Sqlite;
+using DMSA.Models.Odoo.Abstract;
 using DMSA.Models.Odoo.DMOrders.promotions;
 using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
@@ -20,12 +21,12 @@ namespace DMOrders.Services.Promotions
 
     public partial class PromotionEngineLite
     {
-        public async Task<ObservableCollection<PromotionEvalResultV2>> EvaluatePromotionsV3(sale_order saleOrder)
+        public async Task<ObservableCollection<PromotionEvalResult>> EvaluatePromotionsV3(sale_order saleOrder)
         {
             // Variables de contexto
             totalOrder = saleOrder.amount_total;
 
-            ObservableCollection<PromotionEvalResultV2> AppliedPromotionResults = new ObservableCollection<PromotionEvalResultV2>();
+            ObservableCollection<PromotionEvalResult> AppliedPromotionResults = new ObservableCollection<PromotionEvalResult>();
 
             string dbNameSqlite = App.Session.odooConnection.DbNameSqlite;
             var productDb = new ProductProductDb(dbNameSqlite);
@@ -45,14 +46,14 @@ namespace DMOrders.Services.Promotions
                     (p.end_datetime == null || p.end_datetime >= nowUtc))
                 .ToList();
 
-            var results = new List<PromotionEvalItemV2>();
+            var results = new List<PromotionEvalItem>();
 
             foreach (var promo in candidates)
             {
                 var FullRuleSet = new List<PromoRuleMatch>();
                 int timesForApply = 0;
                 int FullAllowedGifts = 0;
-                var (inCenter, TotalTimesAllowed) = await CheckPromoCenterAsync(promo._centers_ids, saleOrder._pricelist_id);
+                var (inCenter, TotalTimesAllowed) = await CheckPromoCenterAsync(promo._centers_ids, saleOrder._pricelist_id, promo);
 
                 Debug.WriteLine("Promo " + promo.name);
 
@@ -141,7 +142,7 @@ namespace DMOrders.Services.Promotions
                 if (!FullRuleSet.Any())
                     continue;
 
-                var promoEvalItem = new PromotionEvalItemV2
+                var promoEvalItem = new PromotionEvalItem
                 {
                     Promotion = promo,
                     RuleSet = FullRuleSet,
@@ -150,22 +151,23 @@ namespace DMOrders.Services.Promotions
                     MaxAllowedGifts = FullAllowedGifts
                 };
 
-                AppliedPromotionResults.Add(new PromotionEvalResultV2
+                AppliedPromotionResults.Add(new PromotionEvalResult
                 {
                     NowUtc = nowUtc,
-                    Items = new List<PromotionEvalItemV2> { promoEvalItem }
+                    Items = new List<PromotionEvalItem> { promoEvalItem }
                 });
             }
 
             return AppliedPromotionResults;
         }
 
-        public async Task<ObservableCollection<PromotionEvalResultV2>> EvaluatePromotionsV2(sale_order saleOrder)
+        [Obsolete("Ya no usado")]
+        public async Task<ObservableCollection<PromotionEvalResult>> EvaluatePromotionsV2(sale_order saleOrder)
         {
             // Variables de contexto
             totalOrder = saleOrder.amount_total;
 
-            ObservableCollection<PromotionEvalResultV2> AppliedPromotionResults = new ObservableCollection<PromotionEvalResultV2>();
+            ObservableCollection<PromotionEvalResult> AppliedPromotionResults = new ObservableCollection<PromotionEvalResult>();
 
             string dbNameSqlite = App.Session.odooConnection.DbNameSqlite;
             var productDb = new ProductProductDb(dbNameSqlite);
@@ -185,14 +187,14 @@ namespace DMOrders.Services.Promotions
                     (p.end_datetime == null || p.end_datetime >= nowUtc))
                 .ToList();
 
-            var results = new List<PromotionEvalItemV2>();
+            var results = new List<PromotionEvalItem>();
             
             foreach (var promo in candidates)
             {
                 var FullRuleSet = new List<PromoRuleMatch>();
                 int timesForApply = 0;
                 int FullAllowedGifts = 0;
-                var (inCenter, TotalTimesAllowed) = await CheckPromoCenterAsync(promo._centers_ids, saleOrder._pricelist_id);
+                var (inCenter, TotalTimesAllowed) = await CheckPromoCenterAsync(promo._centers_ids, saleOrder._pricelist_id, promo);
 
                 Debug.WriteLine("Promo " + promo.name);
 
@@ -284,7 +286,7 @@ namespace DMOrders.Services.Promotions
                 if(!FullRuleSet.Any())
                     continue;
 
-                var promoEvalItem = new PromotionEvalItemV2
+                var promoEvalItem = new PromotionEvalItem
                 {
                     Promotion = promo,
                     RuleSet = FullRuleSet,
@@ -293,10 +295,10 @@ namespace DMOrders.Services.Promotions
                     MaxAllowedGifts = FullAllowedGifts
                 };
 
-                AppliedPromotionResults.Add(new PromotionEvalResultV2
+                AppliedPromotionResults.Add(new PromotionEvalResult
                 {
                     NowUtc = nowUtc,
-                    Items = new List<PromotionEvalItemV2> { promoEvalItem }
+                    Items = new List<PromotionEvalItem> { promoEvalItem }
                 });
             }
 
@@ -359,6 +361,7 @@ namespace DMOrders.Services.Promotions
             return AppliedPromotionResults;
         }
 
+        [Obsolete("YA NO USADO")]
         public async Task<(decimal TotalProductAmount, int TotalQty, List<RuleProductMatch> ProductMatches)>
                 CalculateValuesAsyncV2(
                     List<PromotionProductDetail> productsApplyList,
@@ -417,6 +420,7 @@ namespace DMOrders.Services.Promotions
         public async Task<(decimal TotalProductAmount, 
             int TotalQty, 
             List<int> ProductApplyList,
+            List<OriginPromoOrderLine> ProductSequenceApplyList,
             sale_order_line productWithMaxValue,
             sale_order_line productWithMaxQty)>
                     CalculateValuesAsync(
@@ -428,12 +432,13 @@ namespace DMOrders.Services.Promotions
             decimal totalAmount = 0;
             int totalQty = 0;
             var productFoundList = new List<int>();
+            var productSequenceFoundList = new List<OriginPromoOrderLine>();
 
             if (productsApplyList == null || productsApplyList.Count == 0)
-                return (0, 0, productFoundList, null, null);
+                return (0, 0, productFoundList, productSequenceFoundList, null, null);
 
             if (orderLines == null || orderLines.Count == 0)
-                return (0, 0, productFoundList, null, null);
+                return (0, 0, productFoundList, productSequenceFoundList, null, null);
 
             // 1️⃣ Crear HashSet de product_ids de la promoción (más rápido)
             var productSet = new HashSet<int>(
@@ -445,7 +450,9 @@ namespace DMOrders.Services.Promotions
             // 2️⃣ Recorrer líneas de pedido
             foreach (var line in orderLines)
             {
+                int product_id = line.product_id;
                 int tmplId = line.product_tmpl_id;
+                int sequence = line.sequence;
 
                 if (productSet.Contains(tmplId))
                 {
@@ -457,6 +464,11 @@ namespace DMOrders.Services.Promotions
                     totalAmount += total; // subtotal;
 
                     productFoundList.Add(tmplId);
+                    productSequenceFoundList.Add(new OriginPromoOrderLine {
+                        sequence = sequence,
+                        product_id = product_id,
+                        product_tmpl_id = tmplId,
+                    });
                 }
             }
 
@@ -476,7 +488,7 @@ namespace DMOrders.Services.Promotions
                 .FirstOrDefault();
 
 
-            return (totalAmount, totalQty, productFoundList, productWithMaxValue, productWithMaxQty);
+            return (totalAmount, totalQty, productFoundList, productSequenceFoundList, productWithMaxValue, productWithMaxQty);
         }
 
         public async Task<(List<PromoRuleMatch>, int allowed_gifts)> EvaluateBenefit(            
@@ -492,7 +504,7 @@ namespace DMOrders.Services.Promotions
 
             var nowUtc = (dateUtc ?? DateTime.UtcNow).AddTicks(-(dateUtc ?? DateTime.UtcNow).Ticks % TimeSpan.TicksPerMinute);
 
-            var results = new List<PromotionEvalItemV2>();
+            var results = new List<PromotionEvalItem>();
             //var FullRuleSet = new List<PromoRuleMatch>();
             var RuleSet = new List<PromoRuleMatch>();
             var baseReasons = new List<string>();
@@ -526,7 +538,7 @@ namespace DMOrders.Services.Promotions
             //    .OrderByDescending(x => x.product_uom_qty)
             //    .FirstOrDefault();
 
-            var (TotalProductAmount, TotalQty, ProductApplyList, productWithMaxValue, productWithMaxQty) = await CalculateValuesAsync(
+            var (TotalProductAmount, TotalQty, ProductApplyList, ProductSequenceApplyList, productWithMaxValue, productWithMaxQty) = await CalculateValuesAsync(
                 productsApplyList: promo._product_details_promotion_ids_for_apply,
                 orderLines: OrderProductList,
                 TotalTimesAllowed: TotalTimesAllowed
@@ -551,36 +563,36 @@ namespace DMOrders.Services.Promotions
 
             int allowed_gifts = 0;
             // Evaluar reglas
-            foreach (var r in rules.Where(rr => rr.state))
+            foreach (var ruleItem in rules.Where(rr => rr.state))
             {
                 bool cumple = false;
 
                 var reasons = new List<string>(baseReasons);
 
                 // tiempo de la regla
-                if (!r.unlimited_time)
+                if (!ruleItem.unlimited_time)
                 {
-                    if (r.start_date.HasValue && nowUtc.Date < r.start_date.Value.Date) continue;
-                    if (r.end_date.HasValue && nowUtc.Date > r.end_date.Value.Date) continue;
+                    if (ruleItem.start_date.HasValue && nowUtc.Date < ruleItem.start_date.Value.Date) continue;
+                    if (ruleItem.end_date.HasValue && nowUtc.Date > ruleItem.end_date.Value.Date) continue;
                     reasons.Add("Dentro de vigencia de la regla.");
                 }
                 else reasons.Add("Regla sin vigencia (unlimited_time).");
 
                 if (promo._promotion_type_id == 2) // es regalo
                 {
-                    decimal variableValue = GetVariableValue(r.variable);
+                    decimal variableValue = GetVariableValue(ruleItem.variable);
                     string operator_ = "";
-                    operator_ = r.operator_;
+                    operator_ = ruleItem.operator_;
 
                     //MODO 1
-                    cumple = OperatorEvaluator.Evaluate(r.operator_, variableValue, r.value, 0);
+                    cumple = OperatorEvaluator.Evaluate(ruleItem.operator_, variableValue, ruleItem.value, 0);
 
                     //MODO 2
-                    if (r.minimum_value > 0)
+                    if (ruleItem.minimum_value > 0)
                     {
-                        decimal value_for_eval = r.value;
-                        decimal value_for_eval_min = r.minimum_value;
-                        decimal value_for_eval_max = r.maximum_value;
+                        decimal value_for_eval = ruleItem.value;
+                        decimal value_for_eval_min = ruleItem.minimum_value;
+                        decimal value_for_eval_max = ruleItem.maximum_value;
                         if (value_for_eval_max == 0)
                             value_for_eval_max = 1000000000;
 
@@ -590,38 +602,48 @@ namespace DMOrders.Services.Promotions
 
                     if (cumple)
                     {
-                        reasons.Add($"Cumple {r.variable} {r.operator_} {r.value}");
+                        reasons.Add($"Cumple {ruleItem.variable} {ruleItem.operator_} {ruleItem.value}");
                     }
                     else
                     {
-                        reasons.Add($"No cumple {r.variable} {r.operator_} {r.value}");
+                        reasons.Add($"No cumple {ruleItem.variable} {ruleItem.operator_} {ruleItem.value}");
                         continue;
                     }
 
-                    if (r.minimum_value != 0 && variableValue < r.minimum_value)
+                    if (ruleItem.minimum_value != 0 && variableValue < ruleItem.minimum_value)
                     {
-                        reasons.Add($"No cumple mínimo: {r.minimum_value}");
+                        reasons.Add($"No cumple mínimo: {ruleItem.minimum_value}");
                         continue;
                     }
 
-                    if (r.maximum_value != 0 && variableValue > r.maximum_value)
+                    if (ruleItem.maximum_value != 0 && variableValue > ruleItem.maximum_value)
                     {
-                        reasons.Add($"No cumple máximo: {r.maximum_value}");
+                        reasons.Add($"No cumple máximo: {ruleItem.maximum_value}");
                         continue;
                     }
 
                     //Si es manual (quizas aqui se deba solo usar modo 1)
                     //MODO 1
-                    allowed_gifts = r.qty; //(int)Math.Floor((double)qty / r.value);
+                    allowed_gifts = ruleItem.qty; //(int)Math.Floor((double)qty / r.value);
 
-                    if(r.variable == "total_product_amount")
+                    if (ruleItem.variable == "total_product_amount")
                     {
-                        allowed_gifts = (int)Math.Floor(variableValue / r.value);
+                        //allowed_gifts = (int)Math.Floor(variableValue / r.value);
                     }
+                    else
+                    {
+                        //MODO 1 - AUTOMATICO
+                        if (promo._selection_type_id == 1)
+                        {
+                            allowed_gifts = (int)Math.Floor((double)qty / ruleItem.value) * ruleItem.qty;
+                        }
 
-                    //MODO 2 - MANUAL
-                    if (promo._selection_type_id == 2)
-                        allowed_gifts = (int)Math.Floor((double)qty / r.value);
+                        //MODO 2 - MANUAL
+                        if (promo._selection_type_id == 2)
+                        {
+                            allowed_gifts = (int)Math.Floor((double)qty / ruleItem.value) * ruleItem.qty;
+                        }
+                    }
                 }
 
                 if (promo._promotion_type_id == 4) // es NXN
@@ -637,42 +659,39 @@ namespace DMOrders.Services.Promotions
 
                     //cumple = OperatorEvaluator.Evaluate(r.operator_, variableValue, value_for_eval, value_for_eval_max);
 
-                    decimal variableValue = GetVariableValue(r.variable);
-                    cumple = OperatorEvaluator.Evaluate(r.operator_, variableValue, r.value, 0);
+                    decimal variableValue = GetVariableValue(ruleItem.variable);
+                    cumple = OperatorEvaluator.Evaluate(ruleItem.operator_, variableValue, ruleItem.value, 0);
 
                     if (cumple)
                     {
-                        reasons.Add($"Aplica NxN: {r.discount} %");
+                        reasons.Add($"Aplica NxN: {ruleItem.discount} %");
                     }
                     else
                     {
-                        reasons.Add($"No cumple {r.variable} {r.operator_} {r.value}");
+                        reasons.Add($"No cumple NxN {ruleItem.variable} {ruleItem.operator_} {ruleItem.value}");
                         continue;
                     }
-
-                    // ej. 10 / 5 = 2 -> 2 regalos
-                    int base_allowed_gifts = (int)variableValue / r.value;
-                    //Se realiza calculo de allowed_gifts segun r.qty y TotalTimesAllowed
-                    // ya que en NxN los regalos dependen de la cantidad comprada
-                    // y no es fijo como en bonificaciones
-                    // ademas debe evaluarse segun TotalTimesAllowed                        
-                    //allowed_gifts = r.qty;
+                                        
+                    int base_allowed_gifts = (int) variableValue / ruleItem.value;
+                    
                     if (base_allowed_gifts > TotalTimesAllowed)
                     {
-                        allowed_gifts = TotalTimesAllowed * r.qty;
+                        allowed_gifts = TotalTimesAllowed * ruleItem.qty;
                     }
                     else
-                        allowed_gifts = base_allowed_gifts * r.qty;
+                    {
+                        allowed_gifts = base_allowed_gifts * ruleItem.qty;
+                    }                        
                 }
 
                 if (promo._promotion_type_id == 6) // es descuento
                 {
-                    decimal variableValue = GetVariableValue(r.variable);
-                    decimal value_for_eval = r.minimum_value;
-                    decimal value_for_eval_max = r.maximum_value;
+                    decimal variableValue = GetVariableValue(ruleItem.variable);
+                    decimal value_for_eval = ruleItem.minimum_value;
+                    decimal value_for_eval_max = ruleItem.maximum_value;
                     string operator_ = "";
 
-                    (operator_, value_for_eval) = fixOperator(r.variable, value_for_eval);
+                    (operator_, value_for_eval) = fixOperator(ruleItem.variable, value_for_eval);
 
                     //if (r.variable == "qty_product_unts")
                     //{
@@ -696,11 +715,11 @@ namespace DMOrders.Services.Promotions
 
                     if (cumple)
                     {
-                        reasons.Add($"Aplica descuento: {r.discount} %");
+                        reasons.Add($"Aplica descuento: {ruleItem.discount} %");
                     }
                     else
                     {
-                        reasons.Add($"No cumple {r.variable} {r.operator_} {r.value}");
+                        reasons.Add($"No cumple {ruleItem.variable} {ruleItem.operator_} {ruleItem.value}");
                         continue;
                     }
                 }
@@ -721,43 +740,52 @@ namespace DMOrders.Services.Promotions
 
                     // Si llegamos acá, la regla aplica:
                     //Se convierte r en un PromoRuleMatch para agregar al RuleSet
+
+                    foreach(var applyItem in ProductSequenceApplyList)
+                    {
+                        applyItem.promo_id = ruleItem._promo_id;
+                        applyItem.rule_id = ruleItem.id;
+                        applyItem.total_allowed_gifts = allowed_gifts;
+                    }
+
                     var newRuleSet = new PromoRuleMatch
                     {
-                        id = r.id,
-                        promo_id = r._promo_id,
-                        promotion_type_id = r._promotion_type_id,
-                        product_id = r._product_id,
-                        product_uom_id = r._product_uom_id,
-                        selection_type_id = r._selection_type_id,
-                        payment_method_id = r._payment_method_id,
-                        raffle_template_id = r._raffle_template_id,
-                        change_id = r._change_id,
-                        general_grupor_tipo_id_json = r.general_grupor_tipo_id_json,
-                        variable = r.variable,
-                        operator_ = r.operator_,
-                        value = r.value,
-                        minimum_value = r.minimum_value,
-                        maximum_value = r.maximum_value,
-                        product_promotion = r.product_promotion,
-                        code = r.code,
-                        qty = r.qty,
-                        is_fixed = r.is_fixed,
-                        discount = r.discount,
-                        discount_base = r.discount_base,
-                        count_products = r.count_products,
-                        start_date = r.start_date,
-                        end_date = r.end_date,
-                        unlimited_time = r.unlimited_time,
-                        state = r.state,
-                        type = r.type,
+                        id = ruleItem.id,
+                        promo_id = ruleItem._promo_id,
+                        promotion_type_id = ruleItem._promotion_type_id,
+                        product_id = ruleItem._product_id,
+                        product_uom_id = ruleItem._product_uom_id,
+                        selection_type_id = ruleItem._selection_type_id,
+                        payment_method_id = ruleItem._payment_method_id,
+                        raffle_template_id = ruleItem._raffle_template_id,
+                        change_id = ruleItem._change_id,
+                        general_grupor_tipo_id_json = ruleItem.general_grupor_tipo_id_json,
+                        variable = ruleItem.variable,
+                        operator_ = ruleItem.operator_,
+                        value = ruleItem.value,
+                        minimum_value = ruleItem.minimum_value,
+                        maximum_value = ruleItem.maximum_value,
+                        product_promotion = ruleItem.product_promotion,
+                        code = ruleItem.code,
+                        qty = ruleItem.qty,
+                        is_fixed = ruleItem.is_fixed,
+                        discount = ruleItem.discount,
+                        discount_base = ruleItem.discount_base == 0 ? ruleItem.discount: ruleItem.discount_base,
+                        count_products = ruleItem.count_products,
+                        start_date = ruleItem.start_date,
+                        end_date = ruleItem.end_date,
+                        unlimited_time = ruleItem.unlimited_time,
+                        state = ruleItem.state,
+                        type = ruleItem.type,
                         ProductTmplId = 0,
-                        ProductId = 0,
+                        ProductIdOrigin = 0,
                         IsDiscount = promo._promotion_type_id == 6,
-                        Discount = r.discount,
+                        //Discount = ruleItem.discount,
                         Reasons = reasons,
                         AllowedGifts = allowed_gifts,
                         productIdParentMatch = productIdParentMatch,
                         ProductTmplIds = JsonConvert.SerializeObject(ProductApplyList),
+                        ProductSequenceApplyList = ProductSequenceApplyList,
                         ProductTmplIdMaxTotal = productWithMaxValue != null ? productWithMaxValue.product_tmpl_id : 0,
                         ProductTmplIdMaxQty = productWithMaxQty != null ? productWithMaxQty.product_tmpl_id : 0
                     };
@@ -805,7 +833,7 @@ namespace DMOrders.Services.Promotions
 
             var nowUtc = (dateUtc ?? DateTime.UtcNow).AddTicks(-(dateUtc ?? DateTime.UtcNow).Ticks % TimeSpan.TicksPerMinute);
 
-            var results = new List<PromotionEvalItemV2>();
+            var results = new List<PromotionEvalItem>();
             var FullRuleSet = new List<PromoRuleMatch>();
                         
             var RuleSet = new List<PromoRuleMatch>();
@@ -889,9 +917,9 @@ namespace DMOrders.Services.Promotions
                         state = r.state,
                         type = r.type,
                         ProductTmplId = product_tmpl_id,
-                        ProductId = orderLine.product_id,
+                        ProductIdOrigin = orderLine.product_id,
                         IsDiscount = promo._promotion_type_id == 6,
-                        Discount = r.discount,
+                        //Discount = r.discount,
                         Reasons = reasons,
                         AllowedGifts = allowed_gifts,
                         productIdParentMatch = productIdParentMatch
@@ -1082,9 +1110,9 @@ namespace DMOrders.Services.Promotions
                         state = r.state,
                         type = r.type,
                         ProductTmplId = product_tmpl_id,
-                        ProductId = orderLine.product_id,
+                        ProductIdOrigin = orderLine.product_id,
                         IsDiscount = promo._promotion_type_id == 6,
-                        Discount = r.discount,
+                        //Discount = r.discount,
                         Reasons = reasons,
                         AllowedGifts = allowed_gifts,
                         productIdParentMatch = productIdParentMatch
@@ -1111,7 +1139,7 @@ namespace DMOrders.Services.Promotions
         }
 
         [Obsolete("Eliminar...")]
-        public async Task<PromotionEvalResultV2> EvaluateLine(
+        public async Task<PromotionEvalResult> EvaluateLine(
             int product_tmpl_id,
             sale_order_line orderLine,
             int qty,
@@ -1142,14 +1170,14 @@ namespace DMOrders.Services.Promotions
                     (p.end_datetime == null || p.end_datetime >= nowUtc))
                 .ToList();
 
-            var results = new List<PromotionEvalItemV2>();
+            var results = new List<PromotionEvalItem>();
             var FullRuleSet = new List<PromoRuleMatch>();
 
             foreach (var promo in candidates)
             {
                 var RuleSet = new List<PromoRuleMatch>();
 
-                var (inCenter, TotalTimesAllowed) = await CheckPromoCenterAsync(promo._centers_ids, pricelist_id);
+                var (inCenter, TotalTimesAllowed) = await CheckPromoCenterAsync(promo._centers_ids, pricelist_id, promo);
 
                 Debug.WriteLine("inCenter");
                 Debug.WriteLine(inCenter);
@@ -1410,9 +1438,9 @@ namespace DMOrders.Services.Promotions
                             state = r.state,
                             type = r.type,
                             ProductTmplId = product_tmpl_id,
-                            ProductId = orderLine.product_id,
+                            ProductIdOrigin = orderLine.product_id,
                             IsDiscount = promo._promotion_type_id == 6,
-                            Discount = r.discount,
+                            //Discount = r.discount,
                             Reasons = reasons
                         };
 
@@ -1424,7 +1452,7 @@ namespace DMOrders.Services.Promotions
                 if (!RuleSet.Any())
                     continue;
 
-                results.Add(new PromotionEvalItemV2
+                results.Add(new PromotionEvalItem
                 {
                     Promotion = promo,
                     RuleSet = RuleSet,
@@ -1434,7 +1462,7 @@ namespace DMOrders.Services.Promotions
                 });
             }
 
-            return new PromotionEvalResultV2
+            return new PromotionEvalResult
             {
                 NowUtc = nowUtc,
                 Items = results

@@ -224,6 +224,53 @@ namespace DMSA.Sync.Core.Update
             return true;
         }
 
+        public async Task<bool> OnlinePromotionProductsByParents(int[] promotions, bool force, Func<int, int, Task>? onProgress = null)
+        {
+            var database = new PromotionProductDb(DbNameSqlite);
+
+            if (force)
+            {
+                await database.DeleteAllAsync(x => promotions.Contains(x._promo_id));
+            }
+
+            var stopwatch = Stopwatch.StartNew();
+
+            HubPromotionProduct hubmanager = new HubPromotionProduct(Constants.Session);
+            var resultCount = await hubmanager.GetCountByParents(promotions);
+
+            if (resultCount.result == 0)
+            {
+                return false;
+            }
+
+            int countTotal = resultCount.result / limit; // App.Session.odooConnection.DbLimitDefault;
+
+            for (int indice = 0; indice <= countTotal; indice++)
+            {
+                Debug.WriteLine("Página:" + indice);
+
+                var responseAll = await hubmanager.GetItemsByParentIds(promotions, limit, indice);
+
+                if (responseAll.result != null && responseAll.result.Length > 0)
+                {
+                    await database.InsertBatchAsync(responseAll.result);
+                }
+
+                if (indice >= maxIndexExceeded)
+                {
+                    Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
+                    break;
+                }
+            }
+
+            stopwatch.Stop();
+
+            Debug.WriteLine(String.Format("Lapso transcurrido: OnlinePromotionProducts {0} days, {1} hours, {2} minutes, {3} seconds",
+                stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
+            return true;
+        }
+
         public async Task<bool> OnlinePromotionProductDetail(PromotionBenefit promotionBenefit, bool force)
         {
             var database = new PromotionProductDetailDb(DbNameSqlite);
@@ -251,6 +298,54 @@ namespace DMSA.Sync.Core.Update
                 Debug.WriteLine("Página:" + indice);
 
                 var responseAll = await hubmanager.GetItemsByParentId(promotionBenefit.id, limit, indice);
+
+                if (responseAll.result != null && responseAll.result.Length > 0)
+                {
+                    await database.InsertBatchAsync(responseAll.result);
+                }
+
+                if (indice >= maxIndexExceeded)
+                {
+                    Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
+                    break;
+                }
+            }
+
+            stopwatch.Stop();
+
+            Debug.WriteLine(String.Format("Lapso transcurrido: OnlinePromotionProductDetail {0} days, {1} hours, {2} minutes, {3} seconds",
+                stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
+            return true;
+        }
+
+        public async Task<bool> OnlinePromotionProductDetailByParent(int[] promotions, bool force, Func<int, int, Task>? onProgress = null)
+        {
+            var database = new PromotionProductDetailDb(DbNameSqlite);
+
+            if (force)
+            {
+                await database.DeleteAllAsync(x => promotions.Contains(x._promo_id));
+            }
+
+            var stopwatch = Stopwatch.StartNew();
+
+            HubPromotionProductDetail hubmanager = new HubPromotionProductDetail(Constants.Session);
+            var resultCount = await hubmanager.GetCountByParents(promotions);
+
+            if (resultCount.result == 0)
+            {
+                return false;
+            }
+
+            int countTotal = resultCount.result / Constants.Session.odooConnection.DbLimitDefault;
+
+
+            for (int indice = 0; indice <= countTotal; indice++)
+            {
+                Debug.WriteLine("Página:" + indice);
+
+                var responseAll = await hubmanager.GetItemsByParentIds(promotions, limit, indice);
 
                 if (responseAll.result != null && responseAll.result.Length > 0)
                 {
@@ -413,6 +508,48 @@ namespace DMSA.Sync.Core.Update
             return true;
         }
 
+        public async Task<bool> PromoCenterByParent(int[] promotions, bool force, Func<int, int, Task>? onProgress = null)
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            var hubmanager = new HubPromoCenters(Constants.Session);
+            var resultCount = await hubmanager.GetCountByParents(promotions);
+
+            if (resultCount.result == 0)
+            {
+                return false;
+            }
+
+            int countTotal = resultCount.result / Constants.Session.odooConnection.DbLimitDefault;
+
+            var database = new PromoCentersDb(DbNameSqlite);
+
+            for (int indice = 0; indice <= countTotal; indice++)
+            {
+                Debug.WriteLine("Página:" + indice);
+
+                var responseAll = await hubmanager.GetItemsByParentIds(promotions, limit, indice);
+
+                if (responseAll.result != null && responseAll.result.Length > 0)
+                {
+                    await database.InsertBatchAsync(responseAll.result);
+                }
+
+                if (indice >= maxIndexExceeded)
+                {
+                    Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
+                    break;
+                }
+            }
+
+            stopwatch.Stop();
+
+            Debug.WriteLine(String.Format("Lapso transcurrido: PromoCenter {0} days, {1} hours, {2} minutes, {3} seconds",
+                stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
+            return true;
+        }
+
         public async Task<bool> PromoRules(PromotionBenefit promotionBenfit, bool force)
         {
             var database = new PromoRulesDb(DbNameSqlite);
@@ -467,20 +604,20 @@ namespace DMSA.Sync.Core.Update
             return true;
         }
 
-        public async Task<bool> OnlinePromotionBenefit(bool force)
-        {
-            await PaymentMethod(true);
-            await PosTarjetasCanal(true);
 
-            var database = new PromotionBenefitDb(DbNameSqlite);
-            DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since);
-            DateTime current_datetime = DateTime.Now;
+        public async Task<bool> PromoRulesByParents(int[] parent_ids, bool force, Func<int, int, Task>? onProgress = null)
+        {
+            var database = new PromoRulesDb(DbNameSqlite);
+
+            if (force)
+            {
+                await database.DeleteAllAsync(x => parent_ids.Contains(x._promo_id));
+            }
 
             var stopwatch = Stopwatch.StartNew();
 
-            HubPromotionBenefit hubmanager = new HubPromotionBenefit(Constants.Session);
-            //var resultCount = await hubmanager.GetCount(lastDate.Value.Year, lastDate.Value.Month, lastDate.Value.Day);
-            var resultCount = await hubmanager.GetCountPrecise(lastDate.Value);
+            var hubmanager = new HubPromoRules(Constants.Session);
+            var resultCount = await hubmanager.GetCountByParents(parent_ids);
 
             if (resultCount.result == 0)
             {
@@ -488,8 +625,67 @@ namespace DMSA.Sync.Core.Update
             }
 
             int countTotal = resultCount.result / Constants.Session.odooConnection.DbLimitDefault;
-            
+
+
+
             for (int indice = 0; indice <= countTotal; indice++)
+            {
+                Debug.WriteLine("Página:" + indice);
+
+                var responseAll = await hubmanager.GetItemsByParentIds(parent_ids, limit, indice);
+
+                if (responseAll.result != null && responseAll.result.Length > 0)
+                {
+                    await database.InsertBatchAsync(responseAll.result);
+                }
+
+                int[] RulesIds = responseAll.result.Select(r => r.id).ToArray();
+
+                await OnlinePromotionProductByRules(RulesIds, true);
+                await OnlinePromotionProductDetailByRules(RulesIds, true);
+
+                if (indice >= maxIndexExceeded)
+                {
+                    Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
+                    break;
+                }
+            }
+
+            stopwatch.Stop();
+
+            Debug.WriteLine(String.Format("Lapso transcurrido: PromoRules {0} days, {1} hours, {2} minutes, {3} seconds",
+                stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
+            return true;
+        }
+
+        public async Task<bool> OnlinePromotionBenefit(bool force, Func<int, int, Task>? onProgress = null)
+        {
+            await PaymentMethod(true);
+            await PosTarjetasCanal(true);
+
+            var database = new PromotionBenefitDb(DbNameSqlite);
+            DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since);
+            lastDate = lastDate.Value.AddDays(-31);
+            DateTime current_datetime = DateTime.Now;
+
+            var stopwatch = Stopwatch.StartNew();
+
+            HubPromotionBenefit hubmanager = new HubPromotionBenefit(Constants.Session);
+            //var resultCount = await hubmanager.GetCount(lastDate.Value.Year, lastDate.Value.Month, lastDate.Value.Day);
+            var resultCount = await hubmanager.GetCountPrecise(lastDate.Value.Date);
+
+            if (resultCount.result == 0)
+            {
+                return false;
+            }
+
+            int[] parent_ids = new int[] { };
+
+            //int countTotal = resultCount.result / Constants.Session.odooConnection.DbLimitDefault;
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
+
+            for (int indice = 0; indice <= totalPages; indice++)
             {
                 Debug.WriteLine("Página:" + indice);
 
@@ -497,18 +693,22 @@ namespace DMSA.Sync.Core.Update
 
                 if (responseAll.result != null && responseAll.result.Length > 0)
                 {
+                    //parent_ids = responseAll.result.Select(r => r.id).ToArray();
+                    parent_ids = parent_ids.Aggregate(responseAll.result.Select(r => r.id).ToArray(), (a, b) => a.Concat(new int[] { b }).ToArray());
+
                     await database.InsertBatchAsync(responseAll.result);
 
-                    foreach (var item in responseAll.result)
-                    {
+                    //foreach (var item in responseAll.result)
+                    //{
                         //await LoyaltyFilters(item, true);
                         //await LoyaltyFiltersDetail(item, true);
                         
-                        await PromoRules(item, false);
-                        await OnlinePromotionProducts(item, false);
-                        await OnlinePromotionProductDetail(item, false);
-                        await PromoCenter(item, false);
-                    }
+                        //await PromoRules(item, false);
+
+                        //await OnlinePromotionProducts(item, false);
+                        //await OnlinePromotionProductDetail(item, false);
+                        //await PromoCenter(item, false);
+                    //}
                 }
 
                 if (indice >= maxIndexExceeded)
@@ -518,6 +718,10 @@ namespace DMSA.Sync.Core.Update
                 }
             }
 
+            await PromoRulesByParents(parent_ids, true, onProgress);
+            await OnlinePromotionProductsByParents(parent_ids, true, onProgress);
+            await OnlinePromotionProductDetailByParent(parent_ids, true, onProgress);
+            await PromoCenterByParent(parent_ids, true, onProgress);
             stopwatch.Stop();
             
             Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",

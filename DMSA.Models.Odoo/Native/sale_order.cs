@@ -27,9 +27,6 @@ namespace DMSA.Models.Odoo.Native
             set => partner_id = SetId(partner_id, value);
         }
 
-        //public bool ShouldSerializepartner_id() => false;
-        //public bool ShouldSerialize_partner_id() => true;
-
         [Ignore]
         [JsonProperty("company_id")]
         public JToken company_id { get; set; }
@@ -128,9 +125,20 @@ namespace DMSA.Models.Odoo.Native
         [JsonProperty("is_intercompany")]
         public bool is_intercompany { get; set; }
 
+        [JsonProperty("mobile_sync")]
+        public bool mobile_sync { get; set; }
+
+        [JsonProperty("external_create_uid")]
+        public int external_create_uid { get; set; }
+        [JsonProperty("external_guid")]
+        public string external_guid { get; set; }
+
         [JsonProperty("create_date")]
         public DateTime create_date { get; set; }
-        
+
+        [JsonProperty("mobile_create_date")]
+        public DateTime mobile_create_date { get; set; }        
+
         [JsonProperty("write_date")]
         public DateTime write_date { get; set; }
 
@@ -147,6 +155,8 @@ namespace DMSA.Models.Odoo.Native
 
         [JsonIgnore]
         public int erp_id { get; set; }
+        [JsonIgnore]
+        public string erp_name { get; set; }
 
         [JsonProperty("id_referencia")]
         public string id_referencia { get; set; }
@@ -169,6 +179,9 @@ namespace DMSA.Models.Odoo.Native
         [JsonProperty("_partner_invoice_id")]
         public int _partner_invoice_id { get; set; }
 
+        [JsonProperty("_partner_shipping_id")]
+        public int _partner_shipping_id { get; set; }
+
         [Ignore]
         [JsonIgnore]
         public string? state_view =>
@@ -182,5 +195,21 @@ namespace DMSA.Models.Odoo.Native
                     ("cancel", _) => "CANCELADO",
                     _ => state
                 };
+
+        [Ignore]
+        [JsonProperty("promotion_ids")]
+        public int[] promotion_ids { get; set; }        
+
+        [JsonIgnore]
+        public string promotion_ids_json
+        {
+            get => promotion_ids == null ? "[]" : JsonConvert.SerializeObject(promotion_ids);
+            set
+            {
+                promotion_ids = string.IsNullOrWhiteSpace(value)
+                    ? Array.Empty<int>()
+                    : JsonConvert.DeserializeObject<int[]>(value);
+            }
+        }
     }
 }

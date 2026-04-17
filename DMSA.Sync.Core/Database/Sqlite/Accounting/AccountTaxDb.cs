@@ -1,4 +1,4 @@
-﻿using DMSA.Models.Odoo.Modules.Accounting;
+﻿using DMSA.Models.Odoo.Accounting;
 using DMSA.Sync.Core.Database.Sqlite;
 
 namespace DMSA.Sync.Core

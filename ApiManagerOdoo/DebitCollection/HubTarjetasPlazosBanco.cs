@@ -13,7 +13,7 @@ namespace ApiManagerOdoo.promotions
             "id",
             "name",
             "display_name",
-            "account_journal_id",
+            //"account_journal_id",
             "bank_id",
             "pos_tipo_pago",
             "tipo_pay",

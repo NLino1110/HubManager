@@ -30,39 +30,7 @@
                           HorizontalOptions="Fill" 
                           Margin="0,0,0,30" 
                           CachingStrategy="CacheOnLayout"
-                          SelectedTabChanged="tabViewMain_SelectedTabChanged">
-                <!--<material:TabItem Title="Custom Tab One">
-                    <material:TabItem.HeaderTemplate>
-                        <DataTemplate>
-                            <HorizontalStackLayout IsEnabled="False"
-                HorizontalOptions="Center"
-                Spacing="3"
-                Padding="2"
-                Margin="10,0,20,0">
-                                <Image
-                    Source="dotnet_bot.png"
-                    WidthRequest="45"
-                    HeightRequest="45" />
-
-                                <VerticalStackLayout VerticalOptions="Center">
-                                    <Label
-                        Text="Empresa Empresa Empresa S.A."
-                        FontSize="15"
-                        FontAttributes="Bold"
-                        TextColor="Black"/>
-
-                                    <Label 
-                        Text="Agencia" 
-                        FontSize="12"
-                        TextColor="Gray" />
-                                </VerticalStackLayout>
-                            </HorizontalStackLayout>
-                        </DataTemplate>
-                    </material:TabItem.HeaderTemplate>
-                    <material:TabItem.Content>
-                        <Label Text="Macronegocios" Margin="60" />
-                    </material:TabItem.Content>
-                </material:TabItem>-->
+                          SelectedTabChanged="tabViewMain_SelectedTabChanged">               
 
                 <material:TabItem Title="Clientes">
                     <material:TabItem.Content>
@@ -97,7 +65,7 @@
                      HeightRequest="33"
                      Grid.RowSpan="2"
                      TranslationY="0">
-            <Grid RowDefinitions="Auto,Auto">
+            <Grid RowDefinitions="Auto,*">
                 <Grid HeightRequest="33"
                         BackgroundColor="Gray"
                         ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto,Auto" 
@@ -206,10 +174,10 @@
                         SelectionMode="Single"
                         SelectionChanged="OnMenuItemSelected"
                         BackgroundColor="White"
-                        Margin="0">
+                        Margin="3">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Grid Padding="3">
+                                <Grid Padding="0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />
@@ -235,126 +203,6 @@
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                     
-                    <TableView Intent="Menu" Margin="0" BackgroundColor="White" Grid.Column="0" IsVisible="False">                        
-                        <TableRoot>
-                            <TableSection>
-                                <ViewCell Tapped="ViewCell_Add_Task">
-                                    <Grid Padding="3">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <Image Grid.Column="0"
-                                            BackgroundColor="Transparent"
-                                            VerticalOptions="Center"
-                                            HeightRequest="15"
-                                            WidthRequest="15"
-                                            Margin="10">
-                                            <Image.Source>
-                                                <FontImageSource FontFamily="FontAwesome5Solid"
-                                                    Color="DimGray"
-                                                    Size="20"
-                                                    FontAutoScalingEnabled="True"
-                                                    Glyph="&#xf279;" />
-                                            </Image.Source>
-                                        </Image>
-
-                                        <StackLayout Grid.Column="1" VerticalOptions="Center">
-                                            <Label Text="Nueva actividad" FontAttributes="Bold" />
-                                            <Label Text="Seguimiento de proceso." FontSize="12" />
-                                        </StackLayout>
-                                    </Grid>
-                                </ViewCell>
-
-                                <ViewCell Tapped="ViewCell_Tapped_Update">
-                                    <Grid Padding="3">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <Image Grid.Column="0"
-    BackgroundColor="Transparent"
-    VerticalOptions="Center"
-    HeightRequest="15"
-    WidthRequest="15"
-    Margin="10">
-                                            <Image.Source>
-                                                <FontImageSource FontFamily="FontAwesome5Solid"
-            Color="DimGray"
-            Size="20"
-            FontAutoScalingEnabled="True"
-            Glyph="&#xf0c7;" />
-                                            </Image.Source>
-                                        </Image>
-                                        
-                                        <StackLayout Grid.Column="1" VerticalOptions="Center">
-                                            <Label Text="Actualización" FontAttributes="Bold" />
-                                            <Label Text="Sincronizar los datos principales." FontSize="12" />
-                                        </StackLayout>
-                                    </Grid>
-                                </ViewCell>
-
-                                <ViewCell Tapped="ViewCell_Tapped_Exit_Regular">
-                                    <Grid Padding="3">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-
-                                        <Image Grid.Column="0"
-                                            BackgroundColor="Transparent"
-                                            VerticalOptions="Center"
-                                            HeightRequest="15"
-                                            WidthRequest="15"
-                                            Margin="10">
-                                            <Image.Source>
-                                                <FontImageSource FontFamily="FontAwesome5Solid"
-								                    Color="DimGray"
-								                    Size="20"
-								                    FontAutoScalingEnabled="True"
-								                    Glyph="&#xf2f5;" />
-                                            </Image.Source>
-                                        </Image>
-
-                                        <StackLayout Grid.Column="1" VerticalOptions="Center">
-                                            <Label Text="Salir" FontAttributes="Bold" />
-                                            <Label Text="Volver a ingresar credenciales." FontSize="12" />
-                                        </StackLayout>
-                                    </Grid>
-                                </ViewCell>
-
-                                <!--<ViewCell Tapped="ShowSettings">
-                                    <Grid Padding="3" BackgroundColor="GhostWhite">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-
-                                        <Image Grid.Column="0"
-    BackgroundColor="Transparent"
-    VerticalOptions="Center"
-    HeightRequest="15"
-    WidthRequest="15"
-    Margin="10">
-                                            <Image.Source>
-                                                <FontImageSource FontFamily="FontAwesome5Solid"
-            Color="DimGray"
-            Size="20"
-            FontAutoScalingEnabled="True"
-            Glyph="&#xf7d9;" />
-                                            </Image.Source>
-                                        </Image>
-
-                                        <StackLayout Grid.Column="1" VerticalOptions="Center">
-                                            <Label Text="Configuraciones" FontAttributes="Bold" />
-                                            <Label Text="Modificar rutas de servidores y variables de entorno." FontSize="12" />
-                                        </StackLayout>
-                                    </Grid>
-                                </ViewCell>-->
-
-                            </TableSection>
-                        </TableRoot>
-                    </TableView>
                     <StackLayout Grid.Column="1" Padding="5" BackgroundColor="Black">
                         <Label TextColor="White">0 procesos en background</Label>
                     </StackLayout>

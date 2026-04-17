@@ -6,7 +6,7 @@ namespace DMSA.Sync.Core.Update
 {
     public partial class ServerPuller
     {
-        public async Task<bool> OnlineSyncWmsStockQuant()
+        public async Task<bool> OnlineSyncWmsStockQuant(Func<int, int, Task>? onProgress = null)
         {            
             var stopwatch = Stopwatch.StartNew();
             var database = new WmsStockQuantDb(Constants.Session.odooConnection.DbNameSqlite);
@@ -17,7 +17,7 @@ namespace DMSA.Sync.Core.Update
             int res_center = Constants.Session.odooConnection.res_center_default;
             //Obtenermos los warehouses asociados al centro de operaciones
             var databaseWhs = new StockWareHouseDb(Constants.Session.odooConnection.DbNameSqlite);
-            var whsList = await databaseWhs.GetByResCenter(res_center);
+            var whsList = await databaseWhs.GetDefaultByResCenter(res_center);
             int[] whsIds = whsList.Select(w => w.id).ToArray();
 
             var resultCount = await hubmanager.GetCount(whsIds, lastDate.Value);
@@ -40,6 +40,9 @@ namespace DMSA.Sync.Core.Update
                     await database.InsertBatchAsync(responseAll.result);
                 }
 
+                if (onProgress != null)
+                    await onProgress(indice, countTotal);
+
                 if (indice >= maxIndexExceeded)
                 {
                     Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
@@ -55,13 +58,13 @@ namespace DMSA.Sync.Core.Update
             return true;
         }
 
-        public async Task<bool> UpdateWmsStockQuant()
+        public async Task<bool> UpdateWmsStockQuant(Func<int, int, Task>? onProgress = null)
         {
             var stopwatch = Stopwatch.StartNew();
             var wms_database = new WmsStockQuantDb(Constants.Session.odooConnection.DbNameSqlite);
             int res_center = Constants.Session.odooConnection.res_center_default;
             var databaseWhs = new StockWareHouseDb(Constants.Session.odooConnection.DbNameSqlite);
-            var whsList = await databaseWhs.GetByResCenter(res_center);
+            var whsList = await databaseWhs.GetDefaultByResCenter(res_center);
             int[] whsIds = whsList.Select(w => w.id).ToArray();
 
             await wms_database.UpdateCantidadDisponibleAsync(whsIds);

@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace DMSA.Models.Odoo.Import
 {
-    [Obsolete]
+    //[Obsolete]
     //[Table("TuNombreDeTabla")]
     public class InvoicePayments
     {

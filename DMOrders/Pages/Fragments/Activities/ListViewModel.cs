@@ -1,8 +1,8 @@
 ﻿using DMOrders.Models.Filters;
 using DMOrders.Services.Database.Sqlite;
 using DMSA.Models.Odoo.DMOrders;
-using DMSA.Models.Odoo.DMOrders.tareas;
 using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Tareas;
 using DMSA.Sync.Core.Database.Sqlite.Sales;
 using Microsoft.Maui;
 using System.Collections.ObjectModel;
@@ -104,8 +104,6 @@ namespace DMOrders.Pages.Fragments.Activities
             }
         }
 
-        /*************************************************************/
-
         private ProjectTask _selectedItem;
 
         public ProjectTask SelectedItem
@@ -113,13 +111,6 @@ namespace DMOrders.Pages.Fragments.Activities
             get => _selectedItem;
             set
             {
-                //if (_selectedActivity != value)
-                //{
-                //    _selectedActivity = value;
-                //    OnPropertyChanged();
-                //    OnPropertyChanged(nameof(SelectedActivity));
-                //}
-
                 if (_selectedItem != value)
                 {
                     _selectedItem = value;
@@ -132,7 +123,6 @@ namespace DMOrders.Pages.Fragments.Activities
         public ListViewModel(Filters _filters)
         {
             _db = new ProjectTaskDb(App.Session.odooConnection.DbNameSqlite);
-
             filters = _filters;
             _itemsData = new ObservableCollection<ProjectTask>();
             //LoadDataByTimer();
@@ -168,7 +158,6 @@ namespace DMOrders.Pages.Fragments.Activities
             {
                 IsLoading = true;
 
-                // Llama paginado (NO vuelvas a traer todo)
                 var (items, total) = await _db.GetPagedAsync(
                     filters.getDateStart(),
                     filters.getDateEnd(),
@@ -181,7 +170,6 @@ namespace DMOrders.Pages.Fragments.Activities
 
                 TotalItems = total;
 
-                // Evita recrear la OC (menos churn de UI)
                 if (ItemsData == null)
                     ItemsData = new ObservableCollection<ProjectTask>();
                 else
@@ -189,20 +177,6 @@ namespace DMOrders.Pages.Fragments.Activities
 
                 foreach (var it in items)
                 {
-                    //ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
-                    //var partnerItem = await resPartnerDb.GetItemsAsync(it._company_id, it._partner_id);
-
-                    //if (partnerItem != null)
-                    //{
-                    //    it.partner_display_name = partnerItem?.name ?? "-";
-                    //    it.partner_display_address = partnerItem?.street ?? "";
-                    //    it.partner_display_status = partnerItem?.active == true ? "Activo" : "Inactivo";
-                    //}
-                    //else
-                    //{
-                    //    Debug.WriteLine($"Error cargando partner: No encontrado");
-                    //}
-
                     it.display_username = App.Session.CurrentUserFront.nombres;
                     it.create_user = App.Session.CurrentUserFront.username;
                     ItemsData.Add(it);
@@ -230,45 +204,8 @@ namespace DMOrders.Pages.Fragments.Activities
 
         public void LoadDataByTimer()
         {
-            LoadData();
-            ////// Usamos el dispatcher global de la app para garantizar ejecución en UI
-            ////var dispatcher = Application.Current.Dispatcher;
-
-            ////var timer = dispatcher.CreateTimer();
-            ////timer.Interval = TimeSpan.FromMilliseconds(300); // delay corto para dejar respirar la UI
-            ////timer.IsRepeating = false;
-
-            ////timer.Tick += async (s, e) =>
-            ////{
-            ////    try
-            ////    {
-            ////        if (IsLoading) return; // Previene cargas simultáneas
-            ////        await LoadData();
-            ////    }
-            ////    catch (Exception ex)
-            ////    {
-            ////        Debug.WriteLine($"Error en LoadData: {ex}");
-            ////    }
-            ////    finally
-            ////    {
-            ////        timer.Stop();
-            ////    }
-            ////};
-
-            ////timer.Start();
+            LoadData();           
         }
-
-        //public ICommand EditCommand { get; set; }
-
-        //private async void EditItem(object obj)
-        //{
-        //    Debug.WriteLine("EditItem");
-        //    Details viewObj = new Details();
-        //    //objPage.Sel_AccountMoveSendHeader = (AccountMoveSendHeader)obj;
-        //    //objPage.editionMode = true;
-        //    //objPage.Disappearing += NewGroup_Disappearing;
-        //    //await Navigation.PushAsync(viewObj, false);
-        //}
 
         public ICommand NextPageCommand => new Command(async () =>
         {

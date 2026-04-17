@@ -8,6 +8,7 @@
              xmlns:converters="clr-namespace:DMOrders.Converters"
              xmlns:customrows="clr-namespace:DMOrders.Controls.CustomRows"
              xmlns:local="clr-namespace:DMOrders.Pages.Fragments.Orders"
+             xmlns:bh="clr-namespace:DMOrders.Controls.Behaviors"
              x:Class="DMOrders.Pages.Fragments.Orders.DataGrid"
              x:Name="ActivitiesDataGrid">
     <ContentView.Resources>
@@ -21,7 +22,7 @@
         <Grid Grid.Row="0"
             VerticalOptions="Center"
             ColumnSpacing="5"
-            ColumnDefinitions="30,350,*,*,*,*,100"
+            ColumnDefinitions="70,350,*,*,*,*,100"
             RowDefinitions="*"                
           BackgroundColor="LightGray"              
           Padding="3" 
@@ -47,41 +48,42 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         
-                        <!--<customrows:SaleOrderRow
-                                Item="{x:Binding .}" 
-                                EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
-                                DeleteCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=DeleteCommand}"
-                                SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"/>-->
-
                         <Grid Grid.Column="0"
                             VerticalOptions="Center"
                             ColumnSpacing="10"
-                            ColumnDefinitions="Auto,350,*,*,*,*,100"
+                            ColumnDefinitions="70,350,*,*,*,*,100"
                             RowDefinitions="*,*"
                             Margin="0,0,0,0"
                               Padding="0" Style="{StaticResource CollectionItemSelectable}">
 
-                            <Label 
-                                Grid.Row="0" 
-                                Grid.Column="0"                                         
-                                FontAttributes="Bold"
-                                Text="{Binding id}"
-                                FontSize="12"
-                                TextColor="Black" 
-                                VerticalOptions="Center"
-                                Margin="10,0,10,0"/>
-
+                            <VerticalStackLayout Grid.Column="0" Grid.Row="0">
+                                <Label
+                                    FontAttributes="Bold"
+                                    Text="{Binding erp_name}"
+                                    FontSize="9"
+                                    TextColor="Green" 
+                                    VerticalOptions="Start"
+                                    HorizontalOptions="Center"/>
+                                <Label
+                                    FontAttributes="Bold"
+                                    Text="{Binding id}"
+                                    FontSize="12"
+                                    TextColor="Black" 
+                                    VerticalOptions="Start"
+                                    HorizontalOptions="Center"/>
+                            </VerticalStackLayout>
+                                
                             <Label 
                                 Grid.Column="1"
-                                Grid.Row="0"
-                                Grid.ColumnSpan="3" 
+                                    Grid.Row="0"
+                                    Grid.ColumnSpan="3"
                                 Text="{Binding partner_display_name}"
                                 FontSize="12"
                                 TextColor="Black"
                                 LineBreakMode="TailTruncation"
                                 MaxLines="2" 
                                 VerticalOptions="Center"/>
-
+                 
                             <Label 
                                 Grid.Column="2"
                                 Grid.Row="0"
@@ -129,6 +131,11 @@
                                         HeightRequest="30"
                                         WidthRequest="30"                                    
                                         Padding="0">
+                                    <!--<Button.Behaviors>
+                                    <bh:SafeTapBehavior 
+Command="{Binding Source={x:Reference ActivitiesDataGrid}, Path=BindingContext.EditCommand}"
+CommandParameter="{Binding .}" />
+                                </Button.Behaviors>-->
                                     <Button.ImageSource>
                                         <FontImageSource 
                                             Size="15"
@@ -166,8 +173,11 @@
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
                                         CommandParameter="{Binding .}"
                                         HeightRequest="30"
-                                        WidthRequest="30"                                    
+                                        WidthRequest="30" 
                                         Padding="0">
+                                    <!--<Button.Behaviors>
+                                        <bh:SafeTapBehavior Command="{Binding EditCommand}" />
+                                    </Button.Behaviors>-->
                                     <Button.ImageSource>
                                         <FontImageSource 
                                             Size="15"
@@ -185,8 +195,9 @@
                                         Grid.Row="0"
                                         Grid.Column="9"
                                         Grid.RowSpan="3"
-                                        Padding="0"
-                                        IsEnabled="False">
+                                        Padding="0"                                        
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=ResetCommand}"
+                                        CommandParameter="{Binding .}">
                                     <Button.ImageSource>
                                         <FontImageSource 
                                             Size="15"
@@ -228,7 +239,6 @@
       ColumnDefinitions="Auto, *"
       VerticalOptions="Center">
 
-            <!-- Botón izquierdo -->
             <Button Grid.Column="0"
                     Clicked="ButtonSync_Clicked" 
             Text="Enviar"
@@ -253,13 +263,10 @@
                 </Button.ImageSource>
             </Button>
 
-            <!-- Contenido derecho (paginación) -->
             <Grid Grid.Column="1"
                   ColumnDefinitions="Auto,Auto,Auto,Auto,Auto"
                   HorizontalOptions="End"
                   VerticalOptions="Center">
-
-                <!-- Botón anterior -->
                 <Button Grid.Column="0"
                 Text=""
                 Command="{Binding PreviousPageCommand}"
@@ -268,8 +275,8 @@
                         <FontImageSource x:Name="IconPrevious"
                                  Color="Black"
                                  Size="18"
-                                 FontFamily="MaterialSharp"
-                                 Glyph="{x:Static uranium:MaterialSharp.Skip_previous}" />
+                                 FontFamily="FontAwesome5Solid"
+                                 Glyph="&#xf104;" />
                     </Button.ImageSource>
                     <Button.Triggers>
                         <Trigger TargetType="Button" Property="IsEnabled" Value="False">
@@ -280,7 +287,6 @@
                     </Button.Triggers>
                 </Button>
 
-                <!-- Página actual -->
                 <Label Grid.Column="1"
                     Text="{Binding Page}"
                     VerticalOptions="Center"
@@ -296,7 +302,6 @@
                    VerticalOptions="Center"
                    Margin="5,0"/>
 
-                <!-- Botón siguiente -->
                 <Button Grid.Column="4"
                 Text=""
                 Command="{Binding NextPageCommand}"
@@ -304,8 +309,8 @@
                     <Button.ImageSource>
                         <FontImageSource x:Name="IconNext"
                                  Size="18"
-                                 FontFamily="MaterialSharp"
-                                 Glyph="{x:Static uranium:MaterialSharp.Skip_next}"
+                                 FontFamily="FontAwesome5Solid"
+                                 Glyph="&#xf105;"
                                  Color="Black" />
                     </Button.ImageSource>
                     <Button.Triggers>
@@ -316,9 +321,7 @@
                         </Trigger>
                     </Button.Triggers>
                 </Button>
-
             </Grid>
         </Grid>
-
     </Grid>
 </ContentView>

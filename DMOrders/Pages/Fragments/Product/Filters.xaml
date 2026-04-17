@@ -54,7 +54,10 @@
                             BorderThickness="0.4"
                             Grid.Row="3">
                         <material:DropdownField.Icon>
-                            <FontImageSource Size="18" FontFamily="MaterialRounded" Glyph="{x:Static uranium:MaterialRounded.Health_and_beauty}"  />
+                            <FontImageSource Size="15" 
+                                FontAutoScalingEnabled="False"
+                                FontFamily="FontAwesome5Solid" 
+                                Glyph="&#xe066;"  />
                         </material:DropdownField.Icon>
                     </material:DropdownField>
 
@@ -68,9 +71,10 @@
                             Grid.Row="4">
                         <material:DropdownField.Icon>
                             <FontImageSource
-                                Size="18"
-                                FontFamily="MaterialSharp"
-                                Glyph="{x:Static uranium:MaterialSharp.Category}" />
+                                Size="15"
+                                FontAutoScalingEnabled="False"
+                                FontFamily="FontAwesome5Solid"
+                                Glyph="&#xf61f;" />
                         </material:DropdownField.Icon>
                     </material:DropdownField>
                 </Grid>
@@ -83,19 +87,19 @@
                     <Button x:Name="btnClear" Text="Limpiar" FontSize="10" BackgroundColor="Gray" TextColor="White" Clicked="btnClear_Clicked">
                         <Button.ImageSource>
                             <FontImageSource 
-                        Size="18"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.Remove_done}" />
-                        </Button.ImageSource>
+                                Size="15"
+                                FontFamily="FontAwesome5Solid"
+                                Glyph="&#xe05e;" />
+                                </Button.ImageSource>
                     </Button>
 
                     <Button x:Name="btnSearch" Text="Buscar" FontSize="10" BackgroundColor="IndianRed"  TextColor="White" Clicked="Button_Clicked">
                         <Button.ImageSource>
                             <FontImageSource 
-                        Size="18"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.Search}" />
-                        </Button.ImageSource>
+                                Size="15"
+                                FontFamily="FontAwesome5Solid"
+                                Glyph="&#xf002;" />
+                                </Button.ImageSource>
                     </Button>
                 </HorizontalStackLayout>
             </StackLayout>

@@ -121,10 +121,6 @@
                                     </DataTrigger>
                                 </mpowerkit:VirtualizeListViewCell.Triggers>
                                 
-                                
-                                <!--<customrows:ProductExtraRow Item="{x:Binding .}">
-                                </customrows:ProductExtraRow>-->
-
                                 <Grid Grid.Column="0"
                                     VerticalOptions="Center"
                                     ColumnSpacing="10"
@@ -148,7 +144,7 @@
 
                                     <Label 
                                         Grid.Column="1"
-                                        Grid.Row="2"
+                                        Grid.Row="1"
                                         Grid.ColumnSpan="3" 
                                         Text="{Binding name}"
                                         FontSize="14"
@@ -159,7 +155,7 @@
                                     <Label 
                                         Grid.Column="2"
                                         Grid.Row="0"
-                                        Text="{Binding uom_display}"
+                                        Text="{Binding uom_sale_display}"
                                         FontSize="14"
                                         TextColor="Black"                                        
                                         HorizontalTextAlignment="Center"/>
@@ -173,7 +169,7 @@
                                         HorizontalTextAlignment="Center"/>
 
                                     <Label 
-                                        Grid.RowSpan="2"
+                                        Grid.RowSpan="4"
                                         Grid.Column="4" 
                                         Text="{Binding categoria_display}"
                                         FontSize="12"
@@ -189,7 +185,7 @@
                                         HorizontalTextAlignment="Center">
                                     </Label>
 
-                                    <BoxView Grid.Row="4"
+                                    <BoxView Grid.Row="3"
                                              Grid.Column="0"
                                              Grid.ColumnSpan="9"
                                              HeightRequest="1"
@@ -253,8 +249,8 @@
                     <FontImageSource x:Name="IconPrevious"
                         Color="Black"
                         Size="18"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.Skip_previous}" />
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xf104;" />
                 </Button.ImageSource>
                 <Button.Triggers>
                     <Trigger TargetType="Button" Property="IsEnabled" Value="False">
@@ -273,8 +269,8 @@
                 <Button.ImageSource>
                     <FontImageSource x:Name="IconNext"
                          Size="18"
-                         FontFamily="MaterialSharp"
-                         Glyph="{x:Static uranium:MaterialSharp.Skip_next}"
+                         FontFamily="FontAwesome5Solid"
+                         Glyph="&#xf105;"
                          Color="Black" />
                 </Button.ImageSource>
                 <Button.Triggers>

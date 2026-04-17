@@ -25,7 +25,7 @@ namespace ResourceBuilder.Data
             var appSetting = ConfigurationHelper.GetAppSettings();
 
             _appSession = new AppSession();
-            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.Host;
 
             _appSession.CurrentUser = new User()
             {
@@ -109,43 +109,6 @@ namespace ResourceBuilder.Data
             File.AppendAllText(path, content);
             return true;
         }
-
-        //private byte[] ReadBytes(string filename)
-        //{
-        //    var path = Path.Combine(Directory.GetCurrentDirectory(),
-        //                "wwwroot",
-        //                "resources",
-        //                "tmp",
-        //                "android", "sqlite", filename);
-
-        //    return File.ReadAllBytes(path);
-        //}
-
-        //private byte[] CreateZip(string AttachName, byte[] body)
-        //{
-        //    using (var compressedFileStream = new MemoryStream())
-        //    {
-        //        //Create an archive and store the stream in memory.
-        //        using (var zipArchive = new ZipArchive(compressedFileStream, ZipArchiveMode.Create, false))
-        //        {
-        //            //foreach (var caseAttachmentModel in caseAttachmentModels)
-        //            //{
-        //            //Create a zip entry for each attachment
-        //            var zipEntry = zipArchive.CreateEntry(AttachName);
-
-        //            //Get the stream of the attachment
-        //            using (var originalFileStream = new MemoryStream(body))
-        //            using (var zipEntryStream = zipEntry.Open())
-        //            {
-        //                //Copy the attachment stream to the zip entry stream
-        //                originalFileStream.CopyTo(zipEntryStream);
-        //            }
-        //            //}
-        //        }
-
-        //        return compressedFileStream.ToArray();
-        //    }
-        //}
 
         private void CreateZipFile(IEnumerable<FileInfo> files, string archiveName)
         {
@@ -284,12 +247,7 @@ namespace ResourceBuilder.Data
                     {
                         noSalir = false;
                     }
-
-                    //dynamic resultUsers = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(result);
-                    //Console.WriteLine(resultUsers.data.ToString());
-                    //var resultUser = Newtonsoft.Json.JsonConvert.DeserializeObject<List<User>>(resultUsers.data.ToString());
-                    //App.Current.MainPage = new MainPage();
-                    //App.Current.MainPage = new AppShell();                
+           
                 }
                 else
                 {
@@ -308,22 +266,7 @@ namespace ResourceBuilder.Data
                     noSalir = false;
                 }
             }
-
-            //var path = Path.Combine(Directory.GetCurrentDirectory(),
-            //            "wwwroot/resources",
-            //            "tmp",
-            //            "android", "sqlite");
-
-            //var dir = new DirectoryInfo(path);
-            //FileInfo[] files = dir.GetFiles("*.json");
-            
-            //CreateZipFile(files, Path.Combine(path , jsonName + ".zip"));
-
-            //var jsonBytes = ReadBytes(jsonFileName);
-            //byte[] bytesXmlZip = CreateZip(jsonFileName, jsonBytes);
-
-            //SaveZip(jsonName+ ".zip", bytesXmlZip);
-            
+                        
             TimeSpan span = (DateTime.Now - dateTimeIni);
 
             Console.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
@@ -366,7 +309,6 @@ namespace ResourceBuilder.Data
             return true;
         }
 
-
         public bool PutInFile_v2(string current_model, string jsonFileName, string jsonName, string resultData, int year, int month, int day)
         {
             //Iniciar el Json
@@ -398,7 +340,7 @@ namespace ResourceBuilder.Data
         {
             var appSetting = ConfigurationHelper.GetAppSettings();
             AppSession _appSession = new AppSession();
-            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;            
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.Host;            
             _appSession.CurrentUser = new User()
             {
                 api_key = appSetting.profile.Odoo.api_key,
@@ -483,7 +425,7 @@ namespace ResourceBuilder.Data
         {
             var appSetting = ConfigurationHelper.GetAppSettings();
             AppSession _appSession = new AppSession();
-            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.Host;
             
             _appSession.CurrentUser = new User()
             {
@@ -567,91 +509,6 @@ namespace ResourceBuilder.Data
             return true;
         }
         
-        public async Task<bool> ProcessAccountMove(string jsonName, string actionName)
-        {
-            var appSetting = ConfigurationHelper.GetAppSettings();
-
-            AppSession _appSession = new AppSession();
-            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
-            
-            _appSession.CurrentUser = new User()
-            {
-                api_key = appSetting.profile.Odoo.api_key
-            };
-
-            int uid = 2;
-
-            bool esActualizacion = false;
-            string fechaActualizaTablet = "2021-01-01 00:00:00";
-
-            DateTime dateTimeIni = DateTime.Now;
-
-            Console.WriteLine("Iniciando proceso:" + jsonName + " " + DateTime.Now.ToString());
-
-            //bool noSalir = true;
-
-            ApiRequestOdoo_v1 apiRequest = new ApiRequestOdoo_v1();
-            apiRequest.uid = uid;
-            apiRequest.password = appSetting.profile.Odoo.Password;
-            apiRequest.databasename = appSetting.profile.Odoo.Database;
-            DateTime dateIni = DateTime.Parse(fechaActualizaTablet);
-
-            ApiManager.HubAccountMove hubmanager = new ApiManager.HubAccountMove(_appSession);
-            var resultCount = await hubmanager.GetHeaderCount(dateIni.Year, dateIni.Month, dateIni.Day);
-
-            Debug.WriteLine(resultCount.result);
-
-            if (resultCount.result == 0)
-            {
-                return false;
-            }
-
-            int countTotal = resultCount.result / default_limit;
-
-            for (int indice = 0; indice <= countTotal; indice++)
-            {
-                string jsonFileName = jsonName + "_" + indice.ToString() + ".json";
-
-                apiRequest.uid = uid;
-                //apiRequest.cadenaJson = cadenaJson;
-                apiRequest.index = indice;
-                apiRequest.update = esActualizacion;
-                apiRequest.dateIni = DateTime.Parse(fechaActualizaTablet);
-
-                var responseAll = await hubmanager.GetAccountMoves(dateIni, default_limit, indice);
-
-                if (responseAll.result != null && responseAll.result.Length > 0)
-                {
-                    var resultData = Newtonsoft.Json.JsonConvert.SerializeObject(responseAll.result);
-
-                    if (resultData != null)
-                    {
-                        PutInFile(jsonFileName, jsonName, resultData);
-                    }                
-                }
-
-                Console.WriteLine("Página:" + indice);
-
-                //TODO: Se fuerza la salida para que no se quede ciclado en caso de que haya
-                // problemas de conexion con el servidor
-                // el objetivo es que el servidor no se sobrecargue
-
-                if (indice >= 600)
-                {
-                    Console.WriteLine("Página " + indice + ": Se terminará el proceso.");
-                    break;
-                }
-            }
-
-            TimeSpan span = (DateTime.Now - dateTimeIni);
-
-            Console.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
-                span.Days, span.Hours, span.Minutes, span.Seconds));
-
-            return true;
-        }
-
-
         private List<Tuple<int, int, int>> ConstruirListaFechas()
         {
 
@@ -824,230 +681,12 @@ namespace ResourceBuilder.Data
 
             return (last_date, is_update);
         }
-
-        /// <summary>
-        /// Step 3
-        /// </summary>
-        /// <param name="current_model"></param>
-        /// <param name="last_date"></param>
-        /// <returns></returns>
-        private async Task<List<Tuple<int, int, int>>> RequiredDataUpdateByDataMods(string current_model, DateTime last_date)
-        {
-            //DateTime last_date = DateTime.Now;
-            
-            //var listaFechas = ConstruirListaFechas();
-
-            List<Tuple<int, int, int>> fechasEncontradas = new List<Tuple<int, int, int>>();
-
-            //TODO: Se esta usando fecha de prueba
-            var responseDates = await EvalDataDates(current_model, last_date.Year, last_date.Month, last_date.Day, 0);
-            //
-            //var responseDates = await EvalDataDates(current_model, last_date.Year, 3, 1, 0);
-
-            foreach (var item in responseDates)
-            {
-                fechasEncontradas.Add(new Tuple<int, int, int>(item.Year, item.Month, item.Day));
-            }
-
-            //Console.WriteLine("Fechas finales:");
-            //foreach (var fecha in listaFechas)
-            //{
-            //    Console.WriteLine($"{fecha.Item1}-{fecha.Item2}-{fecha.Item3}");
-            //}
-
-            //Console.ReadLine();
-
-            return fechasEncontradas;
-        }
-
-
-        private async Task<List<Tuple<int, int, int>>> RequiredDataCreatedByDataMods(string current_model, DateTime last_date)
-        {
-            //DateTime last_date = DateTime.Now;
-
-            //var listaFechas = ConstruirListaFechas();
-
-            List<Tuple<int, int, int>> fechasEncontradas = new List<Tuple<int, int, int>>();
-
-            //TODO: Se esta usando fecha de prueba
-            var responseDates = await EvalDataCreatedDates(current_model, last_date.Year, last_date.Month, last_date.Day, 0);
-            
-            foreach (var item in responseDates)
-            {
-                fechasEncontradas.Add(new Tuple<int, int, int>(item.Year, item.Month, item.Day));
-            }
-
-            //Console.WriteLine("Fechas finales:");
-            //foreach (var fecha in listaFechas)
-            //{
-            //    Console.WriteLine($"{fecha.Item1}-{fecha.Item2}-{fecha.Item3}");
-            //}
-
-            //Console.ReadLine();
-
-            return fechasEncontradas;
-        }
-
-        async Task<List<string>> ProcessChunks(List<Tuple<int, int, int>> fechasGetData, int chunkSize, string current_model, List<fileData> filesData)
-        {
-            var tasks = new List<Task<string>>();
-
-            for (int chunkIndex = 0; chunkIndex < (fechasGetData.Count + chunkSize - 1) / chunkSize; chunkIndex++)
-            {
-                tasks.Add(ProcessChunk(fechasGetData, chunkSize, chunkIndex, current_model, filesData));
-            }
-
-            var resultsArray = await Task.WhenAll(tasks);
-            return new List<string>(resultsArray);
-        }
-
-        async Task<string> ProcessChunk(List<Tuple<int, int, int>> fechasGetData, int chunkSize, int chunkIndex, string current_model, List<fileData> filesData)
-        {
-            int start = chunkIndex * chunkSize;
-            int end = Math.Min(start + chunkSize, fechasGetData.Count);
-
-            var tasks = new List<Task>();
-
-            for (int i = start; i < end; i += 10)
-            {
-                var batchTasks = new List<Task>();
-
-                for (int j = i; j < i + 10 && j < end; j++)
-                {
-                    var fecha = fechasGetData[j];
-                    batchTasks.Add(ProcessFecha(fecha, current_model, filesData));
-                }
-
-                await Task.WhenAll(batchTasks);
-            }
-
-            return $"Chunk {chunkIndex} processed";
-        }
-
-        async Task ProcessFecha(Tuple<int, int, int> fecha, string current_model, List<fileData> filesData)
-        {
-            int year = fecha.Item1;
-            int month = fecha.Item2;
-            int day = fecha.Item3;
-
-            Console.WriteLine($"Procesando datos de {year}-{month}-{day} modelo:{current_model}");
-
-            bool forUpdate = false;
-            var resultCount = await EvalCount(current_model, year, month, day, forUpdate);
-
-            Debug.WriteLine(resultCount.result);
-
-            if (resultCount.result == 0)
-            {
-                return;
-            }
-
-            int countTotal = resultCount.result / 300;
-
-            for (int indice = 0; indice <= countTotal; indice++)
-            {
-                Console.WriteLine("Procesando mes " + month + " dia " + day.ToString() + " Página:" + indice);
-
-                string jsonFileName = day.ToString() + "_" + indice.ToString() + ".json";
-                var resultData = await EvalData(current_model, year, month, day, indice, forUpdate);
-                //Console.WriteLine("ProcessFecha");
-                //Console.WriteLine($"{current_model} {jsonFileName} {current_model} {resultData} {year} {month} {day}");
-
-                if (resultData == null)
-                {
-                    Console.WriteLine("Error resultData NUll " + month + " dia " + day.ToString() + " Página:" + indice);
-                    break;
-                }
-
-                PutInFile_v2(current_model, jsonFileName, current_model, resultData, year, month, day);
-            }
-
-            FileInfo fileinfo = ProcessZipGroup_v2(current_model, year, month, day);
-            if (fileinfo != null) // si es nulo no existe el archivo
-            {
-                filesData.Add(new fileData()
-                {
-                    name = fileinfo.Name,
-                    hash = CalculateFileHash(fileinfo.FullName),
-                    create_date = fileinfo.CreationTime,
-                    year = year,
-                    month = month,
-                    day = day
-                });
-            }
-            else
-            {
-                Console.WriteLine("Error al obtener datos ProcessZipGroup_v2 ", current_model, year, month, day);
-            }
-        }
-
-        [Obsolete]
-        async Task<string> ProcessChunk__(List<Tuple<int, int, int>> fechasGetData, int chunkSize, int chunkIndex, string current_model, List<fileData> filesData)
-        {
-            int start = chunkIndex * chunkSize;
-            int end = Math.Min(start + chunkSize, fechasGetData.Count);
-
-            //for (int i = chunkIndex * chunkSize; i < (chunkIndex + 1) * chunkSize && i < fechasGetData.Count; i++)
-            for (int i = start; i < end; i++)
-            {
-                var fecha = fechasGetData[i];
-
-                // Año-Mes-día
-                Console.WriteLine($"Procesando datos de {fecha.Item1}-{fecha.Item2}-{fecha.Item3} modelo:{current_model}");
-
-                int year = fecha.Item1;
-                int month = fecha.Item2;
-                int day = fecha.Item3;
-
-                bool forUpdate = false;
-
-                var resultCount = await EvalCount(current_model, year, month, day, forUpdate);
-
-                Debug.WriteLine(resultCount.result);
-
-                if (resultCount.result == 0)
-                {
-                    continue;
-                }
-
-                int countTotal = resultCount.result / 300;
-
-                for (int indice = 0; indice <= countTotal; indice++)
-                {
-                    string jsonFileName = day.ToString() + "_" + indice.ToString() + ".json";
-                                       
-                    var resultData = await EvalData(current_model, year, month, day, indice, forUpdate);
-                    PutInFile_v2(current_model, jsonFileName, current_model, resultData, year, month, day);
-
-                    Console.WriteLine("Página:" + indice);
-
-                    //if (indice >= 600)
-                    //{
-                    //    Console.WriteLine("Página " + indice + ": Se terminará el proceso.");
-                    //    break;
-                    //}
-                }
-
-                FileInfo fileinfo = ProcessZipGroup_v2(current_model, year, month, day);
-                filesData.Add(new fileData()
-                {
-                    name = fileinfo.Name,
-                    hash = CalculateFileHash(fileinfo.FullName),
-                    create_date = fileinfo.CreationTime,
-                    year = year,
-                    month = month,
-                    day = day
-                });
-            }
-
-            return $"Chunk {chunkIndex} processed";
-        }
-        
+                
         AppSession GetAppSession()
         {
             var appSetting = ConfigurationHelper.GetAppSettings();
             AppSession _appSession = new AppSession();
-            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.Host;
             
             _appSession.CurrentUser = new User()
             {
@@ -1071,275 +710,6 @@ namespace ResourceBuilder.Data
                     return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
                 }
             }
-        }
-
-        public async Task<string[]> ProcessModelByChunk(string current_model, string actionName)
-        {            
-            int limitBackYear = 2;
-            
-            //2 Años atras desde enero 1
-            DateTime startDateReference = new DateTime(DateTime.Now.Date.AddYears(-limitBackYear).Year, 1, 1);
-            var listFechaReference = await RequiredDataCreatedByDataMods(current_model, startDateReference);
-
-            List<Tuple<int, int, int>> fechasGetData = RequiredDataUpdateByFilesExists(current_model, listFechaReference);
-
-            var resultDateEval = GetLastDate(current_model);
-            //Evalúa la fecha que debe tomar de referencia para la actualizacion
-            DateTime last_date = resultDateEval.date;
-
-            //Se vacia la lista de carpetas requeridas ya que si es actualizacion solo debe
-            // procesar los datos nuevos
-            if(resultDateEval.is_update && fechasGetData.Count == 0)
-            {
-                fechasGetData = new List<Tuple<int, int, int>>();
-            }
-
-            List<Tuple<int, int, int>> fechasGetByData = await RequiredDataUpdateByDataMods(current_model, last_date);
-            
-            HashSet<Tuple<int, int, int>> fechasSet = new HashSet<Tuple<int, int, int>>(fechasGetData);
-
-            // Agregamos los elementos de fechasGetByData porque son registros de datos que han sido modificados
-            // posterior a la fecha anterior de actualización, estos días deben considerarse para ser agregados 
-
-            foreach (var fecha in fechasGetByData)
-            {
-                if (fechasSet.Add(fecha))
-                {
-                    fechasGetData.Add(fecha);
-                }
-            }
-
-            DateTime dateTimeIni = DateTime.Now;
-
-            int chunkSize = 10;
-
-            List<fileData> filesData = new List<fileData>();
-
-            var results = await ProcessChunks(fechasGetData, chunkSize, current_model, filesData);
-
-            //foreach (var result in results)
-            //{
-            //    Console.WriteLine(result);
-            //}
-
-            CreateBulkInfoFile(current_model, filesData, resultDateEval.is_update);
-
-            return results.ToArray();
-        }
-
-        private void CreateBulkInfoFile(string current_model, List<fileData> filesData, bool is_update)
-        {
-            var appSetting = ConfigurationHelper.GetAppSettings();
-            string publish_store = appSetting.profile.PublishStore;
-
-            update_pack_info update_Pack_Info = new update_pack_info();
-            update_Pack_Info.pack_base_date = DateTime.Now;
-            update_Pack_Info.description = "Automático";
-            
-            update_Pack_Info.details = new List<Detail>()
-            {                
-                new Detail()
-                {
-                    model = current_model,
-                    total_files = filesData.Count,
-                    files = filesData.ToArray()
-                }
-            }.ToArray();
-
-            var path = Path.Combine(Directory.GetCurrentDirectory(),
-                        "wwwroot/resources",
-                        publish_store, 
-                        "_bulk");
-
-            string json_content = JsonConvert.SerializeObject(update_Pack_Info, Formatting.Indented);
-
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(path);
-
-            string filename = "" + current_model + "_base.json";
-
-            if(is_update)
-                filename = "" + current_model + "_update.json";
-
-            File.WriteAllText(Path.Combine(path, filename),json_content);
-        }
-
-        public async Task<bool> ProcessAccountMoveLines(string jsonName, string actionName)
-        {
-            var appSetting = ConfigurationHelper.GetAppSettings();
-
-            AppSession _appSession = new AppSession();
-            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo; // "http://192.168.204.75:8069";
-            _appSession.CurrentUser = new User()
-            {
-                api_key = appSetting.profile.Odoo.api_key
-            };
-
-            int uid = 2;
-
-            bool esActualizacion = false;
-            string fechaActualizaTablet = "2021-01-01 00:00:00";
-
-            DateTime dateTimeIni = DateTime.Now;
-
-            //Console.WriteLine("Iniciando proceso:" + jsonName + " " + DateTime.Now.ToString());
-
-            //bool noSalir = true;
-
-            ApiRequestOdoo_v1 apiRequest = new ApiRequestOdoo_v1();
-            apiRequest.uid = uid;
-            apiRequest.password = appSetting.profile.Odoo.Password;
-            apiRequest.databasename = appSetting.profile.Odoo.Database;
-
-            DateTime dateIni = DateTime.Parse(fechaActualizaTablet);
-            ApiManager.HubAccountMoveLine hubmanager = new ApiManager.HubAccountMoveLine(_appSession);
-            var resultCount = await hubmanager.GetDetailCount(dateIni);
-
-            Debug.WriteLine(resultCount.result);
-
-            if (resultCount.result == 0)
-            {
-                return false;
-            }
-
-            int countTotal = resultCount.result / 300;
-
-            for (int indice = 0; indice <= countTotal; indice++)
-            {
-                string jsonFileName = jsonName + "_" + indice.ToString() + ".json";
-
-                apiRequest.uid = uid;
-                //apiRequest.cadenaJson = cadenaJson;
-                apiRequest.index = indice;
-                apiRequest.update = esActualizacion;                
-
-                var responseAll = await hubmanager.GetAccountMoveLines(dateIni);
-
-                if (responseAll.result != null && responseAll.result.Length > 0)
-                {
-
-                    //foreach(var lineItem in responseAll.data)
-                    //{
-                    //    if(lineItem.account_id != null && lineItem.account_id.Length > 0)
-                    //    {
-                    //        lineItem.accountId = lineItem.account_id[0].id;
-                    //    }
-                    //}
-
-                    var resultData = Newtonsoft.Json.JsonConvert.SerializeObject(responseAll.result);
-
-                    if (resultData != null)
-                    {
-                        PutInFile(jsonFileName, jsonName, resultData);
-                    }
-                }
-
-                Console.WriteLine("Página:" + indice);
-
-                //TODO: Se fuerza la salida para que no se quede ciclado en caso de que haya
-                // problemas de conexion con el servidor
-                // el objetivo es que el servidor no se sobrecargue
-
-                if (indice >= 600)
-                {
-                    Console.WriteLine("Página " + indice + ": Se terminará el proceso.");
-                    break;
-                }
-            }
-
-            TimeSpan span = (DateTime.Now - dateTimeIni);
-
-            Console.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
-                span.Days, span.Hours, span.Minutes, span.Seconds));
-
-            return true;
-        }
-
-        public async Task<bool> ProcessAccountJournal(string jsonName, string actionName)
-        {
-            var appSetting = ConfigurationHelper.GetAppSettings();
-
-            AppSession _appSession = new AppSession();
-            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
-            
-            _appSession.CurrentUser = new User()
-            {
-                api_key = appSetting.profile.Odoo.api_key,
-                access_token = appSetting.profile.Odoo.access_token,
-                username = appSetting.profile.Odoo.User,
-                password = appSetting.profile.Odoo.Password,
-                uid = 2, //appSetting.profile.Odoo.uid,
-            };
-
-            int uid = 2;
-
-            bool esActualizacion = false;
-            string fechaActualizaTablet = "2021-01-01 00:00:00";
-
-            DateTime dateTimeIni = DateTime.Now;
-
-            Console.WriteLine("Iniciando proceso:" + jsonName + " " + DateTime.Now.ToString());
-                        
-            ApiRequestOdoo_v1 apiRequest = new ApiRequestOdoo_v1();
-            apiRequest.uid = uid;
-            apiRequest.password = appSetting.profile.Odoo.Password;
-            apiRequest.databasename = appSetting.profile.Odoo.Database;
-            apiRequest.dateIni = DateTime.Parse(fechaActualizaTablet);
-
-            ApiManager.HubAccountJournal hubmanager = new ApiManager.HubAccountJournal(_appSession);
-            string companies_ids = "1,5";
-            var resultCount = await hubmanager.GetCount(companies_ids);
-
-            Debug.WriteLine(resultCount.result);
-
-            if (resultCount.result == 0)
-            {
-                return false;
-            }
-
-            int countTotal = resultCount.result / 300;
-
-            for (int indice = 0; indice <= countTotal; indice++)
-            {
-                string jsonFileName = jsonName + "_" + indice.ToString() + ".json";
-
-                apiRequest.uid = uid;
-                //apiRequest.cadenaJson = cadenaJson;
-                apiRequest.index = indice;
-                apiRequest.update = esActualizacion;
-                apiRequest.dateIni = DateTime.Parse(fechaActualizaTablet);
-
-                var responseAll = await hubmanager.GetAccountJournal(companies_ids);
-
-                if (responseAll != null && responseAll.result != null && responseAll.result.Length > 0)
-                {
-                    var resultData = Newtonsoft.Json.JsonConvert.SerializeObject(responseAll.result);
-
-                    if (resultData != null)
-                    {
-                        PutInFile(jsonFileName, jsonName, resultData);
-                    }
-                }
-
-                Console.WriteLine("Página:" + indice);
-
-                //TODO: Se fuerza la salida para que no se quede ciclado en caso de que haya
-                // problemas de conexion con el servidor
-                // el objetivo es que el servidor no se sobrecargue
-
-                if (indice >= 600)
-                {
-                    Console.WriteLine("Página " + indice + ": Se terminará el proceso.");
-                    break;
-                }
-            }
-
-            TimeSpan span = (DateTime.Now - dateTimeIni);
-
-            Console.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
-                span.Days, span.Hours, span.Minutes, span.Seconds));
-
-            return true;
         }
 
         public async Task<bool> ProcessTableV3(string jsonName)
@@ -1674,71 +1044,6 @@ namespace ResourceBuilder.Data
             //await ProcessTable("NCPARAMETROS", "OBTENER_CARTERA_CAB");
             //await ProcessTable("COBPARAMETROS", "OBTENER_CARTERA_CAB");
             //await ProcessTable("COBUSUARIOS", "OBTENER_CARTERA_CAB");
-            return true;
-        }
-
-        public async Task<bool> SendRequestOdoo(ItemBuild buildItem)
-        {
-            //if (buildItem.Name == "COBCARTERACAB" || buildItem.Name == "COBCARTERADET")
-            //{
-            //    await ProcessTableForAllUsers(buildItem.Name, buildItem.ActioName);
-            //}
-            //else
-            //{
-
-            //}
-
-            switch (buildItem.ActioName)
-            {                
-                case "account_move":
-                    {
-                        //await ProcessAccountMoveByChunk(buildItem.Name, buildItem.ActioName);
-                        await ProcessAccountMove(buildItem.Name, buildItem.ActioName);
-                    }
-                    break;
-                case "account_move_line":
-                    {
-                        await ProcessAccountMoveLines(buildItem.Name, buildItem.ActioName);
-                    }
-                    break;
-                case "res_partner_build":
-                    {
-                        await ProcessResPartner(buildItem.Name, buildItem.ActioName);
-                    }
-                    break;
-                case "account_journal_build":
-                    {
-                        await ProcessAccountJournal(buildItem.Name, buildItem.ActioName);
-                    }
-                    break;
-                case "product_template_build":
-                    {
-                        await ProcessProductTemplate(buildItem.Name, buildItem.ActioName);
-                    }
-                    break;
-                case "product_product_build":
-                    {
-                        //await ProcessProductProduct(buildItem.Name, buildItem.ActioName);
-                    }
-                    break;
-            }
-
-            ProcessZipGroup(buildItem.Name);
-            RemoveCacheFiles();
-            return true;
-        }
-
-        public async Task<bool> SendRequestOdooChunks(ItemBuild buildItem)
-        {
-            Console.WriteLine("Iniciando proceso:" + buildItem.Name + " " + DateTime.Now.ToString());
-            
-            await ProcessModelByChunk(buildItem.Name, buildItem.ActioName);
-
-            Console.WriteLine("Finalizando proceso:" + buildItem.Name + " " + DateTime.Now.ToString());
-
-            //ProcessZipGroup(buildItem.Name);
-            //RemoveCacheFiles();
-            //ClearSessions();
             return true;
         }
 

@@ -1,12 +1,7 @@
 ﻿using ApiManagerOdoo.Base;
-using AppManagerOdoo.Tools;
-using DMSA.Models.Odoo.DMCobranzas;
+using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.General.Responses;
-using DMSA.Models.Odoo.Modules.Accounting;
-using DMSA.Models.Odoo.Native;
 using DMSA.Models.Security;
-using RestSharp;
-
 
 namespace ApiManager
 {

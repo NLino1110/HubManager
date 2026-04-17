@@ -1,4 +1,6 @@
 ﻿using DMSA.Models.Odoo.Abstract;
+using DMSA.Models.Odoo.Accounting;
+using DMSA.Models.Odoo.Inventory;
 using DMSA.Models.Odoo.Native;
 using System;
 using System.Collections.Generic;

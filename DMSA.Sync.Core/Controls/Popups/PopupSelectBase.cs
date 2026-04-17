@@ -177,8 +177,6 @@ namespace DMSA.Sync.Core.Controls.Popups
 
             PrepareForm();
 
-            //IDispatcherTimer timer;
-
             popupSizeChanged += OnPageSizeChanged;
 
             timer_eventController = Dispatcher.CreateTimer();

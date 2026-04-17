@@ -20,7 +20,7 @@ public partial class DropdownMenu : Popup
         if (e.CurrentSelection.FirstOrDefault() is string value)
         {
             ItemSelected?.Invoke(value);
-            Close();
+            //Close();
         }
     }
 }

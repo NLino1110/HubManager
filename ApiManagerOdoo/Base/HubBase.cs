@@ -17,7 +17,7 @@ namespace ApiManagerOdoo.Base
         private bool _disposed = false;
         private string CallKw = "web/dataset/call_kw";
         public string EndPointServer { get; set; }
-        public string EndPointApi { get; set; }        
+        public string EndPointApi { get; set; }
         public AppSession _appSession { get; set; }
         public string _modelname { get; set; }
         private readonly RestClient _client;
@@ -667,6 +667,8 @@ namespace ApiManagerOdoo.Base
             restRequest.AddJsonBody(jsonBody);
 
             var result = await _client.ExecutePostAsync(restRequest);
+
+            Debug.WriteLine(result.Content);
 
             if (!string.IsNullOrWhiteSpace(result?.Content))
             {

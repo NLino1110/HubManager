@@ -26,6 +26,10 @@ namespace DMSA.Models.Odoo.DebitCollection
         public int center_id { get; set; }
         [Column("state")]
         public string state { get; set; }
+
+        [Column("state_applied")]
+        public string? state_applied { get; set; }
+
         [Column("partner_id")]
         public int partner_id { get; set; }
         [Column("date")]
@@ -95,8 +99,13 @@ namespace DMSA.Models.Odoo.DebitCollection
         //[Column("partner_retail_id")] 
         //public int partner_retail_id { get; set; }
 
-        public string recipe_name { get; set; }
-        public string guid { get; set; }
+        [Column("recipe_name")]
+        [JsonProperty("receipt_name")]
+        public string receipt_name { get; set; } //debe cambiarse a receipt_name
+
+        [JsonProperty("external_create_uid")]
+        public int external_create_uid { get; set; }
+        public string external_guid { get; set; }
         public string payment_status { get; set; }
         public string device_app_version { get; set; }
         public string device_idiom { get; set; }
@@ -122,5 +131,9 @@ namespace DMSA.Models.Odoo.DebitCollection
 
         [JsonIgnore]
         public string user_name { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
+        public bool was_odoo_synced { get; set; }
     }
 }

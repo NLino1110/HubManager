@@ -12,15 +12,15 @@
                    VerticalOptions="Center"
                    FontAttributes="Bold"/>
             <Button                    
-            x:Name="btnSave"
-            Text="Guardar"                    
+                x:Name="btnSave"
+                Text="Guardar"                    
                 BackgroundColor="DodgerBlue"
                 Margin="2"
                 HeightRequest="35" 
                 Padding="10,0,10,0"
-            SemanticProperties.Hint="Save changes"
-            Clicked="btnSave_Clicked"
-            HorizontalOptions="Center" >
+                SemanticProperties.Hint="Save changes"
+                Clicked="btnSave_Clicked"
+                HorizontalOptions="Center">
                 <Button.ImageSource>
                     <FontImageSource FontFamily="FontAwesome5Solid"
 											Color="White"
@@ -31,12 +31,12 @@
             </Button>
 
             <Button                     
-x:Name="BtnDropData"
-Text="Eliminar datos"    
-Clicked="DropData"
+                x:Name="BtnDropData"
+                Text="Eliminar datos"    
+                Clicked="DropData"
                 HeightRequest="35" 
-HorizontalOptions="Center"                    
-BackgroundColor="Red" 
+                    HorizontalOptions="Center"                    
+                    BackgroundColor="Red" 
                     IsVisible="True"
                 Padding="10,0,10,0">
                 <Button.ImageSource>

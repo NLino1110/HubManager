@@ -1,4 +1,4 @@
-﻿using DMSA.Models.Odoo.DMOrders.tareas;
+﻿using DMSA.Models.Odoo.Tareas;
 using System.Diagnostics;
 
 namespace DMSA.Sync.Core.Database.Sqlite.tareas

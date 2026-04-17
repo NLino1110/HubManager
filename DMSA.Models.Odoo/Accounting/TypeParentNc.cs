@@ -28,6 +28,14 @@ namespace DMSA.Models.Odoo.Accounting
         [Column("nc_type")]
         public string? nc_type { get; set; }
 
+        [JsonProperty("code")]
+        [Column("code")]
+        public string? code { get; set; }
+
+        [JsonProperty("motivo_val_dev_nc")]
+        [Column("motivo_val_dev_nc")]
+        public string? motivo_val_dev_nc { get; set; }
+
         [JsonProperty("active")]
         [Column("active")]
         public bool active { get; set; } = true;

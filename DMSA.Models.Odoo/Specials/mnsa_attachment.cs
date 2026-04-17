@@ -10,6 +10,7 @@ namespace DMSA.Models.Odoo.Specials
     public class mnsa_attachment : OdooEntity
     {
         [PrimaryKey]
+        [AutoIncrement]
         [JsonProperty("id")]
         public int id { get; set; }
         public string server { get; set; }
@@ -17,6 +18,7 @@ namespace DMSA.Models.Odoo.Specials
         public string file_name { get; set; }
         public string file_type { get; set; }
         public DateTime? date_data_cutoff { get; set; }
+        public double total_file_size { get; set; }
 
         [Ignore]
         public JToken mobile_app_id { get; set; }

@@ -1,5 +1,6 @@
 ﻿using DMSA.Models.Odoo.Base;
 using Newtonsoft.Json;
+using SQLite;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,32 +8,33 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace DMSA.Models.Odoo.Promotions.Wizard
-{    
+{
+    [Table("sale_order_promotion_wizard")]
     public class SaleOrderPromotionWizard : OdooEntity
     {        
         [JsonProperty("id")]
         public int Id { get; set; }
 
         [JsonProperty("order_id")]
-        public int[] Order_Id { get; set; }
+        public int Order_Id { get; set; }
 
         [JsonProperty("pricelist_id")]
-        public int[] Pricelist_Id { get; set; }
+        public int Pricelist_Id { get; set; }
 
         [JsonProperty("currency_id")]
-        public int[] Currency_Id { get; set; }
+        public int Currency_Id { get; set; }
 
         [JsonProperty("current_promotion_line_id")]
-        public int[] Current_Promotion_Line_Id { get; set; }
+        public int Current_Promotion_Line_Id { get; set; }
 
         [JsonProperty("line_ids")]
-        public int[] Line_Ids { get; set; }
+        public List<SaleOrderPromotionWizardLineWrapper> Line_Ids { get; set; }
 
         [JsonProperty("gift_line_ids")]
-        public int[] Gift_Line_Ids { get; set; }
+        public List<SaleOrderPromotionWizardGiftWrapper> Gift_Line_Ids { get; set; }
 
         [JsonProperty("all_gift_line_ids")]
-        public int[] All_Gift_Line_Ids { get; set; }
+        public List<AllSaleOrderPromotionWizardGiftWrapper> All_Gift_Line_Ids { get; set; }
 
         [JsonProperty("required_qty")]
         public decimal Required_Qty { get; set; }

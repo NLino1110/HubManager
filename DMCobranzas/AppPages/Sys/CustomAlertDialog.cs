@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Maui.Views;
-using CommunityToolkit.Maui.Sample.Models;
 using System.ComponentModel;
 using System;
 using System.Collections.Generic;

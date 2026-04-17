@@ -1,19 +1,12 @@
-﻿using DMOrders.Services.Database.Sqlite;
-using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
+﻿using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DMOrders.Services.Promotions
 {
     public class PromotionEngineRunner
     {
-        public string GetRelatedProductTmplIds(
-            PromotionEvalItemV2 promotionEvalItem)
+        public string GetRelatedProductTmplIds(PromotionEvalItem promotionEvalItem)
         {
             List<int> allProductTmplIds = new();
             if (promotionEvalItem.RuleSet != null && promotionEvalItem.RuleSet.Count > 0)
@@ -44,7 +37,7 @@ namespace DMOrders.Services.Promotions
 
         public async Task<bool> CanApplyPromotion(
             sale_order order, 
-            PromotionEvalItemV2 promotionEvalItem, 
+            PromotionEvalItem promotionEvalItem, 
             List<SaleOrderPromotions> saleOrderPromotions)
         {
             bool exists = saleOrderPromotions.Any(x =>
@@ -134,7 +127,7 @@ namespace DMOrders.Services.Promotions
         }
 
         public async Task<bool> AddApplyPromotion(sale_order order, 
-            PromotionEvalItemV2 promotionEvalItem, 
+            PromotionEvalItem promotionEvalItem, 
             int times_inv, 
             List<SaleOrderPromotions> saleOrderPromotions)
         {
@@ -172,7 +165,7 @@ namespace DMOrders.Services.Promotions
         }
 
         public async Task<bool> UpdateApplyPromotion(sale_order order,
-            PromotionEvalItemV2 promotionEvalItem,            
+            PromotionEvalItem promotionEvalItem,            
             List<SaleOrderPromotions> saleOrderPromotions)
         {
             var existingPromos = saleOrderPromotions.Where(x => x.order_id == order.id &&
@@ -264,7 +257,7 @@ namespace DMOrders.Services.Promotions
 
         public async Task<SaleOrderPromotions> GetDataBenefit(
             sale_order order,
-            PromotionEvalItemV2 promotionEvalItem,
+            PromotionEvalItem promotionEvalItem,
             List<SaleOrderPromotions> saleOrderPromotions
             )
         {
@@ -282,7 +275,7 @@ namespace DMOrders.Services.Promotions
 
         public async Task<SaleOrderPromotions> AddGitfs(
             sale_order order,
-            PromotionEvalItemV2 promotionEvalItem,
+            PromotionEvalItem promotionEvalItem,
             List<SaleOrderPromotions> saleOrderPromotions,
             int giftsToAdd
             )
@@ -299,55 +292,5 @@ namespace DMOrders.Services.Promotions
 
             return null;
         }
-
-        //public async Task<bool> CanApplyPromotion(sale_order order, PromotionEvalItem benefit)
-        //{
-        //    var saleOrderPromotion = new SaleOrderPromotionsDb(App.Session.odooConnection.DbNameSqlite);
-        //    var existingPromos = await saleOrderPromotion.GetItemsByPromoEval(order, benefit);
-
-        //    if (existingPromos != null && existingPromos.Count > 0)
-        //    {
-        //        foreach(var promo in existingPromos)
-        //        {
-        //            Debug.WriteLine($"Promoción existente: ID {promo.promotion_id}, Aplicada: {promo.applied}");
-        //            if (promo.applied == true || promo.times_inv == promo.times_inv_applied)
-        //            {
-        //                Debug.WriteLine($"Descuento de promoción ya ha sido aplicado");
-        //                return false;
-        //            }
-        //        }
-        //    }
-        //    else
-        //    {
-        //        await saleOrderPromotion.InsertOrUpdate(order, benefit);                
-        //    }
-        //    return true;
-        //}
-
-        //public async Task<bool> AddApplyPromotion(sale_order order, PromotionEvalItem benefit, int times)
-        //{
-        //    var saleOrderPromotion = new SaleOrderPromotionsDb(App.Session.odooConnection.DbNameSqlite);
-        //    var existingPromos = await saleOrderPromotion.AddApply(order, benefit, times);
-
-        //    if (existingPromos != null && existingPromos.Count > 0)
-        //    {                
-        //        return false;
-        //    }
-
-        //    return true;
-        //}
-
-        //public async Task<bool> SubstractApplyPromotion(sale_order order, PromotionEvalItem benefit, int times)
-        //{
-        //    var saleOrderPromotion = new SaleOrderPromotionsDb(App.Session.odooConnection.DbNameSqlite);
-        //    var existingPromos = await saleOrderPromotion.AddApply(order, benefit, times);
-
-        //    if (existingPromos != null && existingPromos.Count > 0)
-        //    {
-        //        return false;
-        //    }
-
-        //    return true;
-        //}
     }
 }

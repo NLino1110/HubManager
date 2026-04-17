@@ -24,10 +24,16 @@ namespace DMSA.Models.Odoo.Abstract
         [Column("host")]
         public string Host { get; set; } = string.Empty;  // host de Odoo
 
+        [Obsolete("")]
         [Required]
         [Column("host_dump")]
         public string HostDump { get; set; } = string.Empty;
+        
+        [Required]
+        [Column("host_push")]
+        public string HostPush { get; set; } = string.Empty;
 
+        [Obsolete("")]
         [Required]
         [Column("dump_service")]
         public string DumpService { get; set; } = string.Empty;
@@ -42,6 +48,15 @@ namespace DMSA.Models.Odoo.Abstract
             get
             {
                 return string.Concat(prefix_db ?? string.Empty, DbName ?? string.Empty);
+            }
+        }
+
+        [Ignore]
+        public string DbNameSqliteStatic
+        {
+            get
+            {
+                return string.Concat(prefix_db ?? string.Empty, DbName ?? string.Empty, "_static");
             }
         }
 
@@ -94,58 +109,53 @@ namespace DMSA.Models.Odoo.Abstract
         [Column("prefix_db")]
         public string prefix_db { get; set; }
 
+        [Column("email_domain")]
+        public string? email_domain { get; set; } = "macronegocios.ec";
+
+        [Column("preload_email_domain")]
+        public bool preload_email_domain { get; set; } = true;
+
         [Column("stage_id")]
         public int stage_id { get; set; }
         [Column("project_id")]
         public int project_id { get; set; }
         [Column("parent_id")]
         public int parent_id { get; set; }
+                
+        [Column("username_front")]
+        public string UsernameFront { get; set; } = string.Empty;
+                
+        [Column("password_front")]
+        public string PasswordFront { get; set; } = string.Empty;
 
         public List<OdooConnection> LoadDefault()
         {
             List<OdooConnection> defaultSettings = new List<OdooConnection>();
             
             defaultSettings.Add(new OdooConnection()
-                {
-                    Id = 1,
-                    CompanyId = 1,
-                    Name = "DMujeres SA Test",
-                    Host = "https://qa.dmujeressa.ec/",
-                    DbName = "qa",
-                    Username = "admin",
-                    Password = CryptoHelper.Encrypt("demo"),
-                    Active = true,
-                    HostDump = "https://192.168.204.66:2443",
-                    DumpService = "/resources/tmp/android/sqlite/",
-                    DbLimitDefault = 300,
-                    IsProduction = false,
-                    IsTestMode = false,
-                    DataToleranceDays = 365,
-                    sale_channel_default = 3,
-                    res_center_default = 2,
-                    prefix_db = "test_"
-                }
-            );
-
-            defaultSettings.Add(new OdooConnection()
             {
                 Id = 2,
                 CompanyId = 1,
                 Name = "Macronegocios (DEV)",
                 Host = "https://dev-qa.macronegocios/",
-                DbName = "qa.macronegocios",
+                DbName = "macronegocios",
                 Username = "admin",
                 Password = CryptoHelper.Encrypt("demo"),
-                Active = true,
+                Active = false,
                 HostDump = "https://192.168.204.66:2443",
                 DumpService = "/resources/tmp/android/sqlite/",
+                HostPush = "https://admin.dmujeres.ec:1500/",
                 DbLimitDefault = 300,
                 IsProduction = false,
                 IsTestMode = true,
                 DataToleranceDays = 365,
                 sale_channel_default = 8,
                 res_center_default = 49,
-                prefix_db = "dev_"
+                prefix_db = "dev_",
+                email_domain = "macronegocios.ec",
+                preload_email_domain = true,
+                UsernameFront = "jchonillo",
+                PasswordFront = "PREPROMNSA26"
             }
             );
 
@@ -154,8 +164,8 @@ namespace DMSA.Models.Odoo.Abstract
                 Id = 3,
                 CompanyId = 1,
                 Name = "DMujeres (DEV)",
-                Host = "http://localhost:8069/",
-                DbName = "qadmujeres",
+                Host = "https://dev-qa.macronegocios/",
+                DbName = "dmujeressa",
                 Username = "admin",
                 Password = CryptoHelper.Encrypt("demo"),
                 Active = false,
@@ -167,42 +177,23 @@ namespace DMSA.Models.Odoo.Abstract
                 DataToleranceDays = 365,
                 sale_channel_default = 8,
                 res_center_default = 49,
-                prefix_db = "dev_"
+                prefix_db = "dev_",
+                email_domain = "macronegocios.ec",
+                preload_email_domain = true,
+                PasswordFront = "PREPRODDMujeres26"
             }
             );
-
+         
             defaultSettings.Add(new OdooConnection()
             {
-                Id = 4,
+                Id = 6,
                 CompanyId = 1,
-                Name = "Macronegocios",
-                Host = "http://qa.macronegocios/",
-                DbName = "qa.macronegocios",
+                Name = "DMujeres Prod",
+                Host = "https://www.dmujeressa.ec/",
+                DbName = "dmujeressa",
                 Username = "admin",
                 Password = CryptoHelper.Encrypt("demo"),
-                Active = false,
-                HostDump = "https://192.168.204.66:2443",
-                DumpService = "/resources/tmp/android/sqlite/",
-                DbLimitDefault = 300,
-                IsProduction = true,
-                IsTestMode = false,
-                DataToleranceDays = 365,
-                sale_channel_default = 8,
-                res_center_default = 49,
-                prefix_db = "qa1_"
-            }
-            );
-
-            defaultSettings.Add(new OdooConnection()
-            {
-                Id = 5,
-                CompanyId = 1,
-                Name = "DMujeres",
-                Host = "http://qa.dmujeres/",
-                DbName = "qa.dmujeres",
-                Username = "admin",
-                Password = CryptoHelper.Encrypt("demo"),
-                Active = false,
+                Active = true,
                 HostDump = "https://192.168.204.66:2443",
                 DumpService = "/resources/tmp/android/sqlite/",
                 DbLimitDefault = 300,
@@ -211,30 +202,10 @@ namespace DMSA.Models.Odoo.Abstract
                 DataToleranceDays = 365,
                 sale_channel_default = 3,
                 res_center_default = 2,
-                prefix_db = "qa1_"
-            }
-            );
-
-
-            defaultSettings.Add(new OdooConnection()
-            {
-                Id = 6,
-                CompanyId = 1,
-                Name = "Macronegocios Prod",
-                Host = "https://www.macronegocios.ec/",
-                DbName = "macronegocios",
-                Username = "admin",
-                Password = CryptoHelper.Encrypt("demo"),
-                Active = false,
-                HostDump = "https://192.168.204.66:2443",
-                DumpService = "/resources/tmp/android/sqlite/",
-                DbLimitDefault = 300,
-                IsProduction = true,
-                IsTestMode = false,
-                DataToleranceDays = 365,
-                sale_channel_default = 8,
-                res_center_default = 49,
-                prefix_db = "prod1_"
+                prefix_db = "prod1_",
+                email_domain = "macronegocios.ec",
+                preload_email_domain = true,
+                PasswordFront = "PREPRODDMujeres26"
             }
             );
 
@@ -242,21 +213,24 @@ namespace DMSA.Models.Odoo.Abstract
             {
                 Id = 7,
                 CompanyId = 1,
-                Name = "DMujeres Prod",
-                Host = "https://www.dmujeressa.ec/",
-                DbName = "dmujeressa",
+                Name = "Macronegocios Prod",
+                Host = "https://www.macronegocios.ec/",
+                DbName = "macronegocios",
                 Username = "admin",
                 Password = CryptoHelper.Encrypt("demo"),
-                Active = false,
+                Active = true,
                 HostDump = "https://192.168.204.66:2443",
                 DumpService = "/resources/tmp/android/sqlite/",
                 DbLimitDefault = 300,
                 IsProduction = true,
                 IsTestMode = false,
                 DataToleranceDays = 365,
-                sale_channel_default = 3,
-                res_center_default = 2,
-                prefix_db = "prod1_"
+                sale_channel_default = 8,
+                res_center_default = 49,
+                prefix_db = "prod1_",
+                email_domain = "macronegocios.ec",
+                preload_email_domain = true,
+                PasswordFront = "PREPROMNSA26"
             }
             );
 

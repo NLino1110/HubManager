@@ -1,4 +1,4 @@
-﻿using DMSA.Models.Odoo.DMApps;
+﻿using DMSA.Models.Odoo.Security;
 
 namespace DMSA.Sync.Core.Database.Sqlite
 {
@@ -20,6 +20,26 @@ namespace DMSA.Sync.Core.Database.Sqlite
             await Init();
             return await Database.Table<user_access>().Where(i => i.uid == id).FirstOrDefaultAsync();
         }
-    
+
+        public async Task<user_access> FixMissingCurrentUser()
+        {
+            await Init();            
+            var userFound = await GetItemAsync(u => u.uid == Constants.Session.CurrentUserFront.uid);
+
+            if (userFound == null)
+            {
+                userFound = new user_access()
+                {
+                    uid = Constants.Session.CurrentUserFront.uid,
+                    name = Constants.Session.CurrentUserFront.nombres,
+                    username = Constants.Session.CurrentUserFront.username,
+                    pwd = Constants.Session.CurrentUserFront.password
+                };
+
+                await InsertAsync(userFound);
+            }
+
+            return userFound;
+        }
     }
 }

@@ -1,20 +1,10 @@
-﻿
-using CommunityToolkit.Maui.Alerts;
+﻿using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Mvvm.Input;
 using DMSA.Models.Odoo.Tools;
 using Microsoft.AspNetCore.SignalR.Client;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-//using Microsoft.Maui.Essentials;
-using System.Net.NetworkInformation;
-
-using System.Timers;
 
 namespace DMCobranzas.Services
 {

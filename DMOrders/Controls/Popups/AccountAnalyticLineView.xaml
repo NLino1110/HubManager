@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+               x:Class="DMOrders.Controls.Popups.AccountAnalyticLineView"
+               xmlns:models="clr-namespace:DMSA.Models.Odoo.Tareas;assembly=DMSA.Models.Odoo"
+               x:DataType="models:AccountAnalyticLine">
+    <Grid Padding="10" RowDefinitions="Auto,*,Auto">
+
+        <StackLayout Grid.Row="0">
+
+            <FlexLayout JustifyContent="SpaceBetween">
+                <Button Clicked="OnBtnClose_Clicked"
+                        BackgroundColor="Transparent"
+                        Text="←" />
+                <Label Text="{Binding Title}"
+                       FontAttributes="Bold"
+                       FontSize="15"
+                       VerticalOptions="Center"/>
+
+                <StackLayout Orientation="Horizontal">
+
+                    <Button Text="Guardar"
+                            Clicked="OnBtnSave_Clicked"
+                            BackgroundColor="SeaGreen"
+                            TextColor="White"/>
+
+                    <Button Text="X"
+                            Clicked="OnBtnClose_Clicked"
+                            BackgroundColor="Transparent"/>
+                </StackLayout>
+
+            </FlexLayout>
+
+            <BoxView HeightRequest="1" Color="#64646433"/>
+
+        </StackLayout>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="8">
+
+                <Picker x:Name="_pickerPlanningSlot"
+                        Title="Principal"
+                        IsVisible="False"/>
+
+                <material:DropdownField x:Name="_pickerPlanningReason"
+                                        Title="Motivo"/>
+
+                <material:TextField x:Name="_inputResPartner"
+                                    Title="Cliente"
+                                    Text="Seleccione un cliente..."
+                                    IsReadOnly="True">
+                    <material:TextField.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnEntryTapped"/>
+                    </material:TextField.GestureRecognizers>
+                </material:TextField>
+
+                <material:TextField x:Name="_inputReview"
+                                    Title="Observaciones"/>
+
+                <material:TimePickerField x:Name="_timePickerStart"
+                                          Title="Hora Inicio"
+                                          Format="HH:mm"/>
+
+                <material:TimePickerField x:Name="_timePickerEnd"
+                                          Title="Hora Fin"
+                                          Format="HH:mm"/>
+
+                <HorizontalStackLayout IsVisible="False">
+                    <Label Text="-" FontAttributes="Bold"/>
+                    <Switch x:Name="_switchAllowOutPayment"/>
+                </HorizontalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid Grid.Row="2" ColumnDefinitions="Auto,Auto,*">
+            <Button Text="Guardar"
+                    Clicked="OnBtnSave_Clicked"
+                    BackgroundColor="SeaGreen"
+                    TextColor="White"/>
+
+            <Button Text="Cancelar"
+                    Grid.Column="1"
+                    Clicked="OnBtnCancel_Clicked"
+                    BackgroundColor="IndianRed"
+                    TextColor="White"/>
+        </Grid>
+    </Grid>
+</toolkit:Popup>

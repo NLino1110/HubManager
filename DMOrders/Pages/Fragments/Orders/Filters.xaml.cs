@@ -51,10 +51,14 @@ public partial class Filters : ContentView
             ];
 
         //Task.Run(async () => await LoadTopCustomersAsync());
-        LoadTopCustomersAsync();        
+        LoadTopCustomersAsync();
+
+        ddfCustomer.SelectedItemChanged += DdfCustomer_SelectedItemChanged;
+        datePickerStart.Date = DateTime.Now.AddDays(-7);
+        datePickerEnd.Date = DateTime.Now;
     }
 
-    private async Task LoadTopCustomersAsync()
+    public async Task LoadTopCustomersAsync()
     {
         int adic_comercial_id = App.Session.CurrentUserFront.partner_id;
         ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
@@ -78,8 +82,7 @@ public partial class Filters : ContentView
 
             ddfCustomer.ItemsSource = Partners;
             ddfCustomer.ItemDisplayBinding = new Binding("name");
-            ddfCustomer.SelectedItem = Partners[0];
-            ddfCustomer.SelectedItemChanged += DdfCustomer_SelectedItemChanged;
+            ddfCustomer.SelectedItem = Partners[0];            
             selected_partner = Partners[0];
         });
     }
@@ -211,11 +214,13 @@ public partial class Filters : ContentView
 
     internal DateTime? getDateStart()
     {
-        return datePickerStart.Date;
+        var date = datePickerStart.Date;
+        return new DateTime(date.Year, date.Month, date.Day, 0, 0, 0);
     }
 
     internal DateTime? getDateEnd()
     {
-        return datePickerEnd.Date;
+        var date = datePickerEnd.Date;
+        return new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
     }
 }

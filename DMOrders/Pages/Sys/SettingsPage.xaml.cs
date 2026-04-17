@@ -73,12 +73,12 @@ public partial class SettingsPage : ContentPage //, IDisposable //, INotifyPrope
 
     private async void btnSave_Clicked(object sender, EventArgs e)
     {  
-        var returnResultPopup = new PasswordPromptPage();
-        returnResultPopup.TitleBox = "Ingrese el pin correcto para aplicar cambios.";
+        //var returnResultPopup = new PasswordPromptPage();
+        //returnResultPopup.TitleBox = "Ingrese el pin correcto para aplicar cambios.";
                 
-        var result = await PopupExtensions.ShowPopupAsync<string>(this, returnResultPopup);
+        //var result = await PopupExtensions.ShowPopupAsync<string>(this, returnResultPopup);
                 
-        if (result.Result != null && result.Result.ToString() == "1381")
+        //if (result.Result != null && result.Result.ToString() == "1381")
         {
             AppSettingsDb appSettingsDb = new AppSettingsDb(App.Session.odooConnection.DbNameSqlite);
 
@@ -117,15 +117,15 @@ public partial class SettingsPage : ContentPage //, IDisposable //, INotifyPrope
                 await Navigation.PopModalAsync();
             }
         }
-        else
-        {
+        //else
+        //{
             //await DisplayAlert("Alerta", "PIN incorrecto, no se aplicarán los cambios", "OK");
 
-            var returnAlertTest = new CustomAlertDialog();
-            returnAlertTest.TitleBox = "ALERTA!";
-            returnAlertTest.SubTitleBox = "PIN incorrecto, no se aplicarán los cambios.";
-            var resultAlert = await PopupExtensions.ShowPopupAsync(this, returnAlertTest);
-        }        
+            //var returnAlertTest = new CustomAlertDialog();
+            //returnAlertTest.TitleBox = "ALERTA!";
+            //returnAlertTest.SubTitleBox = "PIN incorrecto, no se aplicarán los cambios.";
+            //var resultAlert = await PopupExtensions.ShowPopupAsync(this, returnAlertTest);
+        //}
     }
 
     public void Dispose()

@@ -2,10 +2,8 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="DMOrders.Pages.Fragments.Orders.Crud"
-             xmlns:converters="clr-namespace:DMOrders.Converters"
-             xmlns:customrows="clr-namespace:DMOrders.Controls.CustomRows"
-             xmlns:customrowsv2="clr-namespace:DMOrders.Controls.CustomRowsV2"
-             xmlns:customrowsheaders="clr-namespace:DMOrders.Controls.CustomRows.Headers"
+             xmlns:converters="clr-namespace:DMOrders.Converters"             
+             xmlns:customrowsv2="clr-namespace:DMOrders.Controls.CustomRowsV2"             
              xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
              xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"             
              xmlns:modals="clr-namespace:DMOrders.Pages.Fragments.Orders.modals"
@@ -32,14 +30,15 @@
                    Grid.RowSpan="2"
                    Grid.Column="0"
                    Grid.ColumnSpan="2"
-                   ItemPickedCommand="{Binding BindingContext.AddLineCommand,Source={RelativeSource AncestorType={x:Type ContentPage}}}"
-                   ItemPickedByQtyCommand="{Binding BindingContext.AddLineCommandByQty,Source={RelativeSource AncestorType={x:Type ContentPage}}}"
-                   CurrentPriceList="{Binding CurrentPriceList,Source={RelativeSource AncestorType={x:Type ContentPage}}}">            
+                   ItemPickedCommand="{Binding BindingContext.AddLineCommand,Source={x:Reference RootPage}}"
+                   ItemPickedByQtyCommand="{Binding BindingContext.AddLineCommandByQty,Source={x:Reference RootPage}}"
+                   CurrentPriceList="{Binding CurrentPriceList,Source={x:Reference RootPage}}">            
         </modals:CatalogViewerInner>
 
         <Grid Grid.Row="1" 
                  Grid.Column="0"
                  Padding="10"
+              ColumnDefinitions="Auto"
                  RowDefinitions="Auto,Auto" 
                  WidthRequest="220">
             
@@ -48,7 +47,7 @@
                   Padding="10"
                   RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" 
                   WidthRequest="220"
-                  IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={RelativeSource AncestorType={x:Type ContentPage}}}">                
+                  IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={x:Reference RootPage}}">                
             
                 <Grid Grid.Row="0" 
                         ColumnDefinitions="*,*" 
@@ -61,14 +60,14 @@
                            FontAttributes="Bold" 
                            TextColor="Orange"                            
                            IsVisible="False"></Label>
-                    
-                    <Label Grid.Row="1" Text="{Binding Path=ProductEditing.name, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+
+                    <Label Grid.Row="1" Text="{Binding Path=ProductEditing.name, Source={x:Reference RootPage}}" 
            FontSize="13" 
            FontAttributes="Bold"
            TextColor="#242322" Grid.ColumnSpan="2" MinimumHeightRequest="80"></Label>
                 
                     <Label Text="Unidad Vta.:" Grid.Row="2" Grid.Column="0"/>
-                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding Path=ProductEditing.uom_display, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding Path=ProductEditing.uom_display, Source={x:Reference RootPage}}" 
                         FontSize="12" 
                         FontAttributes="Bold"
                         TextColor="#242322"
@@ -76,7 +75,7 @@
                            VerticalTextAlignment="Center"></Label>
 
                     <Label Text="Stock:" Grid.Row="3" Grid.Column="0"/>
-                    <Label Grid.Row="3" Grid.Column="1" Text="{Binding Path=ProductEditing.cantidad_disponible, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+                    <Label Grid.Row="3" Grid.Column="1" Text="{Binding Path=ProductEditing.cantidad_disponible, Source={x:Reference RootPage}}" 
                             FontSize="12" 
                             FontAttributes="Bold"
                             TextColor="#242322"
@@ -84,7 +83,7 @@
                            VerticalTextAlignment="Center"></Label>
                 
                     <Label Text="Precio:" Grid.Row="4" Grid.Column="0"/>
-                    <Label Grid.Row="4" Grid.Column="1" Text="{Binding Path=ProductEditing.list_price, Source={RelativeSource AncestorType={x:Type ContentPage}}, StringFormat='${0:N3}'}" 
+                    <Label Grid.Row="4" Grid.Column="1" Text="{Binding Path=ProductEditing.list_price, Source={x:Reference RootPage}, StringFormat='${0:N3}'}" 
                             FontSize="12"
                             FontAttributes="Bold"
                             TextColor="#242322"
@@ -104,7 +103,7 @@
                         <Entry x:Name="EntryCantidadSolicitada" IsReadOnly="True"
                                        Text="{Binding Path=product_uom_qty_real, 
                                         Mode=TwoWay,
-                                        Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                        Source={x:Reference RootPage}}"
                                HorizontalTextAlignment="End"                           
                                FontAttributes="Bold">
                             <Entry.GestureRecognizers>
@@ -121,7 +120,7 @@
                         <Entry x:Name="EntryCantidadFinal" IsReadOnly="True"
                                Text="{Binding Path=product_uom_qty, 
                                  Mode=TwoWay,
-                                 Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                 Source={x:Reference RootPage}}"
                                HorizontalTextAlignment="End"
                                FontAttributes="Bold">
                             <Entry.GestureRecognizers>
@@ -138,31 +137,24 @@
                         Clicked="ApplyValueChanges">
                     <Button.ImageSource>
                         <FontImageSource 
-                Size="25"
-                FontFamily="MaterialSharp"
-                Glyph="{x:Static uranium:MaterialSharp.Check}" />
+                            Size="15"
+                            FontFamily="FontAwesome5Solid"
+                            Glyph="&#xf00c;" />
                     </Button.ImageSource>
                 </Button>
 
-                <Grid Grid.Row="3" ColumnDefinitions="Auto,Auto,Auto" RowDefinitions="Auto,Auto,Auto,Auto" Padding="5" RowSpacing="2" ColumnSpacing="2">
-                    <!-- Fila 1 -->
+                <Grid Grid.Row="3" ColumnDefinitions="Auto,Auto,Auto" RowDefinitions="Auto,Auto,Auto,Auto" Padding="5" RowSpacing="2" ColumnSpacing="2">                    
                     <Button Text="1" Grid.Row="0" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked">
-
                     </Button>
-
                     <Button Text="2" Grid.Row="0" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked">
-
                     </Button>
-                    <Button Text="3" Grid.Row="0" Grid.Column="2" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
-                    <!-- Fila 2 -->
+                    <Button Text="3" Grid.Row="0" Grid.Column="2" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>                    
                     <Button Text="4" Grid.Row="1" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
                     <Button Text="5" Grid.Row="1" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
-                    <Button Text="6" Grid.Row="1" Grid.Column="2" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
-                    <!-- Fila 3 -->
+                    <Button Text="6" Grid.Row="1" Grid.Column="2" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>                    
                     <Button Text="7" Grid.Row="2" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
                     <Button Text="8" Grid.Row="2" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
-                    <Button Text="9" Grid.Row="2" Grid.Column="2" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
-                    <!-- Fila 4 -->
+                    <Button Text="9" Grid.Row="2" Grid.Column="2" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>                    
                     <Button Text="." Grid.Row="3" Grid.Column="0" FontAttributes="Bold" BackgroundColor="Gray" TextColor="WhiteSmoke"/>
                     <Button Text="0" Grid.Row="3" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
                     <Button Text="⌫" Grid.Row="3" Grid.Column="2" FontAttributes="Bold" FontSize="12" FontAutoScalingEnabled="True" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked"/>
@@ -178,9 +170,9 @@
                         Clicked="ResetOriginalValues">
                     <Button.ImageSource>
                         <FontImageSource 
-                            Size="25"
-                            FontFamily="MaterialSharp"
-                            Glyph="{x:Static uranium:MaterialSharp.Undo}" />
+                            Size="15"
+                            FontFamily="FontAwesome5Solid"
+                            Glyph="&#xf2ea;" />
                     </Button.ImageSource>
                 </Button>
             </Grid>
@@ -196,42 +188,47 @@
                     Margin="0,0,10,0">
                 <Button.ImageSource>
                     <FontImageSource 
-                         Size="30"
-                         FontFamily="MaterialSharp"
-                         Glyph="{x:Static uranium:MaterialSharp.Arrow_back}"/>
+                         Size="25"
+                         FontFamily="FontAwesome5Solid"
+                         Glyph="&#xf060;"/>
                 </Button.ImageSource>
             </Button>
             
             <VerticalStackLayout Grid.Column="1">
-                <Label Text="{Binding Path=PartnerDisplayName, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+                <Label Text="{Binding Path=PartnerDisplayName, Source={x:Reference RootPage}}" 
            FontSize="16" 
            FontAttributes="Bold"
            TextColor="#242322"></Label>
-                <Label Text="{Binding Path=PartnerDisplayAddress, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+                <Label Text="{Binding Path=PartnerDisplayAddress, Source={x:Reference RootPage}}" 
            FontSize="11" 
            FontAttributes="Bold"
            TextColor="#4d4947"></Label>
 
                 <HorizontalStackLayout Spacing="10">
-                    <Label Text="{Binding Path=IdReferencia, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
-               FontSize="12" 
-               FontAttributes="None"
-               TextColor="#4d4947"
-               VerticalOptions="Center"></Label>
-                    <Label Text="{Binding Path=IdPrimaryKey, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
-           FontSize="12" 
-           FontAttributes="None"
-           TextColor="SlateGray"
-               VerticalOptions="Center"></Label>
+                    <Label Text="{Binding Path=IdReferencia, Source={x:Reference RootPage}}" 
+                       FontSize="12" 
+                       FontAttributes="None"
+                       TextColor="#4d4947"
+                       VerticalOptions="Center"></Label>
+                    <Label Text="{Binding Path=IdPrimaryKey, Source={x:Reference RootPage}}" 
+                       FontSize="12" 
+                       FontAttributes="None"
+                       TextColor="SlateGray"
+                        VerticalOptions="Center"></Label>
+                    <Label Text="{Binding Path=CurrentSaleOrder.erp_name, Source={x:Reference RootPage}}" 
+                        FontSize="13" 
+                        FontAttributes="Bold"
+                        TextColor="Green"
+                        VerticalOptions="Center"></Label>
                 </HorizontalStackLayout>
             </VerticalStackLayout>
 
             <VerticalStackLayout Grid.Column="2">
-                <Label Text="{Binding Path=PriceListDisplayName, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+                <Label Text="{Binding Path=PriceListDisplayName, Source={x:Reference RootPage}}" 
            FontSize="16" 
            FontAttributes="Bold"
            TextColor="#242322"></Label>
-                <Label Text="{Binding Path=PartnerDisplayStatus, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+                <Label Text="{Binding Path=PartnerDisplayStatus, Source={x:Reference RootPage}}" 
            FontSize="11" 
            FontAttributes="Bold"
            TextColor="#4d4947"></Label>
@@ -247,7 +244,7 @@
                     AllowClear="True"
                     VerticalOptions="Center"       
                     WidthRequest="220"
-                    IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={RelativeSource AncestorType={x:Type ContentPage}}}">
+                    IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={x:Reference RootPage}}">
                     <material:DropdownField.Icon>
                         <FontImageSource
                 Size="14"
@@ -257,47 +254,56 @@
                 </material:DropdownField>
             </HorizontalStackLayout>
 
-            <HorizontalStackLayout Grid.Column="4" HorizontalOptions="Fill" Spacing="10"
-                       IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
-                       IsVisible="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={RelativeSource AncestorType={x:Type ContentPage}}}">
-                <Button Text="" Clicked="ButtonAddNew_Clicked" BackgroundColor="DarkSlateGray" TextColor="White" HeightRequest="45" WidthRequest="45" Padding="0">
+            <HorizontalStackLayout x:Name="ControlsGroup" Grid.Column="4" HorizontalOptions="Fill" Spacing="10"
+                       IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={x:Reference RootPage}}"
+                       IsVisible="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={x:Reference RootPage}}">
+                <Button x:Name="btnAddProd" Text="" Clicked="ButtonAddNew_Clicked" BackgroundColor="DarkSlateGray" TextColor="White" HeightRequest="45" WidthRequest="45" Padding="0">
                     <Button.ImageSource>
                         <FontImageSource 
-                Size="28"
-                FontFamily="MaterialSharp"
-                Glyph="{x:Static uranium:MaterialSharp.Add_business}"/>
+                            Size="20"
+                            FontFamily="FontAwesome5Solid"
+                            Glyph="&#xf217;"/>
                     </Button.ImageSource>
                 </Button>
 
-                <Button Text="" Clicked="ButtonPromo_Clicked" BackgroundColor="DeepPink" TextColor="White" HeightRequest="45" WidthRequest="45" Padding="0" IsVisible="True">
+                <Button x:Name="btnPromo" Text="" Clicked="ButtonPromo_Clicked" BackgroundColor="DeepPink" TextColor="White" HeightRequest="45" WidthRequest="45" Padding="0" IsVisible="False">
                     <Button.ImageSource>
                         <FontImageSource 
-                Size="28"
-                FontFamily="MaterialSharp"
-                Glyph="{x:Static uranium:MaterialSharp.Price_change}"/>
+                Size="20"
+                FontFamily="FontAwesome5Solid"
+                Glyph="&#xf79c;"/>
                     </Button.ImageSource>
                 </Button>
 
-                <Button Text="Guardar" Clicked="ButtonSave_Clicked" BackgroundColor="LimeGreen" TextColor="White" HeightRequest="45" WidthRequest="120" Padding="0">
+                <Button x:Name="btnPaste" Text="" Clicked="OnPegarClicked" BackgroundColor="SandyBrown" TextColor="White" HeightRequest="45" WidthRequest="45" Padding="0" IsVisible="False">
+                    <Button.ImageSource>
+                    <FontImageSource 
+                        Size="20"
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xf328;"/>
+                    </Button.ImageSource>
+                </Button>
+
+                <Button x:Name="btnSave" Text="Guardar" Clicked="ButtonSave_Clicked" BackgroundColor="LimeGreen" TextColor="White" HeightRequest="45" WidthRequest="100" Padding="0">
                     <Button.ImageSource>
                         <FontImageSource 
-            Size="30"
-            FontFamily="MaterialSharp"
-            Glyph="{x:Static uranium:MaterialSharp.Save_as}" />
+            Size="20"
+            FontFamily="FontAwesome5Solid"
+            Glyph="&#xf0c7;" />
                     </Button.ImageSource>
                 </Button>
 
                 <Button x:Name="btnSend" Text="" Clicked="ButtonSync_Clicked" 
-            BackgroundColor="DodgerBlue" 
-            TextColor="White" 
-            HeightRequest="43" 
-            WidthRequest="43" 
-            Padding="0">
+                    BackgroundColor="DodgerBlue" 
+                    TextColor="White" 
+                    HeightRequest="43" 
+                    WidthRequest="43" 
+                    Padding="0">
                     <Button.ImageSource>
                         <FontImageSource 
-                Size="30"
-                FontFamily="MaterialSharp"
-                Glyph="{x:Static uranium:MaterialSharp.Send_and_archive}" />
+                Size="20"
+                FontFamily="FontAwesome5Solid"
+                Glyph="&#xf1d8;" />
                     </Button.ImageSource>
                 </Button>
 
@@ -310,11 +316,56 @@
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
+            <Grid     
+                Grid.Row="2"
+                Grid.Column="0"
+                Grid.ColumnSpan="2"
+                RowDefinitions="Auto,*">
+
+                <Grid
+                    Grid.Row="0"
+                        ColumnSpacing="8"
+                        Padding="4"
+                        HorizontalOptions="Fill"
+                        BackgroundColor="LightGray">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.27*" />
+                        <ColumnDefinition Width="1.9*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Label Text="N°" FontAttributes="Bold" FontSize="11" TextColor="Black" HorizontalOptions="Start" Grid.Column="0" Padding="0" Margin="0"/>
+                    <Label Text="ARTICULO" FontAttributes="Bold" FontSize="11" TextColor="Black" HorizontalOptions="Start" Grid.Column="1"/>
+                    <Label Text="UNIDAD" FontAttributes="Bold" FontSize="11" TextColor="Black" HorizontalOptions="Start" Grid.Column="2"/>
+                    <Label Text="CNTREAL" FontAttributes="Bold" FontSize="11" TextColor="Black" HorizontalOptions="Fill" Grid.Column="3"/>
+                    <Label Text="CNTDSP" FontAttributes="Bold" FontSize="11" TextColor="Black" HorizontalOptions="Fill" Grid.Column="4"/>
+                    <Label Text="PRECIO" FontAttributes="Bold" FontSize="11" TextColor="Black" HorizontalOptions="End" Grid.Column="5"/>
+                    <Label Text="SUBTOT" FontAttributes="Bold" FontSize="11" TextColor="Black" HorizontalOptions="End" Grid.Column="6"/>
+                    <Label Text="%DESC." FontAttributes="Bold"  FontSize="11" TextColor="Black" HorizontalOptions="End" Grid.Column="7"/>
+                    <Label Text="$DESC." FontAttributes="Bold" FontSize="11" TextColor="Black" HorizontalOptions="End" Grid.Column="8"/>
+                    <Label Text="IMPUESTO" FontAttributes="Bold" FontSize="11" TextColor="Black" HorizontalOptions="End" Grid.Column="9"/>
+                    <Label Text="TOTAL" FontAttributes="Bold" FontSize="11" TextColor="Black" HorizontalOptions="End" Grid.Column="10"/>
+                    <StackLayout Grid.Column="12" MinimumWidthRequest="20"></StackLayout>
+                </Grid>
+
                 <CollectionView
+                    Grid.Row="1"
                     x:Name="OrderLinesCl"
-                    Grid.Row="2"
-                    Grid.Column="0"
-                    Grid.ColumnSpan="2"
                     ItemsSource="{Binding OrderLines}" 
                     EmptyView="No hay productos seleccionados..."
                     SelectionMode="Single"
@@ -322,139 +373,19 @@
                     HorizontalOptions="FillAndExpand"
                     VerticalOptions="FillAndExpand"
                     MaximumWidthRequest="1100"
-                    SelectionChanged="detail_SelectionChanged">
-                    <CollectionView.Header>                        
-                        <Grid
-                            ColumnSpacing="8"
-                            Padding="4"
-                            HorizontalOptions="Fill"
-                            BackgroundColor="LightGray">
-
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="1.9*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-
-                            <Label 
-                                Text="N°"
-                                FontAttributes="Bold"
-                                FontSize="11"
-                                TextColor="Black"
-                                HorizontalOptions="Start"
-                                Grid.Column="0"
-                                Padding="0"
-                                Margin="0"/>
-
-                            <Label 
-                                Text="ARTICULO"
-                                FontAttributes="Bold"
-                                FontSize="11"
-                                TextColor="Black"
-                                HorizontalOptions="Start"
-                                Grid.Column="1"/>
-
-                            <Label 
-                                Text="UNIDAD"
-                                FontAttributes="Bold"
-                                FontSize="11"
-                                TextColor="Black"
-                                HorizontalOptions="Start"
-                                Grid.Column="2"/>
-
-                            <Label 
-                                Text="CNTREAL"
-                                FontAttributes="Bold"
-                                FontSize="11"
-                                TextColor="Black"
-                                HorizontalOptions="Fill"
-                                Grid.Column="3"/>
-
-                            <Label 
-                                Text="CNTDSP"
-                                FontAttributes="Bold"
-                                FontSize="11"
-                                TextColor="Black"
-                                HorizontalOptions="Fill"
-                                Grid.Column="4"/>
-
-                            <Label 
-                                Text="PRECIO"
-                                FontAttributes="Bold"
-                                FontSize="11"
-                                TextColor="Black"
-                                HorizontalOptions="End"
-                                Grid.Column="5"/>
-
-                            <Label 
-                                Text="SUBTOT"
-                                FontAttributes="Bold"
-                                FontSize="11"
-                                TextColor="Black"
-                                HorizontalOptions="End"
-                                Grid.Column="6"/>
-                            
-                            <Label 
-                                Text="%DESC."
-                                FontAttributes="Bold"
-                                FontSize="11"
-                                TextColor="Black"
-                                HorizontalOptions="End"
-                                Grid.Column="7"/>
-                            
-                            <Label 
-                                Text="$DESC."
-                                FontAttributes="Bold"
-                                FontSize="11"
-                                TextColor="Black"
-                                HorizontalOptions="End"
-                                Grid.Column="8"/>
-
-                            <Label 
-                                Text="IMPUESTO"
-                                FontAttributes="Bold"
-                                FontSize="11"
-                                TextColor="Black"
-                                HorizontalOptions="End"
-                                Grid.Column="9"/>
-
-                            <Label 
-                                Text="TOTAL"
-                                FontAttributes="Bold"
-                                FontSize="11"
-                                TextColor="Black"
-                                HorizontalOptions="End"
-                                Grid.Column="10"/>
-                            
-                            <StackLayout Grid.Column="12" MinimumWidthRequest="20"></StackLayout>
-
-                        </Grid>
-
-                    </CollectionView.Header>
+                    SelectionChanged="detail_SelectionChanged">                    
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <customrowsv2:SaleOrderLineRow
                                 Item="{Binding .}"
-                                EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=EditCommand}"
-                                DeleteCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=DeleteCommand}"
-                                LockEdition="{Binding LockEdition, Source={RelativeSource AncestorType={x:Type ContentPage}}}"/>                            
+                                EditCommand="{Binding Source={x:Reference RootPage}, Path=EditCommand}"
+                                DeleteCommand="{Binding Source={x:Reference RootPage}, Path=DeleteCommand}"
+                                LockEdition="{Binding LockEdition, Source={x:Reference RootPage}}" Style="{StaticResource CollectionItemSelectable}"/>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
+            </Grid>
+                
 
             <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" HorizontalOptions="FillAndExpand" ColumnDefinitions="*,*,Auto">
                 
@@ -500,7 +431,7 @@
                         </uranium:ExpanderView.Header>
                         <StackLayout>
                             <material:EditorField x:Name="fieldNote" Title="Observac." Text="{Binding Note2, Mode=TwoWay}" 
-                                IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={RelativeSource AncestorType={x:Type ContentPage}}}"/>
+                                IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={x:Reference RootPage}}"/>
                         </StackLayout>
                     </uranium:ExpanderView>                    
                 </HorizontalStackLayout>

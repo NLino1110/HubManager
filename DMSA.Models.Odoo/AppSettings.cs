@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace DMSA.Models.Odoo
 {
+    [Obsolete]
     public class AppSettings
     {
         //[PrimaryKey]

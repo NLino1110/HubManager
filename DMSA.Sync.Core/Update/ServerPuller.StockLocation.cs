@@ -1,4 +1,4 @@
-﻿using ApiManager;
+﻿using ApiManagerOdoo.Inventory;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
 using DMSA.Sync.Core.Database.Sqlite;
@@ -28,20 +28,16 @@ namespace DMSA.Sync.Core.Update
             //    await database.InsertBatchAsync(dataList.result);
             //}
 
-
-
-
-
             var stopwatch = Stopwatch.StartNew();
             var database = new StockLocationDb(Constants.Session.odooConnection.DbNameSqlite);
             DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since);
 
-            ApiManager.HubStockLocation hubmanager = new ApiManager.HubStockLocation(Constants.Session);
+            HubStockLocation hubmanager = new HubStockLocation(Constants.Session);
 
             int res_center = Constants.Session.odooConnection.res_center_default;
             //Obtenermos los warehouses asociados al centro de operaciones
             var databaseWhs = new StockWareHouseDb(Constants.Session.odooConnection.DbNameSqlite);
-            var whsList = await databaseWhs.GetByResCenter(res_center);
+            var whsList = await databaseWhs.GetDefaultByResCenter(res_center);
             int[] whsIds = whsList.Select(w => w.id).ToArray();
 
             var resultCount = await hubmanager.GetCount(whsIds, lastDate.Value);

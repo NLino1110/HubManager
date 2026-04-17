@@ -1,6 +1,5 @@
-//using DMCobranzas.Models;
-using CommunityToolkit.Maui.Sample.Models;
 using CommunityToolkit.Maui.Views;
+using DMSA.Sync.Core.Controls.Popups;
 
 namespace CommunityToolkit.Maui.Sample;
 

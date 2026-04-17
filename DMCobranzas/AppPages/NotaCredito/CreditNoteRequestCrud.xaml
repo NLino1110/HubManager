@@ -1,0 +1,331 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"			
+				x:Class="DMCobranzas.AppPages.NotaCredito.CreditNoteRequestCrud"
+				xmlns:control="clr-namespace:DMCobranzas.Controls"
+             xmlns:customRows="clr-namespace:DMCobranzas.Controls.CustomRows"
+             xmlns:models="clr-namespace:DMCobranzas.Models.UI"
+             xmlns:local="clr-namespace:DMCobranzas.AppPages"
+             xmlns:beebtech="clr-namespace:BeebTech.Controls.UI;assembly=BeebTech.Controls"
+				Title="MultiplePopupPage">
+    <ContentPage.ToolbarItems>
+		<ToolbarItem x:Name="btnSaveToolbar" Text="GUARDAR" Clicked="btnSave_Clicked">
+			<ToolbarItem.IconImageSource>
+				<FontImageSource FontFamily="FontAwesome5Solid"
+								 Glyph="&#xf0c7;"
+								 Color="White" />
+			</ToolbarItem.IconImageSource>
+		</ToolbarItem>
+		<ToolbarItem x:Name="btnCancelToolbar" Text="CANCELAR" Clicked="btnClose_Clicked">
+			<ToolbarItem.IconImageSource>
+				<FontImageSource FontFamily="FontAwesome5Solid"
+								 Glyph="&#xf410;"
+								 Color="White" />
+			</ToolbarItem.IconImageSource>
+		</ToolbarItem>
+	</ContentPage.ToolbarItems>
+	<ContentPage.Content>        
+            <StackLayout HorizontalOptions="Fill" VerticalOptions="Fill">            
+                <VerticalStackLayout Spacing="12">
+				<Grid Margin="15,10,15,2" HorizontalOptions="FillAndExpand">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="*"/>                            
+                    </Grid.ColumnDefinitions>
+
+					<StackLayout Orientation="Horizontal" 
+								 VerticalOptions="Center" 
+                                 BackgroundColor="WhiteSmoke"
+								 Grid.Row="0" 
+                                 Grid.Column="0">
+						<Picker x:Name="SelectorCmp"
+                                VerticalOptions="Center" 
+                                Title="Empresa:"
+                                HorizontalOptions="FillAndExpand"
+                                FontSize="12"/>
+					</StackLayout>
+
+					<StackLayout Orientation="Horizontal" 
+                                 VerticalOptions="Center" 
+								 BackgroundColor="WhiteSmoke"
+								 Grid.Row="0" 
+                                 Grid.Column="1">
+						<Picker 
+                            x:Name="pickerModulos"
+					        Title="Módulos nota crédito:"
+                            SelectedIndexChanged="pickerModulos_SelectedIndexChanged"
+							HorizontalOptions="FillAndExpand" 
+                            FontSize="12"
+							/>
+					</StackLayout>
+
+					<StackLayout 
+                        Orientation="Horizontal" 
+                                 VerticalOptions="Center" 
+                                 BackgroundColor="WhiteSmoke"
+								 Grid.Row="0" 
+                                Grid.Column="2">
+						<Picker x:Name="pickerTipoNc"
+                                Title="Tipo nota crédito:"
+                                HorizontalOptions="FillAndExpand"
+                    FontSize="12"/>
+					</StackLayout>
+
+                        <StackLayout 
+                        Orientation="Horizontal" 
+                         VerticalOptions="Center" 
+                         BackgroundColor="WhiteSmoke"
+					     Grid.Row="0" 
+                            Grid.Column="3"
+                            IsVisible="False">
+                            <Picker x:Name="pickerCNJournal"
+                            Title="Diario:"
+                            HorizontalOptions="FillAndExpand"
+                            FontSize="12"/>
+                        </StackLayout>
+
+                        <StackLayout Orientation="Horizontal"
+                                 Margin="5" Grid.Row="1" 
+                                 Grid.Column="0" 
+                                 Grid.ColumnSpan="3" 
+                                 IsVisible="false" BackgroundColor="Red">
+						<Label Text="CLIENTE:" VerticalTextAlignment="Center" TextColor="DimGray"></Label>
+						<Entry x:Name="txtCliente" HorizontalOptions="FillAndExpand" IsReadOnly="True">
+						</Entry>
+						<Button Text="" Clicked="HandleReturnResultPopupButtonClicked" 
+                                Grid.Row="1" 
+                                Grid.Column="2" Margin="0,0,2,0">
+							<Button.ImageSource>
+								<FontImageSource FontFamily="FontAwesome5Solid"
+													Color="White"
+													Size="20"
+													FontAutoScalingEnabled="True"                                                         
+													Glyph="&#x2b;" />
+							</Button.ImageSource>
+						</Button>
+						<Button x:Name="btnRemoveCustomer" 
+								Text="" Clicked="btnRemoveCustomer_Clicked" 
+								Grid.Row="1" Grid.Column="2"
+								BackgroundColor="PaleVioletRed">
+							<Button.ImageSource>
+								<FontImageSource FontFamily="FontAwesome5Solid"
+													Color="White"
+													Size="13"
+													FontAutoScalingEnabled="True"                                                         
+													Glyph="&#xf068;" />
+							</Button.ImageSource>
+						</Button>
+					</StackLayout>
+
+                    <VerticalStackLayout Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Spacing="2" Padding="0,0,0,5">
+                        <Entry x:Name="txtReason" Text="" HorizontalOptions="FillAndExpand" IsReadOnly="False" Placeholder=""/>
+                        <Label Text="Motivo Retorno" Style="{StaticResource EntryHintLabelStyle}" />
+                    </VerticalStackLayout>
+                    
+                    <VerticalStackLayout Margin="5" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3">
+                        <CollectionView 
+                            x:Name="ColViewType"
+                            HeightRequest="44" Margin="0,0,0,15"
+                            SelectionMode="Single"                             
+                            SelectedItem="{Binding Icon}"
+                            SelectionChangedCommand="{Binding SelectionChangedCommand}"
+                            SelectionChangedCommandParameter="{Binding Icon}"  
+                            ItemsSource="{Binding Icons}" 
+                            HorizontalOptions="Center"
+                            EmptyView="No icons available">                           
+                            
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid RowDefinitions="Auto,4" RowSpacing="0" ColumnSpacing="0"
+                 SemanticProperties.Description="{Binding Description}">
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroup x:Name="CommonStates">
+                                                <VisualState x:Name="Normal">
+                                                    <VisualState.Setters>
+                                                        <Setter Property="BackgroundColor" Value="Transparent"/>
+                                                        <Setter TargetName="SelectedIndicator" Property="BoxView.IsVisible" Value="False"/>
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                                <VisualState x:Name="Selected">
+                                                    <VisualState.Setters>
+                                                        <Setter Property="BackgroundColor" Value="Transparent"/>
+                                                        <Setter Property="Background" Value="Transparent"/>
+                                                        <Setter TargetName="SelectedIndicator" Property="BoxView.IsVisible" Value="True"/>
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                            </VisualStateGroup>
+                                        </VisualStateManager.VisualStateGroups>
+
+                                        <HorizontalStackLayout Spacing="5" Margin="5" Padding="0,7,0,0">
+                                            <Image>
+                                                <Image.Source>
+                                                    <FontImageSource 
+                                                        FontFamily="{Binding FontFamily}"                                                        
+                                                    Size="15"
+                                                    FontAutoScalingEnabled="True"                                                         
+                                                    Glyph="{Binding IconSource}" 
+                                                    Color="{AppThemeBinding Light={StaticResource DarkOnLightBackground},Dark={StaticResource LightOnDarkBackground}}"/>
+                                                </Image.Source>
+                                            </Image>
+                                            <Label Grid.Column="1" Text="{Binding Description}"/>
+                                        </HorizontalStackLayout>
+                                        <BoxView x:Name="SelectedIndicator" Color="{StaticResource Primary}" HeightRequest="3" HorizontalOptions="Fill" Grid.Row="1"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="{StaticResource LayoutSpacing}"/>
+                            </CollectionView.ItemsLayout>
+                        </CollectionView>
+
+                        <beebtech:DropdownField x:Name="ddInvoices" CornerRadius="3" 
+                                            Title="Facturas" 
+                                            AllowClear="True" 
+                                            SelectedItemChanged="ddInvoices_SelectedItemChanged"/>
+
+                        <beebtech:DropdownField x:Name="ddInvoicesLines" CornerRadius="3" 
+                            Title="Productos" 
+                            AllowClear="True" 
+                            IsVisible="False"
+                            SelectedItemChanged="ddInvoicesLines_SelectedItemChanged"/>
+                    </VerticalStackLayout>
+                    
+                    <FlexLayout Wrap="Wrap" JustifyContent="Start" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Margin="82,0,0,0" IsVisible="False">
+						<Label x:Name="LblInvoiceDate" Text="-" TextColor="DimGray" ></Label>
+                        <Label x:Name="LblJournal" Text="-" TextColor="DimGray" Margin="4,0,0,0"></Label>
+                        <Label x:Name="LblSaleShop" Text="-" TextColor="DimGray" Margin="4,0,4,0"></Label>
+					</FlexLayout>
+					
+					<FlexLayout Wrap="Wrap" JustifyContent="Start" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3">
+						<Button x:Name="btnAddAllItems" Text="Agregar" Clicked="btnLoadItems_Clicked"
+								BackgroundColor="MediumSeaGreen" Margin="0,0,2,0"
+                                CornerRadius="2"
+                                FontSize="12">
+							<Button.ImageSource>
+								<FontImageSource FontFamily="FontAwesome5Solid"
+									Color="White"
+									Size="20"
+									FontAutoScalingEnabled="True"                                                         
+									Glyph="&#xf59d;" />
+							</Button.ImageSource>
+						</Button>
+						
+						<Button x:Name="btnLoadItems" 
+                                Text="" Clicked="btnLoadItems_Clicked" IsVisible="false"
+                                CornerRadius="2"
+                                FontSize="12">
+							<Button.ImageSource>
+								<FontImageSource FontFamily="FontAwesome5Solid"
+													Color="White"
+													Size="20"                                                 
+                                                 FontAutoScalingEnabled="False"                                                         
+													Glyph="&#xf00e;" />
+							</Button.ImageSource>
+						</Button>
+                            <Button x:Name="btnBackAllItems" 
+								Text="Todo" Clicked="btnLoadItemsAndBack_Clicked"
+								BackgroundColor="OrangeRed" Margin="0,0,2,0"
+                                CornerRadius="2"
+                                    FontSize="12">
+                                <Button.ImageSource>
+                                    <FontImageSource FontFamily="FontAwesome5Solid"
+										Color="White"
+										Size="20"
+										FontAutoScalingEnabled="True"
+										Glyph="&#xf0ae;" />
+                                </Button.ImageSource>
+                            </Button>
+                        
+                            <Button x:Name="btnClearItems" 
+                                Text="Quitar" Clicked="btnClearItems_Clicked"
+								BackgroundColor="PaleVioletRed" Margin="0,0,2,0"
+                                CornerRadius="2">
+							<Button.ImageSource>
+								<FontImageSource FontFamily="FontAwesome5Solid"
+													Color="White"
+													Size="20"
+													FontAutoScalingEnabled="True"                                                         
+													Glyph="&#xf056;" />
+							</Button.ImageSource>
+						</Button>						
+						
+						<Button x:Name="btnStatus" Text="XYZ" 
+								Clicked="btnLoadItems_Clicked"                                 
+								IsEnabled="False"
+								IsVisible="False">
+							<Button.ImageSource>
+								<FontImageSource FontFamily="FontAwesome5Solid"
+													Color="White"
+													Size="20"
+													FontAutoScalingEnabled="True"                                                         
+													Glyph="&#xf500;" />
+							</Button.ImageSource>
+						</Button>
+
+						<StackLayout Orientation="Horizontal" VerticalOptions="Center" IsVisible="false">
+							<CheckBox Color="#D32F2F" IsChecked="False" x:Name="chkSelectAll" ScaleX="1.5" ScaleY="1.5" CheckedChanged="chkSelectAll_CheckedChanged"/>
+							<Label Margin="0,7">
+								<Label.FormattedText>
+									<FormattedString>
+										<Span Text="Seleccionar Todos" FontSize="18" />
+									</FormattedString>
+								</Label.FormattedText>
+							</Label>
+						</StackLayout>
+					</FlexLayout>
+
+					
+				</Grid>				
+			</VerticalStackLayout>
+
+            <Grid BackgroundColor="Gray" Padding="10" ColumnDefinitions="Auto,*,Auto">
+                <Label Grid.Column="0" Text="Facturas de Nota de crédito" TextColor="White" />
+                <Label
+                    Grid.Column="2"
+                    x:Name="lblSummary"
+                    Text="{Binding detailsCount,StringFormat='Total registros {0}'}"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    FontSize="12"
+                    VerticalTextAlignment="Center" />
+            </Grid>
+
+            <Grid VerticalOptions="FillAndExpand">
+                <CollectionView x:Name="collectionView" VerticalOptions="FillAndExpand">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <customRows:CreditNoteRequestDetailRow DataItem="{Binding .}" 
+                                    DeleteCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteCommand}"></customRows:CreditNoteRequestDetailRow>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <Grid    
+                        BackgroundColor="#80000000"
+                        IsVisible="{Binding IsLoadingDocs}"
+                        VerticalOptions="Fill"
+                        HorizontalOptions="Fill"
+                        ZIndex="10">
+                    <ActivityIndicator 
+                        IsRunning="{Binding IsLoadingDocs}" 
+                        Color="MediumVioletRed"
+                        WidthRequest="100"
+                        HeightRequest="100"
+                        VerticalOptions="Center"
+                        HorizontalOptions="Center" />
+                </Grid>
+            </Grid>
+        </StackLayout>
+	</ContentPage.Content>
+</ContentPage>

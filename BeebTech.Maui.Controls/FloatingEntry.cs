@@ -3,16 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Graphics.Text;
-using Microsoft.Maui;
-using static System.Net.Mime.MediaTypeNames;
 using Image = Microsoft.Maui.Controls.Image;
-using Microsoft.Maui.Controls.Shapes;
-using Microsoft.Maui.ApplicationModel;
 
 namespace BeebTech.Maui.Controls
 {

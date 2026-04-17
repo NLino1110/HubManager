@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace DMSA.Models.Odoo.Import
 {
-    [Obsolete]
+    //[Obsolete]
     public class InvoiceDetails
     {
         [Column("CODAGENCIA")]

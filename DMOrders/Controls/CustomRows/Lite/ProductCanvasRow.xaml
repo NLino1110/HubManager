@@ -3,21 +3,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="DMOrders.Controls.CustomRows.Lite.ProductCanvasRow"
              xmlns:odoo="clr-namespace:DMSA.Models.Odoo.Native;assembly=DMSA.Models.Odoo"
-            x:DataType="odoo:product_product">
+            x:DataType="odoo:product_product"
+             x:Name="ThisRow">
     <Grid
         Padding="4"
         RowSpacing="2"
         ColumnSpacing="12">
 
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />            
+            <RowDefinition Height="Auto" />            
             <RowDefinition Height="Auto" />
-            <!-- Nombre -->
             <RowDefinition Height="Auto" />
-            <!-- Código -->
-            <RowDefinition Height="Auto" />
-            <!-- Precio / Stock -->
-            <RowDefinition Height="Auto" />
-            <!-- PVP Base / Unidad -->
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
@@ -25,7 +22,6 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
-        <!-- Nombre -->
         <Label
             Grid.Row="0"
             Grid.Column="0"
@@ -36,7 +32,7 @@
             TextColor="Black"
             LineBreakMode="TailTruncation"
             MaxLines="2"
-            MinimumHeightRequest="40"
+            MinimumHeightRequest="35"
             InputTransparent="True" />
 
         <!-- Código -->
@@ -44,9 +40,20 @@
             Grid.Row="1"
             Grid.Column="0"
             Grid.ColumnSpan="2"
-            Text="{Binding default_code, StringFormat='Código: {0}'}"
+            Text="{Binding default_code}"
             FontSize="12"
-            TextColor="Gray"
+            FontAttributes="Bold"
+            TextColor="SlateGray"
+            InputTransparent="True" />
+
+        <!-- Unidad -->
+        <Label
+            Grid.Row="1"
+            Grid.Column="1"
+            Text="{Binding uom_sale_display, StringFormat='Unidad: {0}'}"
+            FontSize="12"
+            Margin="0,0,5,0"
+            TextColor="DarkGreen"            
             InputTransparent="True" />
 
         <!-- Precio -->
@@ -56,17 +63,15 @@
             Text="{Binding list_price, StringFormat='Precio: {0:C}'}"
             FontSize="12"
             TextColor="DarkGreen"
-            InputTransparent="True" 
-            IsVisible="False"/>
+            InputTransparent="True"/>
 
         <!-- Stock -->
         <Label
-            Grid.Row="2"
-            Grid.Column="1"
-            Text="{Binding qty_available, StringFormat='Stock: {0}'}"
+            Grid.Row="4"
+            Grid.Column="0"
+            Text="{Binding cantidad_disponible, StringFormat='Stock: {0}'}"
             FontSize="12"
             TextColor="DarkGreen"
-            HorizontalTextAlignment="End"
             InputTransparent="True" />
 
         <!-- PVP Base -->
@@ -77,17 +82,32 @@
             FontSize="12"
             TextColor="DarkGreen"
             InputTransparent="True"
-            IsVisible="False"/>
+            IsVisible="False"/>        
 
-        <!-- Unidad -->
-        <Label
-            Grid.Row="3"
+        <Button
+            Grid.Row="2"
             Grid.Column="1"
-            Text="{Binding _uom_id, StringFormat='Unidad: {0}'}"
-            FontSize="12"
-            TextColor="DarkGreen"
-            HorizontalTextAlignment="End"
-            InputTransparent="True" />
+            Grid.RowSpan="4"
+            BackgroundColor="DodgerBlue"
+            Text="1"
+            TextColor="White"
+            FontAttributes="Bold"
+            FontSize="15"
+            HorizontalOptions="Fill"
+            VerticalOptions="Center"
+            Padding="5"
+            Command="{Binding ActionButton, Source={x:Reference ThisRow}}"
+            CommandParameter="{Binding Item, Source={x:Reference ThisRow}}"
+            IsVisible="{Binding ShowSelectButton, Source={x:Reference ThisRow}}">
+            <Button.ImageSource>
+                <FontImageSource
+                FontFamily="FontAwesome5Solid"
+                Glyph="&#xf067;"
+                Size="15"
+                Color="White"
+                FontAutoScalingEnabled="True" />
+            </Button.ImageSource>
+        </Button>
 
     </Grid>
 </ContentView>

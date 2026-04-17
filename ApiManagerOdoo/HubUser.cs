@@ -1,21 +1,10 @@
-﻿
-using ApiManagerOdoo.Base;
-using AppManagerOdoo.Tools;
-using DMSA.Models.Clientes;
+﻿using ApiManagerOdoo.Base;
 using DMSA.Models.General;
-using DMSA.Models.General.Requests;
 using DMSA.Models.General.Responses;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Security;
 using Newtonsoft.Json;
-
-using Newtonsoft.Json.Linq;
-
-//using Microsoft.AspNetCore.Components;
-//using Microsoft.Extensions.Configuration;
-//using Microsoft.Extensions.Logging;
-//using Microsoft.Extensions.Options;
 using RestSharp;
 
 namespace ApiManager

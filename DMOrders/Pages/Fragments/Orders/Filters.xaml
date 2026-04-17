@@ -27,14 +27,14 @@
                 Title="Desde"
                 Grid.Row="1"
                 x:Name="datePickerStart"
-                Icon="{FontImageSource FontFamily=MaterialSharp, Glyph={x:Static m:MaterialSharp.Calendar_month}}">
+                Icon="{FontImageSource FontFamily=FontAwesome5Regular, Size=23, Glyph='&#xf073;'}">
             </material:DatePickerField>
 
             <material:DatePickerField
                 Title="Hasta"
                 Grid.Row="2"
                 x:Name="datePickerEnd"
-                Icon="{FontImageSource FontFamily=MaterialSharp, Glyph={x:Static m:MaterialSharp.Calendar_month}}">
+                Icon="{FontImageSource FontFamily=FontAwesome5Regular, Size=23, Glyph='&#xf073;'}">
             </material:DatePickerField>
 
             <material:DropdownField 
@@ -48,9 +48,9 @@
                 MaximumWidthRequest="240">
                 <material:DropdownField.Icon>
                     <FontImageSource
-                        Size="18"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.Category}" />
+                        Size="15"
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xf508;" />
                 </material:DropdownField.Icon>
             </material:DropdownField>
             
@@ -74,18 +74,18 @@
             <Button x:Name="btnClear" Text="Limpiar" FontSize="10" BackgroundColor="Gray" TextColor="White" Clicked="btnClear_Clicked">
                 <Button.ImageSource>
                     <FontImageSource 
-                        Size="18"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.Remove_done}" />
+                        Size="15"
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xe05e;" />
                 </Button.ImageSource>
             </Button>
 
             <Button x:Name="btnSearch" Text="Buscar" FontSize="10" BackgroundColor="IndianRed"  TextColor="White" Clicked="Button_Clicked">
                 <Button.ImageSource>
                     <FontImageSource 
-                        Size="18"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.Search}" />
+                        Size="15"
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xf002;" />
                 </Button.ImageSource>
             </Button>
         </HorizontalStackLayout>

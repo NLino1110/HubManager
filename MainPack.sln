@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36327.8
+# Visual Studio Version 18
+VisualStudioVersion = 18.2.11415.280
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiManagerOdoo", "ApiManagerOdoo\ApiManagerOdoo.csproj", "{E005F552-7B74-5EBC-8294-ECF0A9FBC217}"
 EndProject
@@ -32,6 +32,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMSA.Sync.Core", "DMSA.Sync.Core\DMSA.Sync.Core.csproj", "{BBD46A9D-C53E-4E40-A27C-E31A2FCD83A3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeebTech.Controls", "BeebTech.Controls\BeebTech.Controls.csproj", "{A015DC28-7AB0-432F-A5D5-A84709984CC9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMDataSafePreview", "DMDataSafePreview\DMDataSafePreview.csproj", "{0AB421CC-EFE5-453D-88BB-596D57C67248}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -105,6 +107,12 @@ Global
 		{A015DC28-7AB0-432F-A5D5-A84709984CC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A015DC28-7AB0-432F-A5D5-A84709984CC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A015DC28-7AB0-432F-A5D5-A84709984CC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AB421CC-EFE5-453D-88BB-596D57C67248}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AB421CC-EFE5-453D-88BB-596D57C67248}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AB421CC-EFE5-453D-88BB-596D57C67248}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{0AB421CC-EFE5-453D-88BB-596D57C67248}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AB421CC-EFE5-453D-88BB-596D57C67248}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AB421CC-EFE5-453D-88BB-596D57C67248}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

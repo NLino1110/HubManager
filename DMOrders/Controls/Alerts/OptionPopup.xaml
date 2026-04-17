@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DMOrders.Controls.Alerts.OptionPopup"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               CanBeDismissedByTappingOutsideOfPopup="False"
+               Margin="10"
+               Padding="0">
+    <VerticalStackLayout Padding="20" Spacing="15" BackgroundColor="White">
+        <Label 
+            Text="Selecciona una opción"
+            FontSize="18"
+            HorizontalOptions="Center" />
+
+        <Button Text="Parcial" Clicked="OnParcialClicked">
+            <Button.ImageSource>
+                <FontImageSource
+                    Size="13"
+                    Color="Black"
+                    FontFamily="FontAwesome5Solid"
+                    FontAutoScalingEnabled="True"
+                    Glyph="&#xf243;" />
+            </Button.ImageSource>
+        </Button>
+        <Button Text="Total" Clicked="OnTotalClicked">
+            <Button.ImageSource>
+                <FontImageSource
+                    Size="13"
+                    Color="Black"
+                    FontFamily="FontAwesome5Solid"
+                    FontAutoScalingEnabled="True"
+                    Glyph="&#xf240;" />
+            </Button.ImageSource>
+        </Button>
+        <Button Text="Cancelar" Clicked="OnCancelClicked">
+            <Button.ImageSource>
+                <FontImageSource
+                    Size="13"
+                    Color="Black"
+                    FontFamily="FontAwesome5Solid"
+                    FontAutoScalingEnabled="True"
+                    Glyph="&#xf00d;" />
+            </Button.ImageSource>
+        </Button>
+    </VerticalStackLayout>
+</toolkit:Popup>

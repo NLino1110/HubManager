@@ -66,7 +66,7 @@
                 TextColor="DarkGreen" />
 
             <Label
-                Text="{Binding uom_display, StringFormat='U.MED: {0}'}"
+                Text="{Binding uom_sale_display, StringFormat='U.MED: {0}'}"
                 FontSize="12"
                 FontAttributes="Bold"
                 TextColor="DimGray" />

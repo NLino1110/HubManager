@@ -1,32 +1,23 @@
 ﻿using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Extensions;
-using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Views;
-using DMOrders.Services.Database.Sqlite;
-using DMOrders.Services.Helpers;
-using DMSA.Models.Odoo.DMOrders;
-using DMSA.Models.Odoo.DMOrders.tareas;
 using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Tareas;
 using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite.tareas;
 using InputKit.Shared.Validations;
-using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Layouts;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using UraniumUI.Dialogs;
 using UraniumUI.Icons.MaterialIcons;
 using UraniumUI.Material.Controls;
 
 namespace DMOrders.Controls
-{    
+{
+    [Obsolete("Se esta migrando a Popup.AccountAnalyticLine")]
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public class PopupAccountAnalyticLine : Popup<AccountAnalyticLine>, INotifyPropertyChanged
     {
@@ -760,10 +751,10 @@ namespace DMOrders.Controls
             var motivo = (MotivoActividadDiaria) _pickerPlanningReason.SelectedItem;
 
             var time_start = _timePickerStart.Time;
-            double hour_start = time_start.Value.Hours + (time_start.Value.Minutes / 60.0) + (time_start.Value.Seconds / 3600.0);
+            double hour_start = time_start.Hours + (time_start.Minutes / 60.0) + (time_start.Seconds / 3600.0);
 
             var time_end = _timePickerEnd.Time;
-            double hour_end = time_end.Value.Hours + (time_end.Value.Minutes / 60.0) + (time_end.Value.Seconds / 3600.0);
+            double hour_end = time_end.Hours + (time_end.Minutes / 60.0) + (time_end.Seconds / 3600.0);
 
             if(hour_start >= hour_end)
             {                

@@ -31,7 +31,20 @@ namespace DMSA.Models.Odoo.Native
         public int check_journal_id_ { get; set; }
         [Ignore]
         public JToken credit_note_journal_id { get; set; }
-        public int credit_note_journal_id_ { get; set; }
+        public int credit_note_journal_id_
+        {
+            get => GetId(credit_note_journal_id);
+            set => credit_note_journal_id = SetId(credit_note_journal_id, value);
+        }
+
+
+        [Ignore]
+        public JToken cuadratura_account_id { get; set; }
+        public int cuadratura_account_id_
+        {
+            get => GetId(cuadratura_account_id);
+            set => cuadratura_account_id = SetId(cuadratura_account_id, value);
+        }
 
 
         [JsonIgnore]

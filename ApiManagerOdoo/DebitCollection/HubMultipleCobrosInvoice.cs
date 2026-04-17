@@ -1,11 +1,4 @@
 ﻿using ApiManagerOdoo.Base;
-using AppManagerOdoo.Tools;
-using CobranzasDMSA.Models;
-using DMSA.Models.Clientes;
-using DMSA.Models.General;
-using DMSA.Models.General.Requests;
-using DMSA.Models.General.Responses;
-using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.DebitCollection;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Tools;
@@ -15,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using RestSharp;
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace ApiManager
 {
@@ -69,6 +63,16 @@ namespace ApiManager
             return await GetCount(args, _custom_args);
         }
 
+        public async Task<ApiResponseOdooRpc?> GetCount(int uid, DateTime dateIni)
+        {
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] { "user_id", "=", uid },
+                new object[] {"write_date", ">=", dateIni.ToString("yyyy-MM-dd") },
+            };
+            return await GetCount(args, _custom_args);
+        }
+
         public async Task<ApiResponseOdooRpcT<MultipleCobrosInvoice[]>?> GetPaymentItems(int parent_id)
         { 
             var kwargs = new
@@ -105,19 +109,50 @@ namespace ApiManager
         {
             //string domain = $"domain=[('uid','=',{apiRequestOdoo_V1.uid}),('create_date','>=','{apiRequestOdoo_V1.dateIni.ToString("yyyy-MM-dd")}'),";
             //domain += $"('create_date','<=','{apiRequestOdoo_V1.dateEnd.ToString("yyyy-MM-dd")}')]";
+            
+            string[] fields_array_get = {
+                "id",
+                "external_guid",
+                "state",
+                //"state_applied"
+            };
 
             var kwargs = new
             {
                 limit = limit,
                 offset = (index * limit),
-                fields = fields_array
+                fields = fields_array_get
             };
 
             object[] args = new object[] { };
             object[] _custom_args = new object[] {                
-                new object[] { "uid", "=", uid },
+                new object[] { "user_id", "=", uid },
                 new object[] { "create_date", ">=", dateIni.ToString("yyyy-MM-dd") },
                 new object[] { "create_date", "<=", dateEnd.ToString("yyyy-MM-dd") },
+            };
+            return await SearchRead<ApiResponseOdooRpcT<MultipleCobrosInvoice[]>>(args, _custom_args, kwargs);
+        }
+
+        public async Task<ApiResponseOdooRpcT<MultipleCobrosInvoice[]>?> GetItemsFull(int uid, DateTime dateIni, int limit, int index)
+        {
+            string[] fields_array_get = {
+                "id",
+                "external_guid",
+                "state",
+                //"state_applied"
+            };
+
+            var kwargs = new
+            {
+                limit = limit,
+                offset = (index * limit),
+                fields = fields_array_get
+            };
+
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] { "user_id", "=", uid },
+                new object[] { "write_date", ">=", dateIni.ToString("yyyy-MM-dd") }
             };
             return await SearchRead<ApiResponseOdooRpcT<MultipleCobrosInvoice[]>>(args, _custom_args, kwargs);
         }

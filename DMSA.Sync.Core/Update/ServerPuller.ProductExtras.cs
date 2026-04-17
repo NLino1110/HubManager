@@ -6,7 +6,7 @@ namespace DMSA.Sync.Core.Update
     public partial class ServerPuller
     {
 
-        public async Task<bool> OnlineSyncCategoria()
+        public async Task<bool> OnlineSyncCategoria(Func<int, int, Task>? onProgress = null)
         {
             var stopwatch = Stopwatch.StartNew();
 
@@ -48,7 +48,7 @@ namespace DMSA.Sync.Core.Update
             return true;
         }
 
-        public async Task<bool> OnlineSyncSubcategoria()
+        public async Task<bool> OnlineSyncSubcategoria(Func<int, int, Task>? onProgress = null)
         {
             var stopwatch = Stopwatch.StartNew();
 
@@ -90,7 +90,7 @@ namespace DMSA.Sync.Core.Update
             return true;
         }
 
-        public async Task<bool> OnlineSyncProductLinea()
+        public async Task<bool> OnlineSyncProductLinea(Func<int, int, Task>? onProgress = null)
         {
             var stopwatch = Stopwatch.StartNew();
 
@@ -132,7 +132,7 @@ namespace DMSA.Sync.Core.Update
             return true;
         }
 
-        public async Task<bool> OnlineSyncProductGrupoTipo()
+        public async Task<bool> OnlineSyncProductGrupoTipo(Func<int, int, Task>? onProgress = null)
         {
             var stopwatch = Stopwatch.StartNew();
 

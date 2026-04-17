@@ -71,4 +71,9 @@ public partial class Container : ContentView
     {
         await info.FillData(_data);
     }
+
+    public void ReloadFilter()
+    {
+        filterCustomer.LoadProductPricelists();
+    }
 }

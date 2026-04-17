@@ -9,7 +9,7 @@ namespace DMSA.Sync.Core.Update
 {
     public partial class ServerPuller
     {
-        public async Task<bool> GetTarjetas()
+        public async Task<bool> GetTarjetas(Func<int, int, Task>? onProgress = null)
         {            
             var stopwatch = Stopwatch.StartNew();
             var database = new TarjetasCreditoDb(Constants.Session.odooConnection.DbNameSqlite);
@@ -26,11 +26,11 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
 
-            int countTotal = resultCount.result / 300;            
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
 
-            for (int indice = 0; indice <= countTotal; indice++)
+            for (int indice = 0; indice <= totalPages; indice++)
             {
-                Debug.WriteLine("Página:" + indice + " de " + countTotal);
+                Debug.WriteLine("GetTarjetas Página:" + indice + " de " + totalPages);
 
                 var responseAll = await hubmanager.GetItems(lastDate.Value, limit, indice);
 
@@ -38,6 +38,9 @@ namespace DMSA.Sync.Core.Update
                 {
                     await database.InsertBatchAsync(responseAll.result);
                 }
+
+                if (onProgress != null)
+                    await onProgress(indice + 1, totalPages);
 
                 if (indice >= maxIndexExceeded)
                 {
@@ -54,7 +57,7 @@ namespace DMSA.Sync.Core.Update
             return true;
         }
 
-        public async Task<bool> GetTarjetasTipoPago()
+        public async Task<bool> GetTarjetasTipoPago(Func<int, int, Task>? onProgress = null)
         {
             var stopwatch = Stopwatch.StartNew();
             var database = new TarjetasTipoPagoDb(Constants.Session.odooConnection.DbNameSqlite);
@@ -71,11 +74,11 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
 
-            int countTotal = resultCount.result / 300;
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
 
-            for (int indice = 0; indice <= countTotal; indice++)
+            for (int indice = 0; indice <= totalPages; indice++)
             {
-                Debug.WriteLine("Página:" + indice + " de " + countTotal);
+                Debug.WriteLine("GetTarjetasTipoPago Página:" + indice + " de " + totalPages);
 
                 var responseAll = await hubmanager.GetItems(lastDate.Value, limit, indice);
 
@@ -83,6 +86,9 @@ namespace DMSA.Sync.Core.Update
                 {
                     await database.InsertBatchAsync(responseAll.result);
                 }
+
+                if (onProgress != null)
+                    await onProgress(indice + 1, totalPages);
 
                 if (indice >= maxIndexExceeded)
                 {
@@ -99,7 +105,7 @@ namespace DMSA.Sync.Core.Update
             return true;
         }
 
-        public async Task<bool> GetTarjetasPlazosBanco()
+        public async Task<bool> GetTarjetasPlazosBanco(Func<int, int, Task>? onProgress = null)
         {
             var stopwatch = Stopwatch.StartNew();
             var database = new TarjetasPlazosBancoDb(Constants.Session.odooConnection.DbNameSqlite);
@@ -116,11 +122,11 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
 
-            int countTotal = resultCount.result / 300;
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
 
-            for (int indice = 0; indice <= countTotal; indice++)
+            for (int indice = 0; indice <= totalPages; indice++)
             {
-                Debug.WriteLine("Página:" + indice + " de " + countTotal);
+                Debug.WriteLine("GetTarjetasPlazosBanco Página:" + indice + " de " + totalPages);
 
                 var responseAll = await hubmanager.GetItems(lastDate.Value, limit, indice);
 
@@ -128,6 +134,9 @@ namespace DMSA.Sync.Core.Update
                 {
                     await database.InsertBatchAsync(responseAll.result);
                 }
+
+                if (onProgress != null)
+                    await onProgress(indice + 1, totalPages);
 
                 if (indice >= maxIndexExceeded)
                 {

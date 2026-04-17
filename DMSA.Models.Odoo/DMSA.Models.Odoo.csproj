@@ -2,15 +2,40 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DMCobranzas\**" />
+    <EmbeddedResource Remove="DMCobranzas\**" />
+    <None Remove="DMCobranzas\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Accounting\AccountPayment.cs" />
+    <Compile Remove="Accounting\AccountPaymentHeader.cs" />
+    <Compile Remove="Accounting\AccountPaymentHeaderSend.cs" />
+    <Compile Remove="Accounting\AccountPaymentInvoiceLine.cs" />
+    <Compile Remove="Accounting\AccountPaymentInvoiceLineSend.cs" />
+    <Compile Remove="Accounting\AccountPaymentSend.cs" />
+    <Compile Remove="Accounting\AccountTypeModule.cs" />
+    <Compile Remove="DownloadResponse.cs" />
+    <Compile Remove="General\ApiResponse_REPORTE_COMISIONES.cs" />
+    <Compile Remove="GenModulosNC.cs" />
+    <Compile Remove="GenTiposNotaCredito.cs" />
+    <Compile Remove="user_access.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
     <PackageReference Include="SQLiteNetExtensions" Version="2.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Tesoreria\" />
   </ItemGroup>
 
 </Project>

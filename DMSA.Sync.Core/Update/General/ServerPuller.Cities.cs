@@ -6,7 +6,7 @@ namespace DMSA.Sync.Core.Update
 {
     public partial class ServerPuller
     {
-        public async Task<bool> GetCities()
+        public async Task<bool> GetCities(Func<int, int, Task>? onProgress = null)
         {
             var stopwatch = Stopwatch.StartNew();
             var database = new ResCityDb(Constants.Session.odooConnection.DbNameSqlite);
@@ -23,11 +23,11 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
 
-            int countTotal = resultCount.result / 300;
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
 
-            for (int indice = 0; indice <= countTotal; indice++)
+            for (int indice = 0; indice <= totalPages; indice++)
             {
-                Debug.WriteLine("Página:" + indice + " de " + countTotal);
+                Debug.WriteLine("GetCities Página:" + indice + " de " + totalPages);
 
                 var responseAll = await hubmanager.GetItems(lastDate.Value, limit, indice);
 
@@ -35,6 +35,9 @@ namespace DMSA.Sync.Core.Update
                 {
                     await database.InsertBatchAsync(responseAll.result);
                 }
+
+                if (onProgress != null)
+                    await onProgress(indice + 1, totalPages);
 
                 if (indice >= maxIndexExceeded)
                 {

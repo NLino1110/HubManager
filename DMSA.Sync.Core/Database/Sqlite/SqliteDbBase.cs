@@ -1,6 +1,7 @@
-﻿using Microsoft.Maui.Storage;
-using SQLite;
+﻿using SQLite;
 using System.Linq.Expressions;
+using System.Reflection;
+using static System.Runtime.InteropServices.Marshalling.IIUnknownCacheStrategy;
 
 namespace DMSA.Sync.Core.Database.Sqlite
 {
@@ -11,6 +12,9 @@ namespace DMSA.Sync.Core.Database.Sqlite
         protected virtual string TableName => typeof(T).Name;
 
         protected virtual string DatabaseFilename { get; set; }
+
+        private bool _initialized = false;
+        private readonly SemaphoreSlim _initLock = new(1, 1);
 
         public SqliteDbBase()
         {
@@ -27,30 +31,51 @@ namespace DMSA.Sync.Core.Database.Sqlite
             return Path.Combine(FileSystem.AppDataDirectory, DatabaseFilename);
         }
 
+        //protected async Task Init()
+        //{
+        //    if (Database != null)
+        //        return;
+
+        //    string DatabasePath = Path.Combine(FileSystem.AppDataDirectory, DatabaseFilename);
+
+        //    Database = SqliteConnectionManager.GetConnection(DatabasePath, Constants.Flags);
+
+        //    await Database.CreateTableAsync<T>();
+        //}
+
         protected async Task Init()
         {
-            if (Database != null)
+            if (_initialized)
                 return;
-            
-            string DatabasePath = Path.Combine(FileSystem.AppDataDirectory, DatabaseFilename);
 
-            //Moto antiguo:
-            //Database = new SQLiteAsyncConnection(DatabasePath, Constants.Flags);
-            
-            Database = SqliteConnectionManager.GetConnection(DatabasePath, Constants.Flags);
-            //try
-            //{
-            //    await Database.ExecuteAsync("PRAGMA journal_mode=WAL;");
-            //    await Database.ExecuteAsync("PRAGMA synchronous=NORMAL;");
-            //    await Database.ExecuteAsync("PRAGMA temp_store=MEMORY;");
-            //    await Database.ExecuteAsync("PRAGMA foreign_keys=ON;"); // por si usas claves foráneas
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine($"Error aplicando PRAGMAs en SQLite: {ex.Message}");
-            //}
+            await _initLock.WaitAsync();
 
-            await Database.CreateTableAsync<T>();
+            try
+            {
+                if (_initialized)
+                    return;
+
+                if (Database == null)
+                {
+                    string DatabasePath = Path.Combine(FileSystem.AppDataDirectory, DatabaseFilename);
+                    //Database = new SQLiteAsyncConnection(DatabasePath);
+                    Database = SqliteConnectionManager.GetConnection(DatabasePath, Constants.Flags);
+                    await Database.CreateTableAsync<T>();
+                }
+
+                await OnAfterInit();
+
+                _initialized = true;
+            }
+            finally
+            {
+                _initLock.Release();
+            }
+        }
+
+        protected virtual Task OnAfterInit()
+        {
+            return Task.CompletedTask;
         }
 
         public async Task<int> GetCount()
@@ -77,24 +102,6 @@ namespace DMSA.Sync.Core.Database.Sqlite
             Init().Wait(); // inicializa la base si no está lista
             return Database.GetConnection().Table<T>().ToList().FirstOrDefault(predicate);
         }
-
-        //public async Task<DateTime?> GetLastWriteDateAsync(Func<T, bool>? predicate = null)
-        //{
-        //    await Init();
-        //    var table = await Database.Table<T>().ToListAsync();
-
-        //    if (predicate != null)
-        //        table = table.Where(predicate).ToList();
-
-        //    // Si la clase T tiene una propiedad WriteDate
-        //    var lastDate = table
-        //        .Select(x => (DateTime?)typeof(T).GetProperty("WriteDate")?.GetValue(x))
-        //        .Where(x => x.HasValue)
-        //        .OrderByDescending(x => x.Value)
-        //        .FirstOrDefault();
-
-        //    return lastDate;
-        //}
 
         public async Task<DateTime> GetLastWriteDateAsync(DateTime? defaultDate = null)
         {
@@ -126,6 +133,54 @@ namespace DMSA.Sync.Core.Database.Sqlite
             }
         }
 
+        public async Task<DateTime> GetSafeLastWriteDateAsync(int offset = 2)
+        {
+            await Init();
+
+            var tableName = typeof(T)
+                .GetCustomAttribute<TableAttribute>()?.Name
+                ?? typeof(T).Name;
+
+            try
+            {
+                var items = await Database.QueryAsync<T>(
+                    $"SELECT * FROM {tableName} WHERE write_date IS NOT NULL ORDER BY write_date DESC LIMIT 1000");
+
+                var prop = typeof(T).GetProperty("write_date",
+                    BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+
+                if (prop == null)
+                    throw new Exception($"La entidad {typeof(T).Name} no tiene write_date");
+
+                var dates = items
+                    .Select(x =>
+                    {
+                        var value = prop.GetValue(x);
+                        if (value == null) return (DateTime?)null;
+                        var date = (DateTime) value;
+                        return date.Date;
+                    })
+                    .Where(d => d.HasValue)
+                    .Select(d => d.Value)
+                    .Distinct()
+                    .OrderByDescending(d => d)
+                    .ToList();
+
+                if (dates.Count > offset)
+                    return dates[offset];
+
+                if (dates.Count > 0)
+                    return dates.Last();
+
+                return DateTime.UtcNow.AddDays(-3);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error en {tableName}: {ex.Message}");
+                return DateTime.UtcNow.AddDays(-3);
+            }
+        }
+
         public async Task<int> InsertAsync(T item)
         {
             await Init();
@@ -141,7 +196,7 @@ namespace DMSA.Sync.Core.Database.Sqlite
         public async Task<int> InsertBatchAsync(IEnumerable<T> items)
         {
             await Init();
-            await Database.InsertAllAsync(items, "OR REPLACE", true);            
+            await Database.InsertAllAsync(items, "OR REPLACE", true);
             return 0;
         }
 
@@ -168,6 +223,12 @@ namespace DMSA.Sync.Core.Database.Sqlite
         {
             await Init();
             return await Database.UpdateAsync(item);
+        }
+
+        public async Task<int> UpdateBatchAsync(IEnumerable<T> items)
+        {
+            await Init();
+            return await Database.UpdateAllAsync(items, true);
         }
 
         public async Task<int> Truncate()
@@ -205,9 +266,136 @@ namespace DMSA.Sync.Core.Database.Sqlite
             return count;
         }
 
+        public async Task<IEnumerable<T>> QueryAsync(string query, object[] args)
+        {
+            await Init();
+            return await Database.QueryAsync<T>(query, args);
+        }
+
         public static async Task CloseDatabaseAsync()
         {
-            await SqliteConnectionManager.CloseAsync();
+            //await SqliteConnectionManager.CloseAsync();
+            await SqliteConnectionManager.CloseAllAsync();
         }
+
+        public static async Task CloseDatabaseAsync(string dbPath)
+        {
+            //await SqliteConnectionManager.CloseAsync();
+        }
+
+        public async Task<IEnumerable<T>> SearchByColumnAsync(
+            string columnName,
+            string searchText)
+        {
+            await Init();
+        
+            var tableName = typeof(T)
+                .GetCustomAttribute<TableAttribute>()?.Name
+                ?? typeof(T).Name;
+
+            var search = $"%{searchText}%";
+
+            var query = $"SELECT * FROM {tableName} " +
+                        $"WHERE {columnName} LIKE ? COLLATE NOCASE";
+
+            return await Database.QueryAsync<T>(
+                query,
+                new object[] { search }
+            );
+        }
+
+        public async Task<IEnumerable<T>> SearchByColumnAsync(
+            string columnName,
+            string searchText,
+            int limit = 50)
+        {
+            await Init();
+
+            var tableName = typeof(T)
+                .GetCustomAttribute<TableAttribute>()?.Name
+                ?? typeof(T).Name;
+
+            var search = $"%{searchText}%";
+
+            var query = $"SELECT * FROM {tableName} " +
+                $"WHERE {columnName} LIKE ? COLLATE NOCASE " +
+                $"LIMIT ?";
+
+            return await Database.QueryAsync<T>(
+                query,
+                search,
+                limit
+            );
+        }
+
+        public async Task<IEnumerable<T>> SearchAsync(
+            string searchText,
+            params string[] columns)
+        {
+            await Init();
+
+            var tableName = typeof(T)
+                .GetCustomAttribute<TableAttribute>()?.Name
+                ?? typeof(T).Name;
+
+            var search = $"%{searchText}%";
+
+            var where = string.Join(
+                " OR ",
+                columns.Select(c => $"{c} LIKE ? COLLATE NOCASE")
+            );
+
+            var args = columns.Select(_ => (object)search).ToArray();
+
+            var query = $"SELECT * FROM {tableName} WHERE {where}";
+
+            return await Database.QueryAsync<T>(query, args);
+        }
+
+        public async Task DropTableAsync()
+        {
+            await Init();
+            var tableAttr = typeof(T)
+                .GetCustomAttribute<TableAttribute>();
+            string tableName = tableAttr?.Name ?? typeof(T).Name;
+            string sql = $"DROP TABLE IF EXISTS {tableName}";
+            await Database.ExecuteAsync(sql);
+            Database = null;
+        }
+
+        public async Task Vaccum()
+        {
+            await Init();
+            //await Database.ExecuteAsync("PRAGMA wal_checkpoint(TRUNCATE);");
+            await Database.ExecuteAsync("VACUUM;");
+            await Database.ExecuteAsync("ANALYZE;");
+        }
+
+        public void InvalidateConnection()
+        {
+            Database = null;
+            _initialized = false;
+        }
+
+        public async Task<List<string>> GetTablesAsync()
+        {
+            await Init();
+            var result = await Database.QueryAsync<TableInfo>(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';"
+            );
+
+            return result.Select(x => x.name).ToList();
+        }
+
+        public async Task DropTableAsync(string tableName)
+        {
+            await Init();
+            await Database.ExecuteAsync($"DROP TABLE IF EXISTS {tableName}");            
+        }
+    }
+
+    public class TableInfo
+    {
+        public string name { get; set; }
     }
 }

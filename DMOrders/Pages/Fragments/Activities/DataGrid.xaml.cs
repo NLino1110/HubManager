@@ -4,8 +4,8 @@ using CommunityToolkit.Mvvm.Input;
 using DMOrders.Models.Filters;
 using DMOrders.Pages.Fragments.Customers;
 using DMOrders.Pages.Sys;
-using DMSA.Models.Odoo.DMOrders.tareas;
 using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Tareas;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Input;
@@ -32,6 +32,8 @@ namespace DMOrders.Pages.Fragments.Activities
             get => (Filters)GetValue(FiltersViewProperty);
             set => SetValue(FiltersViewProperty, value);
         }
+
+        public ICommand EditCommand { get; set; }
 
         private static void OnFiltersChanged(BindableObject bindable, object oldValue, object newValue)
         {
@@ -131,26 +133,26 @@ namespace DMOrders.Pages.Fragments.Activities
             ////}
         }
 
-        private async void _dataGrid1_ItemRowTap(object sender, TappedEventArgs e)
-        {
-            ////Debug.WriteLine("Tap Grid:" + sender.ToString());
+        //private async void _dataGrid1_ItemRowTap(object sender, TappedEventArgs e)
+        //{
+        //    ////Debug.WriteLine("Tap Grid:" + sender.ToString());
 
-            ////var row = (Maui.DataGrid.DataGridRow) sender;            
-            ////var rowData = row.BindingContext;
+        //    ////var row = (Maui.DataGrid.DataGridRow) sender;            
+        //    ////var rowData = row.BindingContext;
 
-            ////if (rowData is ClienteAprobacion cliente)
-            ////{
-            ////    await ShowConfirmClient(cliente);                
-            ////}
-        }
+        //    ////if (rowData is ClienteAprobacion cliente)
+        //    ////{
+        //    ////    await ShowConfirmClient(cliente);                
+        //    ////}
+        //}
 
-        private async Task ShowConfirmClient(object cliente)
-        {
-            //ConfirmClient obj = new ConfirmClient();
-            //obj.selectedCustomer = cliente;
-            //obj.BindingContextObj = ((MainViewModelCliAprob) BindingContext);
-            //await Navigation.PushModalAsync(obj, false);
-        }
+        //private async Task ShowConfirmClient(object cliente)
+        //{
+        //    //ConfirmClient obj = new ConfirmClient();
+        //    //obj.selectedCustomer = cliente;
+        //    //obj.BindingContextObj = ((MainViewModelCliAprob) BindingContext);
+        //    //await Navigation.PushModalAsync(obj, false);
+        //}
 
         private void btnBuscar_Clicked(object sender, EventArgs e)
         {
@@ -179,53 +181,71 @@ namespace DMOrders.Pages.Fragments.Activities
             Debug.WriteLine("MyCollectionView_SelectionChanged");
         }
 
-        public ICommand EditCommand { get; set; }
+        private bool _isNavigating;
 
         private async void EditItem(object obj)
         {
+            if (_isNavigating) return;
+
+            _isNavigating = true;
+
             Debug.WriteLine("EditItem");
 
-            ProjectTask CurrentActivityHeader = null;
+            try
+            {
+                ProjectTask CurrentActivityHeader = (ProjectTask) obj;
 
-            // Caso ideal: ya nos pasan el modelo
-            if (obj is ProjectTask pt)
-            {
-                CurrentActivityHeader = pt;
-            }
-            else
-            {
-                // Si nos pasan la fila (ActivityRow) o cualquier objeto que exponga "Item", intentamos obtener el modelo por reflexión
-                try
+                //// Caso ideal: ya nos pasan el modelo
+                //if (obj is ProjectTask pt)
+                //{
+                //    CurrentActivityHeader = pt;
+                //}
+                //else
+                //{
+                //    // Si nos pasan la fila (ActivityRow) o cualquier objeto que exponga "Item", intentamos obtener el modelo por reflexión
+                //    try
+                //    {
+                //        if (obj is Controls.CustomRows.Lite.ActivityRow ar)
+                //        {
+                //            var prop = ar.GetType().GetProperty("Item", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                //            var val = prop?.GetValue(ar);
+                //            if (val is ProjectTask pt2) CurrentActivityHeader = pt2;
+                //        }
+                //        else if (obj != null)
+                //        {
+                //            var t = obj.GetType();
+                //            var p = t.GetProperty("Item", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                //            var val = p?.GetValue(obj);
+                //            if (val is ProjectTask pt3) CurrentActivityHeader = pt3;
+                //        }
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        Debug.WriteLine($"EditItem: error al extraer Item por reflexión: {ex.Message}");
+                //    }
+                //}
+
+                //if (CurrentActivityHeader == null)
+                //{
+                //    Debug.WriteLine($"EditItem: parámetro inválido tipo={obj?.GetType().FullName}");
+                //    return;
+                //}
+
+                Details viewObj = new Details(CurrentActivityHeader);
+                //viewObj.Disappearing += ViewObj_Disappearing;
+
+                viewObj.Unloaded += (sender, e) =>
                 {
-                    if (obj is DMOrders.Controls.CustomRows.ActivityRow ar)
-                    {
-                        var prop = ar.GetType().GetProperty("Item", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                        var val = prop?.GetValue(ar);
-                        if (val is ProjectTask pt2) CurrentActivityHeader = pt2;
-                    }
-                    else if (obj != null)
-                    {
-                        var t = obj.GetType();
-                        var p = t.GetProperty("Item", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                        var val = p?.GetValue(obj);
-                        if (val is ProjectTask pt3) CurrentActivityHeader = pt3;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"EditItem: error al extraer Item por reflexión: {ex.Message}");
-                }
-            }
+                    _isNavigating = false;
+                    ((ListViewModel)this.BindingContext).LoadDataByTimer();
+                };
 
-            if (CurrentActivityHeader == null)
+                await Navigation.PushModalAsync(viewObj);
+            }
+            finally
             {
-                Debug.WriteLine($"EditItem: parámetro inválido tipo={obj?.GetType().FullName}");
-                return;
-            }
 
-            Details viewObj = new Details(CurrentActivityHeader);
-            viewObj.Disappearing += ViewObj_Disappearing;
-            await Navigation.PushModalAsync(viewObj);
+            }
         }
 
         private void ViewObj_Disappearing(object? sender, EventArgs e)
@@ -236,46 +256,7 @@ namespace DMOrders.Pages.Fragments.Activities
         private async void ButtonSync_Clicked(object sender, EventArgs e)
         {
             Debug.WriteLine("Send!!");
-            //var leave = await DisplayAlert("Enviar", "¿Desea enviar esta orden al ERP? Los cambios realizados serán almacenados.", "Si", "No");
-
-            //if (!leave)
-            //{
-            //    return;
-            //}
-
-            //await UITools.ShowLoadingPopup(this);
-
-            //bool orderHasChanges = true;
-
-            //if (orderHasChanges)
-            //{
-            //    await UITools.SetNotifyLoadingPopup("Almacenando orden...");
-            //    await SaveOrder();
-            //}
-
-            //await UITools.SetNotifyLoadingPopup("Preparando orden...");
-
-            //ServerPusher serverPusher = new ServerPusher();
-
-            //var orderLinesList = ((CrudViewModel)this.BindingContext).OrderLines.ToList();
-            //CurrentSaleOrder.order_line = new List<OrderLineWrapper>();
-            //CurrentSaleOrder._center_id = App.Session.odooConnection.res_center_default;
-
-            //foreach (var orderLine in orderLinesList)
-            //{
-            //    CurrentSaleOrder.order_line.Add(new OrderLineWrapper(orderLine));
-            //}
-
-            //await UITools.SetNotifyLoadingPopup("Sincronizando orden...");
-            //bool sendOk = await serverPusher.SendSaleOrder(CurrentSaleOrder);
-
-            //await UITools.HideLoadingPopup();
-
-            //if (sendOk)
-            //{
-            //    await DisplayAlert("Envío de datos", "Envío correcto", "Aceptar");
-            //    await Navigation.PopModalAsync();
-            //}
+            
         }
     }
 }

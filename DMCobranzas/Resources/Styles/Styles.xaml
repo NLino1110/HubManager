@@ -402,4 +402,23 @@
         <Setter Property="SelectedTabColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}" />
     </Style>
 
+    <Style x:Key="EntryHintLabelStyle" TargetType="Label">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="TextColor" Value="Gray" />
+        <Setter Property="Margin">
+            <Setter.Value>
+                <OnPlatform x:TypeArguments="Thickness">
+                    <On Platform="WinUI" Value="5,0,0,0" />
+                    <On Platform="Android" Value="5,-8,0,0" />                    
+                    <On Platform="iOS" Value="5,-6,0,0" />
+                </OnPlatform>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Padding" Value="0,0,0,0" />
+    </Style>
+    <OnIdiom x:Key="LayoutSpacing"
+         x:TypeArguments="x:Double"
+         Default="5">
+        <OnIdiom.Desktop>15</OnIdiom.Desktop>
+    </OnIdiom>
 </ResourceDictionary>

@@ -1,20 +1,8 @@
-﻿using CommunityToolkit.Maui.Alerts;
-using Newtonsoft.Json;
-using RestSharp;
-using CommunityToolkit.Maui.Core;
-using DMSA.Models.Odoo.Origin;
-using DMSA.Models.Odoo.Update;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DMOrders.Services.Database.Sqlite;
-using System.Diagnostics;
-using DMSA.Models.Odoo.Native;
+﻿using DMSA.Models.Odoo.Update;
 
 namespace DMOrders.Pages.Sys
 {
+    [Obsolete("This class is obsolete. Use the new CreditNoteRequest class instead.")]
     public partial class UpdateData
     {
         public static void UpdateFiles(update_pack_info source, update_pack_info destination)

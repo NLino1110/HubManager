@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Extensions;
 using Microsoft.Maui.Controls.Shapes;
+using System.Diagnostics;
 
 namespace DMOrders.Controls.Tools
 {
@@ -53,9 +54,6 @@ namespace DMOrders.Controls.Tools
                     Margin = new Thickness(20, 20, 20, 20),
                 };
 
-                //_absoluteLayout.Children.Add(content);
-                //_absoluteLayout.Children.Add(_activityIndicator);
-
                 grid.Add(label);
                 Grid.SetColumn(label, 0);
                 Grid.SetRow(label, 0);
@@ -69,34 +67,36 @@ namespace DMOrders.Controls.Tools
 
             _loadingNow = true;
             _absoluteLayout.IsVisible = true;
-            //_absoluteLayout.HeightRequest = 300;
         }
 
         public static async Task HideLoading(AbsoluteLayout _absoluteLayout)
         {
             _loadingNow = false;
-            //_absoluteLayout.Children.Clear();
             _absoluteLayout.IsVisible = false;
         }
 
         private static DMOrders.Controls.PopupLoadingTask simplePopup = null;
+        private static bool _isShowing = false;
 
         public static async Task ShowLoadingPopup(ContentPage contentPage)
         {
-            PopupSizeConstants popupSizeConstants = 
-                new PopupSizeConstants(DeviceDisplay.Current);
-            simplePopup = new DMOrders.Controls.PopupLoadingTask(popupSizeConstants);
-            simplePopup.CanBeDismissedByTappingOutsideOfPopup = false;            
-            //contentPage.ShowPopup(simplePopup);
+            if (_isShowing)
+                return;
+
+            _isShowing = true;
+
+            if (simplePopup == null)
+            {
+                PopupSizeConstants popupSizeConstants =
+                    new PopupSizeConstants(DeviceDisplay.Current);
+
+                simplePopup = new DMOrders.Controls.PopupLoadingTask(popupSizeConstants);
+                simplePopup.CanBeDismissedByTappingOutsideOfPopup = false;
+            }
 
             if (Application.Current?.Windows[0] is not { Page: not null } window)
-            {
                 throw new InvalidOperationException("Unable to find page");
-            }
-            
-            //simplePopup.Margin = new Thickness(0,0);
-            //simplePopup.Padding = new Thickness(0,0);
-            
+
             window.Page.ShowPopup(simplePopup, new PopupOptions
             {
                 Shape = new RoundRectangle
@@ -104,22 +104,28 @@ namespace DMOrders.Controls.Tools
                     CornerRadius = new CornerRadius(10),
                     Stroke = Colors.Gray,
                     StrokeThickness = 2
-                },
-                Shadow = new Shadow
-                {
-                    Brush = Brush.Black,
-                    Offset = new Point(15, 15),
-                    Opacity = 0.5f,
-                    Radius = 10
-                },
+                }
             });
         }
 
         public static async Task HideLoadingPopup()
         {
-            if (simplePopup != null)
-            {                
+            if (!_isShowing || simplePopup == null)
+                return;
+
+            try
+            {
                 await simplePopup.CloseAsync();
+            }
+            catch
+            {
+                // evita crash si ya se cerró
+                Debug.WriteLine("Error indeterminado en HideLoadingPopup");
+            }
+            finally
+            {
+                _isShowing = false;
+                simplePopup = null;
             }
         }
 
@@ -129,3 +135,4 @@ namespace DMOrders.Controls.Tools
         }
     }
 }
+

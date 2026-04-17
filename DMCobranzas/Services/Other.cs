@@ -1,7 +1,5 @@
 ﻿
 using SkiaSharp;
-using System;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -133,29 +131,6 @@ namespace Zj.Com.Customize.Sdk
             return resizedBitmap;
         }
 
-        //public static SKBitmap ConvertToGrayscale(SKBitmap bitmap)
-        //{
-        //    SKBitmap grayscaleBitmap = new SKBitmap(bitmap.Width, bitmap.Height);
-
-        //    using (SKCanvas canvas = new SKCanvas(grayscaleBitmap))
-        //    {
-        //        SKPaint paint = new SKPaint();
-        //        float[] colorMatrix =
-        //        {
-        //            0.299f,
-        //            0.587f,
-        //            0.114f,
-        //        };
-
-        //        SKColorFilter filter = SKColorFilter.CreateColorMatrix(colorMatrix);
-        //        paint.ColorFilter = filter;
-
-        //        canvas.DrawBitmap(bitmap, 0, 0, paint);
-        //    }
-
-        //    return grayscaleBitmap;
-        //}
-
         public static SKBitmap ConvertToGrayscale(SKBitmap originalBitmap)
         {
             // Crea la matriz de colores para desaturar la imagen
@@ -246,9 +221,7 @@ namespace Zj.Com.Customize.Sdk
         public static byte[] ThresholdToBWPic(SKBitmap mBitmap)
         {            
             int[] pixels = new int[mBitmap.Width * mBitmap.Height];
-            byte[] data = new byte[mBitmap.Width * mBitmap.Height];            
-            //Original Java
-            //mBitmap.getPixels(pixels, 0, mBitmap.getWidth(), 0, 0, mBitmap.getWidth(), mBitmap.getHeight());
+            byte[] data = new byte[mBitmap.Width * mBitmap.Height];
             GetPixels(mBitmap, pixels, 0, mBitmap.Width, 0, 0, mBitmap.Width, mBitmap.Height);
             FormatKThreshold(pixels, mBitmap.Width, mBitmap.Height, data);
             return data;
@@ -314,7 +287,5 @@ namespace Zj.Com.Customize.Sdk
 
             return send;
         }
-
-
     }
 }

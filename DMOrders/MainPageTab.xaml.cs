@@ -1,8 +1,10 @@
+using CommunityToolkit.Maui.Alerts;
+using DMOrders.AppPages.Sys;
 using DMOrders.Controls.Tools;
 using DMOrders.Pages.Fragments.Activities;
 using DMOrders.Pages.Sys;
 using DMOrders.Services.Update;
-using DMSA.Models.Odoo.DMOrders.tareas;
+using DMSA.Models.Odoo.Tareas;
 using DMSA.Sync.Core.Database.Sqlite.Sales;
 using DMSA.Sync.Core.Update;
 using DMSA.Sync.Core.Update.Pusher;
@@ -20,6 +22,8 @@ public partial class MainPageTab : ContentPage
 #endif
 
     bool isExpanded = false;
+
+    bool is_loading_page = false;
 
     public class MenuItemModel
     {
@@ -55,9 +59,9 @@ public partial class MainPageTab : ContentPage
         {
             new() { Icon = "\uf279", Title = "Nueva actividad", Description = "Seguimiento de proceso.", Action = async () => ViewCell_Add_Task(null, EventArgs.Empty) },
             new() { Icon = "\uf1d8", Title = "Enviar datos", Description = "Sincronizar datos locales.", Action = () => SendFullData() },
-            new() { Icon = "\uf0c7", Title = "Actualización", Description = "Sincronizar los datos principales.", Action = async () => ViewCell_Tapped_Update(null, EventArgs.Empty) },
+            new() { Icon = "\uf103", Title = "Actualización", Description = "Sincronizar los datos principales.", Action = async () => ViewCell_Tapped_Update(null, EventArgs.Empty) },
             new() { Icon = "\uf2f5", Title = "Salir", Description = "Volver a ingresar credenciales.", Action = async () => await Exit_Special() },
-            //new() { Icon = "\uf7d9", Title = "Configuraciones", Description = "Modificar rutas y entorno.", Action = async () => ShowSettings(null, EventArgs.Empty) },
+            new() { Icon = "\uf05a", Title = "Acerca de", Description = "Informacíón de la aplicación.", Action = async () => ViewCell_Tapped_About(null, EventArgs.Empty) },
         };
 
         Loaded += (_, __) => ReloadData();
@@ -70,15 +74,28 @@ public partial class MainPageTab : ContentPage
     }
 
     bool isUpdated = false;
-    protected async override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        if (!isUpdated)
+
+        if (isUpdated)
+            return;
+
+        isUpdated = true;
+
+        try
         {
-            isUpdated = true;
             await AutoUpdate();
+
             tabCustomers.ReloadData();
-        }        
+            tabCustomers.ReloadFilter();
+            tabProducts.ReloadFilter();
+            tabOrders.ReloadFilter();
+        }
+        catch (Exception ex)
+        {
+            await Toast.Make("Error en actualización: " + ex.Message).Show();
+        }
     }
 
     private async Task<bool> AutoUpdate()
@@ -105,7 +122,7 @@ public partial class MainPageTab : ContentPage
         await UITools.ShowLoadingPopup(this);
         await UITools.SetNotifyLoadingPopup("Ejecutando envío de datos...");
         
-        ServerPusher serverPusher = new ServerPusher();
+        SaleOrders serverPusher = new SaleOrders();
         await serverPusher.SendAllSaleOrders();
         await serverPusher.SendAllProjectTask();
 
@@ -127,17 +144,6 @@ public partial class MainPageTab : ContentPage
             ((CollectionView)sender).SelectedItem = null; // deselecciona
         }
     }
-
-    //protected override void OnSizeAllocated(double width, double height)
-    //{
-    //    base.OnSizeAllocated(width, height);
-
-    //    tabViewMain.HeightRequest = height - 50;
-    //    tabViewMain.WidthRequest = width;
-
-    //    tabCustomers.HeightRequest = height - 100;
-    //    //tabCustomers.WidthRequest = width - 100;
-    //}
 
     private async void OnTogglePanelTapped(object sender, EventArgs e)
     {
@@ -176,7 +182,7 @@ public partial class MainPageTab : ContentPage
         }
         else
         {
-            var newTask = new DMSA.Models.Odoo.DMOrders.tareas.ProjectTask()
+            var newTask = new ProjectTask()
             {
                 name = nameTodayTask,
                 company_id = App.Session.res_Company.id,
@@ -205,49 +211,7 @@ public partial class MainPageTab : ContentPage
 
     private async void ViewCell_Add_Task(object sender, EventArgs e)
     {
-        await AddnewActivity();
-        //Debug.WriteLine("EditItem");
-
-        //int partner_id = App.Session.CurrentUserFront.partner_id;
-        //int user_id = App.Session.CurrentUserFront.uid;
-
-        //ProjectTaskDb projectTaskDb = new ProjectTaskDb(App.Session.odooConnection.DbNameSqlite);
-        //string nameTodayTask = DateTime.Now.ToString("yyyy-MM-dd");
-        //var foundTodayTasks = await projectTaskDb.GetItemByNameAsync(App.Session.res_Company.id, nameTodayTask, user_id);
-
-        //ProjectTask CurrentActivityHeader = null;
-
-        //if (foundTodayTasks != null && foundTodayTasks.Count > 0)
-        //{
-        //    CurrentActivityHeader = foundTodayTasks[0];
-        //}
-        //else
-        //{
-        //    var newTask = new DMSA.Models.Odoo.DMOrders.tareas.ProjectTask()
-        //    {
-        //        name = nameTodayTask,
-        //        company_id = App.Session.res_Company.id,
-        //        create_uid = App.Session.CurrentUserFront.uid,
-        //        stage_id_ = 57, //etapa predeterminada
-        //        project_id_ = 1, //proyecto predeterminado
-        //        parent_id = 1, //tarea predeterminada
-        //        date_assign = DateTime.Now,
-        //        date_deadline = DateTime.Now,
-        //        display_in_project = true,
-        //        id_sync = 0,
-        //        user_id = App.Session.CurrentUserFront.uid,
-        //        user_ids = new int [App.Session.CurrentUserFront.uid],
-        //        state = "draft"
-        //    };            
-
-        //    //viewObj.CurrentActivityHeader = new DMSA.Models.Odoo.DMOrders.tareas.ProjectTask() { id = 0, name = nameTodayTask };
-        //    await projectTaskDb.InsertAsync(newTask);
-        //    CurrentActivityHeader = newTask;
-        //}
-
-        //Details viewObj = new Details(CurrentActivityHeader);
-        //viewObj.Disappearing += viewAddTask_Disappearing;
-        //await Navigation.PushModalAsync(viewObj);
+        await AddnewActivity();        
     }
 
     private void viewAddTask_Disappearing(object? sender, EventArgs e)
@@ -256,25 +220,39 @@ public partial class MainPageTab : ContentPage
     }
 
     private async void ViewCell_Tapped_Update(object sender, EventArgs e)
-    {        
+    {
+        if (is_loading_page)
+            return;
+
+        is_loading_page = true;
+
         UpdateData obj = new UpdateData();
         obj.Disappearing += UpdateData_Disappearing;
         await Navigation.PushModalAsync(obj);
     }
 
-    private async void ViewCell_Tapped_Exit_Regular(object sender, EventArgs e)
+    private async void ViewCell_Tapped_About(object sender, EventArgs e)
     {
-        //App.Current.MainPage = new DMOrders.AppShellStart();
-        //App.Current.MainPage = new Login();
-        App.Current.Windows[0].Page = new Login();
+        if (is_loading_page)
+            return;
+
+        is_loading_page = true;
+
+        About obj = new About();
+        obj.Disappearing += UpdateData_Disappearing;
+        await Navigation.PushModalAsync(obj);
     }
 
     private async Task Exit_Special()
     {
+        bool result = await DisplayAlert("¿Cerrar la sesión?", "Regresar a la pantalla de login", "Sí", "No");
+        if (!result)
+        {
+            return;
+        }
+
         await MainThread.InvokeOnMainThreadAsync(async () =>
         {
-            //App.Current.MainPage = new Login();
-
             var window = App.Current.Windows.FirstOrDefault();
             if (window == null)
                 return;
@@ -292,11 +270,7 @@ public partial class MainPageTab : ContentPage
 
     private async Task ViewCell_Tapped_Exit()
     {
-        //ViewCell_Tapped_Exit_Regular(new object { }, null);
-        //await MainThread.InvokeOnMainThreadAsync(() =>
-        //{
-            App.Current.Windows[0].Page = new Login();
-        //});
+        App.Current.Windows[0].Page = new Login();
     }
 
     private async void ShowSettings(object sender, EventArgs e)
@@ -308,7 +282,7 @@ public partial class MainPageTab : ContentPage
 
     private void UpdateData_Disappearing(object? sender, EventArgs e)
     {
-        //throw new NotImplementedException();
+        is_loading_page = false;
     }
 
     private void tabViewMain_SelectedTabChanged(object sender, UraniumUI.Material.Controls.TabItem e)

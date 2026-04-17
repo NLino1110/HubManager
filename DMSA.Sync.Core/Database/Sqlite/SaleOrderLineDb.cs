@@ -10,6 +10,17 @@ namespace DMSA.Sync.Core.Database.Sqlite
 
         }
 
+        protected override async Task OnAfterInit()
+        {
+            await Database.RunInTransactionAsync(tran =>
+            {
+                tran.Execute("CREATE INDEX IF NOT EXISTS idx_sale_order_line_id ON sale_order_line(id)");
+                tran.Execute("CREATE INDEX IF NOT EXISTS idx_sale_order_order_id ON sale_order_line(_order_id)");
+                tran.Execute("CREATE INDEX IF NOT EXISTS idx_sale_order_line_product_id ON sale_order_line(product_id)");
+                tran.Execute("CREATE INDEX IF NOT EXISTS idx_sale_order_line_product_tmpl_id ON sale_order_line(product_tmpl_id)");
+            });
+        }
+
         public async Task<List<sale_order_line>> GetItemsAsync(int order_id)
         {
             await Init();
@@ -56,14 +67,14 @@ namespace DMSA.Sync.Core.Database.Sqlite
             // Obtiene todas las líneas del mismo pedido (_order_id)
             var lastLine = await Database.Table<sale_order_line>()
                 .Where(i => i._order_id == item._order_id)
-                .OrderByDescending(i => i.ordinal)
+                .OrderByDescending(i => i.sequence)
                 .FirstOrDefaultAsync();
 
             // Si no hay líneas anteriores, el ordinal empieza en 1
-            int lastOrdinal = lastLine?.ordinal ?? 0;
+            int lastOrdinal = lastLine?.sequence ?? 0;
 
             // Asigna el siguiente número
-            item.ordinal = lastOrdinal + 1;
+            item.sequence = lastOrdinal + 1;
 
             // Inserta la nueva línea
             return await Database.InsertAsync(item);

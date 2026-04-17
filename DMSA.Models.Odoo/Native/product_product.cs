@@ -119,8 +119,23 @@ namespace DMSA.Models.Odoo.Native
         }
 
         [Ignore]
+        [JsonProperty("uom_sale_id")]
+        public JToken uom_sale_id { get; set; }
+
+        [JsonIgnore]
+        public int _uom_sale_id
+        {
+            get => GetId(uom_sale_id);
+            set => uom_sale_id = SetId(uom_sale_id, value);
+        }
+
+        [Ignore]
         [JsonIgnore]
         public string uom_display { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
+        public string uom_sale_display { get; set; }
 
         [Ignore]
         [JsonIgnore]
@@ -246,6 +261,25 @@ namespace DMSA.Models.Odoo.Native
 
         [Ignore]
         [JsonIgnore]
+        private int _qty_gift_virtual { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
+        public int qty_gift_virtual
+        {
+            get => _qty_gift_virtual;
+            set
+            {
+                if (_qty_gift_virtual != value)
+                {
+                    _qty_gift_virtual = value;
+                    OnPropertyChanged(nameof(qty_gift_virtual));
+                }
+            }
+        }
+
+        [Ignore]
+        [JsonIgnore]
         public bool allow_add_gift { get; set; }
 
         [JsonIgnore]
@@ -253,7 +287,7 @@ namespace DMSA.Models.Odoo.Native
 
         [Ignore]
         [JsonIgnore]
-        public PromotionEvalItemV2 promotionEvalItem { get; set; }
+        public PromotionEvalItem promotionEvalItem { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)

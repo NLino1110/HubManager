@@ -26,5 +26,13 @@ namespace DMSA.Sync.Core.Database.Sqlite
             q.OrderByDescending(x => x.date_data_cutoff);
             return await q.FirstOrDefaultAsync();
         }
+
+        public async Task<mnsa_attachment> GetLastUpdate(string dbPath)
+        {
+            await Init();
+            var q = Database.Table<mnsa_attachment>().Where(x=> x.file_name == dbPath);
+            q.OrderByDescending(x => x.date_data_cutoff);
+            return await q.FirstOrDefaultAsync();
+        }
     }
 }

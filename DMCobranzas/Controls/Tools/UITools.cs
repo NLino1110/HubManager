@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Extensions;
-using CommunityToolkit.Maui.Sample.Models;
 using CommunityToolkit.Maui.Views;
+using DMSA.Sync.Core.Controls.Popups;
 using Microsoft.Maui.Controls.Shapes;
 using System;
 using System.Collections.Generic;

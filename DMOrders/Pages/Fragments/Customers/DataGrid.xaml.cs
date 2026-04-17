@@ -1,5 +1,7 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DMOrders.Controls.Tools;
 using DMOrders.Models.Filters;
 using DMOrders.Pages.Fragments.Orders;
 using DMSA.Models.Clientes;
@@ -46,30 +48,15 @@ namespace DMOrders.Pages.Fragments.Customers
             set => SetValue(FiltersViewProperty, value);
         }
 
-        public ICommand EditCommand { get; set; }
-        public ICommand NewOrderCommand { get; set; }
+        //public ICommand EditCommand { get; set; }
+        //public ICommand NewOrderCommand { get; set; }
         public DataGrid()
         {
             InitializeComponent();
             BindingContext = new ViewModel(FiltersView);
 
-            EditCommand = new Command(AddProcess);
-            NewOrderCommand = new Command(NewOrder);
-            //IDispatcherTimer timer;
-
-            //timer = Dispatcher.CreateTimer();
-            //timer.Interval = TimeSpan.FromMilliseconds(1000);
-            //timer.IsRepeating = false;
-
-            //timer.Tick += (s, e) =>
-            //{
-            //UpdateParticles();
-            //canvasView.InvalidateSurface();
-            //OnTapGestureRecognizerTapped(this, null);
-            //};
-            //timer.Start();
-
-            //_dataGrid1.RowTappedCommand = rowTappedCommand;                                    
+            //EditCommand = new Command(AddProcess);
+            //NewOrderCommand = new Command(NewOrder);                                          
         }
 
         private static void OnFiltersChanged(BindableObject bindable, object oldValue, object newValue)
@@ -86,20 +73,16 @@ namespace DMOrders.Pages.Fragments.Customers
                 //vm.LoadDataByTimer();
             }
         }
-        private async void AddProcess(object obj)
-        {
-            SelectedItem = (res_partner)obj;
+        //private async void AddProcess(object obj)
+        //{
+        //    SelectedItem = (res_partner)obj;
 
-            Crud viewObj = new Crud();
-            viewObj.CurrentPartner = SelectedItem;
-            viewObj.CurrentCompany = App.Session.res_Company;
-            viewObj.CurrentSaleOrder = null;
-            //viewObj.Disappearing += NewOrderPopup_Disappearing;
-            //await viewObj.PrepareForm();            
-            //await Navigation.PushAsync(viewObj, false);
-
-            await Application.Current.MainPage.Navigation.PushModalAsync(new NavigationPage(viewObj));
-        }
+        //    Crud viewObj = new Crud();
+        //    viewObj.CurrentPartner = SelectedItem;
+        //    viewObj.CurrentCompany = App.Session.res_Company;
+        //    viewObj.CurrentSaleOrder = null;
+        //    await Application.Current.MainPage.Navigation.PushModalAsync(new NavigationPage(viewObj));
+        //}
 
         //protected override void OnSizeAllocated(double width, double height)
         //{
@@ -127,7 +110,6 @@ namespace DMOrders.Pages.Fragments.Customers
         ////{
         ////    return true;
         ////}
-
 
         private void OnContentViewTapped(object sender, EventArgs e)
         {
@@ -186,39 +168,35 @@ namespace DMOrders.Pages.Fragments.Customers
         //    return null;
         //}
 
-        private async void btnSelectItem(object sender, EventArgs e)
-        {  
+        //[Obsolete("???")]
+        //private async void btnSelectItem(object sender, EventArgs e)
+        //{  
 
-            //////await Navigation.PopModalAsync(false);
-            ////Debug.WriteLine("Seleccionado");
-            Button btnItem = (Button) sender;
-            //////Se asume que el botón esta dentro de un template y a su vez dentro del DataGridRow
-            ////// por lo cual se asume que la conversión es a 2 niveles arriba 
+        //    //////await Navigation.PopModalAsync(false);
+        //    ////Debug.WriteLine("Seleccionado");
+        //    Button btnItem = (Button) sender;
+        //    //////Se asume que el botón esta dentro de un template y a su vez dentro del DataGridRow
+        //    ////// por lo cual se asume que la conversión es a 2 niveles arriba 
 
-            var data = btnItem.Parent.Parent;
+        //    var data = btnItem.Parent.Parent;
 
-            if (btnItem.Parent != null && btnItem.Parent.Parent != null)
-            {
+        //    if (btnItem.Parent != null && btnItem.Parent.Parent != null)
+        //    {
                 
-                var itemData = SelectedItem;
-                Debug.WriteLine(itemData);
+        //        var itemData = SelectedItem;
+        //        Debug.WriteLine(itemData);
 
-                Crud viewObj = new Crud();
-                viewObj.CurrentPartner = itemData;
-                viewObj.CurrentCompany = App.Session.res_Company;
-                viewObj.CurrentSaleOrder = null;
-                viewObj.Disappearing += NewOrderPopup_Disappearing;
-                await viewObj.PrepareForm();
-                await Navigation.PushAsync(viewObj);
+        //        Crud viewObj = new Crud();
+        //        viewObj.CurrentPartner = itemData;
+        //        viewObj.CurrentCompany = App.Session.res_Company;
+        //        viewObj.CurrentSaleOrder = null;
+        //        viewObj.Disappearing += NewOrderPopup_Disappearing;
+        //        await viewObj.PrepareForm();
+        //        await Navigation.PushAsync(viewObj);
 
-            }
-        }
-
-        private void NewOrderPopup_Disappearing(object? sender, EventArgs e)
-        {
-            Debug.WriteLine("NewOrderPopup_Disappearing");
-        }
-
+        //    }
+        //}
+        
         private async void BtnClose_Clicked(object sender, EventArgs e)
         {
             ////bool answer = await DisplayAlert("Salir", "¿Está seguro que desea cerrar la sessión? ",
@@ -280,44 +258,74 @@ namespace DMOrders.Pages.Fragments.Customers
             //(sender as FixedRefreshView).IsRefreshing = false;
         }
 
+        private bool _isProcessing;
+
         private async void Button_Clicked(object sender, EventArgs e)
-        {            
-            Button button = (sender as Button);
-            SelectedItem = (res_partner) button.BindingContext;
+        {
+            if (_isProcessing) return;
 
-            var viewModel = (ViewModel) BindingContext;
-            viewModel.OnItemTapped(SelectedItem);
+            var button = sender as Button;
 
-            if (SelectedItem != null)
+            if (button == null || !button.IsEnabled)
+                return;
+
+            _isProcessing = true;
+            button.IsEnabled = false;
+
+            try
+            { 
+
+                SelectedItem = (res_partner)button.BindingContext;
+                var viewModel = (ViewModel)BindingContext;
+                viewModel.OnItemTapped(SelectedItem);
+
+                if (SelectedItem != null)
+                {
+                    if (SelectedItem.misc_estado != "activo")
+                    {
+                        await Toast.Make("No se pueden crear ordenes para clientes inactivos.").Show();
+                        button.IsEnabled = true;
+                        _isProcessing = false;
+                        return;
+                    }
+                    
+                    var viewObj = new Crud();
+                    viewObj.CurrentPartner = SelectedItem;
+                    viewObj.CurrentCompany = App.Session.res_Company;
+                    viewObj.CurrentSaleOrder = null;
+                    await viewObj.PrepareForm();
+
+                    viewObj.Unloaded += (sender, e) =>
+                    {                        
+                        button.IsEnabled = true;
+                        _isProcessing = false;
+                        
+                    };                
+
+                    await Navigation.PushModalAsync(viewObj, false);                    
+                }
+            }
+            finally
             {
-                var itemData = SelectedItem;
-                Debug.WriteLine(itemData);
-
-                Crud viewObj = new Crud();
-                viewObj.CurrentPartner = itemData;
-                viewObj.CurrentCompany = App.Session.res_Company;
-                viewObj.CurrentSaleOrder = null;
-                viewObj.Disappearing += NewOrderPopup_Disappearing;
-                await viewObj.PrepareForm();
-                await Navigation.PushModalAsync(viewObj);
+                //button.IsEnabled = true;
+                //_isProcessing = false;
             }
         }
 
-        private async void NewOrder(object obj)
-        {
-            SelectedItem = (res_partner)obj;
+        //private async void NewOrder(object obj)
+        //{
+        //    SelectedItem = (res_partner)obj;
 
-            var itemData = SelectedItem;
-            Debug.WriteLine(itemData);
+        //    var itemData = SelectedItem;
+        //    Debug.WriteLine(itemData);
 
-            Crud viewObj = new Crud();
-            viewObj.CurrentPartner = itemData;
-            viewObj.CurrentCompany = App.Session.res_Company;
-            viewObj.CurrentSaleOrder = null;
-            viewObj.Disappearing += NewOrderPopup_Disappearing;
-            await viewObj.PrepareForm();
-            await Navigation.PushModalAsync(viewObj);
-        }
+        //    Crud viewObj = new Crud();
+        //    viewObj.CurrentPartner = itemData;
+        //    viewObj.CurrentCompany = App.Session.res_Company;
+        //    viewObj.CurrentSaleOrder = null;            
+        //    //await viewObj.PrepareForm();
+        //    await Navigation.PushModalAsync(viewObj);
+        //}
 
         private void OnItemPressed(object sender, PointerEventArgs e)
         {

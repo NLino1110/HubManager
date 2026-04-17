@@ -34,6 +34,18 @@ namespace ApiManagerOdoo.promotions
             return await GetCount(args, _custom_args);
         }
 
+        public async Task<ApiResponseOdooRpc?> GetCountByParents(int[] parents)
+        {
+            object[] args = new object[] { };
+
+            object[] _custom_args = new object[] {
+                //new object[] { "write_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
+                 //new object[] { "end_datetime", ">=", $"{year}-{month:00}-{day:00} 00:00:00" }
+                 new object[] { "promo_id", "in", parents },
+            };
+            return await GetCount(args, _custom_args);
+        }
+
         public async Task<ApiResponseOdooRpcT<PromoCenters[]>?> GetItemsById(string ids)
         {            
             //string fields = "fields=['id','name','description']";
@@ -114,6 +126,22 @@ namespace ApiManagerOdoo.promotions
             object[] args = new object[] { };
             object[] _custom_args = new object[] {
                 new object[] { "promo_id", "=", id }
+            };
+            return await SearchRead<ApiResponseOdooRpcT<PromoCenters[]>>(args, _custom_args, kwargs, true);
+        }
+
+        public async Task<ApiResponseOdooRpcT<PromoCenters[]>?> GetItemsByParentIds(int[] parents, int limit, int index)
+        {
+            var kwargs = new
+            {
+                limit,
+                offset = index * limit,
+                fields = fields_array
+            };
+
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] { "promo_id", "in", parents }
             };
             return await SearchRead<ApiResponseOdooRpcT<PromoCenters[]>>(args, _custom_args, kwargs, true);
         }

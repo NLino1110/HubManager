@@ -1,4 +1,5 @@
-﻿using DMSA.Models.Odoo.Modules.Accounting;
+﻿using DMSA.Models.Odoo.Accounting;
+using DMSA.Models.Odoo.Inventory;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Sales;
 using SQLite;
@@ -9,7 +10,8 @@ namespace DMSA.Sync.Core.Database.Sqlite
     public class ProductProductDb : SqliteDbBase<product_product>
     {
         private Dictionary<int, decimal> cachedTaxesList = new Dictionary<int, decimal>();
-        private Dictionary<int, decimal> cachedProductsWithPrices = new Dictionary<int, decimal>();
+        Dictionary<(int productId, int uomId), decimal> cachedProductsWithPrices = new();
+
         private Dictionary<int, uom_uom> cachedUom = new();
 
         private Dictionary<int, string> cachedMarcas = new Dictionary<int, string>();
@@ -17,7 +19,19 @@ namespace DMSA.Sync.Core.Database.Sqlite
 
         public ProductProductDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
-            Debug.WriteLine("Creacion de instancia ProductProductDb");
+            
+        }
+
+        protected override async Task OnAfterInit()
+        {
+            await Database.RunInTransactionAsync(tran =>
+            {
+                tran.Execute("CREATE INDEX IF NOT EXISTS idx_product_product_product_id ON product_product(id)");
+                tran.Execute("CREATE INDEX IF NOT EXISTS idx_product_product_name ON product_product(name)");
+                tran.Execute("CREATE INDEX IF NOT EXISTS idx_product_product_code ON product_product(code)");
+                tran.Execute("CREATE INDEX IF NOT EXISTS idx_product_product_product_tmpl_id ON product_product(_product_tmpl_id)");
+                tran.Execute("CREATE INDEX IF NOT EXISTS idx_product_product_barcode ON product_product(barcode)");
+            });
         }
 
         // En tu repositorio/capa de datos
@@ -110,6 +124,8 @@ namespace DMSA.Sync.Core.Database.Sqlite
                 q = q.Where(x => x.active == false);
             }
 
+            q.Where(x => x.otras_venta_pedido == true);
+
             // --- 3) Orden ---
             q = ApplySort(q, filter_sort);
 
@@ -150,10 +166,10 @@ namespace DMSA.Sync.Core.Database.Sqlite
                 .ToArrayAsync();
 
             cachedProductsWithPrices = items
-                .GroupBy(i => i._product_tmpl_id)
+                .GroupBy(i => (i._product_tmpl_id, i._uom_id))
                 .ToDictionary(
                     g => g.Key,
-                    g => g.First().fixed_price // o price, price_discount, amount, etc.
+                    g => g.First().fixed_price
                 );
         }
 
@@ -209,8 +225,8 @@ namespace DMSA.Sync.Core.Database.Sqlite
             foreach (var p in items)
             {
                 if (filter_pricelist > 0)
-                {
-                    if (cachedProductsWithPrices.TryGetValue(p._product_tmpl_id, out var price))
+                {                    
+                    if (cachedProductsWithPrices.TryGetValue((p._product_tmpl_id, p._uom_sale_id), out var price))
                     {
                         p.list_price = (float) price;
                     }
@@ -220,7 +236,7 @@ namespace DMSA.Sync.Core.Database.Sqlite
                     }
                 }
 
-                p.uom_display = cachedUom.TryGetValue(p._uom_id, out var uom) ? uom.clave_externa : "";
+                p.uom_sale_display = cachedUom.TryGetValue(p._uom_sale_id, out var uom) ? uom.clave_externa : "";
                 p.marca_display = cachedMarcas.TryGetValue(p._general_marca_id, out var marcaName) ? marcaName : "";
                 p.categoria_display = cachedCategorias.TryGetValue(p._general_categoria_id, out var categName) ? categName : "";
             }
@@ -246,9 +262,9 @@ namespace DMSA.Sync.Core.Database.Sqlite
                 return null;
 
             var item_uom = await Database.Table<uom_uom>()
-                .Where(x => x.id == product_return._uom_id).FirstOrDefaultAsync();
+                .Where(x => x.id == product_return._uom_sale_id).FirstOrDefaultAsync();
 
-            product_return.uom_display = item_uom != null ? item_uom.clave_externa : "";
+            product_return.uom_sale_display = item_uom != null ? item_uom.clave_externa : "";
 
             decimal factor_iva = 1;
             if (cachedTaxesList.TryGetValue(product_return._taxes_id, out var tax_sale))
@@ -256,8 +272,8 @@ namespace DMSA.Sync.Core.Database.Sqlite
                 decimal iva_tax = tax_sale; //15m;
                 factor_iva = 1 + (iva_tax / 100m);
             }
-
-            if (cachedProductsWithPrices.TryGetValue(product_return._product_tmpl_id, out var price))
+            
+            if (cachedProductsWithPrices.TryGetValue((product_return._product_tmpl_id, product_return._uom_sale_id), out var price))
             {
                 product_return.list_price = (float)price;
             }
@@ -285,14 +301,16 @@ namespace DMSA.Sync.Core.Database.Sqlite
 
             cachedUom = items.ToDictionary(uom => uom.id, uom => uom);
 
-            var products = await Database.Table<product_product>().Where(x => product_template_ids.Contains(x._product_tmpl_id)).ToListAsync();
+            var product_template_ids_list = product_template_ids.ToList();
+
+            var products = await Database.Table<product_product>().Where(x => product_template_ids_list.Contains(x._product_tmpl_id)).ToListAsync();
 
             if(products == null || products.Count == 0)
                 return new List<product_product>();
 
             foreach (var p in products)
             {
-                p.uom_display = cachedUom.TryGetValue(p._uom_id, out var uom) ? uom.clave_externa : "";
+                p.uom_sale_display = cachedUom.TryGetValue(p._uom_sale_id, out var uom) ? uom.clave_externa : "";
 
                 decimal factor_iva = 1;
                 if (cachedTaxesList.TryGetValue(p._taxes_id, out var tax_sale))
@@ -300,8 +318,8 @@ namespace DMSA.Sync.Core.Database.Sqlite
                     decimal iva_tax = tax_sale; //15m;
                     factor_iva = 1 + (iva_tax / 100m);
                 }
-
-                if (cachedProductsWithPrices.TryGetValue(p._product_tmpl_id, out var price))
+                
+                if (cachedProductsWithPrices.TryGetValue((p._product_tmpl_id, p._uom_sale_id), out var price))
                 {
                     p.list_price = (float)price;
                 }
@@ -339,7 +357,7 @@ namespace DMSA.Sync.Core.Database.Sqlite
 
             foreach (var p in products)
             {
-                p.uom_display = cachedUom.TryGetValue(p._uom_id, out var uom) ? uom.clave_externa : "";
+                p.uom_sale_display = cachedUom.TryGetValue(p._uom_sale_id, out var uom) ? uom.clave_externa : "";
 
                 decimal factor_iva = 1;
                 if (cachedTaxesList.TryGetValue(p._taxes_id, out var tax_sale))
@@ -347,8 +365,8 @@ namespace DMSA.Sync.Core.Database.Sqlite
                     decimal iva_tax = tax_sale; //15m;
                     factor_iva = 1 + (iva_tax / 100m);
                 }
-
-                if (cachedProductsWithPrices.TryGetValue(p._product_tmpl_id, out var price))
+                
+                if (cachedProductsWithPrices.TryGetValue((p._product_tmpl_id, p._uom_sale_id), out var price))
                 {
                     p.list_price = (float)price;
                 }
@@ -361,6 +379,31 @@ namespace DMSA.Sync.Core.Database.Sqlite
                 decimal price_without_iva = Math.Round(price_list_value / factor_iva, 7);
 
                 p.list_price = (float)price_without_iva;
+            }
+
+            return products;
+        }
+
+        public async Task<List<product_product>> GetByProductsIdsLite(int[] product_ids, int filter_pricelist)
+        {
+            await Init();
+
+            var items = await Database.Table<uom_uom>()
+                .Where(x => x.active == true)
+                .ToArrayAsync();
+
+            cachedUom = items.ToDictionary(uom => uom.id, uom => uom);
+
+            var ids = product_ids.ToList();
+
+            var products = await Database.Table<product_product>().Where(x => ids.Contains(x.id)).ToListAsync();
+
+            if (products == null || products.Count == 0)
+                return new List<product_product>();
+
+            foreach (var p in products)
+            {
+                p.uom_sale_display = cachedUom.TryGetValue(p._uom_sale_id, out var uom) ? uom.clave_externa : "";               
             }
 
             return products;
@@ -398,6 +441,49 @@ namespace DMSA.Sync.Core.Database.Sqlite
                 .ToArray();
 
             return topMarcasIds;
+        }
+
+        public async Task RemoveImagesContent()
+        {
+            await Init();
+
+            await Database.ExecuteAsync(@"
+                    UPDATE product_product
+                    SET image_256 = NULL,
+                        image_1920 = NULL
+                    WHERE image_256 IS NOT NULL
+                       OR image_1920 IS NOT NULL
+                ");
+        }
+
+        public async Task<int> UpdateImagesBatchAsync(List<product_product> items)
+        {
+            if (items == null || items.Count == 0)
+                return 0;
+
+            await Init();
+
+            int count = 0;
+
+            await Database.RunInTransactionAsync(tran =>
+            {
+                foreach (var item in items)
+                {
+                    tran.Execute(
+                        @"UPDATE product_product 
+                  SET image_256 = ?, 
+                      image_1920 = ?
+                  WHERE id = ?",
+                        item.image_256,
+                        item.image_1920,
+                        item.id
+                    );
+
+                    count++;
+                }
+            });
+
+            return count;
         }
     }
 }

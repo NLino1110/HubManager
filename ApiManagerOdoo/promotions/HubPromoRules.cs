@@ -1,29 +1,7 @@
 ﻿using ApiManagerOdoo.Base;
-using AppManagerOdoo.Tools;
-using CobranzasDMSA.Models;
-using DMSA.Models.Clientes;
-using DMSA.Models.General;
-using DMSA.Models.General.Responses;
 using DMSA.Models.Odoo.DMOrders.promotions;
 using DMSA.Models.Odoo.General.Responses;
-using DMSA.Models.Odoo.Native;
 using DMSA.Models.Security;
-//using Microsoft.AspNetCore.Components;
-//using Microsoft.Extensions.Configuration;
-//using Microsoft.Extensions.Logging;
-//using Microsoft.Extensions.Options;
-using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Net;
-using System.Net.Security;
-using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.Json;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ApiManagerOdoo.promotions
 {
@@ -136,6 +114,16 @@ namespace ApiManagerOdoo.promotions
             return await SearchRead<ApiResponseOdooRpcT<PromoRules[]>>(args, _custom_args, kwargs, true);
         }
 
+        public async Task<ApiResponseOdooRpc?> GetCountByParents(int[] parent_ids)
+        {
+            object[] args = new object[] { };
+
+            object[] _custom_args = new object[] {
+                 new object[] { "promo_id", "in", parent_ids }
+            };
+            return await GetCount(args, _custom_args);
+        }
+
         public async Task<ApiResponseOdooRpc?> GetCount(int parent_id)
         {
             object[] args = new object[] { };
@@ -144,6 +132,23 @@ namespace ApiManagerOdoo.promotions
                  new object[] { "promo_id", "=", parent_id }
             };
             return await GetCount(args, _custom_args);
+        }
+
+
+        public async Task<ApiResponseOdooRpcT<PromoRules[]>?> GetItemsByParentIds(int[] parent_ids, int limit, int index)
+        {
+            var kwargs = new
+            {
+                limit,
+                offset = index * limit,
+                fields = fields_array
+            };
+
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] { "promo_id", "in", parent_ids }
+            };
+            return await SearchRead<ApiResponseOdooRpcT<PromoRules[]>>(args, _custom_args, kwargs, true);
         }
 
         public async Task<ApiResponseOdooRpcT<PromoRules[]>?> GetItemsByParentId(int id, int limit, int index)

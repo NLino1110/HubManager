@@ -1,6 +1,6 @@
-﻿using DMSA.Models.General.Requests;
-using DMSA.Models.Odoo.DMCobranzas;
-using DMSA.Models.Odoo.Native;
+﻿using ApiManagerOdoo.Accounting;
+using DMSA.Models.General.Requests;
+using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.Tools;
 using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
@@ -11,16 +11,15 @@ namespace DMSA.Sync.Core.Update
 {
     public partial class ServerPuller
     {
-        public async Task<bool> DownloadAccountMoveRefund()
+        public async Task<bool> DownloadAccountMoveRefund(Func<int, int, Task>? onProgress = null)
         {
             JsonSerializerSettings settings = new JsonSerializerSettings();
-            //settings.DateFormatString = "yyyy-MM-dd HH:mm:ss";
             settings.ContractResolver = new IncludeJsonIgnoreResolver();
 
             DateTime dateIni = DateTime.Now.AddDays(-150);
             DateTime dateEnd = DateTime.Now;
 
-            ApiManager.HubAccountMoveSendHeader hubmanager = new ApiManager.HubAccountMoveSendHeader(appSession);
+            HubCreditNoteRequestGroup hubmanager = new HubCreditNoteRequestGroup(appSession);
             var resultCount = await hubmanager.GetHeaderCount(dateIni, dateEnd);
 
             Debug.WriteLine(resultCount.result);
@@ -30,52 +29,42 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
 
-            int countTotal = resultCount.result / 300;
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
 
-            var databaseHeader = new AccountMoveSendHeaderDb(Constants.Session.odooConnection.DbNameSqlite);
-            var databaseMoveSend = new AccountMoveSendDb(Constants.Session.odooConnection.DbNameSqlite);
-            var databaseMoveLineSend = new AccountMoveLineSendDb(Constants.Session.odooConnection.DbNameSqlite);
+            var databaseHeader = new CreditNoteRequestGroupDb(Constants.Session.odooConnection.DbNameSqlite);
+            var databaseMoveSend = new CreditNoteRequestDb(Constants.Session.odooConnection.DbNameSqlite);
+            var databaseMoveLineSend = new CreditNoteRequestDetailDb(Constants.Session.odooConnection.DbNameSqlite);
 
-            for (int indice = 0; indice <= countTotal; indice++)
+            for (int indice = 0; indice <= totalPages; indice++)
             {
                 var responseAll = await hubmanager.GetItemsFull(dateIni, dateEnd, indice);
 
                 if (responseAll != null && responseAll.Length > 0)
-                {
-                    //await database.InsertBatchAsync(responseAll.data);
-
-                    //Iniciando inserción
+                {                    
                     foreach (var headerItem in responseAll)
-                    {
-                        //var foundHeader = await databaseHeader.GetItemByGuidAsync(headerItem.guid);
+                    {                        
                         var foundHeader = await databaseHeader.GetByRequestName(headerItem.request_name);
                         if (foundHeader != null)
                         {
                             Debug.WriteLine("Registro ya existe en la base de datos!, no se sincronizará");
-                            Debug.WriteLine(foundHeader.request_name);
-                            //Debug.WriteLine(foundHeader.recipe_name);
+                            Debug.WriteLine(foundHeader.request_name);                            
                             continue;
                         }
 
-                        string jsonHeaderItem = JsonConvert.SerializeObject(headerItem); //, settings);
-                        var newHeaderItem = JsonConvert.DeserializeObject<AccountMoveSendHeader>(jsonHeaderItem);
-
-                        //var itemFound = await databaseHeader.GetItemByGuidAsync(newHeaderItem.guid);
-
-                        //if (itemFound != null) continue;
+                        string jsonHeaderItem = JsonConvert.SerializeObject(headerItem);
+                        var newHeaderItem = JsonConvert.DeserializeObject<CreditNoteRequestGroup>(jsonHeaderItem);
 
                         newHeaderItem.was_odoo_synced = true;
                         int newHeaderId = await databaseHeader.InsertAsync(newHeaderItem);
 
-                        //TODO: Podrian venir vacíos porque pudieron haberse borrado
                         if (headerItem.account_moves != null)
                         {
                             foreach (var paymentItem in headerItem.account_moves)
                             {
                                 paymentItem.parent_id = newHeaderItem.id;
                                 paymentItem.was_odoo_synced = true;
-                                string jsonPaymentItem = JsonConvert.SerializeObject(paymentItem, settings); //, settings);
-                                var newPaymentItem = JsonConvert.DeserializeObject<account_move_send>(jsonPaymentItem, settings);
+                                string jsonPaymentItem = JsonConvert.SerializeObject(paymentItem, settings);
+                                var newPaymentItem = JsonConvert.DeserializeObject<credit_note_request>(jsonPaymentItem, settings);
 
                                 int newPayId = await databaseMoveSend.InsertAsync(newPaymentItem);
 
@@ -83,23 +72,22 @@ namespace DMSA.Sync.Core.Update
                                 {
                                     foreach (var lineItem in paymentItem.lines)
                                     {
-                                        lineItem.parent_move_id = newPaymentItem.id;
+                                        lineItem.parent_id = newPaymentItem.id;
                                         lineItem.was_odoo_synced = true;
                                         string jsonLineItem = JsonConvert.SerializeObject(lineItem, settings); //, settings);
-                                        var newLineItem = JsonConvert.DeserializeObject<account_move_line_send>(jsonLineItem, settings);
+                                        var newLineItem = JsonConvert.DeserializeObject<credit_note_request_detail>(jsonLineItem, settings);
                                         await databaseMoveLineSend.InsertAsync(newLineItem);
                                     }
                                 }
                             }
                         }
+
+                        if (onProgress != null)
+                            await onProgress(indice + 1, totalPages);
                     }
                 }
 
-                Console.WriteLine("Página:" + indice);
-
-                //TODO: Se fuerza la salida para que no se quede ciclado en caso de que haya
-                // problemas de conexion con el servidor
-                // el objetivo es que el servidor no se sobrecargue
+                Console.WriteLine("DownloadAccountMoveRefund Página:" + indice);
 
                 if (indice >= maxIndexExceeded)
                 {
@@ -189,7 +177,7 @@ namespace DMSA.Sync.Core.Update
         }
 
 
-        public async Task<bool> OnlineSyncResPartnerFull()
+        public async Task<bool> OnlineSyncResPartnerFull(Func<int, int, Task>? onProgress = null)
         {
             var stopwatch = Stopwatch.StartNew();
 
@@ -207,9 +195,10 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
 
-            int countTotal = resultCount.result / limit;
+            //int countTotal = resultCount.result / limit;
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
 
-            for (int indice = 0; indice <= countTotal; indice++)
+            for (int indice = 0; indice <= totalPages; indice++)
             {
                 var responseAll = await hubmanager.GetByWriteDate(lastDate.Value, limit, indice);
 
@@ -219,7 +208,10 @@ namespace DMSA.Sync.Core.Update
                     //await database.InsertBatchControlAsync(responseAll.result);
                 }
 
-                Console.WriteLine("ResPartnerFull Página:" + indice + " de " + countTotal);
+                Console.WriteLine("ResPartnerFull Página:" + indice + " de " + totalPages);
+
+                if (onProgress != null)
+                    await onProgress(indice, totalPages);
 
                 if (indice >= maxIndexExceeded)
                 {

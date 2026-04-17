@@ -1,30 +1,7 @@
 ﻿using ApiManagerOdoo.Base;
-using AppManagerOdoo.Tools;
-using CobranzasDMSA.Models;
-using DMSA.Models.Clientes;
-using DMSA.Models.General;
-using DMSA.Models.General.Responses;
-using DMSA.Models.Odoo.DMOrders.promotions;
-using DMSA.Models.Odoo.DMOrders.tareas;
 using DMSA.Models.Odoo.General.Responses;
-using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Tareas;
 using DMSA.Models.Security;
-//using Microsoft.AspNetCore.Components;
-//using Microsoft.Extensions.Configuration;
-//using Microsoft.Extensions.Logging;
-//using Microsoft.Extensions.Options;
-using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Net;
-using System.Net.Security;
-using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.Json;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ApiManager
 {

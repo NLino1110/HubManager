@@ -39,6 +39,7 @@ namespace ApiManager
                 "currency_id",
                 "uom_id",
                 "uom_name",
+                "uom_sale_id",
                 "sale_ok",
                 "purchase_ok",                
                 "image_256",
@@ -86,58 +87,69 @@ namespace ApiManager
             return await GetCount(args, _custom_args);
         }
 
-        public async Task<ApiResponseOdooRpc?> GetCountByCreateDate(int year, int month, int day)
+        public async Task<ApiResponseOdooRpc?> GetCountOnlyImage(DateTime? dateTime)
         {
             object[] args = new object[] { };
             object[] _custom_args = new object[] {
-                new object[] {"create_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
-                new object[] {"create_date", "<=", $"{year}-{month:00}-{day:00} 23:59:59" },
+                new object[] { "write_date", ">", dateTime?.ToString("yyyy-MM-dd") },
+                //new object[] { "image_256", "!=", false },
+                new object[] { "image_1920", "!=", false }
             };
             return await GetCount(args, _custom_args);
         }
 
-        public async Task<ApiResponseOdooRpc?> GetCountByWriteDate(int year, int month, int day)
-        {
-            object[] args = new object[] { };            
-            object[] _custom_args = new object[] {
-                new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
-            };
-            return await GetCount(args, _custom_args);
-        }
-                
-        public async Task<ApiResponseOdooRpcT<product_product[]>?> GetByCreateDate(int limit, int index, int year, int month, int day)
-        {            
-            var kwargs = new
-            {
-                limit = limit,
-                offset = (index * limit),
-                fields = fields_array //new[] { "id", "name", "uom_id", "default_code", "categ_id", "type", "product_brand_id", "active", "macro_product_available", "sale_ok", "purchase_ok", "trade_ok" }
-            };
+        //public async Task<ApiResponseOdooRpc?> GetCountByCreateDate(int year, int month, int day)
+        //{
+        //    object[] args = new object[] { };
+        //    object[] _custom_args = new object[] {
+        //        new object[] {"create_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
+        //        new object[] {"create_date", "<=", $"{year}-{month:00}-{day:00} 23:59:59" },
+        //    };
+        //    return await GetCount(args, _custom_args);
+        //}
 
-            object[] args = new object[] { };
-            object[] _custom_args = new object[] {
-                new object[] {"create_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
-                new object[] {"create_date", "<=", $"{year}-{month:00}-{day:00} 23:59:59" },
-            };
-            return await SearchRead<ApiResponseOdooRpcT<product_product[]>>(args, _custom_args, kwargs);
-        }
+        //public async Task<ApiResponseOdooRpc?> GetCountByWriteDate(int year, int month, int day)
+        //{
+        //    object[] args = new object[] { };
+        //    object[] _custom_args = new object[] {
+        //        new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
+        //    };
+        //    return await GetCount(args, _custom_args);
+        //}
 
-        public async Task<ApiResponseOdooRpcT<product_product[]>?> GetByCreateDateRange(int limit, int index, DateTime dateIni, DateTime dateEnd)
-        {
-            var kwargs = new
-            {
-                limit = limit,
-                offset = (index * limit),
-                fields = fields_array //new[] { "id", "name", "uom_id", "default_code", "categ_id", "type", "product_brand_id", "active", "macro_product_available", "sale_ok", "purchase_ok", "trade_ok" }
-            };
+        //public async Task<ApiResponseOdooRpcT<product_product[]>?> GetByCreateDate(int limit, int index, int year, int month, int day)
+        //{            
+        //    var kwargs = new
+        //    {
+        //        limit = limit,
+        //        offset = (index * limit),
+        //        fields = fields_array //new[] { "id", "name", "uom_id", "default_code", "categ_id", "type", "product_brand_id", "active", "macro_product_available", "sale_ok", "purchase_ok", "trade_ok" }
+        //    };
 
-            object[] args = new object[] { };
-            object[] _custom_args = new object[] {
-                new object[] {"create_date", ">=", dateIni.ToString("yyyy-MM-dd 00:00:00") },
-                new object[] {"create_date", "<=", dateEnd.ToString("yyyy-MM-dd 23:59:59") },
-            };
-            return await SearchRead<ApiResponseOdooRpcT<product_product[]>>(args, _custom_args, kwargs, true);
-        }
+        //    object[] args = new object[] { };
+        //    object[] _custom_args = new object[] {
+        //        new object[] {"create_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
+        //        new object[] {"create_date", "<=", $"{year}-{month:00}-{day:00} 23:59:59" },
+        //    };
+        //    return await SearchRead<ApiResponseOdooRpcT<product_product[]>>(args, _custom_args, kwargs);
+        //}
+
+        //public async Task<ApiResponseOdooRpcT<product_product[]>?> GetByCreateDateRange(int limit, int index, DateTime dateIni, DateTime dateEnd)
+        //{
+        //    var kwargs = new
+        //    {
+        //        limit = limit,
+        //        offset = (index * limit),
+        //        fields = fields_array //new[] { "id", "name", "uom_id", "default_code", "categ_id", "type", "product_brand_id", "active", "macro_product_available", "sale_ok", "purchase_ok", "trade_ok" }
+        //    };
+
+        //    object[] args = new object[] { };
+        //    object[] _custom_args = new object[] {
+        //        new object[] {"create_date", ">=", dateIni.ToString("yyyy-MM-dd 00:00:00") },
+        //        new object[] {"create_date", "<=", dateEnd.ToString("yyyy-MM-dd 23:59:59") },
+        //    };
+        //    return await SearchRead<ApiResponseOdooRpcT<product_product[]>>(args, _custom_args, kwargs, true);
+        //}
 
         public async Task<ApiResponseOdooRpcT<product_product[]>?> GetByWriteDate(int limit, int index, DateTime dateIni)
         {
@@ -155,34 +167,110 @@ namespace ApiManager
             return await SearchRead<ApiResponseOdooRpcT<product_product[]>>(args, _custom_args, kwargs, true);
         }
 
-        public async Task<ApiResponseOdooRpcT<product_product[]>?> GetByWriteDate_dl(int year, int month, int day)
+        public async Task<ApiResponseOdooRpcT<product_product[]>?> GetByWriteDateNoImage(int limit, int index, DateTime dateIni)
         {
+            var fields_array_no_image = fields_array
+                .Where(f => f != "image_256" && f != "image_1920")
+                .ToArray();
+
             var kwargs = new
             {
-                fields = new[] { "id", "write_date" }
+                limit = limit,
+                offset = (index * limit),
+                fields = fields_array_no_image
             };
 
             object[] args = new object[] { };
             object[] _custom_args = new object[] {
-                new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
+                new object[] {"write_date", ">=", dateIni.ToString("yyyy-MM-dd 00:00:00") }
             };
-            return await SearchRead<ApiResponseOdooRpcT<product_product[]>>(args, _custom_args, kwargs);
+            return await SearchRead<ApiResponseOdooRpcT<product_product[]>>(args, _custom_args, kwargs, true);
         }
 
-        public async Task<ApiResponseOdooRpcT<product_product[]>?> GetByCreateDate_dl(int year, int month, int day)
+        public async Task<ApiResponseOdooRpcT<product_product[]>?> GetByWriteOnlyImage(int limit, int index, DateTime dateIni)
         {
+            string[] img_fields_array = new[] {
+                "id",
+                "product_tmpl_id",
+                "code",                
+                "active",                
+                "create_date",
+                "write_date",                
+                "image_256",
+                "image_1920",               
+                };
+
             var kwargs = new
             {
-                fields = new[] { "id", "create_date", "write_date" }
+                limit = limit,
+                offset = (index * limit),
+                fields = img_fields_array
             };
 
             object[] args = new object[] { };
             object[] _custom_args = new object[] {
-                new object[] { "create_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
+                new object[] {"write_date", ">=", dateIni.ToString("yyyy-MM-dd 00:00:00") }
             };
-            return await SearchRead<ApiResponseOdooRpcT<product_product[]>>(args, _custom_args, kwargs);
+            return await SearchRead<ApiResponseOdooRpcT<product_product[]>>(args, _custom_args, kwargs, true);
         }
-        
+
+        public async Task<ApiResponseOdooRpcT<product_product_preview[]>?> GetByWriteOnlyImageV2(int limit, int index, DateTime dateIni)
+        {
+            string[] img_fields_array = new[] {
+                "id",
+                "product_tmpl_id",
+                "code",
+                "active",
+                "create_date",
+                "write_date",
+                "image_256",
+                "image_1920",
+                };
+
+            var kwargs = new
+            {
+                limit = limit,
+                offset = (index * limit),
+                fields = img_fields_array
+            };
+
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] {"write_date", ">", dateIni.ToString("yyyy-MM-dd HH:mm:ss") },
+                //new object[] { "image_256", "!=", false },
+                new object[] { "image_1920", "!=", false }
+            };
+            return await SearchRead<ApiResponseOdooRpcT<product_product_preview[]>>(args, _custom_args, kwargs, true);
+        }
+
+        //public async Task<ApiResponseOdooRpcT<product_product[]>?> GetByWriteDate_dl(int year, int month, int day)
+        //{
+        //    var kwargs = new
+        //    {
+        //        fields = new[] { "id", "write_date" }
+        //    };
+
+        //    object[] args = new object[] { };
+        //    object[] _custom_args = new object[] {
+        //        new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
+        //    };
+        //    return await SearchRead<ApiResponseOdooRpcT<product_product[]>>(args, _custom_args, kwargs);
+        //}
+
+        //public async Task<ApiResponseOdooRpcT<product_product[]>?> GetByCreateDate_dl(int year, int month, int day)
+        //{
+        //    var kwargs = new
+        //    {
+        //        fields = new[] { "id", "create_date", "write_date" }
+        //    };
+
+        //    object[] args = new object[] { };
+        //    object[] _custom_args = new object[] {
+        //        new object[] { "create_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
+        //    };
+        //    return await SearchRead<ApiResponseOdooRpcT<product_product[]>>(args, _custom_args, kwargs);
+        //}
+
         public async Task<ApiResponseOdooRpcT<product_product[]>?> GetByWriteDate(int year, int month, int day)
         {
             var kwargs = new

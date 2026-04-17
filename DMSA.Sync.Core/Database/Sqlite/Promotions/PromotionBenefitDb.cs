@@ -30,7 +30,8 @@ namespace DMSA.Sync.Core.Database.Sqlite.Benefits
                                             x.start_datetime <= nowUtc &&
                                             x.end_datetime >= nowUtc &&
                                             x._target_segment_id == 1 && //Solo fuerza de ventas
-                                            x.active)
+                                            x.active &&
+                                            x.state == "authorized")
                                 .OrderBy(x => x.create_date);
 
             var result = await query.ToListAsync();

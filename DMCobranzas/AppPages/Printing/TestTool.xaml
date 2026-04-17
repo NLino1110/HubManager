@@ -12,14 +12,15 @@
 
             <Label Text="Prueba de impresión"></Label>
             <Editor x:Name="editor" 
-                    BackgroundColor="GhostWhite"                    
-        HeightRequest="120"
-        TextChanged="OnEditorTextChanged"
-        Completed="OnEditorCompleted" 
+                    BackgroundColor="GhostWhite"
+                    HeightRequest="120"
+                    TextChanged="OnEditorTextChanged"
+                    Completed="OnEditorCompleted" 
                     IsReadOnly="False"
-                    MinimumHeightRequest="120"/>
+                    MinimumHeightRequest="120"
+                    AutoSize="TextChanges" 
+                     FontFamily="Consolas"/>
 
-            <!--<ListView x:Name="myListView" ItemsSource="{Binding m_deviceList}">-->
             <ListView x:Name="myListView">
                     <ListView.ItemTemplate>
                     <DataTemplate>
@@ -61,60 +62,60 @@
                 </Grid.RowDefinitions>
 
                 <Button Grid.Row="0" Grid.Column="0"
-                x:Name="btnPrintData"
-                Text="Send Data"
-                SemanticProperties.Hint="Bluetooth devices"
-                Clicked="Print"
-                HorizontalOptions="Center" />
+                    x:Name="btnPrintData"
+                    Text="Send Data"
+                    SemanticProperties.Hint="Bluetooth devices"
+                    Clicked="Print"
+                    HorizontalOptions="Center" />
 
                 <Button Grid.Row="1" Grid.Column="0"
-                x:Name="btnPrintGraphical"
-                Text="Graphical Print"
-                SemanticProperties.Hint="Bluetooth devices"
-                Clicked="PrintGraphical"
-                HorizontalOptions="Center" />
+                    x:Name="btnPrintGraphical"
+                    Text="Graphical Print"
+                    SemanticProperties.Hint="Bluetooth devices"
+                    Clicked="PrintGraphical"
+                    HorizontalOptions="Center" />
 
                 <Button Grid.Row="2" Grid.Column="0"
-                x:Name="btnPrintQr"
-                Text="Generate Qr Code Print"
-                SemanticProperties.Hint="Bluetooth devices"
-                Clicked="PrintQr"
-                HorizontalOptions="Center" />
+                    x:Name="btnPrintQr"
+                    Text="Generate Qr Code Print"
+                    SemanticProperties.Hint="Bluetooth devices"
+                    Clicked="PrintQr"
+                    HorizontalOptions="Center" />
 
                 <Button Grid.Row="0" Grid.Column="1"
-                x:Name="btnPrintImg"
-                Text="Print Picture"
-                SemanticProperties.Hint="Bluetooth devices"
-                Clicked="PrintImg"
-                HorizontalOptions="Center" />
+                    x:Name="btnPrintImg"
+                    Text="Print Picture"
+                    SemanticProperties.Hint="Bluetooth devices"
+                    Clicked="PrintImg"
+                    HorizontalOptions="Center" />
 
                 <Button Grid.Row="1" Grid.Column="1"
-                x:Name="btnPrintBarCode"
-                Text="Print 1D/2D Codebar"
-                SemanticProperties.Hint="Bluetooth devices"
-                Clicked="PrintBarCode"
-                HorizontalOptions="Center" />
+                    x:Name="btnPrintBarCode"
+                    Text="Print 1D/2D Codebar"
+                    SemanticProperties.Hint="Bluetooth devices"
+                    Clicked="PrintBarCode"
+                    HorizontalOptions="Center" />
 
                 <Button Grid.Row="2" Grid.Column="1"
-                x:Name="btnTurnOnCamera"
-                Text="Turn on the camera"
-                SemanticProperties.Hint="Bluetooth devices"
-                Clicked="btnTurnOnCamera_Clicked"
-                HorizontalOptions="Center" />
+                    x:Name="btnTurnOnCamera"
+                    Text="Turn on the camera"
+                    SemanticProperties.Hint="Bluetooth devices"
+                    Clicked="btnTurnOnCamera_Clicked"
+                    HorizontalOptions="Center" />
 
                 <Image Grid.Row="3" Grid.Column="0"
-                x:Name="imgPrint"
-                Source="demo.bmp"
-                SemanticProperties.Description="Avantar profile picture"
-                HeightRequest="200"
-                WidthRequest="200"
-                HorizontalOptions="Center" />
+                    x:Name="imgPrint"
+                    Source="demo.bmp"
+                    SemanticProperties.Description="Avantar profile picture"
+                    HeightRequest="200"
+                    WidthRequest="200"
+                    HorizontalOptions="Center" />
 
                 <Image Grid.Row="3" Grid.Column="1"
-                x:Name="imgPrintSk"
-                HeightRequest="200"
-                WidthRequest="200"
-                HorizontalOptions="Center" />
+                    x:Name="imgPrintSk"
+                    HeightRequest="200"
+                    WidthRequest="200"
+                    HorizontalOptions="Center" />
 
             </Grid>
         </VerticalStackLayout>

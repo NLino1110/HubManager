@@ -3,67 +3,57 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="DMCobranzas.AppPages.PrintView"
              Title="Impresión de Ticket">
-    
-    <VerticalStackLayout Padding="0">
+    <Grid RowDefinitions="Auto,*,Auto">
         <Label 
+            Grid.Row="0"
             Text="Imprimir Recibo"
             VerticalOptions="Center" 
             HorizontalOptions="Center" 
             FontAttributes="Bold"
             Margin="15"/>
-       
-            <ScrollView x:Name="scrollViewPrint"
-                Orientation="Vertical" 
-                VerticalScrollBarVisibility="Default" 
-                MinimumHeightRequest="500" 
-                MinimumWidthRequest="500" 
-                MaximumHeightRequest="500" 
-                MaximumWidthRequest="500">
-                <Editor
-                        x:Name="editor"
-                        Placeholder="..."
-                        BackgroundColor="WhiteSmoke"
-                        TextChanged="OnEditorTextChanged"
-                        Completed="OnEditorCompleted"
-                        VerticalOptions="Fill"
-                        VerticalTextAlignment="Start"
-                        AutoSize="TextChanges" 
-                        FontFamily="Consolas"
-                    />
-            </ScrollView>
-            <!--<ListView x:Name="myListView" ItemsSource="{Binding m_deviceList}" ItemSelected="myListView_ItemSelected">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <TextCell Text="{Binding Name}" />
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>-->
 
-            <StackLayout Orientation="Horizontal" Spacing="5" HorizontalOptions="Center" Margin="15">
-        <Button
-            CornerRadius="2"
-                x:Name="btnPrint"
-                Text="Imprimir"                
-                Clicked="btnPrint_Clicked"
-                HorizontalOptions="Center"
-            BackgroundColor="LightGray"
-                IsVisible="true" TextColor="Black">
-            <Button.ImageSource>
-                <FontImageSource FontFamily="FontAwesome5Solid"
-                                                    Color="Black"
-                                                    Size="20"
-                                                    FontAutoScalingEnabled="True"                                                         
-                                                    Glyph="&#xf02f;" />
-            </Button.ImageSource>
-        </Button>
+        <ScrollView 
+             Grid.Row="1"
+            x:Name="scrollViewPrint"
+                Orientation="Vertical" 
+                VerticalScrollBarVisibility="Default"                 
+                MinimumWidthRequest="350"
+                MaximumWidthRequest="350">
+            <Border
+                BackgroundColor="WhiteSmoke"
+                StrokeThickness="0"
+                Padding="15">
+                <WebView x:Name="previewWeb" VerticalOptions="Fill"/>
+            </Border>
+        </ScrollView>
+
+        <StackLayout Grid.Row="2" Orientation="Horizontal" Spacing="5" HorizontalOptions="Center" Margin="15">
+            <Button
+                CornerRadius="2"
+                    x:Name="btnPrint"
+                    Text="Imprimir"                
+                    Clicked="btnPrint_Clicked"
+                    HorizontalOptions="Center"
+                BackgroundColor="LightGray"
+                    IsVisible="true"
+                IsEnabled="False"
+                TextColor="Black">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+                                                        Color="Black"
+                                                        Size="20"
+                                                        FontAutoScalingEnabled="True"                                                         
+                                                        Glyph="&#xf02f;" />
+                </Button.ImageSource>
+            </Button>
 
             <Button
                 CornerRadius="2"
-        x:Name="btnShare"
-        Text="Compartir"
-        Clicked="btnShare_Clicked"
-        HorizontalOptions="Center"
-        IsVisible="true"
+                x:Name="btnShare"
+                Text="Compartir"
+                Clicked="btnShare_Clicked"
+                HorizontalOptions="Center"
+                IsVisible="true"
                 BackgroundColor="LightGray"
                 TextColor="Black">
                 <Button.ImageSource>
@@ -74,7 +64,6 @@
                                             Glyph="&#xf1e0;" />
                 </Button.ImageSource>
             </Button>
-            </StackLayout>
-        </VerticalStackLayout>
-    
+        </StackLayout>
+    </Grid>
 </ContentPage>

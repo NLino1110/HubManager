@@ -24,6 +24,7 @@ public class infoDetail
 public partial class Info : ContentView
 {
     ProductPricelistItemDb priceListProductsDb { get; set; }
+    ProductProductPreviewDb productProductPreviewDb { get; set; }
 
 
     public static readonly BindableProperty StockListProperty =
@@ -87,6 +88,7 @@ public partial class Info : ContentView
         StockList = new ObservableCollection<infoDetail>();
         PricesList = new ObservableCollection<infoDetail>();
         priceListProductsDb = new ProductPricelistItemDb(App.Session.odooConnection.DbNameSqlite);
+        productProductPreviewDb = new ProductProductPreviewDb(App.Session.odooConnection.DbNameSqliteStatic);
     }
 
     public async Task FillData(product_product _data)
@@ -108,11 +110,13 @@ public partial class Info : ContentView
         await FillInventory(data);
         await FillPrices(data);
 
-        Base64Source = data.image_256 is string s &&
-                    !string.IsNullOrWhiteSpace(s) &&
-                    !s.Equals("false", StringComparison.OrdinalIgnoreCase)
-                        ? s
-                        : string.Empty;
+        //Base64Source = data.image_256 is string s &&
+        //            !string.IsNullOrWhiteSpace(s) &&
+        //            !s.Equals("false", StringComparison.OrdinalIgnoreCase)
+        //                ? s
+        //                : string.Empty;
+
+        Base64Source = await productProductPreviewDb.GetBase65_256(data);
 
         if (!string.IsNullOrWhiteSpace(Base64Source) && !Base64Source.Equals("false"))
         {
@@ -134,22 +138,6 @@ public partial class Info : ContentView
         {
             productImage.Source = null;
         }
-
-        //if (!string.IsNullOrEmpty(data.image_256))
-        //    MemoryStream stream = new MemoryStream(Convert.FromBase64String((string)Base64Source));
-        //productImage.Source = ImageSource.FromStream(() => stream);
-
-        //OnPropertyChanged(nameof(Base64Source));
-
-        //byte[] imageBytes = Convert.FromBase64String(Base64Source);
-
-        //productImage = new Image
-        //{
-        //    Source = ImageSource.FromStream(() => new MemoryStream(imageBytes)),
-        //    Aspect = Aspect.AspectFill,
-        //    HeightRequest = 200,
-        //    WidthRequest = 200
-        //};
     }
         
     public static class Cache

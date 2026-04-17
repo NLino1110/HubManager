@@ -161,82 +161,20 @@ namespace DMOrders.Pages.Fragments.Product
 
         private async void btnSelectItem(object sender, EventArgs e)
         {  
-
-            //////await Navigation.PopModalAsync(false);
-            ////Debug.WriteLine("Seleccionado");
-            Button btnItem = (Button) sender;
-            //////Se asume que el botón esta dentro de un template y a su vez dentro del DataGridRow
-            ////// por lo cual se asume que la conversión es a 2 niveles arriba 
+            
+            Button btnItem = (Button) sender;            
 
             var data = btnItem.Parent.Parent;
 
             if (btnItem.Parent != null && btnItem.Parent.Parent != null)
             {
-                //var type = Assembly.Load("Maui.DataGrid").GetType("Maui.DataGrid.DataGridRow");
-                //if (type == null)
-                //{
-                //    Console.WriteLine("Tipo no encontrado.");
-                //    return;
-                //}
-
-                //var instance = Activator.CreateInstance(type);
-
-                //if (instance is View view)
-                //{
-
-                //    var touchBehavior = new TouchBehavior
-                //    {
-                //        LongPressDuration = 750
-                //    };
-
-                //    touchBehavior.SetBinding(
-                //        TouchBehavior.LongPressCommandProperty,
-                //        new Binding("IncreaseLongPressCountCommand")
-                //        {
-                //            Source = this.BindingContext
-                //        });
-
-                //    _dataGrid1.Behaviors.Add(touchBehavior);
-
-                //}                
-
-                //var dataProps = data.GetType().GetProperties();
-                //foreach (var prop in dataProps)
-                //{
-                //    var targetProp = type.GetProperty(prop.Name,
-                //        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
-                //    if (targetProp != null && targetProp.CanWrite)
-                //    {
-                //        var value = prop.GetValue(data);
-                //        targetProp.SetValue(instance, value);
-                //    }
-                //}
-
-                //var row = (Maui.DataGrid.DataGridRow) btnItem.Parent.Parent;
-                //var rowData = row.BindingContext;
-                ////    if (rowData is ClienteAprobacion cliente)
-                ////    {
-                ////        //Se realiza la seleccion manual de la fila, ya que si se hace clic en el botón no es automática
-                ////        _dataGrid1.SelectedItem = rowData;
-                ////        await ShowConfirmClient(cliente);
-                ////        // Ejemplo: muestra una alerta con los valores de las propiedades
-                ////        //DisplayAlert("Información", $"Propiedad1: {propiedad1}, Propiedad2: {propiedad2}", "Aceptar");
-                ////    }
+                
             }
         }
 
         private async void BtnClose_Clicked(object sender, EventArgs e)
         {
-            ////bool answer = await DisplayAlert("Salir", "¿Está seguro que desea cerrar la sessión? ",
-            ////"Cerrar Sesión",
-            ////"Cancelar");
-
-            //////Debug.WriteLine("Answer: " + answer);
-            ////if (!answer)
-            ////{
-            ////    return;
-            ////}
+            
         }
 
         private async void _dataGrid1_ItemRowTap(object sender, TappedEventArgs e)

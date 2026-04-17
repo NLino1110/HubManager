@@ -10,7 +10,8 @@
     Title="Cobranzas Login"
     Shell.FlyoutBehavior="Flyout"
     Shell.NavBarIsVisible="False"    
-    Appearing="ContentPage_Appearing">
+    Appearing="ContentPage_Appearing"
+    x:Name="PageRoot">
 
     <!-- ESTILOS -->
     <ContentPage.Resources>
@@ -86,16 +87,16 @@
 
                         <!-- Login -->
                         <VerticalStackLayout x:Name="LoginSelector" Spacing="10">
-                            <material:DropdownField x:Name="ddCompany" Title="Compañia"/>
+                            <material:DropdownField x:Name="ddCompany" Title="Conexión"/>
                             <material:TextField x:Name="txtUser"
                                                 Title="Usuario"
                                                 BorderThickness="0.4"
-                                                Icon="{FontImageSource FontFamily=MaterialRegular, Glyph={x:Static m:MaterialRegular.Email}}" />
+                                                Icon="{FontImageSource FontFamily=FontAwesome5Solid, Glyph='&#xf007;'}" />
 
                             <material:TextField x:Name="txtPassword"
                                                 Title="Password"
                                                 IsPassword="True"
-                                                Icon="{FontImageSource FontFamily=MaterialRegular, Glyph={x:Static m:MaterialRegular.Lock}}">
+                                                Icon="{FontImageSource FontFamily=FontAwesome5Solid, Glyph='&#xf084;'}">
                                 <material:TextField.Attachments>
                                     <material:TextFieldPasswordShowHideAttachment />
                                 </material:TextField.Attachments>
@@ -124,19 +125,16 @@
                                FontSize="12"
                                HorizontalOptions="Center"
                                TextColor="Gray">
-
-                            <!--<Label.Behaviors>
-                                    <toolkit:TouchBehavior
-                                        PressedOpacity="0.85"
-                                        PressedScale="0.97"
-                                        PressedBackgroundColor="#E6F0FF"
-                                        LongPressDuration="1000"
-                                        LongPressCommand="{Binding ActionCommand}"
-                                        LongPressCommandParameter="{Binding BindingContext}"
-                                        DefaultBackgroundColor="Transparent"
-                                        Command="{Binding ActionCommand}"
-                                        CommandParameter="{Binding BindingContext}" />
-                                </Label.Behaviors>-->
+                            <Label.Behaviors>
+                                <toolkit:TouchBehavior
+                                    PressedOpacity="0.85"
+                                    PressedScale="0.97"
+                                    PressedBackgroundColor="HotPink"                                    
+                                    LongPressDuration="600"
+                                    LongPressCommand="{Binding Source={x:Reference PageRoot}, Path=ShowConnectionsCommand}"
+                                    LongPressCommandParameter="{Binding BindingContext}"
+                                    DefaultBackgroundColor="Transparent" />
+                            </Label.Behaviors>
                         </Label>
 
                         <!-- Botón de configuración oculto -->

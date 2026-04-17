@@ -22,13 +22,12 @@ namespace DMSA.Sync.Core.Controls
 
         public HeaderLikeTable()
         {
-            Frame ContentFrame = new Frame()
-            {
-                BorderColor = Colors.LightGray,
+            Border ContentFrame = new Border()
+            {                
                 Padding = new Thickness(10),
                 Margin = new Thickness(1),
                 BackgroundColor = Colors.Gray,
-                CornerRadius = 0,
+                StrokeThickness = 0.3,                
             };
 
             grid = new Grid

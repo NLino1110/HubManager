@@ -1,11 +1,160 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:conv="clr-namespace:DMOrders.Converters"
              x:Class="DMOrders.Controls.CustomRows.Lite.AccountAnalyticLineRow">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+
+    <ContentView.Resources>
+        <conv:HourDecimalToTimeSpanConverter x:Key="HourConverter"/>
+    </ContentView.Resources>
+
+    <Grid
+        Padding="0"
+        Margin="0"
+        ColumnSpacing="4"
+        HeightRequest="58"
+        HorizontalOptions="Fill"
+        VerticalOptions="Center">
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="42"/>
+            <ColumnDefinition Width="6"/>
+            <ColumnDefinition Width="2.5*"/>
+            <ColumnDefinition Width="1.5*"/>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="72"/>
+            <ColumnDefinition Width="72"/>
+            <ColumnDefinition Width="72"/>
+            <ColumnDefinition Width="64"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ID -->
+        <Label
+            Grid.Column="0"
+            FontSize="12"
+            TextColor="Black"
+            Padding="2,0"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            HorizontalTextAlignment="Center"
+            Text="{Binding id}" />
+
+        <!-- Empresa -->
+        <Label
+            Grid.Column="2"
+            FontSize="13"
+            FontAttributes="Bold"
+            LineBreakMode="TailTruncation"
+            MaxLines="1"
+            HorizontalTextAlignment="Start"
+            VerticalOptions="Center"
+            Text="{Binding res_company_display}" />
+
+        <!-- Motivo -->
+        <Label
+            Grid.Column="3"
+            FontSize="12"
+            TextColor="Gray"
+            LineBreakMode="TailTruncation"
+            MaxLines="1"
+            HorizontalTextAlignment="Start"
+            VerticalOptions="Center"
+            Text="{Binding motivo_display}" />
+
+        <!-- Cliente -->
+        <Label
+            Grid.Column="4"
+            FontSize="12"
+            LineBreakMode="TailTruncation"
+            MaxLines="1"
+            HorizontalTextAlignment="Start"
+            VerticalOptions="Center"
+            Text="{Binding res_partner_display}" />
+
+        <!-- Hora Inicio -->
+        <Label
+            Grid.Column="5"
+            FontSize="12"
+            FontAttributes="Bold"
+            TextColor="Gray"
+            HorizontalTextAlignment="Center"
+            VerticalOptions="Center"
+            WidthRequest="72"
+            Text="{Binding hour_start, Converter={StaticResource HourConverter}, StringFormat='{0:hh\\:mm}'}" />
+
+        <!-- Hora Fin -->
+        <Label
+            Grid.Column="6"
+            FontSize="12"
+            FontAttributes="Bold"
+            TextColor="Gray"
+            HorizontalTextAlignment="Center"
+            VerticalOptions="Center"
+            WidthRequest="72"
+            Text="{Binding hour_end, Converter={StaticResource HourConverter}, StringFormat='{0:hh\\:mm}'}" />
+
+        <!-- Standby -->
+        <Label
+            Grid.Column="7"
+            FontSize="12"
+            FontAttributes="Bold"
+            TextColor="Green"
+            HorizontalTextAlignment="Center"
+            VerticalOptions="Center"
+            WidthRequest="72"
+            Text="{Binding duration, Converter={StaticResource HourConverter}, StringFormat='{0:hh\\:mm}'}" />
+
+        <!-- Botones -->
+        <HorizontalStackLayout
+            Grid.Column="8"
+            Spacing="4"
+            WidthRequest="64"
+            HorizontalOptions="Center"
+            VerticalOptions="Center">
+
+            <!-- Edit -->
+            <Button
+                HeightRequest="28"
+                WidthRequest="28"
+                BackgroundColor="DodgerBlue"
+                CornerRadius="4"
+                Padding="0"
+                Margin="2,0"
+                Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type ContentView}}}"
+                CommandParameter="{Binding .}">
+
+                <Button.ImageSource>
+                    <FontImageSource
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xf303;"
+                        Color="White"
+                        Size="12"/>
+                </Button.ImageSource>
+
+            </Button>
+
+            <!-- Delete -->
+            <Button
+                HeightRequest="28"
+                WidthRequest="28"
+                BackgroundColor="OrangeRed"
+                CornerRadius="4"
+                Padding="0"
+                Margin="2,0"
+                Command="{Binding DeleteCommand, Source={RelativeSource AncestorType={x:Type ContentView}}}"
+                CommandParameter="{Binding .}">
+
+                <Button.ImageSource>
+                    <FontImageSource
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xf2ed;"
+                        Color="White"
+                        Size="12"/>
+                </Button.ImageSource>
+
+            </Button>
+
+        </HorizontalStackLayout>
+
+    </Grid>
 </ContentView>

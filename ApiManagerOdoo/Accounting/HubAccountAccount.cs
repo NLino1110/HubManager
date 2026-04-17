@@ -65,6 +65,16 @@ namespace ApiManager
             return await GetCount(args, _custom_args);
         }
 
+        public async Task<ApiResponseOdooRpc?> GetCountByNames(string name)
+        {
+            object[] args = new object[] { };
+
+            object[] _custom_args = new object[] {
+                new object[] { "name", "ilike", name }
+            };
+            return await GetCount(args, _custom_args);
+        }
+
         public async Task<ApiResponseOdooRpcT<AccountAccount[]>?> GetItemsById(int[] ids)
         {            
             int limit = 300;
@@ -80,6 +90,25 @@ namespace ApiManager
             object[] args = new object[] { };
             object[] _custom_args = new object[] {
                 new object[] { "id", "in", ids }
+            };
+            return await SearchRead<ApiResponseOdooRpcT<AccountAccount[]>>(args, _custom_args, kwargs, true);
+        }
+
+        public async Task<ApiResponseOdooRpcT<AccountAccount[]>?> GetItemsByNames(string name)
+        {
+            int limit = 300;
+            int index = 0;
+
+            var kwargs = new
+            {
+                limit = limit,
+                offset = (index * limit),
+                fields = fields_array
+            };
+
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] { "name", "ilike", name }
             };
             return await SearchRead<ApiResponseOdooRpcT<AccountAccount[]>>(args, _custom_args, kwargs, true);
         }

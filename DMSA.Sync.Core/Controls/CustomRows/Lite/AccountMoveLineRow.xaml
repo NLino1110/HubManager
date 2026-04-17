@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView 
+        x:Name="ThisRow"
+        xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+        xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+        xmlns:local="clr-namespace:DMSA.Sync.Core.Controls.CustomRows.Lite"
+        x:Class="DMSA.Sync.Core.Controls.CustomRows.Lite.AccountMoveLineRow">
+    <Border
+        x:Name="RootBorder"
+        BindingContext="{Binding .}"
+        Stroke="LightGray"
+        StrokeThickness="0.3"
+        Background="FloralWhite"
+        StrokeShape="RoundRectangle 3">
+        
+        <Grid Padding="10">
+            <Grid.Behaviors>
+                <toolkit:TouchBehavior
+                    PressedOpacity="0.85"
+                    PressedScale="0.97"
+                    PressedBackgroundColor="#E6F0FF"
+                    LongPressDuration="1000"
+                    LongPressCommand="{Binding ActionCommand, Source={x:Reference ThisRow}}"
+                    LongPressCommandParameter="{Binding BindingContext, Source={x:Reference ThisRow}}"
+                    DefaultBackgroundColor="Transparent"
+                    Command="{Binding ActionCommand, Source={x:Reference ThisRow}}"
+                    CommandParameter="{Binding BindingContext, Source={x:Reference ThisRow}}" />
+            </Grid.Behaviors>
+            
+            <StackLayout
+            Orientation="Vertical"
+            HorizontalOptions="Fill"
+            BackgroundColor="Transparent"
+            Padding="0">
+                
+                <Label
+                    Text="{Binding product_name}"
+                    FontAttributes="None"
+                    FontSize="12"
+                    TextColor="Black" />
+                
+                <HorizontalStackLayout Spacing="10">
+                    <Label
+                        Text="{Binding product_code}"
+                        FontAttributes="Bold"
+                        FontSize="11"
+                        TextColor="DimGray" />
+                    <Label
+                        Text="{Binding quantity_available, StringFormat='Disponible: {0}'}"
+                        FontAttributes="None"
+                        FontSize="11"
+                        TextColor="OrangeRed" />
+                </HorizontalStackLayout>
+                
+                <Label
+                Text="{Binding docnum_mask}"
+                FontSize="12"
+                TextColor="DimGray" />
+
+            </StackLayout>
+        </Grid>
+    </Border>
+</ContentView>

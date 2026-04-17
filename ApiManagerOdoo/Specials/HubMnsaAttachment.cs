@@ -1,19 +1,13 @@
 ﻿using ApiManagerOdoo.Base;
-using AppManagerOdoo.Tools;
-using DMSA.Models.Odoo.DMCobranzas;
 using DMSA.Models.Odoo.General.Responses;
-using DMSA.Models.Odoo.Modules.Accounting;
-using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Specials;
 using DMSA.Models.Odoo.Tools;
 using DMSA.Models.Security;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using RestSharp;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
-
 
 namespace ApiManager
 {
@@ -27,6 +21,7 @@ namespace ApiManager
                 "file_type",
                 "date_data_cutoff",                
                 "attachment_ids",
+                "total_file_size",
                 "create_date",
                 "write_date"
             };
@@ -46,7 +41,29 @@ namespace ApiManager
             return await GetCount(args, _custom_args);
         }
 
-        public async Task<ApiResponseOdooRpcT<mnsa_attachment[]>?> GetTop5()
+        //public async Task<ApiResponseOdooRpcT<mnsa_attachment[]>?> GetTop5()
+        //{
+        //    string mobile_app_id_code = "00";
+
+        //    mobile_app_id_code = _appSession.AppCodeOdoo;
+
+        //    var kwargs = new
+        //    {
+        //        limit = 5,
+        //        order = "date_data_cutoff desc",
+        //        fields = fields_array
+        //    };
+
+        //    object[] args = new object[] { };
+        //    object[] _custom_args = new object[] {
+        //        new object[] { "file_type", "=", "application/zip" },
+        //        new object[] { "mobile_app_id.code", "=", mobile_app_id_code },                
+        //    };
+
+        //    return await SearchRead<ApiResponseOdooRpcT<mnsa_attachment[]>>(args, _custom_args, kwargs, true);
+        //}
+
+        public async Task<ApiResponseOdooRpcT<mnsa_attachment[]>?> GetTop5(string dbNameSqlite)
         {
             string mobile_app_id_code = "00";
 
@@ -62,7 +79,8 @@ namespace ApiManager
             object[] args = new object[] { };
             object[] _custom_args = new object[] {
                 new object[] { "file_type", "=", "application/zip" },
-                new object[] { "mobile_app_id.code", "=", mobile_app_id_code },                
+                new object[] { "mobile_app_id.code", "=", mobile_app_id_code },
+                new object[] { "file_name", "=", dbNameSqlite}
             };
 
             return await SearchRead<ApiResponseOdooRpcT<mnsa_attachment[]>>(args, _custom_args, kwargs, true);
@@ -86,6 +104,30 @@ namespace ApiManager
                 new object[] { "file_type", "=", "application/zip" },
                 new object[] { "mobile_app_id.code", "=", mobile_app_id_code },
                 new object[] { "date_data_cutoff", "<=", referenceDate.ToString("yyyy-MM-dd 23:59:59") }
+            };
+
+            return await SearchRead<ApiResponseOdooRpcT<mnsa_attachment[]>>(args, _custom_args, kwargs, true);
+        }
+
+        public async Task<ApiResponseOdooRpcT<mnsa_attachment[]>?> GetLastestByFileName(DateTime referenceDate, string filename)
+        {
+            string mobile_app_id_code = "00";
+
+            mobile_app_id_code = _appSession.AppCodeOdoo;
+
+            var kwargs = new
+            {
+                limit = 5,
+                order = "date_data_cutoff desc",
+                fields = fields_array
+            };
+
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] { "file_type", "=", "application/zip" },
+                new object[] { "mobile_app_id.code", "=", mobile_app_id_code },
+                new object[] { "file_name", "=", filename },
+                //new object[] { "date_data_cutoff", "<=", referenceDate.ToString("yyyy-MM-dd 23:59:59") }
             };
 
             return await SearchRead<ApiResponseOdooRpcT<mnsa_attachment[]>>(args, _custom_args, kwargs, true);

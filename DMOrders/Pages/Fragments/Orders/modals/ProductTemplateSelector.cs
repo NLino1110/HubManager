@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DMOrders.Pages.Fragments.Orders.modals
+﻿namespace DMOrders.Pages.Fragments.Orders.modals
 {
     public class ProductTemplateSelector : DataTemplateSelector
     {

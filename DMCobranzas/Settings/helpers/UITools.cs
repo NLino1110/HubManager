@@ -1,5 +1,8 @@
-﻿using CommunityToolkit.Maui.Extensions;
+﻿using CommunityToolkit.Maui;
+using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
+using DMSA.Sync.Core.Controls.Popups;
+using Microsoft.Maui.Controls.Shapes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -87,11 +90,40 @@ namespace DMCobranzas.Settings.helpers
 
         public static async Task ShowLoadingPopup(ContentPage contentPage)
         {
-            CommunityToolkit.Maui.Sample.Models.PopupSizeConstants popupSizeConstants = 
-                new CommunityToolkit.Maui.Sample.Models.PopupSizeConstants(DeviceDisplay.Current);
+            //CommunityToolkit.Maui.Sample.Models.PopupSizeConstants popupSizeConstants = 
+            //    new CommunityToolkit.Maui.Sample.Models.PopupSizeConstants(DeviceDisplay.Current);
+            //simplePopup = new CommunityToolkit.Maui.Sample.PopupLoadingTask(popupSizeConstants);
+            //simplePopup.CanBeDismissedByTappingOutsideOfPopup = false;            
+            //contentPage.ShowPopup(simplePopup);
+
+            PopupSizeConstants popupSizeConstants =
+                new PopupSizeConstants(DeviceDisplay.Current);
+
             simplePopup = new CommunityToolkit.Maui.Sample.PopupLoadingTask(popupSizeConstants);
-            simplePopup.CanBeDismissedByTappingOutsideOfPopup = false;            
-            contentPage.ShowPopup(simplePopup);
+            simplePopup.CanBeDismissedByTappingOutsideOfPopup = false;
+            //contentPage.ShowPopup(simplePopup);
+
+            if (Application.Current?.Windows[0] is not { Page: not null } window)
+            {
+                throw new InvalidOperationException("Unable to find page");
+            }
+
+            window.Page.ShowPopup(simplePopup, new PopupOptions
+            {
+                Shape = new RoundRectangle
+                {
+                    CornerRadius = new CornerRadius(10),
+                    Stroke = Colors.Gray,
+                    StrokeThickness = 2
+                },
+                Shadow = new Shadow
+                {
+                    Brush = Brush.Black,
+                    Offset = new Point(15, 15),
+                    Opacity = 0.5f,
+                    Radius = 10
+                },
+            });
         }
 
         public static async Task HideLoadingPopup()

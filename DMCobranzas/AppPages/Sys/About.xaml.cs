@@ -1,42 +1,10 @@
-using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Core;
-using Newtonsoft.Json;
-using RestSharp;
-using System.IO.Compression;
-using static System.Net.Mime.MediaTypeNames;
-using System.Threading.Tasks;
-using System.Threading;
-using System.Diagnostics;
-using CommunityToolkit.Maui.Views;
-using CommunityToolkit.Maui.Markup;
-using ApiManager;
-using DMSA.Models.Security;
-using CobranzasDMSA.Models;
-using DMSA.Models.General;
-using Newtonsoft.Json.Serialization;
-using System.Reflection;
-using Newtonsoft.Json.Schema;
-using DMSA.Models.General.Requests;
-using DMSA.Models.General.Responses;
-using DMCobranzas.Services.ApiHub;
-using System.Net;
-//using Microsoft.Maui.Graphics.Platform;
-
 namespace DMCobranzas.AppPages.Sys;
 
 public partial class About : ContentPage
 {
     public About()
 	{
-		InitializeComponent();
-        //lblUpdated.Text = "Ult. Actualización: " + App.Session.CurrentUser.fechasincronizado;
-        //Asignación de URL de descarga según la configuración de la sesión
-        //_rootUrl = App.Session.CacheFilesUrl;
-
-        //TODO: Agregar alertas al iniciar este proceso
-        //HACK
-        //UNDONE
-        //UnresolvedMergeConflict
+		InitializeComponent();       
 
         ReadDeviceInfo();
     }

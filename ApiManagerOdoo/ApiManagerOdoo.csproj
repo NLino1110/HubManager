@@ -2,22 +2,32 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Accounting\HubAccountMoveSend.cs" />
+    <Compile Remove="HubAccountModule.cs" />
+    <Compile Remove="HubAccountPayment.cs" />
+    <Compile Remove="HubAccountPaymentHeader.cs" />
+    <Compile Remove="HubAccountTypeModule.cs" />
+    <Compile Remove="HubCartera.cs" />
+    <Compile Remove="HubModulosNc.cs" />
+    <Compile Remove="HubPaymentMethod.cs" />
+    <Compile Remove="HubSaleOrder.cs" />
+    <Compile Remove="HubTarjetas.cs" />
+    <Compile Remove="HubTiposNc.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageReference Include="RestSharp" Version="113.1.0" />
+    <PackageReference Include="RestSharp" Version="114.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DMSA.Models.Odoo\DMSA.Models.Odoo.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Backup\" />
   </ItemGroup>
 
 </Project>

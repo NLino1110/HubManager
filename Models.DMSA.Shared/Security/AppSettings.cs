@@ -31,7 +31,7 @@ namespace Models.DMSA.Shared.Security
 
     public class _odoo
     {
-        public string ApiBaseAddressOdoo { get; set; }
+        public string Host { get; set; }
         public string uid { get; set; }
         public string User { get; set; }
         public string Password { get; set; }

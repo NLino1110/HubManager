@@ -7,7 +7,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace DMSA.Models.Odoo.Native
 {
@@ -123,6 +125,7 @@ namespace DMSA.Models.Odoo.Native
         
         public string contact_address { get; set; }
         public bool active { get; set; }
+        public bool customer { get; set; }
 
         [Ignore]
         [JsonIgnore]
@@ -137,7 +140,10 @@ namespace DMSA.Models.Odoo.Native
         {
             get => string.Concat(id, " - ", name);
         }
-                
+
+        [JsonProperty("misc_estado")]
+        public string? misc_estado { get; set; }
+
         [JsonIgnore]
         private bool _isSelected;
         [Ignore]
@@ -260,16 +266,41 @@ namespace DMSA.Models.Odoo.Native
         [Ignore]
         [JsonIgnore]
         public string display_ranking_credit { get; set; }
+                
 
         [Ignore]
         [JsonIgnore]
-        public string display_full_address =>
-        $"{name}, {contact_address}";
+        public string display_full_address
+        {
+            get
+            {
+                var address = $"{contact_address}";
+
+                if (string.IsNullOrWhiteSpace(address))
+                    return string.Empty;
+
+                address = address.Replace("\r\n", "\n").Replace("\r", "\n");
+                address = Regex.Replace(address, @"\n\s*\n+", "\n");
+                return address.Trim();
+            }
+        }
+
 
         [Column("partner_invoice_id")]
         public int partner_invoice_id { get; set; }
         [Column("partner_shipping_id")]
         public int partner_shipping_id { get; set; }
+
+
+        public decimal saldo_vencido { get; set; }
+        public decimal saldo_por_vencer { get; set; }
+        public decimal saldo_a_favor { get; set; }
+        public decimal saldo_total { get; set; }
+        public decimal saldo_ch_posfechado { get; set; }
+
+        [Column("_type")]
+        [JsonProperty("type")]
+        public string _type { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)

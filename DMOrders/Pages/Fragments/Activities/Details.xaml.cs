@@ -4,7 +4,7 @@ using DMOrders.Controls;
 using DMOrders.Controls.Tools;
 using DMOrders.Services.Database.Sqlite;
 using DMOrders.Shared;
-using DMSA.Models.Odoo.DMOrders.tareas;
+using DMSA.Models.Odoo.Tareas;
 using DMSA.Sync.Core.Database.Sqlite.Sales;
 using DMSA.Sync.Core.Database.Sqlite.tareas;
 using DMSA.Sync.Core.Update.Pusher;
@@ -22,10 +22,7 @@ public partial class Details : ContentPage, IBackButtonHandler
 {
     public ProjectTask CurrentProjectTask { get; set; }
     public ICommand EditCommand { get; set; }
-
-    // Restaurada: DeleteCommand para que AccountAnalyticLineRow pueda invocarla por binding/reflection
     public ICommand DeleteCommand { get; set; }
-
     private async void EditItem(object obj)
     {
         Debug.WriteLine("EditItem");
@@ -94,7 +91,6 @@ public partial class Details : ContentPage, IBackButtonHandler
         }
     }
 
-    // Oculta los botones del footer por su texto (si no hay x:Name en XAML)
     void HideFooterButtons()
     {
         try
@@ -196,7 +192,7 @@ public partial class Details : ContentPage, IBackButtonHandler
             return;
         }
 
-        var serverPusher = new ServerPusher();
+        var serverPusher = new SaleOrders();
         bool popupShown = false;
 
         try
@@ -262,7 +258,7 @@ public partial class Details : ContentPage, IBackButtonHandler
             // Notificar a otros componentes que la tarea fue sincronizada
             try
             {
-                MessagingCenter.Send(this, "ProjectTaskSynced", CurrentProjectTask?.id ?? 0);
+                //MessagingCenter.Send(this, "ProjectTaskSynced", CurrentProjectTask?.id ?? 0);
             }
             catch (Exception msgEx)
             {
@@ -288,9 +284,14 @@ public partial class Details : ContentPage, IBackButtonHandler
         }
     }
 
-    // Eliminación persistente y recarga del ViewModel (restaurado)
     private async Task DeleteItemAsync(object obj)
     {
+        if (obj == null)
+        {
+            Debug.WriteLine("[Activities.Details] parametro null");
+            return;
+        }
+
         Debug.WriteLine("[Activities.Details] DeleteItemAsync invoked");
 
         // Bloquear eliminación si la tarea padre está sincronizada
@@ -303,35 +304,13 @@ public partial class Details : ContentPage, IBackButtonHandler
 
         try
         {
-            if (obj == null)
-            {
-                Debug.WriteLine("[Activities.Details] parametro null");
-                return;
-            }
-
-            // intentar extraer AccountAnalyticLine directamente o desde propiedad Item
+            
             var analytic = obj as AccountAnalyticLine;
-            if (analytic == null)
-            {
-                var itemProp = obj.GetType().GetProperty("Item");
-                analytic = itemProp?.GetValue(obj) as AccountAnalyticLine;
-            }
-
-            if (analytic == null)
-            {
-                Debug.WriteLine("[Activities.Details] parámetro no es AccountAnalyticLine");
-                await Toast.Make("Elemento no válido para eliminar").Show();
-                return;
-            }
 
             bool confirm = await DisplayAlert("Confirmación", "¿Desea eliminar esta actividad?", "Sí", "No");
             if (!confirm) return;
-
-            // Usar nombre de BD desde la sesión
-            string dbFile = App.Session?.odooConnection?.DbNameSqlite ?? string.Empty;
-            Debug.WriteLine($"[Activities.Details] usando DB '{dbFile}' para eliminar id={analytic.id}");
-
-            var db = new AccountAnalyticLineDb(dbFile);
+            
+            var db = new AccountAnalyticLineDb(App.Session?.odooConnection?.DbNameSqlite);
             int deleted = await db.DeleteAsync(analytic);
             Debug.WriteLine($"[Activities.Details] DeleteAsync returned={deleted} for id={analytic.id}");
 

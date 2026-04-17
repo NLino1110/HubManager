@@ -1,4 +1,4 @@
-﻿using DMSA.Models.Odoo.Native;
+﻿using DMSA.Models.Odoo.Inventory;
 
 namespace DMSA.Sync.Core.Database.Sqlite
 {

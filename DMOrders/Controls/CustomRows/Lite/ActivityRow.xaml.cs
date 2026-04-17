@@ -1,6 +1,6 @@
 using DMOrders.Converters;
-using DMSA.Models.Odoo.DMOrders.tareas;
 using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Tareas;
 using System.ComponentModel;
 using System.Reflection;
 using System.Windows.Input;

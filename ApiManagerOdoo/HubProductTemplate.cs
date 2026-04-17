@@ -1,16 +1,8 @@
-﻿
-using ApiManagerOdoo.Base;
-using AppManagerOdoo.Tools;
-using CobranzasDMSA.Models;
-using DMSA.Models.Clientes;
-using DMSA.Models.General;
-using DMSA.Models.General.Requests;
-using DMSA.Models.General.Responses;
+﻿using ApiManagerOdoo.Base;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Security;
 using Newtonsoft.Json;
-
 using RestSharp;
 using System;
 

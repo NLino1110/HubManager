@@ -31,77 +31,9 @@
                  Clicked="btnCancel_Clicked"/>
 
     </ContentPage.ToolbarItems>
-    <Grid RowDefinitions="Auto,*" ColumnDefinitions="*">
-        <AbsoluteLayout Margin="0" MinimumHeightRequest="0" Padding="0" BackgroundColor="{StaticResource Primary}" ZIndex="100" IsVisible="False">            
-            <StackLayout Orientation="Horizontal"
-                         AbsoluteLayout.LayoutFlags="All"
-                         AbsoluteLayout.LayoutBounds="0, 0.30, 1, 0.5"
-                         HorizontalOptions="End"
-                         VerticalOptions="Center">
-                <StackLayout Orientation="Horizontal" x:Name="TopTools" IsVisible="False" 
-                             MaximumHeightRequest="40" 
-                             ZIndex="1">
-                    <Button x:Name="btnSave" 
-                            Text="GUARDAR" 
-                            FontSize="12" 
-                            Clicked="btnSave_Clicked" 
-                            Margin="0" 
-                            BackgroundColor="DodgerBlue" 
-                            CornerRadius="2"
-                            FontAttributes="Bold"
-                            HeightRequest="28"
-                            Padding="10,0,10,0"
-                            VerticalOptions="Center">
-                        <Button.ImageSource>
-                            <FontImageSource FontFamily="FontAwesome5Solid"
-                             Glyph="&#xf0c7;"
-                             Color="White"
-                                 Size="15"/>
-                            <!-- Icono de notificaciones -->
-                        </Button.ImageSource>
-                    </Button>
-                    <Button x:Name="btnCancel" Text="SALIR" 
-                            FontSize="12" 
-                            Clicked="btnCancel_Clicked" 
-                            Margin="0" 
-                            BackgroundColor="OrangeRed" FontAttributes="Bold"
-                            CornerRadius="2"
-                            HeightRequest="28"
-                            Padding="10,0,10,0">
-                        <Button.ImageSource>
-                            <FontImageSource FontFamily="FontAwesome5Solid"
-                             Glyph="&#xf00d;"
-                             Color="White" 
-                             Size="15"/>
-                            <!-- Icono de notificaciones -->
-                        </Button.ImageSource>
-                    </Button>
-                </StackLayout>
-                <StackLayout Orientation="Horizontal" 
-                             VerticalOptions="Start">
-                    <Button x:Name="btnTopTools" 
-                            Text="" 
-                            FontSize="12" 
-                            Clicked="BtnTopTools_OnClicked_Clicked" 
-                            BackgroundColor="DodgerBlue" 
-                            CornerRadius="50"
-                            TextColor="White"
-                            HeightRequest="45"
-                            ContentLayout="Top,0"
-                            Padding="5,5,5,5"
-                            Margin="1,1,1,1">
-                        <Button.ImageSource>
-                            <FontImageSource FontFamily="FontAwesome5Solid"
-                                             Glyph="&#xf0c9;"
-                                             Color="White" Size="18"/>
-                        </Button.ImageSource>
-                    </Button>
-                </StackLayout>
-            </StackLayout>
-        </AbsoluteLayout>
-
-        <ScrollView Grid.Row="1">
-            <Grid RowSpacing="3"
+        <Grid RowDefinitions="Auto,Auto,0.6*" ColumnDefinitions="*">            
+            <ScrollView Grid.Row="0">
+                <Grid RowSpacing="3"
                   ColumnSpacing="10"
                   Padding="10"
                   ColumnDefinitions="*,*"
@@ -113,188 +45,282 @@
                     Auto,
                     *">
 
-                <StackLayout Grid.Row="0" Grid.Column="0">
-                    <!--<Label Text="Tipo emisión:" FontAttributes="Bold"/>-->
-                    <Picker x:Name="pickerPaymentMethod" Title="Tipo emisión"/>
+                    <toolkit:Expander x:Name="ExpanderCol0" Grid.Row="0" Grid.Column="0"
+                          IsExpanded="True" 
+                          VerticalOptions="FillAndExpand" 
+                          ExpandedChanged="OnExpandedChanged">
+                        <toolkit:Expander.Header>
+                            <Grid BackgroundColor="WhiteSmoke" Margin="0" Padding="5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Label Grid.Column="0" Text="{Binding _res_partner.name}" FontAttributes="Bold" FontSize="16" VerticalOptions="Center" />
+                                <Image Grid.Column="1"
+                                       x:Name="ArrowIconTop"
+                                       WidthRequest="18"
+                                       HeightRequest="18"
+                                       VerticalOptions="Center">
+                                    <Image.Source>
+                                        <FontImageSource FontFamily="FontAwesome5Solid"
+                                             Glyph="&#xf0d7;"
+                                             Color="Black"
+                                             Size="25" />
+                                    </Image.Source>
+                                </Image>
+                            </Grid>
+                        </toolkit:Expander.Header>
 
-                    <!--<Label Text="Diario:" FontAttributes="Bold"/>-->
-                    <Picker x:Name="pickerDiario" Title="Diario"/>
-                    <!--<Entry x:Name="txtCircular" Placeholder="Glosa"/>-->
-                    <Entry x:Name="txtRef" Placeholder="Resumen"/>
-                </StackLayout>
-
-                <!--<StackLayout x:Name="DirectGroup" Grid.Row="0" Grid.Column="1" VerticalOptions="FillAndExpand">-->
-                <toolkit:Expander Grid.Row="0" Grid.Column="1" 
+                        <toolkit:Expander.Content>
+                            <Grid>
+                                <StackLayout x:Name="StackMainData">
+                                    <VerticalStackLayout x:Name="GrouppickerPaymentMethod" Spacing="0" Padding="0,0,0,5">
+                                        <Picker x:Name="pickerPaymentMethod" Title="Seleccione tipo emisión"/>
+                                        <Label Text="Tipo emisión" Style="{StaticResource EntryHintLabelStyle}" />
+                                    </VerticalStackLayout>
+                                    <VerticalStackLayout x:Name="GrouppickerDiario" Spacing="2" Padding="0,0,0,5">
+                                        <Picker x:Name="pickerDiario" Title="Seleccione diario"/>
+                                        <Label Text="Diario (Banco Receptor)" Style="{StaticResource EntryHintLabelStyle}" />
+                                    </VerticalStackLayout>
+                                    <VerticalStackLayout x:Name="GrouptxtRef" Spacing="2" Padding="0,0,0,5">
+                                        <Entry x:Name="txtRef" Placeholder="Resumen"/>
+                                        <Label Text="Resumen" Style="{StaticResource EntryHintLabelStyle}" />
+                                    </VerticalStackLayout>
+                                </StackLayout>
+                            </Grid>
+                        </toolkit:Expander.Content>
+                    </toolkit:Expander>
+                    
+                    <toolkit:Expander x:Name="ExpanderCol1" Grid.Row="0" Grid.Column="1" 
                                   IsExpanded="True" 
                                   VerticalOptions="FillAndExpand" 
                                   ExpandedChanged="OnExpandedChanged">
                         <toolkit:Expander.Header>
-                        <Grid BackgroundColor="LightPink" Margin="4" Padding="5">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"></ColumnDefinition>
-                                <ColumnDefinition Width="Auto"></ColumnDefinition>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <Label Grid.Column="0" Text="Datos Pago" FontAttributes="Bold" FontSize="16" VerticalOptions="Center" />
-                            <Image Grid.Column="1"
+                            <Grid BackgroundColor="WhiteSmoke" Margin="0" Padding="5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Label Grid.Column="0" Text="Datos Pago" FontAttributes="Bold" FontSize="16" VerticalOptions="Center" />
+                                <Image Grid.Column="1"
                                    x:Name="ArrowIcon"
                                    WidthRequest="18"
                                    HeightRequest="18"
                                    VerticalOptions="Center">
-                                <Image.Source>
-                                    <FontImageSource FontFamily="FontAwesome5Solid"
+                                    <Image.Source>
+                                        <FontImageSource FontFamily="FontAwesome5Solid"
                                          Glyph="&#xf0d7;"
                                          Color="Black"
                                          Size="25" />
-                                </Image.Source>
-                            </Image>                            
-                        </Grid>
-                    </toolkit:Expander.Header>
+                                    </Image.Source>
+                                </Image>
+                            </Grid>
+                        </toolkit:Expander.Header>
 
                         <toolkit:Expander.Content>
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
-                                <VerticalStackLayout>
-                                    <!--<Entry x:Name="txtDepositoConfirmar" Placeholder="Deposito por Confirmar" IsVisible="False"/>-->
-                                    <Entry x:Name="txtCircular" Placeholder="Glosa"/>
-                                    <!--<DatePicker x:Name="pickerFecDeposito"/>-->
-                                    <DatePicker x:Name="pickerFechaPago"/>
-
-                                    <Entry x:Name="txtBancoCuenta" Placeholder="Numero Cuenta" Keyboard="Numeric"/>
-                                    <!--<Entry x:Name="txtBancoDeposito" Placeholder="Banco" Keyboard="Numeric"/>-->
+                                <VerticalStackLayout>                                    
+                                    <VerticalStackLayout x:Name="GrouptxtCircular" Spacing="2" Padding="0,0,0,5">
+                                        <Entry x:Name="txtCircular" Placeholder="Glosa"/>
+                                        <Label x:Name="lblCircular" Text="Glosa" Style="{StaticResource EntryHintLabelStyle}" />
+                                    </VerticalStackLayout>                                    
+                                    <VerticalStackLayout x:Name="GrouppickerFechaPago" Spacing="2" Padding="0,0,0,5">
+                                        <DatePicker x:Name="pickerFechaPago"/>
+                                        <Label x:Name="lblFechaPago" Text="Fecha pago" Style="{StaticResource EntryHintLabelStyle}" />
+                                    </VerticalStackLayout>
+                                    <VerticalStackLayout x:Name="GrouptxtBancoCuenta" Spacing="2" Padding="0,0,0,5">
+                                        <Entry x:Name="txtBancoCuenta" Placeholder="Numero Cuenta" Keyboard="Numeric"/>
+                                        <Label Text="Número de Cuenta" Style="{StaticResource EntryHintLabelStyle}" />
+                                    </VerticalStackLayout>                                    
                                     <beebtech:DropdownField x:Name="ddBank" Title="Banco"/>
-                                <Entry x:Name="txtBinTc" Placeholder="Bin 6 dígitos" IsVisible="False" Keyboard="Numeric" MaxLength="6"/>
-                                <Entry x:Name="txtAuthTc" Placeholder="Lote Vouche" IsVisible="False"/>
-                                    <Entry x:Name="txtLoteTc" Placeholder="Card Bin Text" IsVisible="False"/>
+                                    <VerticalStackLayout x:Name="GrouptxtBinTc" Spacing="2" IsVisible="False" Padding="0,0,0,5">
+                                        <Entry x:Name="txtBinTc" Placeholder="Bin 6 dígitos" Keyboard="Numeric" MaxLength="6"/>
+                                        <Label Text="Bin 6 dígitos" Style="{StaticResource EntryHintLabelStyle}" />
+                                    </VerticalStackLayout>
 
-                                <Entry x:Name="txtNCheque" Placeholder="Número de Cheque"/>
-                                <Entry x:Name="txtChequeTitular" Placeholder="Titular"/>
-                                <!--<Entry x:Name="txtChequeCiudad" Placeholder="Ciudad"/>-->
+                                    <VerticalStackLayout x:Name="GrouptxtAuthTc" Spacing="2" IsVisible="False" Padding="0,0,0,5">
+                                        <Entry x:Name="txtAuthTc" Placeholder="No Voucher"/>
+                                        <Label Text="No Voucher" Style="{StaticResource EntryHintLabelStyle}" />
+                                    </VerticalStackLayout>
+                                    <VerticalStackLayout x:Name="GrouptxtLoteTc" Spacing="2" IsVisible="False" Padding="0,0,0,5">
+                                        <Entry x:Name="txtLoteTc" Placeholder="No Lote"/>
+                                        <Label Text="No Lote" Style="{StaticResource EntryHintLabelStyle}" />
+                                    </VerticalStackLayout>
 
-                                <beebtech:DropdownField x:Name="ddResCity" Title="Ciudad"/>
+                                    <VerticalStackLayout x:Name="GrouptxtNCheque" Spacing="2" IsVisible="False" Padding="0,0,0,5">
+                                        <Entry x:Name="txtNCheque" Placeholder="Número de Cheque"/>
+                                        <Label Text="Número de Cheque" Style="{StaticResource EntryHintLabelStyle}" />
+                                    </VerticalStackLayout>
+                                    <VerticalStackLayout x:Name="GrouptxtChequeTitular" Spacing="2" IsVisible="False" Padding="0,0,0,5">
+                                        <Entry x:Name="txtChequeTitular" Placeholder="Titular"/>
+                                        <Label Text="Titular" Style="{StaticResource EntryHintLabelStyle}" />
+                                    </VerticalStackLayout>                                    
 
-                                <DatePicker x:Name="pickerFechaCheque"/>
-                                <Picker x:Name="pickerCardId" Title="Tarjeta"/>
-                                <beebtech:DropdownField x:Name="ddBankTcId" Title="Banco Emisor"/>
-                                <Picker x:Name="pickerPaymentTypeId" Title="Tipo de pago"/>
-                                <Picker x:Name="pickerPlanId" Title="Plan/Plazo Banco"/>
-                            </VerticalStackLayout>
+                                    <beebtech:DropdownField x:Name="ddResCity" Title="Ciudad" IsVisible="False" SelectedItemChanged="ddResCity_SelectedItemChanged"/>
+
+                                    <VerticalStackLayout x:Name="GrouppickerFechaCheque" Spacing="2" IsVisible="False" Padding="0,0,0,5">
+                                        <DatePicker x:Name="pickerFechaCheque"/>
+                                        <Label Text="Fecha Cobro Cheque" Style="{StaticResource EntryHintLabelStyle}" />
+                                    </VerticalStackLayout>
+
+                                    <Picker x:Name="pickerCardId" Title="Tarjeta" IsVisible="False"/>
+                                    <beebtech:DropdownField x:Name="ddBankTcId" Title="Banco Emisor" IsVisible="False"/>
+                                    <Picker x:Name="pickerPaymentTypeId" Title="Tipo de pago" IsVisible="False"/>
+                                    <Picker x:Name="pickerPlanId" Title="Plan/Plazo Banco" IsVisible="False"/>
+                                </VerticalStackLayout>
                             </Grid>
                         </toolkit:Expander.Content>
                     </toolkit:Expander>
-                <!--</StackLayout>-->
-
-                <StackLayout Grid.Row="1" Grid.Column="1">
                     
-                    
-                </StackLayout>
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup>
 
-                <FlexLayout
-                    Grid.Row="5" 
-                    Grid.ColumnSpan="2"
-                    Direction="Row"
-                    Wrap="Wrap"
-                    JustifyContent="SpaceBetween"
-                    AlignItems="Center"
-                    Margin="0"
-                    Padding="10"
-                    BackgroundColor="#F8F8F8">
+                            <!-- PANTALLA CHICA -->
+                            <VisualState x:Name="Narrow">
+                                <VisualState.StateTriggers>
+                                    <AdaptiveTrigger MinWindowWidth="0" />
+                                </VisualState.StateTriggers>
+                                <VisualState.Setters>
+                                    <Setter TargetName="StackMainData" Property="Grid.ColumnSpan" Value="2" />
 
-                    <Label x:Name="lblCounter"
-                           Text="Total de documentos 0"
-                           FontAttributes="Bold"
-                           VerticalOptions="Center"/>
-                    
-                    <Label x:Name="lblMonto"
-                           Grid.Column="1"
-                           Text="$"
-                           TextColor="Red"
-                           FontAttributes="Bold" 
-                           Margin="0,0,0,0"
-                           VerticalOptions="Center"/>
+                                    <Setter TargetName="ExpanderCol0" Property="Grid.Row" Value="0" />
+                                    <Setter TargetName="ExpanderCol0" Property="Grid.Column" Value="0" />
+                                    <Setter TargetName="ExpanderCol0" Property="Grid.ColumnSpan" Value="2" />
 
-                    <HorizontalStackLayout Grid.Row="0" Grid.Column="2" VerticalOptions="Center">
-                            <Label Text="Monto $:" FontAttributes="Bold" VerticalOptions="Center" Margin="0,0,10,0"/>
-                            <Entry x:Name="txtMonto" 
-                                   BackgroundColor="GhostWhite" 
-                                   MinimumWidthRequest="130" 
-                                   Keyboard="Numeric" 
-                                   HorizontalTextAlignment="End"/>
-                            <Button x:Name="btnLoadDocs"
-                                    Text="Facturas"
-                                    BackgroundColor="YellowGreen" 
-                                    Clicked="btnLoadDocs_Clicked">
-                            <Button.ImageSource>
-                                <FontImageSource FontFamily="FontAwesome5Solid"
-                                    Glyph="&#xf0ae;"
-                                    Color="White" 
-                                    Size="16"/>
-                            </Button.ImageSource>
-                        </Button>
-                    </HorizontalStackLayout>
+                                    <Setter TargetName="ExpanderCol1" Property="Grid.Row" Value="1" />
+                                    <Setter TargetName="ExpanderCol1" Property="Grid.Column" Value="0" />
+                                    <Setter TargetName="ExpanderCol1" Property="Grid.ColumnSpan" Value="2" />                                    
+                                </VisualState.Setters>
+                            </VisualState>
 
-                </FlexLayout>
+                            <!-- PANTALLA ANCHA -->
+                            <VisualState x:Name="Wide">
+                                <VisualState.StateTriggers>
+                                    <AdaptiveTrigger MinWindowWidth="720" />
+                                </VisualState.StateTriggers>
+                                <VisualState.Setters>
+                                    <Setter TargetName="StackMainData" Property="Grid.ColumnSpan" Value="0" />
+                                    <Setter TargetName="ExpanderCol0" Property="Grid.Row" Value="0" />
+                                    <Setter TargetName="ExpanderCol0" Property="Grid.Column" Value="0" />
+                                    <Setter TargetName="ExpanderCol0" Property="Grid.ColumnSpan" Value="0" />
+                                    
+                                    <Setter TargetName="ExpanderCol1" Property="Grid.Row" Value="0" />
+                                    <Setter TargetName="ExpanderCol1" Property="Grid.Column" Value="1" />
+                                    <Setter TargetName="ExpanderCol1" Property="Grid.ColumnSpan" Value="0" />                                    
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+                </Grid>
+            </ScrollView>
 
-                <StackLayout IsVisible="false"
-                         BackgroundColor="LightGoldenrodYellow" 
-                         Orientation="Vertical"
-                         MinimumWidthRequest="300"                         
-                         Margin="2,0,2,0"
-                         Padding="10,10,10,10" 
-                         x:Name="stackAccountInfo">
-                    <Label
-                    x:Name="lblAccountHolder"
-                    BackgroundColor="Transparent"
-                    Text="Propietario"
-                    TextColor="DimGray"
-                    FontSize="11"
-                    FontFamily="Consolas"
-                    FontAttributes="Bold"
-                    VerticalTextAlignment="Center">
-                    </Label>
-                    <Label
-                    x:Name="lblAccountBank"
-                    BackgroundColor="Transparent"
-                    Text="Banco"
-                    TextColor="DimGray"
-                    FontSize="11"
-                    FontFamily="Consoles"
-                    FontAttributes="Bold"
-                    VerticalTextAlignment="Center">
-                    </Label>
-                    <Label
-                    x:Name="lblAccountType"
-                    BackgroundColor="Transparent"
-                    Text="Tipo"
-                    TextColor="CadetBlue"
-                    FontSize="11"
-                    FontFamily="Consoles"
-                    FontAttributes="Bold,Italic"
-                    VerticalTextAlignment="Center">
-                    </Label>
-                </StackLayout>
+            <FlexLayout
+                Grid.Row="1" 
+                Grid.ColumnSpan="2"
+                Direction="Row"
+                Wrap="Wrap"
+                JustifyContent="SpaceBetween"
+                AlignItems="Center"
+                Margin="0"
+                Padding="10"
+                BackgroundColor="#F8F8F8">
+
+                <Label x:Name="lblCounter"
+                   Text="{Binding detailsCount,StringFormat='No. Docs. {0}'}"
+                   FontAttributes="Bold"
+                   VerticalOptions="Center"/>
+
+                <Label x:Name="lblMonto"
+                   Grid.Column="1"
+                   Text="$"
+                   TextColor="Red"
+                   FontAttributes="Bold" 
+                   Margin="0,0,0,0"
+                       IsVisible="False"
+                   VerticalOptions="Center"/>
+
+            <Label x:Name="lblTotalAssigned"
+               Grid.Column="1"
+               Text="{Binding totalAssigned, StringFormat='TOT. APLICADO: ${0}'}"
+               TextColor="Black"
+               FontAttributes="Bold" 
+               Margin="0,0,0,0"
+               VerticalOptions="Center"/>
+
+            <HorizontalStackLayout Grid.Row="0" Grid.Column="2" VerticalOptions="Center">
+                    <Label Text="Monto $:" FontAttributes="Bold" VerticalOptions="Center" Margin="0,0,10,0"/>
+                    <Entry x:Name="txtMonto" 
+                       BackgroundColor="GhostWhite" 
+                       MinimumWidthRequest="130" 
+                       Keyboard="Numeric" 
+                       HorizontalTextAlignment="End"/>
                 
-                <!--<ScrollView Grid.Row="6" Grid.ColumnSpan="2" VerticalOptions="Fill" HorizontalOptions="Fill">-->
-                    <CollectionView x:Name="collectionView" Grid.Row="6" Grid.ColumnSpan="2" 
-                                    VerticalOptions="Fill" 
-                                    HorizontalOptions="Fill"
-                                    SelectionMode="None">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <!--<control:InvoicePaymentItemV2 dataItem="{Binding .}"></control:InvoicePaymentItemV2>-->
-                                <controlLite:InvoicePaymentItem dataItem="{Binding .}"></controlLite:InvoicePaymentItem>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                <!--</ScrollView>-->
-            </Grid>
-        </ScrollView>
+                <Button x:Name="btnChangeAmount"
+                    Text=""
+                    BackgroundColor="DarkOrange" 
+                    Clicked="btnChangeAmount_Clicked"
+                        Padding="0">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FontAwesome5Solid"
+                            Glyph="&#xf571;"
+                            Color="White" 
+                            Size="20"/>
+                    </Button.ImageSource>
+                </Button>
+                
+                <Button x:Name="btnLoadDocs"
+                        Text="Facturas"
+                        BackgroundColor="YellowGreen" 
+                        Clicked="btnLoadDocs_Clicked">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid"
+                                Glyph="&#xf0ae;"
+                                Color="White" 
+                                Size="16"/>
+                        </Button.ImageSource>
+                    </Button>
+                </HorizontalStackLayout>
+            </FlexLayout>
 
-        <AbsoluteLayout Grid.Row="1" x:Name="_absoluteLayout" HorizontalOptions="Center" VerticalOptions="Center" BackgroundColor="GhostWhite"/>       
-        
-    </Grid>
+            <Grid VerticalOptions="FillAndExpand" Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0,0,20">
+                
+                <CollectionView x:Name="collectionView" 
+                            VerticalOptions="Fill" 
+                            HorizontalOptions="Fill"
+                            SelectionMode="None"
+                            ItemsSource="{Binding multipleCobrosInvoiceLineAi}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                        <controlLite:MultipleCobrosInvoiceLineAiRow dataItem="{Binding .}" ValueChangedCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OnValueChangedCommand}"></controlLite:MultipleCobrosInvoiceLineAiRow>
+                        <!--<controlLite:MultipleCobrosInvoiceLineAiRow dataItem="{Binding .}"></controlLite:MultipleCobrosInvoiceLineAiRow>-->
+                    </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                
+                <Grid    
+                BackgroundColor="#80000000"
+                IsVisible="{Binding IsLoadingDocs}"
+                VerticalOptions="Fill"
+                HorizontalOptions="Fill"
+                ZIndex="10">
+                    <ActivityIndicator 
+                    IsRunning="{Binding IsLoadingDocs}" 
+                    Color="MediumVioletRed"
+                    WidthRequest="100"
+                    HeightRequest="100"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center" />
+                </Grid>
+            </Grid>
+        </Grid>
+
 </ContentPage>

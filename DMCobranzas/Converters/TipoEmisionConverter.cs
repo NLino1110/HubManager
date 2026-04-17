@@ -1,4 +1,5 @@
-﻿using DMSA.Models.Odoo.DMCobranzas;
+﻿using DMSA.Models.Odoo.Abstract;
+using DMSA.Models.Odoo.StaticData;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -10,27 +11,18 @@ namespace DMCobranzas.Converters
 {
     public class TipoEmisionConverter : IValueConverter
     {
-        private static readonly List<AppParameter> _tipoEmision = new()
-        {
-            new AppParameter { name = "transfer", value = "Trasferencia" },
-            new AppParameter { name = "deposito", value = "Depósito" },
-            new AppParameter { name = "cash", value = "Efectivo" },
-            new AppParameter { name = "check_day", value = "Cheque Día" },
-            new AppParameter { name = "check", value = "Cheque PF" },
-            new AppParameter { name = "credit_card", value = "Tarjeta Crédito" },
-            new AppParameter { name = "otros", value = "Otros" }
-        };
-
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            List<AppParameter> _tipoEmision = TipoEmision.data;
+
             if (value == null)
                 return string.Empty;
 
             var name = value.ToString();
 
-            var result = _tipoEmision.Find(x => x.name == name);
+            var result = _tipoEmision.Find(x => x.code == name);
 
-            return result?.value ?? name;
+            return result?.name ?? name;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

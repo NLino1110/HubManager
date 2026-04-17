@@ -1,26 +1,3 @@
-using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Core;
-using Newtonsoft.Json;
-using RestSharp;
-using System.IO.Compression;
-using static System.Net.Mime.MediaTypeNames;
-using System.Threading.Tasks;
-using System.Threading;
-using System.Diagnostics;
-using CommunityToolkit.Maui.Views;
-using CommunityToolkit.Maui.Markup;
-using ApiManager;
-using DMSA.Models.Security;
-using CobranzasDMSA.Models;
-using DMSA.Models.General;
-using Newtonsoft.Json.Serialization;
-using System.Reflection;
-using Newtonsoft.Json.Schema;
-using DMSA.Models.General.Requests;
-using DMSA.Models.General.Responses;
-using System.Net;
-//using Microsoft.Maui.Graphics.Platform;
-
 namespace DMOrders.AppPages.Sys;
 
 public partial class About : ContentPage
@@ -99,5 +76,11 @@ public partial class About : ContentPage
         lblUpdated.Text = sb.ToString();
 
         lblAppVersion.Text = "Versión " + App.Session.AppVersion;
+    }
+
+    private async void btnBack_Clicked(object sender, EventArgs e)
+    {
+        btnBack.IsEnabled = false;
+        await Navigation.PopModalAsync();
     }
 }

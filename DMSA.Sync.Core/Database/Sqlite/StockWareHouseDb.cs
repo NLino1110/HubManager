@@ -1,4 +1,4 @@
-﻿using DMSA.Models.Odoo.Native;
+﻿using DMSA.Models.Odoo.Inventory;
 
 namespace DMSA.Sync.Core.Database.Sqlite
 {
@@ -22,11 +22,22 @@ namespace DMSA.Sync.Core.Database.Sqlite
                 .ToListAsync();
         }
 
-        public async Task<List<stock_warehouse>> GetByResCenter(int id)
+        //[Obsolete("Ya no se debe utilizar - PROBABLEMENTE")]
+        //public async Task<List<stock_warehouse>> GetByResCenter(int id)
+        //{
+        //    await Init();
+        //    return await Database.Table<stock_warehouse>()
+        //        .Where(x => x._center_id == id)
+        //        .ToListAsync();
+        //}
+                
+        public async Task<List<stock_warehouse>> GetDefaultByResCenter(int id)
         {
             await Init();
             return await Database.Table<stock_warehouse>()
-                .Where(x => x._center_id == id)
+                .Where(x => x._center_id == id &&
+                x.default_check
+                )
                 .ToListAsync();
         }
     }

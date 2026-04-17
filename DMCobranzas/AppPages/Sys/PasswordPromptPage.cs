@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Maui.Views;
-using CommunityToolkit.Maui.Sample.Models;
 using System.ComponentModel;
 using System;
 using System.Collections.Generic;
@@ -32,14 +31,10 @@ namespace DMCobranzas.AppPages.Sys
         }
         
         public void InitializeComponent()
-        {
-            //CanBeDismissedByTappingOutsideOfPopup = false;
-            //PopupSizeConstants popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
-            //popupSizeConstants.CalculateSizes(DeviceDisplay.Current);
-            DesiredSize = new Size(350,150); // popupSizeConstants.SmallWide;
+        {            
+            DesiredSize = new Size(350,150); 
             BackgroundColor = Colors.White;
 
-            //TaskCompletionSource<string> taskCompletionSource = new TaskCompletionSource<string>();
             passwordLabel = new Label
             {
                 Text = TitleBox, //"Ingrese el pin correcto para aplicar cambios.",
@@ -114,7 +109,9 @@ namespace DMCobranzas.AppPages.Sys
                 Padding = new Thickness(10),
                 HasShadow = true
             };
-            
+
+            Margin = new Thickness(0);
+            Padding = new Thickness(0);
             Content = frameContent;
             BackgroundColor = Colors.Transparent;
             //passwordEntry.Focus();            

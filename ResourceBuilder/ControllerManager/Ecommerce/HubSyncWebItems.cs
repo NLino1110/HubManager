@@ -1,27 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Net;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.Json;
-using System.Threading.Tasks;
-using AppManagerOdoo.Tools;
-using CobranzasDMSA.Models;
-using DMSA.Models.Clientes;
-using DMSA.Models.General;
-using DMSA.Models.General.Responses;
-using DMSA.Models.Odoo.General.Responses;
-using DMSA.Models.Security;
-using Models.DMSA.Mbw.Abstract;
+﻿using Models.DMSA.Mbw.Abstract;
 using Models.DMSA.Shared.Security;
 using Newtonsoft.Json;
 
-//using Microsoft.AspNetCore.Components;
-//using Microsoft.Extensions.Configuration;
-//using Microsoft.Extensions.Logging;
-//using Microsoft.Extensions.Options;
 using RestSharp;
 
 namespace ResourceBuilder.ControllerManager.Ecommerce

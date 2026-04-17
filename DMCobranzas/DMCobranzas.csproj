@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
+        <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
 		<!-- <TargetFrameworks>$(TargetFrameworks);net7.0-tizen</TargetFrameworks> -->
 		<OutputType>Exe</OutputType>
@@ -10,6 +10,7 @@
 		<UseMaui>true</UseMaui>
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
 
 		<!-- Display name -->
 		<ApplicationTitle>DMCobranzas</ApplicationTitle>
@@ -22,81 +23,69 @@
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">11.0</SupportedOSPlatformVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">13.1</SupportedOSPlatformVersion>
+		<WindowsPackageType>None</WindowsPackageType>
+				
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
-		<CsWinRTAotOptimizerEnabled>false</CsWinRTAotOptimizerEnabled>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>		
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|AnyCPU'">
-	  <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
-	  <ApplicationVersion>1</ApplicationVersion>
-	  <ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
-	  <JavaMaximumHeapSize>2G</JavaMaximumHeapSize>
-	  <FileAlignment>8192</FileAlignment>
-	  <JavaOptions></JavaOptions>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-android|AnyCPU'">
+		<AndroidStoreUncompressedFileExtensions></AndroidStoreUncompressedFileExtensions>
+		<ApplicationVersion>23</ApplicationVersion>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-ios|AnyCPU'">
-	  <ApplicationVersion>1</ApplicationVersion>
-	  <ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-ios|AnyCPU'">
+	  <ApplicationVersion>23</ApplicationVersion>
+	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 	  <FileAlignment>8192</FileAlignment>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-maccatalyst|AnyCPU'">
-	  <ApplicationVersion>1</ApplicationVersion>
-	  <ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-maccatalyst|AnyCPU'">
+	  <ApplicationVersion>23</ApplicationVersion>
+	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 	  <FileAlignment>8192</FileAlignment>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-windows10.0.19041.0|AnyCPU'">
-	  <ApplicationVersion>1</ApplicationVersion>
-	  <ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-windows10.0.19041.0|AnyCPU'">
+	  <ApplicationVersion>23</ApplicationVersion>
+	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 	  <FileAlignment>8192</FileAlignment>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|AnyCPU'">
-	  <ApplicationVersion>1</ApplicationVersion>
-	  <ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
-	  <JavaMaximumHeapSize>2G</JavaMaximumHeapSize>
-	  <FileAlignment>8192</FileAlignment>
-	  <JavaOptions></JavaOptions>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-android|AnyCPU'">
+		<Optimize>True</Optimize>
+		<AndroidStoreUncompressedFileExtensions></AndroidStoreUncompressedFileExtensions>
+		<ApplicationVersion>23</ApplicationVersion>
+		<AndroidPackageFormat>aab</AndroidPackageFormat>
+		<AndroidUseAapt2>True</AndroidUseAapt2>
+		<AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-ios|AnyCPU'">
-	  <ApplicationVersion>1</ApplicationVersion>
-	  <ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
-	  <FileAlignment>8192</FileAlignment>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-maccatalyst|AnyCPU'">
-	  <ApplicationVersion>1</ApplicationVersion>
-	  <ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-ios|AnyCPU'">
+	  <ApplicationVersion>23</ApplicationVersion>
+	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 	  <FileAlignment>8192</FileAlignment>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-windows10.0.19041.0|AnyCPU'">
-	  <ApplicationVersion>1</ApplicationVersion>
-	  <ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-maccatalyst|AnyCPU'">
+	  <ApplicationVersion>23</ApplicationVersion>
+	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 	  <FileAlignment>8192</FileAlignment>
 	</PropertyGroup>
 
-	<!--<PropertyGroup>
-		<AndroidEnableProfiledAot>true</AndroidEnableProfiledAot>
-		<RunAOTCompilation>true</RunAOTCompilation>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-windows10.0.19041.0|AnyCPU'">
+	  <ApplicationVersion>23</ApplicationVersion>
+	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+	  <FileAlignment>8192</FileAlignment>
 	</PropertyGroup>
-	<PropertyGroup>
-		<PublishTrimmed>true</PublishTrimmed>		
-		<SelfContained>true</SelfContained>		
-		<TrimMode>Link</TrimMode>
-	</PropertyGroup>
-	<PropertyGroup>
-		<AndroidSupportedAbis>armeabi-v7a;arm64-v8a</AndroidSupportedAbis>
-	</PropertyGroup>-->
-	
+
+	<PropertyGroup Condition="$(TargetFramework.Contains('-android'))">
+		<AndroidSupportedAbis>arm64-v8a;x86_64</AndroidSupportedAbis>
+	</PropertyGroup>	
 
 	<ItemGroup>
 		<!-- App Icon -->
@@ -105,7 +94,7 @@
 		</MauiIcon>
 
 		<!-- Splash Screen -->
-    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#EDE6EB" BaseSize="272,153" />
+    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#EDE6EB" BaseSize="190,90" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
@@ -116,35 +105,57 @@
 
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
-	</ItemGroup>
-	
+	</ItemGroup>	
 
 	<ItemGroup>
-	  <AndroidResource Remove="Services\Database\Sqlite\**" />
-	  <Compile Remove="Services\Database\Sqlite\**" />
-	  <EmbeddedResource Remove="Services\Database\Sqlite\**" />
-	  <MauiCss Remove="Services\Database\Sqlite\**" />
-	  <MauiXaml Remove="Services\Database\Sqlite\**" />
-	  <None Remove="Services\Database\Sqlite\**" />
-	</ItemGroup>
-	
+	  <AndroidResource Remove="__bin\**" />
+	  <AndroidResource Remove="__obj\**" />
+	  <Compile Remove="__bin\**" />
+	  <Compile Remove="__obj\**" />
+	  <EmbeddedResource Remove="__bin\**" />
+	  <EmbeddedResource Remove="__obj\**" />
+	  <MauiCss Remove="__bin\**" />
+	  <MauiCss Remove="__obj\**" />
+	  <MauiXaml Remove="__bin\**" />
+	  <MauiXaml Remove="__obj\**" />
+	  <None Remove="__bin\**" />
+	  <None Remove="__obj\**" />
+	</ItemGroup>	
 
 	<ItemGroup>
+	  <AndroidResource Remove="Platforms\Android\Resources\drawable\maui_splash.xml" />
+	</ItemGroup>	
+
+	<ItemGroup>
+	  <Compile Remove="AppPages\NotaCredito\AccountMoveSendProdCrud.xaml.cs" />
+	  <Compile Remove="AppPages\Printing\DeviceLocal.cs" />
+	  <Compile Remove="Controls\AccountMoveInvoiceForSend.cs" />
+	  <Compile Remove="Controls\AccountMoveInvoiceLineForSend.cs" />
+	  <Compile Remove="Controls\CustomHeaderView.cs" />
+	  <Compile Remove="Controls\InvoicePaymentItem.cs" />
+	  <Compile Remove="Controls\InvoicePaymentItemV2.cs" />
+	  <Compile Remove="Controls\ItemAccountMove.cs" />
+	  <Compile Remove="Controls\PaymentHeaderItem.cs" />
+	  <Compile Remove="Controls\PopupResPartnerBank.cs" />
+	  <Compile Remove="Controls\PopupSelectBase.cs" />
+	  <Compile Remove="Controls\PopupSelectInvoice.cs" />
+	  <Compile Remove="Controls\PopupSelectInvoiceItems.cs" />
+	  <Compile Remove="Controls\PopupSelectPartner.cs" />
+	  <Compile Remove="Controls\PopupSelectPartnerBank.cs" />
+	  <Compile Remove="Controls\PopupSize.cs" />
 	  <Compile Remove="Controls\ProgressBarAnimationBehaviorPage.xaml.cs" />
+	  <Compile Remove="Controls\ReturnResultPopup.xaml.cs" />
+	  <Compile Remove="Controls\ReturnResultPopupSearch.xaml.cs" />
+	  <Compile Remove="Controls\SimplePopupAutoclose.xaml.cs" />
 	  <Compile Remove="Login_deprecated.xaml.cs" />
 	  <Compile Remove="Models\SendController.cs" />
-	  <Compile Remove="Services\Update\ServerPuller.Accounting.cs" />
-	  <Compile Remove="Services\Update\ServerPuller.cs" />
-	  <Compile Remove="Services\Update\ServerPuller.ProductExtras.cs" />
-	  <Compile Remove="Services\Update\ServerPuller.ProductProduct.cs" />
-	  <Compile Remove="Services\Update\ServerPuller.PromotionBenefit.cs" />
-	  <Compile Remove="Services\Update\ServerPuller.ResCenter.cs" />
-	  <Compile Remove="Services\Update\ServerPuller.ResPartner.cs" />
-	  <Compile Remove="Services\Update\ServerPuller.Sales.cs" />
-	  <Compile Remove="Services\Update\ServerPuller.StockLocation.cs" />
-	  <Compile Remove="Services\Update\ServerPuller.StockQuant.cs" />
-	  <Compile Remove="Services\Update\ServerPuller.StockWarehouse.cs" />
-	  <Compile Remove="Services\Update\ServerPuller.Tareas.cs" />
+	  <Compile Remove="Resources\Fonts\FluentUI.cs" />
+	  <Compile Remove="Services\AlertService.cs" />
+	  <Compile Remove="Services\BluetoothPrinterManager.cs" />
+	  <Compile Remove="Services\PrintCommandBytes.cs" />
+	  <Compile Remove="Services\PrinterCommand.cs" />
+	  <Compile Remove="Services\Shared\BasePrinterService.cs" />
+	  <Compile Remove="Settings\Constants.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -170,7 +181,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Remove="AppPages\NotaCredito\AccountMoveSendProdCrud.xaml" />
 	  <MauiXaml Remove="Controls\ProgressBarAnimationBehaviorPage.xaml" />
+	  <MauiXaml Remove="Controls\ReturnResultPopup.xaml" />
+	  <MauiXaml Remove="Controls\ReturnResultPopupSearch.xaml" />
+	  <MauiXaml Remove="Controls\SimplePopupAutoclose.xaml" />
 	  <MauiXaml Remove="Login_deprecated.xaml" />
 	  <MauiXaml Remove="Resources\Styles\Colors-Original.xaml" />
 	</ItemGroup>
@@ -189,7 +204,6 @@
 	  <None Remove="Resources\Images\demo2.bmp" />
 	  <None Remove="Resources\Images\logo_dmujeres.svg" />
 	  <None Remove="Resources\Images\logo_macronegocios.svg" />
-	  <None Remove="Resources\Images\logo_odoo.svg" />
 	  <None Remove="Resources\Images\user_svgrepo_com.svg" />
 	  <None Remove="Resources\Images\warning.svg" />
 	  <None Remove="Resources\Raw\dotliquid_test.txt" />
@@ -199,7 +213,6 @@
 	  <None Remove="Resources\Raw\liq_ticket_closing.txt" />
 	  <None Remove="Resources\Raw\liq_ticket_small.liquid" />
 	  <None Remove="Resources\Raw\liq_ticket_small.txt" />
-	  <None Remove="Resources\Splash\splash.svg" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -218,29 +231,20 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="CommunityToolkit.Maui" Version="12.3.0" />
-		<PackageReference Include="CommunityToolkit.Maui.Core" Version="12.3.0" />
-		<PackageReference Include="CommunityToolkit.Maui.Markup" Version="6.0.1" />
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+        <PackageReference Include="CommunityToolkit.Maui" Version="14.1.0" />
+        <PackageReference Include="CommunityToolkit.Maui.Core" Version="14.1.0" />
+        <PackageReference Include="CommunityToolkit.Maui.Markup" Version="7.0.1" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
 		<PackageReference Include="Fluid.Core" Version="2.31.0" />
 		<PackageReference Include="Microsoft.AppCenter" Version="5.0.7" />
 		<PackageReference Include="Microsoft.AppCenter.Analytics" Version="5.0.7" />
 		<PackageReference Include="Microsoft.AppCenter.Crashes" Version="5.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.10" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.6" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.6" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-		<PackageReference Include="Plugin.BLE" Version="3.2.0" />
-		<PackageReference Include="RestSharp" Version="113.1.0" />
-		<PackageReference Include="SkiaSharp" Version="3.119.1" />
-		<PackageReference Include="SkiaSharp.QrCode" Version="0.12.0" />
-		<!--<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />-->
-		<PackageReference Include="System.IO.Compression" Version="4.3.0" />
-		<PackageReference Include="System.Private.Uri" Version="4.3.2" />
-		<PackageReference Include="UraniumUI" Version="2.14.0" />
-		<PackageReference Include="UraniumUI.Blurs" Version="2.14.0" />
-		<PackageReference Include="UraniumUI.Icons.FontAwesome" Version="2.14.0" />
-		<PackageReference Include="UraniumUI.Icons.MaterialIcons" Version="2.14.0" />
-		<PackageReference Include="UraniumUI.Material" Version="2.14.0" />
+		<PackageReference Include="RestSharp" Version="114.0.0" />
+		<PackageReference Include="SkiaSharp" Version="3.119.2" />
+		<PackageReference Include="SkiaSharp.QrCode" Version="0.12.0" />		
 	</ItemGroup>
 
 	<ItemGroup>
@@ -267,14 +271,11 @@
 	  <Compile Update="AppPages\FlyoutMenuPage.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="AppPages\NotaCredito\AccountMoveSendProdCrud.xaml.cs">
-	    <DependentUpon>AccountMoveSendProdCrud.xaml</DependentUpon>
+	  <Compile Update="AppPages\NotaCredito\CreditNoteRequestGroupView.xaml.cs">
+	    <DependentUpon>CreditNoteRequestGroupView.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="AppPages\NotaCredito\AccountMoveSendView.xaml.cs">
-	    <DependentUpon>AccountMoveSendView.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="AppPages\NotaCredito\AccountMoveSendCrud.xaml.cs">
-	    <DependentUpon>AccountMoveSendCrud.xaml</DependentUpon>
+	  <Compile Update="AppPages\NotaCredito\CreditNoteRequestCrud.xaml.cs">
+	    <DependentUpon>CreditNoteRequestCrud.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="AppPages\NotaCredito\NotasCreditoPage.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
@@ -297,16 +298,13 @@
 	  <Compile Update="Controls\CustomListItem.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
+	  <Compile Update="Controls\CustomRows\MultipleCobrosInvoiceLineAiRow.xaml.cs">
+	    <DependentUpon>MultipleCobrosInvoiceLineAiRow.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Controls\CustomRows\MultipleCobrosInvoiceRow.xaml.cs">
+	    <DependentUpon>MultipleCobrosInvoiceRow.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Controls\PopupLoadingTask.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Controls\ReturnResultPopup.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Controls\ReturnResultPopupSearch.xaml.cs">
-	    <DependentUpon>%(Filename)</DependentUpon>
-	  </Compile>
-	  <Compile Update="Controls\SimplePopupAutoclose.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
 	  <Compile Update="DetailModal.xaml.cs">
@@ -334,13 +332,10 @@
 	  <MauiXaml Update="AppPages\FlyoutMenuPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="AppPages\NotaCredito\AccountMoveSendProdCrud.xaml">
+	  <MauiXaml Update="AppPages\NotaCredito\CreditNoteRequestGroupView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="AppPages\NotaCredito\AccountMoveSendView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="AppPages\NotaCredito\AccountMoveSendCrud.xaml">
+	  <MauiXaml Update="AppPages\NotaCredito\CreditNoteRequestCrud.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="AppPages\NotaCredito\NotasCreditoPage.xaml">
@@ -373,25 +368,25 @@
 	  <MauiXaml Update="Controls\CustomPickerPopup.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Controls\CustomRows\CreditNoteRequestDetailRow.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Controls\CustomRows\CreditNoteRequestGroupRow.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Controls\CustomRows\CustomHeaderView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Controls\CustomRows\InvoicePaymentItem.xaml">
+	  <MauiXaml Update="Controls\CustomRows\MultipleCobrosInvoiceLineAiRow.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Controls\CustomRows\PaymentHeaderItem.xaml">
+	  <MauiXaml Update="Controls\CustomRows\MultipleCobrosInvoiceRow.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Controls\PopupLoadingTask.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Controls\ReturnResultPopup.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Controls\ReturnResultPopupSearch.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Controls\SimplePopupAutoclose.xaml">
+	  <MauiXaml Update="Controls\ProgressBarPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="DetailModal.xaml">
@@ -403,14 +398,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.120" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.120" />
-		<!--<PackageReference Include="Microsoft.Maui.Essentials" Version="$(MauiVersion)" />-->
+        <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.51" />
+        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="10.0.51" />		
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Services\Database\" />
-	  <Folder Include="Services\Update\" />
+	  <Folder Include="Services\Shared\" />
 	</ItemGroup>
 
 </Project>

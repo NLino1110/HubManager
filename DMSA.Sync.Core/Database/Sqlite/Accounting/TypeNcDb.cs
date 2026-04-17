@@ -1,8 +1,7 @@
 ﻿using DMSA.Models.Odoo.Accounting;
-using DMSA.Models.Odoo.Modules.Accounting;
 using DMSA.Sync.Core.Database.Sqlite;
 
-namespace DMSA.Sync.Core
+namespace DMSA.Sync.Core.Database.Sqlite.Accounting
 {
     public class TypeNcDb : SqliteDbBase<TypeNc>
     {

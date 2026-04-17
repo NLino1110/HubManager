@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <!-- Prevent NuGet downgrade warnings from failing the build during migration; adjust later to align package versions -->
+    <NoWarn>$(NoWarn);NU1605;NU1102</NoWarn>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>

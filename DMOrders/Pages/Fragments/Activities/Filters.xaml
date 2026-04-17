@@ -6,35 +6,31 @@
              x:Name="mainpage"
              xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
              xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
-             xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui">
-    
+             xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui">    
     <VerticalStackLayout Padding="3">
         <Label Text="Filtros" FontSize="12" FontAttributes="Bold" HorizontalTextAlignment="Center" Padding="3"/>
-
         <Grid ColumnDefinitions="*" RowSpacing="0" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
-
             <material:DropdownField x:Name="ddfStatus"
                     Title="Estado" 
                     FontSize="11"
                     AllowClear="False" 
                     StyleClass="ControlPreview"
                     BorderThickness="0.4"
-                    Grid.Row="0">
-                
+                    Grid.Row="0">                
             </material:DropdownField>
 
             <material:DatePickerField
                 x:Name="datePickerStart"
                 Title="Desde"
                 Grid.Row="1"
-                Icon="{FontImageSource FontFamily=MaterialSharp, Glyph={x:Static m:MaterialSharp.Calendar_month}}">
+                Icon="{FontImageSource FontFamily=FontAwesome5Regular, Size=23, Glyph='&#xf073;'}">
             </material:DatePickerField>
 
             <material:DatePickerField
                 x:Name="datePickerEnd"
                 Title="Hasta"
                 Grid.Row="2"
-                Icon="{FontImageSource FontFamily=MaterialSharp, Glyph={x:Static m:MaterialSharp.Calendar_month}}">
+                Icon="{FontImageSource FontFamily=FontAwesome5Regular, Size=23, Glyph='&#xf073;'}">
             </material:DatePickerField>
         </Grid>        
             
@@ -46,18 +42,18 @@
             <Button x:Name="btnClear" Text="Limpiar" FontSize="10" BackgroundColor="Gray" TextColor="White" Clicked="btnClear_Clicked">
                 <Button.ImageSource>
                     <FontImageSource 
-                        Size="18"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.Remove_done}" />
+                        Size="15"
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xe05e;" />
                 </Button.ImageSource>
             </Button>
 
             <Button x:Name="btnSearch" Text="Buscar" FontSize="10" BackgroundColor="IndianRed"  TextColor="White" Clicked="Button_Clicked">
                 <Button.ImageSource>
                     <FontImageSource 
-                        Size="18"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.Search}" />
+                        Size="15"
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xf002;" />
                 </Button.ImageSource>
             </Button>
         </HorizontalStackLayout>

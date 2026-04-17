@@ -18,7 +18,7 @@ namespace DMSA.Models.Odoo.Promotions
             order_line.origin_gift_line_ids = Array.Empty<int>();
         }
 
-        public static void SetPromotionData(sale_order_line order_line, List<PromotionEvalItemV2> listPromotionData)
+        public static void SetPromotionData(sale_order_line order_line, List<PromotionEvalItem> listPromotionData)
         {
             if (listPromotionData == null || !listPromotionData.Any())
                 return;
@@ -39,41 +39,43 @@ namespace DMSA.Models.Odoo.Promotions
                    .Select(r => r.id)
                    .Distinct()
                    .ToArray();
-
-            //    order_line.origin_gift_line_ids = listPromotionData
-            //.Where(x => x.RuleSet != null)
-            //.SelectMany(x => x.RuleSet)
-            //.Where(r => r.AllowedGifts != null)
-            //.SelectMany(r => r.AllowedGifts)
-            //.Distinct()
-            //.ToArray();
         }
 
-        public static void SetPromotionDataGift(sale_order_line order_line, List<PromotionEvalItemV2> listPromotionData)
+        [Obsolete("Ya no se usará ya que los códigos requeridos se generan al momento de almacenar en Odoo")]
+        public static void SetPromotionDataGift(sale_order_line order_line, List<PromotionEvalItem> listPromotionData)
         {
             if (listPromotionData == null || !listPromotionData.Any())
                 return;
 
-            order_line.origin_gift_line_ids = listPromotionData
-                .Where(x => x.RuleSet != null)
-                .SelectMany(x => x.RuleSet)
-                .Where(r => !string.IsNullOrWhiteSpace(r.ProductTmplIds))
-                .SelectMany(r =>
-                {
-                    try
-                    {
-                        return Newtonsoft.Json.JsonConvert
-                            .DeserializeObject<int[]>(r.ProductTmplIds)
-                            ?? Array.Empty<int>();
-                    }
-                    catch
-                    {
-                        // Si viene mal formado el JSON, no rompe todo
-                        return Array.Empty<int>();
-                    }
-                })
-                .Distinct()
-                .ToArray();
+            order_line.origin_gift_line_ids = new int[] { };
+            if (listPromotionData.Count > 0)
+            {
+                //if (listPromotionData[0].Promotion._promotion_type_id == 4 && listPromotionData[0].Promotion._selection_type_id == 1)
+                //{
+                //    order_line.origin_gift_line_ids_offline =
+                //        Newtonsoft.Json.JsonConvert.SerializeObject(
+                //            listPromotionData[0]
+                //                .RuleSet
+                //                .Where(r => r.ProductSequenceApplyList != null)
+                //                .SelectMany(r => r.ProductSequenceApplyList)
+                //                .Where(p => p.product_id == order_line.product_id)
+                //                .ToList()
+                //        );
+                //}
+                //else
+                //{                    
+                    order_line.origin_gift_line_ids_offline =
+                        Newtonsoft.Json.JsonConvert.SerializeObject(
+                            listPromotionData
+                                .Where(x => x.RuleSet != null)
+                                .SelectMany(x => x.RuleSet)
+                                .Where(r => r.ProductSequenceApplyList != null)
+                                .SelectMany(r => r.ProductSequenceApplyList)
+                                .Distinct()
+                                .ToList()
+                        );                        
+                //}
+            }
         }
     }
 }

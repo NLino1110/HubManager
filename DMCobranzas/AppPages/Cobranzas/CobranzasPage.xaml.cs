@@ -1,19 +1,12 @@
-//using CloudKit;
 using ApiManager;
-using BeebTech.Maui.Controls.Controls;
 using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Extensions;
-using CommunityToolkit.Maui.Sample.Models;
-using CommunityToolkit.Maui.Sample.ViewModels.Views;
-using DMCobranzas.Controls.Modals;
 using DMCobranzas.Controls.Modals.TabbedPages;
-using DMCobranzas.Models;
 using DMCobranzas.Models.Specials;
-using DMCobranzas.Services.ApiHub;
 using DMCobranzas.Settings.helpers;
 using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.DebitCollection;
 using DMSA.Models.Odoo.Native;
+using DMSA.Sync.Core.Controls.Popups;
 using DMSA.Sync.Core.Database.Sqlite.DebitCollection;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
 using DMSA.Sync.Core.Update.Pusher;
@@ -40,21 +33,28 @@ public partial class CobranzasPage : ContentPage
         }
     }
 
-
-    //public bool IsRefreshing = true;
-
     private bool isFirtAppears = true;
 
     public bool isWindows { get; set; } = false;
 
-    //CobReciboCab[] items { get; set; }
-
-    //public List<ItemsGroup> _items { get; private set; } = new List<ItemsGroup>();
-
-    public ObservableCollection<ItemsGroup> _items { get; set; } //= new ObservableCollection<ItemsGroup>();
+    public ObservableCollection<MultipleCobrosInvoiceGroup> _items { get; set; }
     readonly PopupSizeConstants popupSizeConstants;
-    readonly CsharpBindingPopupViewModel csharpBindingPopupViewModel;
 
+    public ICommand ReversarCommand { get; set; }
+
+    res_company[] Empresas { get; set; }
+
+    public ICommand CerrarDiaCommand { get; set; }
+
+    public ICommand ReporteDiaCommand { get; set; }
+
+    public ICommand TicketCommand { get; set; }
+
+    public ICommand DeleteCommand { get; set; }
+
+    public ICommand EditCommand { get; set; }
+
+    public ICommand EnviarCobroCommand { get; set; }
     public CobranzasPage()
     {
         InitializeComponent();
@@ -68,11 +68,7 @@ public partial class CobranzasPage : ContentPage
             this.popupSizeConstants = popupSizeConstants;
         }
 
-        this.csharpBindingPopupViewModel = csharpBindingPopupViewModel;
-
-        _items = new ObservableCollection<ItemsGroup>();
-
-        // Crear una lista de objetos
+        _items = new ObservableCollection<MultipleCobrosInvoiceGroup>();
 
         DeleteCommand = new Command(DeleteItem);
         EditCommand = new Command(EditItem);
@@ -84,13 +80,6 @@ public partial class CobranzasPage : ContentPage
 
         ReversarCommand = new Command(Reversar);
 
-        //var task = Task.Run(() =>
-        //{
-        //    //await LoadData();
-        //    btnBuscar_Clicked(null, null);
-        //});
-
-        //Task.WaitAll(task);
 
         if (App.Session.CurrentUserFront.empresas != null)
         {
@@ -102,21 +91,8 @@ public partial class CobranzasPage : ContentPage
         
         isWindows = DeviceInfo.Current.Platform == DevicePlatform.WinUI;
 
-        dateIni.Date = DateTime.Today.AddMonths(-1);
-
-        //scrollViewResult.SizeChanged += (sender, e) =>
-        //{
-        //    Debug.WriteLine("scrollViewResult SizeChanged");
-        //    scrollViewResult.GetVisualElementWindow().Content.InvalidateArrange();
-        //    scrollViewResult.GetVisualElementWindow().Content.InvalidateMeasure();
-        //};
-
-        //collectionView.SizeChanged += (sender, e) =>
-        //{
-        //Debug.WriteLine("SizeChanged");            
-        //collectionView.GetVisualElementWindow().Content.InvalidateMeasure();
-        //};
-
+        //dateIni.Date = DateTime.Today.AddMonths(-1);
+        dateIni.Date = DateTime.Today;
         BindingContext = this;
     }
 
@@ -124,38 +100,14 @@ public partial class CobranzasPage : ContentPage
     {
         base.OnAppearing();
 
-        //if(!UITools.LoadingNow())
         if (isFirtAppears)
         {
             isFirtAppears = false;
         }
         else
         {
-            //LoadDataByDispatcher();
+            
         }
-
-        //var task = Task.Run(async () =>
-        //{
-        //    await Task.Delay(2000);
-        //    if (isEmptyDb)
-        //    {                
-        //        await DisplayAlert("Alert", "You have been alerted", "OK");
-        //    }
-        //});
-        //task.Wait();
-
-        //IDispatcherTimer timer;
-
-        //timer = Dispatcher.CreateTimer();
-        //timer.Interval = TimeSpan.FromMilliseconds(500);
-        //timer.IsRepeating = false;
-        //timer.Tick += async (s, e) =>
-        //{
-        //    await LoadData();
-
-        //    timer.Stop();
-        //};
-        //timer.Start();
     }
 
     private async void btnBuscar_Clicked(object sender, EventArgs e)
@@ -164,7 +116,7 @@ public partial class CobranzasPage : ContentPage
     }
 
     private async Task ProcessItemsGroup(List<MultipleCobrosInvoice> registrosGrupo,
-        ObservableCollection<ItemsGroup> _items,
+        ObservableCollection<MultipleCobrosInvoiceGroup> _items,
         res_company se)
     {
         bool FoundCerrado = false;
@@ -173,7 +125,7 @@ public partial class CobranzasPage : ContentPage
         {
             AccountPaymentDailyDb cobCierreDb = new AccountPaymentDailyDb(App.Session.odooConnection.DbNameSqlite);
             var cierres = await cobCierreDb.GetItemAsync(se.id, item.create_date.ToString("yyyy-MM-dd"));
-            //YA HA SIDO CERRADO
+            
             if (cierres != null)
             {
                 item.CERRADO = "S";
@@ -186,23 +138,14 @@ public partial class CobranzasPage : ContentPage
             DateTime fecha = registrosGrupo[0].create_date;
             string GroupTitle = fecha.ToString("yyyy-MM-dd");
 
-            var newGroup = new ItemsGroup(GroupTitle, registrosGrupo[0].create_date.ToString("yyyy-MM-dd"), registrosGrupo[0].create_date.ToString("yyyy-MM-dd"), registrosGrupo);
+            var newGroup = new MultipleCobrosInvoiceGroup(GroupTitle, registrosGrupo[0].create_date.ToString("yyyy-MM-dd"), registrosGrupo[0].create_date.ToString("yyyy-MM-dd"), registrosGrupo);
             newGroup.showButtonCierre = !FoundCerrado;
             _items.Add(newGroup);
         }
     }
     
     private async Task LoadData()
-    {
-        //collectionView: Contiene una referencia directa que en teoría debería bastar para que se 
-        // actualice la visualizacion de forma directa, no lo logra, por lo cual se están realizando
-        // 2 asignaciones. Considerar optimización para evitar dicho comportamiento.
-
-        //if (UITools.LoadingNow())
-        //    return;
-
-        //await UITools.ShowLoading(_absoluteLayout);
-
+    {        
         if (IsLoading)
             return;
 
@@ -214,28 +157,18 @@ public partial class CobranzasPage : ContentPage
         {
             if(SelectorCmp.SelectedItem ==null)
             {
-                //POSIBLE BUG
                 return;
             }
 
             _items.Clear();
 
-            //TODO: Revisar, no deberíamos tener que volver a reasignar la variable
-            _items = new ObservableCollection<ItemsGroup>();
-            //var task = Task.Run(async () =>
-            //{
-            DateTime dateEndField = dateEnd.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
+            _items = new ObservableCollection<MultipleCobrosInvoiceGroup>();
+            
+            DateTime dateEndField = dateEnd.Date.Value.AddHours(23).AddMinutes(59).AddSeconds(59);
 
             var SelCompany = (res_company) SelectorCmp.SelectedItem;
             var database = new MultipleCobrosInvoiceDb(App.Session.odooConnection.DbNameSqlite);
-            //var ls_items = await database.GetItemsAsync(se.empresa, dateIni.Date, dateEndField, App.Session.CurrentUser.codusuario, true);
-            //var ls_items = await database.GetItemsAsync(SelCompany.id,
-            //    dateIni.Date,
-            //    dateEndField,
-            //    txtSearch.Text.Trim(),
-            //    App.Session.CurrentUser.uid,
-            //    true);
-
+            
             string text_search = txtSearch.Text;
 
             if (string.IsNullOrWhiteSpace(text_search))
@@ -253,9 +186,6 @@ public partial class CobranzasPage : ContentPage
                  x.partner_name.Contains(text_search) &&
                  x.create_uid == App.Session.CurrentUserFront.uid);
 
-            //Se ordenan los registros por FECHA
-            //ls_items.Sort((x, y) => x.FECHA.CompareTo(y.FECHA));
-
             //Se ordena desde la fecha mas actual
             ls_items = ls_items.OrderByDescending(c => c.create_date).ToList();
 
@@ -266,7 +196,7 @@ public partial class CobranzasPage : ContentPage
             foreach (var _paymentHeaderItem in ls_items)
             {
 
-                if(_paymentHeaderItem.payment_status == DMSA.Models.CobrosEstados.PROCESANDO)
+                if(_paymentHeaderItem.payment_status == CobrosEstados.ENVIANDO)
                 {
                     // Obtén la fecha y hora actual
                     DateTime fechaActual = DateTime.Now;
@@ -274,8 +204,8 @@ public partial class CobranzasPage : ContentPage
 
                     if (diferenciaDeTiempo.TotalMinutes > 5)
                     {
-                        _paymentHeaderItem.payment_status = DMSA.Models.CobrosEstados.PENDIENTE;
-                        await Toast.Make("Cobro " + _paymentHeaderItem.recipe_name + " se regreso a estado PENDIENTE por inactividad.").Show();
+                        _paymentHeaderItem.payment_status = CobrosEstados.PENDIENTE;
+                        await Toast.Make("Cobro " + _paymentHeaderItem.receipt_name + " se regreso a estado PENDIENTE por inactividad.").Show();
                     }
                 }
 
@@ -301,31 +231,26 @@ public partial class CobranzasPage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine("Error: " + ex.Message);
-        }
-
-        //await UITools.HideLoading(_absoluteLayout);
+        }        
 
         IsLoading = false;
     }
 
-    private bool PermitirCerrar(ItemsGroup group)
+    private bool PermitirCerrar(MultipleCobrosInvoiceGroup group)
     {
         foreach (var itemgroup in group)
         {
-            if (itemgroup.payment_status == DMSA.Models.CobrosEstados.PENDIENTE || itemgroup.payment_status == DMSA.Models.CobrosEstados.PROCESANDO)
+            if (itemgroup.payment_status == CobrosEstados.PENDIENTE || itemgroup.payment_status == CobrosEstados.ENVIANDO)
                 return false;
         }
 
         return true;
     }
 
-    res_company[] Empresas { get; set; }
-
-    public ICommand CerrarDiaCommand { get; set; }
 
     private async void CerrarDia(object obj)
     {
-        var itemgroup = (ItemsGroup) obj;
+        var itemgroup = (MultipleCobrosInvoiceGroup) obj;
 
         var resultCerrar = PermitirCerrar(itemgroup);
 
@@ -338,7 +263,6 @@ public partial class CobranzasPage : ContentPage
         Debug.WriteLine("CerrarDia");
         string idCierre = itemgroup.GroupData;
 
-        //CobReciboCab cobCarteraDet = (CobReciboCab) obj;
         string numdeposito = await DisplayPromptAsync(itemgroup.GroupData, "# Depósito", "GUARDAR", "CANCELAR", "########", 10, Keyboard.Numeric); //, cobCarteraDet.VALORXAPLICAR);
 
         if (numdeposito == null || numdeposito == "" || numdeposito.Length <= 3)
@@ -348,14 +272,17 @@ public partial class CobranzasPage : ContentPage
         }
 
         if (numdeposito != null && numdeposito != "")
-        {
-            //ID de Cierre es la fecha
-            //Leer la base de datos
-            AccountPaymentHeaderDb cobReciboCab = new AccountPaymentHeaderDb(App.Session.odooConnection.DbNameSqlite);
-            var se = (res_company)SelectorCmp.SelectedItem;
+        {           
+            var cobReciboCab = new MultipleCobrosInvoiceDb(App.Session.odooConnection.DbNameSqlite);
+            
+            var se = App.Session.res_Company;
             DateTime dateTime = DateTime.Parse(itemgroup.GroupData);
-            //var itemsCobros = await cobReciboCab.GetItemsAsync(se.empresa, dateTime);
-            var itemsCobros = await cobReciboCab.GetItemsDateCutAsync(se.id, dateTime);
+            var fechaInicio = dateTime.Date;
+            var fechaFin = fechaInicio.AddDays(1);
+
+            var itemsCobros = await cobReciboCab.GetItemsAsync(x=>x.company_id == se.id 
+            && x.create_date >= fechaInicio 
+            && x.create_date < fechaFin);
 
             Debug.WriteLine(itemsCobros.Count());
 
@@ -369,27 +296,24 @@ public partial class CobranzasPage : ContentPage
             
             decimal monto_total = 0;
 
-            AccountPaymentDb accountPaymentDb = new AccountPaymentDb(App.Session.odooConnection.DbNameSqlite);
-            List<AccountPayment> wholeAccountPayments = new List<AccountPayment>();
+            var multipleCobrosInvoiceLineDb = new MultipleCobrosInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
+            List<MultipleCobrosInvoiceLine> wholeAccountPayments = new List<MultipleCobrosInvoiceLine>();
 
             for (int i = 0; i < itemsCobros.Count(); i++)
-            {
-                // Validacion Estado del cobro
-                if (itemsCobros[i].payment_status == DMSA.Models.CobrosEstados.PENDIENTE || itemsCobros[i].payment_status == DMSA.Models.CobrosEstados.PROCESANDO)
-                {
-                    // Cierra Espera
-                    //loading.dismiss();
+            {                
+                if (itemsCobros[i].payment_status == CobrosEstados.PENDIENTE || itemsCobros[i].payment_status == CobrosEstados.ENVIANDO)
+                {                    
                     await UITools.HideLoadingPopup();
 
-                    var mensajeError = $"Error ==> No se puede procesar el Dia: <b>{idCierre}</b>, existen Recibos no <b>ENVIADOS</b>.";
-                    //var alert = this.alertCtrl.create(new { title = "Atención", subTitle = mensajeError, buttons = new[] { "Aceptar" } });
-                    //alert.present();
-                    throw new Exception(mensajeError); // Manejo de Error evita continuar
+                    var mensajeError = $"Error ==> No se puede procesar el Dia: <b>{idCierre}</b>, existen Recibos no <b>ENVIADOS</b>.";                    
+                    throw new Exception(mensajeError);
                 }
 
-                monto_total = itemsCobros[i].payment_amount;
+                monto_total = (decimal) itemsCobros[i].amount;
 
-                var wpi = await accountPaymentDb.GetByParent(itemsCobros[i].id);
+                int parent_id = itemsCobros[i].id;
+
+                var wpi = await multipleCobrosInvoiceLineDb.GetItemsAsync(x => x.MultipleCobrosInvoiceId  == parent_id);
 
                 wholeAccountPayments.AddRange(wpi);
 
@@ -435,30 +359,9 @@ public partial class CobranzasPage : ContentPage
         HubAccountPaymentDaily hubAccountPaymentDaily = new HubAccountPaymentDaily(App.Session);
         string jsonSerialized = JsonConvert.SerializeObject(registroCierre);
         AccountPaymentDaily objSend = JsonConvert.DeserializeObject<AccountPaymentDaily>(jsonSerialized);
-        //objSend.payments = Array.Empty<AccountPaymentSend>();
-
-        //paymentSend = paymentSendList.ToArray();
-        //Se deben enviar los pagos a parte asi mismo las lineas de facturas
-        // luego de ser almacenadas deben extraerse para que se sincronicen con la informacion de la tablet
-        // en caso de que los datos no existan
-
         var headerResult = await hubAccountPaymentDaily.Send(objSend);
         return true;
     }
-       
-    public ICommand RefreshCommand => new Command(async () =>
-    {
-        //refreshView.IsRefreshing = true;
-        // Simular una operación de actualización como obtener datos
-        await Task.Delay(2000);
-
-        // Actualiza los datos aquí
-        // ...
-
-        //refreshView.IsRefreshing = false;
-    });
-
-    public ICommand ReporteDiaCommand { get; set; }
 
     private void ReporteDia(object obj)
     {
@@ -466,66 +369,39 @@ public partial class CobranzasPage : ContentPage
         Debug.WriteLine("ReporteDia");
     }
 
-    public ICommand DeleteCommand { get; set; }
-
     private void DeleteItem(object obj)
     {
         Debug.WriteLine("DeleteItem");
     }
 
-    public ICommand EditCommand { get; set; }
 
     private async void EditItem(object obj)
     {
         Debug.WriteLine("EditItem");
-
-        AccountPaymentView objPage = new AccountPaymentView();
-        
+        AccountPaymentView objPage = new AccountPaymentView();        
         objPage.Disappearing += NewPayment_Disappearing;
         objPage.Sel_MultipleCobrosInvoice = (MultipleCobrosInvoice)obj;
-        objPage.editionMode = true;        
-
-        //CobrosTabs objPage = new CobrosTabs();
-
-        ////Se coloca en modo de edición
-        //objPage.SetEditionMode();
-
-        ////CobrosMain objPage = new CobrosMain();
-        ////Se asigna la empresa seleccionada
-        //await objPage.setCobReciboCab((AccountPaymentHeader) obj);
-
-
-
-        //Se asigna título
-        //obj.Title = "Cartera Clientes/" + se.nombre;
-        //objPage.dataItem = (CobReciboCab)obj;
-        //objPage.empresa = empresa;
-        //objPage.SetTitle();
+        objPage.editionMode = true;
         await Navigation.PushAsync(objPage, false);
     }
 
-    public ICommand TicketCommand { get; set; }
 
     private async void TicketItem(object obj)
     {
         Debug.WriteLine("EditItem");
         PrintView objPage = new PrintView();
-        //CobrosMain objPage = new CobrosMain();
-        //Se asigna la empresa seleccionada
-
-        //((ItemsGroup)obj)[0]
-
-        //objPage.setCobReciboCab((CobReciboCab)obj);
-        string printTemplate = "";
+        
+        string printTemplateHtml = "";
+        string printTemplatePlain = "";
+        byte[] printTemplateData = null;
         Services.Templates.Processor processor = new Services.Templates.Processor();
         switch (obj.GetType().Name)
         {
-            case "ItemsGroup":
+            case "MultipleCobrosInvoiceGroup":
                 {
-                    //printTemplate = await processor.Template_ItemsGroup((ItemsGroup)obj);
-                    printTemplate = await processor.Template_ItemsGroup_V2((ItemsGroup)obj);
+                    (printTemplateData, printTemplateHtml, printTemplatePlain) = await processor.Template_MultipleCobrosInvoiceGroup((MultipleCobrosInvoiceGroup)obj);
 
-                    var _itemsGroup = (ItemsGroup) obj;
+                    var _itemsGroup = (MultipleCobrosInvoiceGroup) obj;
 
                     foreach (var _itemGroup in _itemsGroup)
                     {
@@ -536,32 +412,27 @@ public partial class CobranzasPage : ContentPage
                         break;
                     }   
                 }
-                break;
+                break;            
             case "MultipleCobrosInvoice":
                 {
-                    //printTemplate = await processor.Template_CobReciboCab((AccountPaymentHeader)obj);
-                    printTemplate = await processor.Template_AccountPaymentHeader_v2((MultipleCobrosInvoice)obj);
+                    (printTemplateData,printTemplateHtml, printTemplatePlain) = await processor.Template_MultipleCobrosInvoice((MultipleCobrosInvoice)obj);
                     var _itemGroup = (MultipleCobrosInvoice)obj;
-                    
+
                     res_company[] Empresas = null;
                     Empresas = App.Session.CurrentUserFront.empresas;
                     var res_CompanyData = Empresas.ToList().Where(i => i.id == _itemGroup.company_id).FirstOrDefault();
-                    objPage.res_Company = res_CompanyData;                        
+                    objPage.res_Company = res_CompanyData;
                 }
                 break;
         }
+                
+        objPage.setTemplatePreview(printTemplateHtml);
+        objPage.setTemplatePlain(printTemplatePlain);
+        objPage.setData(printTemplateData);
 
-        objPage.setTemplate(printTemplate);
-
-        //Se asigna título
-        //obj.Title = "Cartera Clientes/" + se.nombre;
-        //objPage.dataItem = (CobReciboCab)obj;
-        //objPage.empresa = empresa;
-        //objPage.SetTitle();
         await Navigation.PushAsync(objPage, false);
     }
 
-    public ICommand EnviarCobroCommand { get; set; }
 
     private async void EnviarCobro(object obj)
     {
@@ -573,14 +444,20 @@ public partial class CobranzasPage : ContentPage
         }
 
         var _multipleCobrosInvoice = (MultipleCobrosInvoice)obj;
-        
+
+        if (_multipleCobrosInvoice.center_id != App.Session.res_center.id)
+        {
+            _multipleCobrosInvoice.center_id = App.Session.res_center.id;
+            Debug.WriteLine("Diferencia entre res_center, dato será reemplazado");
+        }
+
         await UITools.ShowLoadingPopup(this);
         var result = await DebitCollection.SendPayment(_multipleCobrosInvoice, false);
         await UITools.HideLoadingPopup();
 
-        if (result.result.Count > 0 && result.error == null)
+        if (result.result != null && result.result.Count > 0 && result.error == null)
         {
-            await Toast.Make("Envío de pagos correcto").Show();
+            await Toast.Make("Envío de cobro correcto").Show();
         }
         else
         {
@@ -590,71 +467,28 @@ public partial class CobranzasPage : ContentPage
                 error_message = result.error.message;
             }
 
-            await Toast.Make("Envío de pagos erroneo:" + ParseTool.CleanServerMessage_v1(error_message, true)).Show();
+            await Toast.Make("Envío de cobro erroneo:" + ParseTool.CleanServerMessage_v1(error_message, true)).Show();
         }
 
         await LoadData();
     }
 
-    public ICommand ReversarCommand { get; set; }
 
     private async void Reversar(object obj)
     {
-        AccountPaymentHeader accountPaymentHeader = (AccountPaymentHeader)obj;
+        MultipleCobrosInvoice accountPaymentHeader = (MultipleCobrosInvoice)obj;
 
-        bool answer = await DisplayAlert("Reversar cobro", "Está seguro que desea reversar este cobro? " + accountPaymentHeader.recipe_name, "Reversar", "Cancelar");
-        //Debug.WriteLine("Answer: " + answer);
+        bool answer = await DisplayAlert("Reversar cobro", "Está seguro que desea reversar este cobro? " + accountPaymentHeader.receipt_name, "Reversar", "Cancelar");
+        
         if (!answer)
         {
             return;
         }
-
-        //var secuencia = await database.obtenerSecuenciaRecibo(dataItem.CODEMPRESA, App.Session.CurrentUser.codusuario, fechaActual);
-        //string secuencia_final = GenerarCodigoRecibo(App.Session.CurrentUser.codusuario, dataItem.CODEMPRESA, fechaActual, secuencia.ToString());
-
-        //CobReciboCab _cobReciboCab = (CobReciboCab)obj;
-        //ApiProcessor apiProcessor = new ApiProcessor();
-        //await apiProcessor.EnviarCobro(_cobReciboCab);
     }
-
-    public ICommand ShowSwipeCommand { get; set; }
-
-    private void ShowSwipe(object obj)
-    {
-        Debug.WriteLine("ShowSwipe");
-        SwipeView swipeView = (SwipeView)obj;
-    }
-
-    private void SwipeItem_Invoked(object sender, EventArgs e)
-    {
-        Debug.WriteLine("Invoked");
-        //var swipeItem = (SwipeItem)sender;
-        //var sw = (SwipeView)swipeItem.Parent.Parent;        
-        //sw.Open(OpenSwipeItem.RightItems, true);        
-    }
-
-    private void SwipeItem_Invoked_1(object sender, EventArgs e)
-    {
-        Debug.WriteLine("SwipeLeft");
-        //var element = ((SwipeItem)sender);
-    }
-
-    //private ActivityIndicator _activityIndicator;
-
-    //private async void SimulateLoading()
-    //{
-    //    // Simulación de un retraso para mostrar el indicador de actividad
-    //    await Task.Delay(3000);
-
-    //    // Detener el indicador de actividad y ocultarlo
-    //    _activityIndicator.IsRunning = false;
-    //    _activityIndicator.IsVisible = false;
-    //}
 
     private void NewPayment_Disappearing(object sender, EventArgs e)
     {
-        Debug.WriteLine("Busqueda cerrada");
-        //throw new NotImplementedException();
+        Debug.WriteLine("Busqueda cerrada");        
         LoadDataByDispatcher();
     }
 
@@ -687,14 +521,10 @@ public partial class CobranzasPage : ContentPage
 
     private async void NewPayment(object sender, EventArgs e)    
     {
-        //Valida envío pendientes de días anteriores antes de permitir ingresar nuevos cobros
-        // es el mismo método para envíos automáticos
-
         var se = (res_company) SelectorCmp.SelectedItem;
         AccountPaymentDailyDb cobCierreDb = new AccountPaymentDailyDb(App.Session.odooConnection.DbNameSqlite);
         var cierres = await cobCierreDb.GetItemAsync(se.id, DateTime.Now.ToString("yyyy-MM-dd"));
 
-        //YA HA SIDO CERRADO
         if (cierres != null)
         {
             await Toast.Make("Ya se ha cerrado el día, no podrá ingresar más cobros hasta iniciar un nuevo período.").Show();
@@ -713,19 +543,4 @@ public partial class CobranzasPage : ContentPage
         
         await Navigation.PushAsync(obj, false);
     }
-
-    private void swipeView_SwipeEnded(object sender, SwipeEndedEventArgs e)
-    {
-        Debug.WriteLine("...");
-    }
-
-    private void swipeView_SwipeChanging(object sender, SwipeChangingEventArgs e)
-    {
-        //Debug.WriteLine("Cha...");
-    }
-
-    private void swipeView_SwipeStarted(object sender, SwipeStartedEventArgs e)
-    {
-        Debug.WriteLine("Sta..");
-    }    
 }

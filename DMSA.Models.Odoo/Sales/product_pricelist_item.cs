@@ -64,6 +64,17 @@ namespace DMSA.Models.Odoo.Sales
             set => product_tmpl_id = SetId(product_tmpl_id, value);
         }
 
+        [Ignore]
+        public JToken uom_id { get; set; }
+
+        [JsonIgnore]
+        [Column("_uom_id")]
+        public int _uom_id
+        {
+            get => GetId(uom_id);
+            set => uom_id = SetId(uom_id, value);
+        }
+
         [Column("product_uom")]
         [JsonProperty("product_uom")]
         public string product_uom { get; set; }

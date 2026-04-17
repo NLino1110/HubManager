@@ -28,8 +28,7 @@ namespace DMSA.Sync.Core.Update
             }
         }
         int limit { get; set; }
-        //DateTime? sync_date_since { get; set; }// => new DateTime(year, month, day);
-
+        
         DateTime? sync_date_since 
         { 
             get 
@@ -53,21 +52,6 @@ namespace DMSA.Sync.Core.Update
         private string DbNameSqlite { get; set; }
         public ServerPuller() 
         {
-            //sync_date_since = appSession.sync_date_since;
-
-            //year = appSession.sync_date_since.Year;
-            //month = appSession.sync_date_since.Month;
-            //day = appSession.sync_date_since.Day;
-
-            //DESACTIVADO PARA EFECTOS DE PRUEBA
-            //Si ya hubo sincronizacion previa, se toma como limite de fecha la fecha de la ultima sincronizacion            
-            //if(appSession.sync_date_since != appSession.CurrentUser.log_fec_sincro)
-            //{
-            //    year = appSession.CurrentUser.log_fec_sincro.Year;
-            //    month = appSession.CurrentUser.log_fec_sincro.Month;
-            //    day = appSession.CurrentUser.log_fec_sincro.Day;
-            //}
-
             maxIndexExceeded = 600;
             
             if (appSession.odooConnection == null)
@@ -88,11 +72,9 @@ namespace DMSA.Sync.Core.Update
 
             try
             {
-                await OnlineSyncCompany(false);
-                //await OnlineSyncStores();
+                await OnlineSyncCompany(false);                
                 await OnlineSyncResCenter(false);
                 await OnlineSyncStockWarehouse(false);
-
                 await MotivoActividadDiaria(true);
             }
             catch (Exception ex)
@@ -104,11 +86,11 @@ namespace DMSA.Sync.Core.Update
             return true;
         }
 
-        public async Task<bool> PullPromotions()
+        public async Task<bool> PullPromotions(Func<int, int, Task>? onProgress = null)
         {
             try
             {
-                await OnlinePromotionBenefit(true);
+                await OnlinePromotionBenefit(true, onProgress);
                
             }
             catch (Exception ex)
@@ -130,27 +112,22 @@ namespace DMSA.Sync.Core.Update
                 //return;
             }
 
-            ApiManager.HubCompany hubCompany = new HubCompany(Constants.Session);
+            HubResCompany hubCompany = new HubResCompany(Constants.Session);
             var dataList = await hubCompany.GetAll();
 
             if (dataList!= null && dataList.result != null && dataList.result.Length > 0)
             {
                 foreach (var companyItem in dataList.result)
                 {
-                    //if (companyItem.partner_id != null && companyItem.partner_id.Length > 0)
-                    //{
-                    //    companyItem.partner_id_ = companyItem.partner_id[0].id;
-                    //}
+                    if(companyItem.cuadratura_account_id_ == 0)
+                    {
+                        companyItem.cuadratura_account_id_ = 1064;
+                    }
 
-                    //if (companyItem.check_journal_id != null && companyItem.check_journal_id.Length > 0)
-                    //{
-                    //    companyItem.check_journal_id_ = companyItem.check_journal_id[0].id;
-                    //}
-
-                    //if (companyItem.credit_note_journal_id != null && companyItem.credit_note_journal_id.Length > 0)
-                    //{
-                    //    companyItem.credit_note_journal_id_ = companyItem.credit_note_journal_id[0].id;
-                    //}
+                    if (companyItem.credit_note_journal_id_ == 0)
+                    {
+                        companyItem.credit_note_journal_id_ = 9;
+                    }
                 }
                 await database.InsertBatchAsync(dataList.result);
             }

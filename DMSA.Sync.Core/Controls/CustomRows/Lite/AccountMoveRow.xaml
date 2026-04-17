@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView 
+        x:Name="ThisRow"
+        xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+        xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+        xmlns:local="clr-namespace:DMSA.Sync.Core.Controls.CustomRows.Lite"
+    xmlns:converters="clr-namespace:DMSA.Sync.Core.Converters"
+        x:Class="DMSA.Sync.Core.Controls.CustomRows.Lite.AccountMoveRow">
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <converters:DateToDaysConverter x:Key="DateToDaysConverter" />
+        </ResourceDictionary>
+    </ContentView.Resources>
+    <Border
+        x:Name="RootBorder"
+        BindingContext="{Binding .}"
+        Stroke="LightGray"
+        StrokeThickness="0.6"
+        Background="FloralWhite"
+        StrokeShape="RoundRectangle 3">
+        
+        <Grid Padding="20">
+            <Grid.Behaviors>
+                <toolkit:TouchBehavior
+                    PressedOpacity="0.85"
+                    PressedScale="0.97"
+                    PressedBackgroundColor="#E6F0FF"
+                    LongPressDuration="1000"
+                    LongPressCommand="{Binding ActionCommand, Source={x:Reference ThisRow}}"
+                    LongPressCommandParameter="{Binding BindingContext, Source={x:Reference ThisRow}}"
+                    DefaultBackgroundColor="Transparent"
+                    Command="{Binding ActionCommand, Source={x:Reference ThisRow}}"
+                    CommandParameter="{Binding BindingContext, Source={x:Reference ThisRow}}" />
+            </Grid.Behaviors>
+            
+            <StackLayout
+            Orientation="Vertical"
+            HorizontalOptions="Fill"
+            BackgroundColor="Transparent"
+            Padding="0">
+                
+                <Label
+                Text="{Binding docnum_mask, StringFormat='FAC # {0}'}"
+                FontAttributes="Bold"
+                FontSize="14"
+                TextColor="Black" />
+
+                <Label Grid.Row="1"
+                   Grid.ColumnSpan="3"
+                   Text="{Binding seller, StringFormat='VEND: {0}'}"
+                   FontSize="11"
+                   FontAttributes="Bold"/>
+
+                <StackLayout Grid.Row="2"
+                     Grid.ColumnSpan="3"
+                     Orientation="Horizontal"
+                     Spacing="10">
+
+                    <Label Text="{Binding invoice_date, StringFormat='FECHA: {0:dd/MM/yyyy}'}"
+                       FontSize="11"
+                       FontAttributes="Bold"/>
+
+                    <Label Text="{Binding invoice_date, Converter={StaticResource DateToDaysConverter}, StringFormat='DIAS: {0}'}"
+                       FontSize="11"
+                       FontAttributes="Bold"/>
+                </StackLayout>               
+
+                <Label
+                    Text="{Binding amount_residual_virtual, StringFormat='SALDO: ${0}'}"
+                    FontSize="12"
+                    FontAttributes="Bold"
+                    TextColor="Red" />
+
+                <Label
+                    Text="CH-POSF:-"
+                    FontSize="12"
+                    FontAttributes="Bold"
+                    TextColor="MediumSeaGreen" />
+
+            </StackLayout>
+        </Grid>
+    </Border>
+</ContentView>

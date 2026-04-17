@@ -57,9 +57,12 @@ public partial class Filters : ContentView
         ddfStatus.ItemsSource = Status;
         ddfStatus.ItemDisplayBinding = new Binding("Name");
         ddfStatus.SelectedItem = Status[0];
-        
+                
         LoadTopMarcasAsync();
         LoadTopCategoriesAsync();
+
+        ddfBrands.SelectedItemChanged += DdfBrands_SelectedItemChanged;
+        ddfCategory.SelectedItemChanged += DdfCategory_SelectedItemChanged;
     }
 
     private async void DdfBrands_SelectedItemChanged(object? sender, object e)
@@ -107,7 +110,7 @@ public partial class Filters : ContentView
         }        
     }
 
-    private async Task LoadTopMarcasAsync()
+    public async Task LoadTopMarcasAsync()
     {       
         ProductProductDb productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
         int[] topMarcas = await productDb.GetTopMarcas(13);
@@ -129,12 +132,12 @@ public partial class Filters : ContentView
             ddfBrands.ItemsSource = Brands;
             ddfBrands.ItemDisplayBinding = new Binding("name");
             ddfBrands.SelectedItem = Brands[0];
-            ddfBrands.SelectedItemChanged += DdfBrands_SelectedItemChanged;
+            
             //filter_brand = Brands[0];
         });
     }
 
-    private async Task LoadTopCategoriesAsync()
+    public async Task LoadTopCategoriesAsync()
     {
 
         int[] topMarcas = new int[] { 20,
@@ -166,7 +169,7 @@ public partial class Filters : ContentView
             ddfCategory.ItemsSource = Product_Categories;
             ddfCategory.ItemDisplayBinding = new Binding("name");
             ddfCategory.SelectedItem = Product_Categories[0];
-            ddfCategory.SelectedItemChanged += DdfCategory_SelectedItemChanged;
+            
             //filter_brand = Brands[0];
         });
     }

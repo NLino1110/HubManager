@@ -14,8 +14,9 @@ using System.Threading.Tasks;
 
 namespace DMSA.Sync.Core.Update.Cloud
 {
-    public class Pipeline
+    public partial class Pipeline
     {
+        [Obsolete]
         public async Task<string> CompressDatabaseAsync_Old(string dbPath)
         {
             string zipPath = dbPath + ".zip";
@@ -84,7 +85,7 @@ namespace DMSA.Sync.Core.Update.Cloud
         //Archivos con un tamaño maximo de 3.14 MB
         const int MAX_PART_SIZE = (int)(3.14 * 1024 * 1024);
 
-        public async Task<(mnsa_attachment, bool)> UploadSqliteZip()
+        public async Task<(mnsa_attachment, bool)> UploadSqliteZip(Func<int, int, Task>? onProgress = null)
         {
             string dbPath = Path.Combine(
                 FileSystem.AppDataDirectory,
@@ -144,11 +145,14 @@ namespace DMSA.Sync.Core.Update.Cloud
                 {
                     Debug.WriteLine($"Hubo un error al enviar el archivo: {file_upload_response.error.message}");
                     return (mnsaAttachment, false);
-                }                    
+                }
 
                 Debug.WriteLine($"Parte {partName} subida con ID: {file_upload_response.result}");
 
                 await hub.Link(packageId, file_upload_response.result);
+
+                if (onProgress != null)
+                    await onProgress(i + 1, totalParts);
             }
 
             Debug.WriteLine("✅ Todas las partes enviadas correctamente");
@@ -170,25 +174,27 @@ namespace DMSA.Sync.Core.Update.Cloud
             }
         }
 
-        public async Task<bool> AvailableZipPack()
-        {
-            HubMnsaAttachment hubMnsaAttachment = new HubMnsaAttachment(Constants.Session);
+        //[Obsolete("Parece que no es usado")]
+        //public async Task<bool> AvailableZipPack()
+        //{
+        //    HubMnsaAttachment hubMnsaAttachment = new HubMnsaAttachment(Constants.Session);
 
-            var top5List = await hubMnsaAttachment.GetTop5();
+        //    var top5List = await hubMnsaAttachment.GetTop5();
 
-            if (top5List != null && top5List.result != null && top5List.result.Length > 0)
-            {
-                return true;
-            }
+        //    if (top5List != null && top5List.result != null && top5List.result.Length > 0)
+        //    {
+        //        return true;
+        //    }
 
-            return false;
-        }
+        //    return false;
+        //}
 
         public async Task<mnsa_attachment> NewestZipPack()
         {
             HubMnsaAttachment hubMnsaAttachment = new HubMnsaAttachment(Constants.Session);
 
-            var top5List = await hubMnsaAttachment.GetTop5();
+            string packName = Constants.Session.odooConnection.DbNameSqlite + ".zip";
+            var top5List = await hubMnsaAttachment.GetTop5(packName);
 
             if (top5List != null && top5List.result != null && top5List.result.Length > 0)
             {
@@ -198,14 +204,17 @@ namespace DMSA.Sync.Core.Update.Cloud
             return null;
         }
 
-        public async Task<bool> DownloadSqliteZip(bool removeTmpFile)
+        public async Task<bool> DownloadSqliteZip(bool removeTmpFile, Func<int, int, Task>? onProgress = null)
         {
             bool boolResponse = false;
 
             HubMnsaAttachment hubMnsaAttachment = new HubMnsaAttachment(Constants.Session);
             HubIrAttachment hubIrAttachment = new HubIrAttachment(Constants.Session);
+            string packName = Constants.Session.odooConnection.DbNameSqlite + ".zip";
+            var top5List = await hubMnsaAttachment.GetTop5(packName);
 
-            var top5List = await hubMnsaAttachment.GetTop5();
+            int indexFile = 0;
+            int totalFiles = 0;
 
             if(top5List != null && top5List.result!=null && top5List.result.Length > 0)
             {
@@ -231,17 +240,21 @@ namespace DMSA.Sync.Core.Update.Cloud
                     return false;
                 }
 
+                totalFiles = attachmentIds.Count;
+
                 using (var output = new FileStream(tempZipPath, FileMode.Create, FileAccess.Write))
                 {
                     foreach (var item in attachmentIds)
                     {
-                        //int file_size = (item_first.file_size / (1024 * 2));
-                        //Debug.WriteLine($"Descargando archivo: {item_first.file_name} de tamaño {file_size} MB");
-
+                        indexFile++;
+                        
                         var ir_attachment_data = await hubIrAttachment.GetItem(item);
                         var item_ir = ir_attachment_data.result[0];
 
                         Debug.WriteLine($"Descargando archivo: {item_ir.name} de tamaño {item_ir.file_size} MB");
+
+                        if (onProgress != null)
+                            await onProgress(indexFile, totalFiles);
 
                         var partBytes = await hubMnsaAttachment.DownloadFileAsync(item);
                         await output.WriteAsync(partBytes, 0, partBytes.Length);
@@ -253,18 +266,12 @@ namespace DMSA.Sync.Core.Update.Cloud
                 bool exists = ZipContainsFile(tempZipPath, Constants.Session.odooConnection.DbNameSqlite);
 
                 if (exists)
-                {
-                    // 🔹 Ahora SÍ se puede descomprimir
+                {                    
                     string extractPath = FileSystem.AppDataDirectory;
                     ZipFile.ExtractToDirectory(tempZipPath, extractPath, true);
-
                     Debug.WriteLine("ZIP descomprimido correctamente");
-
-                    //Esperamos 2 segundos para eliminar el archivo temporal
-
                     await Task.Delay(2000);
                     boolResponse = true;
-
                 }
                 else
                 {
@@ -286,27 +293,27 @@ namespace DMSA.Sync.Core.Update.Cloud
                 string.Equals(e.Name, fileName, StringComparison.OrdinalIgnoreCase));
         }
 
-        public async Task<bool> RequiredNewUpload()
-        {
-            HubMnsaAttachment hubMnsaAttachment = new HubMnsaAttachment(Constants.Session);
+        //public async Task<bool> RequiredNewUpload()
+        //{
+        //    HubMnsaAttachment hubMnsaAttachment = new HubMnsaAttachment(Constants.Session);
 
-            var topList = await hubMnsaAttachment.GetLastest(Constants.Session.CurrentUserFront.log_fec_acceso);
+        //    var topList = await hubMnsaAttachment.GetLastest(Constants.Session.CurrentUserFront.log_fec_acceso);
 
-            if (topList?.result == null || topList.result.Length == 0)
-                return true;
+        //    if (topList?.result == null || topList.result.Length == 0)
+        //        return true;
 
-            var item = topList.result[0];
+        //    var item = topList.result[0];
 
-            if (!item.date_data_cutoff.HasValue)
-                return true;
+        //    if (!item.date_data_cutoff.HasValue)
+        //        return true;
 
-            DateTime cutoff = item.date_data_cutoff.Value.Date;
-            DateTime now = Constants.Session.CurrentUserFront.log_fec_acceso.Date;
+        //    DateTime cutoff = item.date_data_cutoff.Value.Date;
+        //    DateTime now = Constants.Session.CurrentUserFront.log_fec_acceso.Date;
 
-            double daysDiff = Math.Abs((now - cutoff).TotalDays);
+        //    double daysDiff = Math.Abs((now - cutoff).TotalDays);
 
-            return daysDiff >= 1;
-        }
+        //    return daysDiff >= 1;
+        //}
 
         public async Task<bool> ExistAttachRecord()
         {

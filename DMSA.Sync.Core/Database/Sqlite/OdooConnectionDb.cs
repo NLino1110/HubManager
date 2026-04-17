@@ -1,6 +1,7 @@
 ﻿using DMSA.Models.Odoo.Abstract;
 using DMSA.Models.Odoo.Native;
 using SQLite;
+using System.Diagnostics;
 
 namespace DMSA.Sync.Core.Database.Sqlite
 {
@@ -31,7 +32,7 @@ namespace DMSA.Sync.Core.Database.Sqlite
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"OdooConnectionDb.InitDefault Exception: {ex.Message}");
+                    Debug.WriteLine($"OdooConnectionDb.InitDefault Exception: {ex.Message}");
                 }
             }
 
@@ -50,16 +51,16 @@ namespace DMSA.Sync.Core.Database.Sqlite
             return await Database.Table<OdooConnection>().Where(i => i.Id == id).FirstOrDefaultAsync();
         }
 
-        public async Task<string> CompressDatabaseAsync(string dbPath)
-        {
-            //await Init();
-            string zipPath = dbPath + ".zip";
-            if (File.Exists(zipPath))
-            {
-                File.Delete(zipPath);
-            }
-            System.IO.Compression.ZipFile.CreateFromDirectory(Path.GetDirectoryName(dbPath), zipPath, System.IO.Compression.CompressionLevel.Fastest, false);
-            return zipPath;
-        }
+        //public async Task<string> CompressDatabaseAsync(string dbPath)
+        //{
+        //    //await Init();
+        //    string zipPath = dbPath + ".zip";
+        //    if (File.Exists(zipPath))
+        //    {
+        //        File.Delete(zipPath);
+        //    }
+        //    System.IO.Compression.ZipFile.CreateFromDirectory(Path.GetDirectoryName(dbPath), zipPath, System.IO.Compression.CompressionLevel.Fastest, false);
+        //    return zipPath;
+        //}
     }
 }

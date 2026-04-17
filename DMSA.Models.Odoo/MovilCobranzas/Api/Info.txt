@@ -1,2 +1,0 @@
-﻿# Estructuras de Respuesta del API
-# https://www.dmujeres.com.ec:8443/MyBusinessWeb/servlet/SWSIntegracionesApp

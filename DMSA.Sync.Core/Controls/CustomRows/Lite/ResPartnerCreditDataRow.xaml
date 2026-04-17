@@ -7,12 +7,12 @@
                 xmlns:local="clr-namespace:DMOrders.Controls.CustomRows.Lite"
              x:Class="DMOrders.Controls.CustomRows.Lite.ResPartnerCreditDataRow">
     <Border
-    x:Name="RootBorder"
-    BindingContext="{Binding .}"
-    Stroke="LightGray"
-    StrokeThickness="0.6"
-    Background="FloralWhite"
-    StrokeShape="RoundRectangle 3">
+        x:Name="RootBorder"
+        BindingContext="{Binding .}"
+        Stroke="LightGray"
+        StrokeThickness="0.6"
+        Background="FloralWhite"
+        StrokeShape="RoundRectangle 3">
         <Grid Padding="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"></RowDefinition>
@@ -36,13 +36,13 @@
                 <Label Text="{Binding id, StringFormat='{0}-'}" FontAttributes="Bold" FontSize="13" TextColor="Black" />
                 <Label Text="{Binding name}" FontAttributes="Bold" FontSize="13" TextColor="Black" />
             </StackLayout>
-            <StackLayout Grid.Row="1" Orientation="Horizontal" HorizontalOptions="Fill" BackgroundColor="Transparent" Padding="0">
-                <Label Text="{Binding total_overdue, StringFormat='VENCIDO: {0:C}'}" FontSize="12" TextColor="DarkSlateGray" />
-                <Label Text="{Binding total_to_beat, StringFormat='X VENCER: {0:C}'}" FontSize="12" TextColor="DarkSlateGray" />
+            <StackLayout Grid.Row="1" Orientation="Horizontal" HorizontalOptions="Fill" BackgroundColor="Transparent" Padding="0" Spacing="4">
+                <Label Text="{Binding saldo_vencido, StringFormat='VENCIDO: {0:C}'}" FontSize="12" TextColor="DarkSlateGray" />
+                <Label Text="{Binding saldo_por_vencer, StringFormat='X VENCER: {0:C}'}" FontSize="12" TextColor="DarkSlateGray" />
             </StackLayout>
-            <StackLayout Grid.Row="2" Orientation="Horizontal" HorizontalOptions="Fill" BackgroundColor="Transparent" Padding="0">
-                <Label Text="{Binding positive_balance, StringFormat='A FAVOR: {0:C}'}" FontSize="12" TextColor="DarkSlateGray" />
-                <Label Text="{Binding total_due, StringFormat='TOTAL: {0:C}'}" FontSize="12" TextColor="DarkSlateGray" />
+            <StackLayout Grid.Row="2" Orientation="Horizontal" HorizontalOptions="Fill" BackgroundColor="Transparent" Padding="0" Spacing="4">
+                <Label Text="{Binding saldo_a_favor, StringFormat='A FAVOR: {0:C}'}" FontSize="12" TextColor="DarkSlateGray" />
+                <Label Text="{Binding saldo_total, StringFormat='TOTAL: {0:C}'}" FontSize="12" TextColor="DarkSlateGray" />
             </StackLayout>
         </Grid>
     </Border>

@@ -41,14 +41,9 @@
                                 SelectionChanged="MyCollectionView_SelectionChanged">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <!--<customrows:ActivityRow 
-                                Item="{x:Binding .}" 
-                                EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}">
-                        </customrows:ActivityRow>-->
-
                         <customrowsLite:ActivityRow 
         Item="{x:Binding .}" 
-        EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}">
+        EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}" Style="{StaticResource CollectionItemSelectable}">
                             
                         </customrowsLite:ActivityRow>
                     </DataTemplate>
@@ -117,8 +112,8 @@
                         <FontImageSource x:Name="IconPrevious"
                                  Color="Black"
                                  Size="18"
-                                 FontFamily="MaterialSharp"
-                                 Glyph="{x:Static uranium:MaterialSharp.Skip_previous}" />
+                                 FontFamily="FontAwesome5Solid"
+                                 Glyph="&#xf104;" />
                     </Button.ImageSource>
                     <Button.Triggers>
                         <Trigger TargetType="Button" Property="IsEnabled" Value="False">
@@ -153,8 +148,8 @@
                     <Button.ImageSource>
                         <FontImageSource x:Name="IconNext"
                                  Size="18"
-                                 FontFamily="MaterialSharp"
-                                 Glyph="{x:Static uranium:MaterialSharp.Skip_next}"
+                                 FontFamily="FontAwesome5Solid"
+                                 Glyph="&#xf105;"
                                  Color="Black" />
                     </Button.ImageSource>
                     <Button.Triggers>

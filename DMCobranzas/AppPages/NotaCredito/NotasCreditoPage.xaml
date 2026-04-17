@@ -4,14 +4,14 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              x:Class="DMCobranzas.AppPages.NotaCredito.NotasCreditoPage"
-             xmlns:control="clr-namespace:DMCobranzas.Controls"
+             xmlns:control="clr-namespace:DMCobranzas.Controls.CustomRows"
              Title="Notas de Crédito">
-    <!--<ScrollView HorizontalOptions="Fill" VerticalOptions="Fill">-->
-    <StackLayout HorizontalOptions="Fill">
-        <StackLayout Orientation="Vertical" Margin="4">
-            <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10, 0,0,0">
-                <Label Text="Empresa:" VerticalOptions="Center" WidthRequest="100" TextColor="DodgerBlue"></Label>
-                <Picker x:Name="SelectorCmp"
+    <Grid>
+        <Grid RowDefinitions="Auto,*">
+            <StackLayout Grid.Row="0" Margin="4">
+                <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10, 0,0,0">
+                    <Label Text="Empresa:" VerticalOptions="Center" WidthRequest="70" TextColor="DodgerBlue"></Label>
+                    <Picker x:Name="SelectorCmp"
                     Title=""
                     ItemDisplayBinding="{Binding name}"
                     SelectedIndexChanged="OnPickerSelectedIndexChanged"
@@ -19,392 +19,104 @@
                     HorizontalOptions="FillAndExpand"/>
                 </StackLayout>
 
-            <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10, 0,0,0">
-                <Label Text="F. desde:" WidthRequest="100" VerticalTextAlignment="Center" TextColor="DodgerBlue"></Label>
-                <DatePicker x:Name="dateIni" HorizontalOptions="FillAndExpand"/>
-            </StackLayout>
-            <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10, 0,0,0">
-                <Label Text="F. hasta:" WidthRequest="100" VerticalTextAlignment="Center" TextColor="DodgerBlue"></Label>
-                <DatePicker x:Name="dateEnd" HorizontalOptions="FillAndExpand"/>
-            </StackLayout>
-            <StackLayout Orientation="Horizontal" Margin="10">
-                <Button CornerRadius="2" 
+                <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10, 0,0,0">
+                    <Label Text="F. desde:" WidthRequest="70" VerticalTextAlignment="Center" TextColor="DodgerBlue"></Label>
+                    <DatePicker x:Name="dateIni" HorizontalOptions="FillAndExpand"/>
+                </StackLayout>
+                <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10, 0,0,0">
+                    <Label Text="F. hasta:" WidthRequest="70" VerticalTextAlignment="Center" TextColor="DodgerBlue"></Label>
+                    <DatePicker x:Name="dateEnd" HorizontalOptions="FillAndExpand"/>
+                </StackLayout>
+                <StackLayout Orientation="Horizontal" Margin="10">
+                    <Button CornerRadius="2" 
                         BackgroundColor="DodgerBlue" 
                         Text="Buscar" 
                         Margin="2" 
                         Clicked="btnBuscar_Clicked"
                         HeightRequest="35" Padding="10,0,10,0">
-                    <Button.ImageSource>
-                        <FontImageSource FontFamily="FontAwesome5Solid"
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid"
                                          Color="White"
                                          Size="14"
                                          FontAutoScalingEnabled="True"                                                         
                                          Glyph="&#xf002;" />
-                    </Button.ImageSource>
-                </Button>
+                        </Button.ImageSource>
+                    </Button>
 
-                <Button CornerRadius="2" x:Name="btnNewGroup"
-                        Text="Grupo/Solicitudes" 
+                    <Button CornerRadius="2" x:Name="btnNewGroup"
+                        Text="Nueva Solicitud" 
                         Margin="2" 
                         Clicked="btnNewGroup_Clicked"
                         HeightRequest="35" Padding="10,0,10,0"
                         BackgroundColor="DodgerBlue">
-                    <Button.ImageSource>
-                        <FontImageSource FontFamily="FontAwesome5Solid"
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid"
                                          Color="White"
                                          Size="14"
                                          FontAutoScalingEnabled="True"                                                         
-                                         Glyph="&#xf362;" />
-                    </Button.ImageSource>
-                </Button>
+                                         Glyph="&#xf067;" />
+                        </Button.ImageSource>
+                    </Button>
+                </StackLayout>
+  
+                <Border Stroke="LightGray"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 6"
+                    Padding="5,1,5,1">
+                    <Grid ColumnDefinitions="Auto,*">
+                        <Image Margin="5,0" VerticalOptions="Center">
+                            <Image.Source>
+                                <FontImageSource
+                                    FontFamily="FontAwesome5Solid"
+                                    Glyph="&#xf002;"
+                                    Color="Gray"
+                                    Size="20"/>
+                            </Image.Source>
+                        </Image>
 
+                        <Entry Grid.Column="1" x:Name="txtSearch" 
+                            Text="{Binding SearchText}"
+                            Placeholder="Buscar por Cliente"/>
+                    </Grid>
+                </Border>
             </StackLayout>
-            <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10, 0,0,0">
-                <Entry x:Name="txtSearch" 
-                       Text=""
-                       Placeholder="Buscar por Cliente" 
-                       HorizontalOptions="FillAndExpand"/>
-            </StackLayout>
-        </StackLayout>
-        
-        <AbsoluteLayout x:Name="_absoluteLayout" HorizontalOptions="Center" VerticalOptions="Center" BackgroundColor="GhostWhite">
 
-        </AbsoluteLayout>
-        <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">            
-            <CollectionView x:Name="collectionView" 
-                            ItemsSource="{Binding _items}" 
-                            IsGrouped="True">            
+            <CollectionView 
+                Grid.Row="1" 
+                    x:Name="collectionView" 
+                    ItemsSource="{Binding _items}" 
+                    IsGrouped="True"
+                    SelectionMode="None"
+                    Margin="5"
+                    EmptyView="No existen datos para mostrar...">
                 <CollectionView.GroupHeaderTemplate>
                     <DataTemplate>
                         <control:CustomHeaderView Title="{x:Binding Title}"
-                                                  ShowButton1="False"
-                                                  ShowButton2="False">
+                                          ShowButton1="False"
+                                          ShowButton2="False">
                         </control:CustomHeaderView>
                     </DataTemplate>
                 </CollectionView.GroupHeaderTemplate>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <control:AccountMoveSendHeaderItem DataItem="{x:Binding .}">
-                        </control:AccountMoveSendHeaderItem>
-                        <!--<SwipeView x:Name="swipeView" IsClippedToBounds="false">
-                                <SwipeView.RightItems>
-                                    <SwipeItems SwipeBehaviorOnInvoked="RemainOpen">
-                                        <SwipeItemView>
-                                            <StackLayout Orientation="Horizontal" Margin="5,5,5,5">
-                                            <Button CornerRadius="5"
-                                                ContentLayout="Top,0"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.TicketCommand}"
-                                                CommandParameter="{Binding .}"                                                     
-                                                BackgroundColor="LightYellow"
-                                                Text="RECIBO"
-                                                FontAttributes="Bold"
-                                                FontSize="13"
-                                                TextColor="Black"
-                                                HorizontalOptions="Center"
-                                                    Padding="5,20,5,0">
-                                                <Button.ImageSource>
-                                                    <FontImageSource FontFamily="FontAwesome5Solid"
-                                                    Color="Black"
-                                                    Size="20"
-                                                    FontAutoScalingEnabled="True"                                                         
-                                                    Glyph="&#xf02f;" />
-                                                </Button.ImageSource>
-                                            </Button>                                                
-                                                <Button CornerRadius="5"
-                                                ContentLayout="Top,0"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditCommand}"
-                                                CommandParameter="{Binding .}" MaximumWidthRequest="120"
-                                                BackgroundColor="LimeGreen"
-                                                Text="EDITAR"
-                                                FontAttributes="Bold"
-                                                FontSize="13"
-                                                HorizontalOptions="Center" 
-                                                        IsVisible="False"
-                                                        Padding="5,20,5,0">
-                                                <Button.Triggers>
-                                                    <DataTrigger TargetType="Button"
-                                                             Binding="{Binding request_status}"
-                                                             Value="PENDIENTE">
-                                                        <Setter Property="IsVisible" Value="True" />
-                                                    </DataTrigger>
-                                                    <DataTrigger TargetType="Button"
-                                                             Binding="{Binding request_status}"
-                                                             Value="ENVIADO">
-                                                        <Setter Property="IsVisible" Value="True" />
-                                                    </DataTrigger>
-                                                </Button.Triggers>
-                                                <Button.ImageSource>
-                                                        <FontImageSource FontFamily="FontAwesome5Solid"
-                                                    Color="White"
-                                                    Size="20"
-                                                    FontAutoScalingEnabled="True"                                                         
-                                                    Glyph="&#xf303;" />
-                                                    </Button.ImageSource>
-                                                </Button>
-                                                <Button CornerRadius="5"
-                                            ContentLayout="Top,0"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SendItemCommand}"
-                                            CommandParameter="{Binding .}" 
-                                                        MaximumWidthRequest="120"
-                                            BackgroundColor="DeepSkyBlue"
-                                            Text="ENVIAR"
-                                            FontAttributes="Bold"
-                                            FontSize="13"
-                                            HorizontalOptions="Center"
-                                                        IsVisible="False"
-                                                        Padding="5,20,5,0">
-                                                <Button.Triggers>
-                                                    <DataTrigger TargetType="Button"
-                                                             Binding="{Binding request_status}"
-                                                             Value="PENDIENTE">
-                                                        <Setter Property="IsVisible" Value="True" />
-                                                    </DataTrigger>
-                                                    <DataTrigger TargetType="Button"
-                                                             Binding="{Binding request_status}"
-                                                             Value="ERROR">
-                                                        <Setter Property="IsVisible" Value="True" />
-                                                    </DataTrigger>
-                                                </Button.Triggers>
-                                                <Button.ImageSource>
-                                                        <FontImageSource FontFamily="FontAwesome5Solid"
-                                                    Color="White"
-                                                    Size="20"
-                                                    FontAutoScalingEnabled="True"                                                         
-                                                    Glyph="&#xf1d8;" />
-                                                    </Button.ImageSource>
-                                                </Button>
-
-                                            <Button CornerRadius="5"
-                                                ContentLayout="Top,0"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteCommand}"
-                                                CommandParameter="{Binding .}" 
-                                                MaximumWidthRequest="120"
-                                                BackgroundColor="AntiqueWhite"
-                                                Text="BORRAR"
-                                                FontAttributes="Bold"
-                                                FontSize="13"
-                                                TextColor="Black"
-                                                HorizontalOptions="Center"
-                                                    Padding="5,20,5,0"
-                                                    IsVisible="False">
-                                                <Button.Triggers>
-                                                    <DataTrigger TargetType="Button"
-             Binding="{Binding request_status}"
-             Value="PENDIENTE">
-                                                        <Setter Property="IsVisible" Value="True" />
-                                                    </DataTrigger>
-                                                    <DataTrigger TargetType="Button"
-             Binding="{Binding request_status}"
-             Value="ERROR">
-                                                        <Setter Property="IsVisible" Value="True" />
-                                                    </DataTrigger>
-                                                </Button.Triggers>
-                                                <Button.ImageSource>
-                                                    <FontImageSource FontFamily="FontAwesome5Solid"
-                                                    Color="Black"
-                                                    Size="20"
-                                                    FontAutoScalingEnabled="True"                                                         
-                                                    Glyph="&#xf2ed;" />
-                                                </Button.ImageSource>
-                                            </Button>
-                                        </StackLayout>
-                                        </SwipeItemView>                                        
-                                    </SwipeItems>
-                                </SwipeView.RightItems>
-                                
-                                <Frame BorderColor="LightGray" Margin="0,0,0,0" BackgroundColor="WhiteSmoke" CornerRadius="0">
-                                    <Grid BackgroundColor="WhiteSmoke">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="*"/>
-                                            <RowDefinition Height="*"/>
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalOptions="Start" VerticalOptions="Center">
-                                            <Label.FormattedText>
-                                                <FormattedString>
-                                                <Span Text="{Binding partner_id}" 
-                                                      FontSize="14"
-                                                      FontAttributes="Bold"/>
-                                                    <Span Text="-" FontSize="14" />
-                                                <Span Text="{Binding partner_name}"
-                                                  TextColor="Gray"
-                                                  TextTransform="Uppercase"                                                      
-                                                      FontSize="15"
-                                                      FontAttributes="Bold">
-                                                    </Span>
-                                                </FormattedString>
-                                            </Label.FormattedText>
-                                        </Label>
-
-                                    <Label Grid.Row="1" Grid.Column="0" HorizontalOptions="Start" VerticalOptions="Center">
-                                        <Label.FormattedText>
-                                            <FormattedString>
-                                                <Span Text="{Binding request_name}"
-                                                    FontSize="12"
-                                                    FontAttributes="Bold"/>
-                                                <Span Text=" " FontSize="14" />
-                                                <Span Text="{Binding create_datetime}"
-                                                  TextColor="Gray"
-                                                  TextTransform="Uppercase"
-                                                      FontSize="11"
-                                                      FontAttributes="Bold">
-                                                </Span>
-                                            </FormattedString>
-                                        </Label.FormattedText>
-                                    </Label>                                    
-                                        
-                                    <control:IndicatorLabelUI 
-                                        Text="{Binding request_status}"
-                                        Grid.Row="1" 
-                                        Grid.Column="1" 
-                                        Grid.RowSpan="2"
-                                        HorizontalOptions="Start">
-                                    </control:IndicatorLabelUI>
-
-                                    <StackLayout Grid.Row="0" 
-                                                 Grid.RowSpan="2" 
-                                                 Grid.Column="3" 
-                                                 Orientation="Horizontal"
-                                                 Margin="2"
-                                                 IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.isWindows}">
-
-                                        <Button CornerRadius="5"
-                                                ContentLayout="Top,0"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.TicketCommand}"
-                                                CommandParameter="{Binding .}" MaximumWidthRequest="120"
-                                                BackgroundColor="WhiteSmoke"
-                                                Text=""
-                                                FontAttributes="Bold"
-                                                FontSize="13"
-                                                TextColor="Black"
-                                                HorizontalOptions="Center">
-                                            <Button.ImageSource>
-                                                <FontImageSource FontFamily="FontAwesome5Solid"
-                                                    Color="Black"
-                                                    Size="20"
-                                                    FontAutoScalingEnabled="True"                                                         
-                                                    Glyph="&#xf02f;" />
-                                            </Button.ImageSource>
-                                        </Button>                                        
-                                            
-                                            <Button CornerRadius="5"
-                                                ContentLayout="Top,0"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditCommand}"
-                                                CommandParameter="{Binding .}" MaximumWidthRequest="120"
-                                                BackgroundColor="LimeGreen"
-                                                Text=""
-                                                FontAttributes="Bold"
-                                                FontSize="13"
-                                                HorizontalOptions="Center" 
-                                                    IsVisible="False">
-                                            <Button.Triggers>
-                                                <DataTrigger TargetType="Button"
-                                                             Binding="{Binding request_status}"
-                                                             Value="PENDIENTE">
-                                                    <Setter Property="IsVisible" Value="True" />
-                                                </DataTrigger>
-                                                <DataTrigger TargetType="Button"
-                     Binding="{Binding request_status}"
-                     Value="rejected">
-                                                    <Setter Property="IsVisible" Value="True" />
-                                                </DataTrigger>
-                                                <DataTrigger TargetType="Button"
-                                                             Binding="{Binding request_status}"
-                                                             Value="ENVIADO">
-                                                    <Setter Property="IsVisible" Value="True" />
-                                                </DataTrigger>
-                                            </Button.Triggers>
-                                            <Button.ImageSource>
-                                                    <FontImageSource FontFamily="FontAwesome5Solid"
-                                                    Color="White"
-                                                    Size="20"
-                                                    FontAutoScalingEnabled="True"                                                         
-                                                    Glyph="&#xf303;" />
-                                                </Button.ImageSource>
-                                            </Button>
-                                            <Button CornerRadius="5"
-                                            ContentLayout="Top,0"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SendItemCommand}"
-                                            CommandParameter="{Binding .}" MaximumWidthRequest="120"
-                                            BackgroundColor="DeepSkyBlue"
-                                            Text=""
-                                            FontAttributes="Bold"
-                                            FontSize="13"
-                                            HorizontalOptions="Center"
-                                                    IsVisible="False">
-                                            <Button.Triggers>
-                                                <DataTrigger TargetType="Button"
-                                                             Binding="{Binding request_status}"
-                                                             Value="PENDIENTE">
-                                                    <Setter Property="IsVisible" Value="True" />
-                                                </DataTrigger>
-                                                <DataTrigger TargetType="Button"
-                                                             Binding="{Binding request_status}"
-                                                             Value="ERROR">
-                                                    <Setter Property="IsVisible" Value="True" />
-                                                </DataTrigger>
-                                            </Button.Triggers>
-                                            <Button.ImageSource>
-                                                    <FontImageSource FontFamily="FontAwesome5Solid"
-                                                    Color="White"
-                                                    Size="20"
-                                                    FontAutoScalingEnabled="True"
-                                                    Glyph="&#xf1d8;"/>
-                                                </Button.ImageSource>
-                                            </Button>
-                                        <Button CornerRadius="5"
-                                                ContentLayout="Top,0"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteCommand}"
-                                                CommandParameter="{Binding .}"                                                     
-                                                BackgroundColor="WhiteSmoke"
-                                                Text=""
-                                                FontAttributes="Bold"
-                                                FontSize="13"
-                                                TextColor="Black"
-                                                HorizontalOptions="Center"                                                
-                                                    MaximumHeightRequest="50"
-                                                IsVisible="false">
-                                            <Button.Triggers>
-                                                <DataTrigger TargetType="Button"
-                                                Binding="{Binding request_status}"
-                                                Value="PENDIENTE">
-                                                    <Setter Property="IsVisible" Value="True" />
-                                                </DataTrigger>
-                                                <DataTrigger TargetType="Button"
-                                                Binding="{Binding request_status}"
-                                                Value="ERROR">
-                                                    <Setter Property="IsVisible" Value="True" />
-                                                </DataTrigger>
-                                            </Button.Triggers>
-                                            <Button.ImageSource>
-                                                <FontImageSource FontFamily="FontAwesome5Solid"
-                                                    Color="Black"
-                                                    Size="20"
-                                                    FontAutoScalingEnabled="True"                                                         
-                                                    Glyph="&#xf2ed;" />
-                                            </Button.ImageSource>
-                                        </Button>                                            
-                                    </StackLayout>
-                                    <StackLayout Grid.Row="0" 
-                                         Grid.RowSpan="2" 
-                                         Grid.Column="2"
-                                         VerticalOptions="Center">
-                                        
-                                        <control:IndicatorUI></control:IndicatorUI>                                        
-                                    </StackLayout>
-                                </Grid>
-                                </Frame>
-                            </SwipeView>-->
+                        <control:CreditNoteRequestGroupRow DataItem="{x:Binding .}">
+                        </control:CreditNoteRequestGroupRow>                        
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-        </ScrollView>
-    </StackLayout>
-    <!--</ScrollView>-->
+            
+            <Grid 
+                Grid.Row="1" 
+                BackgroundColor="#80000000"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="999">
+                <ActivityIndicator IsRunning="{Binding IsLoading}"
+                   Color="MediumVioletRed"
+                   WidthRequest="100"
+                   HeightRequest="100"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+            </Grid>
+        </Grid>
+    </Grid>
 </ContentPage>

@@ -4,23 +4,21 @@ using Newtonsoft.Json;
 namespace DMSA.Models.Odoo.Promotions.Wizard
 {
     public class AllSaleOrderPromotionWizardGift : OdooEntity
-    {
-        
+    {        
         [JsonProperty("id")]
         public int Id { get; set; }
 
-
         [JsonProperty("wizard_id")]
-        public int[] Wizard_Id { get; set; }
+        public int Wizard_Id { get; set; }
 
         [JsonProperty("promotion_line_id")]
-        public int[] Promotion_Line_Id { get; set; }
+        public int Promotion_Line_Id { get; set; }
 
         [JsonProperty("product_id")]
-        public int[] Product_Id { get; set; }
+        public int Product_Id { get; set; }
 
         [JsonProperty("currency_id")]
-        public int[] Currency_Id { get; set; }
+        public int Currency_Id { get; set; }
 
 
         [JsonProperty("lines_ids")]
@@ -50,5 +48,15 @@ namespace DMSA.Models.Odoo.Promotions.Wizard
 
         [JsonProperty("obtained")]
         public bool Obtained { get; set; }
+    }
+
+    public class AllSaleOrderPromotionWizardGiftWrapper : List<object>
+    {
+        public AllSaleOrderPromotionWizardGiftWrapper(AllSaleOrderPromotionWizardGift line)
+        {
+            Add(0);
+            Add(0);
+            Add(line);
+        }
     }
 }

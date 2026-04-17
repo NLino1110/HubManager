@@ -1,54 +1,16 @@
-﻿
-using DMCobranzas.AppPages.Sys;
-using DMCobranzas.Services;
+﻿using DMCobranzas.AppPages.Sys;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
-using CommunityToolkit.Maui.Views;
 using DMSA.Models.Odoo;
-using Microsoft.Maui;
-using Microsoft.Maui.Controls;
-using Plugin.BLE;
-using Plugin.BLE.Abstractions;
-using Plugin.BLE.Abstractions.Contracts;
-using SkiaSharp;
-using SkiaSharp.QrCode;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection;
-using System.Text;
-using System.Threading;
 using CommunityToolkit.Maui.Extensions;
 using DMSA.Sync.Core.Database.Sqlite;
 
 namespace DMCobranzas.AppPages;
 
-public partial class SettingsPage : ContentPage, IDisposable //, INotifyPropertyChanged
+public partial class SettingsPage : ContentPage, IDisposable
 {
-    BluetoothPrinterManager btPrinterManager { get; set; }
-
-    //private ObservableCollection<DeviceLocal> m_deviceList { get; set; }
-    //public List<DeviceLocal> deviceList
-    //{
-    //    get { return m_deviceList; }
-    //    set
-    //    {
-    //        m_deviceList = value;
-    //        OnPropertyChanged(nameof(deviceList));
-    //    }
-    //}
-
-    //public event PropertyChangedEventHandler PropertyChanged;
-
-    //protected override void OnPropertyChanged(string propertyName)
-    //{
-    //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    //}
-    
     public SettingsPage()
 	{        
-        //Scan(null, null);
         InitializeComponent();
 
         IDispatcherTimer timer;
@@ -88,18 +50,13 @@ public partial class SettingsPage : ContentPage, IDisposable //, INotifyProperty
         returnResultPopup.TitleBox = "Ingrese el pin correcto para aplicar cambios.";
 
         var result = await PopupExtensions.ShowPopupAsync(this, returnResultPopup);
-        //string result = await DisplayPromptAsync("PIN", "Ingrese el pin correcto para aplicar cambios", initialValue: "", maxLength: 4, keyboard: Keyboard.Numeric);
-                
+               
         if (result != null && result.ToString() == "1381")
         {
             AppSettingsDb appSettingsDb = new AppSettingsDb(App.Session.odooConnection.DbNameSqlite);
-            //await appSettingsDb.InitDefault();
-            //var appSettingItems = await appSettingsDb.GetItemsAsync();
-            //collectionView.ItemsSource = appSettingItems;
-
+            
             foreach (AppSettings itemSetting in collectionView.ItemsSource)
-            {
-                //var appSettingItems = collectionView.ItemsSource;
+            {                
                 await appSettingsDb.InsertAsync(itemSetting);
             }
 
@@ -111,8 +68,6 @@ public partial class SettingsPage : ContentPage, IDisposable //, INotifyProperty
         }
         else
         {
-            //await DisplayAlert("Alerta", "PIN incorrecto, no se aplicarán los cambios", "OK");
-
             var returnAlertTest = new CustomAlertDialog();
             returnAlertTest.TitleBox = "ALERTA!";
             returnAlertTest.SubTitleBox = "PIN incorrecto, no se aplicarán los cambios.";
@@ -123,8 +78,7 @@ public partial class SettingsPage : ContentPage, IDisposable //, INotifyProperty
 
     public void Dispose()
     {
-        //btPrinterManager.Dispose();
-        //throw new NotImplementedException();
+       
     }
 
     private async void btnClose_Clicked(object sender, EventArgs e)
@@ -135,13 +89,12 @@ public partial class SettingsPage : ContentPage, IDisposable //, INotifyProperty
     private async void DropData(object sender, EventArgs e)
     {
         bool answer = await DisplayAlert("Eliminar", "Está seguro que desea eliminar los datos ingresados?", "Continuar", "Cancelar");
-        //Debug.WriteLine("Answer: " + answer);
+        
         if (!answer)
         {
             return;
         }
 
-        //Eliminar datos de los archivos de actualizacion
         string DeviceStorage = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "tmp");
 
         if (Directory.Exists(DeviceStorage))
@@ -152,28 +105,8 @@ public partial class SettingsPage : ContentPage, IDisposable //, INotifyProperty
         AppSettingsDb appSettingsDb = new AppSettingsDb(App.Session.odooConnection.DbNameSqlite);
         await appSettingsDb.TruncateAsync();
 
-        //ParametrosDb database = new ParametrosDb();
-        ////Se eliminan todos los datos de la tabla antes de volver a insertar
-        //await database.TruncateAsync();
-
-        //AccountPaymentHeaderDb database_r = new AccountPaymentHeaderDb();
-        //await database_r.Drop();
-        //await database_r.TruncateAsync();
-
-        //CobReciboDetDb database_rd = new CobReciboDetDb();
-        //await database_rd.Drop();
-        //await database_rd.TruncateAsync();
-
-        //CobCierreDb database_cobCierreDb = new CobCierreDb();
-        //await database_cobCierreDb.TruncateAsync();
-
-        //SolicitudesNCDb database_solicitudesNC = new SolicitudesNCDb();
-        //await database_solicitudesNC.Drop();
-        //await database_solicitudesNC.TruncateAsync();
-
         UserAccessDb database_CobUsuarios = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
-        //await database_CobUsuarios.Drop();
-
+        
         CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
         string text = "Datos eliminados!";

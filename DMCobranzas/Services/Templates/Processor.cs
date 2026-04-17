@@ -1,25 +1,19 @@
-﻿using DMCobranzas.Models;
-using DMCobranzas.Models.Specials;
-using DMCobranzas.Settings.helpers;
+﻿using DMCobranzas.Models.Specials;
+using DMSA.Models.Odoo.Abstract;
 using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.DebitCollection;
-using DMSA.Models.Odoo.DMApps;
-using DMSA.Models.Odoo.DMCobranzas;
 using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Security;
+using DMSA.Models.Odoo.StaticData;
 using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite.DebitCollection;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
 using Fluid;
-using Microsoft.Maui.Controls;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+using Fluid.Values;
+using Microsoft.Maui.Controls.Shapes;
 using System.Diagnostics;
-using System.Linq;
+using System.Globalization;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using static DMCobranzas.Services.Templates.Processor;
 
 namespace DMCobranzas.Services.Templates
 {
@@ -30,673 +24,543 @@ namespace DMCobranzas.Services.Templates
 
         }
 
-        public async Task<string> Template_ItemsGroup(ItemsGroup _itemsGroup)
+        public static string CenterText(string text, int width)
         {
-            string TicketHeaderString = "";
+            text ??= string.Empty;
 
-            string TicketString = "";
-            int _count = 0;
-            string strResult = string.Empty;
+            if (text.Length > width)
+                text = text.Substring(0, width);
 
-            List<AccountPayment> itemsCobReciboDet = new List<AccountPayment>();
+            int padding = width - text.Length;
+            int padLeft = padding / 2;
+            int padRight = padding - padLeft;
 
-            foreach (var _cobReciboCab in _itemsGroup)
+            return new string(' ', padLeft) + text + new string(' ', padRight);
+        }
+
+        public static string LineLeftRight(string left, string right, int width)
+        {
+            left ??= string.Empty;
+            right ??= string.Empty;
+
+            // Si se pasa del ancho, recorta el lado izquierdo
+            if (left.Length + right.Length > width)
             {
-                _count++;
+                int maxLeft = width - right.Length;
+                if (maxLeft < 0) maxLeft = 0;
 
-                //_cobReciboCab = ncobReciboCab;
+                left = left.Substring(0, Math.Min(left.Length, maxLeft));
+            }
 
-                res_company[] Empresas = null;
+            int spaces = width - left.Length - right.Length;
 
-                if (App.Session.CurrentUserFront.empresas != null)
+            return left + new string(' ', spaces) + right;
+        }
+
+        private string Money(decimal value)
+        {
+            return $"${value:N2}";
+        }
+
+        public async Task<(byte[], string, string)> Template_MultipleCobrosInvoiceGroup(List<MultipleCobrosInvoice> itemsGroup)
+        {
+            if (itemsGroup == null || itemsGroup.Count == 0)
+                return (Array.Empty<byte>(), "", "");
+
+            var r = new ReceiptBuilder();
+
+            List<MultipleCobrosInvoiceLine> allPayments = new();
+
+            AccountPaymentDaily daily = null;
+            res_company empresa = null;
+            user_access user = null;
+            var dailyDb = new AccountPaymentDailyDb(App.Session.odooConnection.DbNameSqlite);
+            var lineDb = new MultipleCobrosInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
+            var lineAiDb = new MultipleCobrosInvoiceLineAiDb(App.Session.odooConnection.DbNameSqlite);
+            var userAccessDb = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
+            var bankDb = new BankDb(App.Session.odooConnection.DbNameSqlite);
+            
+            var banks = (await bankDb.GetItemsAsync(x=>x.id > 0)).ToDictionary(b => b.id);
+
+            foreach (var item in itemsGroup)
+            {
+                
+                daily = (await dailyDb.GetItemsDateCutAsync(item.company_id, item.create_date));
+
+                empresa = App.Session.CurrentUserFront.empresas
+                    .FirstOrDefault(x => x.id == item.company_id);
+
+                if(daily== null)
                 {
-                    Empresas = App.Session.CurrentUserFront.empresas;
-                    var empresaI = Empresas.ToList().Where(i => i.id == _cobReciboCab.company_id).FirstOrDefault();
+                    return (Array.Empty<byte>(), "", "");
+                }
+                
+                var lines = await lineDb.GetItemsAsync(x => x.MultipleCobrosInvoiceId == item.id);
+                                
+                user = await userAccessDb.GetItemAsync(x => x.uid == daily.uid);
 
-                    if (empresaI != null)
+                foreach (var line in lines)
+                {
+                    line.display_type = TipoEmision.data
+                        .FirstOrDefault(x => x.code == line.Type)?.abrev;
+
+                    var linesAi = (await lineAiDb.GetItemsAsync(x => x.partner_id == line.Id)).ToArray();
+                    line.lines = linesAi;
+                    allPayments.Add(line);
+                }
+            }
+
+            /*
+             * AGRUPAR JOURNALS
+             */
+
+            var cobrosSummary = allPayments
+                .GroupBy(p => p.Type)
+                .Select(g => new JournalSummary
+                {
+                    Type = g.Key,
+                    TotalRecords = g.Count(),
+                    TotalAmount = g.Sum(p => (decimal)p.Amount),
+                    Lines = g.Select(p => new MultipleCobrosInvoiceLine
                     {
-                        if (_count == 1)
-                        {
-                            TicketHeaderString += $"{empresaI.name}" + Environment.NewLine;
+                        Id = p.Id,
+                        BankId = p.BankId,
+                        PaymentDate = p.PaymentDate,
+                        Amount = p.Amount
+                    }).ToArray()
+                })
+                .ToList();
 
-                            TicketHeaderString += "Resumen Cobranzas" + Environment.NewLine;
-                            AccountPaymentDailyDb cobCierreDb = new AccountPaymentDailyDb(App.Session.odooConnection.DbNameSqlite);
-                            var itemsCierre = await cobCierreDb.GetItemsDateCutAsync(_cobReciboCab.company_id, _cobReciboCab.create_date);
-                            
-                            if(itemsCierre!= null)
-                            {
-                                TicketHeaderString += "Día: (" + itemsCierre.closing_id.Substring(0,10) + ")" + Environment.NewLine;
-                                //Cabecera Impresion
-                                TicketHeaderString += "================================" + Environment.NewLine;
-                                TicketHeaderString += "Refer. Cierre: " + itemsCierre.payment_reference + Environment.NewLine;
-                                TicketHeaderString += "Cant. Recibos: " + itemsCierre.closing_amount + Environment.NewLine;
-                                TicketHeaderString += "Cobrador: " + App.Session.CurrentUser.nombres + Environment.NewLine;
-                                TicketHeaderString += "================================" + Environment.NewLine;
-                            }
+            int countItems = allPayments.Count;
+
+            /*
+             * HEADER
+             */
+
+            r.Center().Bold().Line(empresa?.name ?? "");
+            r.Line("Resumen Cobranzas");
+            r.Normal();
+            r.ResetStyle();
+
+            r.Left();
+            r.Line($"Dia: {daily?.closing_id}");
+
+            r.Separator();
+
+            r.Line($"Refer. Cierre: {daily?.payment_reference}");
+            r.Line($"Cant. Recibos: {countItems}");
+            r.Line("Cobrador: " + user?.name);
+
+            r.Separator();
+
+            /*
+             * RESUMEN POR JOURNAL
+             */
+
+            foreach (var item in cobrosSummary)
+            {
+                var name_group = TipoEmision.data.Where(x => x.code == item.Type).FirstOrDefault().name;
+                r.Columns(name_group, item.TotalRecords.ToString());
+
+                if(item.Type == "transfer")
+                {
+                    foreach(var line in item.Lines)
+                    {
+                        string bank_name = banks[(int) line.BankId].name;
+                        string right = string.IsNullOrEmpty(line.Circular) ? "-" : line.Circular;
+                        r.Columns(bank_name, "Tr#" + right);
+                        //r.Columns(bank_name, $"{line.Amount:0.00}");
+                    }
+                }
+
+                r.Columns(
+                    $"TOTAL {name_group}",
+                    $"${item.TotalAmount:0.00}"
+                );
+            }
+
+            r.Separator();
+
+            /*
+             * FIRMA
+             */
+
+            r.Feed(2);
+
+            r.Center();
+            r.Line("--------------------------------");
+            r.Line("-Firma Vendedor-");
+
+            r.Feed(3);
+            r.Cut();
+
+            return (r.Build(), r.BuildPreviewHtml(), r.BuildPreview());
+        }
+
+        public async Task<(byte[] bytes, string preview, string plain)> Template_MultipleCobrosInvoice(MultipleCobrosInvoice invoice)
+        {
+            if (invoice == null)
+                return (Array.Empty<byte>(),string.Empty, string.Empty);
+
+            int width = 32;
+
+            List<AccountMoveSummary> accountMoveSummaries = new();
+            List<MultipleCobrosInvoiceLine> lines = new();
+
+            res_partner partner = null;
+            user_access user = null;
+
+            var resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
+            partner = await resPartnerDb.GetItemsAsync(invoice.company_id, invoice.partner_id);
+
+            var userAccessDb = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
+            user = await userAccessDb.GetItemAsync(x => x.uid == invoice.create_uid);
+
+            var lineDb = new MultipleCobrosInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
+            lines = await lineDb.GetItemsAsync(x => x.MultipleCobrosInvoiceId == invoice.id);
+
+            var accountMoveDb = new AccountMoveDb(App.Session.odooConnection.DbNameSqlite);
+            var bankDb = new BankDb(App.Session.odooConnection.DbNameSqlite);
+
+            var banks = (await bankDb.GetItemsAsync(x => x.id > 0)).ToDictionary(b => b.id);
+
+            decimal totalAmount = 0;
+            decimal totalAmountApplied = 0;
+            decimal totalAmountCancell = 0;
+            decimal totalPending = 0;
+            decimal totalAnticipo = 0;
+            decimal totalFp = 0;
+
+            totalAmount = (decimal) invoice.amount;
+            totalPending = partner.saldo_total;
+
+            foreach (var line in lines)
+            {
+                var aiDb = new MultipleCobrosInvoiceLineAiDb(App.Session.odooConnection.DbNameSqlite);
+                var apl = await aiDb.GetItemsAsync(x => x.multiple_cobros_invoice_line_id == line.Id);
+
+                line.lines = apl.ToArray();
+                totalAmountCancell += (decimal) line.Amount;
+
+                foreach (var ai in apl)
+                {
+                    totalAmountApplied += ai.amount_asigned;
+                    totalFp += ai.amount_asigned;
+
+                    var found = accountMoveSummaries
+                        .FirstOrDefault(x => x.docnum_mask == ai.docnum_mask);
+
+                    if (found == null)
+                    {
+                        decimal residual = 0;
+
+                        var move = (await accountMoveDb
+                            .GetItemsAsync(x => x.docnum_mask == ai.docnum_mask))
+                            .FirstOrDefault();
+
+                        if (move != null)
+                        {
+                            //residual = move.amount_residual_virtual;
+                            residual = move.amount_residual - ai.amount_asigned;
                         }
 
-                        //if (_cobReciboCab.account_payment_json != null)
-                        //{
-                        //    AccountPayment[] cobReciboDet = JsonConvert.DeserializeObject<List<AccountPayment>>(_cobReciboCab.account_payment_json).ToArray();
-                        //    itemsCobReciboDet.AddRange(cobReciboDet);
-                        //}
-
-                        double valor = 0;
-                        //valor = _cobReciboCab.VALORPAGO;
-                        double totalAplicado = 0;
-                        double saldoDocumento = 0;
+                        accountMoveSummaries.Add(new AccountMoveSummary
+                        {
+                            docnum_mask = ai.docnum_mask,
+                            total_amount_residual = residual,
+                            total_amount_reconciled = ai.amount_asigned,
+                            invoice_date = ai.invoice_date
+                        });
                     }
-                }
-            }
-
-            //Detalles de pagos
-            //var resultado = itemsCobReciboDet
-            //                    .GroupBy(detalle => detalle.descformapago)
-            //                    .Select(grupo => new
-            //                    {
-            //                        FormaPago = grupo.Key,
-            //                        SumaValor = grupo.Sum(detalle => detalle.valor),
-            //                        Contador = grupo.Count()
-            //                    });
-
-            //// Mostrar los resultados
-            //foreach (var item in resultado)
-            //{
-            //    Console.WriteLine($"Forma de Pago: {item.FormaPago}, Suma de Valores: {item.SumaValor}, Cantidad: {item.Contador}");
-            //    TicketString += $"==== {item.FormaPago} ({item.Contador})====" + Environment.NewLine;
-            //    TicketString += $"TOTAL {item.FormaPago,-15}" + $"$ {item.SumaValor}" + Environment.NewLine;
-            //}
-
-            strResult += TicketHeaderString + TicketString;
-
-            strResult += Environment.NewLine;
-            strResult += Environment.NewLine;
-            strResult += Environment.NewLine;
-            strResult += "______________________________" + Environment.NewLine;
-            strResult += "        -Firma Vendedor-" + Environment.NewLine;
-            strResult += Environment.NewLine;
-            strResult += Environment.NewLine;
-
-            return strResult;
-        }
-        
-
-        public async Task<string> Template_ItemsGroup_V2(ItemsGroup _itemsGroup)
-        {
-            List<MultipleCobrosInvoice> _accountPaymentHeaders = new List<MultipleCobrosInvoice>();
-            List<MultipleCobrosInvoiceLine> _accountPayments = new List<MultipleCobrosInvoiceLine>();
-
-            string result = "";
-            foreach (var _itemGroup in _itemsGroup)
-            {
-                _accountPaymentHeaders.Add(_itemGroup);
-                AccountPaymentDailyDb _accountPaymentDailyDb = new AccountPaymentDailyDb(App.Session.odooConnection.DbNameSqlite);
-                var _accountPaymentDaily = await _accountPaymentDailyDb.GetItemsDateCutAsync(_itemGroup.company_id, _itemGroup.create_date);
-
-                res_company[] Empresas = null;
-                Empresas = App.Session.CurrentUserFront.empresas;
-                var empresaI = Empresas.ToList().Where(i => i.id == _itemGroup.company_id).FirstOrDefault();
-
-                var accountPaymentDb = new MultipleCobrosInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
-                //DateTime dateTime = DateTime.Parse(_itemGroup.create_datetime);
-                var _accountPaymentGroup = await accountPaymentDb.GetItemsAsync(x=>x.MultipleCobrosInvoiceId == _itemGroup.id);
-
-                _accountPayments.AddRange(_accountPaymentGroup);
-
-                /*Agrupa para los totales*/
-                var _journalSummary = _accountPaymentGroup.GroupBy(p => p.journal_name)
-                                     .Select(g => new JournalSummary
-                                     {
-                                         JournalName = g.Key,
-                                         TotalRecords = g.Count(),
-                                         TotalAmount = g.Sum(p => (decimal) p.Amount)
-                                     })
-                                     .ToList();
-
-
-                string resourceName = "DMCobranzas.Resources.Raw.liq_ticket_closing.txt";
-
-                var assembly = Assembly.GetExecutingAssembly();
-
-                Stream stream = assembly.GetManifestResourceStream(resourceName);
-                StreamReader reader = new StreamReader(stream);
-                string strTemplate = reader.ReadToEnd();
-
-                var parser = new FluidParser();
-
-                var model = new
-                {
-                    _accountPaymentDaily = _accountPaymentDaily,
-                    _company = empresaI,
-                    _accountPaymentHeaders = _accountPaymentHeaders,
-                    _accountPayments = _accountPayments,
-                    _journalSummary = _journalSummary
-                };
-
-                var options = new TemplateOptions();
-                options.MemberAccessStrategy.Register<AccountPaymentDaily>();
-                options.MemberAccessStrategy.Register<MultipleCobrosInvoice>();
-                options.MemberAccessStrategy.Register<MultipleCobrosInvoiceLine>();
-                options.MemberAccessStrategy.Register<res_company>();                
-                options.MemberAccessStrategy.Register<user_access>();
-                options.MemberAccessStrategy.Register<JournalSummary>();
-
-                if (parser.TryParse(strTemplate, out var templateF, out var error))
-                {
-                    var context = new TemplateContext(model, options);
-
-                    //Debug.WriteLine(templateF.Render(context));
-
-                    result = templateF.Render(context);
-                }
-                else
-                {
-                    Debug.WriteLine($"Error: {error}");
-                }
-            }
-
-            return result;
-        }
-
-        public async Task<string> Template_AccountPaymentHeader_v2(MultipleCobrosInvoice _accountPaymentHeader)
-        {
-            List<MultipleCobrosInvoiceLine> ls_accountPayments = new List<MultipleCobrosInvoiceLine>();
-            res_partner _res_partner = null;
-            user_access _user_Access = null;
-
-            if (_accountPaymentHeader != null)
-            {
-                var resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
-                _res_partner = await resPartnerDb.GetItemsAsync(_accountPaymentHeader.company_id, _accountPaymentHeader.partner_id);
-
-                var userAccessDb = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
-                _user_Access = await userAccessDb.GetItemAsync(x=>x.uid == _accountPaymentHeader.create_uid);
-
-                var accountPaymentDb = new MultipleCobrosInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
-                ls_accountPayments = await accountPaymentDb.GetItemsAsync(x=>x.MultipleCobrosInvoiceId == _accountPaymentHeader.id);
-             
-                foreach (var accountPayment in ls_accountPayments)
-                {
-                    var accountPaymentLines = new MultipleCobrosInvoiceLineAiDb(App.Session.odooConnection.DbNameSqlite);
-                    var apl = await accountPaymentLines.GetItemsAsync(x => x.multiple_cobros_invoice_line_id == accountPayment.Id);
-
-                    if (apl.Count() > 0)
-                    {
-                        accountPayment.lines = apl.ToArray();
-                    }
-                }
-            }
-
-            res_company[] Empresas = null;
-            Empresas = App.Session.CurrentUserFront.empresas;
-            var empresaI = Empresas.ToList().Where(i => i.id == _accountPaymentHeader.company_id).FirstOrDefault();
-
-            //string resourceName = "DMCobranzas.Resources.Raw.liq_ticket_small.txt";
-            string resourceName = "DMCobranzas.Resources.Raw.liq_ticket_small.liquid";
-            
-            var assembly = Assembly.GetExecutingAssembly();
-            
-            Stream stream = assembly.GetManifestResourceStream(resourceName);
-            StreamReader reader = new StreamReader(stream);
-            string strTemplate = reader.ReadToEnd();
-
-            string result = "";
-
-            var parser = new FluidParser();
-
-            var model = new
-            {
-                _accountPaymentHeader = _accountPaymentHeader,
-                _accountPayments = ls_accountPayments,
-                _company = empresaI,
-                _res_partner = _res_partner,
-                _user_access = _user_Access
-            };
-
-            var options = new TemplateOptions();
-            options.MemberAccessStrategy.Register<MultipleCobrosInvoice>();
-            options.MemberAccessStrategy.Register<MultipleCobrosInvoiceLine>();
-            options.MemberAccessStrategy.Register<MultipleCobrosInvoiceLineAi>();
-            options.MemberAccessStrategy.Register<res_company>();
-            options.MemberAccessStrategy.Register<res_partner>();
-            options.MemberAccessStrategy.Register<user_access>();
-
-            if (parser.TryParse(strTemplate, out var templateF, out var error))
-            {
-                var context = new TemplateContext(model,options);
-                
-                //Debug.WriteLine(templateF.Render(context));
-                
-                result = templateF.Render(context);
-            }
-            else
-            {
-                Debug.WriteLine($"Error: {error}");
-            }
-
-            return result;
-        }
-
-        //public List<object> ToListObject<T>(List<T> objectList)
-        //{            
-        //    var resultItems = new List<object>();
-        //    foreach (var _itemList in objectList)
-        //    {
-        //        var _dictObject = ConvertToDictionary(_itemList);
-        //        resultItems.Add(_dictObject);
-        //    }
-
-        //    return resultItems;
-        //}
-
-        //public static Dictionary<string, object> ConvertToDictionary(object obj)
-        //{
-        //    Dictionary<string, object> dictionary = new Dictionary<string, object>();
-
-        //    if (obj != null)
-        //    {
-        //        Type type = obj.GetType();
-        //        PropertyInfo[] properties = type.GetProperties();
-
-        //        foreach (PropertyInfo property in properties)
-        //        {
-        //            string propertyName = property.Name;
-        //            object propertyValue = property.GetValue(obj, null);
-        //            dictionary.Add(propertyName, propertyValue);
-        //        }
-        //    }
-
-        //    return dictionary;
-        //}
-
-        public async Task<string> Template_CobReciboCab(AccountPaymentHeader _accountPaymentHeader)
-        {
-            //_cobReciboCab.TOTALDEUDAACTUAL = _cobReciboCab.TOTALDEUDAACTUAL.Replace(".",",");
-            List<AccountPayment> ls_accountPayments = new List<AccountPayment>();
-
-            if (_accountPaymentHeader != null)
-            {
-                //dataItems = new CobReciboDet[0];
-                //var ls_dataItems = JsonConvert.DeserializeObject<List<AccountPayment>>(cobReciboCab.DETALLESPAGO);
-                AccountPaymentDb accountPaymentDb = new AccountPaymentDb(App.Session.odooConnection.DbNameSqlite);
-                ls_accountPayments = await accountPaymentDb.GetByParent(_accountPaymentHeader.id);
-                //accountPayments = ls_accountPayments.ToArray();
-
-                AccountPaymentInvoiceLineDb accountPaymentLines = new AccountPaymentInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
-
-                foreach (var accountPayment in ls_accountPayments)
-                {
-                    var apl = await accountPaymentLines.GetItemsAsync(accountPayment);
-
-                    if (apl.Count() > 0)
-                    {
-                        accountPayment.lines = apl.ToArray();
-                    }
-                }
-            }
-
-            string strResult = string.Empty;
-            //_cobReciboCab = ncobReciboCab;
-
-            res_company[] Empresas = null;
-
-            if (App.Session.CurrentUserFront.empresas != null)
-            {
-                Empresas = App.Session.CurrentUserFront.empresas;
-                var empresaI = Empresas.ToList().Where(i => i.id == _accountPaymentHeader.company_id).FirstOrDefault();
-
-                if (empresaI != null)
-                {
-                    string TicketString = "";
-                    TicketString += $"{empresaI.name}" + Environment.NewLine;
-                    TicketString += $"RECIBO # {_accountPaymentHeader.recipe_name}" + Environment.NewLine;
-                    TicketString += $"CLIENTE: ({_accountPaymentHeader.partner_id}) {_accountPaymentHeader.partner_name}" + Environment.NewLine;
-
-                    if (_accountPaymentHeader.payment_status == DMSA.Models.CobrosEstados.PENDIENTE || _accountPaymentHeader.payment_status == DMSA.Models.CobrosEstados.PROCESANDO)
-                        TicketString += "Estado: NO PROCESADO" + Environment.NewLine;
-                    else if (_accountPaymentHeader.payment_status == DMSA.Models.CobrosEstados.ENVIADO)
-                        TicketString += "Estado: PROCESADO" + Environment.NewLine;
                     else
-                        TicketString += "Estado: " + _accountPaymentHeader.payment_status + Environment.NewLine;
-
-                    //TicketString += $"Estado: {_cobReciboCab.CODESTADO}" + Environment.NewLine;
-                    TicketString += $"============F.PAGO===========" + Environment.NewLine;
-
-                    if (ls_accountPayments != null && ls_accountPayments.Count()> 0)
                     {
-                        //AccountPayment[] cobReciboDet = JsonConvert.DeserializeObject<List<AccountPayment>>(_cobReciboCab.DETALLESPAGO).ToArray(); //new CobReciboDet[5];
-                                                                                                                                                   //Detalles de forma de pago
-                        foreach (var itemDet in ls_accountPayments)
-                        {
-                            //itemDet.valor = ParseTool.StringToDouble(itemDet.valor).ToString("N2", App.Session.ApplicationCultureInfo);
-                            //itemDet.amount = itemDet.amount;
-
-                            string amount = itemDet.amount.ToString("N2", App.Session.ApplicationCultureInfo);
-
-                            //itemDet.descformapago.PadRight(15);
-                            TicketString += $"{itemDet.journal_name}" + $"         $ {amount}" + Environment.NewLine;
-                            //var re = "BANCO";
-                            //switch (itemDet.idformapago)
-                            //{
-                            //    case "EF":
-                            //        {
-                            //            //TicketString += $" ";
-                            //        }
-                            //        break;
-                            //    case "CH":
-                            //        {
-                            //            TicketString += $" F.Cobro: {itemDet.fcobrocheque,+28}" + Environment.NewLine;
-                            //            TicketString += $" Bco. {itemDet.descbanco.ToUpper().Replace(re, "").Trim(),+15}  Ch# {itemDet.numero_cheque,-10}" + Environment.NewLine;
-                            //        }
-                            //        break;
-                            //    case "DP":
-                            //    case "TRANBAN":
-                            //        {
-                            //            TicketString += $" Cta. {itemDet.descctacia.ToUpper().Replace(re, "").Trim(),+15}  Dp# {itemDet.numerodeposito,-10}" + Environment.NewLine;
-                            //        }
-                            //        break;
-                            //    case "TJ":
-                            //        {
-                            //            TicketString += $" Tj. {itemDet.desctarjeta,+15}  t# {itemDet.numero_lote}, -10)" + Environment.NewLine;
-                            //        }
-                            //        break;
-                            //    case "NC":
-                            //        {
-
-                            //        }
-                            //        break;
-                            //    case "RF":
-                            //        {
-
-                            //        }
-                            //        break;
-                            //}
-
-                            TicketString += $"===========DOCUMENTOS=========" + Environment.NewLine;
-                            //Lineas de pago (FACTURAS)
-                            if (itemDet.lines != null)
-                            {
-                                foreach (var itemLine in itemDet.lines)
-                                {
-                                    string reconcile_amount = itemLine.reconcile_amount.ToString();
-                                    TicketString += $"{itemLine.invoice_line_id_name}" + $"         $ {reconcile_amount}" + Environment.NewLine;
-                                }
-                            }
-                        }
+                        found.total_amount_reconciled += ai.amount_asigned;
+                        found.total_amount_residual -= ai.amount_asigned;
                     }
-
-                    //_cobReciboCab.VALORPAGO = ParseTool.StringToDouble(_cobReciboCab.VALORPAGO).ToString("N2", App.Session.ApplicationCultureInfo);
-                    //_accountPaymentHeader.VALORPAGO = _accountPaymentHeader.VALORPAGO;
-
-                    TicketString += $"________________" + Environment.NewLine;
-                    TicketString += $"TOTAL F/P:     $ " + _accountPaymentHeader.payment_amount + Environment.NewLine;
-                    TicketString += $"" + Environment.NewLine;
-
-                    decimal valor = 0;
-                    //valor = _cobReciboCab.VALORPAGO;
-                    decimal totalAplicado = 0;
-                    decimal saldoDocumento = 0;
-
-                    //////if (_accountPaymentHeader.account_payment_invoice_json != null)
-                    //////{
-                    //////    detallesDocumentos[] _detallesDocumentos = JsonConvert.DeserializeObject<List<detallesDocumentos>>(_accountPaymentHeader.account_payment_invoice_json).ToArray();
-                    //////    //Detalles de documentos
-                    //////    foreach (var itemDet in _detallesDocumentos)
-                    //////    {
-                    //////        //itemDet.VALORSALDO = itemDet.VALORSALDO.Replace(".",",");
-                    //////        //itemDet.VALORXAPLICAR = itemDet.VALORXAPLICAR.Replace(".", ",");
-                    //////        //itemDet.VALORCUOTA = itemDet.VALORCUOTA.Replace(".", ",");
-
-                    //////        //itemDet.VALORSALDO = ParseTool.StringToDouble(itemDet.VALORSALDO).ToString("N2", App.Session.ApplicationCultureInfo);
-                    //////        //itemDet.VALORXAPLICAR = ParseTool.StringToDouble(itemDet.VALORXAPLICAR).ToString("N2", App.Session.ApplicationCultureInfo);
-                    //////        //itemDet.VALORCUOTA = ParseTool.StringToDouble(itemDet.VALORCUOTA).ToString("N2", App.Session.ApplicationCultureInfo);
-
-                    //////        itemDet.VALORSALDO = itemDet.VALORSALDO;
-                    //////        itemDet.VALORXAPLICAR = itemDet.VALORXAPLICAR;
-                    //////        itemDet.VALORCUOTA = itemDet.VALORCUOTA;
-
-                    //////        //valor = ParseTool.StringToDouble( itemDet.VALORXAPLICAR );
-                    //////        //saldoDocumento = ParseTool.StringToDouble( itemDet.VALORSALDO ); //APLICAR ACUMULADOR +=
-
-
-                    //////        valor = itemDet.VALORXAPLICAR;
-                    //////        saldoDocumento = itemDet.VALORSALDO; //APLICAR ACUMULADOR +=
-
-                    //////        //Obtengo saldo Real del Documento (Con la Aplicación)   
-                    //////        saldoDocumento = saldoDocumento - valor;
-
-                    //////        TicketString += $"===========DOCUMENTOS=========" + Environment.NewLine;
-                    //////        TicketString += $"{itemDet.NUMDOCUMENTO}" + Environment.NewLine;
-                    //////        //TicketString += $"FAC # {itemDet.REFERENCIA}" + Environment.NewLine;
-                    //////        //TicketString += $"Abono:     $ {itemDet.REFERENCIA}" + Environment.NewLine;
-
-                    //////        //textoImprimir = textoImprimir + " " + this.pad((saldoDocumento <= parseFloat("0").toFixed(2) ? "Canc.: $" : "Abono: $") + this.formatNumber(valor, 2), 31, "L") + "\n";
-
-                    //////        if (saldoDocumento <= 0)
-                    //////        {
-                    //////            TicketString += " Canc.: $";
-                    //////        }
-                    //////        else
-                    //////        {
-                    //////            TicketString += "Abono:  $";
-                    //////        }
-
-                    //////        TicketString += valor.ToString("N2", App.Session.ApplicationCultureInfo) + Environment.NewLine;
-
-                    //////        TicketString += $"Saldo:     $ " + saldoDocumento.ToString("N2", App.Session.ApplicationCultureInfo) + Environment.NewLine;
-                    //////        //totalAplicado += ParseTool.StringToDouble(itemDet.VALORXAPLICAR);
-                    //////        totalAplicado += itemDet.VALORXAPLICAR;
-                    //////    }
-                    //////}
-
-                    TicketString += $"TOTAL CANC:     $ " + valor.ToString("N2", App.Session.ApplicationCultureInfo) + Environment.NewLine;
-
-                    decimal diferenciaValor = 0;
-                    //_detallesDocumentos
-                    //totalAplicado = totalAplicado + (+detallesDocumentos[i].VALORXAPLICAR);
-                    //diferenciaValor = parseFloat("" + entidadCobro.TOTALDEUDAACTUAL) - parseFloat("" + totalAplicado);
-
-                    //if(_cobReciboCab.TOTALDEUDAACTUAL == "")
-                    //{
-                    //    _cobReciboCab.TOTALDEUDAACTUAL = "0";
-                    //}
-
-                    //diferenciaValor = ParseTool.StringToDouble(_cobReciboCab.TOTALDEUDAACTUAL) - totalAplicado;
-
-                    diferenciaValor = _accountPaymentHeader.total_due - totalAplicado;
-
-                    TicketString += $"================================" + Environment.NewLine;
-                    TicketString += $"TOTAL FACT. Pendientes: $ " + diferenciaValor.ToString("N2", App.Session.ApplicationCultureInfo) + Environment.NewLine;
-                    TicketString += $"================================" + Environment.NewLine;
-                    TicketString += $"Email: {_accountPaymentHeader.EMAILCLIENTE}" + Environment.NewLine;
-                    TicketString += $"Vnd: {_accountPaymentHeader.NOMBREUSUARIO}" + Environment.NewLine;
-                    TicketString += $"Fecha: {_accountPaymentHeader.create_datetime}" + Environment.NewLine;
-                    TicketString += Environment.NewLine;                    
-                    TicketString += Environment.NewLine;
-                    TicketString += "________________________________" + Environment.NewLine;
-                    TicketString += "             -Firma Cliente-" + Environment.NewLine;
-                    TicketString += Environment.NewLine;
-                    TicketString += Environment.NewLine;
-
-                    strResult = TicketString;
                 }
             }
 
-            return strResult;
-        }
+            totalAnticipo = totalAmount - totalAmountApplied;
 
-        [Obsolete]
-        public async Task<string> Template_AccountMoveSendNC(account_move_send _account_move_send)
-        {
-            string strResult = string.Empty;
-            //_cobReciboCab = ncobReciboCab;
+            accountMoveSummaries = accountMoveSummaries
+                .OrderBy(x => x.docnum_mask)
+                .ToList();
 
-            res_company[] Empresas = null;
-
-            if (App.Session.CurrentUserFront.empresas != null)
+            foreach (var doc in accountMoveSummaries)
             {
-                Empresas = App.Session.CurrentUserFront.empresas;
-                var empresaI = Empresas.ToList().Where(i => i.id == _account_move_send.company_id).FirstOrDefault();
+                //totalPending += doc.total_amount_residual;
+                totalPending -= doc.total_amount_reconciled;
+            }                
 
-                ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
-                var resPartner = await resPartnerDb.GetItemsAsync(1,1);
+            var empresa = App.Session.CurrentUserFront.empresas
+                .FirstOrDefault(x => x.id == invoice.company_id);
 
-                AccountMoveLineSendDb accountMoveLineSendDb = new AccountMoveLineSendDb(App.Session.odooConnection.DbNameSqlite);
-                var movesLine = await accountMoveLineSendDb.GetItemsByParentAsync(_account_move_send.id);
+            var r = new ReceiptBuilder();
 
-                if (empresaI != null)
+            /*
+             * CABECERA
+             */
+
+            r.Center().Bold().Line(empresa?.name ?? "");
+            r.Line($"RECIBO #{invoice.receipt_name}");
+            r.Normal();
+            r.ResetStyle();
+
+            r.Left();
+            //r.Small();
+            r.Line($"Cliente: {invoice.partner_name}");
+            r.Line($"Estado: {invoice.payment_status}");
+            //r.ResetStyle();
+
+            r.Separator();
+
+            /*
+             * FORMAS DE PAGO
+             */
+
+            r.Center().Line("F.PAGO");
+            r.Left();
+
+            foreach (var line in lines)
+            {
+                string type = TipoEmision.data
+                    .FirstOrDefault(x => x.code == line.Type)?
+                    .name?.ToUpper() ?? line.Type;
+
+                string monto = Money(line.Amount ?? 0m);
+
+                string bank_name = (line.BankId != null && banks != null && banks.TryGetValue((int)line.BankId, out var bank))
+                    ? bank?.name ?? ""
+                    : "";
+
+                r.Columns(type, monto);
+
+                if (line.Type == "check" || line.Type == "check_day")
                 {
-                    string TicketString = "";
-                    TicketString += $"{empresaI.name}" + Environment.NewLine;
-                    TicketString += $"=== SOLICITUD DE NOTA DE CREDITO ===\n" + Environment.NewLine;
-                    TicketString += $"CLIENTE: {resPartner.name}" + Environment.NewLine;
-                    TicketString += $"Doc.Ref.: {_account_move_send._ref}\n";
-                    TicketString += ".______________________________.\n";
-                    TicketString += "| ESTE TICKET ES INFORMATIVO.**|\n";
-                    TicketString += "| LA SOLICITUD SERA EVALUADA   |\n";
-                    TicketString += "| PARA SU APROBACION.**********|\n";
-                    TicketString += ".______________________________.\n\n";                    
-                    TicketString += "=========== DETALLE ===========\n";
+                    r.Line($" F.Cobro: {line.WithdrawalDate:yyyy-MM-dd}");
+                    r.Line($" {bank_name}");
+                    r.Line($" Ch# {line.NumberCheckText}");
+                }
 
-                    if (movesLine != null && movesLine.Count > 0)
-                    {
-                        TicketString += $"ARTICULO                                      CANTIDAD" + Environment.NewLine;
-                        TicketString += $"--------------------------------------------------------------" + Environment.NewLine;
-                        foreach (var itemDet in movesLine)
-                        {
-                            //itemDet.descformapago.PadRight(15);
-                            //TicketString += $"{itemDet.NUMDOCUMENTO,+15}" + Environment.NewLine;
-                            TicketString += $"{itemDet.name}                {itemDet.quantity}" + Environment.NewLine;
-                            //TicketString += $"_____________________________" + Environment.NewLine;
-                        }
-                    }
+                if (line.Type == "credit_card")
+                {
+                    r.Line($" Tj. Lote# {line.LoteVoucher}");
+                }
 
-                    TicketString += $"\n\n================================\n";                    
-                    //TicketString += "Cod. Vnd: " + _account_move_send.uid + "\n";
-                    TicketString += $"Fecha:     {_account_move_send.create_date.ToShortDateString()}" + Environment.NewLine;
-                    TicketString += Environment.NewLine;
-                    TicketString += Environment.NewLine;                    
-                    TicketString += "______________________________" + Environment.NewLine;
-                    TicketString += "-Firma cliente-" + Environment.NewLine;
-                    TicketString += Environment.NewLine;
-                    TicketString += Environment.NewLine;
+                if (line.Type == "transfer")
+                {                    
+                    r.Columns($" Cta. {line.AccNumber}",$"Dp# {line.Circular}");
+                }
 
-                    strResult = TicketString;
+                if (line.Type == "deposito")
+                {                    
+                    r.Columns($" Cta. {line.AccNumber}", $"Dp# {line.Circular}");
                 }
             }
 
-            return strResult;
+            r.Separator();
+            r.Columns("TOTAL F/P:", Money(totalFp));
+
+            /*
+             * DOCUMENTOS
+             */
+
+            r.Separator();
+            r.Center().Line("DOCUMENTOS");
+            r.Left();
+
+            foreach (var doc in accountMoveSummaries)
+            {
+                r.Line($"FAC # {doc.docnum_mask}");
+                r.Line($" Canc.: {Money(doc.total_amount_reconciled)}");
+                r.Line($" Saldo: {Money(doc.total_amount_residual)}");
+            }
+
+            r.Separator();
+                        
+            r.Columns("TOTAL CANC:", Money(totalAmountCancell));
+            r.Separator();            
+            r.Columns("TOT. FACT. PEND.:", Money(totalPending - totalAnticipo));            
+
+            r.Separator();
+
+            /*
+             * FOOTER
+             */
+
+            r.Line($"Email: {partner?.email}");
+            r.Line($"Vnd: {user?.name}");
+            r.Line($"Fecha: {invoice.create_date:dd/MM/yyyy HH:mm:ss}");
+
+            r.Feed(2);
+
+            r.Center().Line("----------------------------");
+            r.Line("-Firma Cliente-");
+
+            r.Feed(3);
+            r.Cut();
+
+            return (r.Build(), r.BuildPreviewHtml(), r.BuildPreview());
         }
 
-        public async Task<string> Template_AccountMoveSendNC_V2(account_move_send _account_move_send)
+        public async Task<(byte[], string, string)> Template_AccountMoveSendNC(CreditNoteRequestGroup header)
         {
-            List<account_move_line_send> ls_accountMoveSendLines = new List<account_move_line_send>();
+            if (header == null)
+                return (Array.Empty<byte>(), "", "");
 
-            if (_account_move_send != null)
+            List<credit_note_request> requests = new();
+
+            CreditNoteRequestDb db = new CreditNoteRequestDb(App.Session.odooConnection.DbNameSqlite);
+            requests = await db.GetByParent(header.id);
+
+            foreach (var req in requests)
             {
-                AccountMoveLineSendDb _accountMoveSendLineDb = new AccountMoveLineSendDb(App.Session.odooConnection.DbNameSqlite);
-                ls_accountMoveSendLines = await _accountMoveSendLineDb.GetItemsByParentAsync(_account_move_send.id);
+                CreditNoteRequestDetailDb lineDb =
+                    new CreditNoteRequestDetailDb(App.Session.odooConnection.DbNameSqlite);
+
+                var lines = await lineDb.GetItemsByParentAsync(req.id);
+                req.lines = lines.ToArray();
             }
 
-            res_company[] Empresas = null;
-            Empresas = App.Session.CurrentUserFront.empresas;
-            var empresaI = Empresas.ToList().Where(i => i.id == _account_move_send.company_id).FirstOrDefault();
+            var empresa = App.Session.CurrentUserFront.empresas
+                .FirstOrDefault(x => x.id == header.company_id);
 
-            string resourceName = "DMCobranzas.Resources.Raw.liq_refund_req_ncr.txt";
+            var r = new ReceiptBuilder();
 
-            var assembly = Assembly.GetExecutingAssembly();
+            /*
+             * HEADER
+             */
 
-            Stream stream = assembly.GetManifestResourceStream(resourceName);
-            StreamReader reader = new StreamReader(stream);
-            string strTemplate = reader.ReadToEnd();
+            r.Center().Bold().Line(empresa?.name ?? "");
+            r.Line("SOLICITUD DE NOTA DE CREDITO");
+            r.Normal();
+            r.ResetStyle();
 
-            string result = "";
+            r.Left();
+            r.Line($"CLIENTE: {header.partner_name}");
 
-            var parser = new FluidParser();
+            r.Separator();
 
-            var model = new
-            {
-                _account_move_send = _account_move_send,
-                _accountMoveSendLines = ls_accountMoveSendLines,
-                _company = empresaI
-            };
+            r.Center();
+            r.Line("ESTE TICKET ES INFORMATIVO");
+            r.Line("LA SOLICITUD SERA EVALUADA");
+            r.Line("PARA SU APROBACION");
 
-            var options = new TemplateOptions();
-            options.MemberAccessStrategy.Register<account_move_send>();
-            options.MemberAccessStrategy.Register<account_move_line_send>();            
-            options.MemberAccessStrategy.Register<res_company>();
+            r.Left();
+            r.Separator();
 
-            if (parser.TryParse(strTemplate, out var templateF, out var error))
-            {
-                var context = new TemplateContext(model, options);
-                result = templateF.Render(context);
+            r.Center().Line("DETALLE");
+            r.SeparatorTop();
+            r.SeparatorBottom();
+
+            /*
+             * DOCUMENTOS
+             */
+
+            foreach (var req in requests)
+            {                
+                
+                r.Line($"Doc.Ref.: {req._ref}");
+                r.Separator();
+                r.Left();
+                r.Columns("ARTICULO","CANT");
+
+                r.Separator();
+
+                if (req.lines != null)
+                {
+                    foreach (var line in req.lines)
+                    {
+                        string name = line.name ?? "";
+
+                        if (name.Length > 24)
+                            name = name.Substring(0, 24);
+
+                        string qty = line.quantity.ToString();
+
+                        r.Columns(name, qty);
+                    }
+                }
+
+                r.Separator();
             }
-            else
-            {
-                Debug.WriteLine($"Error: {error}");
-            }
 
-            return result;
+            /*
+             * FOOTER
+             */
+
+            r.Line($"Fecha: {header.create_datetime}");
+
+            r.Feed(2);
+
+            r.Center();
+            r.Line("------------------------------");
+            r.Line("-Firma cliente-");
+
+            r.Feed(3);
+            r.Cut();
+
+            return (r.Build(), r.BuildPreviewHtml(), r.BuildPreview());
         }
 
-        public async Task<string> Template_AccountMoveSendNC_V3(AccountMoveSendHeader _accountMoveSendHeader)
-        {
-            List<account_move_send> ls_accountMovesSend = new List<account_move_send>();
+        ////public async Task<string> Template_AccountMoveSendNC_V3_Classic(CreditNoteRequestGroup _accountMoveSendHeader)
+        ////{
+        ////    List<credit_note_request> ls_accountMovesSend = new List<credit_note_request>();
             
-            if (_accountMoveSendHeader != null)
-            {
-                AccountMoveSendDb _accountMoveSendDb = new AccountMoveSendDb(App.Session.odooConnection.DbNameSqlite);
-                ls_accountMovesSend = await _accountMoveSendDb.GetByParent(_accountMoveSendHeader.id);
+        ////    if (_accountMoveSendHeader != null)
+        ////    {
+        ////        CreditNoteRequestDb _accountMoveSendDb = new CreditNoteRequestDb(App.Session.odooConnection.DbNameSqlite);
+        ////        ls_accountMovesSend = await _accountMoveSendDb.GetByParent(_accountMoveSendHeader.id);
 
-                foreach(var  accountMoveSend in ls_accountMovesSend)
-                {
-                    AccountMoveLineSendDb _accountMoveSendLineDb = new AccountMoveLineSendDb(App.Session.odooConnection.DbNameSqlite);
-                    var lineItem = await _accountMoveSendLineDb.GetItemsByParentAsync(accountMoveSend.id);
+        ////        foreach(var  accountMoveSend in ls_accountMovesSend)
+        ////        {
+        ////            CreditNoteRequestDetailDb _accountMoveSendLineDb = new CreditNoteRequestDetailDb(App.Session.odooConnection.DbNameSqlite);
+        ////            var lineItem = await _accountMoveSendLineDb.GetItemsByParentAsync(accountMoveSend.id);
 
-                    accountMoveSend.lines = lineItem.ToArray();
-                }
-            }
+        ////            accountMoveSend.lines = lineItem.ToArray();
+        ////        }
+        ////    }
 
-            res_company[] Empresas = null;
-            Empresas = App.Session.CurrentUserFront.empresas;
-            var empresaI = Empresas.ToList().Where(i => i.id == _accountMoveSendHeader.company_id).FirstOrDefault();
+        ////    res_company[] Empresas = null;
+        ////    Empresas = App.Session.CurrentUserFront.empresas;
+        ////    var empresaI = Empresas.ToList().Where(i => i.id == _accountMoveSendHeader.company_id).FirstOrDefault();
 
-            string resourceName = "DMCobranzas.Resources.Raw.liq_req_movSendHead_ncr.txt";
+        ////    string resourceName = "DMCobranzas.Resources.Raw.liq_req_movSendHead_ncr.txt";
 
-            var assembly = Assembly.GetExecutingAssembly();
+        ////    var assembly = Assembly.GetExecutingAssembly();
 
-            Stream stream = assembly.GetManifestResourceStream(resourceName);
-            StreamReader reader = new StreamReader(stream);
-            string strTemplate = reader.ReadToEnd();
+        ////    Stream stream = assembly.GetManifestResourceStream(resourceName);
+        ////    StreamReader reader = new StreamReader(stream);
+        ////    string strTemplate = reader.ReadToEnd();
 
-            string result = "";
+        ////    string result = "";
 
-            var parser = new FluidParser();
+        ////    var parser = new FluidParser();
 
-            var model = new
-            {
-                _accountMoveSendHeader = _accountMoveSendHeader,
-                _accountMovesSend = ls_accountMovesSend,
-                _company = empresaI
-            };
+        ////    var model = new
+        ////    {
+        ////        _accountMoveSendHeader = _accountMoveSendHeader,
+        ////        _accountMovesSend = ls_accountMovesSend,
+        ////        _company = empresaI
+        ////    };
 
-            var options = new TemplateOptions();
-            options.MemberAccessStrategy.Register<AccountMoveSendHeader>();
-            options.MemberAccessStrategy.Register<account_move_send>();
-            options.MemberAccessStrategy.Register<account_move_line_send>();
-            options.MemberAccessStrategy.Register<res_company>();
+        ////    var options = new TemplateOptions();
+        ////    options.MemberAccessStrategy.Register<CreditNoteRequestGroup>();
+        ////    options.MemberAccessStrategy.Register<credit_note_request>();
+        ////    options.MemberAccessStrategy.Register<credit_note_request_detail>();
+        ////    options.MemberAccessStrategy.Register<res_company>();
 
-            if (parser.TryParse(strTemplate, out var templateF, out var error))
-            {
-                var context = new TemplateContext(model, options);
-                result = templateF.Render(context);
-            }
-            else
-            {
-                Debug.WriteLine($"Error: {error}");
-            }
+        ////    if (parser.TryParse(strTemplate, out var templateF, out var error))
+        ////    {
+        ////        var context = new TemplateContext(model, options);
+        ////        result = templateF.Render(context);
+        ////    }
+        ////    else
+        ////    {
+        ////        Debug.WriteLine($"Error: {error}");
+        ////    }
 
-            return result;
-        }
+        ////    return result;
+        ////}
     }
 }

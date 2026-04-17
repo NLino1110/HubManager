@@ -36,7 +36,9 @@ namespace DMOrders
                     fonts.AddFluentIconFonts();
                 })
                 .UseUraniumUIBlurs()
-                .UseMauiCommunityToolkit()
+                .UseMauiCommunityToolkit(options => {
+                    options.SetShouldEnableSnackbarOnWindows(true);
+                })
                 .UseUraniumUI()
                 .UseUraniumUIMaterial();
 

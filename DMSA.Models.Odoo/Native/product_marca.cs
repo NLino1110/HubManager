@@ -11,6 +11,8 @@ namespace DMSA.Models.Odoo.Native
         public bool active { get; set; }
         public string clave_externa { get; set; }
 
+        public bool use_mobile_app { get; set; }
+
         [JsonProperty("create_date")]
         [Column("create_date")]
         public DateTime? create_date { get; set; }

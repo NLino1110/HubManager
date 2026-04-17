@@ -1,7 +1,7 @@
 ﻿using ApiManager;
+using ApiManagerOdoo.Accounting;
 using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.DebitCollection;
-using DMSA.Models.Odoo.DMCobranzas;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Tools;
@@ -28,19 +28,18 @@ namespace DMSA.Sync.Core.Update.Pusher
                 error = null
             };
 
-            var cobReciboCabDb = new MultipleCobrosInvoiceDb(Constants.Session.odooConnection.DbNameSqlite);
+            var multipleCobrosInvoiceDB = new MultipleCobrosInvoiceDb(Constants.Session.odooConnection.DbNameSqlite);
 
-            if (multipleCobrosInvoice.payment_status == DMSA.Models.CobrosEstados.PENDIENTE)
+            if (multipleCobrosInvoice.payment_status == CobrosEstados.PENDIENTE)
             {
                 string fechaActual = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0, 10);
-                //string secuencia_final = cobReciboCabDb.GenerarCodigoRecibo(_accountPaymentHeader.uid, _accountPaymentHeader.company_id, fechaActual, _accountPaymentHeader.id.ToString());
-                //string secuencia_final = await cobReciboCabDb.BuildRecipeName(_accountPaymentHeader);
-
-                string newGuid = Guid.NewGuid().ToString("N");
-                multipleCobrosInvoice.guid = newGuid;
-                //_accountPaymentHeader.recipe_name = secuencia_final;
-                multipleCobrosInvoice.payment_status = DMSA.Models.CobrosEstados.PROCESANDO;
-                await cobReciboCabDb.UpdateAsync(multipleCobrosInvoice);
+                
+                //string newGuid = Guid.NewGuid().ToString("N");
+                //multipleCobrosInvoice.external_guid = newGuid;
+                multipleCobrosInvoice.payment_status = CobrosEstados.ENVIANDO;
+                string new_recipe_name = await multipleCobrosInvoiceDB.BuildRecipeName(multipleCobrosInvoice);
+                multipleCobrosInvoice.receipt_name = new_recipe_name;
+                await multipleCobrosInvoiceDB.UpdateAsync(multipleCobrosInvoice);
             }
 
             if (DeviceInfo.Current.Platform == DevicePlatform.Android ||
@@ -63,8 +62,6 @@ namespace DMSA.Sync.Core.Update.Pusher
             int user_id = Constants.Session.CurrentUserFront.uid;
             string user_name = Constants.Session.CurrentUserFront.username;
             
-            
-
             if (multipleCobrosInvoice.receipt_receipts_id == 0)
             {
                 var receiptReceiptsLineDb = new ReceiptReceiptsLineDb(Constants.Session.odooConnection.DbNameSqlite);
@@ -77,9 +74,9 @@ namespace DMSA.Sync.Core.Update.Pusher
                 {
                     multipleCobrosInvoice.receipt_receipts_id = receiptLines[0]._receipt_receipts_id;
                     multipleCobrosInvoice.receipt_receipts_line_id = receiptLines[0].id;
-                    multipleCobrosInvoice.recipe_name = cobReciboCabDb.BuildName(multipleCobrosInvoice, user_name, multipleCobrosInvoice.receipt_receipts_line_id);
+                    //multipleCobrosInvoice.recipe_name = multipleCobrosInvoiceDB.BuildName(multipleCobrosInvoice, user_name, multipleCobrosInvoice.receipt_receipts_line_id);
 
-                    await cobReciboCabDb.UpdateAsync(multipleCobrosInvoice);
+                    await multipleCobrosInvoiceDB.UpdateAsync(multipleCobrosInvoice);
 
                     receiptLines[0].state = "used";
                     await receiptReceiptsLineDb.UpdateAsync(receiptLines[0]);
@@ -90,75 +87,20 @@ namespace DMSA.Sync.Core.Update.Pusher
             // no permiten obtener el número de serie de los dispositivos
 
             multipleCobrosInvoice.device_serial = "unknown" + "-" + Constants.Session.AppVersion;
-
             multipleCobrosInvoice.device_app_version = Constants.Session.AppVersion;
             multipleCobrosInvoice.origin_mobile_app = Constants.Session.AppCodeOdoo;
 
             HubMultipleCobrosInvoice apiProcessor = new HubMultipleCobrosInvoice(Constants.Session);
 
-            var accountPaymentDb = new MultipleCobrosInvoiceLineDb(Constants.Session.odooConnection.DbNameSqlite);
+            var multipleCobrosInvoiceLineDb = new MultipleCobrosInvoiceLineDb(Constants.Session.odooConnection.DbNameSqlite);
 
-            var paymentList = await accountPaymentDb.GetItemsAsync(x => x.MultipleCobrosInvoiceId == multipleCobrosInvoice.id);
+            var multipleCobrosInvoiceLinList = await multipleCobrosInvoiceLineDb.GetItemsAsync(x => x.MultipleCobrosInvoiceId == multipleCobrosInvoice.id);
 
-            var accountPaymentLines = new MultipleCobrosInvoiceLineAiDb(Constants.Session.odooConnection.DbNameSqlite);
+            var multipleCobrosInvoiceLinesAi = new MultipleCobrosInvoiceLineAiDb(Constants.Session.odooConnection.DbNameSqlite);
 
             bool everyThingOk = false;
-            foreach (var payment in paymentList)
+            foreach (var payment in multipleCobrosInvoiceLinList)
             {
-                
-
-                //Si partner_bank_id requiere verificacion/sincronizacion con Odoo
-
-                //TODO: Hay que eliminar esta parte de la logica
-                if (payment.PartnerBankId < 0)
-                {
-                    PartnerBankDb bankDb = new PartnerBankDb(Constants.Session.odooConnection.DbNameSqlite);
-                    var partnerBankItemRed = await bankDb.GetItemAsync(x => x.id == payment.PartnerBankId);
-
-                    res_partner_bank_send partnerBankItem = new res_partner_bank_send();
-
-                    partnerBankItem.partner_id = partnerBankItemRed._partner_id;
-                    partnerBankItem.bank_id = partnerBankItemRed._bank_id;
-                    partnerBankItem.currency_id = partnerBankItemRed._currency_id;
-                    partnerBankItem.acc_number = partnerBankItemRed.acc_number;
-                    partnerBankItem.acc_holder_name = partnerBankItemRed.acc_holder_name;
-                    partnerBankItem.type_account = partnerBankItemRed.type_account;
-                    partnerBankItem.allow_out_payment = partnerBankItemRed.allow_out_payment;
-                    partnerBankItem.sequence = 0;
-                    partnerBankItem.use_bank_type = partnerBankItemRed.use_bank_type;
-                    partnerBankItem.company_id = Array.Empty<object>();
-                    partnerBankItem.bank_account_id = Array.Empty<object>();
-                    partnerBankItem.sanitized_acc_number = partnerBankItemRed.acc_number;
-
-                    partnerBankItem.active = true;
-
-                    HubResPartnerBank hubCuentas = new HubResPartnerBank(Constants.Session);
-                    var newAccount = await hubCuentas.CreateIfNotExists(partnerBankItem);
-
-                    if (newAccount.result > 0)
-                    {
-                        int oldId = partnerBankItemRed.id;
-                        partnerBankItemRed.id = newAccount.result;
-                        //partnerBankItem.id = newAccount.data[0].id;
-                        payment.PartnerBankId = partnerBankItemRed.id;                        
-                        //Se actualiza el ID y otros datos en la base de cuentas
-                        await bankDb.UpdateAsync(partnerBankItemRed, oldId);
-                        //Se actualiza el ID en la base de pagos
-                        await accountPaymentDb.UpdateAsync(payment);
-                    }
-                    else
-                    {
-                        int oldId = partnerBankItemRed.id;
-                        partnerBankItemRed.id = newAccount.result;
-                        payment.PartnerBankId = partnerBankItemRed.id;
-                        
-                        //Se actualiza el ID y otros datos en la base de cuentas
-                        await bankDb.UpdateAsync(partnerBankItemRed, oldId);
-                        //Se actualiza el ID en la base de pagos
-                        await accountPaymentDb.UpdateAsync(payment);
-                    }
-                }
-
                 //TODO: Check this line
                 //payment.recipe_name = _accountPaymentHeader.recipe_name;
 
@@ -166,7 +108,7 @@ namespace DMSA.Sync.Core.Update.Pusher
                 CuadraturaAmount = payment.Amount;
 
                 //Se consultan lineas de pagos de documentos
-                var apl = await accountPaymentLines.GetItemsAsync(x => x.multiple_cobros_invoice_line_id == payment.Id);
+                var apl = await multipleCobrosInvoiceLinesAi.GetItemsAsync(x => x.multiple_cobros_invoice_line_id == payment.Id);
                 if (apl.Count > 0)
                 {
                     payment.lines = apl.ToArray();
@@ -208,7 +150,7 @@ namespace DMSA.Sync.Core.Update.Pusher
                 {
                     var CuadraturaItem = new MultipleCobrosInvoiceLineCuadratura();
 
-                    CuadraturaItem.account_cuadre_id = 1064;
+                    CuadraturaItem.account_cuadre_id = Constants.Session.res_Company.cuadratura_account_id_;
                     CuadraturaItem.amount = CuadraturaAmount;
                     CuadraturaItem.partner_id = multipleCobrosInvoice.partner_id;
                     CuadraturasIds.Add(new MultipleCobrosInvoiceLineCuadraturaWrapper(CuadraturaItem));                    
@@ -226,13 +168,13 @@ namespace DMSA.Sync.Core.Update.Pusher
             if (resultTask == null)
             {
                 //await Toast.Make("Error: Datos!").Show();
-                multipleCobrosInvoice.payment_status = DMSA.Models.CobrosEstados.ERROR;
+                multipleCobrosInvoice.payment_status = CobrosEstados.ERROR;
                 multipleCobrosInvoice.write_date = DateTime.Now;
-                await cobReciboCabDb.UpdateAsync(multipleCobrosInvoice);
+                await multipleCobrosInvoiceDB.UpdateAsync(multipleCobrosInvoice);
             }
             else
             {
-                if (resultTask.result.Count > 0 && resultTask.error == null)
+                if (resultTask.result!=null && resultTask.result.Count > 0 && resultTask.error == null)
                 {
                     //Confirmación del pago (botón confirmar)
                     //ApiResponseOdooRpcT<int> resultTask_confirm = new ApiResponseOdooRpcT<int>()
@@ -245,7 +187,6 @@ namespace DMSA.Sync.Core.Update.Pusher
 
                     //resultTask_confirm = await apiProcessor.call_button(payment, resultTask);
 
-
                     //////var kwargs = new { };
                     //////object[] args = new object[] { };
 
@@ -254,30 +195,36 @@ namespace DMSA.Sync.Core.Update.Pusher
                     //////        args,
                     //////        kwargs, "wkf.state.order", "web_save");
 
-
                     //--------------------------------------------
 
                     //await Toast.Make("Envío de cobro correcto").Show();
                     Debug.WriteLine("Terminado envío!");
-                    multipleCobrosInvoice.payment_status = DMSA.Models.CobrosEstados.ENVIADO;
+                    multipleCobrosInvoice.payment_status = CobrosEstados.PROCESADO;
                     multipleCobrosInvoice.write_date = DateTime.Now;
-                    await cobReciboCabDb.UpdateAsync(multipleCobrosInvoice);
+
+                    if(autosend)
+                    {
+                        if(!multipleCobrosInvoice.receipt_name.StartsWith("AUT"))
+                        {
+                            multipleCobrosInvoice.receipt_name = "AUT-" + multipleCobrosInvoice.receipt_name;
+                        }
+                    }
+
+                    await multipleCobrosInvoiceDB.UpdateAsync(multipleCobrosInvoice);
                     everyThingOk = true;
                 }
                 else
                 {
                     //await Toast.Make("Error: " + resultTask.message).Show();
-                    multipleCobrosInvoice.payment_status = DMSA.Models.CobrosEstados.ERROR;
+                    multipleCobrosInvoice.payment_status = CobrosEstados.ERROR;
                     multipleCobrosInvoice.write_date = DateTime.Now;
-                    await cobReciboCabDb.UpdateAsync(multipleCobrosInvoice);
+                    await multipleCobrosInvoiceDB.UpdateAsync(multipleCobrosInvoice);
                     //everyThingOk = false;
                 }
             }
 
             if (everyThingOk)
-            {
-                //try
-                //{
+            {                
                 var accountPaymentHeader = new HubMultipleCobrosInvoice(Constants.Session);
                 string jsonSerialized = JsonConvert.SerializeObject(multipleCobrosInvoice);
                 MultipleCobrosInvoice objSend = JsonConvert.DeserializeObject<MultipleCobrosInvoice>(jsonSerialized);
@@ -287,15 +234,11 @@ namespace DMSA.Sync.Core.Update.Pusher
 
                 List<MultipleCobrosInvoiceLine> paymentSendList = new List<MultipleCobrosInvoiceLine>();
 
-                foreach (var paymentItem in paymentList)
+                foreach (var paymentItem in multipleCobrosInvoiceLinList)
                 {
                     JsonSerializerSettings settings = new JsonSerializerSettings();
-                    settings.DateFormatString = "yyyy-MM-dd HH:mm:ss";
-                    //settings.ContractResolver = new IncludeJsonIgnoreResolver();
-                    //multiple_cobros_invoice_line_ai
+                    settings.DateFormatString = "yyyy-MM-dd HH:mm:ss";                    
                     settings.ContractResolver = new IgnorePropertyResolver("multiple_cobros_invoice_line_ai", "cuadratura_ids");
-
-                    //Console.WriteLine(paymentItem);
 
                     string jsonPaymentItem = JsonConvert.SerializeObject(paymentItem, settings);
                     MultipleCobrosInvoiceLine objPaymentSend = JsonConvert.DeserializeObject<MultipleCobrosInvoiceLine>(jsonPaymentItem, settings);
@@ -303,163 +246,149 @@ namespace DMSA.Sync.Core.Update.Pusher
                     string JsonAccountPaymentSendLines = JsonConvert.SerializeObject(paymentItem.lines, settings);
                     objPaymentSend.lines = JsonConvert.DeserializeObject<MultipleCobrosInvoiceLineAi[]>(JsonAccountPaymentSendLines);
 
-                    //paymentSendList.Add(objPaymentSend);
-
                     paymentSendList.Add(paymentItem);
                 }
 
                 paymentSend = paymentSendList.ToArray();
-                //Se deben enviar los pagos a parte asi mismo las lineas de facturas
-                // luego de ser almacenadas deben extraerse para que se sincronicen con la informacion de la tablet
-                // en caso de que los datos no existan
-
-                //var headerResult = await accountPaymentHeader.SendHeader(objSend);
-                //if (headerResult != null && headerResult.result > 0)
-                //{
-                    foreach (var payment in paymentSend)
+                
+                foreach (var payment in paymentSend)
+                {                        
+                    //payment.lines = Array.Empty<MultipleCobrosInvoiceLineAi>();
+                    payment.MultipleCobrosInvoiceId = resultTask.result[0].id;
+                    var paymentsResult = await accountPaymentHeader.SendPayments(payment);                       
+                    if (paymentsResult != null && paymentsResult.result != null && paymentsResult.result.Count > 0)
                     {
-                        //var lines = payment.lines;
-                        //payment.lines = Array.Empty<MultipleCobrosInvoiceLineAi>();
-                        payment.MultipleCobrosInvoiceId = resultTask.result[0].id;
-
-                        var paymentsResult = await accountPaymentHeader.SendPayments(payment);
-                        
-                        if (paymentsResult != null && paymentsResult.result != null && paymentsResult.result.Count > 0)
+                        var lines = payment.lines;
+                        if (lines != null)
                         {
-                            //if (lines != null)
-                            //{
-                            //    foreach (var paymentLine in lines)
-                            //    {
-                            //        //paymentLine.multiple_cobros_invoice_line_id = paymentsResult.result;
-                            //        //var lineResult = await accountPaymentHeader.SendPaymentsInvoiceLine(paymentLine);
-                            //    }
-                            //}
+                            var accountMoveDb = new AccountMoveDb(Constants.Session.odooConnection.DbNameSqlite);
+
+                            foreach (var paymentLine in lines)
+                            {
+                                var accountMovefound = (await accountMoveDb.GetItemsAsync(x=> x.docnum_mask == paymentLine.docnum_mask)).FirstOrDefault();
+                                if(accountMovefound != null)
+                                {
+                                    if(accountMovefound.amount_residual_virtual == 0 && accountMovefound.amount_residual > 0)
+                                    {
+                                        accountMovefound.amount_residual_virtual = accountMovefound.amount_residual;
+                                    }
+
+                                    accountMovefound.amount_residual_virtual -= paymentLine.amount_asigned;
+                                    await accountMoveDb.UpdateAsync(accountMovefound);
+                                }
+                            }
                         }
                     }
-                //}
+                }                
             }
 
             return resultTask;
         }
 
-        public static async Task<ApiResponseOdooRpcT<check_cn_response[]>> CheckCreditNoteOverdraf(AccountMoveSendHeader _accountMoveSendHeader)
+        //public static async Task<ApiResponseOdooRpcT<check_cn_response[]>> CheckCreditNoteOverdraf(CreditNoteRequestGroup _accountMoveSendHeader)
+        //{
+        //    ApiResponseOdooRpcT<check_cn_response[]> resultTask = new ApiResponseOdooRpcT<check_cn_response[]>();
+
+        //    List<credit_note_request_detail> account_Move_Line_Sends = new List<credit_note_request_detail>();
+
+        //    HubCreditNoteRequest hubAccountMoveRefund = new HubCreditNoteRequest(Constants.Session);
+        //    CreditNoteRequestDb accountMoveSendDb = new CreditNoteRequestDb(Constants.Session.odooConnection.DbNameSqlite);
+
+        //    var accountMoveSendList = await accountMoveSendDb.GetByParent(_accountMoveSendHeader.id);
+
+        //    foreach (var accountMoveSend in accountMoveSendList)
+        //    {
+        //        CreditNoteRequestDetailDb accountMoveLineSendDb = new CreditNoteRequestDetailDb(Constants.Session.odooConnection.DbNameSqlite);
+        //        var linesItems = await accountMoveLineSendDb.GetItemsByParentAsync(accountMoveSend.id);
+
+        //        int sequence = 1;
+        //        foreach (var lineItem in linesItems)
+        //        {
+        //            account_Move_Line_Sends.Add(lineItem);
+        //        }
+        //    }
+
+        //    var requestObject = new Models.General.Requests.ApiRequestCheckCn();
+        //    requestObject.credit_note_lines = account_Move_Line_Sends.ToArray();
+
+        //    resultTask = await hubAccountMoveRefund.check_credit_note_overdraft(requestObject);
+
+        //    return resultTask;
+        //}
+
+        public static async Task<ApiResponseOdooRpcT<List<OdooRpcResultInt>>?> SendRequestCreditNote(CreditNoteRequestGroup _creditNoteRequestGroup)
         {
-            ApiResponseOdooRpcT<check_cn_response[]> resultTask = new ApiResponseOdooRpcT<check_cn_response[]>();
-
-            List<account_move_line_send> account_Move_Line_Sends = new List<account_move_line_send>();
-
-            HubAccountMoveRefund hubAccountMoveRefund = new HubAccountMoveRefund(Constants.Session);
-            AccountMoveSendDb accountMoveSendDb = new AccountMoveSendDb(Constants.Session.odooConnection.DbNameSqlite);
-
-            var accountMoveSendList = await accountMoveSendDb.GetByParent(_accountMoveSendHeader.id);
-
-            foreach (var accountMoveSend in accountMoveSendList)
-            {
-                AccountMoveLineSendDb accountMoveLineSendDb = new AccountMoveLineSendDb(Constants.Session.odooConnection.DbNameSqlite);
-                var linesItems = await accountMoveLineSendDb.GetItemsByParentAsync(accountMoveSend.id);
-
-                int sequence = 1;
-                foreach (var lineItem in linesItems)
-                {
-                    account_Move_Line_Sends.Add(lineItem);
-                }
-            }
-
-            var requestObject = new Models.General.Requests.ApiRequestCheckCn();
-            requestObject.credit_note_lines = account_Move_Line_Sends.ToArray();
-
-            resultTask = await hubAccountMoveRefund.check_credit_note_overdraft(requestObject);
-
-            return resultTask;
-        }
-
-        public static async Task<ApiResponseOdooRpcT<int>> SendRequestCreditNote(AccountMoveSendHeader _accountMoveSendHeader)
-        {
-            ApiResponseOdooRpcT<int> resultTask = new ApiResponseOdooRpcT<int>()
+            ApiResponseOdooRpcT<List<OdooRpcResultInt>>? resultTask = new ApiResponseOdooRpcT<List<OdooRpcResultInt>>()
             {
                 id = 0,
                 jsonrpc = "2.0",
-                result = 0,
+                result = new List<OdooRpcResultInt>(),
                 error = null
             };
 
-            AccountMoveSendHeaderDb accountMoveSendHeaderDb = new AccountMoveSendHeaderDb(Constants.Session.odooConnection.DbNameSqlite);
+            CreditNoteRequestGroupDb accountMoveSendHeaderDb = new CreditNoteRequestGroupDb(Constants.Session.odooConnection.DbNameSqlite);
 
-            if (_accountMoveSendHeader.request_status == Models.MoveStatus.PENDIENTE)
+            if (_creditNoteRequestGroup.request_status == Models.MoveStatus.PENDIENTE)
             {
-                string fechaActual = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0, 10);
-                //var secuencia = await cobReciboCabDb.obtenerSecuenciaRecibo(_accountPaymentHeader.company_id, _accountPaymentHeader.uid, fechaActual);
-                //string request_name = accountMoveSendHeaderDb.BuildName(_accountMoveSendHeader.uid, _accountMoveSendHeader.company_id, fechaActual, _accountMoveSendHeader.id.ToString());
-                string request_name = await accountMoveSendHeaderDb.BuildRequestName(_accountMoveSendHeader);
+                string fechaActual = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0, 10);                
+                string request_name = await accountMoveSendHeaderDb.BuildRequestName(_creditNoteRequestGroup);
 
-                _accountMoveSendHeader.request_name = request_name;
-                _accountMoveSendHeader.request_status = Models.MoveStatus.ENVIANDO;
-                await accountMoveSendHeaderDb.UpdateAsync(_accountMoveSendHeader);
+                _creditNoteRequestGroup.request_name = request_name;
+                _creditNoteRequestGroup.request_status = Models.MoveStatus.ENVIANDO;
+                await accountMoveSendHeaderDb.UpdateAsync(_creditNoteRequestGroup);
             }
 
             if (DeviceInfo.Current.Platform == DevicePlatform.Android ||
                     DeviceInfo.Current.Platform == DevicePlatform.iOS)
             {
-                _accountMoveSendHeader.model = DeviceInfo.Idiom.ToString() + " - " + DeviceInfo.Current.Model;
-                _accountMoveSendHeader.manufacturer = DeviceInfo.Current.Manufacturer;
-                _accountMoveSendHeader.autosend = "N";
+                _creditNoteRequestGroup.model = DeviceInfo.Idiom.ToString() + " - " + DeviceInfo.Current.Model;
+                _creditNoteRequestGroup.manufacturer = DeviceInfo.Current.Manufacturer;
+                _creditNoteRequestGroup.autosend = "N";
             }
 
             if (DeviceInfo.Current.Platform == DevicePlatform.WinUI)
             {
-                _accountMoveSendHeader.model = DeviceInfo.Idiom.ToString() + " - " + "-";
-                _accountMoveSendHeader.manufacturer = "-";
-                _accountMoveSendHeader.autosend = "N";
+                _creditNoteRequestGroup.model = DeviceInfo.Idiom.ToString() + " - " + "-";
+                _creditNoteRequestGroup.manufacturer = "-";
+                _creditNoteRequestGroup.autosend = "N";
             }
 
             //TODO: Se coloca directamente "unknow" ya que las nuevas versiones de Android
             // no permiten obtener el número de serie de los dispositivos
 
-            _accountMoveSendHeader.serialNumber = "unknown" + "-" + Constants.Session.AppVersion;
+            _creditNoteRequestGroup.serialNumber = "unknown" + "-" + Constants.Session.AppVersion;
 
-            AccountMoveSendDb accountMoveSendDb = new AccountMoveSendDb(Constants.Session.odooConnection.DbNameSqlite);
-            AccountMoveLineSendDb accountMoveLineSendDb = new AccountMoveLineSendDb(Constants.Session.odooConnection.DbNameSqlite);
+            CreditNoteRequestDb creditNoteRequestDb = new CreditNoteRequestDb(Constants.Session.odooConnection.DbNameSqlite);
+            CreditNoteRequestDetailDb creditNoteRequestDetailDb = new CreditNoteRequestDetailDb(Constants.Session.odooConnection.DbNameSqlite);
 
-            var accountMoveSendList = await accountMoveSendDb.GetByParent(_accountMoveSendHeader.id);
+            var creditNoteRequestDbList = await creditNoteRequestDb.GetByParent(_creditNoteRequestGroup.id);
 
-            foreach (var accountMoveSend in accountMoveSendList)
+            foreach (var CreditNoteRequestItem in creditNoteRequestDbList)
             {
-                accountMoveSend.request_name = _accountMoveSendHeader.request_name;
-
-                //foreach(var lineItem in SendObject.lines)
-                //{
-                //SendObject.invoice_line_ids
-                //}
-
-                //accountMoveSend.invoice_line_ids.Add
-                
-                var linesItems = await accountMoveLineSendDb.GetItemsByParentAsync(accountMoveSend.id);
+                CreditNoteRequestItem.request_name = _creditNoteRequestGroup.request_name;
+                                
+                var linesItems = await creditNoteRequestDetailDb.GetItemsByParentAsync(CreditNoteRequestItem.id);
                 if (linesItems.Count > 0)
                 {
-                    //Se realiza esta operación ya que Odoo requiere una estructura específica para la 
-                    // recepcion de facturas en los pagos, ej:
-
-                    //[
-                    //  [
-                    //      0,
-                    //      0,
-                    //      {
-                    //          "invoice_line_id": 6629,                
-                    //          "invoice_line_id_name": "Fact 200-201-000000070",
-                    //          "payment_state": "draft",
-                    //          "reconcile_amount": 12.0
-                    //      }
-                    //  ]
-                    //]
-
                     List<object> listLines = new List<object>();
                     
                     int sequence = 1;
 
                     foreach (var line in linesItems)
                     {
-                        line.move_id = accountMoveSend.id;
-                        line.sequence = sequence;
+                        int[] tax_ids = Array.Empty<int>();
+
+                        if (!string.IsNullOrWhiteSpace(line.tax_ids_json))
+                        {
+                            tax_ids = line.tax_ids_json
+                                .Trim('[', ']')
+                                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                .Select(x => int.TryParse(x, out var n) ? n : 0)
+                                .Where(n => n != 0)
+                                .ToArray();
+                        }
+
+                        line.tax_ids = tax_ids;
 
                         listLines.Add(new List<object>
                         {
@@ -470,38 +399,39 @@ namespace DMSA.Sync.Core.Update.Pusher
                         sequence++;
                     }
 
-                    accountMoveSend.invoice_line_ids = listLines;
-                    accountMoveSend.lines = linesItems.ToArray();
+                    CreditNoteRequestItem.invoice_line_ids = listLines;
+                    CreditNoteRequestItem.accountMovesProducts = listLines;
+                    CreditNoteRequestItem.lines = linesItems.ToArray();
                 }
                 else
                 {
-                    accountMoveSend.invoice_line_ids = new List<object>();
+                    CreditNoteRequestItem.invoice_line_ids = new List<object>();
                 }
 
-                resultTask = await SendMoveItem_Mode_Dataset(accountMoveSend);
+                resultTask = await SendCreditNoteRequest(CreditNoteRequestItem);
 
                 if (resultTask == null)
                 {
                     //await Toast.Make("Error: Datos!").Show();
-                    _accountMoveSendHeader.request_status = Models.MoveStatus.ERROR;
-                    _accountMoveSendHeader.modification_datetime = DateTime.Now;
-                    await accountMoveSendHeaderDb.UpdateAsync(_accountMoveSendHeader);
+                    _creditNoteRequestGroup.request_status = Models.MoveStatus.ERROR;
+                    _creditNoteRequestGroup.modification_datetime = DateTime.Now;
+                    await accountMoveSendHeaderDb.UpdateAsync(_creditNoteRequestGroup);
                 }
                 else
                 {
-                    if (resultTask.result>0 && resultTask.error == null)
+                    if (resultTask.result != null && resultTask.result.Count >0 && resultTask.error == null)
                     {
                         //await Toast.Make("Envío de solicitud correcto").Show();
-                        _accountMoveSendHeader.request_status = Models.MoveStatus.RECIBIDO;
-                        _accountMoveSendHeader.modification_datetime = DateTime.Now;
-                        await accountMoveSendHeaderDb.UpdateAsync(_accountMoveSendHeader);                        
+                        _creditNoteRequestGroup.request_status = Models.MoveStatus.RECIBIDO;
+                        _creditNoteRequestGroup.modification_datetime = DateTime.Now;
+                        await accountMoveSendHeaderDb.UpdateAsync(_creditNoteRequestGroup);                        
                     }
                     else
                     {
                         //await Toast.Make("Error: " + resultTask.message).Show();
-                        _accountMoveSendHeader.request_status = Models.MoveStatus.ERROR;
-                        _accountMoveSendHeader.modification_datetime = DateTime.Now;
-                        await accountMoveSendHeaderDb.UpdateAsync(_accountMoveSendHeader);
+                        _creditNoteRequestGroup.request_status = Models.MoveStatus.ERROR;
+                        _creditNoteRequestGroup.modification_datetime = DateTime.Now;
+                        await accountMoveSendHeaderDb.UpdateAsync(_creditNoteRequestGroup);
                     }
                 }
             }
@@ -515,12 +445,12 @@ namespace DMSA.Sync.Core.Update.Pusher
 
 
                 //HubAccountPaymentHeader accountPaymentHeader = new HubAccountPaymentHeader(App.Session);
-                string jsonSerialized = JsonConvert.SerializeObject(_accountMoveSendHeader);
-                AccountMoveSendHeader objSend = JsonConvert.DeserializeObject<AccountMoveSendHeader>(jsonSerialized);
+                //string jsonSerialized = JsonConvert.SerializeObject(_accountMoveSendHeader);
+                //CreditNoteRequestGroup objSend = JsonConvert.DeserializeObject<CreditNoteRequestGroup>(jsonSerialized);
                 
-                List<account_move_send> accountMoveSendListNew = new List<account_move_send>();
+                List<credit_note_request> accountMoveSendListNew = new List<credit_note_request>();
 
-                foreach (var accountMoveItem in accountMoveSendList)
+                foreach (var accountMoveItem in creditNoteRequestDbList)
                 {
                     JsonSerializerSettings settings = new JsonSerializerSettings();
                     settings.DateFormatString = "yyyy-MM-dd HH:mm:ss";
@@ -529,19 +459,19 @@ namespace DMSA.Sync.Core.Update.Pusher
                     Console.WriteLine(accountMoveItem);
 
                     string jsonPaymentItem = JsonConvert.SerializeObject(accountMoveItem, settings);
-                    account_move_send objPaymentSend = JsonConvert.DeserializeObject<account_move_send>(jsonPaymentItem, settings);
+                    credit_note_request objPaymentSend = JsonConvert.DeserializeObject<credit_note_request>(jsonPaymentItem, settings);
 
                     string JsonAccountPaymentSendLines = JsonConvert.SerializeObject(accountMoveItem.lines, settings);
-                    objPaymentSend.lines = JsonConvert.DeserializeObject<account_move_line_send[]>(JsonAccountPaymentSendLines);
+                    objPaymentSend.lines = JsonConvert.DeserializeObject<credit_note_request_detail[]>(JsonAccountPaymentSendLines);
                     accountMoveSendListNew.Add(objPaymentSend);
                 }
 
                 //Se guarda cabecera de solicitudes en Odoo solo cuando se han enviado correctamente las anteriores
-                HubAccountMoveSendHeader hubAccountMoveHeader = new HubAccountMoveSendHeader(Constants.Session);
+                HubCreditNoteRequestGroup hubAccountMoveHeader = new HubCreditNoteRequestGroup(Constants.Session);
                 //string jsonSerialized = JsonConvert.SerializeObject(_accountMoveSendHeader);
                 //Acco objSend = JsonConvert.DeserializeObject<AccountPaymentDaily>(jsonSerialized);
 
-                ApiResponseOdooRpcT<int> headerResult = await hubAccountMoveHeader.SendHeader(objSend);
+                ApiResponseOdooRpcT<int> headerResult = await hubAccountMoveHeader.SendHeader(_creditNoteRequestGroup);
                 //var headerResult = await hubAccountMoveHeader.SendHeader(objSend);
                 Debug.WriteLine(headerResult);
 
@@ -551,25 +481,25 @@ namespace DMSA.Sync.Core.Update.Pusher
                     {
                         var lines = accountMoveItem.lines;
                        
-                        accountMoveItem.lines = Array.Empty<account_move_line_send>();
+                        accountMoveItem.lines = Array.Empty<credit_note_request_detail>();
                         accountMoveItem.invoice_line_ids = new  List<object>();
                         accountMoveItem.parent_id = headerResult.result;
-                        var hubSendAccountMoveSend = new HubAccountMoveSend(Constants.Session);
-                        var paymentsResult = await hubSendAccountMoveSend.SendAccountMove(accountMoveItem);
+                        //var hubSendAccountMoveSend = new HubAccountMoveSend(Constants.Session);
+                        //var paymentsResult = await hubSendAccountMoveSend.SendAccountMove(accountMoveItem);
 
-                        if (paymentsResult != null && paymentsResult.result > 0)
-                        {
-                            if (lines != null)
-                            {
-                                foreach (var paymentLine in lines)
-                                {
-                                    paymentLine.parent_move_id = paymentsResult.result;
-                                    var hubSendAccountMoveLineSend = new HubAccountMoveLineSend(Constants.Session);
-                                    var lineResult = await hubSendAccountMoveLineSend.SendAccountMoveLine(paymentLine);
-                                    Console.WriteLine(lineResult);
-                                }
-                            }
-                        }
+                        //if (paymentsResult != null && paymentsResult.result > 0)
+                        //{
+                        //    if (lines != null)
+                        //    {
+                        //        foreach (var paymentLine in lines)
+                        //        {
+                        //            paymentLine.parent_id = paymentsResult.result;
+                        //            var hubSendAccountMoveLineSend = new HubAccountMoveLineSend(Constants.Session);
+                        //            var lineResult = await hubSendAccountMoveLineSend.SendAccountMoveLine(paymentLine);
+                        //            Console.WriteLine(lineResult);
+                        //        }
+                        //    }
+                        //}
                     }
                 }
 
@@ -578,19 +508,19 @@ namespace DMSA.Sync.Core.Update.Pusher
             return resultTask;
         }
 
-        public static async Task<ApiResponseOdooRpcT<int>?> SendMoveItem_Mode_Dataset(account_move_send _account_move_send)
+        public static async Task<ApiResponseOdooRpcT<List<OdooRpcResultInt>>?> SendCreditNoteRequest(credit_note_request crediNoteRequest)
         {
             //TODO: Agregar validaciones
-            HubAccountMoveRefund hubAccountMoveRefund = new HubAccountMoveRefund(Constants.Session);
+            HubCreditNoteRequest hubAccountMoveRefund = new HubCreditNoteRequest(Constants.Session);
 
-            var resultTask = await hubAccountMoveRefund.SendHeader_Mode_Dataset(_account_move_send);
-            if (resultTask.result > 0 && resultTask.error == null)
+            var resultTask = await hubAccountMoveRefund.Create(crediNoteRequest);
+            if (resultTask != null && resultTask.result!= null && resultTask.result.Any() && resultTask.error == null)
             {
-                AccountMoveSendDb accountMoveSendDb = new AccountMoveSendDb(Constants.Session.odooConnection.DbNameSqlite);
+                CreditNoteRequestDb creditNoteRequestDb = new CreditNoteRequestDb(Constants.Session.odooConnection.DbNameSqlite);
                 //Primera actualización de la cabecera
-                _account_move_send.doc_status = "sended";
-                _account_move_send.send_date = DateTime.Now;
-                await accountMoveSendDb.UpdateAsync(_account_move_send);
+                crediNoteRequest.doc_status = "sended";
+                crediNoteRequest.send_date = DateTime.Now;
+                await creditNoteRequestDb.UpdateAsync(crediNoteRequest);
 
                 //AccountMoveLineSendDb accountMoveLineSendDb = new AccountMoveLineSendDb();
                 //var linesItems = await accountMoveLineSendDb.GetItemsByParentAsync(_account_move_send.id);
@@ -623,20 +553,20 @@ namespace DMSA.Sync.Core.Update.Pusher
             return resultTask;
         }
 
-        public static async Task<ApiResponseOdooRpcT<int>> SendMoveItem(account_move_send _account_move_send)
+        public static async Task<ApiResponseOdooRpcT<int>> SendMoveItem(credit_note_request _account_move_send)
         {
             //TODO: Agregar validaciones
-            HubAccountMoveRefund hubAccountMoveRefund = new HubAccountMoveRefund(Constants.Session);
+            HubCreditNoteRequest hubAccountMoveRefund = new HubCreditNoteRequest(Constants.Session);
 
             var resultTask = await hubAccountMoveRefund.SendHeader(_account_move_send);
             if (resultTask.result > 0)
             {
-                AccountMoveSendDb accountMoveSendDb = new AccountMoveSendDb(Constants.Session.odooConnection.DbNameSqlite);
+                CreditNoteRequestDb accountMoveSendDb = new CreditNoteRequestDb(Constants.Session.odooConnection.DbNameSqlite);
                 //Primera actualización de la cabecera
                 _account_move_send.doc_status = "sended";
                 await accountMoveSendDb.UpdateAsync(_account_move_send);
 
-                AccountMoveLineSendDb accountMoveLineSendDb = new AccountMoveLineSendDb(Constants.Session.odooConnection.DbNameSqlite);
+                CreditNoteRequestDetailDb accountMoveLineSendDb = new CreditNoteRequestDetailDb(Constants.Session.odooConnection.DbNameSqlite);
                 var linesItems = await accountMoveLineSendDb.GetItemsByParentAsync(_account_move_send.id);
 
                 int sequence = 1;

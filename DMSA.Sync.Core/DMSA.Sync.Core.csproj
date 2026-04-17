@@ -1,21 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	<UseMaui>true</UseMaui>
   </PropertyGroup>
   <ItemGroup>
-	  <PackageReference Include="CommunityToolkit.Maui" Version="12.3.0" />
-	  <PackageReference Include="CommunityToolkit.Maui.Core" Version="12.3.0" />
-	  <PackageReference Include="CommunityToolkit.Maui.Markup" Version="6.0.1" />
-	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-      <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.10" />   
-	  <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.10" />
-	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
-	  <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.10" />
-	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.10" />
-	  <PackageReference Include="Microsoft.Maui.Graphics" Version="9.0.120" />
+    <Compile Remove="Database\Sqlite\Payments\AccountModuleDb.cs" />
+    <Compile Remove="Database\Sqlite\Payments\AccountPaymentDb.cs" />
+    <Compile Remove="Database\Sqlite\Payments\AccountPaymentHeaderDb.cs" />
+    <Compile Remove="Database\Sqlite\Payments\AccountPaymentInvoiceLineDb.cs" />
+    <Compile Remove="Database\Sqlite\Payments\AccountTypeModuleDb.cs" />
+    <Compile Remove="Database\Sqlite\Payments\ProductBrandDb.cs" />
+    <Compile Remove="Database\Sqlite\Payments\ProductCategoryDb.cs" />
+  </ItemGroup>
+  <ItemGroup>
+	  <PackageReference Include="CommunityToolkit.Maui" Version="14.1.0" />
+	  <PackageReference Include="CommunityToolkit.Maui.Core" Version="14.1.0" />
+	  <PackageReference Include="CommunityToolkit.Maui.Markup" Version="7.0.1" />
+      <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+      <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.6" />   
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.6" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.6" />
+      <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.6" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.6" />
+      <PackageReference Include="Microsoft.Maui.Graphics" Version="10.0.51" />
+      <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.51" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,6 +35,18 @@
 
   <ItemGroup>
     <MauiXaml Update="Controls\CustomRows\Lite\AccountAnalyticLineRow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Controls\CustomRows\Lite\AccountMoveLineRow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Controls\CustomRows\Lite\AccountMoveRow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Controls\CustomRows\Lite\ResCityRow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Controls\CustomRows\Lite\ResBankRow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
     <MauiXaml Update="Controls\CustomRows\Lite\MarcaRow.xaml">
@@ -54,6 +76,9 @@
     <MauiXaml Update="Controls\PopupLoadingTask.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
+    <MauiXaml Update="Controls\Popups\PasswordPrompt.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
     <MauiXaml Update="Controls\ProgressBarAnimationBehaviorPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
@@ -64,6 +89,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Controls\CustomRows\Lite\AccountMoveLineRow.xaml.cs">
+      <DependentUpon>AccountMoveLineRow.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Controls\CustomRows\Lite\AccountMoveRow.xaml.cs">
+      <DependentUpon>AccountMoveRow.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Controls\CustomRows\Lite\ResCityRow.xaml.cs">
+      <DependentUpon>ResCityRow.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Controls\CustomRows\Lite\ResBankRow.xaml.cs">
+      <DependentUpon>ResBankRow.xaml</DependentUpon>
+    </Compile>
     <Compile Update="Controls\CustomRows\Lite\ResPartnerCreditDataRow.xaml.cs">
       <DependentUpon>ResPartnerCreditDataRow.xaml</DependentUpon>
     </Compile>

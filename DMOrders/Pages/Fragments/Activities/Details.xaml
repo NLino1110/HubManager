@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="DMOrders.Pages.Fragments.Activities.Details"
-             xmlns:customrows="clr-namespace:DMOrders.Controls.CustomRows"  
+             xmlns:customrows="clr-namespace:DMOrders.Controls.CustomRows.Lite"  
              xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
              xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
              xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
@@ -33,14 +33,14 @@
             Clicked="ButtonClose_Clicked"
             BackgroundColor="DarkGray"
             TextColor="White"
-            HeightRequest="50"
-            WidthRequest="50"
+            HeightRequest="40"
+            WidthRequest="40"
             Padding="0">
                 <Button.ImageSource>
                     <FontImageSource 
-                Size="30"
-                FontFamily="MaterialSharp"
-                Glyph="{x:Static uranium:MaterialSharp.Arrow_back}" />
+                Size="25"
+                FontFamily="FontAwesome5Solid"
+                Glyph="&#xf060;" />
                 </Button.ImageSource>
             </Button>
 
@@ -54,27 +54,17 @@
                FontSize="15" />
         </Grid>
 
-        <!-- Header por columnas (coincide con AccountAnalyticLineRow) -->
         <Grid Grid.Row="1" BackgroundColor="LightGray" ColumnSpacing="4" Margin="0,4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="42"/>
-                <!-- 0: id -->
                 <ColumnDefinition Width="6"/>
-                <!-- 1: separador -->
                 <ColumnDefinition Width="2.5*"/>
-                <!-- 2: empresa -->
                 <ColumnDefinition Width="1.5*"/>
-                <!-- 3: motivo -->
-                <ColumnDefinition Width="3*"/>
-                <!-- 4: cliente -->
+                <ColumnDefinition Width="3*"/> 
+                <ColumnDefinition Width="72"/> 
                 <ColumnDefinition Width="72"/>
-                <!-- 5: H. INI -->
                 <ColumnDefinition Width="72"/>
-                <!-- 6: H. FIN -->
-                <ColumnDefinition Width="72"/>
-                <!-- 7: STANDBY -->
                 <ColumnDefinition Width="64"/>
-                <!-- 8: herramientas (columna vacía en header) -->
             </Grid.ColumnDefinitions>
 
             <Label Grid.Column="0" Text="ID" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
@@ -85,10 +75,8 @@
             <Label Grid.Column="5" Text="H. INI" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
             <Label Grid.Column="6" Text="H. FIN" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
             <Label Grid.Column="7" Text="STANDBY" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
-            <!-- columna 8 reservada para botones -->
         </Grid>
 
-        <!-- Lista de actividades -->
         <CollectionView 
             Grid.Row="2"
                 x:Name="MyCollectionView"
@@ -103,47 +91,46 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <customrows:AccountAnalyticLineRow 
-                        Item="{Binding .}" 
-                        SelectedItem="{Binding BindingContext.SelectedItem, Source={x:Reference MyCollectionView}}"
+                        BindingContext="{Binding .}"     
                         EditCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=EditCommand}"
-                        DeleteCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=DeleteCommand}"/>
+                        DeleteCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=DeleteCommand}"
+                        Style="{StaticResource CollectionItemSelectable}"/>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <!-- Footer / botones -->
         <HorizontalStackLayout Grid.Row="3" HorizontalOptions="Center" Margin="0,0,0,10" Spacing="10">
             <Button Text="" Clicked="ButtonClose_Clicked" BackgroundColor="Gray" TextColor="White" HeightRequest="43" WidthRequest="43" Padding="0" IsVisible="False">
                 <Button.ImageSource>
                     <FontImageSource 
-                        Size="30"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.Arrow_back}"
+                        Size="25"
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xf060;"
                         />
                 </Button.ImageSource>
             </Button>
             <Button Text="Nuevo" Clicked="ButtonNew_Clicked" BackgroundColor="Green" TextColor="White" HeightRequest="43" WidthRequest="120" Padding="0">
                 <Button.ImageSource>
                     <FontImageSource 
-                        Size="30"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.New_label}" />
+                        Size="25"
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#x2b;" />
                 </Button.ImageSource>
             </Button>
             <Button Text="Guardar" Clicked="ButtonSave_Clicked" BackgroundColor="Orange" TextColor="White" HeightRequest="43" WidthRequest="120" Padding="0" IsVisible="False">
                 <Button.ImageSource>
                     <FontImageSource 
-                        Size="30"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.Save}" />
+                        Size="25"
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xf0c7;" />
                 </Button.ImageSource>
             </Button>
             <Button Text="Enviar" Clicked="ButtonSync_Clicked" BackgroundColor="DeepSkyBlue" TextColor="White" HeightRequest="43" WidthRequest="120" Padding="0">
                 <Button.ImageSource>
                     <FontImageSource 
-                        Size="30"
-                        FontFamily="MaterialSharp"
-                        Glyph="{x:Static uranium:MaterialSharp.Send}" />
+                        Size="20"
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xf1d8;" />
                 </Button.ImageSource>
             </Button>
         </HorizontalStackLayout>

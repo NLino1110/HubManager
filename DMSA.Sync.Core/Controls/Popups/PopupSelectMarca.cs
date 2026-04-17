@@ -9,8 +9,7 @@ namespace DMSA.Sync.Core.Controls.Popups
     {
         public res_company Company { get; set; }
         public int DetailMode { get; set; } = 0;
-        ObservableCollection<product_marca> resultItemsSearch { get; set; }
-       
+        ObservableCollection<product_marca> resultItemsSearch { get; set; }       
         public PopupSelectMarca(PopupSizeConstants popupSizeConstants) : base(popupSizeConstants,true)
         {            
             DataField = "id, name";

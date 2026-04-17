@@ -17,40 +17,29 @@ public partial class Container : ContentView
             //customImageHeaderView.Subtitle = App.Session.CurrentUser.nombres;
         }
 
-        // Suscribirse para refrescar la lista cuando una tarea se sincronice
         try
         {
-            MessagingCenter.Subscribe<Details, int>(this, "ProjectTaskSynced", (sender, taskId) =>
-            {
-                Debug.WriteLine($"[Container] ProjectTaskSynced received id={taskId}. Reloading activities.");
-                Dispatcher.Dispatch(() =>
-                {
-                    try
-                    {
-                        dataActivities.LoadData(filterActivities);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine("[Container] Error al recargar dataActivities: " + ex);
-                    }
-                });
-            });
+            //MessagingCenter.Subscribe<Details, int>(this, "ProjectTaskSynced", (sender, taskId) =>
+            //{
+            //    Debug.WriteLine($"[Container] ProjectTaskSynced received id={taskId}. Reloading activities.");
+            //    Dispatcher.Dispatch(() =>
+            //    {
+            //        try
+            //        {
+            //            dataActivities.LoadData(filterActivities);
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            Debug.WriteLine("[Container] Error al recargar dataActivities: " + ex);
+            //        }
+            //    });
+            //});
         }
         catch (Exception ex)
         {
             Debug.WriteLine("[Container] MessagingCenter subscribe failed: " + ex);
         }
     }
-
-    //protected override void OnSizeAllocated(double width, double height)
-    //{
-    //    base.OnSizeAllocated(width, height);
-
-    //    //if(dataCustomers != null)
-    //    //{
-    //    //    dataCustomers.HeightRequest = height - 100;        
-    //    //}        
-    //}
 
     private void OnSearchButtonClicked(object? sender, EventArgs e)
     {
@@ -76,7 +65,7 @@ public partial class Container : ContentView
         {
             try
             {
-                MessagingCenter.Unsubscribe<Details, int>(this, "ProjectTaskSynced");
+                //MessagingCenter.Unsubscribe<Details, int>(this, "ProjectTaskSynced");
                 Debug.WriteLine("[Container] Unsubscribed from ProjectTaskSynced");
             }
             catch (Exception ex)

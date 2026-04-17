@@ -10,7 +10,17 @@ namespace DMSA.Sync.Core.Database.Sqlite.Benefits
         {
 
         }
-        
+
+        protected override async Task OnAfterInit()
+        {
+            await Database.RunInTransactionAsync(tran =>
+            {
+                tran.Execute("CREATE INDEX IF NOT EXISTS idx_sale_order_promotion_id ON sale_order_promotion(id)");
+                tran.Execute("CREATE INDEX IF NOT EXISTS idx_sale_order_promotion_order_id ON sale_order_promotion(order_id)");
+                tran.Execute("CREATE INDEX IF NOT EXISTS idx_sale_order_promotion_promotion_id ON sale_order_promotion(promotion_id)");
+            });
+        }
+
         public async Task<List<SaleOrderPromotions>> GetItemsByPromotion(int parentId)
         {
             await Init();
@@ -32,7 +42,7 @@ namespace DMSA.Sync.Core.Database.Sqlite.Benefits
             ).ToListAsync();
         }
 
-        public async Task<List<SaleOrderPromotions>> GetItemsByPromoEval(sale_order order, PromotionEvalItemV2 promotionEvalItem)
+        public async Task<List<SaleOrderPromotions>> GetItemsByPromoEval(sale_order order, PromotionEvalItem promotionEvalItem)
         {
             await Init();
             return await Database.Table<SaleOrderPromotions>().Where(x => x.order_id == order.id
@@ -41,7 +51,7 @@ namespace DMSA.Sync.Core.Database.Sqlite.Benefits
             ).ToListAsync();
         }
 
-        public async Task<List<SaleOrderPromotions>> InsertOrUpdate(sale_order order, PromotionEvalItemV2 promotionEvalItem)
+        public async Task<List<SaleOrderPromotions>> InsertOrUpdate(sale_order order, PromotionEvalItem promotionEvalItem)
         {
             await Init();
             var existingItems = await GetItemsByIds(order.id, promotionEvalItem.Promotion.id, promotionEvalItem.PricelistId);
@@ -69,7 +79,7 @@ namespace DMSA.Sync.Core.Database.Sqlite.Benefits
 
         public async Task<List<SaleOrderPromotions>> AddApply(
                     sale_order order,
-                    PromotionEvalItemV2 promotionEvalItem,
+                    PromotionEvalItem promotionEvalItem,
                     int times_inv)
         {
             await Init();

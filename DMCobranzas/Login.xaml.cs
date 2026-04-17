@@ -4,50 +4,47 @@ using CommunityToolkit.Mvvm.Input;
 using DMCobranzas.AppPages;
 using DMCobranzas.AppPages.Sys;
 using DMCobranzas.Controls.Tools;
+using DMCobranzas.Services.PatchManager.Reset;
 using DMSA.Models.Odoo.Abstract;
-using DMSA.Models.Odoo.DMApps;
+using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Security;
 using DMSA.Models.Odoo.Tools;
 using DMSA.Models.Security;
 using DMSA.Sync.Core;
 using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Accounting;
 using DMSA.Sync.Core.Services;
 using DMSA.Sync.Core.Update;
 using System.Buffers;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Timers;
-using UraniumUI.Dialogs;
 
 namespace DMCobranzas;
 
 public partial class Login : ContentPage
 {
     public OdooConnection SelConnection { get; set; }
-
     public res_company SelCompany { get; set; } = new();
-
     public ObservableCollection<OdooConnection> OdooConnectionItems { get; set; } = new();
-
     public ObservableCollection<res_center> Agencies { get; set; } = new();
-
-    public IDialogService DialogService { get; }
 
     private int _tapCount = 0;
     private System.Timers.Timer _timer;
     private const double TimeToReset = 2000;
 
     private bool _isFirstAppearing = true;
-
     public List<string> ListaOpciones { get; set; }
     public string OpcionSeleccionada { get; set; }
-
+    private CancellationTokenSource _longPressCts;
+    private bool _executed;
+    private const int LONG_PRESS_MS = 1500;
     public Login()
     {
         InitializeComponent();
         BindingContext = this;        
     }
-
 
     [RelayCommand]
     private async void ShowConnections()
@@ -55,22 +52,6 @@ public partial class Login : ContentPage
         Connections objPage = new Connections();
         objPage.Disappearing += ObjSettingPage_Disappearing;
         await Navigation.PushModalAsync(objPage);
-    }
-
-    public Login(IEnumerable<IDialogService> dialogServices)
-    {
-        InitializeComponent();
-
-        ListaOpciones = new List<string>
-        {
-            "Rojo",
-            "Verde",
-            "Azul"
-        };
-
-        OpcionSeleccionada = "Verde";
-
-        BindingContext = this;        
     }
 
     public static class ToastHelper
@@ -96,9 +77,7 @@ public partial class Login : ContentPage
     }
 
     public async Task SetupLogin()
-    {        
-        //SetupTapGesture();
-                
+    {           
         OdooConnectionItems = new ObservableCollection<OdooConnection>();
         ddCompany.ItemsSource = OdooConnectionItems;
         //ddCompany.ItemDisplayBinding = new Binding(nameof(OdooConnection.Name));
@@ -120,25 +99,31 @@ public partial class Login : ContentPage
 
             LoadEnvironment();
 
-            var serverPuller = new ServerPuller();
-            var pullResult = await serverPuller.Pull();
-
-            if (!pullResult)
-            {
-                await Toast.Make("Datos base incorrectos.").Show();
-            }
-            else
-            {
-                await Toast.Make("Datos base correctos.").Show();
-            }
-
             CompanyDb companyDb = new CompanyDb(App.Session.odooConnection.DbNameSqlite);
             SelCompany = (await companyDb.GetItemsAsync()).Where(x => x.id == SelConnection.CompanyId).FirstOrDefault();
 
             if (SelCompany == null)
             {
                 await Toast.Make("Error: No se encontró la empresa asociada a la conexión.").Show();
-                return;
+                var serverPuller = new ServerPuller();
+                var pullResult = await serverPuller.Pull();
+
+                if (!pullResult)
+                {
+                    await Toast.Make("Datos incorrectos.").Show();
+                }
+                else
+                {
+                    SelCompany = (await companyDb.GetItemsAsync()).Where(x => x.id == SelConnection.CompanyId).FirstOrDefault();
+                    if (SelCompany == null)
+                    {
+                        Debug.WriteLine("SelCompany aun es null");
+                        return;
+                    }
+
+                    await serverPuller.GetFullResCenterLine(true);
+                    await Toast.Make("Datos correctos.").Show();                    
+                }                
             }
 
             var storesDb = new ResCenterDb(App.Session.odooConnection.DbNameSqlite);
@@ -149,22 +134,12 @@ public partial class Login : ContentPage
             ddAgency.ItemsSource = storesItems;
             ddAgency.ItemDisplayBinding = new Binding("name");
             ddAgency.SelectedItem = storesItems.FirstOrDefault();
+
+            //await PatchExecuter(SelConnection);
         };
 
         await LoadSettingsFromDb();
         await PrepareConnections();
-
-        //await ToastHelper.RunWithToastAsync("Procesando...", async () =>
-        //{
-        //    // Aquí tu lógica
-        //    await Task.Delay(15000); // simula proceso
-        //});
-
-        //var cts = new CancellationTokenSource();
-        //var toast = Toast.Make("Cargando...");
-        //var toastTask = toast.Show(cts.Token);
-
-        //cts.Cancel();
 
         App.Session.useOfflineMode = false;
 
@@ -196,10 +171,23 @@ public partial class Login : ContentPage
 #endif
         }
 
+        if (App.Session.odooConnection.preload_email_domain)
+        {
+            txtUser.Text = "@" + App.Session.odooConnection.email_domain;
+        }
+
         if (App.Session.odooConnection.IsTestMode)
         {
             txtUser.Text = "jchonillo@macronegocios.ec";
-            txtPassword.Text = "mnsa_18";
+            txtPassword.Text = App.Session.odooConnection.PasswordFront;
+        }
+        else
+        {
+            if (!App.Session.odooConnection.preload_email_domain)
+            {
+                txtUser.Text = "";
+                txtPassword.Text = "";
+            }
         }
 
         Debug.WriteLine(txtEnvironment.Text);
@@ -290,20 +278,6 @@ public partial class Login : ContentPage
         _timer.Stop(); // Asegurarte de detener el timer
     }
 
-    //protected async override void OnAppearing()
-    //{
-    //    base.OnAppearing();
-    //    //await UITools.ShowLoadingPopup(this);
-    //    //await Task.Delay(1000);
-    //    //await UITools.SetNotifyLoadingPopup("Notificacion 1/3");
-    //    //await Task.Delay(1000);
-    //    //await UITools.SetNotifyLoadingPopup("Notificacion 2/3");
-    //    //await Task.Delay(1000);
-    //    //await UITools.SetNotifyLoadingPopup("Notificacion 3/3");
-    //    //await Task.Delay(1000);
-    //    //await UITools.HideLoadingPopup();
-    //}
-
     private void Entry_Completed(object sender, EventArgs e)
     {
         Debug.WriteLine("Logged");
@@ -321,31 +295,6 @@ public partial class Login : ContentPage
 
         OdooConnectionDb odooConnectionDb = new OdooConnectionDb();
         await Task.Run(async () => await odooConnectionDb.InitDefault());
-
-        //AppSettingsDb appSettingsDb = new AppSettingsDb();
-        //await Task.Run(async () => await appSettingsDb.InitDefault());
-
-        //App.Session.isProduction = await appSettingsDb.getBoolean("is_production");
-        //App.Session.isTestMode = await appSettingsDb.getBoolean("is_test_mode");
-
-        //App.Session.EndPointServerProd = await appSettingsDb.getString("endpoint_server_prod");
-        //App.Session.EndPointServer = await appSettingsDb.getString("endpoint_server_dev");
-
-        ////App.Session.EndPointResourceServer = await appSettingsDb.getString("url_resources_dev");
-
-        //App.Session.StaticResources_Server = await appSettingsDb.getString("url_resources_dev");
-        //App.Session.StaticResources_Server_Prod = await appSettingsDb.getString("url_resources_prod");
-
-        //App.Session.CacheFilesUrl = await appSettingsDb.getString("url_cache_files_internal");
-        //App.Session.CacheFilesUrlExternal = await appSettingsDb.getString("url_cache_files_external");
-
-        //App.Session.UrlReportServer = await appSettingsDb.getString("url_report_server");
-        //App.Session.DefaultDatabase = await appSettingsDb.getString("default_database");
-
-        //var usernameback = await appSettingsDb.getString("back_user");
-        //var passwordback = await appSettingsDb.getString("back_user_password");
-
-        //passwordback = CryptoHelper.Decrypt(passwordback);
 
         App.Session.CurrentUserFront = new User()
         {
@@ -376,14 +325,9 @@ public partial class Login : ContentPage
         }
 
         resultUser.log_fec_acceso = resultValidacion.data[0].datetime;
-        //Se prepara para la sesión el scope de la aplicación
-        //AppSession ns = new AppSession();
+        
         App.Session.CurrentUserFront = resultUser;
-        App.Session.CurrentUserFront.empresas = resultValidacion.data[0].companies;
-        //App.Session = ns;
-
-        //Se realiza inserción/actualización en la tabla
-
+        
         user_access itemInsert = new user_access();
         itemInsert.name = resultUser.nombres;
         itemInsert.uid = resultUser.uid;
@@ -408,6 +352,9 @@ public partial class Login : ContentPage
             await database.UpdateAsync(itemInsert);
         }
 
+        res_company[] _empresas = new res_company[0];
+        _empresas = await PrepareCompanies(itemInsert);
+        App.Session.CurrentUserFront.empresas = _empresas;
         return true;
     }
 
@@ -437,20 +384,19 @@ public partial class Login : ContentPage
                 obj.partner_id_,
                 obj.email,
                 obj.phone,
-                obj.mobile,
-                //obj.social_twitter,
-                //obj.social_facebook,
-                //obj.social_github,
-                //obj.social_linkedin,
-                //obj.social_youtube,
+                obj.mobile,                
                 obj.check_journal_id_
                 );
         }
     }
-
-    [Obsolete]
+        
     private async Task<res_company[]> PrepareCompanies(user_access userFound)
     {
+        if(userFound.companies == null)
+        {
+            return new res_company[0];
+        }
+
         res_company[] _empresas = new res_company[0];
         _empresas = Newtonsoft.Json.JsonConvert.DeserializeObject<List<res_company>>(userFound.companies).ToArray();
 
@@ -474,7 +420,7 @@ public partial class Login : ContentPage
         OdooConnectionItems = new ObservableCollection<OdooConnection>();
 
         OdooConnectionDb connectionsDb = new OdooConnectionDb();
-        IEnumerable<OdooConnection> filtered = (await connectionsDb.GetItemsAsync()).Where(c => c.Active);
+        IEnumerable<OdooConnection> filtered = await connectionsDb.GetItemsAsync(c => c.Active);
         OdooConnectionItems = new ObservableCollection<OdooConnection>(filtered.ToList());
         ddCompany.ItemsSource = OdooConnectionItems;
         ddCompany.ItemDisplayBinding = new Binding("Name");        
@@ -488,23 +434,17 @@ public partial class Login : ContentPage
         var database = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
         res_company[] _empresas = new res_company[0];
 
-        //if(userFound.companies!= null && userFound.companies != "")
-        //{
-        //_empresas = Newtonsoft.Json.JsonConvert.DeserializeObject<List<res_company>>(userFound.companies).ToArray();
         _empresas = await PrepareCompanies(userFound);
-        //}
-
+        
         if (_empresas.Length == 0)
         {
             return await SetDataSessionOnLine(resultUser, currentDate);
         }
 
-        //var resultUser = Newtonsoft.Json.JsonConvert.DeserializeObject<User>(result);
         resultUser.log_fec_acceso = userFound.log_fec_acceso;
         resultUser.log_fec_sincro = userFound.log_fec_sincro;
         resultUser.log_fec_sincro_nc = userFound.log_fec_sincro_nc;
-        //Se prepara para la sesión el scope de la aplicación
-        //AppSession ns = new AppSession();
+        
         App.Session.CurrentUserFront = resultUser;
         App.Session.CurrentUserFront.empresas = _empresas;
 
@@ -512,7 +452,6 @@ public partial class Login : ContentPage
         DMSA.Sync.Core.Constants.Session = App.Session;
 
         //Se realiza inserción/actualización en la tabla
-
         user_access itemInsert = new user_access();
         itemInsert.name = resultUser.nombres;
         itemInsert.uid = resultUser.uid;
@@ -523,8 +462,6 @@ public partial class Login : ContentPage
         itemInsert.token_type = resultUser.token_type;
         itemInsert.access_token = resultUser.access_token;
 
-        //DateTime log_fec_acceso = resultUser.fechasincronizado
-        //FIX:
         itemInsert.log_fec_acceso = DateTime.Now;
         itemInsert.log_fec_sincro = userFound.log_fec_sincro;
         itemInsert.log_fec_sincro_nc = userFound.log_fec_sincro_nc;
@@ -547,6 +484,14 @@ public partial class Login : ContentPage
     private async void OnLoginClicked(object sender, EventArgs e)
     {
         bool forwardLogin = false;
+
+        if(string.IsNullOrEmpty( txtUser.Text.Trim() ) || string.IsNullOrEmpty( txtPassword.Text.Trim() ))
+        {
+            await Toast.Make($"Debe ingresar sus credenciales").Show();
+            Debug.WriteLine($"Debe ingresar sus credenciales");
+            return;
+        }
+
         if (App.Session.useOfflineMode)
         {
             await TryLoginAsyncOffline();
@@ -571,13 +516,9 @@ public partial class Login : ContentPage
 
     private void ShowCompanySelector()
     {
-        //LoginSelector.IsVisible = false;
-        //CompanySelector.IsVisible = true;
-
         if (ddCompany.SelectedItem != null && ddAgency.SelectedItem != null)
         {
-            App.Session.res_Company = SelCompany;
-            //App.Session.res_Store = (res_store) ddAgency.SelectedItem;
+            App.Session.res_Company = SelCompany;            
             App.Session.res_center = (res_center)ddAgency.SelectedItem;
             App.Current.MainPage = new AppFlyout();
         }
@@ -622,8 +563,7 @@ public partial class Login : ContentPage
                      u.log_fec_acceso.Date == currentDate.Date);
 
             if (userFound != null)
-            {
-                // Usuario encontrado offline
+            {                
                 resultUser = new User
                 {
                     uid = userFound.uid,
@@ -639,8 +579,7 @@ public partial class Login : ContentPage
                 };                
             }
             else
-            {
-                // Modo offline
+            {                
                 if (App.Session.useOfflineMode)
                 {
                     ShowCompanySelector();
@@ -664,7 +603,6 @@ public partial class Login : ContentPage
 
             BtnTryLogin.IsEnabled = true;
 
-            // Configuración post-login
             if (resultUser?.uid > 0)
             {
                 if (!(await SetDataSessionOffLine(resultUser, userFound, currentDate)))
@@ -675,26 +613,6 @@ public partial class Login : ContentPage
                 }
 
                 ShowCompanySelector();
-
-                //var companies = await Task.Run(async () => await PrepareCompanies(userFound));
-
-                //ddCompany.ItemsSource = companies;
-                //ddCompany.ItemDisplayBinding = new Binding("name");
-                //ddCompany.SelectedItemChanged += async (s, e) =>
-                //{
-                //    var selectedCompany = (res_company)ddCompany.SelectedItem;
-                //    var storesDb = new ResCenterDb();
-
-                //    var storesItems = (await Task.Run(async () => await storesDb.GetItemsAsync()))
-                //                      .Where(s => s.company_id == selectedCompany.id)
-                //                      .ToArray();
-                //    ddAgency.ItemsSource = storesItems;
-                //    ddAgency.ItemDisplayBinding = new Binding("name");
-                //    ddAgency.SelectedItem = storesItems.FirstOrDefault();
-                //};
-
-                //ddCompany.SelectedItem = companies.FirstOrDefault();
-                //Debug.WriteLine($"Empresas: {companies.Length}");
             }
             else
             {
@@ -708,7 +626,6 @@ public partial class Login : ContentPage
         }
     }
 
-    // Cambiar async void → async Task
     public async Task<bool> TryLoginAsync()
     {   
         bool resposeLogin = false;
@@ -837,30 +754,8 @@ public partial class Login : ContentPage
 
             // Configuración post-login
             if (resultUser?.uid > 0)
-            {
-                //
-                //ShowCompanySelector();
+            {                
                 resposeLogin = true;
-
-                //var companies = await Task.Run(async () => await PrepareCompanies(userFound));
-
-                //ddCompany.ItemsSource = companies;
-                //ddCompany.ItemDisplayBinding = new Binding("name");
-                //ddCompany.SelectedItemChanged += async (s, e) =>
-                //{
-                //    var selectedCompany = (res_company)ddCompany.SelectedItem;
-                //    var storesDb = new ResCenterDb();                    
-
-                //    var storesItems = (await Task.Run(async () => await storesDb.GetItemsAsync()))
-                //                      .Where(s => s.company_id == selectedCompany.id)
-                //                      .ToArray();
-                //    ddAgency.ItemsSource = storesItems;
-                //    ddAgency.ItemDisplayBinding = new Binding("name");
-                //    ddAgency.SelectedItem = storesItems.FirstOrDefault();
-                //};
-
-                //ddCompany.SelectedItem = companies.FirstOrDefault();
-                //Debug.WriteLine($"Empresas: {companies.Length}");
             }
             else
             {
@@ -952,10 +847,6 @@ public partial class Login : ContentPage
         }        
     }
 
-    private CancellationTokenSource _longPressCts;
-    private bool _executed;
-    private const int LONG_PRESS_MS = 1500;
-
     private async void DragGestureRecognizer_DragStarting(object sender, DragStartingEventArgs e)
     {
         if (_executed)
@@ -979,7 +870,7 @@ public partial class Login : ContentPage
         {
             Debug.WriteLine("Cancelado");
         }
-    }    
+    }
 
     private void DropGestureRecognizer_Drop(object sender, DropEventArgs e)
     {
@@ -987,4 +878,30 @@ public partial class Login : ContentPage
         _longPressCts?.Cancel();
         _executed = false;
     }
+
+    private async Task PatchExecuter(OdooConnection ConnectionItem)
+    {
+        //await PatchExecuter_v0(ConnectionItem);
+        await PatchExecuter_v3(ConnectionItem);
+        //+ parches
+    }
+
+    private async Task PatchExecuter_v3(OdooConnection ConnectionItem)
+    {
+        string patch_name = "_patch_v3_" + ConnectionItem.DbName;
+
+        bool patch_applied = Preferences.Get(patch_name, false);
+
+        if (!patch_applied)
+        {
+            ExecuteTask executeTask = new ExecuteTask();
+                        
+            await executeTask.ResetProductsImages();
+
+            Preferences.Set(patch_name, true);
+            Debug.WriteLine(patch_name + " ==== aplicado");
+            await Toast.Make("Patch applied: " + patch_name).Show();
+        }
+    }
+
 }

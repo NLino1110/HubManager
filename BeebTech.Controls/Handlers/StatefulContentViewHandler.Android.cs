@@ -1,0 +1,87 @@
+﻿#if ANDROID
+using Android.Views;
+using Microsoft.Maui.Platform;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using BeebTech.Controls.Views;
+using static Microsoft.Maui.Controls.VisualStateManager;
+
+namespace BeebTech.Controls.Handlers;
+public partial class StatefulContentViewHandler
+{
+    protected override ContentViewGroup CreatePlatformView()
+    {
+        var platformView = base.CreatePlatformView();
+
+        platformView.Touch += OnTouch;
+        platformView.Hover += NativeView_Hover;
+        platformView.Click += PlatformView_Click;
+        platformView.LongClick += PlatformView_LongClick;
+
+        return platformView;
+    }
+
+    protected override void DisconnectHandler(ContentViewGroup platformView)
+    {
+        platformView.Touch -= OnTouch;
+        platformView.Hover -= NativeView_Hover;
+        platformView.LongClick -= PlatformView_LongClick;
+        base.DisconnectHandler(platformView);
+    }
+
+    private void NativeView_Hover(object sender, Android.Views.View.HoverEventArgs e)
+    {
+        if (e.Event.Action == MotionEventActions.HoverEnter)
+        {
+            GoToState(StatefulView, CommonStates.PointerOver);
+            StatefulView.InvokeHovered();
+            ExecuteCommandIfCan(StatefulView.HoverCommand);
+            return;
+        }
+
+        if (e.Event.Action == MotionEventActions.HoverExit)
+        {
+            GoToState(StatefulView, CommonStates.Normal);
+            StatefulView.InvokeHoverExited();
+            ExecuteCommandIfCan(StatefulView.HoverExitCommand);
+        }
+    }
+
+    private void OnTouch(object sender, Android.Views.View.TouchEventArgs e)
+    {
+        if (e.Event.Action == MotionEventActions.Down)
+        {
+            GoToState(StatefulView, "Pressed");
+            StatefulView.InvokePressed();
+            ExecuteCommandIfCan(StatefulView.PressedCommand);
+            e.Handled = false;
+        }
+        else if (e.Event.Action == MotionEventActions.Up)
+        {
+            GoToState(StatefulView, CommonStates.Normal);
+            e.Handled = false;
+        }
+    }
+
+    private void PlatformView_Click(object sender, EventArgs e)
+    {
+        GoToState(StatefulView, CommonStates.Normal);
+        StatefulView.InvokeTapped();
+        ExecuteCommandIfCan(StatefulView.TappedCommand);
+    }
+
+    private void PlatformView_LongClick(object sender, Android.Views.View.LongClickEventArgs e)
+    {
+        StatefulView.InvokeLongPressed();
+        ExecuteCommandIfCan(StatefulView.LongPressCommand);
+    }
+
+    public static void MapIsFocusable(StatefulContentViewHandler handler, StatefulContentView view)
+    {
+        handler.StatefulView.IsFocusable = view.IsFocusable;
+    }
+}
+#endif

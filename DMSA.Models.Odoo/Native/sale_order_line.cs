@@ -1,4 +1,5 @@
 ﻿using DMSA.Models.Odoo.Base;
+using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SQLite;
@@ -27,8 +28,9 @@ namespace DMSA.Models.Odoo.Native
         [JsonProperty("id")]
         public int id { get; set; }
 
-        [JsonIgnore]
-        public int ordinal { get; set; }
+        //[JsonIgnore]
+        [JsonProperty("sequence")]
+        public int sequence { get; set; }
 
         [Ignore]
         [JsonProperty("order_id")]
@@ -236,9 +238,30 @@ namespace DMSA.Models.Odoo.Native
         //        OnPropertyChanged(nameof(is_gift));
         //    }
         //}
-
+                
         [JsonIgnore]
         public string? promotion_data { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
+        public List<PromotionEvalItem> promotionDataList
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(promotion_data))
+                    return new List<PromotionEvalItem>();
+
+                try
+                {
+                    return JsonConvert.DeserializeObject<List<PromotionEvalItem>>(promotion_data)
+                           ?? new List<PromotionEvalItem>();
+                }
+                catch
+                {
+                    return new List<PromotionEvalItem>();
+                }
+            }
+        }
 
         [Ignore]
         [JsonIgnore]
@@ -285,6 +308,7 @@ namespace DMSA.Models.Odoo.Native
         //[JsonProperty("assigned_gifts")]
         //public int assigned_gifts { get; set; }
 
+        [Obsolete("Ya no es util, ya que se almacena ahora mas detalles en el campo [origin_gift_line_ids_offline]")]
         [JsonProperty("product_id_origin")]
         public int product_id_origin { get; set; }
 
@@ -354,6 +378,12 @@ namespace DMSA.Models.Odoo.Native
                     : JsonConvert.DeserializeObject<int[]>(value);
             }
         }
+
+        [JsonIgnore]
+        public string origin_gift_line_ids_offline { get; set; }
+
+        [JsonProperty("erp_id")]
+        public int erp_id { get; set; }
 
         //[Ignore]
         //[JsonProperty("customers_excluded_ids")]

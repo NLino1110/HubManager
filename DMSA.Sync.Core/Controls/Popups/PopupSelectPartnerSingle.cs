@@ -31,7 +31,7 @@ namespace DMSA.Sync.Core.Controls.Popups
 
             await SetWorkingStatus();
             ResPartnerDb partnerBankDb = new ResPartnerDb(Constants.Session.odooConnection.DbNameSqlite);
-            resultItemsSearch = new ObservableCollection<res_partner>(await partnerBankDb.GetItemsBySearchAsync(Company.id, TextForSearch.ToUpper(), 25));
+            resultItemsSearch = new ObservableCollection<res_partner>(await partnerBankDb.GetItemsBySearchAsyncWithChannel(Company.id, TextForSearch.ToUpper(), 25));
             _collectionViewSearch.ItemsSource = resultItemsSearch;
             await SetDoneStatus();
 

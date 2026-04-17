@@ -1,9 +1,9 @@
-﻿using DMSA.Models.Odoo.Native;
+﻿using DMSA.Models.Odoo.Accounting;
 using SQLite;
 
 namespace DMSA.Sync.Core.Database.Sqlite.Payments
 {
-    public class AccountJournalDb : SqliteDbBase<DMSA.Models.Odoo.Native.account_journal>
+    public class AccountJournalDb : SqliteDbBase<account_journal>
     {
         public AccountJournalDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {

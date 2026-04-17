@@ -1,111 +1,30 @@
 ﻿
-using DMCobranzas.Services;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
-using Microsoft.Maui;
-using Microsoft.Maui.Controls;
-using Plugin.BLE;
-using Plugin.BLE.Abstractions;
-using Plugin.BLE.Abstractions.Contracts;
+using DMCobranzas.Services;
 using SkiaSharp;
-using SkiaSharp.QrCode;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
 namespace DMCobranzas.AppPages.Printing;
 
 public partial class TestTool : ContentPage, IDisposable //, INotifyPropertyChanged
-{
-    BluetoothPrinterManager btPrinterManager { get; set; }
-
-    ObservableCollection<DeviceLocal> m_deviceList { get; set; }
-    //public List<DeviceLocal> deviceList
-    //{
-    //    get { return m_deviceList; }
-    //    set
-    //    {
-    //        m_deviceList = value;
-    //        OnPropertyChanged(nameof(deviceList));
-    //    }
-    //}
-
-    //public event PropertyChangedEventHandler PropertyChanged;
-
-    //protected override void OnPropertyChanged(string propertyName)
-    //{
-    //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    //}    
-
+{    
+    private readonly IPrinterService _printer;
+    
     public TestTool()
-	{
-        //Scan(null, null);
-        InitializeComponent();
-        m_deviceList = new ObservableCollection<DeviceLocal>();
-        
-        const string ESC = "\x1B";
-        const string NewLine = "\n";
+	{        
+        InitializeComponent();        
+        editor.Text = "Prueba de impresion";
 
-        // Iniciar impresión
-        string initializePrinter = ESC + "@";
-        string setAlignmentCenter = ESC + "a" + "1";
-
-        //string bodyPrint = "MACRONEGOCIOS S.A.\r\nRECIBO \r\nCLIENTE 11 JORGE CEVALLOS ORTEGA\r\nEstado PENDIENTE\r\n\r\n============F.PAGO===========\r\nCAJA COBRANZA         $ 11\r\n    ===========DOCUMENTOS=========\r\n    Fact 200-201-000000005         $1\r\n    Fact 200-201-000000026         $3\r\n    Fact 200-201-000000046         $3\r\n    NDCM3/2023/00001         $3\r\n________________\r\nTOTAL F.P.:     $ 11\r\nTOTAL CANC:     $ 10\r\n\r\n================================\r\nTOTAL FACT. Pendientes: $ -10\r\n================================\r\n\r\nEmail: jcevallos@ccs-ep.com\r\nVnd: Administrator 125\r\nFecha: 2023-11-20 21:57:04Z\r\n\r\n\r\n________________________________\r\n             -Firma Cliente-\r\n\r\n";
-        string bodyPrint = "MACRONEGOCIOS S.A.\r\nRECIBO \r\n";
-
-        // Título del recibo
-        string title = "BIENVENIDO!"; // "!E¡BIENVENIDO!";
-        string separator = "------"; // "! E -------------------------";
-
-        // Contenido del recibo
-        string item1 = "Producto 1";
-        string item2 = "Producto 2";
-        string item3 = "Producto 3";
-        
-        string price1 = "$10.00";
-        string price2 = "$15.00";
-        string price3 = "$20.00";
-
-        // Pie del recibo
-        string totalLabel = "TOTAL:";
-        string totalAmount = "$45.00";
-
-        // Comandos de corte y avance de línea
-        string cutPaper = ESC + "d" + "\x08";
-        string lineFeed = NewLine + NewLine;
-
-        // Combinar todos los elementos en un solo recibo
-        string receipt = initializePrinter +
-                         setAlignmentCenter +
-                         title +
-                         NewLine +
-                         separator +
-                         NewLine +
-                         item1 + "\t" + price1 + NewLine +
-                         item2 + "\t" + price2 + NewLine + 
-                         "---------------------" + "\xA" +
-                         item3 + "\t" + price3 + NewLine +
-                         separator +
-                         NewLine +
-                         totalLabel + "\t" + totalAmount +
-                         lineFeed +
-                         cutPaper;
-
-
-        //editor.Text = receipt;
-        //editor.Text = "Prueba";
-
-        editor.Text = bodyPrint;
-
-        btPrinterManager = new BluetoothPrinterManager();
-
-        SetImage();
-
+#if ANDROID
+        _printer = new BluetoothPrinterService();
+#elif WINDOWS
+        _printer = new BluetoothPrinterServiceWindows();
+#endif
         BindingContext = this;
     }
 
@@ -127,38 +46,29 @@ public partial class TestTool : ContentPage, IDisposable //, INotifyPropertyChan
         timer.Start();
     }
 
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+
+#if ANDROID || WINDOWS
+        try
+        {
+            _printer?.Disconnect();
+            Debug.WriteLine("Printer disconnected");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("Error disconnecting printer: " + ex.Message);
+        }
+#endif
+    }
+
     void SetImage()
     {
         Assembly assembly = GetType().GetTypeInfo().Assembly;
         string[] namesass = assembly.GetManifestResourceNames();
-
         Stream stream = assembly.GetManifestResourceStream("CobranzasDMSA.Resources.Images.demo.bmp");        
-        
         imgPrint.Source = ImageSource.FromStream(() => stream);
-
-            //// Convierte la imagen a un objeto SKBitmap
-            //SKBitmap skBitmap;
-            ////using (var stream = imageSource.GetStream())
-            ////{
-            //using (var skData = SKData.Create(stream))
-            //{
-            //    skBitmap = SKBitmap.Decode(skData);
-            //}
-            ////}
-
-            //// Convierte el SKBitmap a bytes de bitmap
-            //byte[] bitmapBytes;
-            //using (var skImage = SKImage.FromBitmap(skBitmap))
-            //{
-                
-                
-
-            //    //using (var skData = skImage.Encode(SKEncodedImageFormat.Bmp, 50))
-            //    using (var skData = skImage.Encode())
-            //    {
-            //        bitmapBytes = skData.ToArray();
-            //    }
-            //}
         
     }
 
@@ -189,73 +99,43 @@ public partial class TestTool : ContentPage, IDisposable //, INotifyPropertyChan
 
     private async Task ScanAndSelect()
     {
-        m_deviceList.Clear();
-
         try
         {
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            string text = "No se han encontrado dispositivos emparejados, agregue la impresora y vuelva a intentar...";
+            string text = "No se han encontrado dispositivos emparejados, reinicie la impresora y vuelva a intentar...";
             ToastDuration duration = ToastDuration.Long;
             double fontSize = 14;
+            List<BluetoothDeviceInfo> listado = new List<BluetoothDeviceInfo>();
 
-            //var foundDevices = await btm.ScanForPrinters();
-            var foundDevices = btPrinterManager.GetPairedDevices();
+#if ANDROID
+            listado = _printer.GetPairedDevices();
+#elif WINDOWS
+            listado = await _printer.GetPairedDevicesAsync();            
+#endif
 
-            //Cuando no haya dispositivos emparejados
-            if (foundDevices == null || (foundDevices != null && foundDevices.Count() == 0))
-            {                
+            if (listado.Count() == 0)
+            {
                 var toast = Toast.Make(text, duration, fontSize);
                 await toast.Show(cancellationTokenSource.Token);
                 return;
             }
 
-            bool foundPrinter = false;
-            string printerNameFound = "";
-            foreach (var device in foundDevices)
+            foreach (var printer_item in listado)
             {
-                //Por ahora asumimos que el primer dispositivo que contenga en su nombre 
-                // la palabra Printer, es un impresora compatible
-                if (device.Name.Contains("Printer"))
+                if (printer_item.Name.Contains("Printer"))
                 {
-                    printerNameFound = device.Name;
-                    foundPrinter = true;
-                    DeviceLocal ndl = new DeviceLocal()
-                    {
-                        Name = device.Name
-                    };
-
-                    m_deviceList.Add(ndl);
-
-                    btPrinterManager.setPrinterDevice(device);
-                    //await btm.createRfcommSocketToServiceRecord("0000eee2-0000-1000-8000-00805f9b34fb", "0000eee3-0000-1000-8000-00805f9b34fb");
-                    //await btm.Print("Prueba", "00001101-0000-1000-8000-00805F9B34FB", "00001101-0000-1000-8000-00805F9B34FB");
-                    //Para la impresora vieja
-                    await btPrinterManager.createRfcommSocketToServiceRecord("000018f0-0000-1000-8000-00805f9b34fb", "00002af1-0000-1000-8000-00805f9b34fb");
-
-                    //await btPrinterManager.createRfcommSocketToServiceRecord("e7810a71-73ae-499d-8c15-faa9aef0c3f2", "bef8d6c9-9c21-4c9e-b632-bd58c1009f9f");
+                    text += "\n" + printer_item.Name + " - " + printer_item.Address;
+                    var mac_add = printer_item.Address;
+                    //var mac_add = "5A:4A:CA:BB:A1:2A";
+                    await _printer.Connect(mac_add);
+                    text = "Impresora encontrada [" + printer_item.Name + "]";
+                    //btnPrint.IsEnabled = true;
+                    await Toast.Make(text, duration, fontSize).Show();
                     break;
                 }
             }
 
-            //btm.setPrinter();
 
-            text = "Impresora no encontrada, agregue la impresora y vuelva a intentar...";
-            
-            //Dispositivos emparejados pero la impresora no se encuentra en la lista
-            if (!foundPrinter)
-            {
-                var toast = Toast.Make(text, duration, fontSize);
-                await toast.Show(cancellationTokenSource.Token);
-                return;
-            }
-            else
-            {
-                text = "Impresora seleccionada correctamente. " + printerNameFound;
-                var toast = Toast.Make(text, duration, fontSize);
-                await toast.Show(cancellationTokenSource.Token);
-            }
-
-            myListView.ItemsSource = m_deviceList;
         }
         catch (Exception exPrinting)
         {
@@ -268,7 +148,7 @@ public partial class TestTool : ContentPage, IDisposable //, INotifyPropertyChan
         }
         finally
         {
-            
+
         }
     }
 
@@ -278,7 +158,7 @@ public partial class TestTool : ContentPage, IDisposable //, INotifyPropertyChan
 
         try
         {
-            await btPrinterManager.ExploreDevice();            
+                     
         }
         catch (Exception exPrinting)
         {
@@ -328,9 +208,55 @@ public partial class TestTool : ContentPage, IDisposable //, INotifyPropertyChan
         
         try
         {
-            await btPrinterManager.Print(editor.Text);
+            var receipt = new ReceiptBuilder();
+
+            receipt
+            .Center()
+            .Bold()
+            .Line("DMUJERES S. A.")
+            .Normal()
+            .Line("RECIBO #-DMJC-20260303-1")
+            .Left()
+            .Line("Cliente: (56363) PUNTO BELLEZA")
+            .Line("Estado: PROCESADO")
+            .Separator()
+
+            .Bold()
+            .Line("============= F.PAGO ===========")
+            .Normal()
+
+            .Columns("TRANSFERENCIA", "$9.00")
+            .Line(" Produbanco / Promerica")
+            .Line(" Cta. 9889 Dp#987954")
+
+            .Columns("CHEQUE DIA", "$6.00")
+            .Line(" Banco Pichincha")
+
+            .Separator()
+
+            .Columns("TOTAL F/P:", "$25.00")
+
+            .Separator()
+
+            .Columns("TOTAL CANC:", "$25.00")
+            .Columns("TOT. FACT. PEND:", "$207.18")
+
+            .Separator()
+
+            .Line("Email: puntobellezauio@gmail.com")
+            .Line("Vnd: CHONILLO MALDONADO")
+            .Line("Fecha: 03/03/2026")
+
+            .Feed()
+            .Line("____________________________")
+            .Line("-Firma Cliente-")
+            .Feed()
+            .Cut();
+
+            editor.Text = receipt.BuildPreview();
+            //await _printer.Print(receipt.Build());
         }
-        catch(Exception exPrinting)
+        catch (Exception exPrinting)
         {
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             string text = "Error al imprimir:" + exPrinting.Message;
@@ -340,54 +266,9 @@ public partial class TestTool : ContentPage, IDisposable //, INotifyPropertyChan
             await toast.Show(cancellationTokenSource.Token);
         }
         finally
-        {
-            //btm.Dispose();
-            //btm = null;
+        {            
             btnScan.IsEnabled = true;
         }
-
-        //deviceList = m_deviceList;
-
-        //var ble = CrossBluetoothLE.Current;
-        //var adapter = CrossBluetoothLE.Current.Adapter;
-        //Console.WriteLine(ble);
-        //Console.WriteLine(adapter);
-        //ble.StateChanged += (s, e) =>
-        //{
-        //    Debug.WriteLine($"The bluetooth state changed to {e.NewState}");
-        //};
-
-        //deviceList.Clear();
-        //adapter.DeviceDiscovered += (s, a) =>
-        //{
-        //    Console.WriteLine("Id:" + a.Device.Id);
-        //    Console.WriteLine("Nd:" + a.Device.NativeDevice);
-        //    Console.WriteLine("State:" + a.Device.State.ToString());
-        //    Console.WriteLine("Nombre:" + a.Device.Name);
-
-        //    //deviceList.Add((DeviceLocal) a.Device);
-        //    deviceList.Add(new DeviceLocal()
-        //    {
-        //        Name = a.Device.Name,
-        //    });
-        //    m_deviceList = deviceList;
-        //};
-
-        //await adapter.StartScanningForDevicesAsync();
-
-        //var systemDevices = adapter.GetSystemConnectedOrPairedDevices();
-        //foreach (var device in systemDevices)
-        //{
-        //    await adapter.ConnectToDeviceAsync(device);            
-        //    //adapter.ConnectedDevices[0].
-        //}
-
-        ////var scanFilterOptions = new ScanFilterOptions();
-        ////scanFilterOptions.ServiceUuids = new[] { guid1, guid2, etc }; // cross platform filter
-        ////scanFilterOptions.ManufacturerDataFilters = new[] { new ManufacturerDataFilter(1), new ManufacturerDataFilter(2) }; // android only filter
-        ////scanFilterOptions.DeviceAddresses = new[] { "80:6F:B0:43:8D:3B", "80:6F:B0:25:C3:15", etc }; // android only filter
-        ////scanFilterOptions.DeviceNames = { "printer" };
-        ////await adapter.StartScanningForDevicesAsync(scanFilterOptions);
     }
 
     private async void PrintBarCode(object sender, EventArgs e)
@@ -396,22 +277,29 @@ public partial class TestTool : ContentPage, IDisposable //, INotifyPropertyChan
 
         try
         {
-            //Ejemplo Code-39
-            await btPrinterManager.PrintBarCode(4, "RCH-1381");            
+            var data = EscPosCommands.Join(
+                EscPosCommands.Init(),
+                EscPosCommands.AlignCenter(),
+                EscPosCommands.BarcodeFull(4, "RCH-1381"), // CODE39
+                EscPosCommands.LineFeed(),
+                EscPosCommands.LineFeed(),
+                EscPosCommands.Cut()
+            );
+
+            await _printer.Print(data);
         }
         catch (Exception exPrinting)
         {
-            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            string text = "Error al imprimir codigo de barra:" + exPrinting.Message;
-            ToastDuration duration = ToastDuration.Long;
-            double fontSize = 14;
-            var toast = Toast.Make(text, duration, fontSize);
-            await toast.Show(cancellationTokenSource.Token);
+            var toast = Toast.Make(
+                "Error al imprimir codigo de barra:" + exPrinting.Message,
+                ToastDuration.Long,
+                14
+            );
+
+            await toast.Show(new CancellationTokenSource().Token);
         }
         finally
         {
-            //btm.Dispose();
-            //btm = null;
             btnPrintBarCode.IsEnabled = true;
         }
     }
@@ -422,75 +310,38 @@ public partial class TestTool : ContentPage, IDisposable //, INotifyPropertyChan
 
         try
         {
-            //var content = "https://www.dmujeres.ec/";
-            //using var generator = new QRCodeGenerator();
+            var data = EscPosCommands.Join(
+                EscPosCommands.Init(),
+                EscPosCommands.AlignCenter(),
 
-            //// Generate QrCode
-            //var qr = generator.CreateQrCode(content, ECCLevel.L);
+                EscPosCommands.QR("https://www.dmujeres.ec/"),
 
-            //// Render to canvas
-            //var info = new SKImageInfo(50, 50);
-            //using var surface = SKSurface.Create(info);
-            //var canvas = surface.Canvas;
-            //canvas.Render(qr, info.Width, info.Height);
+                EscPosCommands.LineFeed(),
+                EscPosCommands.LineFeed(),
 
-            //// Output to Stream -> File
-            //using var image = surface.Snapshot();
-            //using var data = image.Encode(SKEncodedImageFormat.Png, 60);
-            ////using var stream = File.OpenWrite(@"output/hoge.png");
-            ////data.SaveTo(stream);
-            //using var stream = new MemoryStream();
-            //data.SaveTo(stream);
-            //byte[] qrData = stream.ToArray();
-            //await btPrinterManager.PrintBytes(qrData);
+                EscPosCommands.FontSize(1, 1),
+                EscPosCommands.Text("DMujeres S.A.\n"),
 
-            byte[] qrcode = PrinterCommand.GetBarCommand("https://www.dmujeres.ec/", 0, 3, 6);//
-            PrintCommandBytes.ESC_Align[2] = 0x01;
-            await btPrinterManager.PrintBytes(PrintCommandBytes.ESC_Align);
-            await btPrinterManager.PrintBytes(qrcode);
+                EscPosCommands.Feed(48),
+                EscPosCommands.Cut(),
 
-            await btPrinterManager.PrintBytes(PrintCommandBytes.ESC_Align);
-            PrintCommandBytes.GS_ExclamationMark[2] = 0x11;
-            await btPrinterManager.PrintBytes(PrintCommandBytes.GS_ExclamationMark);
-            await btPrinterManager.PrintBytes(Encoding.UTF8.GetBytes("DMujeres S.A.\n"));
-            //PrintCommandBytes.ESC_Align[2] = 0x00;
-            //await btPrinterManager.PrintBytes(PrintCommandBytes.ESC_Align);
-            //PrintCommandBytes.GS_ExclamationMark[2] = 0x00;
-            //await btPrinterManager.PrintBytes(PrintCommandBytes.GS_ExclamationMark);
-            //await btPrinterManager.PrintBytes("XYZ: 888888\nXYZ  S00003333\nXYZ：1001\nXYZ：xxxx-xx-xx\nXYZ：xxxx-xx-xx  xx:xx:xx\n".getBytes("GBK"));
-            //await btPrinterManager.PrintBytes("XYZ       XYZ    XYZ    XYZ\nNIKEXYZ   10.00   899     8990\nNIKEXYZ 10.00   1599    15990\n".getBytes("GBK"));
-            //await btPrinterManager.PrintBytes("XYZ：                20.00\nXYZ：                16889.00\nXYZ：                17000.00\n找零：                111.00\n".getBytes("GBK"));
-            //await btPrinterManager.PrintBytes("公司名称：NIKE\n公司网址：www.xxx.xxx\n地址：深圳市xx区xx号\n电话：0755-11111111\n服务专线：400-xxx-xxxx\n================================\n".getBytes("GBK"));
-            //PrintCommandBytes.ESC_Align[2] = 0x01;
-            //await btPrinterManager.PrintBytes(PrintCommandBytes.ESC_Align);
-            //PrintCommandBytes.GS_ExclamationMark[2] = 0x11;
-            //await btPrinterManager.PrintBytes(PrintCommandBytes.GS_ExclamationMark);
-            //await btPrinterManager.PrintBytes("谢谢惠顾,欢迎再次光临!\n".getBytes("GBK"));
-            //PrintCommandBytes.ESC_Align[2] = 0x00;
-            //await btPrinterManager.PrintBytes(PrintCommandBytes.ESC_Align);
-            //PrintCommandBytes.GS_ExclamationMark[2] = 0x00;
-            //await btPrinterManager.PrintBytes(PrintCommandBytes.GS_ExclamationMark);
+                EscPosCommands.FontSize(0, 0)
+            );
 
-            //await btPrinterManager.PrintBytes("(以上信息为测试模板,如有苟同，纯属巧合!)\n".getBytes("GBK"));
-            //PrintCommandBytes.ESC_Align[2] = 0x02;
-            //await btPrinterManager.PrintBytes(PrintCommandBytes.ESC_Align);
-            //await btPrinterManager.PrintBytes(date);
-            await btPrinterManager.PrintBytes(PrinterCommand.POS_Set_PrtAndFeedPaper(48));
-            await btPrinterManager.PrintBytes(PrintCommandBytes.GS_V_m_n);            
+            await _printer.Print(data);
         }
         catch (Exception exPrinting)
         {
-            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            string text = "Error al imprimir qr:" + exPrinting.Message;
-            ToastDuration duration = ToastDuration.Long;
-            double fontSize = 14;
-            var toast = Toast.Make(text, duration, fontSize);
-            await toast.Show(cancellationTokenSource.Token);
+            var toast = Toast.Make(
+                "Error al imprimir qr:" + exPrinting.Message,
+                ToastDuration.Long,
+                14
+            );
+
+            await toast.Show(new CancellationTokenSource().Token);
         }
         finally
         {
-            //btm.Dispose();
-            //btm = null;
             btnPrintQr.IsEnabled = true;
         }
     }
@@ -500,16 +351,16 @@ public partial class TestTool : ContentPage, IDisposable //, INotifyPropertyChan
         btnPrintQr.IsEnabled = false;
 
         try
-        {           
-            byte[] qrcode = PrinterCommand.GetBarCommand("https://www.dmujeres.ec/", 0, 3, 6);//
-            PrintCommandBytes.ESC_Align[2] = 0x01;
-            await btPrinterManager.PrintBytes(PrintCommandBytes.ESC_Align);
-            await btPrinterManager.PrintBytes(qrcode);
+        {
+            ////byte[] qrcode = PrinterCommand.GetBarCommand("https://www.dmujeres.ec/", 0, 3, 6);//
+            ////PrintCommandBytes.ESC_Align[2] = 0x01;
+            ////await btPrinterManager.PrintBytes(PrintCommandBytes.ESC_Align);
+            ////await btPrinterManager.PrintBytes(qrcode);
 
-            await btPrinterManager.PrintBytes(PrintCommandBytes.ESC_Align);
-            PrintCommandBytes.GS_ExclamationMark[2] = 0x11;
-            await btPrinterManager.PrintBytes(PrintCommandBytes.GS_ExclamationMark);
-            await btPrinterManager.PrintBytes(Encoding.UTF8.GetBytes("DMujeres S.A.\n"));
+            ////await btPrinterManager.PrintBytes(PrintCommandBytes.ESC_Align);
+            ////PrintCommandBytes.GS_ExclamationMark[2] = 0x11;
+            ////await btPrinterManager.PrintBytes(PrintCommandBytes.GS_ExclamationMark);
+            ////await btPrinterManager.PrintBytes(Encoding.UTF8.GetBytes("DMujeres S.A.\n"));
             //PrintCommandBytes.ESC_Align[2] = 0x00;
             //await btPrinterManager.PrintBytes(PrintCommandBytes.ESC_Align);
             //PrintCommandBytes.GS_ExclamationMark[2] = 0x00;
@@ -532,8 +383,8 @@ public partial class TestTool : ContentPage, IDisposable //, INotifyPropertyChan
             //PrintCommandBytes.ESC_Align[2] = 0x02;
             //await btPrinterManager.PrintBytes(PrintCommandBytes.ESC_Align);
             //await btPrinterManager.PrintBytes(date);
-            await btPrinterManager.PrintBytes(PrinterCommand.POS_Set_PrtAndFeedPaper(48));
-            await btPrinterManager.PrintBytes(PrintCommandBytes.GS_V_m_n);
+            //////await btPrinterManager.PrintBytes(PrinterCommand.POS_Set_PrtAndFeedPaper(48));
+            //////await btPrinterManager.PrintBytes(PrintCommandBytes.GS_V_m_n);
         }
         catch (Exception exPrinting)
         {
@@ -701,8 +552,6 @@ public partial class TestTool : ContentPage, IDisposable //, INotifyPropertyChan
         }
     }
 
-
-
     public SKImage ConvertToGrayScale(SKImage originalImage)
     {
         SKBitmap grayBitmap = new SKBitmap(originalImage.Width, originalImage.Height);
@@ -788,31 +637,31 @@ public partial class TestTool : ContentPage, IDisposable //, INotifyPropertyChan
         return blackBitmap;
     }
 
-    public SKImage LoadEmbeddedImage()
-    {
-        // Reemplaza "NombreProyecto.NombreCarpetaImagenes.nombre_imagen.png" con la ruta completa del recurso incrustado.
-        string resourceName = "CobranzasDMSA.Resources.Images.demo2.png";
+    //public SKImage LoadEmbeddedImage()
+    //{
+    //    // Reemplaza "NombreProyecto.NombreCarpetaImagenes.nombre_imagen.png" con la ruta completa del recurso incrustado.
+    //    string resourceName = "DMCobranzas.Resources.Images.demo2.png";
 
-        // Obtén el ensamblado actual.
-        var assembly = Assembly.GetExecutingAssembly();
+    //    // Obtén el ensamblado actual.
+    //    var assembly = Assembly.GetExecutingAssembly();
 
-        // Lee el recurso incrustado como una secuencia de bytes.
-        using (Stream stream = assembly.GetManifestResourceStream(resourceName))
-        {
-            if (stream != null)
-            {
-                // Crea un SKImage a partir de la secuencia de bytes.
-                return SKImage.FromEncodedData(stream);
-            }
-        }
+    //    // Lee el recurso incrustado como una secuencia de bytes.
+    //    using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+    //    {
+    //        if (stream != null)
+    //        {
+    //            // Crea un SKImage a partir de la secuencia de bytes.
+    //            return SKImage.FromEncodedData(stream);
+    //        }
+    //    }
 
-        return null; // En caso de que la carga falle, devolver null.
-    }
+    //    return null; // En caso de que la carga falle, devolver null.
+    //}
 
     public SKBitmap LoadEmbeddedBitmap()
     {
         // Reemplaza "NombreProyecto.NombreCarpetaImagenes.nombre_imagen.png" con la ruta completa del recurso incrustado.
-        string resourceName = "CobranzasDMSA.Resources.Images.demo2.bmp";
+        string resourceName = "DMCobranzas.Resources.Images.demo2.bmp";
 
         // Obtén el ensamblado actual.
         var assembly = Assembly.GetExecutingAssembly();
@@ -830,81 +679,209 @@ public partial class TestTool : ContentPage, IDisposable //, INotifyPropertyChan
         return null; // En caso de que la carga falle, devolver null.
     }
 
+    ////public static byte[] CreateTestThresholdImage()
+    ////{
+    ////    // Tamaño imagen (debe ser múltiplo de 8 en ancho)
+    ////    int width = 32;   // pixels
+    ////    int height = 32;  // pixels
+
+    ////    int bytesPerRow = width / 8;
+    ////    byte[] imageData = new byte[bytesPerRow * height];
+
+    ////    int index = 0;
+
+    ////    // Crear patrón tipo threshold (ajedrezado)
+    ////    for (int y = 0; y < height; y++)
+    ////    {
+    ////        for (int xByte = 0; xByte < bytesPerRow; xByte++)
+    ////        {
+    ////            byte b = 0;
+
+    ////            for (int bit = 0; bit < 8; bit++)
+    ////            {
+    ////                int x = xByte * 8 + bit;
+
+    ////                // patrón threshold simple
+    ////                bool black = ((x / 4 + y / 4) % 2 == 0);
+
+    ////                if (black)
+    ////                    b |= (byte)(1 << (7 - bit));
+    ////            }
+
+    ////            imageData[index++] = b;
+    ////        }
+    ////    }
+
+    ////    // ---------- ESC/POS Raster Image ----------
+    ////    // GS v 0
+    ////    List<byte> command = new List<byte>();
+
+    ////    command.Add(0x1D); // GS
+    ////    command.Add(0x76); // v
+    ////    command.Add(0x30); // 0
+    ////    command.Add(0x00); // normal mode
+
+    ////    // width (bytes)
+    ////    command.Add((byte)(bytesPerRow % 256));
+    ////    command.Add((byte)(bytesPerRow / 256));
+
+    ////    // height
+    ////    command.Add((byte)(height % 256));
+    ////    command.Add((byte)(height / 256));
+
+    ////    command.AddRange(imageData);
+
+    ////    return command.ToArray();
+    ////}
+
+    public static byte[] CreateTestThresholdImage()
+    {
+        // ===== Tamaño (ancho múltiplo de 8) =====
+        int width = 128;
+        int height = 64;
+
+        int bytesPerRow = width / 8;
+        byte[] imageData = new byte[bytesPerRow * height];
+
+        int index = 0;
+
+        // ---------- Silueta tipo mapache ----------
+        bool IsBlack(int x, int y)
+        {
+            int cx = width / 2;
+            int cy = height / 2 + 4;
+
+            // Cabeza (ovalo)
+            double head =
+                Math.Pow((x - cx) / 28.0, 2) +
+                Math.Pow((y - cy) / 20.0, 2);
+
+            bool headShape = head <= 1.0;
+
+            // Oreja izquierda
+            double earL =
+                Math.Pow((x - (cx - 22)) / 10.0, 2) +
+                Math.Pow((y - (cy - 22)) / 10.0, 2);
+
+            bool leftEar = earL <= 1.0;
+
+            // Oreja derecha
+            double earR =
+                Math.Pow((x - (cx + 22)) / 10.0, 2) +
+                Math.Pow((y - (cy - 22)) / 10.0, 2);
+
+            bool rightEar = earR <= 1.0;
+
+            // Máscara oscura (antifaz)
+            bool mask =
+                y > cy - 6 &&
+                y < cy + 4 &&
+                Math.Abs(x - cx) < 24;
+
+            // Ojo izquierdo (hueco blanco)
+            double eyeL =
+                Math.Pow(x - (cx - 10), 2) +
+                Math.Pow(y - (cy - 1), 2);
+
+            bool leftEyeHole = eyeL < 4 * 4;
+
+            // Ojo derecho
+            double eyeR =
+                Math.Pow(x - (cx + 10), 2) +
+                Math.Pow(y - (cy - 1), 2);
+
+            bool rightEyeHole = eyeR < 4 * 4;
+
+            // Nariz
+            double nose =
+                Math.Pow(x - cx, 2) +
+                Math.Pow(y - (cy + 6), 2);
+
+            bool noseShape = nose < 3 * 3;
+
+            bool silhouette = headShape || leftEar || rightEar;
+
+            // aplicar máscara pero respetar ojos
+            if (mask && !leftEyeHole && !rightEyeHole)
+                silhouette = true;
+
+            if (noseShape)
+                silhouette = true;
+
+            return silhouette;
+        }
+
+        // ---------- Generar bitmap monocromo ----------
+        for (int y = 0; y < height; y++)
+        {
+            for (int xByte = 0; xByte < bytesPerRow; xByte++)
+            {
+                byte b = 0;
+
+                for (int bit = 0; bit < 8; bit++)
+                {
+                    int x = xByte * 8 + bit;
+
+                    if (IsBlack(x, y))
+                        b |= (byte)(1 << (7 - bit));
+                }
+
+                imageData[index++] = b;
+            }
+        }
+
+        // ---------- ESC/POS Raster (GS v 0) ----------
+        List<byte> command = new List<byte>();
+
+        command.Add(0x1D);
+        command.Add(0x76);
+        command.Add(0x30);
+        command.Add(0x00);
+
+        // width (bytes)
+        command.Add((byte)(bytesPerRow % 256));
+        command.Add((byte)(bytesPerRow / 256));
+
+        // height
+        command.Add((byte)(height % 256));
+        command.Add((byte)(height / 256));
+
+        command.AddRange(imageData);
+
+        return command.ToArray();
+    }
+
+    private async void PrintImgWorking(object sender, EventArgs e)
+    {
+        try
+        {
+            var bytes = CreateTestThresholdImage();
+            
+        }
+        catch (Exception exPrinting)
+        {
+            Debug.WriteLine(exPrinting.Message);
+        }
+    }
+
     private async void PrintImg(object sender, EventArgs e)
     {
         //btnPrintImg.IsEnabled = false;
 
         try
-        {
-
-            Assembly assembly = GetType().GetTypeInfo().Assembly;
-            //SKBitmap skBitmapForUpdate;
+        {                        
             int nMode = 0;
             int nPaperWidth = 384;
 
-            //SKBitmap skBitmap = LoadEmbeddedImage();
-            //var streamT = assembly.GetManifestResourceStream("CobranzasDMSA.Resources.Images.demo.bmp");
-            //////SetImage(streamT);            
-            //var memoryStream = new MemoryStream();
-            //streamT.CopyTo(memoryStream);
-            //byte[] data = memoryStream.ToArray();
+            SKBitmap sKBitmap = LoadEmbeddedBitmap();
+            SKBitmap sKBitmapGray = ConvertToBlackPixels(sKBitmap, 40);
 
-            // Crea un SKImage a partir del SKBitmap.
-            SKImage skImage = LoadEmbeddedImage();
-            var skImageGray = _ConvertToBlackPixels(skImage);
-
-            //SKBitmap sKBitmap = LoadEmbeddedBitmap();
-            //SKBitmap sKBitmapGray = ConvertToBlackPixels(sKBitmap, 40);
-
-            // Asigna la imagen al control Image.
-
-            imgPrintSk.Source = ImageSource.FromStream(() => skImageGray.Encode().AsStream());
-            //imgPrintSk.Source = ImageSource.FromStream(() => sKBitmapGray.Encode(SKEncodedImageFormat.Png,50).AsStream());
-
+            imgPrintSk.Source = ImageSource.FromStream(() => sKBitmapGray.Encode(SKEncodedImageFormat.Png, 50).AsStream());
 
             int width = ((nPaperWidth + 7) / 8) * 8;
-            //var data = POS_PrintBMP(skBitmap, nPaperWidth, nMode);
-
-            Debug.WriteLine("Cargado...");
-
-            //data = Zj.Com.Customize.Sdk.Other.ThresholdToBWPic(data);
-            //data = Zj.Com.Customize.Sdk.Other.EachLinePixToCmd(data, width, nMode);
-
-            //byte[] data = POS_PrintBMP(skBitmap, nPaperWidth, nMode);
-            //byte[] data = bitmapBytes;
-
-
-            ////SKBitmap skBitmapT;
-            ////using (var skData = SKData.Create(streamT))
-            ////{
-            ////    skBitmapT = SKBitmap.Decode(skData);                
-            ////}
-
-            ////SKBitmap sknew = PrepareBMP(skBitmapT, nPaperWidth, nMode);
-            ////var data = sknew.Encode(SKEncodedImageFormat.Png, 50);
-            ////var memoryStream = new MemoryStream();
-            ////data.SaveTo(memoryStream);
-            //memoryStream.Write(sknew.Bytes, 0, sknew.Bytes.Length);
-
-
-            //return memoryStream;
-            //SetImage2();
-
-
-
-
-            //await btPrinterManager.PrintBytes(PrintCommandBytes.ESC_Init);
-            ////Esta linea no eliminar, colocarla cuando ya funcione
-            //await btPrinterManager.PrintBytes(PrintCommandBytes.LF);
-
-            ////await btPrinterManager.PrintBytes(data);
-            ////await btPrinterManager.PrintBytesChunk(data);
-
-            //await btPrinterManager.PrintBytes(PrinterCommand.POS_Set_PrtAndFeedPaper(30));
-            //await btPrinterManager.PrintBytes(PrinterCommand.POS_Set_Cut(1));
-            //await btPrinterManager.PrintBytes(PrinterCommand.POS_Set_PrtInit());            
-
-
+            var data = POS_PrintBMP(sKBitmap, nPaperWidth, nMode);
+                       
+            await _printer.Print(data);
         }
         catch (Exception exPrinting)
         {
@@ -923,11 +900,49 @@ public partial class TestTool : ContentPage, IDisposable //, INotifyPropertyChan
         }
     }
 
+    //private async void PrintImgSlow(object sender, EventArgs e)
+    //{
+    //    //btnPrintImg.IsEnabled = false;
+
+    //    try
+    //    {
+    //        Assembly assembly = GetType().GetTypeInfo().Assembly;
+    //        //SKBitmap skBitmapForUpdate;
+    //        int nMode = 0;
+    //        int nPaperWidth = 384;
+
+
+    //        SKBitmap sKBitmap = LoadEmbeddedBitmap();
+    //        SKBitmap sKBitmapGray = ConvertToBlackPixels(sKBitmap, 40);
+
+    //        imgPrintSk.Source = ImageSource.FromStream(() => sKBitmapGray.Encode(SKEncodedImageFormat.Png,50).AsStream());
+
+    //        int width = ((nPaperWidth + 7) / 8) * 8;
+    //        var data = POS_PrintBMP(sKBitmap, nPaperWidth, nMode);
+
+    //        Debug.WriteLine("Cargado...");
+            
+    //    }
+    //    catch (Exception exPrinting)
+    //    {
+    //        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+    //        string text = "Error al imprimir qr:" + exPrinting.Message;
+    //        ToastDuration duration = ToastDuration.Long;
+    //        double fontSize = 14;
+    //        var toast = Toast.Make(text, duration, fontSize);
+    //        await toast.Show(cancellationTokenSource.Token);
+    //    }
+    //    finally
+    //    {
+    //        //btm.Dispose();
+    //        //btm = null;
+    //        btnPrintImg.IsEnabled = true;
+    //    }
+    //}
 
     public void Dispose()
     {
-        btPrinterManager.Dispose();
-        //throw new NotImplementedException();
+        _printer.Disconnect();        
     }
 
     private async void btnTurnOnCamera_Clicked(object sender, EventArgs e)
@@ -937,12 +952,35 @@ public partial class TestTool : ContentPage, IDisposable //, INotifyPropertyChan
             var photo = await MediaPicker.CapturePhotoAsync();
 
             if (photo != null)
-            {
-                // Obtener la ruta de la foto tomada
+            {                
                 var photoPath = photo.FullPath;
+                
+                ImageSource imgData = ImageSource.FromFile(photoPath);
+                imgPrint.Source = imgData;
 
-                // Cargar la imagen en el contenedor Image
-                imgPrint.Source = ImageSource.FromFile(photoPath);
+                int nMode = 0;
+                int nPaperWidth = 384;
+
+                SKBitmap sKBitmap = null;
+
+                using (Stream stream = File.OpenRead(photoPath))
+                {
+                    if (stream != null)
+                    {
+                        sKBitmap = SKBitmap.Decode(stream);
+
+                        SKBitmap sKBitmapGray = ConvertToBlackPixels(sKBitmap, 40);
+
+                        imgPrintSk.Source = ImageSource.FromStream(() =>
+                            sKBitmapGray.Encode(SKEncodedImageFormat.Png, 50).AsStream()
+                        );
+
+                        int width = ((nPaperWidth + 7) / 8) * 8;
+                        var data = POS_PrintBMP(sKBitmapGray, nPaperWidth, nMode);
+
+                        await _printer.Print(data);
+                    }
+                }
             }
         }
         catch (Exception ex)

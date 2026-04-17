@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             x:Class="DMCobranzas.AppPages.NotaCredito.CreditNoteRequestGroupView"
+             xmlns:converters="clr-namespace:DMCobranzas.Converters"
+             xmlns:bh="clr-namespace:DMCobranzas.Controls.Behaviors"
+             xmlns:ui="clr-namespace:DMCobranzas.Controls"
+             Title="Grupo">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:RequestTypeConverter x:Key="RequestTypeConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem x:Name="btnSave" Text="GUARDAR" Clicked="btnSave_Clicked">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource FontFamily="FontAwesome5Solid"
+                         Glyph="&#xf0c7;"
+                         Color="White" />
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+        <ToolbarItem x:Name="btnCancel" Text="CANCELAR" Clicked="btnClose_Clicked">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource FontFamily="FontAwesome5Solid"
+                         Glyph="&#xf410;"
+                         Color="White" />
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+    </ContentPage.ToolbarItems>
+    <ContentPage.IconImageSource>
+        <FontImageSource FontFamily="FontAwesome5Solid"
+                                 Glyph="&#xf3d1;"
+                                 Color="Black" />
+    </ContentPage.IconImageSource>
+    <StackLayout>
+        <Grid x:Name="GridParent" HorizontalOptions="FillAndExpand" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>                
+
+            <Grid Margin="3" 
+                    Grid.Row="0" 
+                    Grid.Column="0" 
+                    Grid.ColumnSpan="1"
+                    x:Name="GridPartner">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                <Entry x:Name="txtCliente"
+                        Placeholder="Seleccione un cliente..."
+                        PlaceholderColor="SlateGray"
+                        HorizontalOptions="FillAndExpand" 
+                        IsReadOnly="True"
+                        MinimumWidthRequest="190"
+                        FontAttributes="Bold"
+                        Grid.ColumnSpan="3">
+                    <Entry.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Tapped="OnEntryTapped" 
+                            NumberOfTapsRequired="1" />
+                    </Entry.GestureRecognizers>
+                </Entry>
+
+                <Button 
+                        Grid.Column="1"
+                        CornerRadius="5"
+                        Text=""
+                        BackgroundColor="Transparent"                            
+                        Clicked="btnCustomer_Clicked"                         
+                        WidthRequest="2"                         
+                        HeightRequest="2"
+                        Margin="3"
+                        Padding="5">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FontAwesome5Solid"
+						Color="DimGray"
+						Size="12"
+						FontAutoScalingEnabled="True"                                                         
+						Glyph="&#xf002;" />
+                    </Button.ImageSource>
+                </Button>
+
+                <Button
+                    Grid.Column="2"                        
+                    WidthRequest="20"                        
+                    HeightRequest="20"
+                    CornerRadius="5"
+                    Margin="0,0,5,0"
+                    x:Name="btnRemoveCustomer" 						
+                    Clicked="btnRemoveCustomer_Clicked"                        
+					BackgroundColor="Transparent">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FontAwesome5Solid"
+									Color="DimGray"
+									Size="12"
+									FontAutoScalingEnabled="True"                                                         
+									Glyph="&#xf00d;" />
+                    </Button.ImageSource>
+                </Button>
+            </Grid>
+
+            
+                <Button x:Name="BtnAddNew" Grid.Column="1" Grid.Row="0" HorizontalOptions="Center"
+                        Text="Agregar"
+                        Margin="5"                        
+                        BackgroundColor="DodgerBlue"
+                        FontAttributes="Bold"
+                        CornerRadius="2">
+                <Button.Behaviors>
+                    <bh:SafeTapBehavior Command="{Binding AddCNCommand}" />
+                </Button.Behaviors>
+                <Button.ImageSource>
+                        <FontImageSource FontFamily="FontAwesome5Solid"
+                                            Color="White"
+                                            Size="20"
+                                            FontAutoScalingEnabled="True"                                         
+                                            Glyph="&#xf067;" />
+                    </Button.ImageSource>
+                </Button>
+                
+            <Label HorizontalOptions="Center" 
+                    Text="Cada línea de nota de crédito es un registro individual en Odoo." 
+                    VerticalTextAlignment="Center"  
+                    Grid.Column="0" 
+                    Grid.Row="2"
+                    Grid.ColumnSpan="5"
+                    FontAttributes="Bold"
+                    TextColor="DimGray" FontSize="12" ></Label>
+
+            <StackLayout Grid.Column="0" Grid.Row="3" Orientation="Horizontal">
+                <Label x:Name="txtTotalPagado" HorizontalOptions="Center" 
+                    Text="TOTAL PAGO: $ 0.00" 
+                    VerticalTextAlignment="Center"
+                    FontAttributes="Bold"
+                    IsVisible="false"></Label>
+                <Label x:Name="txtTotalAplicado" HorizontalOptions="Center" 
+                        Text="TOTAL APLICADO: $ 0.00" 
+                        VerticalTextAlignment="Center"
+                        FontAttributes="Bold" 
+                        IsVisible="false"></Label>
+            </StackLayout>
+
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup>
+
+                    <!-- PANTALLA CHICA -->
+                    <VisualState x:Name="Narrow">
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowWidth="0" />
+                        </VisualState.StateTriggers>
+                        <VisualState.Setters>
+                            <Setter TargetName="BtnAddNew" Property="Grid.Row" Value="1" />
+                            <Setter TargetName="BtnAddNew" Property="Grid.Column" Value="0" />
+
+                            <!--<Setter TargetName="btnCustomerAccounts"
+            Property="Grid.Row"
+            Value="1" />
+                            <Setter TargetName="btnCustomerAccounts"
+            Property="Grid.Column"
+            Value="1" />-->
+
+                            <!--<Setter TargetName="GridPartner" Property="Grid.ColumnSpan" Value="2"/>-->
+                        </VisualState.Setters>
+                    </VisualState>
+
+                    <!-- PANTALLA ANCHA -->
+                    <VisualState x:Name="Wide">
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowWidth="720" />
+                        </VisualState.StateTriggers>
+                        <VisualState.Setters>
+                            <Setter TargetName="BtnAddNew" Property="Grid.Row" Value="0" />
+                            <Setter TargetName="BtnAddNew" Property="Grid.Column" Value="1" />
+
+                            <!--<Setter TargetName="btnCustomerAccounts"
+            Property="Grid.Row"
+            Value="0" />
+                            <Setter TargetName="btnCustomerAccounts"
+            Property="Grid.Column"
+            Value="2" />
+
+                            <Setter TargetName="GridPartner" Property="Grid.ColumnSpan" Value="1"/>-->
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+        </Grid>            
+
+
+        <Border StrokeThickness="0.4" Padding="10" Margin="1" BackgroundColor="Gray">
+            <Grid HorizontalOptions="FillAndExpand" BackgroundColor="Transparent">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>                    
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" HorizontalOptions="Start" VerticalOptions="Center" Text="Notas de Credito" TextColor="WhiteSmoke" FontAttributes="Bold"/>
+                
+            </Grid>
+        </Border>
+        
+        <CollectionView x:Name="collectionView" VerticalOptions="FillAndExpand">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <SwipeView x:Name="swipeView" IsClippedToBounds="true">
+                        <SwipeView.RightItems>
+                            <SwipeItems SwipeBehaviorOnInvoked="RemainOpen">
+                                <SwipeItemView>
+                                    <StackLayout Orientation="Horizontal" Margin="5,5,5,5">
+                                        <Button                                                 
+                                            CornerRadius="5"
+                                        ContentLayout="Top,0"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteItemCommand}"
+                                        CommandParameter="{Binding .}" 
+                                            MaximumWidthRequest="120"                                                    
+                                        BackgroundColor="Red"
+                                        Text="BORRAR"
+                                        FontAttributes="Bold"
+                                        FontSize="12"
+                                        HorizontalOptions="Center"
+                                                Margin="1,1,1,1">
+                                            <Button.ImageSource>
+                                                <FontImageSource FontFamily="FontAwesome5Solid"
+                                            Color="White"
+                                            Size="20"
+                                            FontAutoScalingEnabled="True"                                                         
+                                            Glyph="&#xf2ed;" />
+                                            </Button.ImageSource>
+                                        </Button>
+                                        <Button                                                 
+                                            CornerRadius="5"
+                                        ContentLayout="Top,0"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditItemCommand}"
+                                        CommandParameter="{Binding .}" 
+                                            MaximumWidthRequest="120"
+                                        BackgroundColor="LimeGreen"
+                                        Text="EDITAR"
+                                        FontAttributes="Bold"
+                                        FontSize="12"
+                                        HorizontalOptions="Center"
+                                            Margin="1,1,1,1">
+                                            <Button.ImageSource>
+                                                <FontImageSource FontFamily="FontAwesome5Solid"
+                                            Color="White"
+                                            Size="20"
+                                            FontAutoScalingEnabled="True"                                                         
+                                            Glyph="&#xf303;" />
+                                            </Button.ImageSource>
+                                        </Button>
+                                    </StackLayout>
+                                </SwipeItemView>
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+                        
+                        <Border StrokeThickness="0.3" Padding="5, 0, 5, 0" Margin="1" BackgroundColor="White" MinimumHeightRequest="70">
+                            <Grid HorizontalOptions="FillAndExpand" BackgroundColor="Transparent" VerticalOptions="Center">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Row="0" 
+                                   Grid.Column="0" 
+                                   HorizontalOptions="Start" 
+                                   VerticalOptions="Center"
+                                   FontSize="12"
+                                   FontAttributes="Bold"
+                                   Text="{Binding partner_name}"/>
+                                
+                                <Label Grid.Row="1" Grid.Column="0" 
+                                       HorizontalOptions="Start" 
+                                       VerticalOptions="Center"
+                                       FontSize="11"
+                                       Text="{Binding display_parent_nc}"/>
+
+                                <Label Grid.Row="2" Grid.Column="0" 
+                                       HorizontalOptions="Start" 
+                                       VerticalOptions="Center"
+                                       FontSize="11"
+                                       Text="{Binding display_type_module}"/>                                
+
+                                <ui:IndicatorLabelUI
+                                    Text="{Binding request_type, Converter={StaticResource RequestTypeConverter}}"
+                                    Grid.Row="0" 
+                                    Grid.Column="1"
+                                    Grid.RowSpan="3"
+                                    TextColor="GhostWhite"
+                                    TextBackgroundColor="LimeGreen"
+                                    HorizontalOptions="Start">
+                                </ui:IndicatorLabelUI>
+
+                                <StackLayout Grid.Row="0" 
+                                                Grid.Column="2" 
+                                             Grid.RowSpan="3"
+                                                Orientation="Horizontal" 
+                                                Margin="2"
+                                                IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.isWindows}">
+                                        
+                                    <Button CornerRadius="5"
+                                        ContentLayout="Top,0"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteItemCommand}"
+                                        CommandParameter="{Binding .}" 
+                                        MaximumWidthRequest="120"
+                                        BackgroundColor="Red"
+                                        Text="BORRAR"
+                                        FontAttributes="Bold"
+                                        FontSize="12"
+                                        HorizontalOptions="Center"
+                                            Margin="1,1,1,1">
+                                        <Button.ImageSource>
+                                            <FontImageSource FontFamily="FontAwesome5Solid"
+                                            Color="White"
+                                            Size="20"
+                                            FontAutoScalingEnabled="True"                                                         
+                                            Glyph="&#xf2ed;" />
+                                        </Button.ImageSource>
+                                    </Button>
+                                    <Button CornerRadius="5"
+                                        ContentLayout="Top,0"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditItemCommand}"
+                                        CommandParameter="{Binding .}" 
+                                        MaximumWidthRequest="120"
+                                        BackgroundColor="LimeGreen"
+                                        Text="EDITAR"
+                                        FontAttributes="Bold"
+                                        FontSize="12"
+                                        HorizontalOptions="Center"
+                                            Margin="1,1,1,1">
+                                        <Button.ImageSource>
+                                            <FontImageSource FontFamily="FontAwesome5Solid"
+                                            Color="White"
+                                            Size="20"
+                                            FontAutoScalingEnabled="True"                                                         
+                                            Glyph="&#xf303;" />
+                                        </Button.ImageSource>
+                                    </Button>
+                                </StackLayout>
+
+                                <ui:IndicatorUI Text="&#xf0d9;" 
+                                    TextColor="DodgerBlue" 
+                                    Grid.Row="0"
+                                    Grid.RowSpan="3"
+                                    Grid.Column="3"
+                                    VerticalOptions="Center"></ui:IndicatorUI>                                    
+                            </Grid>
+                        </Border>
+                    </SwipeView>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </StackLayout>
+</ContentPage>

@@ -1,50 +1,71 @@
-//using CloudKit;
-using ApiManager;
 using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Sample;
-using CommunityToolkit.Maui.Sample.Models;
-using CommunityToolkit.Maui.Sample.Pages;
-//using CommunityToolkit.Maui.Sample.Pages.Views;
-using CommunityToolkit.Maui.Sample.ViewModels.Views;
-using CommunityToolkit.Maui.Views;
-using CommunityToolkit.Mvvm.Collections;
-using DMCobranzas.Controls.Modals;
-using DMCobranzas.Models;
 using DMCobranzas.Models.Specials;
-using DMCobranzas.Services.ApiHub;
 using DMCobranzas.Settings.helpers;
-using DMSA.Models.General;
-using DMSA.Models.Odoo.DMCobranzas;
-using DMSA.Models.Odoo.General.Responses;
+using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.Native;
+using DMSA.Sync.Core.Controls.Popups;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
 using DMSA.Sync.Core.Update.Pusher;
-using Microsoft.Maui.Graphics;
 using System.Collections.ObjectModel;
-//using Microsoft.Maui.Controls.Compatibility;
 using System.Diagnostics;
-using System.Drawing;
 using System.Windows.Input;
-using System.Xml.Linq;
 
 namespace DMCobranzas.AppPages.NotaCredito;
 
 [XamlCompilation(XamlCompilationOptions.Compile)]
 public partial class NotasCreditoPage : ContentPage
 {
+    private bool _isLoading;
+    public bool IsLoading
+    {
+        get => _isLoading;
+        set
+        {
+            _isLoading = value;
+            OnPropertyChanged(nameof(IsLoading));
+            Debug.WriteLine("_isLoading");
+            Debug.WriteLine(_isLoading);
+        }
+    }
+
     int uid { get; set; } = 0;
     res_company[] Empresas { get; set; }
 
+    public res_company Sel_Company_Id { get; set; }
+
     public bool isWindows { get; set; } = false;
    
-    //public ItemsGroupColG _items { get; set; } //= new ObservableCollection<ItemsGroup>();
-    
-    //public ObservableCollection<ItemsGroupNC> _items { get; set; } //= new ObservableCollection<ItemsGroup>();
-    public ObservableCollection<ItemsGroupMoveSend> _items { get; set; } //= new ObservableCollection<ItemsGroup>();
+    public ObservableCollection<ItemsGroupMoveSend> _items { get; set; } 
 
     readonly PopupSizeConstants popupSizeConstants;
-    readonly CsharpBindingPopupViewModel csharpBindingPopupViewModel;
+    
+    private string _searchText = "";
+    public string SearchText
+    {
+        get => _searchText;
+        set
+        {
+            if (_searchText == value)
+                return;
 
+            _searchText = value;
+            OnPropertyChanged();
+
+            // aquí puedes ejecutar búsqueda si quieres
+            //PerformSearch();
+        }
+    }
+
+
+    public ICommand DeleteCommand { get; set; }
+
+
+    public ICommand SendItemCommand { get; set; }
+
+
+    public ICommand EditCommand { get; set; }
+
+    public ICommand TicketCommand { get; set; }
     public NotasCreditoPage()
 	{
 		InitializeComponent();
@@ -55,10 +76,8 @@ public partial class NotasCreditoPage : ContentPage
         }
         else
         {
-            //this.popupSizeConstants = popupSizeConstants;
+            
         }
-
-        //this.csharpBindingPopupViewModel = csharpBindingPopupViewModel;
 
         _items = new ObservableCollection<ItemsGroupMoveSend>();
 
@@ -84,7 +103,9 @@ public partial class NotasCreditoPage : ContentPage
 
         SelectorCmp.ItemsSource = Empresas;
         SelectorCmp.SelectedIndex = 0;
-        
+
+        Sel_Company_Id = Empresas[0];
+
         dateIni.Date = DateTime.Today.AddMonths(-1);
 
         isWindows = DeviceInfo.Current.Platform == DevicePlatform.WinUI;
@@ -138,27 +159,22 @@ public partial class NotasCreditoPage : ContentPage
     }
 
     private async Task LoadData()
-    {
-        ///collectionView: Contiene una referencia directa que en teoría debería bastar para que se 
-        /// actualice la visualizacion de forma directa, no lo logra, por lo cual se están realizando
-        /// 2 asignaciones. Considerar optimización para evitar dicho comportamiento.
-        await UITools.ShowLoading(_absoluteLayout);
+    {        
+        if (IsLoading)
+            return;
+
+        IsLoading = true;
+
         Debug.WriteLine("Load data.....");
         try
         {
             _items.Clear();
+            _items = new ObservableCollection<ItemsGroupMoveSend>();            
+            DateTime dateEndField = dateEnd.Date.Value.AddHours(23).AddMinutes(59).AddSeconds(59);
 
-            //TODO: Revisar, no deberíamos tener que volver a reasignar la variable
-            _items = new ObservableCollection<ItemsGroupMoveSend>();
-            //var task = Task.Run(async () =>
-            //{
-            var se = (res_company) SelectorCmp.SelectedItem;
-
-            DateTime dateEndField = dateEnd.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
-
-            var database = new AccountMoveSendHeaderDb(App.Session.odooConnection.DbNameSqlite);
-            var ls_items = await database.GetItemsAsync(se.id, dateIni.Date, dateEndField,
-                 App.Session.CurrentUser.uid, txtSearch.Text.Trim());
+            var database = new CreditNoteRequestGroupDb(App.Session.odooConnection.DbNameSqlite);
+            var ls_items = await database.GetItemsAsync(Sel_Company_Id.id, dateIni.Date.Value, dateEndField,
+                 App.Session.CurrentUser.uid, SearchText.Trim());
 
             //Se ordenan los registros por FECHA
             //ls_items.Sort((x, y) => x.FECHA.CompareTo(y.FECHA));
@@ -166,7 +182,7 @@ public partial class NotasCreditoPage : ContentPage
 
             // Variable para almacenar la fecha actual
             DateTime currentFecha = DateTime.MinValue;
-            List<AccountMoveSendHeader> registrosGrupo = new List<AccountMoveSendHeader>();
+            List<CreditNoteRequestGroup> registrosGrupo = new List<CreditNoteRequestGroup>();
 
             foreach (var _accountMoveItem in ls_items)
             {
@@ -188,16 +204,16 @@ public partial class NotasCreditoPage : ContentPage
                 if (fecha.Date != currentFecha.Date) // Si la fecha cambia
                 {
                     // Ejecutar la función que recibe los registros de la fecha anterior
-                    await ProcessItemsGroupMoveSendHeader(registrosGrupo, _items, se);
+                    await ProcessItemsGroupMoveSendHeader(registrosGrupo, _items, Sel_Company_Id);
 
                     currentFecha = fecha.Date; // Actualizar la fecha actual
-                    registrosGrupo = new List<AccountMoveSendHeader>();
+                    registrosGrupo = new List<CreditNoteRequestGroup>();
                 }
 
                 registrosGrupo.Add(_accountMoveItem);
             }
 
-            await ProcessItemsGroupMoveSendHeader(registrosGrupo, _items, se);            
+            await ProcessItemsGroupMoveSendHeader(registrosGrupo, _items, Sel_Company_Id);            
 
             collectionView.ItemsSource = _items;
 
@@ -207,26 +223,14 @@ public partial class NotasCreditoPage : ContentPage
             Debug.WriteLine("Error: " + ex.Message);
         }
 
-        await UITools.HideLoading(_absoluteLayout);
+        IsLoading = false;
     }
 
-    private async Task ProcessItemsGroup(List<account_move_send> registrosGrupo,
+    private async Task ProcessItemsGroup(List<credit_note_request> registrosGrupo,
         ObservableCollection<ItemsGroupNC> _items,
         res_company se)
     {
         bool FoundCerrado = false;
-
-        //foreach (var item in registrosGrupo)
-        //{
-        //    AccountPaymentDailyDb cobCierreDb = new AccountPaymentDailyDb();
-        //    var cierres = await cobCierreDb.GetItemAsync(se.id, item.create_date.ToString("yyyy-MM-dd"));
-        //    //YA HA SIDO CERRADO
-        //    if (cierres != null)
-        //    {
-        //        item.group_status = "closed";
-        //        FoundCerrado = true;
-        //    }
-        //}
 
         if (registrosGrupo.Count() > 0)
         {
@@ -238,7 +242,7 @@ public partial class NotasCreditoPage : ContentPage
         }
     }
 
-    private async Task ProcessItemsGroupMoveSendHeader(List<AccountMoveSendHeader> registrosGrupo,
+    private async Task ProcessItemsGroupMoveSendHeader(List<CreditNoteRequestGroup> registrosGrupo,
         ObservableCollection<ItemsGroupMoveSend> _items,
         res_company se)
     {
@@ -254,12 +258,10 @@ public partial class NotasCreditoPage : ContentPage
         }
     }
 
-    public ICommand DeleteCommand { get; set; }
-
     private async void DeleteItem(object obj)
     {
-        AccountMoveSendHeader _accountMoveSendHeader = (AccountMoveSendHeader)obj;
-        AccountMoveSendDb accountMoveSendDb = new AccountMoveSendDb(App.Session.odooConnection.DbNameSqlite);
+        CreditNoteRequestGroup _accountMoveSendHeader = (CreditNoteRequestGroup)obj;
+        CreditNoteRequestDb accountMoveSendDb = new CreditNoteRequestDb(App.Session.odooConnection.DbNameSqlite);
         var movesItems = await accountMoveSendDb.GetByParent(_accountMoveSendHeader.id);
 
         int countMoves = movesItems.Count;
@@ -271,7 +273,7 @@ public partial class NotasCreditoPage : ContentPage
             return;
         }
 
-        AccountMoveSendHeaderDb accountMoveSendHeaderDb = new AccountMoveSendHeaderDb(App.Session.odooConnection.DbNameSqlite);
+        CreditNoteRequestGroupDb accountMoveSendHeaderDb = new CreditNoteRequestGroupDb(App.Session.odooConnection.DbNameSqlite);
 
         await accountMoveSendHeaderDb.DeleteRecursive(_accountMoveSendHeader);
         //accountMoveSendHeaderDb.
@@ -281,12 +283,10 @@ public partial class NotasCreditoPage : ContentPage
         await LoadData();
     }
 
-    public ICommand SendItemCommand { get; set; }
-
     private async void SendItemHeader(object obj)
     {
-        AccountMoveSendHeader _accountMoveSendHeader = (AccountMoveSendHeader)obj;
-        AccountMoveSendDb accountMoveSendDb = new AccountMoveSendDb(App.Session.odooConnection.DbNameSqlite);
+        CreditNoteRequestGroup _accountMoveSendHeader = (CreditNoteRequestGroup)obj;
+        CreditNoteRequestDb accountMoveSendDb = new CreditNoteRequestDb(App.Session.odooConnection.DbNameSqlite);
         var movesItems = await accountMoveSendDb.GetByParent(_accountMoveSendHeader.id);
 
         int countMoves = movesItems.Count;
@@ -300,32 +300,31 @@ public partial class NotasCreditoPage : ContentPage
 
         await UITools.ShowLoadingPopup(this);
 
-        var resultCheck = await DebitCollection.CheckCreditNoteOverdraf(_accountMoveSendHeader);
+        //var resultCheck = await DebitCollection.CheckCreditNoteOverdraf(_accountMoveSendHeader);
 
-        if (resultCheck.result.Length > 0)
-        {
-            await UITools.HideLoadingPopup();
+        //if (resultCheck.result.Length > 0)
+        //{
+        //    await UITools.HideLoadingPopup();
+            
+        //    await DisplayAlert("Riesgo de sobregiro",
+        //        "Al parecer se han ingresado valores inadecuados para las devoluciones, modifíquelos y vuelva a intentar.",
+        //        "Cancelar");
 
-            //Quizás nuevo popup con datos formateados
-            await DisplayAlert("Riesgo de sobregiro",
-                "Al parecer se han ingresado valores inadecuados para las devoluciones, modifíquelos y vuelva a intentar.",
-                "Cancelar");
+        //    Debug.WriteLine(resultCheck.error.message);
 
-            Debug.WriteLine(resultCheck.error.message);
-
-            return;
-        }
+        //    return;
+        //}
 
         var result = await DebitCollection.SendRequestCreditNote(_accountMoveSendHeader);
 
-        if (result.result > 0)
+        if (result != null && result.result!= null && result.result.Count > 0)
         {
             await Toast.Make("Envío de solicitud(es) correcto").Show();
         }
         else
         {
             string error_message = "";
-            if(result.error != null)
+            if(result != null && result.error != null)
             {
                 error_message = result.error.message;
             }
@@ -340,19 +339,16 @@ public partial class NotasCreditoPage : ContentPage
         await LoadData();
     }
 
-    public ICommand EditCommand { get; set; }
-
     private async void EditItem(object obj)
     {
         Debug.WriteLine("EditItem");
-        AccountMoveSendView objPage = new AccountMoveSendView();                
-        objPage.Sel_AccountMoveSendHeader = (AccountMoveSendHeader)obj;
+        CreditNoteRequestGroupView objPage = new CreditNoteRequestGroupView();                
+        objPage.Sel_CreditNoteRequestGroup = (CreditNoteRequestGroup)obj;
         objPage.editionMode = true;
         objPage.Disappearing += NewGroup_Disappearing;
         await Navigation.PushAsync(objPage, false);
     }
 
-    public ICommand TicketCommand { get; set; }
 
     private async void TicketItem(object obj)
     {
@@ -364,20 +360,23 @@ public partial class NotasCreditoPage : ContentPage
         //((ItemsGroup)obj)[0]
 
         //objPage.setCobReciboCab((CobReciboCab)obj);
-        string printTemplate = "";
+        string printTemplateHtml = "";
+        string printTemplatePlain = "";
+        byte[] printTemplateData = null;
         Services.Templates.Processor processor = new Services.Templates.Processor();
         switch(obj.GetType().Name)
         {
-            case "AccountMoveSendHeader":
+            case "CreditNoteRequestGroup":
                 {
                     //printTemplate = await processor.Template_AccountMoveSendNC((account_move_send) obj);
-                    printTemplate = await processor.Template_AccountMoveSendNC_V3((AccountMoveSendHeader)obj);
+                    (printTemplateData, printTemplateHtml, printTemplatePlain) = await processor.Template_AccountMoveSendNC((CreditNoteRequestGroup)obj);
                 }
                 break;
         }
         
-        objPage.setTemplate(printTemplate);
-
+        objPage.setTemplatePreview(printTemplateHtml);
+        objPage.setTemplatePlain(printTemplatePlain);
+        objPage.setData(printTemplateData);
         //Se asigna título
         //obj.Title = "Cartera Clientes/" + se.nombre;
         //objPage.dataItem = (CobReciboCab)obj;
@@ -429,7 +428,7 @@ public partial class NotasCreditoPage : ContentPage
 
     private async void btnNewGroup_Clicked(object sender, EventArgs e)
     {
-        AccountMoveSendView obj = new AccountMoveSendView();
+        CreditNoteRequestGroupView obj = new CreditNoteRequestGroupView();
         var se = (res_company)SelectorCmp.SelectedItem;
         obj.Sel_Company_Id = se;
 

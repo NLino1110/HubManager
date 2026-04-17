@@ -1,24 +1,26 @@
 ﻿using DMSA.Models.Odoo.Base;
 using Newtonsoft.Json;
+using SQLite;
 
 namespace DMSA.Models.Odoo.Promotions.Wizard
 {
+    [Table("SaleOrderPromotionWizardLine")]
     public class SaleOrderPromotionWizardLine : OdooEntity
     {
         [JsonProperty("id")]
         public int Id { get; set; }
 
         [JsonProperty("wizard_id")]
-        public int[] Wizard_Id { get; set; }
+        public int Wizard_Id { get; set; }
 
         [JsonProperty("promotion_id")]
-        public int[] Promotion_Id { get; set; }
+        public int Promotion_Id { get; set; }
 
         [JsonProperty("rule_id")]
-        public int[] Rule_Id { get; set; }
+        public int Rule_Id { get; set; }
 
         [JsonProperty("promotions_type_id")]
-        public int[] Promotions_Type_Id { get; set; }
+        public int Promotions_Type_Id { get; set; }
 
         [JsonProperty("lines_ids")]
         public int[] Lines_Ids { get; set; }
@@ -49,5 +51,15 @@ namespace DMSA.Models.Odoo.Promotions.Wizard
         /// </summary>
         [JsonProperty("state")]
         public string State { get; set; }
+    }
+
+    public class SaleOrderPromotionWizardLineWrapper : List<object>
+    {
+        public SaleOrderPromotionWizardLineWrapper(SaleOrderPromotionWizardLine line)
+        {
+            Add(0);
+            Add(0);
+            Add(line);
+        }
     }
 }

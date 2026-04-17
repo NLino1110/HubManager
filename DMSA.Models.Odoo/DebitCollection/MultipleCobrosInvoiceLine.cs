@@ -262,6 +262,13 @@ namespace DMSA.Models.Odoo.DebitCollection
         [JsonIgnore]
         public string journal_name { get; set; }
 
+        [Ignore]
+        [JsonIgnore]
+        public string display_type { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
+        public string extra_detail { get; set; }
 
         //[JsonProperty("bank_account_id")]
         //[Column("bank_account_id")]

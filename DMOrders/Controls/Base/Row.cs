@@ -1,7 +1,4 @@
 ﻿using CommunityToolkit.Maui.Behaviors;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Graphics;
-using System;
 using System.Windows.Input;
 
 namespace DMOrders.Controls.Base
