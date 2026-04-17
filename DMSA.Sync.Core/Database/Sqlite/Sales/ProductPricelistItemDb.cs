@@ -29,8 +29,8 @@ namespace DMSA.Sync.Core.Database.Sqlite.Sales
         {
             if (ids == null || ids.Length == 0)
                 return new List<product_pricelist_item>();
-
-            return await GetItemsAsync(x => ids.Contains(x.id));
+            var ids_list = ids.ToList();
+            return await GetItemsAsync(x => ids_list.Contains(x.id));
         }
     }
 }

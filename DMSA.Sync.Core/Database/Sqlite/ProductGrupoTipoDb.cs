@@ -18,7 +18,8 @@ namespace DMSA.Sync.Core.Database.Sqlite
             if (ids == null || ids.Length == 0)
                 return new List<DMSA.Models.Odoo.Native.product_grupo_tipo>();
 
-            return await GetItemsAsync(x => ids.Contains(x.id));
+            var idsList = ids.ToList();
+            return await GetItemsAsync(x => idsList.Contains(x.id));
         }
     }
 }

@@ -209,7 +209,6 @@ public partial class AccountPaymentCrud : ContentPage
         {
             //MODO NUEVO
         }
-
         
         if (multipleCobrosInvoiceLine != null)
         {
@@ -250,17 +249,17 @@ public partial class AccountPaymentCrud : ContentPage
         pickerCardId.SelectedIndex = 0;
         pickerCardId.SelectedIndexChanged += PickerCardId_SelectedIndexChanged;
 
-        string[] bank_ids = { "10","30","17","36", "37", "32", "232", "42" };
+        List<string> bank_ids = new List<string> { "10","30","17","36", "37", "32", "232", "42" };
 
         if(App.Session.odooConnection.DbName.Contains("macronegocios"))
         {
-            bank_ids = new string[] { "2","1","6","17", "3", "5", "47", "7" };
+            bank_ids = new List<string> { "2","1","6","17", "3", "5", "47", "7" };
         }
 
         var bank = new BankDb(App.Session.odooConnection.DbNameSqlite);
         var bankItems = (await bank.GetItemsAsync(x => bank_ids.Contains( x.bic ))).ToList();
 
-        string[] cities_ids = { "EC09001", "EC17001", "EC01001", "EC24001", "EC24003", "EC13001", "EC13008", "EC09007", "EC09009", "EC23001" };
+        List<string> cities_ids = new List<string> { "EC09001", "EC17001", "EC01001", "EC24001", "EC24003", "EC13001", "EC13008", "EC09007", "EC09009", "EC23001" };
 
         var cityDb = new ResCityDb(App.Session.odooConnection.DbNameSqlite);
         var citiesItems = (await cityDb.GetItemsAsync(x => cities_ids.Contains(x.zip))).ToList();

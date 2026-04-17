@@ -20,12 +20,12 @@ namespace DMSA.Sync.Core.Database.Sqlite
             if (ids == null || ids.Length == 0)
                 return new List<product_categoria>();
 
-            return await GetItemsAsync(x => ids.Contains(x.id));
+            return await GetItemsAsync(x => ids.ToList().Contains(x.id));
         }
 
         public async Task<List<product_categoria>> GetItemsAsync(string ByName)
         {
-            string[] excludedIds = new string[] { "6", "14", "19", "20", "15", "29" };
+            List<string> excludedIds = new List<string> { "6", "14", "19", "20", "15", "29" };
             return await GetItemsAsync(x => !excludedIds.Contains(x.clave_externa) && x.name.ToLower().Contains(ByName.ToLower()));
         }
     }
