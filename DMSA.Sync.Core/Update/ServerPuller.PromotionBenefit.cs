@@ -227,10 +227,11 @@ namespace DMSA.Sync.Core.Update
         public async Task<bool> OnlinePromotionProductsByParents(int[] promotions, bool force, Func<int, int, Task>? onProgress = null)
         {
             var database = new PromotionProductDb(DbNameSqlite);
+            var promotionsList = promotions.ToList();
 
             if (force)
             {
-                await database.DeleteAllAsync(x => promotions.Contains(x._promo_id));
+                await database.DeleteAllAsync(x => promotionsList.Contains(x._promo_id));
             }
 
             var stopwatch = Stopwatch.StartNew();
@@ -322,10 +323,11 @@ namespace DMSA.Sync.Core.Update
         public async Task<bool> OnlinePromotionProductDetailByParent(int[] promotions, bool force, Func<int, int, Task>? onProgress = null)
         {
             var database = new PromotionProductDetailDb(DbNameSqlite);
+            var promotionsList = promotions.ToList();
 
             if (force)
             {
-                await database.DeleteAllAsync(x => promotions.Contains(x._promo_id));
+                await database.DeleteAllAsync(x => promotionsList.Contains(x._promo_id));
             }
 
             var stopwatch = Stopwatch.StartNew();
@@ -370,10 +372,11 @@ namespace DMSA.Sync.Core.Update
         public async Task<bool> OnlinePromotionProductDetailByRules(int[] promotionRule, bool force)
         {
             var database = new PromotionProductDetailDb(DbNameSqlite);
+            var promotionsRuleList = promotionRule.ToList();
 
             if (force)
             {
-                await database.DeleteAllAsync(x => promotionRule.Contains( x._bonus_id ));
+                await database.DeleteAllAsync(x => promotionsRuleList.Contains( x._bonus_id ));
             }
 
             var stopwatch = Stopwatch.StartNew();
@@ -417,10 +420,11 @@ namespace DMSA.Sync.Core.Update
         public async Task<bool> OnlinePromotionProductByRules(int[] promotionRule, bool force)
         {
             var database = new PromotionProductDb(DbNameSqlite);
+            var promotionsRuleList = promotionRule.ToList();
 
             if (force)
             {
-                await database.DeleteAllAsync(x => promotionRule.Contains(x._bonus_id));
+                await database.DeleteAllAsync(x => promotionsRuleList.Contains(x._bonus_id));
             }
 
             var stopwatch = Stopwatch.StartNew();
@@ -608,10 +612,11 @@ namespace DMSA.Sync.Core.Update
         public async Task<bool> PromoRulesByParents(int[] parent_ids, bool force, Func<int, int, Task>? onProgress = null)
         {
             var database = new PromoRulesDb(DbNameSqlite);
+            var parentIdsList = parent_ids.ToList();
 
             if (force)
             {
-                await database.DeleteAllAsync(x => parent_ids.Contains(x._promo_id));
+                await database.DeleteAllAsync(x => parentIdsList.Contains(x._promo_id));
             }
 
             var stopwatch = Stopwatch.StartNew();
