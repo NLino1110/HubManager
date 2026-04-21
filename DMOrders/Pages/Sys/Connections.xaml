@@ -223,7 +223,8 @@
     </ContentPage>
     <ContentPage Title="Base de datos">
         <Grid RowDefinitions="Auto,Auto,*">
-            <HorizontalStackLayout Grid.Row="0" Padding="10">
+            <HorizontalStackLayout Grid.Row="0" Padding="10" VerticalOptions="Center">
+                <Label>DB:</Label>
                 <Picker Grid.Row="1" 
                         ItemsSource="{Binding ConnectionsItems}" 
                         ItemDisplayBinding="{Binding DbNameSqlite}"

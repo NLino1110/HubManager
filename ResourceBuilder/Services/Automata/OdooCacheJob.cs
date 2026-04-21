@@ -46,7 +46,7 @@ namespace ResourceBuilder.Services.Automata
                 {
                     if (item.Process)
                     {
-                        bool res1 = builderService.SendRequestOdooChunks(item).GetAwaiter().GetResult();
+                        //bool res1 = builderService.SendRequestOdooChunks(item).GetAwaiter().GetResult();
                     }
                 }                    
                

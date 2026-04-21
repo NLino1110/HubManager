@@ -2,7 +2,7 @@
 using Blazored.Modal.Services;
 using Blazored.Toast.Services;
 using BlazorTable;
-using CobranzasDMSA.Models.General.Core;
+using CobranzasDMSA.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Newtonsoft.Json;

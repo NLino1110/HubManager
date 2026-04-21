@@ -63,7 +63,7 @@ namespace DMSA.Models.Odoo.Promotions
                 //        );
                 //}
                 //else
-                //{                    
+                //{
                     order_line.origin_gift_line_ids_offline =
                         Newtonsoft.Json.JsonConvert.SerializeObject(
                             listPromotionData

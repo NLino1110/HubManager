@@ -130,7 +130,9 @@ namespace DMSA.Sync.Core.Update.Pusher
                         }
                     }
 
-                    foreach (var item in lines.Where(x=>x.is_gift))// || (!x.is_gift && x.discount > 0)))
+                    var lines_gifts = lines.Where(x => x.is_gift);
+
+                    foreach (var item in lines_gifts)// || (!x.is_gift && x.discount > 0)))
                     {
                         List<OriginPromoOrderLine> productSequenceApplyList = new List<OriginPromoOrderLine>();
                         
@@ -181,22 +183,32 @@ namespace DMSA.Sync.Core.Update.Pusher
                                 Obtained = true
                             }));
 
-
-                            List<OriginPromoOrderLine> productSequenceApplyList = new List<OriginPromoOrderLine>();
-                            productSequenceApplyList = JsonConvert.DeserializeObject<List<OriginPromoOrderLine>>(line.origin_gift_line_ids_offline);
-                            int[] linesIdsArray = new int[] { line.erp_id };
-
-                            foreach (var itemSequence in productSequenceApplyList)
+                            //if (line.is_manual && !string.IsNullOrEmpty(line.origin_gift_line_ids_offline))
+                            if (!string.IsNullOrEmpty(line.origin_gift_line_ids_offline))
                             {
-                                linesIds.Add(new SaleOrderPromotionWizardLineWrapper(new SaleOrderPromotionWizardLine
+                                try
                                 {
-                                    Promotion_Id = itemSequence.promo_id,
-                                    Rule_Id = itemSequence.rule_id,
-                                    Discount = 100,
-                                    Rule_Value = itemSequence.total_allowed_gifts,
-                                    Qty_Confirmation = true,
-                                    Lines_Ids = linesIdsArray
-                                }));
+                                    List<OriginPromoOrderLine> productSequenceApplyList = new List<OriginPromoOrderLine>();
+                                    productSequenceApplyList = JsonConvert.DeserializeObject<List<OriginPromoOrderLine>>(line.origin_gift_line_ids_offline);
+                                    int[] linesIdsArray = new int[] { line.erp_id };
+
+                                    foreach (var itemSequence in productSequenceApplyList)
+                                    {
+                                        linesIds.Add(new SaleOrderPromotionWizardLineWrapper(new SaleOrderPromotionWizardLine
+                                        {
+                                            Promotion_Id = itemSequence.promo_id,
+                                            Rule_Id = itemSequence.rule_id,
+                                            Discount = 100,
+                                            Rule_Value = itemSequence.total_allowed_gifts,
+                                            Qty_Confirmation = true,
+                                            Lines_Ids = linesIdsArray
+                                        }));
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    await Toast.Make("Error en el dato de promociones - origin_gift_line_ids_offline" + ex.Message).Show();
+                                }
                             }
 
                             //////foreach(var originGiftLineId in origin_gift_line_ids)

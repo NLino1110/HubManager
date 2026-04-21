@@ -196,18 +196,18 @@ public partial class Crud : ContentPage, IBackButtonHandler
     //    await LoadAsync();
     //}
 
-    private async Task LoadAsync()
-    {
-        try
-        {
-            //await Task.Delay(100);
-            await PrepareForm();
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine(ex);
-        }
-    }
+    //private async Task LoadAsync()
+    //{
+    //    try
+    //    {
+    //        //await Task.Delay(100);
+    //        await PrepareForm();
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Debug.WriteLine(ex);
+    //    }
+    //}
 
     public Crud()
 	{
@@ -247,8 +247,11 @@ public partial class Crud : ContentPage, IBackButtonHandler
     //    Debug.WriteLine($"Property changed: {propertyName}");
     //}
 
-    public async Task PrepareForm()
+    public async Task<int> PrepareForm()
     {
+        //0 - Todo Correcto y se procede a avanzar
+        //1 - Error en lista de precios
+        //2 - Error en direcciones
         bool RequiredPreloadData = false;
         _loaded = true;
         _activeEntry = EntryCantidadSolicitada;
@@ -308,12 +311,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
             if (CurrentPriceList == null || CurrentPartner._product_pricelist_id == 0)
             {
-                await DisplayAlert("Alerta",
-                    "El cliente no tiene lista de precio asignada, no se puede continuar",
-                    "Aceptar");
-
-                await Navigation.PopModalAsync();
-                return;
+                await UITools.HideLoadingPopup();                                
+                return 1;
             }
 
             var addresses = await resPartnerDb.GetItemsAsync(x =>
@@ -322,12 +321,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
             if (addresses == null || addresses.Count == 0)
             {
-                await DisplayAlert("Alerta",
-                    "El cliente no tiene lista de direcciones asignadas, no se puede continuar",
-                    "Aceptar");
-
-                await Navigation.PopModalAsync();
-                return;
+                await UITools.HideLoadingPopup();
+                return 2;
             }
 
             await MainThread.InvokeOnMainThreadAsync(() =>
@@ -362,8 +357,10 @@ public partial class Crud : ContentPage, IBackButtonHandler
             {
                 //await Task.Delay(500);
             }            
-            await UITools.HideLoadingPopup();
+            await UITools.HideLoadingPopup();            
         }
+
+        return 0;
     }
 
     //public async Task PrepareForm()
@@ -1172,6 +1169,12 @@ public partial class Crud : ContentPage, IBackButtonHandler
                             DMSA.Models.Odoo.Promotions.Tools.SetPromotionData(lineToDiscount, 
                                 new List<PromotionEvalItem> { promoResItem });
 
+                            
+                            lineToDiscount.origin_gift_line_ids_offline =
+                                    Newtonsoft.Json.JsonConvert.SerializeObject(
+                                        ruleMatch.ProductSequenceApplyList
+                                    );
+
                             lineToDiscount.origin_gift_line_ids_offline =
                                     Newtonsoft.Json.JsonConvert.SerializeObject(
                                         listPromotionData
@@ -1212,7 +1215,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
             var repo = new PromotionRepository();            
             var engine = new PromotionEngineLite(repo);
 
-            AppliedPromotionResults = await engine.EvaluatePromotionsV3(
+            AppliedPromotionResults = await engine.EvaluatePromotions(
                 saleOrder: saleOrder
             );           
 

@@ -67,45 +67,12 @@ namespace DMOrders.Services.Promotions
                     }
                     else
                     {
-                        //Se deben +/- item.assigned_gifts = promotionEvalItem.MaxAllowedGifts;
-                        //promo.assigned_gifts++;
+                        
                     }
                 }
             }
             else
             {
-
-                //List<int> allProductTmplIds = new();
-
-                //if (promotionEvalItem.RuleSet != null && promotionEvalItem.RuleSet.Count > 0)
-                //{
-                //    foreach (var ruleMatch in promotionEvalItem.RuleSet)
-                //    {
-                //        string raw = ruleMatch.ProductTmplIds;
-
-                //        if (!string.IsNullOrWhiteSpace(raw))
-                //        {
-                //            // Limpia: quita corchetes
-                //            string cleaned = raw.Replace("[", "").Replace("]", "").Trim();
-
-                //            if (!string.IsNullOrWhiteSpace(cleaned))
-                //            {
-                //                var ids = cleaned
-                //                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                //                    .Select(x => int.Parse(x.Trim()));
-
-                //                allProductTmplIds.AddRange(ids);
-                //            }
-                //        }
-                //    }
-                //}
-
-                //// Eliminamos duplicados y usamos orden opcional
-                //var finalIds = allProductTmplIds.Distinct().ToList();
-
-                //// Construimos el string final con formato de array
-                //string fullProductTmplIds = $"[{string.Join(",", finalIds)}]";
-
                 string fullProductTmplIds = GetRelatedProductTmplIds(promotionEvalItem);
 
                 var newItem = new SaleOrderPromotions
@@ -202,11 +169,6 @@ namespace DMOrders.Services.Promotions
             List<SaleOrderPromotions> saleOrderPromotions
             )
         {
-            //Se planea utilizar related_product_tmpl_ids para identificar los productos por los cuales
-            // se aplicó el beneficio de regalo manual
-
-            //saleOrderPromotions[0].related_product_tmpl_ids
-
             var existingPromos = saleOrderPromotions.Where(x => x.order_id == order.id &&
                 x.promotion_type_id == 2 &&
                 x.promotion_selection_type_id == 2).ToList();
@@ -227,14 +189,7 @@ namespace DMOrders.Services.Promotions
             sale_order order,            
             List<SaleOrderPromotions> saleOrderPromotions
             )
-        {
-            //Por ahora la idea es solo resetear los beneficios aplicados de tipo regalo manual
-
-            //for ( var i = 0; i < saleOrderPromotions.Count; i++)
-            //{
-            //    var item = saleOrderPromotions[i];
-            //    saleOrderPromotions.Remove(item);
-            //}
+        {           
 
             var existingPromos = saleOrderPromotions.Where(x => x.order_id == order.id &&
                 x.promotion_type_id == 2 &&
@@ -273,24 +228,24 @@ namespace DMOrders.Services.Promotions
             return null;
         }
 
-        public async Task<SaleOrderPromotions> AddGitfs(
-            sale_order order,
-            PromotionEvalItem promotionEvalItem,
-            List<SaleOrderPromotions> saleOrderPromotions,
-            int giftsToAdd
-            )
-        {
-            var existingPromos = saleOrderPromotions.Where(x => x.order_id == order.id &&
-                x.promotion_id == promotionEvalItem.Promotion.id &&
-                x.promotion_centers == promotionEvalItem.PricelistId).FirstOrDefault();
+        //public async Task<SaleOrderPromotions> AddGitfs(
+        //    sale_order order,
+        //    PromotionEvalItem promotionEvalItem,
+        //    List<SaleOrderPromotions> saleOrderPromotions,
+        //    int giftsToAdd
+        //    )
+        //{
+        //    var existingPromos = saleOrderPromotions.Where(x => x.order_id == order.id &&
+        //        x.promotion_id == promotionEvalItem.Promotion.id &&
+        //        x.promotion_centers == promotionEvalItem.PricelistId).FirstOrDefault();
 
-            if (existingPromos != null)
-            {
-                existingPromos.assigned_gifts += giftsToAdd;
-                return existingPromos;
-            }
+        //    if (existingPromos != null)
+        //    {
+        //        existingPromos.assigned_gifts += giftsToAdd;
+        //        return existingPromos;
+        //    }
 
-            return null;
-        }
+        //    return null;
+        //}
     }
 }

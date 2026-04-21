@@ -8,8 +8,8 @@
 		<UseMaui>true</UseMaui>
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-
+		<Nullable>enable</Nullable>		
+		
 		<ApplicationTitle Condition="'$(Configuration)' == 'Debug'">DMOrders</ApplicationTitle>
 		<ApplicationTitle Condition="'$(Configuration)' == 'Release'">DMOrders</ApplicationTitle>
 		
@@ -33,40 +33,41 @@
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-android|AnyCPU'">
 	  <Optimize>True</Optimize>
 	  <AndroidStoreUncompressedFileExtensions></AndroidStoreUncompressedFileExtensions>
-	  <ApplicationVersion>31</ApplicationVersion>
+	  <ApplicationVersion>32</ApplicationVersion>
 	  <AndroidPackageFormat>aab</AndroidPackageFormat>
 	  <AndroidUseAapt2>True</AndroidUseAapt2>
 	  <AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
+		<RunAOTCompilation>False</RunAOTCompilation>	  
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-ios|AnyCPU'">
 	  <Optimize>True</Optimize>
-	  <ApplicationVersion>31</ApplicationVersion>
+	  <ApplicationVersion>32</ApplicationVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-maccatalyst|AnyCPU'">
 	  <Optimize>True</Optimize>
-	  <ApplicationVersion>31</ApplicationVersion>
+	  <ApplicationVersion>32</ApplicationVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-windows10.0.19041.0|AnyCPU'">
 	  <Optimize>True</Optimize>
-	  <ApplicationVersion>31</ApplicationVersion>
+	  <ApplicationVersion>32</ApplicationVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-android|AnyCPU'">
 	  <AndroidStoreUncompressedFileExtensions></AndroidStoreUncompressedFileExtensions>
-	  <ApplicationVersion>31</ApplicationVersion>
+	  <ApplicationVersion>32</ApplicationVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-ios|AnyCPU'">
-	  <ApplicationVersion>31</ApplicationVersion>
+	  <ApplicationVersion>32</ApplicationVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-maccatalyst|AnyCPU'">
-	  <ApplicationVersion>31</ApplicationVersion>
+	  <ApplicationVersion>32</ApplicationVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-windows10.0.19041.0|AnyCPU'">
-	  <ApplicationVersion>31</ApplicationVersion>
+	  <ApplicationVersion>32</ApplicationVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="$(TargetFramework.Contains('-android'))">
 		<AndroidSupportedAbis>armeabi-v7a;x86;arm64-v8a;x86_64</AndroidSupportedAbis>
-		<AndroidCreatePackagePerAbi>true</AndroidCreatePackagePerAbi>
+		<AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
 	</PropertyGroup>
 
 	<!--<PropertyGroup Condition="$(TargetFramework.Contains('-android'))">
@@ -87,7 +88,7 @@
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#EDE6EB" BaseSize="272,153" />
 		<MauiImage Include="Resources\Images\*" />
 		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
-		<MauiFont Include="Resources\Fonts\*" />
+		<MauiFont Include="Resources\Fonts\*" CopyToOutputDirectory="Always" />
 
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
@@ -135,6 +136,8 @@
 	  <Compile Remove="Pages\Fragments\Product\DetailsViewModel.cs" />
 	  <Compile Remove="Pages\Sys\ConnectionForm.xaml.cs" />
 	  <Compile Remove="Pages\Sys\UpdateData.xaml.Static.cs" />
+	  <Compile Remove="Services\Promotions\bk\PromotionEngineLite.cs" />
+	  <Compile Remove="Services\Promotions\bk\PromotionEngineLite.Fixed.cs" />
 	</ItemGroup>
 	
 
@@ -362,6 +365,7 @@
 
 	<ItemGroup>
 	  <Folder Include="Pages\Fragments\Orders\modals\bk\" />
+	  <Folder Include="Services\Promotions\bk\" />
 	  <Folder Include="ViewModels\DataGrid\" />
 	</ItemGroup>
 </Project>

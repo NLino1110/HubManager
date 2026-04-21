@@ -524,11 +524,12 @@ public partial class PromocionesViewer : ContentView
                     product_id_origin = ruleMatch.ProductIdOrigin,
                     promotion_data = JsonConvert.SerializeObject(
                         new List<PromotionEvalItem> { productGift.promotionEvalItem }
-                    )
+                    ),
+                    //origin_gift_line_ids_offline = "[]"
                 };
-
-                //DMSA.Models.Odoo.Promotions.Tools.SetPromotionDataGift(line,new List<PromotionEvalItemV2> { productGift.promotionEvalItem });
-                DMSA.Models.Odoo.Promotions.Tools.SetPromotionData(line, new List<PromotionEvalItem> { productGift.promotionEvalItem });
+                
+                DMSA.Models.Odoo.Promotions.Tools.SetPromotionData(line, new List<PromotionEvalItem> { productGift.promotionEvalItem });                
+                DMSA.Models.Odoo.Promotions.Tools.SetPromotionDataGift(line, new List<PromotionEvalItem> { productGift.promotionEvalItem });
 
                 SaleOrder.order_line.Add(new OrderLineWrapper(line));
                 OrderLines.Add(line);

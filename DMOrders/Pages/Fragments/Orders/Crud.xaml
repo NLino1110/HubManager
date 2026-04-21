@@ -178,7 +178,7 @@
             </Grid>
         </Grid>
 
-        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" ColumnDefinitions="Auto,*,*,*,Auto" RowDefinitions="Auto" Margin="5">
+        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" ColumnDefinitions="Auto,*,*,Auto,Auto" RowDefinitions="Auto" Margin="5">
             <Button Grid.Row="0" Grid.Column="0" Text="" Clicked="ButtonClose_Clicked" 
                     BackgroundColor="Gray" 
                     TextColor="White" 
@@ -235,15 +235,14 @@
 
             </VerticalStackLayout>
 
-            <HorizontalStackLayout Grid.Column="3">
+            <HorizontalStackLayout Grid.Column="3" Margin="0,0,15,0">
                 <material:DropdownField
                     x:Name="ddfAddress"
                     Title="Dirección"
                     FontSize="11"
-                    TitleFontSize="8"
-                    AllowClear="True"
+                    TitleFontSize="12"
+                    AllowClear="False"
                     VerticalOptions="Center"       
-                    WidthRequest="220"
                     IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={x:Reference RootPage}}">
                     <material:DropdownField.Icon>
                         <FontImageSource
@@ -254,7 +253,7 @@
                 </material:DropdownField>
             </HorizontalStackLayout>
 
-            <HorizontalStackLayout x:Name="ControlsGroup" Grid.Column="4" HorizontalOptions="Fill" Spacing="10"
+            <HorizontalStackLayout x:Name="ControlsGroup" Grid.Column="4" HorizontalOptions="Fill" Spacing="4"
                        IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={x:Reference RootPage}}"
                        IsVisible="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={x:Reference RootPage}}">
                 <Button x:Name="btnAddProd" Text="" Clicked="ButtonAddNew_Clicked" BackgroundColor="DarkSlateGray" TextColor="White" HeightRequest="45" WidthRequest="45" Padding="0">

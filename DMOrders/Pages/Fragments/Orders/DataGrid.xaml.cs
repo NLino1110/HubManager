@@ -164,9 +164,8 @@ namespace DMOrders.Pages.Fragments.Orders
                 var viewObj = new Crud();
                 viewObj.CurrentSaleOrder = (sale_order)obj;
                 viewObj.CurrentCompany = App.Session.res_Company;
-                await viewObj.PrepareForm();
-
-                //viewObj.Disappearing += ViewObj_Disappearing;
+                int resultCrud = await viewObj.PrepareForm();
+                                
                 viewObj.Unloaded += (sender, e) =>
                 {
                     _isNavigating = false;
@@ -174,6 +173,37 @@ namespace DMOrders.Pages.Fragments.Orders
                 };
 
                 await Navigation.PushModalAsync(viewObj, false);
+
+                //if (resultCrud == 1)
+                //{
+                //    var page = Application.Current?.MainPage;
+                //    if (page != null)
+                //        await page.DisplayAlert("Alerta",
+                //                        "El cliente no tiene lista de precio asignada, no se puede continuar",
+                //                        "Aceptar");
+                //}
+
+                //if (resultCrud == 2)
+                //{
+                //    var page = Application.Current?.MainPage;
+                //    if (page != null)
+                //        await page.DisplayAlert("Alerta",
+                //                        "El cliente no tiene lista de direcciones asignadas, no se puede continuar",
+                //                        "Aceptar");
+                //}
+
+                //if (resultCrud == 0)
+                //{
+                //    viewObj.Unloaded += (sender, e) =>
+                //    {
+                //        button.IsEnabled = true;
+                //        _isProcessing = false;
+
+                //    };
+
+                //    await Navigation.PushModalAsync(viewObj, false);
+                //}
+
             }
             finally
             {

@@ -293,22 +293,48 @@ namespace DMOrders.Pages.Fragments.Customers
                     viewObj.CurrentPartner = SelectedItem;
                     viewObj.CurrentCompany = App.Session.res_Company;
                     viewObj.CurrentSaleOrder = null;
-                    await viewObj.PrepareForm();
+                    
+                    int resultCrud = await viewObj.PrepareForm();
 
-                    viewObj.Unloaded += (sender, e) =>
-                    {                        
+                    if(resultCrud == 1)
+                    {
+                        var page = Application.Current?.MainPage;
+                        if (page != null)
+                            await page.DisplayAlert("Alerta",
+                                            "El cliente no tiene lista de precio asignada, no se puede continuar",
+                                            "Aceptar");
                         button.IsEnabled = true;
                         _isProcessing = false;
-                        
-                    };                
+                    }
 
-                    await Navigation.PushModalAsync(viewObj, false);                    
+                    if (resultCrud == 2)
+                    {
+                        var page = Application.Current?.MainPage;
+                        if (page != null)
+                            await page.DisplayAlert("Alerta",
+                                            "El cliente no tiene lista de direcciones asignadas, no se puede continuar",
+                                            "Aceptar");
+                        button.IsEnabled = true;
+                        _isProcessing = false;
+                    }
+
+                    if (resultCrud == 0)
+                    {
+                    viewObj.Unloaded += (sender, e) =>
+                        {
+                        button.IsEnabled = true;
+                        _isProcessing = false;
+
+                        };
+
+                        await Navigation.PushModalAsync(viewObj, false);
+                    }
                 }
             }
             finally
             {
                 //button.IsEnabled = true;
-                //_isProcessing = false;
+                //_isProcessing = false;                
             }
         }
 

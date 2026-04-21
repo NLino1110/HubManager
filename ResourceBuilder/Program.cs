@@ -54,11 +54,14 @@ ConfigurationHelper.setAppSettings(appSettingDeserialized);
 DataConnection connection = new DataConnection();
 //string Driver = ConfigurationHelper.GetAppSettings().profile.DataServers[0].Driver;
 
-builder.Services.AddDbContext<AppDbContext>(p => p.UseOracle(connection.GetConnectionString(),
-                b => b.UseOracleSQLCompatibility("11")));
+//builder.Services.AddDbContext<AppDbContext>(p => p.UseOracle(connection.GetConnectionString(),
+//                b => b.UseOracleSQLCompatibility("11")));
 
-builder.Services.AddDbContext<MySqlDbContext>(p => p.UseMySql(connection.GetDefaultConnectionString("MySql"),
-    new MySqlServerVersion(new Version(8, 0, 21))));
+builder.Services.AddDbContext<AppDbContext>(p => p.UseOracle(connection.GetConnectionString()));
+
+//builder.Services.AddDbContext<MySqlDbContext>(p => p.UseMySql(connection.GetDefaultConnectionString("MySql"),new MySqlServerVersion(new Version(8, 0, 21))));
+var serverVersion = new MySqlServerVersion(new Version(8, 0, 21));
+builder.Services.AddDbContext<MySqlDbContext>(p => p.UseMySql(connection.GetDefaultConnectionString("MySql"), serverVersion));
 
 builder.Services.AddDbContext<PostgreSqlContext>(options =>
     options.UseNpgsql("Host=127.0.0.1;Port=5434;Database=dmintegrations;Username=django;Password=DM@dj4ng0;ApplicationName=Blazor"));
@@ -144,14 +147,6 @@ app.UseHttpsRedirection();
 var provider = new FileExtensionContentTypeProvider();
 // Add new mappings
 provider.Mappings[".apk"] = "application/vnd.android.package-archive";
-//provider.Mappings.Add(".apk", "application/vnd.android.package-archive");
-//provider.Mappings[".myapp"] = "application/x-msdownload";
-//provider.Mappings[".htm3"] = "text/html";
-//provider.Mappings[".image"] = "image/png";
-// Replace an existing mapping
-//provider.Mappings[".rtf"] = "application/x-msdownload";
-// Remove MP4 videos.
-//provider.Mappings.Remove(".mp4");
 
 app.UseStaticFiles();
 
@@ -166,8 +161,6 @@ app.UseAntiforgery();
 
 app.UseOutputCache();
 
-//app.UseFileServer(enableDirectoryBrowsing: true);
-
 app.UseRouting();
 
 app.MapControllers();
@@ -180,27 +173,7 @@ app.MapHub<ChatHub>("/chatHub");
 using (var scope = app.Services.CreateScope())
 {
     var mySqlDbContext = scope.ServiceProvider.GetRequiredService<MySqlDbContext>();
-    //mySqlDbContext.Database.EnsureCreated();
-
-    // O si prefieres usar migraciones
-    // mySqlDbContext.Database.Migrate();
-
     var PgDbContext = scope.ServiceProvider.GetRequiredService<PostgreSqlContext>();
 }
-
-//var client = new OdooApiClient(
-//            baseUrl: "http://localhost:8069",  
-//            db: "macronegocios_dev2",  
-//            username: "admin",
-//            password: "admin" 
-//        );
-
-//if (await client.LoginAsync())
-//{
-//    var result = await client.SearchReadProductAsync();
-//    if (result != null)
-//        Console.WriteLine("✅ Resultado:\n" + result.ToString());
-//}
-
 
 app.Run();

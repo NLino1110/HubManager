@@ -147,7 +147,7 @@ namespace ResourceBuilder.Pages
         {
             var appSetting = ConfigurationHelper.GetAppSettings();
             AppSession _appSession = new AppSession();
-            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.Host;
 
             _appSession.CurrentUser = new User()
             {
@@ -184,7 +184,7 @@ namespace ResourceBuilder.Pages
             {
                 if (item.Process)
                 {
-                    bool res1 = await builderService.SendRequestOdoo(item);
+                    //bool res1 = await builderService.SendRequestOdoo(item);
                 }
             }
 
@@ -196,7 +196,7 @@ namespace ResourceBuilder.Pages
         {
             var appSetting = ConfigurationHelper.GetAppSettings();
             AppSession _appSession = new AppSession();
-            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.Host;
 
             _appSession.CurrentUser = new User()
             {
@@ -238,7 +238,7 @@ namespace ResourceBuilder.Pages
                     status_process = "Procesando " + item.ActioName + " ...";
                     current_buildItem = item;
                     //_ = InvokeAsync(StateHasChanged);
-                    bool res1 = await builderService.SendRequestOdooChunks(item);
+                    //bool res1 = await builderService.SendRequestOdooChunks(item);
                 }
             }
 
@@ -304,7 +304,7 @@ namespace ResourceBuilder.Pages
         {
             var appSetting = ConfigurationHelper.GetAppSettings();
             AppSession _appSession = new AppSession();
-            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.Host;
 
             _appSession.CurrentUser = new User()
             {

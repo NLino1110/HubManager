@@ -138,8 +138,8 @@
                         <Button.ImageSource>
                         <FontImageSource                            
                             Size="18"
-                            FontFamily="MaterialSharp"
-                            Glyph="{x:Static uranium:MaterialSharp.Delete}" />
+                            FontFamily="FontAwesome5Solid"
+                            Glyph="&#xf519;" />
                     </Button.ImageSource>
                     </Button>
 

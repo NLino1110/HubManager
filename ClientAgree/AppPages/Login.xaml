@@ -5,6 +5,7 @@
              Title="Cobranzas Login"
              Shell.FlyoutBehavior="Flyout"
              Shell.NavBarIsVisible="False"
+             xmlns:beebtech="clr-namespace:BeebTech.Controls.UI;assembly=BeebTech.Controls"
              xmlns:controls="clr-namespace:BeebTech.Maui.Controls;assembly=BeebTech.Maui.Controls">
     <ContentPage.Resources>
         <Style x:Key="labelRedStyle"
@@ -35,6 +36,17 @@
             Padding="30"
             VerticalOptions="Center">
 
+
+            <beebtech:TextField x:Name="txtPassword"
+                    Title="Password"
+                    IsPassword="True"
+                    Icon="{FontImageSource FontFamily=FontAwesome5Solid, Glyph='&#xf084;'}">
+                <beebtech:TextField.Attachments>
+                    <beebtech:TextFieldPasswordShowHideAttachment />
+                </beebtech:TextField.Attachments>
+            </beebtech:TextField>
+            
+            
             <!--<Image
                 Source="dotnet_bot.png"
                 SemanticProperties.Description="Cute dot net bot waving hi to you!"

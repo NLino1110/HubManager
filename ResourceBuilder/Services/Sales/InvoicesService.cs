@@ -431,11 +431,11 @@ namespace ResourceBuilder.Services.Sales
             return response;
         }
 
-        public async Task<ApiResponseOdooRpcT<int>> PutInvoiceHeader(List<InvoiceHeader> invoiceHeaders)
+        public async Task<ApiResponseOdooRpcT<List<int>>> PutInvoiceHeader(List<InvoiceHeader> invoiceHeaders)
         {
             AppSession _appSession = new AppSession();
             var appSetting = ConfigurationHelper.GetAppSettings();
-            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.Host;
 
             int company_id = 1;
 
@@ -449,13 +449,6 @@ namespace ResourceBuilder.Services.Sales
                 databasename = appSetting.profile.Odoo.Database
             };
 
-            //bool noSalir = true;
-
-            ApiRequestOdoo_v1 apiRequest = new ApiRequestOdoo_v1();
-            apiRequest.uid = int.Parse(appSetting.profile.Odoo.uid);
-            apiRequest.password = appSetting.profile.Odoo.Password;
-            apiRequest.databasename = appSetting.profile.Odoo.Database;
-            apiRequest.dateIni = DateTime.Now;
 
             ApiManager.HubAccountMoveTransientLegacy hubmanager = new ApiManager.HubAccountMoveTransientLegacy(_appSession);
             var resultCount = await hubmanager.Create(invoiceHeaders, company_id);
@@ -463,11 +456,11 @@ namespace ResourceBuilder.Services.Sales
             return resultCount;
         }
 
-        public async Task<ApiResponseOdooRpcT<int>> PutInvoiceDetails(List<InvoiceDetails> invoiceDetails)
+        public async Task<ApiResponseOdooRpcT<List<int>>> PutInvoiceDetails(List<InvoiceDetails> invoiceDetails)
         {
             AppSession _appSession = new AppSession();
             var appSetting = ConfigurationHelper.GetAppSettings();
-            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.Host;
 
             int company_id = 1;
 
@@ -480,14 +473,7 @@ namespace ResourceBuilder.Services.Sales
                 password = appSetting.profile.Odoo.Password,
                 databasename = appSetting.profile.Odoo.Database
             };
-
-            //bool noSalir = true;
-
-            ApiRequestOdoo_v1 apiRequest = new ApiRequestOdoo_v1();
-            apiRequest.uid = int.Parse(appSetting.profile.Odoo.uid);
-            apiRequest.password = appSetting.profile.Odoo.Password;
-            apiRequest.databasename = appSetting.profile.Odoo.Database;
-            apiRequest.dateIni = DateTime.Now;
+            
 
             ApiManager.HubAccountMoveTransientLegacy hubmanager = new ApiManager.HubAccountMoveTransientLegacy(_appSession);
             var resultCount = await hubmanager.CreateDetails(invoiceDetails, company_id);
@@ -495,11 +481,11 @@ namespace ResourceBuilder.Services.Sales
             return resultCount;
         }
 
-        public async Task<ApiResponseOdooRpcT<int>> PutInvoicePayments(List<InvoicePayments> invoiceDetails)
+        public async Task<ApiResponseOdooRpcT<List<int>>> PutInvoicePayments(List<InvoicePayments> invoiceDetails)
         {
             AppSession _appSession = new AppSession();
             var appSetting = ConfigurationHelper.GetAppSettings();
-            _appSession.odooConnection.Host = appSetting.profile.Odoo.ApiBaseAddressOdoo;
+            _appSession.odooConnection.Host = appSetting.profile.Odoo.Host;
 
             int company_id = 1;
 
@@ -512,14 +498,7 @@ namespace ResourceBuilder.Services.Sales
                 password = appSetting.profile.Odoo.Password,
                 databasename = appSetting.profile.Odoo.Database
             };
-
-            //bool noSalir = true;
-
-            ApiRequestOdoo_v1 apiRequest = new ApiRequestOdoo_v1();
-            apiRequest.uid = int.Parse(appSetting.profile.Odoo.uid);
-            apiRequest.password = appSetting.profile.Odoo.Password;
-            apiRequest.databasename = appSetting.profile.Odoo.Database;
-            apiRequest.dateIni = DateTime.Now;
+                        
 
             ApiManager.HubAccountMoveTransientLegacy hubmanager = new ApiManager.HubAccountMoveTransientLegacy(_appSession);
             var resultCount = await hubmanager.CreatePayments(invoiceDetails, company_id);

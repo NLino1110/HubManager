@@ -209,6 +209,7 @@ public partial class AccountPaymentCrud : ContentPage
         {
             //MODO NUEVO
         }
+
         
         if (multipleCobrosInvoiceLine != null)
         {
