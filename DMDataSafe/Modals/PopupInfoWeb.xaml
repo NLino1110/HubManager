@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DMDataSafe.Modals.PopupInfoWeb"
+             Title="PopupInfoWeb">
+    <VerticalStackLayout>
+        <Label Text="Leer"></Label>
+        <Button
+                BackgroundColor="OrangeRed"
+                x:Name="BtnClose"
+                Text="Regresar"
+                Clicked="Close"
+                SemanticProperties.Hint="Cerrar"                
+                WidthRequest="150"
+                HorizontalOptions="Center"
+            Margin="5">
+            <Button.ImageSource>
+                <FontImageSource FontFamily="FontAwesome5Solid"
+                                        Glyph="&#xf053;"
+                                                 Size="20"                                 
+                                 FontAutoScalingEnabled="True"
+                                                  />
+            </Button.ImageSource>
+        </Button>
+        <ScrollView x:Name="myscroll" MaximumHeightRequest="650">
+        <VerticalStackLayout>
+            <WebView x:Name="webViewPopup" Margin="0" BackgroundColor="Aqua" HeightRequest="450">
+                <WebView.Source>
+                    <HtmlWebViewSource>
+                        <HtmlWebViewSource.Html>
+                            <![CDATA[
+                <HTML>
+                <BODY>
+                <H1>DMujeres S.A.</H1>
+                <P>...</P>
+                </BODY>
+                </HTML>
+                ]]>
+                        </HtmlWebViewSource.Html>
+                    </HtmlWebViewSource>
+                </WebView.Source>
+            </WebView>
+        </VerticalStackLayout>
+        </ScrollView>
+    </VerticalStackLayout>
+</ContentPage>

@@ -384,10 +384,8 @@
                     </CollectionView.ItemTemplate>
                 </CollectionView>
             </Grid>
-                
 
-            <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" HorizontalOptions="FillAndExpand" ColumnDefinitions="*,*,Auto">
-                
+            <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" HorizontalOptions="FillAndExpand" ColumnDefinitions="*,*,Auto">                
                 <CollectionView
                         Grid.Row="0" 
                         Grid.Column="0"

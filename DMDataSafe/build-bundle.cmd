@@ -1,0 +1,2 @@
+ECHO dotnet build -f net7.0-android -c Release
+dotnet publish -f net7.0-android -c Release -p:AndroidKeyStore=true -p:AndroidSigningKeyStore=..\..\keystores\upload-keystore.jks -p:AndroidSigningKeyAlias=upload -p:AndroidSigningKeyPass=20appmujeresapp22 -p:AndroidSigningStorePass=2appmujeresapp022

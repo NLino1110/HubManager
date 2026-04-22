@@ -1,7 +1,7 @@
 ﻿using Foundation;
 using Microsoft.Maui;
 
-namespace ClientAgree
+namespace DMDataSafe
 {
     [Register("AppDelegate")]
     public class AppDelegate : MauiUIApplicationDelegate

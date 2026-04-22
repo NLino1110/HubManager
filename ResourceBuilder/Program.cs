@@ -12,13 +12,9 @@ using BlazorTable;
 using DataSourceManager;
 using DataSourceManager.MySql;
 using DataSourceManager.Tools;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Models.DMSA.Shared.Security;
 using Models.DMSA.Shared.Tools;
 using Quartz;
@@ -30,10 +26,6 @@ using ResourceBuilder.Services.Automata;
 using ResourceBuilder.Services.Inventory;
 using ResourceBuilder.Services.Sales;
 using ResourceBuilder.Services.Sync;
-using ResourceBuilder.Services.Test;
-using System.Configuration;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-//using Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,7 +53,9 @@ builder.Services.AddDbContext<AppDbContext>(p => p.UseOracle(connection.GetConne
 
 //builder.Services.AddDbContext<MySqlDbContext>(p => p.UseMySql(connection.GetDefaultConnectionString("MySql"),new MySqlServerVersion(new Version(8, 0, 21))));
 var serverVersion = new MySqlServerVersion(new Version(8, 0, 21));
-builder.Services.AddDbContext<MySqlDbContext>(p => p.UseMySql(connection.GetDefaultConnectionString("MySql"), serverVersion));
+string mysqlConnectionString = connection.GetDefaultConnectionString("MySql");
+
+builder.Services.AddDbContext<MySqlDbContext>(p => p.UseMySql(mysqlConnectionString, serverVersion));
 
 builder.Services.AddDbContext<PostgreSqlContext>(options =>
     options.UseNpgsql("Host=127.0.0.1;Port=5434;Database=dmintegrations;Username=django;Password=DM@dj4ng0;ApplicationName=Blazor"));

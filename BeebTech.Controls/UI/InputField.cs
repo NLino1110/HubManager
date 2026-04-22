@@ -372,6 +372,7 @@ public partial class InputField : ContentView
 
     private void Content_Unfocused(object sender, FocusEventArgs e)
     {
+        //TODO: Revisar validacion para WINDOWS
         border.SetBinding(Border.StrokeProperty, GetRelativeBinding(nameof(BorderColor)));
         labelTitle.SetBinding(Label.TextColorProperty, GetRelativeBinding(nameof(TitleColor)));
         UpdateState();

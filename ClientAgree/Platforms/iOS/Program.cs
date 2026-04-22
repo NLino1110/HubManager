@@ -1,7 +1,7 @@
 ﻿using ObjCRuntime;
 using UIKit;
 
-namespace ClientAgree
+namespace DMDataSafe
 {
     public class Program
     {

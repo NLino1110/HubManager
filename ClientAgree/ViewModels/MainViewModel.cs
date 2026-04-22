@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Input;
-using ClientAgree.Models;
-using ClientAgree.Utils;
+using DMDataSafe.Models;
+using DMDataSafe.Utils;
 
-namespace ClientAgree.ViewModels
+namespace DMDataSafe.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {

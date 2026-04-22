@@ -1,11 +1,11 @@
-﻿using ClientAgree.AppPages.Sys;
+﻿using DMDataSafe.AppPages.Sys;
 using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 using Models.DMSA.Mbw.Security;
 using SkiaSharp.Views.Maui.Controls.Hosting;
 using System.Diagnostics;
 
-namespace ClientAgree
+namespace DMDataSafe
 {
     public static class MauiProgram
     {

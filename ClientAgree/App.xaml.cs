@@ -1,7 +1,7 @@
-﻿using ClientAgree.AppPages;
+﻿using DMDataSafe.AppPages;
 using Models.DMSA.Mbw.Security;
 
-namespace ClientAgree
+namespace DMDataSafe
 {
     public partial class App : Application
     {

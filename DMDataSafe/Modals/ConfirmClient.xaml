@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DMDataSafe.Modals.ConfirmClient"
+             Title="ConfirmClient"
+             xmlns:bcontrols="clr-namespace:BeebTech.Maui.Controls;assembly=BeebTech.Maui.Controls"
+             xmlns:controls="clr-namespace:Microsoft.Maui.Controls;assembly=Microsoft.Maui.Controls">
+    <ContentPage.Background>
+        <LinearGradientBrush EndPoint="1,0">
+            <GradientStop Color="#FE4468"
+                          Offset="0.1" />
+            <GradientStop Color="#F16362"
+                          Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+    <VerticalStackLayout>        
+        <Border
+        StrokeShape="RoundRectangle 10,10,10,10"
+        Background="#FFF"
+        Padding="16,16"
+        HorizontalOptions="Center"
+            Margin="10">
+            <Border.Shadow>
+                <Shadow Brush="Black"
+                Offset="10,10"
+                Opacity="0.8" />
+            </Border.Shadow>
+            
+        <Frame 
+       CornerRadius="5"
+       Padding="16,8"
+            BorderColor="Transparent">
+            <StackLayout>
+                <Label Text="Autorización"
+           FontSize="14"
+           FontAttributes="Bold" />
+                <BoxView Color="Gray"
+             HeightRequest="2"
+             HorizontalOptions="Fill" />
+                <Label Text="Por favor, acepte las condiciones de uso para poder proseguir."/>
+                    <Label Text="Los siguiente datos son los que el cliente ha proporcionado previamente para su autorización."/>
+
+                    <Grid Margin="0,0,0,0" Padding="20,20">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="45" />
+                            <RowDefinition Height="45" />
+                            <RowDefinition Height="45" />
+                            <RowDefinition Height="45" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <bcontrols:EntryWithIcon
+                x:Name="txtTipId"
+                Placeholder="Tipo identificación"
+                            Text=""
+                            HidePassword="False"
+                FontFamily="FontAwesome5Solid"
+                            IsReadOnly="True"
+                            Glyph="&#xf2c2;" IconColor="#D32F2F"/>
+
+                        <Grid x:Name="gridTipId" IsVisible="False">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="36"/>
+                                <ColumnDefinition Width="*"/>                                
+                            </Grid.ColumnDefinitions>
+
+                            <Image WidthRequest="20">
+                                <Image.Source>
+                                    <FontImageSource FontFamily="FontAwesome5Solid"
+                                                 Color="#D32F2F"
+                                                 Size="20"                                 
+                                 FontAutoScalingEnabled="True"
+                                                 Glyph="&#xf2c2;" />
+                                </Image.Source>
+                            </Image>
+                            <Picker x:Name="pickerTipId" Grid.Column="1"
+                                Title=""
+                                ItemsSource="{Binding tipoIdes}"
+                                ItemDisplayBinding="{Binding descripcion}"
+                                HorizontalOptions="FillAndExpand">
+
+                            </Picker>
+                        </Grid>
+                        
+                        
+                        
+                        <bcontrols:EntryWithIcon Grid.Column="1"
+                x:Name="txtCedula"
+                Placeholder="Cédula"
+                            Text="0999999999"
+                            HidePassword="False"
+                                    FontFamily="FontAwesome5Solid"
+                                                IsReadOnly="True"
+                                    Glyph="&#xf2bb;" IconColor="#D32F2F"/>
+
+                        <bcontrols:EntryWithIcon Grid.Row="1"
+                x:Name="txtNombres"
+                Placeholder="NOMBRES CLIENTE"
+                            Text="NOMBRES CLIENTE"
+                            HidePassword="False"
+                                    FontFamily="FontAwesome5Solid"
+                                                IsReadOnly="True"
+                                    Glyph="&#xf11b;" IconColor="#D32F2F"/>
+
+                        <bcontrols:EntryWithIcon Grid.Row="1" Grid.Column="1" 
+                x:Name="txtApellidos"
+                Placeholder="APELLIDOS CLIENTE"
+                            Text="APELLIDOS CLIENTE"
+                            HidePassword="False"
+                                    FontFamily="FontAwesome5Solid"
+                                                IsReadOnly="True"
+                                    Glyph="&#xf0c0;" IconColor="#D32F2F"/>
+
+                        <bcontrols:EntryWithIcon Grid.Row="2"
+                x:Name="txtTelefono"
+                Placeholder="TELEFONO"
+                            Text="TELEFONO"
+                            HidePassword="False"
+                                        FontFamily="FontAwesome5Solid"
+                                                IsReadOnly="True"
+                                        Glyph="&#xf3cd;" IconColor="#D32F2F"/>
+
+                        <bcontrols:EntryWithIcon Grid.Row="2" Grid.Column="1" 
+                x:Name="txtEmail"
+                Placeholder="EMAIL"
+                            Text="EMAIL"
+                            HidePassword="False"
+                                        FontFamily="FontAwesome5Solid"
+                                                IsReadOnly="True"
+                                        Glyph="&#xf0e0;" IconColor="#D32F2F"/>
+
+                        <bcontrols:EntryWithIcon Grid.Row="3" Grid.Column="0" 
+                x:Name="txtAddress"
+                Placeholder="DIRECCIÓN"
+                            Text="DIRECCIÓN"
+                            HidePassword="False"
+                                        FontFamily="FontAwesome5Solid"
+                                                IsReadOnly="True"
+                                        Glyph="&#xf015;" IconColor="#D32F2F"/>
+
+
+                    </Grid>
+
+                    <Label x:Name="lblCustomerDisclaimer" Text="lblCustomerDisclaimer"/>
+                
+                    <Grid Margin="0,0,0,0" Padding="20,20">
+                        <Grid.RowDefinitions>
+
+                            <RowDefinition Height="45" />
+                            <RowDefinition Height="45" />
+                            <RowDefinition Height="45" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <CheckBox Color="#D32F2F" 
+                                  IsChecked="True" 
+                                  x:Name="checkBox" 
+                                  ScaleX="1.5" 
+                                  ScaleY="1.5" CheckedChanged="checkBox_CheckedChanged"/>
+
+                        <Label x:Name="lblCustomerAgree1"                                
+                               Grid.Column="1" 
+                               Margin="0,7" 
+                               WidthRequest="950"
+                               HeightRequest="50"
+                               HorizontalOptions="StartAndExpand"
+                               VerticalOptions="CenterAndExpand" FontSize="18">
+                            <Label.Text>
+                                Acepto el envío de comunicaciones comerciales personalizadas, basadas en sus gustos, preferencias y consumos, sobre los productos y servicios de DMujeres S.A. por cualquier medio.
+                            </Label.Text>
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label"
+                     Binding="{Binding Source={x:Reference checkBox}, Path=IsChecked}"
+                     Value="true">
+                                    <Setter Property="FontAttributes"
+                    Value="Bold" />
+                                    <Setter Property="FontSize"
+                    Value="18" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+
+                        <CheckBox Color="#D32F2F" IsChecked="True" x:Name="checkBox1" ScaleX="1.5" ScaleY="1.5" Grid.Row="1"
+                                  CheckedChanged="checkBox_CheckedChanged"/>
+
+                        <Label Grid.Column="1" Grid.Row="1" Margin="0,7">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer
+                                                Command="{Binding TapCommand}"
+                                                                  NumberOfTapsRequired="1"
+                                          CommandParameter="https://macronegocios.ec/" />
+                            </Label.GestureRecognizers>
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="He leído y acepto las condiciones generales y " FontSize="18" />
+                                    <Span Text="política de privacidad"
+                  TextColor="Blue"
+                  TextDecorations="Underline" FontSize="18">
+                                        <!--<Span.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding TapCommand}"
+                                                                  NumberOfTapsRequired="1"
+                                          CommandParameter="https://learn.microsoft.com/dotnet/maui/" />
+                                        </Span.GestureRecognizers>-->
+                                    </Span>
+                                    <Span Text="." />
+                                </FormattedString>
+                            </Label.FormattedText>                            
+                        </Label>
+
+                        <CheckBox Color="#D32F2F" IsChecked="True" x:Name="checkBox2" ScaleX="1.5" ScaleY="1.5" Grid.Row="2"
+                                  CheckedChanged="checkBox_CheckedChanged"/>
+                        <Label x:Name="lblCustomerAgree3" Text="Acepto..." Grid.Column="1" Grid.Row="2" Margin="0,7">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer
+                                                Command="{Binding TapCommand}"
+                                                                  NumberOfTapsRequired="1"
+                                          CommandParameter="https://dmujeresec-my.sharepoint.com/:b:/g/personal/sistemas_dmujeressa_com_ec/ETd1vTJlqDFDhK_BzYfjP6UBvj9JD6yJpobgjwnvuQQoKg?e=FG4uqy&amp;ga=1" />
+                            </Label.GestureRecognizers>
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="He leído y estoy de acuerdo con los  " FontSize="18" />
+                                    <Span Text="términos y condiciones"
+                  TextColor="Blue"
+                  TextDecorations="Underline" FontSize="18">
+                                        <!--<Span.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding TapCommand}"
+                                                                  NumberOfTapsRequired="1"
+                                          CommandParameter="https://learn.microsoft.com/dotnet/maui/" />
+                                        </Span.GestureRecognizers>-->
+                                    </Span>
+                                    <Span Text="." />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        
+                        <StackLayout Grid.Column="3">
+                            <Button
+                                ContentLayout="Top,0"
+                                BackgroundColor="Orange"                                
+                                x:Name="BtnEditioMode"
+                                Text="EDICIÓN"
+                                Clicked="BtnEditioMode_Clicked"
+                                SemanticProperties.Hint="EDICIÓN"
+                                WidthRequest="120"
+                                HorizontalOptions="Center"
+                                FontAttributes="Bold">
+                                <Button.ImageSource>
+                                    <FontImageSource FontFamily="FontAwesome5Solid"                                                     
+                                        Glyph="&#xf4ff;"
+                                                 Size="20"                                 
+                                 FontAutoScalingEnabled="True"
+                                                  />
+                                </Button.ImageSource>
+                                <!--<Button.Triggers>
+                    <DataTrigger TargetType="Button"
+                     Binding="{Binding Source={x:Reference checkBox}, Path=IsChecked}"
+                     Value="true">
+                        <Setter Property="FontAttributes"
+                    Value="Bold" />
+                        <Setter Property="FontSize"
+                    Value="18" />
+                        <Setter Property="IsEnabled"
+                    Value="{Binding Source={x:Reference checkBox}, Path=IsChecked}" />
+                    </DataTrigger>
+                </Button.Triggers>-->
+                            </Button>
+                            <Button ContentLayout="Top,0"
+                    BackgroundColor="HotPink"
+                x:Name="BtnEditionDone"
+                Text="TERMINAR"
+                    Clicked="BtnEditionDone_Clicked"
+                SemanticProperties.Hint="TERMINAR"
+                WidthRequest="120"
+                HorizontalOptions="Center"
+                                     FontAttributes="Bold" IsVisible="False">
+                                <Button.ImageSource>
+                                    <FontImageSource FontFamily="FontAwesome5Solid"
+                                        Glyph="&#xf2b5;"
+                                                 Size="20"                                 
+                                 FontAutoScalingEnabled="True"
+                                                  />
+                                </Button.ImageSource>
+                                <!--<Button.Triggers>
+                    <DataTrigger TargetType="Button"
+                     Binding="{Binding Source={x:Reference checkBox}, Path=IsChecked}"
+                     Value="true">
+                        <Setter Property="FontAttributes"
+                    Value="Bold" />
+                        <Setter Property="FontSize"
+                    Value="18" />
+                        <Setter Property="IsEnabled"
+                    Value="{Binding Source={x:Reference checkBox}, Path=IsChecked}" />
+                    </DataTrigger>
+                </Button.Triggers>-->
+                            </Button>
+                        </StackLayout>
+                    </Grid>
+
+                </StackLayout>
+        </Frame>
+        </Border>
+        
+        
+
+        <Grid Margin="0,0,0,0" Padding="20,20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="45" />                
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>                
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <ImageButton
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+                <ImageButton.Source>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+                                        Glyph="&#xf0e0;"
+                                                 Size="20"                                 
+                                 FontAutoScalingEnabled="True"
+                                                  />
+                </ImageButton.Source>                
+            </ImageButton>
+            <Button                
+                BackgroundColor="LightCoral"
+                x:Name="BtnClose"
+                Text="Regresar"
+                Clicked="Cancel"
+                SemanticProperties.Hint="Cerrar"                
+                WidthRequest="150"
+                HorizontalOptions="Center">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+                                        Glyph="&#xf053;"
+                                                 Size="20"                                 
+                                 FontAutoScalingEnabled="True"
+                                                  />
+                </Button.ImageSource>
+            </Button>
+
+            <Button Grid.Column="1"
+                    BackgroundColor="Red"
+                x:Name="BtnDecline"
+                Text="No Acepto"
+                    Clicked="Decline"
+                SemanticProperties.Hint="No Acepto"                
+                WidthRequest="250"
+                HorizontalOptions="Center">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+                                        Glyph="&#xf057;"
+                                                 Size="20"                                 
+                                 FontAutoScalingEnabled="True"
+                                                  />
+                </Button.ImageSource>
+            </Button>
+
+            <Button Grid.Column="2"
+                    BackgroundColor="Green"
+                x:Name="BtnAgree"
+                Text="ACEPTO"
+                    Clicked="Agree"
+                SemanticProperties.Hint="ACEPTO"                
+                WidthRequest="150"
+                HorizontalOptions="Center">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+                                        Glyph="&#xf058;"
+                                                 Size="20"                                 
+                                 FontAutoScalingEnabled="True"
+                                                  />
+                </Button.ImageSource>
+                <!--<Button.Triggers>
+                    <DataTrigger TargetType="Button"
+                     Binding="{Binding Source={x:Reference checkBox}, Path=IsChecked}"
+                     Value="true">
+                        <Setter Property="FontAttributes"
+                    Value="Bold" />
+                        <Setter Property="FontSize"
+                    Value="18" />
+                        <Setter Property="IsEnabled"
+                    Value="{Binding Source={x:Reference checkBox}, Path=IsChecked}" />
+                    </DataTrigger>
+                </Button.Triggers>-->
+            </Button>
+
+        </Grid>
+        
+        <HorizontalStackLayout Padding="25">
+        
+        </HorizontalStackLayout>
+    </VerticalStackLayout>
+</ContentPage>

@@ -11,7 +11,7 @@ using Microsoft.Maui.ApplicationModel;
 using Models.DMSA.Shared.Security;
 using Models.DMSA.Mbw.Security;
 
-namespace ClientAgree.AppPages;
+namespace DMDataSafe.AppPages;
 
 public partial class Login : ContentPage
 {

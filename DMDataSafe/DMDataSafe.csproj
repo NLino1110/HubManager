@@ -1,0 +1,221 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>    
+    <OutputType>Exe</OutputType>
+    <RootNamespace>DMDataSafe</RootNamespace>
+    <UseMaui>true</UseMaui>
+    <SingleProject>true</SingleProject>
+    <ImplicitUsings>enable</ImplicitUsings>
+	 <Nullable>enable</Nullable>
+    <!-- Display name -->
+    <ApplicationTitle>DMDataSafe</ApplicationTitle>
+    <!-- App Identifier -->
+    <ApplicationId>com.dmujeres.datasafe</ApplicationId>
+	  <ApplicationIdGuid>7D2C4B18-E93A-4F62-B081-9C9D143E5A20</ApplicationIdGuid>
+    <!-- Versions -->
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <ApplicationVersion>1</ApplicationVersion>
+	  <WindowsPackageType>None</WindowsPackageType>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+	  <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+    <AndroidSigningKeyStore>upload-keystore.jks</AndroidSigningKeyStore>
+  </PropertyGroup>
+	<PropertyGroup>
+		<AndroidUseAapt2>true</AndroidUseAapt2>
+		<AndroidAapt2Version>7.4.2</AndroidAapt2Version>		
+	</PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-android|AnyCPU'">
+    <AndroidKeyStore>True</AndroidKeyStore>
+    <AndroidSigningStorePass>2appmujeresapp022</AndroidSigningStorePass>
+    <AndroidSigningKeyPass>2appmujeresapp022</AndroidSigningKeyPass>
+    <AndroidSigningKeyAlias>upload</AndroidSigningKeyAlias>
+    <ApplicationId>com.dmujeres.datasafe</ApplicationId>
+    <ApplicationVersion>3</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0.1</ApplicationDisplayVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-android|AnyCPU'">
+    <AndroidKeyStore>True</AndroidKeyStore>
+    <AndroidSigningStorePass>2appmujeresapp022</AndroidSigningStorePass>
+    <AndroidSigningKeyPass>2appmujeresapp022</AndroidSigningKeyPass>
+    <AndroidSigningKeyAlias>upload</AndroidSigningKeyAlias>
+    <ApplicationId>com.dmujeres.datasafe</ApplicationId>
+    <ApplicationVersion>3</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0.1</ApplicationDisplayVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-ios|AnyCPU'">
+    <ApplicationId>com.dmujeres.datasafe</ApplicationId>
+    <ApplicationVersion>3</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0.1</ApplicationDisplayVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-maccatalyst|AnyCPU'">
+    <ApplicationId>com.dmujeres.datasafe</ApplicationId>
+    <ApplicationVersion>3</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0.1</ApplicationDisplayVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-windows10.0.19041.0|AnyCPU'">
+    <ApplicationId>com.dmujeres.datasafe</ApplicationId>
+    <ApplicationVersion>3</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0.1</ApplicationDisplayVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-ios|AnyCPU'">
+    <ApplicationId>com.dmujeres.datasafe</ApplicationId>
+    <ApplicationVersion>3</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0.1</ApplicationDisplayVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-maccatalyst|AnyCPU'">
+    <ApplicationId>com.dmujeres.datasafe</ApplicationId>
+    <ApplicationVersion>3</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0.1</ApplicationDisplayVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-windows10.0.19041.0|AnyCPU'">
+    <ApplicationId>com.dmujeres.datasafe</ApplicationId>
+    <ApplicationVersion>3</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0.1</ApplicationDisplayVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-android|AnyCPU'">
+    <ApplicationVersion>6</ApplicationVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-ios|AnyCPU'">
+    <ApplicationVersion>6</ApplicationVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-maccatalyst|AnyCPU'">
+    <ApplicationVersion>6</ApplicationVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-windows10.0.19041.0|AnyCPU'">
+    <ApplicationVersion>6</ApplicationVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-android|AnyCPU'">
+    <ApplicationVersion>6</ApplicationVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-ios|AnyCPU'">
+    <ApplicationVersion>6</ApplicationVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-maccatalyst|AnyCPU'">
+    <ApplicationVersion>6</ApplicationVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-windows10.0.19041.0|AnyCPU'">
+    <ApplicationVersion>6</ApplicationVersion>
+  </PropertyGroup>  
+  <ItemGroup>
+    <!-- App Icon -->
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+    <!-- Splash Screen -->
+    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#EDE6EB" BaseSize="272,153" />
+    <!-- Images -->
+    <MauiImage Include="Resources\Images\*" />
+    <MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />
+    <!-- Custom Fonts -->
+    <MauiFont Include="Resources\Fonts\*" />
+    <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
+    <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Remove="Controls\**" />
+    <AndroidResource Remove="Maui.DataGrid\**" />
+    <Compile Remove="Controls\**" />
+    <Compile Remove="Maui.DataGrid\**" />
+    <EmbeddedResource Remove="Controls\**" />
+    <EmbeddedResource Remove="Maui.DataGrid\**" />
+    <MauiCss Remove="Controls\**" />
+    <MauiCss Remove="Maui.DataGrid\**" />
+    <MauiXaml Remove="Controls\**" />
+    <MauiXaml Remove="Maui.DataGrid\**" />
+    <None Remove="Controls\**" />
+    <None Remove="Maui.DataGrid\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Platforms\Android\env.conf" />
+    <None Remove="Platforms\Android\Resources\drawable-hdpi\logo_dmujeres.png" />
+    <None Remove="Platforms\Android\Resources\drawable-hdpi\logo_macronegocios.png" />
+    <None Remove="Platforms\Android\Resources\drawable-ldpi\logo_dmujeres.png" />
+    <None Remove="Platforms\Android\Resources\drawable-ldpi\logo_macronegocios.png" />
+    <None Remove="Platforms\Android\Resources\drawable-mdpi\logo_dmujeres.png" />
+    <None Remove="Platforms\Android\Resources\drawable-mdpi\logo_macronegocios.png" />
+    <None Remove="Platforms\Android\Resources\drawable-nodpi\logo_dmujeres.png" />
+    <None Remove="Platforms\Android\Resources\drawable-nodpi\logo_macronegocios.png" />
+    <None Remove="Platforms\Android\Resources\drawable-tvdpi\logo_dmujeres.png" />
+    <None Remove="Platforms\Android\Resources\drawable-tvdpi\logo_macronegocios.png" />
+    <None Remove="Platforms\Android\Resources\drawable-xhdpi\logo_dmujeres.png" />
+    <None Remove="Platforms\Android\Resources\drawable-xhdpi\logo_macronegocios.png" />
+    <None Remove="Platforms\Android\Resources\drawable\logo_dmujeres.png" />
+    <None Remove="Platforms\Android\Resources\drawable\logo_macronegocios.png" />
+    <None Remove="Resources\Fonts\fa-brands-400.ttf" />
+    <None Remove="Resources\Fonts\fa-regular-400.ttf" />
+    <None Remove="Resources\Fonts\fa-solid-900.ttf" />
+    <None Remove="Resources\Fonts\Font Awesome 5 Brands-Regular-400.otf" />
+    <None Remove="Resources\Fonts\Font Awesome 5 Free-Regular-400.otf" />
+    <None Remove="Resources\Fonts\Font Awesome 5 Free-Solid-900.otf" />
+    <None Remove="Resources\Images\logo_dmujeres.svg" />
+    <None Remove="Resources\Images\logo_macronegocios.svg" />
+    <None Remove="Resources\Splash\splash.svg" />
+    <None Remove="teams.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidEnvironment Include="Platforms\Android\env.conf" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="akgul.Maui.DataGrid" Version="4.0.6" />
+    <PackageReference Include="CommunityToolkit.Maui" Version="14.1.0" />
+    <PackageReference Include="CommunityToolkit.Maui.Core" Version="14.1.0" />
+    <PackageReference Include="CommunityToolkit.Maui.Markup" Version="7.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.51" />
+    <PackageReference Include="Microsoft.Maui.Graphics" Version="10.0.51" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+	<PackageReference Include="RestSharp" Version="114.0.0" />
+    <PackageReference Include="SkiaSharp" Version="3.119.2" />
+    <PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="3.119.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="teams.json">
+      <CustomToolNamespace>
+      </CustomToolNamespace>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ApiManager\ApiManager.csproj" />
+    <ProjectReference Include="..\BeebTech.Controls\BeebTech.Controls.csproj" />
+    <ProjectReference Include="..\BeebTech.Maui.Controls\BeebTech.Maui.Controls.csproj" />    
+    <ProjectReference Include="..\Models.DMSA.Mbw\Models.DMSA.Mbw.csproj" />
+    <ProjectReference Include="..\Models.DMSA.Shared\Models.DMSA.Shared.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="AppPages\Login.xaml.cs">
+      <DependentUpon>%(Filename)</DependentUpon>
+    </Compile>
+    <Compile Update="AppPages\Sys\About.xaml.cs">
+      <DependentUpon>%(Filename)</DependentUpon>
+    </Compile>
+    <Compile Update="MainPageForProcess.xaml.cs">
+      <DependentUpon>MainPageForProcess.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <MauiXaml Update="AppPages\Login.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="AppPages\Sys\About.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="MainPageForProcess.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Modals\ConfirmClient.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Modals\Congratulations.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Modals\PopupInfoWeb.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+  </ItemGroup>  
+</Project>

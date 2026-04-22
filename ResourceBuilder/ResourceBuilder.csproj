@@ -44,8 +44,8 @@
     <PackageReference Include="BlazorTable" Version="1.17.0" />
     <PackageReference Include="BlazorXTabs" Version="4.0.0" />
     <PackageReference Include="FastMember" Version="1.5.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="10.0.6" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.7" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
     <PackageReference Include="PSC.Blazor.Components.AutoComplete" Version="8.0.1" />

@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace ClientAgree
+namespace DMDataSafe
 {
     /// <summary>
     /// Esta clase se utiliza para acceder al modo anterior de los apis
