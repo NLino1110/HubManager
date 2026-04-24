@@ -1,25 +1,20 @@
-﻿using System;
+﻿using ApiManager;
+using DMSA.Models.Odoo.Customers;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Windows.Input;
-using DMDataSafe.Models;
-using DMDataSafe.Utils;
-using RestSharp;
-using DMSA.Models.General;
-using ApiManager;
-
-using Models.DMSA.Mbw.Clientes;
 
 namespace DMDataSafe.ViewModels
 {
     public class MainViewModelCliAprob : INotifyPropertyChanged
     {
-        private List<ClienteAprobacion> _itemsData;
-        private ClienteAprobacion _selectedItem;
+        private List<CustomerDataConsentResponse> _itemsData;
+        private CustomerDataConsentResponse _selectedItem;
         private bool _isRefreshing;
         private bool _teamColumnVisible = true;
         private bool _wonColumnVisible = true;
@@ -85,7 +80,7 @@ namespace DMDataSafe.ViewModels
             RefreshCommand = new Command(CmdRefresh);
         }
 
-        public List<ClienteAprobacion> ItemsData
+        public List<CustomerDataConsentResponse> ItemsData
         {
             get => _itemsData;
             set
@@ -145,13 +140,12 @@ namespace DMDataSafe.ViewModels
             }
         }
 
-        public ClienteAprobacion SelectedItem
+        public CustomerDataConsentResponse SelectedItem
         {
             get => _selectedItem;
             set
             {
-                _selectedItem = value;
-                Debug.WriteLine("Team Selected : " + value?.IDENTIFICACION);
+                _selectedItem = value;                
             }
         }
 
@@ -175,7 +169,6 @@ namespace DMDataSafe.ViewModels
             await LoadData();
             IsRefreshing = false;
         }
-
 
         //private async Task LoadData_old()
         //{
@@ -212,22 +205,16 @@ namespace DMDataSafe.ViewModels
                     FilterName = "%";
                 }
 
-                if (App.Session.CurrentUser.accesos.Length > 0 &&
-                    App.Session.CurrentUser.accesos[0].agencias.Length > 0)
-                {
-
-                }
-
                 Debug.WriteLine("Filtro actual:" + FilterName);
 
-                string userSearch = App.Session.CurrentUser.codigoUsuario;
-                string str_codagencia = App.Session.CurrentUser.accesos[0].agencias[0].CodAgencia.ToString();
+                string userSearch = App.Session.CurrentUserFront.uid.ToString();
+                string str_codagencia = App.Session.res_center.id.ToString();
 
                 int codagencia = 0;
 
                 if (int.TryParse(str_codagencia, out codagencia)) { }
 
-                HubClienteAprobacion hubClienteAprobacion = new HubClienteAprobacion(App.Session);
+                HubCustomerDataConsent hubClienteAprobacion = new HubCustomerDataConsent(App.Session);
                 //var clienteA = await hubClienteAprobacion.GetForAgree();
                 //var clienteA = await hubClienteAprobacion.GetForAgree(userSearch, 1);
                 
@@ -236,7 +223,7 @@ namespace DMDataSafe.ViewModels
                 var clienteA = await hubClienteAprobacion.GetForAgree(codagencia, 1, FilterName);
                 //var clienteA = await hubClienteAprobacion.ExecuteGetAsync("");
 
-                if (clienteA.data.Length > 0)
+                if (clienteA!= null && clienteA.result != null && clienteA.result.Count > 0)
                 {
                     //if(FilterName!= null && FilterName != "" && FilterName.Length>0)
                     //{
@@ -271,12 +258,12 @@ namespace DMDataSafe.ViewModels
                     ////Se deserializan los datos y se los convierte a List<>
                     //var dataList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ClienteAprobacion>>(dataJson);
 
-                    ItemsData = clienteA.data.ToList();
+                    ItemsData = clienteA.result.ToList();
                 }
             }
             catch (Exception ex)
             {
-                ItemsData = new List<ClienteAprobacion>();
+                ItemsData = new List<CustomerDataConsentResponse>();
                 Debug.WriteLine(ex.ToString());
             }
         }

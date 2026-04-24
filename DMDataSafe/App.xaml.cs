@@ -1,5 +1,5 @@
 ﻿using DMDataSafe.AppPages;
-using Models.DMSA.Mbw.Security;
+using DMSA.Models.Security;
 
 namespace DMDataSafe
 {

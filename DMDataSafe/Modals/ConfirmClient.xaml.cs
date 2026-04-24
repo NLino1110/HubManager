@@ -1,21 +1,12 @@
 using ApiManager;
-using DMDataSafe.Models;
-using DMDataSafe.ViewModels;
 using CommunityToolkit.Maui.Alerts;
-using DMSA.Models.General;
-using Microsoft.Maui;
-using Microsoft.Maui.ApplicationModel.Communication;
-using RestSharp;
-using System;
+using DMDataSafe.ViewModels;
+using DMSA.Models.Odoo.Customers;
+using DMSA.Models.Odoo.General.Responses;
 using System.Diagnostics;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 using System.Windows.Input;
-using Microsoft.Maui.Devices;
-using Microsoft.Maui.ApplicationModel;
-using Models.DMSA.Mbw.Clientes;
-using Models.DMSA.Shared.General;
-using Models.DMSA.Mbw.Core;
 
 namespace DMDataSafe.Modals;
 
@@ -29,7 +20,7 @@ public partial class ConfirmClient : ContentPage
     //    get => (string)GetValue(CustomerDisclaimerProperty);
     //    set => SetValue(CustomerDisclaimerProperty, value);
     //}
-    public ClienteAprobacion selectedCustomer { get; set; }
+    public CustomerDataConsentResponse selectedCustomer { get; set; }
     public MainViewModelCliAprob BindingContextObj { get; set; }
 
     private bool hasChanges = false;
@@ -110,15 +101,15 @@ public partial class ConfirmClient : ContentPage
 
     protected override void OnAppearing()
     {
-        if (selectedCustomer.EMAILCLIENTE == null) selectedCustomer.EMAILCLIENTE = "";
+        if (selectedCustomer.Email == null) selectedCustomer.Email = "";
 
-        txtTipId.Text = selectedCustomer.TIPOIDENTIFICACION.ToUpper() == "C" ? "CÉDULA" : "RUC/OTROS";
-        txtCedula.Text = selectedCustomer.IDENTIFICACION;
-        txtNombres.Text = selectedCustomer.NOMBRESCLIENTE;
-        txtApellidos.Text = selectedCustomer.APELLIDOSCLIENTE;
-        txtTelefono.Text = selectedCustomer.TELEFONOCLIENTE;
-        txtEmail.Text = selectedCustomer.EMAILCLIENTE;
-        txtAddress.Text = selectedCustomer.DIRECCIONCLIENTE;
+        txtTipId.Text = selectedCustomer.doc_type_identification_id.ToUpper() == "C" ? "CÉDULA" : "RUC/OTROS";
+        txtCedula.Text = selectedCustomer.vat_doc;
+        txtNombres.Text = selectedCustomer.FirstName;
+        txtApellidos.Text = selectedCustomer.LastName;
+        txtTelefono.Text = selectedCustomer.Phone;
+        txtEmail.Text = selectedCustomer.Email;
+        txtAddress.Text = selectedCustomer.Address;
 
         if (!IsValidEmailTool(txtEmail.Text))
         {
@@ -186,29 +177,29 @@ public partial class ConfirmClient : ContentPage
 
     private async void Agree(object sender, EventArgs e)
     {
-        HubClienteAprobacion hubClienteAprobacion = new HubClienteAprobacion(App.Session);
-        ApiResponse_v1 apiResponse_V1 = null;
+        HubCustomerDataConsent hubClienteAprobacion = new HubCustomerDataConsent(App.Session);
+        ApiResponseOdooRpcT<int> apiResponse_V1;
         //var clienteA = await hubClienteAprobacion.GetAll();
 
-        selectedCustomer.FECHACAMBIOESTADO = DateTime.Now;
+        selectedCustomer.WriteDate = DateTime.Now;
 
-        selectedCustomer.APLICACIONORIGEN = App.Session.AppName;
-        selectedCustomer.APLICACIONVERSION = App.Session.AppVersion;
-        selectedCustomer.PLATAFORMAMODIFICA = DeviceInfo.Current.Platform.ToString();
+        selectedCustomer.ApplicationOrigin = App.Session.ApplicationName;
+        selectedCustomer.device_app_version = App.Session.AppVersion;
+        selectedCustomer.device_platform_mod = DeviceInfo.Current.Platform.ToString();
 
         if (DeviceInfo.Current.Platform == DevicePlatform.Android ||
                 DeviceInfo.Current.Platform == DevicePlatform.iOS)
         {
-            selectedCustomer.PLATAFORMAORIGEN = DeviceInfo.Current.Idiom.ToString();
-            selectedCustomer.MARCAEQUIPO = DeviceInfo.Current.Manufacturer;
-            selectedCustomer.MODELOEQUIPO = DeviceInfo.Current.Model;
+            selectedCustomer.device_platform_source = DeviceInfo.Current.Idiom.ToString();
+            selectedCustomer.device_manufacturer = DeviceInfo.Current.Manufacturer;
+            selectedCustomer.device_model = DeviceInfo.Current.Model;
         }
 
         if (DeviceInfo.Current.Platform == DevicePlatform.WinUI)
         {
-            selectedCustomer.PLATAFORMAORIGEN = DeviceInfo.Current.Idiom.ToString();
-            selectedCustomer.MARCAEQUIPO = "";
-            selectedCustomer.MODELOEQUIPO = "";
+            selectedCustomer.device_platform_source = DeviceInfo.Current.Idiom.ToString();
+            selectedCustomer.device_manufacturer = "";
+            selectedCustomer.device_model = "";
         }
 
 
@@ -221,13 +212,13 @@ public partial class ConfirmClient : ContentPage
         else
         {
             var tIde = (TipoIde)pickerTipId.SelectedItem;
-            selectedCustomer.TIPOIDENTIFICACION = tIde.id;
-            selectedCustomer.IDENTIFICACION = txtCedula.Text;
-            selectedCustomer.NOMBRESCLIENTE = txtNombres.Text;
-            selectedCustomer.APELLIDOSCLIENTE = txtApellidos.Text;
-            selectedCustomer.TELEFONOCLIENTE = txtTelefono.Text;
-            selectedCustomer.EMAILCLIENTE = txtEmail.Text;
-            selectedCustomer.DIRECCIONCLIENTE = txtAddress.Text;
+            selectedCustomer.doc_type_identification_id = tIde.id;
+            selectedCustomer.vat_doc = txtCedula.Text;
+            selectedCustomer.FirstName = txtNombres.Text;
+            selectedCustomer.LastName = txtApellidos.Text;
+            selectedCustomer.Phone = txtTelefono.Text;
+            selectedCustomer.Email = txtEmail.Text;
+            selectedCustomer.Address = txtAddress.Text;
             apiResponse_V1 = await hubClienteAprobacion.AddWithFull(selectedCustomer);
         }
 
@@ -262,7 +253,7 @@ public partial class ConfirmClient : ContentPage
 
     private async void Decline(object sender, EventArgs e)
     {
-        bool answer = await DisplayAlert("Rechazar", "¿Está seguro que desea rechazar la solicitud? " +
+        bool answer = await DisplayAlertAsync("Rechazar", "¿Está seguro que desea rechazar la solicitud? " +
             "Si esta solicitud es rechazada, el cliente no podrá acceder a las promociones.",
             "Continuar",
             "Cancelar");
@@ -273,28 +264,28 @@ public partial class ConfirmClient : ContentPage
             return;
         }
 
-        HubClienteAprobacion hubClienteAprobacion = new HubClienteAprobacion(App.Session);
+        HubCustomerDataConsent hubClienteAprobacion = new HubCustomerDataConsent(App.Session);
         //var clienteA = await hubClienteAprobacion.GetAll();
 
-        selectedCustomer.FECHACAMBIOESTADO = DateTime.Now;
+        selectedCustomer.WriteDate = DateTime.Now;
 
-        selectedCustomer.APLICACIONORIGEN = App.Session.AppName;
-        selectedCustomer.APLICACIONVERSION = App.Session.AppVersion;
-        selectedCustomer.PLATAFORMAMODIFICA = DeviceInfo.Current.Platform.ToString();
+        selectedCustomer.ApplicationOrigin = App.Session.ApplicationName;
+        selectedCustomer.device_app_version = App.Session.AppVersion;
+        selectedCustomer.device_platform_mod = DeviceInfo.Current.Platform.ToString();
 
         if (DeviceInfo.Current.Platform == DevicePlatform.Android ||
                 DeviceInfo.Current.Platform == DevicePlatform.iOS)
         {
-            selectedCustomer.PLATAFORMAORIGEN = DeviceInfo.Current.Idiom.ToString();
-            selectedCustomer.MARCAEQUIPO = DeviceInfo.Current.Manufacturer;
-            selectedCustomer.MODELOEQUIPO = DeviceInfo.Current.Model;
+            selectedCustomer.device_platform_source = DeviceInfo.Current.Idiom.ToString();
+            selectedCustomer.device_manufacturer = DeviceInfo.Current.Manufacturer;
+            selectedCustomer.device_model = DeviceInfo.Current.Model;
         }
 
         if (DeviceInfo.Current.Platform == DevicePlatform.WinUI)
         {
-            selectedCustomer.PLATAFORMAORIGEN = DeviceInfo.Current.Idiom.ToString();
-            selectedCustomer.MARCAEQUIPO = "";
-            selectedCustomer.MODELOEQUIPO = "";
+            selectedCustomer.device_platform_source = DeviceInfo.Current.Idiom.ToString();
+            selectedCustomer.device_manufacturer = "";
+            selectedCustomer.device_model = "";
         }
 
         //SE ENVÍA EL NUEVO ESTADO 53 NO APROBADO
@@ -477,13 +468,13 @@ public partial class ConfirmClient : ContentPage
         txtEmail.IsReadOnly = true;
         txtAddress.IsReadOnly = true;
 
-        if(tIde.id != selectedCustomer.TIPOIDENTIFICACION ||
-            txtCedula.Text != selectedCustomer.IDENTIFICACION ||
-            txtNombres.Text != selectedCustomer.NOMBRESCLIENTE ||
-            txtApellidos.Text != selectedCustomer.APELLIDOSCLIENTE ||
-            txtTelefono.Text != selectedCustomer.TELEFONOCLIENTE ||
-            txtEmail.Text != selectedCustomer.EMAILCLIENTE ||
-            txtAddress.Text != selectedCustomer.DIRECCIONCLIENTE)
+        if(tIde.id != selectedCustomer.doc_type_identification_id ||
+            txtCedula.Text != selectedCustomer.vat_doc ||
+            txtNombres.Text != selectedCustomer.FirstName ||
+            txtApellidos.Text != selectedCustomer.LastName ||
+            txtTelefono.Text != selectedCustomer.Phone ||
+            txtEmail.Text != selectedCustomer.Email ||
+            txtAddress.Text != selectedCustomer.Address)
         {
             hasChanges = true;
         }

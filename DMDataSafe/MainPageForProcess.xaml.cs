@@ -1,15 +1,10 @@
 ﻿using DMDataSafe.AppPages;
 using DMDataSafe.AppPages.Sys;
 using DMDataSafe.Modals;
-using DMDataSafe.Models;
 using DMDataSafe.ViewModels;
-using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Core;
-using Maui.DataGrid;
+using DMSA.Models.Odoo.Customers;
 using System.Diagnostics;
 using System.Windows.Input;
-using Microsoft.Maui.Devices;
-using Models.DMSA.Mbw.Clientes;
 
 namespace DMDataSafe
 {
@@ -23,14 +18,16 @@ namespace DMDataSafe
             InitializeComponent();            
             //BindingContext = new MainViewModelCliAprob();
 
-            lblUser.Text = App.Session.CurrentUser.nombreUsuario;
+            lblUser.Text = App.Session.CurrentUser.username;
 
             //Se evalúa si los datos de la agencia a la que pertenece el usuario
             // fueron cargados correctamente
-            if (App.Session.CurrentUser.accesos.Length > 0 && 
-                App.Session.CurrentUser.accesos[0].agencias.Length > 0)
+            var empresas = App.Session.CurrentUser.empresas;
+            var center = App.Session.res_center;
+
+            if (center != null)
             {
-                lblAgencia.Text = App.Session.CurrentUser.accesos[0].agencias[0].Nombre;
+                lblAgencia.Text = center.name;
                 lblAgencia.TextColor = Colors.DarkGreen;
             }
 
@@ -156,9 +153,9 @@ namespace DMDataSafe
                 //var rowData = row.BindingContext;
 
                 _dataGrid1.SelectedItem = btnItem.Parent.Parent.BindingContext;
-                var rowData = _dataGrid1.SelectedItem as ClienteAprobacion;
+                var rowData = _dataGrid1.SelectedItem as CustomerDataConsentResponse;
 
-                if (rowData is ClienteAprobacion cliente)
+                if (rowData is CustomerDataConsentResponse cliente)
                 {
                     //Se realiza la seleccion manual de la fila, ya que si se hace clic en el botón no es automática
                     _dataGrid1.SelectedItem = rowData;
@@ -200,7 +197,7 @@ namespace DMDataSafe
         //    }
         //}
 
-        private async Task ShowConfirmClient(ClienteAprobacion cliente)
+        private async Task ShowConfirmClient(CustomerDataConsentResponse cliente)
         {
             ConfirmClient obj = new ConfirmClient();
             obj.selectedCustomer = cliente;

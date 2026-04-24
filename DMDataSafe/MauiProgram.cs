@@ -1,7 +1,7 @@
 ﻿using BeebTech.Controls.UI;
 using CommunityToolkit.Maui;
+using DMSA.Models.Security;
 using Microsoft.Extensions.Logging;
-using Models.DMSA.Mbw.Security;
 using SkiaSharp.Views.Maui.Controls.Hosting;
 using System.Diagnostics;
 
@@ -28,22 +28,31 @@ namespace DMDataSafe
                 })                             
                 .UseBeebTechControls();
 
+            //builder.Services.AddCommunityToolkitDialogs();
+
+            App.Session = new AppSession();
+            App.Session.AppVersion = AppInfo.Current.VersionString;
+            App.Session.SqliteCoreDbName = "DMDataSafe";
+            App.Session.AppCodeOdoo = "03";
+            App.Session.AppMobileId = 3;
+
+            if (DeviceInfo.Platform == DevicePlatform.Android)
+            {
+                App.Session.AppVersion = AppInfo.Current.VersionString + "." + AppInfo.Current.BuildString;
+            }
+
+            DMSA.Sync.Core.Constants.Session = App.Session;
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
 
-            App.Session = new AppSession();
-            Debug.WriteLine(App.Session.isProduction);
+            //Debug.WriteLine(App.Session.odooConnection.IsProduction);
 
-            //Solo cuando se inicia en modo producción
-            if (App.Session.isProduction)
-            {
-                App.Session.EndPointServer = App.Session.EndPointServerProd;
-                //TODO: Se Omite por ahora ya que aun falta hacerle el NAT al servidor
-                //App.Session.CacheFilesUrl = App.Session.CacheFilesUrlProd;
-
-                App.Session.EndPointServerNewApi = App.Session.EndPointServerNewApiInternal;
-            }
+            ////Solo cuando se inicia en modo producción
+            //if (App.Session.odooConnection.IsProduction)
+            //{
+                
+            //}
 
             return builder.Build();
         }

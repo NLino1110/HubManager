@@ -26,7 +26,8 @@
   </PropertyGroup>
 	<PropertyGroup>
 		<AndroidUseAapt2>true</AndroidUseAapt2>
-		<AndroidAapt2Version>7.4.2</AndroidAapt2Version>		
+		<AndroidAapt2Version>7.4.2</AndroidAapt2Version>
+		<AssemblyTitle>Datos Seguros</AssemblyTitle>		
 	</PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-android|AnyCPU'">
     <AndroidKeyStore>True</AndroidKeyStore>
@@ -128,6 +129,13 @@
     <None Remove="Maui.DataGrid\**" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="AppPages\Login.xaml.cs" />
+    <Compile Remove="SoapClient.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <MauiXaml Remove="AppPages\Login.xaml" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="Platforms\Android\env.conf" />
     <None Remove="Platforms\Android\Resources\drawable-hdpi\logo_dmujeres.png" />
     <None Remove="Platforms\Android\Resources\drawable-hdpi\logo_macronegocios.png" />
@@ -181,16 +189,13 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ApiManager\ApiManager.csproj" />
+    <ProjectReference Include="..\ApiManagerOdoo\ApiManagerOdoo.csproj" />
     <ProjectReference Include="..\BeebTech.Controls\BeebTech.Controls.csproj" />
-    <ProjectReference Include="..\BeebTech.Maui.Controls\BeebTech.Maui.Controls.csproj" />    
-    <ProjectReference Include="..\Models.DMSA.Mbw\Models.DMSA.Mbw.csproj" />
-    <ProjectReference Include="..\Models.DMSA.Shared\Models.DMSA.Shared.csproj" />
+    <ProjectReference Include="..\BeebTech.Maui.Controls\BeebTech.Maui.Controls.csproj" />
+    <ProjectReference Include="..\DMSA.Models.Odoo\DMSA.Models.Odoo.csproj" />
+    <ProjectReference Include="..\DMSA.Sync.Core\DMSA.Sync.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="AppPages\Login.xaml.cs">
-      <DependentUpon>%(Filename)</DependentUpon>
-    </Compile>
     <Compile Update="AppPages\Sys\About.xaml.cs">
       <DependentUpon>%(Filename)</DependentUpon>
     </Compile>
@@ -199,10 +204,13 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <MauiXaml Update="AppPages\Login.xaml">
+    <MauiXaml Update="AppPages\Sys\About.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
-    <MauiXaml Update="AppPages\Sys\About.xaml">
+    <MauiXaml Update="AppPages\Sys\Connections.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Login.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
     <MauiXaml Update="MainPageForProcess.xaml">

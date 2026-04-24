@@ -36,7 +36,6 @@
             Padding="30"
             VerticalOptions="Center">
 
-
             <beebtech:TextField x:Name="txtPassword"
                     Title="Password"
                     IsPassword="True"
@@ -123,6 +122,28 @@
                 FontSize="12"
             VerticalOptions="Center" 
             HorizontalOptions="Center" />
+
+            <Entry Visual="Material"></Entry>
+            <Picker x:Name="CategoryPicker"
+            Title="-- Selecciona una opción --"
+            TitleColor="{StaticResource Gray500}"
+            TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}"
+            FontSize="16"
+            HorizontalOptions="Fill"
+                    Visual="Material">
+
+                <Picker.ItemsSource>
+                    <x:Array Type="{x:Type x:String}">
+                        <x:String>Pedidos</x:String>
+                        <x:String>Cobranzas</x:String>
+                        <x:String>Inventario</x:String>
+                        <x:String>Clientes</x:String>
+                        <x:String>Reportes</x:String>
+                    </x:Array>
+                </Picker.ItemsSource>
+
+                <Picker.SelectedIndex>1</Picker.SelectedIndex>
+            </Picker>
 
         </VerticalStackLayout>
     </ScrollView>
