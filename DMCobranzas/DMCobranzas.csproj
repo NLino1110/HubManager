@@ -35,23 +35,23 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-android|AnyCPU'">
 		<AndroidStoreUncompressedFileExtensions></AndroidStoreUncompressedFileExtensions>
-		<ApplicationVersion>24</ApplicationVersion>
+		<ApplicationVersion>25</ApplicationVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-ios|AnyCPU'">
-	  <ApplicationVersion>24</ApplicationVersion>
+	  <ApplicationVersion>25</ApplicationVersion>
 	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 	  <FileAlignment>8192</FileAlignment>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-maccatalyst|AnyCPU'">
-	  <ApplicationVersion>24</ApplicationVersion>
+	  <ApplicationVersion>25</ApplicationVersion>
 	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 	  <FileAlignment>8192</FileAlignment>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-windows10.0.19041.0|AnyCPU'">
-	  <ApplicationVersion>24</ApplicationVersion>
+	  <ApplicationVersion>25</ApplicationVersion>
 	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 	  <FileAlignment>8192</FileAlignment>
 	</PropertyGroup>
@@ -59,26 +59,26 @@
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-android|AnyCPU'">
 		<Optimize>True</Optimize>
 		<AndroidStoreUncompressedFileExtensions></AndroidStoreUncompressedFileExtensions>
-		<ApplicationVersion>24</ApplicationVersion>
+		<ApplicationVersion>25</ApplicationVersion>
 		<AndroidPackageFormat>aab</AndroidPackageFormat>
 		<AndroidUseAapt2>True</AndroidUseAapt2>
 		<AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-ios|AnyCPU'">
-	  <ApplicationVersion>24</ApplicationVersion>
+	  <ApplicationVersion>25</ApplicationVersion>
 	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 	  <FileAlignment>8192</FileAlignment>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-maccatalyst|AnyCPU'">
-	  <ApplicationVersion>24</ApplicationVersion>
+	  <ApplicationVersion>25</ApplicationVersion>
 	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 	  <FileAlignment>8192</FileAlignment>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-windows10.0.19041.0|AnyCPU'">
-	  <ApplicationVersion>24</ApplicationVersion>
+	  <ApplicationVersion>25</ApplicationVersion>
 	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 	  <FileAlignment>8192</FileAlignment>
 	</PropertyGroup>

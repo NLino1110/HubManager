@@ -274,13 +274,17 @@ namespace DMSA.Models.Odoo.Native
         {
             get
             {
-                var address = $"{contact_address}";
+                //var address = $"{contact_address}";
 
-                if (string.IsNullOrWhiteSpace(address))
-                    return string.Empty;
+                //if (string.IsNullOrWhiteSpace(address))
+                //    return string.Empty;
 
-                address = address.Replace("\r\n", "\n").Replace("\r", "\n");
-                address = Regex.Replace(address, @"\n\s*\n+", "\n");
+                //address = address.Replace("\r\n", "\n").Replace("\r", "\n");
+                //address = Regex.Replace(address, @"\n\s*\n+", "\n");
+                //return address.Trim();
+
+                var address = $"{name} / {street}";
+
                 return address.Trim();
             }
         }

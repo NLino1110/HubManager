@@ -1129,8 +1129,8 @@ public partial class AccountPaymentCrud : ContentPage
             if (linesNotAssigned.Count > 0)
             {
                 await Toast.Make("No se puede guardar hasta asignar a todo el valor seleccionado").Show();
-            }
-            return;
+                return;
+            }            
         }
 
         //if (detailsCount == 0 && totalAssigned < totalPayment)
