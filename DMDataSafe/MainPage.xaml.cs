@@ -2,7 +2,6 @@
 using DMDataSafe.ViewModels;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
-using Microsoft.Maui.Devices;
 
 namespace DMDataSafe
 {

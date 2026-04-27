@@ -13,8 +13,8 @@ namespace DMDataSafe.ViewModels
 {
     public class MainViewModelCliAprob : INotifyPropertyChanged
     {
-        private List<CustomerDataConsentResponse> _itemsData;
-        private CustomerDataConsentResponse _selectedItem;
+        private List<CustomerDataConsent> _itemsData;
+        private CustomerDataConsent _selectedItem;
         private bool _isRefreshing;
         private bool _teamColumnVisible = true;
         private bool _wonColumnVisible = true;
@@ -22,7 +22,6 @@ namespace DMDataSafe.ViewModels
         private bool _paginationEnabled = true;
         private ushort _teamColumnWidth = 70;
 
-        //
         private string FilterName { get; set; }
 
         public MainViewModelCliAprob(string _FilterName)
@@ -40,47 +39,16 @@ namespace DMDataSafe.ViewModels
         {
             
             var task = Task.Run(async () =>
-            {
-                //await LoadData_old();
+            {                
                 await LoadData();
             });
 
             Task.WaitAll(task);
-
-            //App.Current.MainPage = new MainPage();
-
-            //ItemsData = DummyDataProvider.GetTeams();
-            //ItemsData = new List<ClienteAprobacion>()
-            //{
-            //    new ClienteAprobacion()
-            //    {
-            //        IDENTIFICACION="0919826958",
-            //        APELLIDOSCLIENTE="CHONILLO VILLON",
-            //        APLICACIONORIGEN="",
-            //        APLICACIONVERSION="1.0",
-            //        CODAGENCIA=0,
-            //        CODCLIENTE=0,
-            //        CODEMPRESA="0",
-            //        CODVENDEDOR="0",
-            //        DIRECCIONCLIENTE="BOSQUES DE LA COSTA",
-            //        FECHACAMBIOESTADO=DateTime.Now,
-            //        FECHAREGISTRO=DateTime.Now,
-            //        MARCAEQUIPO="",
-            //        MODELOEQUIPO="",
-            //        NOMBRESCLIENTE="RONALD STALIN",
-            //        NUMPEDIDO=0,
-            //        PLATAFORMAMODIFICA="",
-            //        PLATAFORMAORIGEN="",
-            //        TELEFONOCLIENTE="0992601015",
-            //        TIPOIDENTIFICACION="C",
-            //        EMAILCLIENTE="ronald.chonillo@gmail.com"
-            //    },           
-            //};
-
+            
             RefreshCommand = new Command(CmdRefresh);
         }
 
-        public List<CustomerDataConsentResponse> ItemsData
+        public List<CustomerDataConsent> ItemsData
         {
             get => _itemsData;
             set
@@ -140,7 +108,7 @@ namespace DMDataSafe.ViewModels
             }
         }
 
-        public CustomerDataConsentResponse SelectedItem
+        public CustomerDataConsent SelectedItem
         {
             get => _selectedItem;
             set
@@ -164,37 +132,11 @@ namespace DMDataSafe.ViewModels
         private async void CmdRefresh()
         {
             IsRefreshing = true;
-            // wait 3 secs for demo
+            
             //await Task.Delay(3000);
             await LoadData();
             IsRefreshing = false;
         }
-
-        //private async Task LoadData_old()
-        //{
-        //    string Action = "OBTENER_APROBACIONES";
-        //    string currentDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-        //    string cadenaJson = "{\"indice\":\"" + 0 + "\",\"esActualizacion\":" + "true" + ",\"fechatablet\":\"" + currentDateTime + "\"}";
-
-        //    List<RestSharp.Parameter> parameters = new List<RestSharp.Parameter>();
-
-        //    parameters.Add(RestSharp.Parameter.CreateParameter("codusuario", "caja1", ParameterType.QueryString));
-        //    parameters.Add(RestSharp.Parameter.CreateParameter("accion", Action, ParameterType.QueryString));
-        //    parameters.Add(RestSharp.Parameter.CreateParameter("cadenaJson", cadenaJson, ParameterType.QueryString));
-
-        //    SoapClient client = new SoapClient();
-        //    var result = await client.asyncPostJson_old(parameters.ToArray());
-        //    Console.WriteLine(result);
-
-        //    //Se obtiene resultado
-        //    var resultUser = Newtonsoft.Json.JsonConvert.DeserializeObject<ApiResponse_v1>(result);
-        //    //Se lee la sección de los resultados de los datos
-        //    var dataJson = Newtonsoft.Json.JsonConvert.SerializeObject(resultUser.data);
-        //    //Se deserializan los datos y se los convierte a List<>
-        //    var dataList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ClienteAprobacion>>(dataJson);
-
-        //    ItemsData = dataList;
-        //}
 
         private async Task LoadData()
         {
@@ -208,62 +150,26 @@ namespace DMDataSafe.ViewModels
                 Debug.WriteLine("Filtro actual:" + FilterName);
 
                 string userSearch = App.Session.CurrentUserFront.uid.ToString();
-                string str_codagencia = App.Session.res_center.id.ToString();
+                //string str_codagencia = App.Session.res_center.id.ToString();
 
-                int codagencia = 0;
-
-                if (int.TryParse(str_codagencia, out codagencia)) { }
+                int[] center_ids = { App.Session.res_center.id};
+                
 
                 HubCustomerDataConsent hubClienteAprobacion = new HubCustomerDataConsent(App.Session);
-                //var clienteA = await hubClienteAprobacion.GetForAgree();
-                //var clienteA = await hubClienteAprobacion.GetForAgree(userSearch, 1);
                 
                 //codstatus=53 Para obtener los que no han sido aprobados/revocados (están en cola)
                 // se envía 1 y el api lo asume como 53
-                var clienteA = await hubClienteAprobacion.GetForAgree(codagencia, 1, FilterName);
+                var clienteA = await hubClienteAprobacion.GetForAgree(center_ids, 1, FilterName);
                 //var clienteA = await hubClienteAprobacion.ExecuteGetAsync("");
 
                 if (clienteA!= null && clienteA.result != null && clienteA.result.Count > 0)
-                {
-                    //if(FilterName!= null && FilterName != "" && FilterName.Length>0)
-                    //{
-                    //    ItemsData = clienteA.data.Where(dc => dc.APELLIDOSCLIENTE.Contains(FilterName) ||
-                    //    dc.NOMBRESCLIENTE.Contains(FilterName) ||
-                    //    dc.IDENTIFICACION.Contains(FilterName)
-                    //    ).ToList();
-
-                    //    return;
-                    //}
-
-                    //ApiResponse_v2 dataListTest = Newtonsoft.Json.JsonConvert.DeserializeObject<ApiResponse_v2>(clienteA.Content);
-
-                    //string Action = "OBTENER_APROBACIONES";
-                    //string currentDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                    //string cadenaJson = "{\"indice\":\"" + 0 + "\",\"esActualizacion\":" + "true" + ",\"fechatablet\":\"" + currentDateTime + "\"}";
-
-                    //List<RestSharp.Parameter> parameters = new List<RestSharp.Parameter>();
-
-                    //parameters.Add(RestSharp.Parameter.CreateParameter("codusuario", "caja1", ParameterType.QueryString));
-                    //parameters.Add(RestSharp.Parameter.CreateParameter("accion", Action, ParameterType.QueryString));
-                    //parameters.Add(RestSharp.Parameter.CreateParameter("cadenaJson", cadenaJson, ParameterType.QueryString));
-
-                    //SoapClient client = new SoapClient();
-                    //var result = await client.asyncPostJson(parameters.ToArray());
-                    //Console.WriteLine(result);
-
-                    ////Se obtiene resultado
-                    //var resultUser = Newtonsoft.Json.JsonConvert.DeserializeObject<ApiResponse_v1>(result);
-                    ////Se lee la sección de los resultados de los datos
-                    //var dataJson = Newtonsoft.Json.JsonConvert.SerializeObject(resultUser.data);
-                    ////Se deserializan los datos y se los convierte a List<>
-                    //var dataList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ClienteAprobacion>>(dataJson);
-
+                {                    
                     ItemsData = clienteA.result.ToList();
                 }
             }
             catch (Exception ex)
             {
-                ItemsData = new List<CustomerDataConsentResponse>();
+                ItemsData = new List<CustomerDataConsent>();
                 Debug.WriteLine(ex.ToString());
             }
         }

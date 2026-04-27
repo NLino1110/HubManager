@@ -20,7 +20,7 @@ public partial class ConfirmClient : ContentPage
     //    get => (string)GetValue(CustomerDisclaimerProperty);
     //    set => SetValue(CustomerDisclaimerProperty, value);
     //}
-    public CustomerDataConsentResponse selectedCustomer { get; set; }
+    public CustomerDataConsent selectedCustomer { get; set; }
     public MainViewModelCliAprob BindingContextObj { get; set; }
 
     private bool hasChanges = false;
@@ -178,9 +178,8 @@ public partial class ConfirmClient : ContentPage
     private async void Agree(object sender, EventArgs e)
     {
         HubCustomerDataConsent hubClienteAprobacion = new HubCustomerDataConsent(App.Session);
-        ApiResponseOdooRpcT<int> apiResponse_V1;
-        //var clienteA = await hubClienteAprobacion.GetAll();
-
+        ApiResponseOdooRpcT<bool> apiResponse_V1;
+        
         selectedCustomer.WriteDate = DateTime.Now;
 
         selectedCustomer.ApplicationOrigin = App.Session.ApplicationName;
@@ -202,12 +201,10 @@ public partial class ConfirmClient : ContentPage
             selectedCustomer.device_model = "";
         }
 
-
-        //SE ENVÍA EL NUEVO ESTADO 52 APROBADO
-        selectedCustomer.CODESTADO = 52;
+        selectedCustomer.ResposeState = "agreed";
         if (!hasChanges)
         {
-            apiResponse_V1 = await hubClienteAprobacion.Add(selectedCustomer);
+            apiResponse_V1 = await hubClienteAprobacion.UpdateState(selectedCustomer);
         }
         else
         {
@@ -219,7 +216,7 @@ public partial class ConfirmClient : ContentPage
             selectedCustomer.Phone = txtTelefono.Text;
             selectedCustomer.Email = txtEmail.Text;
             selectedCustomer.Address = txtAddress.Text;
-            apiResponse_V1 = await hubClienteAprobacion.AddWithFull(selectedCustomer);
+            apiResponse_V1 = await hubClienteAprobacion.UpdateFull(selectedCustomer);
         }
 
         //if(true)
@@ -265,8 +262,7 @@ public partial class ConfirmClient : ContentPage
         }
 
         HubCustomerDataConsent hubClienteAprobacion = new HubCustomerDataConsent(App.Session);
-        //var clienteA = await hubClienteAprobacion.GetAll();
-
+        
         selectedCustomer.WriteDate = DateTime.Now;
 
         selectedCustomer.ApplicationOrigin = App.Session.ApplicationName;
@@ -288,10 +284,9 @@ public partial class ConfirmClient : ContentPage
             selectedCustomer.device_model = "";
         }
 
-        //SE ENVÍA EL NUEVO ESTADO 53 NO APROBADO
-        selectedCustomer.CODESTADO = 53;
+        selectedCustomer.ResposeState = "rejected";
         //var resultUpdate = await hubClienteAprobacion.Update(selectedCustomer);
-        var resultUpdate = await hubClienteAprobacion.Add(selectedCustomer);
+        var resultUpdate = await hubClienteAprobacion.UpdateState(selectedCustomer);
 
         //if (true)
         //{
@@ -311,15 +306,6 @@ public partial class ConfirmClient : ContentPage
         {
             BindingContextObj.RefreshCommand.Execute(this);
         }
-
-        //await Task.Run(async () =>
-        //{
-        //    await Task.Delay(1000);
-        //    //await Navigation.PopModalAsync(false);
-        //});
-
-        //await Navigation.PopModalAsync(false);
-        //App.Current.MainPage = new Congratulations();
     }
 
     private void BtnEditioMode_Clicked(object sender, EventArgs e)

@@ -3,7 +3,6 @@ using CommunityToolkit.Maui;
 using DMSA.Models.Security;
 using Microsoft.Extensions.Logging;
 using SkiaSharp.Views.Maui.Controls.Hosting;
-using System.Diagnostics;
 
 namespace DMDataSafe
 {

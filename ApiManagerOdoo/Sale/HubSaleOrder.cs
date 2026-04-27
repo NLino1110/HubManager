@@ -16,7 +16,7 @@ using System.Diagnostics;
 
 namespace ApiManagerOdoo.Sale
 {
-    public class HubSaleOrder : HubBase
+    public partial class HubSaleOrder : HubBase
     {
         string[] fields_array = new[] {
                 "id",

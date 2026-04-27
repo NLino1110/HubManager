@@ -157,34 +157,7 @@
                 </Button>
 
             </Grid>
-        <!--</FlexLayout>-->
-            
-            
-            
-        <!--<FlexLayout BackgroundColor="Black" Wrap="Wrap">
-            <HorizontalStackLayout HeightRequest="50" Margin="0,0,15,0">
-                <CheckBox IsChecked="{Binding HeaderBordersVisible}" />
-                <Label Text="Header Borders Visible?" TextColor="White" Margin="0,0,5,0" VerticalOptions="Center" />
-            </HorizontalStackLayout>
-            <HorizontalStackLayout HeightRequest="50" Margin="0,0,15,0">
-                <CheckBox IsChecked="{Binding TeamColumnVisible}"  />
-                <Label Text="Team Column" TextColor="White" Margin="0,0,5,0" VerticalOptions="Center" />
-            </HorizontalStackLayout>
-            <HorizontalStackLayout HeightRequest="50" Margin="0,0,15,0">
-                <CheckBox IsChecked="{Binding WonColumnVisible}" />
-                <Label Text="Won Column" TextColor="White" Margin="0,0,5,0" VerticalOptions="Center" />
-            </HorizontalStackLayout>
-            <HorizontalStackLayout HeightRequest="50" Margin="0,0,15,0">
-                <CheckBox IsChecked="{Binding PaginationEnabled}" />
-                <Label Text="Pagination Enabled?" TextColor="White" Margin="0,0,5,0" VerticalOptions="Center" />
-            </HorizontalStackLayout>
-            <HorizontalStackLayout HeightRequest="50" Margin="0,0,15,0">
-                <Stepper Minimum="0" Maximum="100" Increment="10" Value="{Binding TeamColumnWidth}" />
-                <Label Text="Team Col Width" TextColor="White" Margin="0,0,5,0" VerticalOptions="Center" />
-            </HorizontalStackLayout>
-            <Button x:Name="_addColumnButton1" Text="Add Column" />
-        </FlexLayout>-->
-
+        
         <dg:DataGrid Grid.Row="1" ItemsSource="{Binding ItemsData}" 
                      SelectionEnabled="True" 
                      SelectedItem="{Binding SelectedItem}"
@@ -201,26 +174,12 @@
                      x:Name="_dataGrid1" 
                      ItemSelected="_dataGrid1_ItemSelected">
             <dg:DataGrid.Columns>
-                <dg:DataGridColumn Title="CED./RUC" PropertyName="IDENTIFICACION" Width="0.5*" SortingEnabled="False"/>
-                <dg:DataGridColumn Title="NOMBRES" PropertyName="NOMBRESCLIENTE" Width="0.5*" SortingEnabled="False"/>
-                <!--<dg:DataGridColumn Title="NOMBRES" PropertyName="NOMBRESCLIENTE" Width="0.5*" SortingEnabled="False">
-                    <dg:DataGridColumn.CellTemplate>
-                        <DataTemplate>
-                            <ContentView HorizontalOptions="Fill"
-                                         VerticalOptions="Fill">
-                                <Label Text="{Binding}"
-                                       HorizontalOptions="Center"
-                                       VerticalOptions="Center"
-                                       TextColor="Black"
-                                       FontSize="17"
-                                       FontAttributes="Bold"/>
-                            </ContentView>
-                        </DataTemplate>
-                    </dg:DataGridColumn.CellTemplate>
-                </dg:DataGridColumn>-->
-                <dg:DataGridColumn Title="APELLIDOS" PropertyName="APELLIDOSCLIENTE" Width="0.5*" SortingEnabled="False"/>
-                <dg:DataGridColumn Title="DIRECCIÓN" PropertyName="DIRECCIONCLIENTE" Width="0.5*" SortingEnabled="False"/>
-                <dg:DataGridColumn Title="" PropertyName="IDENTIFICACION" SortingEnabled="False" Width="0.2*">
+                <dg:DataGridColumn Title="CED./RUC" PropertyName="vat_doc" Width="0.5*" SortingEnabled="False"/>
+                <dg:DataGridColumn Title="NOMBRES" PropertyName="FirstName" Width="0.5*" SortingEnabled="False"/>
+
+                <dg:DataGridColumn Title="APELLIDOS" PropertyName="LastName" Width="0.5*" SortingEnabled="False"/>
+                <dg:DataGridColumn Title="DIRECCIÓN" PropertyName="Address" Width="0.5*" SortingEnabled="False"/>
+                <dg:DataGridColumn Title="" PropertyName="vat_doc" SortingEnabled="False" Width="0.2*">
                     <dg:DataGridColumn.CellTemplate>
                         <DataTemplate>
                             <Image WidthRequest="20">
@@ -231,18 +190,14 @@
                                  FontAutoScalingEnabled="True"
                                                  Glyph="&#xf017;" />
                                 </Image.Source>
-                                <!--<Image.GestureRecognizers>
-                                    <TapGestureRecognizer 
-                                        Tapped="OnTapGestureRecognizerTapped" CommandParameter="{Binding SelectedTeam}"
-                                            NumberOfTapsRequired="2"/>                                    
-                                </Image.GestureRecognizers>-->
+                                
                             </Image>
 
                         </DataTemplate>
                     </dg:DataGridColumn.CellTemplate>
                 </dg:DataGridColumn>
 
-                <dg:DataGridColumn Title="" PropertyName="IDENTIFICACION" SortingEnabled="False" Width="0.3*">
+                <dg:DataGridColumn Title="" PropertyName="vat_doc" SortingEnabled="False" Width="0.3*">
                     <dg:DataGridColumn.CellTemplate>
                         <DataTemplate>
                             <Button

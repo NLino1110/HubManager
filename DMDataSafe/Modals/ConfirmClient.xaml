@@ -354,7 +354,7 @@
                 Text="No Acepto"
                     Clicked="Decline"
                 SemanticProperties.Hint="No Acepto"                
-                WidthRequest="250"
+                WidthRequest="150"
                 HorizontalOptions="Center">
                 <Button.ImageSource>
                     <FontImageSource FontFamily="FontAwesome5Solid"
