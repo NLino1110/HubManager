@@ -91,7 +91,7 @@ namespace DMSA.Models.Odoo.Customers
 
         [JsonProperty("response_state")]
         [Column("response_state")]
-        public string? ResposeState { get; set; }
+        public string? ResponseState { get; set; }
 
         [JsonProperty("create_date")]
         [Column("create_date")]

@@ -148,8 +148,6 @@ public partial class Connections : TabbedPage
         SelectedConnection = new OdooConnection();
     }
 
-    private CancellationTokenSource _cancellationTokenSource;
-
     private async Task SaveConnection()
     {
         var resultPopup = await this.ShowPopupAsync<PasswordPromptResult>(new PasswordPrompt("Ingrese el pin correcto"));

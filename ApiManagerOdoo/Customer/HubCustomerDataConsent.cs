@@ -118,49 +118,51 @@ namespace ApiManager
         public async Task<ApiResponseOdooRpcT<bool>?> UpdateState(CustomerDataConsent newResponse)
         {
             var kwargs = new { };
-            var settings = new JsonSerializerSettings
+            //var settings = new JsonSerializerSettings
+            //{
+            //    DateFormatString = "yyyy-MM-dd HH:mm:ss",                
+            //};
+
+            //var serialized = JsonConvert.SerializeObject(newResponse, settings);
+
+            //var newJObject = JObject.Parse(serialized);
+
+            //JObjectExtensions.RemoveProperty(newJObject, "res_partner_id");
+            //JObjectExtensions.RemoveProperty(newJObject, "res_center_id");
+            //JObjectExtensions.RemoveProperty(newJObject, "policy_version");
+            //JObjectExtensions.RemoveProperty(newJObject, "ip_address");
+            //JObjectExtensions.RemoveProperty(newJObject, "email");
+            //JObjectExtensions.RemoveProperty(newJObject, "vat_doc");
+            //JObjectExtensions.RemoveProperty(newJObject, "first_name");
+            //JObjectExtensions.RemoveProperty(newJObject, "last_name");
+            //JObjectExtensions.RemoveProperty(newJObject, "phone");
+            //JObjectExtensions.RemoveProperty(newJObject, "address");
+
+            //JObjectExtensions.RemoveProperty(newJObject, "consent_type");
+            //JObjectExtensions.RemoveProperty(newJObject, "res_partner");
+            //JObjectExtensions.RemoveProperty(newJObject, "res_center");
+            //JObjectExtensions.RemoveProperty(newJObject, "doc_type_identification_id");
+
+            //JObjectExtensions.RemoveProperty(newJObject, "application_origin");
+            //JObjectExtensions.RemoveProperty(newJObject, "device_app_version");
+            //JObjectExtensions.RemoveProperty(newJObject, "device_platform_mod");
+            //JObjectExtensions.RemoveProperty(newJObject, "device_platform_source");
+            //JObjectExtensions.RemoveProperty(newJObject, "device_manufacturer");
+            //JObjectExtensions.RemoveProperty(newJObject, "device_model");
+
+            //JObjectExtensions.RemoveProperty(newJObject, "create_date");
+            //JObjectExtensions.RemoveProperty(newJObject, "write_date");
+            //JObjectExtensions.RemoveProperty(newJObject, "create_uid");
+            //JObjectExtensions.RemoveProperty(newJObject, "write_uid");
+
+            //JObjectExtensions.RemoveProperty(newJObject, "db");
+            //JObjectExtensions.RemoveProperty(newJObject, "login");
+            //JObjectExtensions.RemoveProperty(newJObject, "password");
+
+            var newJObject = new JObject
             {
-                DateFormatString = "yyyy-MM-dd HH:mm:ss",                
+                ["response_state"] = newResponse.ResponseState
             };
-
-            var serialized = JsonConvert.SerializeObject(newResponse, settings);
-
-            var newJObject = JObject.Parse(serialized);
-
-            JObjectExtensions.RemoveProperty(newJObject, "res_partner_id");
-            JObjectExtensions.RemoveProperty(newJObject, "res_center_id");
-            JObjectExtensions.RemoveProperty(newJObject, "policy_version");
-            JObjectExtensions.RemoveProperty(newJObject, "ip_address");
-            JObjectExtensions.RemoveProperty(newJObject, "email");
-            JObjectExtensions.RemoveProperty(newJObject, "vat_doc");
-            JObjectExtensions.RemoveProperty(newJObject, "first_name");
-            JObjectExtensions.RemoveProperty(newJObject, "last_name");
-            JObjectExtensions.RemoveProperty(newJObject, "phone");
-            JObjectExtensions.RemoveProperty(newJObject, "address");
-
-            JObjectExtensions.RemoveProperty(newJObject, "consent_type");
-            JObjectExtensions.RemoveProperty(newJObject, "res_partner");
-            JObjectExtensions.RemoveProperty(newJObject, "res_center");
-            JObjectExtensions.RemoveProperty(newJObject, "doc_type_identification_id");
-
-            JObjectExtensions.RemoveProperty(newJObject, "application_origin");
-            JObjectExtensions.RemoveProperty(newJObject, "device_app_version");
-            JObjectExtensions.RemoveProperty(newJObject, "device_platform_mod");
-            JObjectExtensions.RemoveProperty(newJObject, "device_platform_source");
-            JObjectExtensions.RemoveProperty(newJObject, "device_manufacturer");
-            JObjectExtensions.RemoveProperty(newJObject, "device_model");
-
-            JObjectExtensions.RemoveProperty(newJObject, "create_date");
-            JObjectExtensions.RemoveProperty(newJObject, "write_date");
-            JObjectExtensions.RemoveProperty(newJObject, "create_uid");
-            JObjectExtensions.RemoveProperty(newJObject, "write_uid");
-
-            JObjectExtensions.RemoveProperty(newJObject, "db");
-            JObjectExtensions.RemoveProperty(newJObject, "login");
-            JObjectExtensions.RemoveProperty(newJObject, "password");
-
-
-            //object[] args = new object[] { newJObject };
 
             object[] args = new object[]
             {
@@ -186,7 +188,10 @@ namespace ApiManager
 
             var newJObject = JObject.Parse(serialized);
 
-            object[] args = new object[] { newJObject };
+            object[] args = new object[] {
+                new object[] { newResponse.Id },
+                newJObject 
+            };
             var created_data = await Write<ApiResponseOdooRpcT<bool>>(args, kwargs, _modelname);
 
             return created_data;

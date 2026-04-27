@@ -1,106 +1,115 @@
-using System;
-using System.Drawing;
 using SkiaSharp;
 using SkiaSharp.Views.Maui;
 using SkiaSharp.Views.Maui.Controls;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace DMDataSafe.Modals;
 
-[XamlCompilation(XamlCompilationOptions.Compile)]
 public partial class Congratulations : ContentPage
 {
-    private List<Particle> particles;
-    private Random random;
+    private readonly List<Particle> particles = new();
+    private readonly Random random = new();
+
+    private readonly SKPaint particlePaint = new()
+    {
+        IsAntialias = true
+    };
+
+    private readonly SKPaint textPaint = new()
+    {
+        Color = SKColors.Red,        
+        TextSize = 100,
+        TextAlign = SKTextAlign.Center,        
+        IsAntialias = true
+    };
+
+    private IDispatcherTimer timer;
+
     public Congratulations()
-	{
+    {
         InitializeComponent();
-
-        particles = new List<Particle>();
-        random = new Random();
-
-        //Device.StartTimer(TimeSpan.FromMilliseconds(16), () =>
-        //{
-        //    UpdateParticles();
-        //    canvasView.InvalidateSurface();
-        //    return true;
-        //});
-
-        IDispatcherTimer timer;
 
         timer = Dispatcher.CreateTimer();
         timer.Interval = TimeSpan.FromMilliseconds(16);
+
         timer.Tick += (s, e) =>
         {
-            UpdateParticles();
             canvasView.InvalidateSurface();
         };
+
         timer.Start();
     }
 
     private void OnCanvasViewPaintSurface(object sender, SKPaintSurfaceEventArgs e)
     {
-        SKSurface surface = e.Surface;
-        SKCanvas canvas = surface.Canvas;
+        var canvas = e.Surface.Canvas;
+        var width = e.Info.Width;
+        var height = e.Info.Height;
 
         canvas.Clear();
 
-        foreach (Particle particle in particles)
-        {
-            SKPaint paint = new SKPaint
-            {
-                Color = particle.Color,
-                IsAntialias = true
-            };
+        UpdateParticles(width, height);
 
-            canvas.DrawCircle(particle.Position, particle.Size, paint);
+        // Dibujar partículas
+        foreach (var particle in particles)
+        {
+            particlePaint.Color = particle.Color;
+            canvas.DrawCircle(particle.Position, particle.Size, particlePaint);
         }
-
-        SKPaint textPaint = new SKPaint
-        {
-            Color = SKColors.Red,
-            TextSize = 100,
-            TextAlign = SKTextAlign.Center,
-            FakeBoldText = true,
-        };
-
+        
         string text = "MUCHAS GRACIAS!!!";
 
-        //SKFont fontText = new SKFont(SKTypeface.FromFamilyName("OpenSansRegular"), 200);
-        //fontText.Embolden = true;
+        SKRect textBounds = new();
+        //textPaint.MeasureText(text, ref textBounds);
+        
+        SKFont sKFont = new SKFont();
+        sKFont.Size = 100;
+        sKFont.MeasureText(text, out textBounds);
 
-        SKRect textBounds = new SKRect();
-        textPaint.MeasureText(text, ref textBounds);
-        float x = (canvasView.CanvasSize.Width / 2); // - textBounds.Width ;
-        float y = (canvasView.CanvasSize.Height + textBounds.Height) / 2;
+        float x = width / 2f;
+        float y = (height / 2f) + (textBounds.Height / 2f);
 
-        canvas.DrawText(text, x, y, textPaint);
+        //SKTextAlign textAlign = SKTextAlign.Center;
+        
+        canvas.DrawText(text, x, y, SKTextAlign.Center, sKFont,  textPaint);
     }
 
-    private void UpdateParticles()
-    {
-        // Agregar nuevas partículas
+    private void UpdateParticles(int width, int height)
+    {        
         for (int i = 0; i < 10; i++)
         {
-            float x = (float)random.NextDouble() * canvasView.CanvasSize.Width;
-            float y = (float)random.NextDouble() * canvasView.CanvasSize.Height;
+            float x = (float)random.NextDouble() * width;
+            float y = (float)random.NextDouble() * height;
             float size = (float)random.NextDouble() * 10 + 5;
-            SKColor color = SKColor.FromHsl(random.Next(0, 360), 100, 50);
+
+            var color = SKColor.FromHsl(
+                random.Next(0, 360),
+                100,
+                50
+            );
+
             particles.Add(new Particle(new SKPoint(x, y), size, color));
         }
-
-        // Actualizar posición y tamaño de las partículas existentes
-        foreach (Particle particle in particles.ToList())
+                
+        for (int i = particles.Count - 1; i >= 0; i--)
         {
-            //particle.Position.X += (float)random.NextDouble() * 2 - 1;
-            //particle.Position.Y += (float)random.NextDouble() * 2 - 1;
-            particle.Position = new SKPoint(particle.Position.X + (float)random.NextDouble() * 2 - 1,
-                particle.Position.Y + (float)random.NextDouble() * 2 - 1);
-            particle.Size -= 0.1f;
+            var p = particles[i];
 
-            if (particle.Size <= 0)
-                particles.Remove(particle);
+            p.Position = new SKPoint(
+                p.Position.X + ((float)random.NextDouble() * 2 - 1),
+                p.Position.Y + ((float)random.NextDouble() * 2 - 1)
+            );
+
+            p.Size -= 0.1f;
+
+            if (p.Size <= 0)
+                particles.RemoveAt(i);
         }
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        timer?.Stop(); 
     }
 }
 

@@ -4,10 +4,7 @@
              x:Class="DMDataSafe.AppPages.Sys.About"
              Title="Acerca de la aplicación" Shell.NavBarIsVisible="True">
     <VerticalStackLayout Margin="50">
-        <Frame BorderColor="Gray"
-       CornerRadius="5"
-       Padding="10"
-               Margin="10,5,10,30">
+        <Border Padding="10" Margin="10,5,10,30">
             <StackLayout>
                 <Label Text="Dispositivo"
            FontSize="14"
@@ -24,7 +21,7 @@
                 <Label Text="-" VerticalOptions="Center" x:Name="lblUpdatedInfo"
                     HorizontalOptions="Center" Margin="10,10,10,10"/>
             </StackLayout>
-        </Frame>
+        </Border>
 
         <Grid Margin="0,0,0,0" Padding="20,20">
             <Grid.RowDefinitions>
@@ -42,7 +39,7 @@
                 Text="Cerrar"
                 SemanticProperties.Hint="Cerrar ventana"                
                     BackgroundColor="Black"
-                    Clicked="btnClose_Clicked"
+                    Clicked="BtnClose_Clicked"
                 HorizontalOptions="Center">
                 <Button.ImageSource>
                     <FontImageSource FontFamily="FontAwesome5Solid"

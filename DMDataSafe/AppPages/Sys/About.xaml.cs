@@ -2,23 +2,11 @@
 namespace DMDataSafe.AppPages.Sys;
 
 public partial class About : ContentPage
-{
-    //TODO: Asignación provisional
-    // ya que este valor cambiará dependiendo del estado de la sesión
-    private string _rootUrl = "http://192.168.204.108:8081/MyBusinessWeb/tmp/android/sqlite/"; 
-
+{   
     public About()
 	{
 		InitializeComponent();
-        lblUpdated.Text = "Ult. Actualización: ";// + App.Session.CurrentUser.fechasincronizado;
-        //Asignación de URL de descarga según la configuración de la sesión
-        //_rootUrl = App.Session.CacheFilesUrl;
-
-        //TODO: Agregar alertas al iniciar este proceso
-        //HACK
-        //UNDONE
-        //UnresolvedMergeConflict
-
+        lblUpdated.Text = "Ult. Actualización: ";
         ReadDeviceInfo();
     }
 
@@ -57,7 +45,7 @@ public partial class About : ContentPage
         lblUpdated.Text = sb.ToString();
     }
 
-    private async void btnClose_Clicked(object sender, EventArgs e)
+    private async void BtnClose_Clicked(object sender, EventArgs e)
     {
         await Navigation.PopModalAsync(false);
     }

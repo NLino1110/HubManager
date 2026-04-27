@@ -26,10 +26,7 @@
                 Opacity="0.8" />
             </Border.Shadow>
             
-        <Frame 
-       CornerRadius="5"
-       Padding="16,8"
-            BorderColor="Transparent">
+        <Border Padding="16,8">
             <StackLayout>
                 <Label Text="Autorización"
            FontSize="14"
@@ -80,7 +77,7 @@
                                 Title=""
                                 ItemsSource="{Binding tipoIdes}"
                                 ItemDisplayBinding="{Binding descripcion}"
-                                HorizontalOptions="FillAndExpand">
+                                HorizontalOptions="Fill">
 
                             </Picker>
                         </Grid>
@@ -170,8 +167,8 @@
                                Margin="0,7" 
                                WidthRequest="950"
                                HeightRequest="50"
-                               HorizontalOptions="StartAndExpand"
-                               VerticalOptions="CenterAndExpand" FontSize="18">
+                               HorizontalOptions="Start"
+                               VerticalOptions="Center" FontSize="18">
                             <Label.Text>
                                 Acepto el envío de comunicaciones comerciales personalizadas, basadas en sus gustos, preferencias y consumos, sobre los productos y servicios de DMujeres S.A. por cualquier medio.
                             </Label.Text>
@@ -306,7 +303,7 @@
                     </Grid>
 
                 </StackLayout>
-        </Frame>
+        </Border>
         </Border>
         
         

@@ -201,7 +201,7 @@ public partial class ConfirmClient : ContentPage
             selectedCustomer.device_model = "";
         }
 
-        selectedCustomer.ResposeState = "agreed";
+        selectedCustomer.ResponseState = "agreed";
         if (!hasChanges)
         {
             apiResponse_V1 = await hubClienteAprobacion.UpdateState(selectedCustomer);
@@ -284,7 +284,7 @@ public partial class ConfirmClient : ContentPage
             selectedCustomer.device_model = "";
         }
 
-        selectedCustomer.ResposeState = "rejected";
+        selectedCustomer.ResponseState = "rejected";
         //var resultUpdate = await hubClienteAprobacion.Update(selectedCustomer);
         var resultUpdate = await hubClienteAprobacion.UpdateState(selectedCustomer);
 
