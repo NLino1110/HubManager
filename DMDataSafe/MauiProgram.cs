@@ -24,7 +24,7 @@ namespace DMDataSafe
                 })
                 .UseMauiCommunityToolkit(options => {
                     options.SetShouldEnableSnackbarOnWindows(true);
-                })                             
+                })
                 .UseBeebTechControls();
 
             //builder.Services.AddCommunityToolkitDialogs();

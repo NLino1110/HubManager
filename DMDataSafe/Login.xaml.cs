@@ -1,6 +1,5 @@
 ﻿using ApiManager;
 using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.Input;
 using DMDataSafe.AppPages.Sys;
 using DMOrders.Controls.Tools;
@@ -14,17 +13,10 @@ using DMSA.Sync.Core;
 using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite.Accounting;
 using DMSA.Sync.Core.Update;
-
-
-
-//using DMSA.Sync.Core.Database.Sqlite;
-//using DMSA.Sync.Core.Database.Sqlite.Accounting;
-//using DMSA.Sync.Core.Update;
 using System.Buffers;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reflection;
-using System.Timers;
 using System.Windows.Input;
 
 namespace DMDataSafe;

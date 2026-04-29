@@ -102,16 +102,18 @@
     <ApplicationVersion>6</ApplicationVersion>
   </PropertyGroup>  
   <ItemGroup>
-    <!-- App Icon -->
-    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
-    <!-- Splash Screen -->
+    
+	  <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg">
+		  <BaseSize>256,128</BaseSize>
+	  </MauiIcon>
+    
     <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#EDE6EB" BaseSize="272,153" />
-    <!-- Images -->
+    
     <MauiImage Include="Resources\Images\*" />
     <MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />
-    <!-- Custom Fonts -->
+    
     <MauiFont Include="Resources\Fonts\*" />
-    <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
+    
     <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
@@ -151,6 +153,7 @@
     <None Remove="Platforms\Android\Resources\drawable-xhdpi\logo_macronegocios.png" />
     <None Remove="Platforms\Android\Resources\drawable\logo_dmujeres.png" />
     <None Remove="Platforms\Android\Resources\drawable\logo_macronegocios.png" />
+    <None Remove="Resources\AppIcon\appiconfg___.svg" />
     <None Remove="Resources\Fonts\fa-brands-400.ttf" />
     <None Remove="Resources\Fonts\fa-regular-400.ttf" />
     <None Remove="Resources\Fonts\fa-solid-900.ttf" />

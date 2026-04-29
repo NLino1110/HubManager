@@ -29,17 +29,14 @@
             <Setter Property="FontSize" Value="18"/>
             <Setter Property="TextColor" Value="Green"/>
         </Style>
-    </ContentPage.Resources>
-
-    <!-- CONTENIDO PRINCIPAL -->
-    <ScrollView>
+    </ContentPage.Resources>    
         <Grid>
-            <!-- Fondo -->
+            
             <Image Source="logo_macronegocios.png"
-                   Aspect="AspectFill"
+                   Aspect="Fill"
                    Opacity="0.3"
                    Margin="-50"/>
-
+        <ScrollView>
             <VerticalStackLayout VerticalOptions="Center" Padding="10" Spacing="10">
                 <!-- Panel de contenido -->
                 <Border Padding="10"
@@ -151,6 +148,6 @@
                            HorizontalOptions="Center"/>
                 </VerticalStackLayout>
             </VerticalStackLayout>
-        </Grid>
-    </ScrollView>
+        </ScrollView>
+    </Grid>    
 </ContentPage>
