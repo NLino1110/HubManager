@@ -827,8 +827,8 @@ public partial class Login : ContentPage
         if (_isFirstAppearing)
         {
             Dispatcher.Dispatch(async () =>
-            {
-                await SetupLogin();                
+            {                
+                await SetupLogin();
             });
 
             _isFirstAppearing = false;

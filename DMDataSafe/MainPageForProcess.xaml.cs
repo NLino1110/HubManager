@@ -131,7 +131,9 @@ namespace DMDataSafe
                 return;
             }
 
-            App.Current.MainPage = new Login();
+            var loginPage = new Login();
+            loginPage.ClearSession();
+            App.Current.MainPage = loginPage;
         }
 
         private async Task ShowConfirmClient(CustomerDataConsent cliente)

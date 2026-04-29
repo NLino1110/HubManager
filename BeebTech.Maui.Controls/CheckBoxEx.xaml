@@ -20,6 +20,9 @@
         <HorizontalStackLayout Grid.Row="0" Grid.Column="1" VerticalOptions="Center">
             <Label Text="{Binding Source={x:Reference root}, Path=LabelText}"
                    TextColor="{Binding Source={x:Reference root}, Path=TextColor, Mode=TwoWay}"
+                   FontSize="{Binding FontSize, Source={x:Reference root}}"
+                    FontAttributes="{Binding FontAttributes, Source={x:Reference root}}"
+                    FontFamily="{Binding FontFamily, Source={x:Reference root}}"
                     VerticalOptions="Center"
                    HorizontalOptions="Fill"
                     Margin="0,0,0,0" 

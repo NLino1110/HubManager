@@ -23,6 +23,15 @@ public partial class CheckBoxEx : ContentView
         BindableProperty.Create(nameof(CheckBoxColor), typeof(Color), typeof(CheckBoxEx),
             defaultValue: Colors.DarkSlateGray);
 
+    public static readonly BindableProperty FontSizeProperty =
+    BindableProperty.Create(nameof(FontSize), typeof(double), typeof(CheckBoxEx), 14.0);
+
+    public static readonly BindableProperty FontAttributesProperty =
+        BindableProperty.Create(nameof(FontAttributes), typeof(FontAttributes), typeof(CheckBoxEx), FontAttributes.None);
+
+    public static readonly BindableProperty FontFamilyProperty =
+        BindableProperty.Create(nameof(FontFamily), typeof(string), typeof(CheckBoxEx), default(string));
+
     public Color TextColor
     {
         get => (Color)GetValue(TextColorProperty);
@@ -50,5 +59,23 @@ public partial class CheckBoxEx : ContentView
     private void OnLabelTapped(object sender, EventArgs e)
     {
         checkBox.IsChecked = !checkBox.IsChecked;
+    }
+
+    public double FontSize
+    {
+        get => (double)GetValue(FontSizeProperty);
+        set => SetValue(FontSizeProperty, value);
+    }
+
+    public FontAttributes FontAttributes
+    {
+        get => (FontAttributes)GetValue(FontAttributesProperty);
+        set => SetValue(FontAttributesProperty, value);
+    }
+
+    public string FontFamily
+    {
+        get => (string)GetValue(FontFamilyProperty);
+        set => SetValue(FontFamilyProperty, value);
     }
 }

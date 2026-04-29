@@ -13,6 +13,8 @@ using DMSA.Sync.Core;
 using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite.Accounting;
 using DMSA.Sync.Core.Update;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Buffers;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -627,7 +629,7 @@ public partial class Login : ContentPage
             if (resultUser?.uid > 0)
             {
                 LoginSelector.IsVisible = false;
-                CompanySelector.IsVisible = true;                            
+                CompanySelector.IsVisible = true;
             }
             else
             {
@@ -676,12 +678,85 @@ public partial class Login : ContentPage
         return true;
     }
 
+    public void SaveSession(bool rememberMe)
+    {
+        Preferences.Set("is_rememberme", rememberMe);
+
+        if (!rememberMe)
+        {
+            Preferences.Remove("App.Session");
+            return;
+        }
+
+        if (App.Session == null)
+            return;
+
+        try
+        {
+            var sessionSerialized = JsonConvert.SerializeObject(App.Session);
+            Preferences.Set("App.Session", sessionSerialized);
+        }
+        catch
+        {
+            
+        }
+    }
+
+    public void LoadSession()
+    {
+        try
+        {
+            var rememberMe = Preferences.Get("is_rememberme", false);
+
+            if (!rememberMe)
+            {
+                //App.Session = null;
+                return;
+            }
+
+            string appSession = Preferences.Get("App.Session", string.Empty);
+
+            if (string.IsNullOrEmpty(appSession))
+            {
+                App.Session = null;
+                return;
+            }
+
+            App.Session = JsonConvert.DeserializeObject<AppSession>(appSession);
+            App.Current.MainPage = new MainPageForProcess();
+        }
+        catch
+        {            
+            Preferences.Remove("App.Session");
+            App.Session = null;
+        }
+    }
+
+    public void ClearSession()
+    {
+        Preferences.Remove("App.Session");
+        Preferences.Set("is_rememberme", false);
+        //App.Session = null;
+
+        App.Session = new AppSession();
+        App.Session.AppVersion = AppInfo.Current.VersionString;
+        App.Session.SqliteCoreDbName = "DMDataSafe";
+        App.Session.AppCodeOdoo = "03";
+        App.Session.AppMobileId = 3;
+
+        if (DeviceInfo.Platform == DevicePlatform.Android)
+        {
+            App.Session.AppVersion = AppInfo.Current.VersionString + "." + AppInfo.Current.BuildString;
+        }
+    }
+
     private void btnAccess_Clicked(object sender, EventArgs e)
     {
         if(ddCompany.SelectedItem != null && ddAgency.SelectedItem != null)
         {
             App.Session.res_Company = SelCompany;
-            App.Session.res_center = (res_center) ddAgency.SelectedItem;            
+            App.Session.res_center = (res_center) ddAgency.SelectedItem;
+            SaveSession(chkRememberme.IsChecked);
             App.Current.MainPage = new MainPageForProcess();
         }
     }
@@ -698,7 +773,8 @@ public partial class Login : ContentPage
         {
             Dispatcher.Dispatch(async () =>
             {
-                await SetupLogin();                
+                LoadSession();
+                await SetupLogin();
             });
 
             _isFirstAppearing = false;

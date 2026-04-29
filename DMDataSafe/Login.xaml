@@ -6,6 +6,7 @@
     xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
     xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
     xmlns:beebtech="clr-namespace:BeebTech.Controls.UI;assembly=BeebTech.Controls"
+    xmlns:controls="clr-namespace:BeebTech.Maui.Controls;assembly=BeebTech.Maui.Controls"
     xmlns:DMOrders="clr-namespace:DMDataSafe"
     x:Class="DMDataSafe.Login"
     Title="Login"
@@ -97,7 +98,14 @@
                                     <beebtech:TextFieldPasswordShowHideAttachment />
                                 </beebtech:TextField.Attachments>
                             </beebtech:TextField>
-
+                            <controls:CheckBoxEx x:Name="chkRememberme" 
+                                                 CheckBoxColor="#D32F2F" 
+                                                 TextColor="Black" 
+                                                 IsChecked="True"
+                                                 LabelText="Recordarme"
+                                                 FontSize="12"
+                                                 FontAttributes="Bold"
+                                                 HorizontalOptions="Center"></controls:CheckBoxEx>
                             <Button x:Name="BtnTryLogin"
                                     Text="Iniciar sesión"
                                     Clicked="OnLoginClicked"
