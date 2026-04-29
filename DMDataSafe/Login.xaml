@@ -30,12 +30,10 @@
             <Setter Property="TextColor" Value="Green"/>
         </Style>
     </ContentPage.Resources>    
-        <Grid>
-            
+        <Grid>            
             <Image Source="logo_macronegocios.png"
-                   Aspect="Fill"
-                   Opacity="0.3"
-                   Margin="-50"/>
+                   Aspect="AspectFit"
+                   Opacity="0.3"/>
         <ScrollView>
             <VerticalStackLayout VerticalOptions="Center" Padding="10" Spacing="10">
                 <!-- Panel de contenido -->

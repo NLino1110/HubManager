@@ -77,7 +77,18 @@ namespace ApiManagerOdoo.Accounting
             //    "credit.note.request", 
             //    "button_fill_details");
 
+            //Process Step 3
+            object[] args_step_2_5 = new object[] { new_record };
+            var kwargs_step_2_5 = new { };
+            var processSendNc = await CallMethod<ApiResponseOdooRpcT<OdooRpcResultInt>>(EndPointApi,
+                Method.Post,
+                args_step_2_5,
+                kwargs_step_2_5,
+                "credit.note.request",
+                "process_send_nc");
+
             //if (resultButtonFill != null && resultButtonFill.error == null && resultButtonFill.id > 0)
+
             bool button_fill_success = true;
             if (button_fill_success)
             {

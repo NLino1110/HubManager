@@ -353,9 +353,6 @@ namespace DMSA.Sync.Core.Update.Pusher
                 _creditNoteRequestGroup.autosend = "N";
             }
 
-            //TODO: Se coloca directamente "unknow" ya que las nuevas versiones de Android
-            // no permiten obtener el número de serie de los dispositivos
-
             _creditNoteRequestGroup.serialNumber = "unknown" + "-" + Constants.Session.AppVersion;
 
             CreditNoteRequestDb creditNoteRequestDb = new CreditNoteRequestDb(Constants.Session.odooConnection.DbNameSqlite);

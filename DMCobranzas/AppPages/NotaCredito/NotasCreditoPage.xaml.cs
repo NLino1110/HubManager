@@ -56,12 +56,9 @@ public partial class NotasCreditoPage : ContentPage
         }
     }
 
-
     public ICommand DeleteCommand { get; set; }
 
-
     public ICommand SendItemCommand { get; set; }
-
 
     public ICommand EditCommand { get; set; }
 
@@ -87,14 +84,6 @@ public partial class NotasCreditoPage : ContentPage
         EditCommand = new Command(EditItem);
         TicketCommand = new Command(TicketItem);
 
-        //var task = Task.Run(() =>
-        //{
-        //    //await LoadData();
-        //    btnBuscar_Clicked(null, null);
-        //});
-
-        //Task.WaitAll(task);
-
         if (App.Session.CurrentUserFront.empresas != null)
         {
             Empresas = App.Session.CurrentUserFront.empresas.OrderBy(x=>x.id).ToArray();
@@ -116,40 +105,6 @@ public partial class NotasCreditoPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-
-        //IDispatcherTimer timer;
-
-        //timer = Dispatcher.CreateTimer();
-        //timer.Interval = TimeSpan.FromMilliseconds(500);
-        //timer.IsRepeating = false;
-        //timer.Tick += async (s, e) =>
-        //{
-        //    await LoadData();
-
-        //    timer.Stop();
-        //};
-        //timer.Start();
-
-        //var task = Task.Run(async () =>
-        //{
-        //    await Task.Delay(2000);
-        //    if (isEmptyDb)
-        //    {                
-        //        await DisplayAlert("Alert", "You have been alerted", "OK");
-        //    }
-        //});
-        //task.Wait();
-
-        //IDispatcherTimer timer;
-
-        //timer = Dispatcher.CreateTimer();
-        //timer.Interval = TimeSpan.FromMilliseconds(500);
-        //timer.Tick += async (s, e) =>
-        //{
-        //    await LoadData();
-        //    timer.Stop();
-        //};
-        //timer.Start();
     }
 
     private async void btnBuscar_Clicked(object sender, EventArgs e)
@@ -274,12 +229,8 @@ public partial class NotasCreditoPage : ContentPage
         }
 
         CreditNoteRequestGroupDb accountMoveSendHeaderDb = new CreditNoteRequestGroupDb(App.Session.odooConnection.DbNameSqlite);
-
-        await accountMoveSendHeaderDb.DeleteRecursive(_accountMoveSendHeader);
-        //accountMoveSendHeaderDb.
-
+        await accountMoveSendHeaderDb.DeleteRecursive(_accountMoveSendHeader);        
         await Toast.Make(_accountMoveSendHeader.partner_name + " eliminado!" ).Show();
-
         await LoadData();
     }
 
@@ -291,7 +242,7 @@ public partial class NotasCreditoPage : ContentPage
 
         int countMoves = movesItems.Count;
 
-        bool answer = await DisplayAlert("Envío de solicitud", $"Está seguro que desea enviar esta solicitud? {countMoves} Nota(s) de Crédito", "Confirmar", "Cancelar");
+        bool answer = await DisplayAlertAsync("Envío de solicitud", $"Está seguro que desea enviar esta solicitud? {countMoves} Nota(s) de Crédito", "Confirmar", "Cancelar");
         //Debug.WriteLine("Answer: " + answer);
         if (!answer)
         {
@@ -333,9 +284,6 @@ public partial class NotasCreditoPage : ContentPage
         }
 
         await UITools.HideLoadingPopup();
-
-
-        //simplePopup.Close();
         await LoadData();
     }
 
@@ -349,17 +297,10 @@ public partial class NotasCreditoPage : ContentPage
         await Navigation.PushAsync(objPage, false);
     }
 
-
     private async void TicketItem(object obj)
     {
         Debug.WriteLine("PrintItem");
-        PrintView objPage = new PrintView();
-        //CobrosMain objPage = new CobrosMain();
-        //Se asigna la empresa seleccionada
-
-        //((ItemsGroup)obj)[0]
-
-        //objPage.setCobReciboCab((CobReciboCab)obj);
+        PrintView objPage = new PrintView();        
         string printTemplateHtml = "";
         string printTemplatePlain = "";
         byte[] printTemplateData = null;
@@ -367,8 +308,7 @@ public partial class NotasCreditoPage : ContentPage
         switch(obj.GetType().Name)
         {
             case "CreditNoteRequestGroup":
-                {
-                    //printTemplate = await processor.Template_AccountMoveSendNC((account_move_send) obj);
+                {                    
                     (printTemplateData, printTemplateHtml, printTemplatePlain) = await processor.Template_AccountMoveSendNC((CreditNoteRequestGroup)obj);
                 }
                 break;
@@ -376,27 +316,14 @@ public partial class NotasCreditoPage : ContentPage
         
         objPage.setTemplatePreview(printTemplateHtml);
         objPage.setTemplatePlain(printTemplatePlain);
-        objPage.setData(printTemplateData);
-        //Se asigna título
-        //obj.Title = "Cartera Clientes/" + se.nombre;
-        //objPage.dataItem = (CobReciboCab)obj;
-        //objPage.empresa = empresa;
-        //objPage.SetTitle();
+        objPage.setData(printTemplateData);        
         await Navigation.PushAsync(objPage, false);
-    }
-
-    private async void EnviarNotaCredito(object obj)
-    {
-        //var secuencia = await database.obtenerSecuenciaRecibo(dataItem.CODEMPRESA, App.Session.CurrentUser.codusuario, fechaActual);
-        //string secuencia_final = GenerarCodigoRecibo(App.Session.CurrentUser.codusuario, dataItem.CODEMPRESA, fechaActual, secuencia.ToString());
-        Debug.WriteLine("EnviarNotaCredito");
     }
 
     private void Disappearing_NewNC(object sender, EventArgs e)
     {
         Debug.WriteLine("Busqueda cerrada");
         LoadDataByDispatcher();
-        //throw new NotImplementedException();
     }
 
     void LoadDataByDispatcher()
@@ -431,11 +358,8 @@ public partial class NotasCreditoPage : ContentPage
         CreditNoteRequestGroupView obj = new CreditNoteRequestGroupView();
         var se = (res_company)SelectorCmp.SelectedItem;
         obj.Sel_Company_Id = se;
-
-
         obj.Disappearing += NewGroup_Disappearing;
-        //SelectorCmp.IsEnabled = false;    
-
+        //SelectorCmp.IsEnabled = false;
         await Navigation.PushAsync(obj, false);
     }
 

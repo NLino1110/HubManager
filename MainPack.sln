@@ -35,6 +35,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMDataSafe", "DMDataSafe\DM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiApp100", "MauiApp100\MauiApp100.csproj", "{CF7AD5BD-7911-4A71-8AE4-17D6EE4B86A2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMobileManager.AppHost", "WebMobileManager\WebMobileManager.AppHost\WebMobileManager.AppHost.csproj", "{4746FD9A-3DAC-4E74-9048-C03AB1DF008C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMobileManager.ServiceDefaults", "WebMobileManager\WebMobileManager.ServiceDefaults\WebMobileManager.ServiceDefaults.csproj", "{F0972554-C8C5-68A6-5F02-C7F66262B317}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMobileManager.ApiService", "WebMobileManager\WebMobileManager.ApiService\WebMobileManager.ApiService.csproj", "{7A0F0258-5E2D-A868-DF1E-55EA1ED83241}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMobileManager.Web", "WebMobileManager\WebMobileManager.Web\WebMobileManager.Web.csproj", "{AB9ADD9B-F241-91C0-147D-0F60AD0FB10F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -112,6 +120,22 @@ Global
 		{CF7AD5BD-7911-4A71-8AE4-17D6EE4B86A2}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{CF7AD5BD-7911-4A71-8AE4-17D6EE4B86A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF7AD5BD-7911-4A71-8AE4-17D6EE4B86A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4746FD9A-3DAC-4E74-9048-C03AB1DF008C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4746FD9A-3DAC-4E74-9048-C03AB1DF008C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4746FD9A-3DAC-4E74-9048-C03AB1DF008C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4746FD9A-3DAC-4E74-9048-C03AB1DF008C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0972554-C8C5-68A6-5F02-C7F66262B317}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0972554-C8C5-68A6-5F02-C7F66262B317}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0972554-C8C5-68A6-5F02-C7F66262B317}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0972554-C8C5-68A6-5F02-C7F66262B317}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A0F0258-5E2D-A868-DF1E-55EA1ED83241}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A0F0258-5E2D-A868-DF1E-55EA1ED83241}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A0F0258-5E2D-A868-DF1E-55EA1ED83241}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A0F0258-5E2D-A868-DF1E-55EA1ED83241}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB9ADD9B-F241-91C0-147D-0F60AD0FB10F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB9ADD9B-F241-91C0-147D-0F60AD0FB10F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB9ADD9B-F241-91C0-147D-0F60AD0FB10F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB9ADD9B-F241-91C0-147D-0F60AD0FB10F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
