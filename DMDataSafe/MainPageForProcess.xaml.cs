@@ -14,13 +14,9 @@ namespace DMDataSafe
 
         public MainPageForProcess()
         {
-            InitializeComponent();            
-            //BindingContext = new MainViewModelCliAprob();
-
+            InitializeComponent();
             lblUser.Text = App.Session.CurrentUserFront.username;
-
-            //Se evalúa si los datos de la agencia a la que pertenece el usuario
-            // fueron cargados correctamente
+            
             var empresas = App.Session.CurrentUserFront.empresas;
             var center = App.Session.res_center;
 
@@ -38,8 +34,6 @@ namespace DMDataSafe
             
             timer.Tick += (s, e) =>
             {
-                //UpdateParticles();
-                //canvasView.InvalidateSurface();
                 OnTapGestureRecognizerTapped(this, null);
             };
             timer.Start();
@@ -62,9 +56,7 @@ namespace DMDataSafe
         {
             if (e.DisplayInfo.Orientation == DisplayOrientation.Landscape)
             {
-                //if you use navigatepage    
                 NavigationPage.SetHasNavigationBar(this, false);
-                //if you use shell    
                 Shell.SetNavBarIsVisible(this, false);
             }
         }
@@ -77,21 +69,15 @@ namespace DMDataSafe
         void OnTapGestureRecognizerTapped(object sender, TappedEventArgs args)
         {   
             string filterName = txtFilter.Text.ToUpper();
-
-            MainViewModelCliAprob mainViewModelCliAprob = new MainViewModelCliAprob(filterName);
-            
-            BindingContext = mainViewModelCliAprob;
-
-            //((MainViewModelCliAprob) BindingContext).RefreshCommand.Execute(this);
+            MainViewModelCliAprob mainViewModelCliAprob = new MainViewModelCliAprob(filterName);            
+            BindingContext = mainViewModelCliAprob;            
             Debug.WriteLine("Tap:" + sender.ToString());
         }
 
         async void OnTapLabelUser(object sender, TappedEventArgs args)
         {            
-            Debug.WriteLine("Tap:" + sender.ToString());
-            //About obj = new About();
-            await Navigation.PushModalAsync(new NavigationPage(new About()), false);
-            //await Shell.Current.GoToAsync("about");
+            Debug.WriteLine("Tap:" + sender.ToString());            
+            await Navigation.PushModalAsync(new NavigationPage(new About()), false);            
         }
 
         private async void _dataGrid1_ItemSelected(object sender, SelectionChangedEventArgs e)
@@ -101,7 +87,6 @@ namespace DMDataSafe
 
         private async void BtnSelect(object sender, EventArgs e)
         {
-            //await Navigation.PopModalAsync(false);
             Debug.WriteLine("Seleccionado");
             Button btnItem = (Button) sender;
             
@@ -111,8 +96,7 @@ namespace DMDataSafe
                 var rowData = _dataGrid1.SelectedItem as CustomerDataConsent;
 
                 if (rowData is CustomerDataConsent cliente)
-                {
-                    //Se realiza la seleccion manual de la fila, ya que si se hace clic en el botón no es automática
+                {                    
                     _dataGrid1.SelectedItem = rowData;
                     await ShowConfirmClient(cliente);                    
                 }
@@ -121,7 +105,7 @@ namespace DMDataSafe
 
         private async void BtnClose_Clicked(object sender, EventArgs e)
         {
-            bool answer = await DisplayAlert("Salir", "¿Está seguro que desea cerrar la sessión? ",
+            bool answer = await DisplayAlertAsync("Salir", "¿Está seguro que desea cerrar la sessión? ",
             "Cerrar Sesión",
             "Cancelar");
 

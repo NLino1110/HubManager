@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace DMDataSafe.Models
 {
+    [Obsolete("Se debe eliminar")]
     public class Team
     {
         public string Name { get; set; }

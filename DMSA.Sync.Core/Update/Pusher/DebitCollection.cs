@@ -363,7 +363,7 @@ namespace DMSA.Sync.Core.Update.Pusher
             foreach (var CreditNoteRequestItem in creditNoteRequestDbList)
             {
                 CreditNoteRequestItem.request_name = _creditNoteRequestGroup.request_name;
-                                
+
                 var linesItems = await creditNoteRequestDetailDb.GetItemsByParentAsync(CreditNoteRequestItem.id);
                 if (linesItems.Count > 0)
                 {
@@ -506,15 +506,19 @@ namespace DMSA.Sync.Core.Update.Pusher
         }
 
         public static async Task<ApiResponseOdooRpcT<List<OdooRpcResultInt>>?> SendCreditNoteRequest(credit_note_request crediNoteRequest)
-        {
-            //TODO: Agregar validaciones
+        {            
             HubCreditNoteRequest hubAccountMoveRefund = new HubCreditNoteRequest(Constants.Session);
+            CreditNoteRequestDb creditNoteRequestDb = new CreditNoteRequestDb(Constants.Session.odooConnection.DbNameSqlite);
+
+            if (string.IsNullOrEmpty(crediNoteRequest.external_guid))
+            {
+                crediNoteRequest.external_guid = Guid.NewGuid().ToString("N");
+                await creditNoteRequestDb.UpdateAsync(crediNoteRequest);
+            }
 
             var resultTask = await hubAccountMoveRefund.Create(crediNoteRequest);
             if (resultTask != null && resultTask.result!= null && resultTask.result.Any() && resultTask.error == null)
-            {
-                CreditNoteRequestDb creditNoteRequestDb = new CreditNoteRequestDb(Constants.Session.odooConnection.DbNameSqlite);
-                //Primera actualización de la cabecera
+            {                
                 crediNoteRequest.doc_status = "sended";
                 crediNoteRequest.send_date = DateTime.Now;
                 await creditNoteRequestDb.UpdateAsync(crediNoteRequest);

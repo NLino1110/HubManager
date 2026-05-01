@@ -103,8 +103,8 @@
   </PropertyGroup>  
   <ItemGroup>
     
-	  <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg">
-		  <BaseSize>256,128</BaseSize>
+	  <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4">
+		  <BaseSize>256,256</BaseSize>
 	  </MauiIcon>
     
     <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#EDE6EB" BaseSize="272,153" />
@@ -132,10 +132,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="AppPages\Login.xaml.cs" />
+    <Compile Remove="MainPage.xaml.cs" />
+    <Compile Remove="Models\ClienteAprobacion.cs" />
     <Compile Remove="SoapClient.cs" />
+    <Compile Remove="Utils\DummyDataProvider.cs" />
+    <Compile Remove="ViewModels\MainViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <MauiXaml Remove="AppPages\Login.xaml" />
+    <MauiXaml Remove="MainPage.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Platforms\Android\env.conf" />
@@ -228,5 +233,8 @@
     <MauiXaml Update="Modals\PopupInfoWeb.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Utils\" />
   </ItemGroup>  
 </Project>

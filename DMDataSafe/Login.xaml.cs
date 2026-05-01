@@ -14,7 +14,6 @@ using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite.Accounting;
 using DMSA.Sync.Core.Update;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Buffers;
 using System.Collections.ObjectModel;
 using System.Diagnostics;

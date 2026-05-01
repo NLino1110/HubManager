@@ -1199,6 +1199,7 @@ public partial class CreditNoteRequestCrud : ContentPage
             creditNoteRequest.group_status = "open";            
             creditNoteRequest.reason = txtReason.Text;
             creditNoteRequest.state = "draft";
+            creditNoteRequest.state = "intro";
 
             int parent_id = 0;
             parent_id = creditNoteRequest.id;
