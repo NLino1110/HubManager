@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Data;
 using static System.Net.WebRequestMethods;
-using Ubiety.Dns.Core;
 using Models.DMSA.Mbw.Query;
 using Models.DMSA.Mbw.Abstract;
 using System.Drawing;

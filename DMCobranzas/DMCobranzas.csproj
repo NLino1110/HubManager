@@ -154,6 +154,7 @@
 	  <Compile Remove="Services\BluetoothPrinterManager.cs" />
 	  <Compile Remove="Services\PrintCommandBytes.cs" />
 	  <Compile Remove="Services\PrinterCommand.cs" />
+	  <Compile Remove="Services\PushRelay.cs" />
 	  <Compile Remove="Services\Shared\BasePrinterService.cs" />
 	  <Compile Remove="Settings\Constants.cs" />
 	</ItemGroup>
@@ -239,7 +240,7 @@
 		<PackageReference Include="Microsoft.AppCenter" Version="5.0.7" />
 		<PackageReference Include="Microsoft.AppCenter.Analytics" Version="5.0.7" />
 		<PackageReference Include="Microsoft.AppCenter.Crashes" Version="5.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.6" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.7" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.6" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 		<PackageReference Include="RestSharp" Version="114.0.0" />

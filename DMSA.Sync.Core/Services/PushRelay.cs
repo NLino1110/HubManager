@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
-namespace DMCobranzas.Services
+namespace DMSA.Sync.Core.Services
 {
     public partial class PushRelay
     {
@@ -151,10 +151,10 @@ namespace DMCobranzas.Services
             });
         }
 
-        public PushRelay()
-        {
-            _PushRelay("https://192.168.204.11:7099/chatHub");
-        }
+        //public PushRelay()
+        //{
+        //    _PushRelay("https://192.168.204.11:7099/chatHub");
+        //}
 
         public PushRelay(string ServerPush)
         {
@@ -192,7 +192,7 @@ namespace DMCobranzas.Services
             device.Id = DeviceId;
             device.AppName = AppInfo.Current.Name;
             device.PackageName = AppInfo.Current.PackageName;
-            device.VersionString = App.Session.AppVersion; // AppInfo.Current.VersionString;
+            device.VersionString = Constants.Session.AppVersion;
             device.BuildString = AppInfo.Current.BuildString;
             device.UserData = "";
             device.Idiom = DeviceInfo.Current.Idiom.ToString();

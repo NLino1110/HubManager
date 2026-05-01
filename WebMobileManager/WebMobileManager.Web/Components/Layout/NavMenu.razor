@@ -1,29 +1,21 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">WebMobileManager</a>
-    </div>
-</div>
+﻿@using MudBlazor
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+<MudNavMenu>
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
+    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">
+        Home
+    </MudNavLink>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
+    <MudNavLink Href="counter" Icon="@Icons.Material.Filled.Add">
+        Counter
+    </MudNavLink>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-    </nav>
-</div>
+    <MudNavLink Href="weather" Icon="@Icons.Material.Filled.List">
+        Weather
+    </MudNavLink>
+
+    <MudNavLink Href="hubmanager" Icon="@Icons.Material.Filled.PhoneAndroid">
+        Mobile Manager
+    </MudNavLink>
+
+</MudNavMenu>

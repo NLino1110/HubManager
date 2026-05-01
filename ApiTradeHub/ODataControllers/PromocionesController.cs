@@ -73,9 +73,7 @@ namespace ApiTradeHub.Controllers.Sales
             //[FromBody] Models.DMSA.Mbw.Abstract.ParametersMode1? parameters_post = null,
             [FromHeader(Name = "X-API-Key")] string apiKey = null
             )
-        {
-            //ApiResponseGlobal apiResponseGlobal = new ApiResponseGlobal();
-            //OpenApiResponse openApiResponse = new OpenApiResponse();
+        {            
 
             if (!AccessValidator.IsValidApiKey(apiKey))
             {   

@@ -32,8 +32,10 @@ DataConnection connection = new DataConnection();
 //string Driver = ConfigurationHelper.GetAppSettings().profile.DataServers[0].Driver;
 
 //AppDbContext appDbContext = new AppDbContext();
-builder.Services.AddDbContext<AppDbContext>(p=>p.UseOracle(connection.GetConnectionString(),
-                b => b.UseOracleSQLCompatibility("11")));
+//builder.Services.AddDbContext<AppDbContext>(p=>p.UseOracle(connection.GetConnectionString(),
+//                b => b.UseOracleSQLCompatibility("11")));
+
+builder.Services.AddDbContext<AppDbContext>(p => p.UseOracle(connection.GetConnectionString()));
 
 // Add services to the container.
 builder.Services.AddProblemDetails();

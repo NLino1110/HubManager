@@ -7,12 +7,29 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Components\Layout\bk\MainLayout.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Components\Layout\bk\MainLayout.razor.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\DMSA.Models.Odoo\DMSA.Models.Odoo.csproj" />
     <ProjectReference Include="..\WebMobileManager.ServiceDefaults\WebMobileManager.ServiceDefaults.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" Version="13.2.4" />
+    <PackageReference Include="MudBlazor" Version="9.4.0" />
+    <PackageReference Include="MudBlazor.FontIcons.MaterialIcons" Version="1.4.0" />
+    <PackageReference Include="MudBlazor.FontIcons.MaterialSymbols" Version="1.4.0" />
+    <PackageReference Include="MudBlazor.ThemeManager" Version="4.0.0" />
     <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Components\Layout\bk\" />
   </ItemGroup>
 
 </Project>

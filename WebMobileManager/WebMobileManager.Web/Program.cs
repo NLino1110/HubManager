@@ -1,5 +1,8 @@
+using MudBlazor.Services;
 using WebMobileManager.Web;
 using WebMobileManager.Web.Components;
+using WebMobileManager.Web.Handlers;
+using WebMobileManager.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,12 +14,20 @@ builder.AddRedisOutputCache("cache");
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddHttpClient<WeatherApiClient>(client =>
-    {
-        // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
-        // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
-        client.BaseAddress = new("https+http://apiservice");
-    });
+builder.Services.AddMudServices();
+
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<ChatHub>();
+
+
+//builder.Services.AddHttpClient<WeatherApiClient>(client =>
+//    {
+//        // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
+//        // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
+//        client.BaseAddress = new("https+http://apiservice");
+//    });
+
+builder.Services.AddScoped<ILocalStorageService, LocalStorageService>();
 
 var app = builder.Build();
 
@@ -39,5 +50,7 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.MapDefaultEndpoints();
+
+app.MapHub<ChatHub>("/chatHub");
 
 app.Run();

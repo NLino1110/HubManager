@@ -2,6 +2,7 @@
 using CommunityToolkit.Maui;
 using DMCobranzas.Services;
 using DMSA.Models.Security;
+using DMSA.Sync.Core.Services;
 using Microsoft.Extensions.Logging;
 using System.Text;
 
@@ -63,7 +64,7 @@ namespace DMCobranzas
             builder.Logging.AddDebug();
 #endif
 
-            App.PushRelayGlobal = new PushRelay();
+            App.PushRelayGlobal = new PushRelay("https://192.168.204.11:5001/chatHub");
             App.PushRelayGlobal.Name = "---";
             App.PushRelayGlobal.Message = "ConnectCommand";
 

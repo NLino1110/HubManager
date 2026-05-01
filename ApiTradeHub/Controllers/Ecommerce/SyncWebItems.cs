@@ -1,44 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Options;
-using System.Text;
-using System.Security.Claims;
-
-using System.Security.Cryptography;
-using Models.DMSA.Mbw.Clientes;
 using System.Data;
-//using Entidades.SyncTask;
-using System.IO;
 using Models.DMSA.Mbw.Sales;
 using ApiTradeHub.Controllers.Security;
-using Models.DMSA.Shared.Structs;
 using ApiTradeHub.Services.Sales;
-using Newtonsoft.Json.Linq;
-using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Models.DMSA.Mbw.Core;
 using Models.DMSA.Mbw.Inventario;
-using Google.Protobuf.WellKnownTypes;
-using Microsoft.OpenApi.Models;
-using MySql.Data.MySqlClient.Memcached;
-using Org.BouncyCastle.Asn1.Crmf;
-using System.Net;
-using RestSharp;
-using MySqlX.XDevAPI;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Data.Entity.Infrastructure;
-using DataSourceManager;
-using static System.Net.Mime.MediaTypeNames;
-//using ApiTradeHub.Services.Sales.Models;
-using Models.DMSA.Shared.General;
 using Models.DMSA.Mbw.Abstract;
 
 namespace ApiTradeHub.Controllers.Ecommerce

@@ -1,22 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Models.DMSA.Mbw.Clientes;
 using System.Data;
 using Models.DMSA.Shared.General;
-using System.Text.RegularExpressions;
-using System.Diagnostics;
 using Oracle.ManagedDataAccess.Client;
-using Models.DMSA.Mbw.Abstract;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using Ubiety.Dns.Core;
 using DataSourceManager;
 using Models.DMSA.Mbw.Query;
-using System.Data.SqlClient;
 
 namespace ApiTradeHub.Controllers.Customer
 {
