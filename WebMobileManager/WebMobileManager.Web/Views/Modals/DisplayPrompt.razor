@@ -1,12 +1,9 @@
 ﻿@using MudBlazor
 
 <MudDialog>
-
     <DialogContent>
         <MudText Typo="Typo.h6">@Title</MudText>
-
         <MudText Class="mt-2">@Message</MudText>
-
         <MudTextField @bind-Value="PromptValue" Class="mt-4" AutoFocus="true" />
     </DialogContent>
 
@@ -14,7 +11,6 @@
         <MudButton Color="Color.Primary" OnClick="Submit">Aceptar</MudButton>
         <MudButton Color="Color.Secondary" OnClick="Cancel">Cancelar</MudButton>
     </DialogActions>
-
 </MudDialog>
 
 @code {

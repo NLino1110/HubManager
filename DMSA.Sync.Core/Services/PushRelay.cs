@@ -125,6 +125,7 @@ namespace DMSA.Sync.Core.Services
                     await Toast.Make($"{user} says {message}").Show();
                     //Messages.Add($"{user} says {message}");
                     Debug.WriteLine($"{user} says {message}");
+
                 });
                 //}
             });

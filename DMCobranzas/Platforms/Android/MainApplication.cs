@@ -1,8 +1,10 @@
-﻿using Android.App;
+﻿using Android;
+using Android.App;
 using Android.Runtime;
 
 namespace DMCobranzas
 {
+
     [Application]
     public class MainApplication : MauiApplication
     {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
+using System.Security.Principal;
 using WebMobileManager.Web.Handlers.Models;
 using WebMobileManager.Web.Services;
 
@@ -10,52 +11,66 @@ namespace WebMobileManager.Web.Handlers
         public ILocalStorageService _localStorageService { get; }
         public UserService _userService { get; set; }
         private readonly HttpClient _httpClient;
-
-        //private User m_loggedUser { get; set; }
-
+        
         public CustomAuthenticationStateProvider(ILocalStorageService localStorageService,
             UserService userService,
             HttpClient httpClient)
-        {
-            //throw new Exception("CustomAuthenticationStateProviderException");
+        {            
             _localStorageService = localStorageService;
             _userService = userService;
             _httpClient = httpClient;
         }
 
-        //public User GetLoggedUser ()
+
+        //public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         //{
-        //    return m_loggedUser;
+        //    try
+        //    {
+        //        var accessToken = await _localStorageService.GetItemAsync("accessToken");
+
+        //        if (!string.IsNullOrEmpty(accessToken))
+        //        {
+        //            //var identity = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "Usuario")}, "apiauth");
+        //            User user = new User
+        //            {
+        //                EmailAddress = "rchonillo@macronegocios.ec",
+        //                Password = "admin",
+        //                UserName = "rchonillo",
+        //            };
+
+        //            var identity = GetClaimsIdentity(user);
+
+        //            return new AuthenticationState(new ClaimsPrincipal(identity));
+        //        }
+        //    }
+        //    catch
+        //    {
+
+        //    }
+
+        //    return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
         //}
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var accessToken = await _localStorageService.GetItemAsync("accessToken");
-
-            ClaimsIdentity identity;
-
-            if (accessToken != null && accessToken != string.Empty)
+            try
             {
-                //User user = await _userService.GetUserByAccessTokenAsync(accessToken);
-                //m_loggedUser = user;
-                User user = new User
+                var accessToken = await _localStorageService.GetItemAsync("accessToken");
+
+                if (string.IsNullOrEmpty(accessToken))
                 {
-                    EmailAddress = "rchonillo@macronegocios.ec",
-                    Password = "admin",
-                    UserName = "rchonillo",
-                };
+                    return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+                }
 
-                identity = GetClaimsIdentity(user);
+                var identity = GetClaimsIdentity(new User { UserName = "rchonillo", EmailAddress = "..." });
+                return new AuthenticationState(new ClaimsPrincipal(identity));
             }
-            else
+            catch (InvalidOperationException ex) when (ex.Message.Contains("JavaScript interop"))
             {
-                identity = new ClaimsIdentity();
+                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
-
-            var claimsPrincipal = new ClaimsPrincipal(identity);
-
-            return await Task.FromResult(new AuthenticationState(claimsPrincipal));
         }
+
 
         public async Task MarkUserAsAuthenticated(User user)
         {
@@ -87,23 +102,14 @@ namespace WebMobileManager.Web.Handlers
         }
 
         private ClaimsIdentity GetClaimsIdentity(User user)
-        {
-            //TODO: Send Company ID and Name
+        {            
             var claimsIdentity = new ClaimsIdentity();
 
             if (user != null && user.EmailAddress != null)
             {
                 claimsIdentity = new ClaimsIdentity(new[]
                                 {
-                                    new Claim(ClaimTypes.Name, user.UserName),
-                                    //new Claim(ClaimTypes.Role, user.Role.RoleDesc),
-                                    //new Claim("cmp_tax_id", user.Cmp_Tax_id),
-                                    //new Claim("cmp_name", user.Cmp_Name),
-                                    //new Claim("cmp_database_name", user.Cmp_Database_name),
-                                    //new Claim("bus_id", user.Bus_id.ToString()),
-                                    //new Claim("site_master", user.Cmp_site_master.ToString()),
-                                    //new Claim("erpdomain", user.erpdomain),
-                                    //new Claim("erpport", user.erpport),
+                                    new Claim(ClaimTypes.Name, user.UserName),                                    
                                     new Claim("IsUserEmployedBefore1990", IsUserEmployedBefore1990(user))
 
                                 }, "apiauth_type");

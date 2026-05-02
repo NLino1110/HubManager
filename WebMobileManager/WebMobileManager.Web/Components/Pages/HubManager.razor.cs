@@ -12,7 +12,7 @@ namespace WebMobileManager.Web.Components.Pages
 {
     public partial class HubManager
     {
-        private string Servidor;
+        private string Servidor { get; set; }
 
         [Inject] 
         private IDialogService DialogService { get; set; }
@@ -27,9 +27,7 @@ namespace WebMobileManager.Web.Components.Pages
 
         List<string> listado {  get; set; }
 
-        List<ConnectedDevice> devices { get; set; }
-
-        private IEnumerable<ConnectedDevice> Elements = new List<ConnectedDevice>();
+        private IEnumerable<ConnectedDevice> devices = new List<ConnectedDevice>();
         protected override Task OnInitializedAsync()
         {
             //listado = chatHub.ObtenerClientesConectados();
@@ -40,7 +38,7 @@ namespace WebMobileManager.Web.Components.Pages
             return base.OnInitializedAsync();
         }
 
-        private async Task LaunchCacheBuilderOdoo(dynamic document)
+        private async Task LoadDevices()
         {
             devices = chatHub.GetDevices();
             StateHasChanged();
@@ -48,7 +46,7 @@ namespace WebMobileManager.Web.Components.Pages
 
         private async Task ClearDevices()
         {
-            devices = null;
+            devices = new List<ConnectedDevice>();
             chatHub.ClearDevices();
             StateHasChanged();
         }
@@ -81,9 +79,8 @@ namespace WebMobileManager.Web.Components.Pages
         }
 
         private async Task LoadDummy()
-        {
-            //Agregamos datos dummy a Elements
-            Elements = new List<ConnectedDevice>
+        {            
+            devices = new List<ConnectedDevice>
             {
                 new ConnectedDevice { Id = "1", AppName = "Device 1" },
                 new ConnectedDevice { Id = "2", AppName = "Device 2" },

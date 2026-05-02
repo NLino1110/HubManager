@@ -14,7 +14,8 @@ namespace WebMobileManager.Web.Handlers.Models
         public UserService(HttpClient httpClient, IOptions<AppSettings> appSettings)
         {
             _appSettings = appSettings.Value;
-            httpClient.BaseAddress = new Uri(_appSettings.profile.ApiBaseAddress);
+            //httpClient.BaseAddress = new Uri(_appSettings.profile.ApiBaseAddress);
+            httpClient.BaseAddress = new Uri("https://example.com");
             httpClient.DefaultRequestHeaders.Add("User-Agent", "BlazorServer");
             _httpClient = httpClient;
         }

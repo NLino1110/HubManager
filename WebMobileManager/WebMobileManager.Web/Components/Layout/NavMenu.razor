@@ -1,4 +1,8 @@
 ﻿@using MudBlazor
+@using WebMobileManager.Web.Handlers
+@inject IDialogService DialogService
+@inject NavigationManager Navigation
+@inject CustomAuthenticationStateProvider AuthProvider
 
 <MudNavMenu>
 
@@ -18,4 +22,44 @@
         Mobile Manager
     </MudNavLink>
 
+    <MudNavLink OnClick="ConfirmLogout" Icon="@Icons.Material.Filled.ExitToApp">
+        Salir
+    </MudNavLink>
+
 </MudNavMenu>
+
+@code
+{
+    bool isLoading = false;
+
+    private async Task ConfirmLogout()
+    {
+        if (isLoading) return;
+
+        isLoading = true;
+
+        var parameters = new DialogParameters
+        {
+            { "ContentText", "¿Seguro que deseas salir?" },
+            { "ButtonText", "Aceptar" },
+            { "Color", Color.Error }
+        };
+
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true
+        };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>("Confirmación", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await AuthProvider.MarkUserAsLoggedOut();
+            Navigation.NavigateTo("/login", true, replace: true);
+            //Snackbar.Add("Sesión cerrada correctamente", Severity.Success);
+        }
+
+        isLoading = false;
+    }
+}

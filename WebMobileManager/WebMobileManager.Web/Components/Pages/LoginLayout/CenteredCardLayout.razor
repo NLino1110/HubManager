@@ -1,0 +1,11 @@
+﻿@layout LoginLayout
+@inherits LayoutComponentBase
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="d-flex align-center justify-center" Style="height:100vh;">    
+    <MudGrid Class="w-100">
+        <MudItem xs="12" md="6" Class="d-flex align-center justify-center">
+            <MudImage Src="/img/logo.svg" Width="400" Fluid="true" />
+        </MudItem>        
+        @Body
+    </MudGrid>
+</MudContainer>

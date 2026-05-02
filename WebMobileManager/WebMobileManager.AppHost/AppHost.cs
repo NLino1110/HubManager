@@ -13,4 +13,6 @@ builder.AddProject<Projects.WebMobileManager_Web>("webfrontend")
     .WithReference(apiService)
     .WaitFor(apiService);
 
+builder.AddProject<Projects.BlazorApp1>("blazorapp1");
+
 builder.Build().Run();

@@ -10,7 +10,6 @@ using Blazorise.Icons.FontAwesome;
 using BlazorSpinner;
 using BlazorTable;
 using DataSourceManager;
-using DataSourceManager.MySql;
 using DataSourceManager.Tools;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.StaticFiles;
@@ -51,12 +50,6 @@ DataConnection connection = new DataConnection();
 
 builder.Services.AddDbContext<AppDbContext>(p => p.UseOracle(connection.GetConnectionString()));
 
-//builder.Services.AddDbContext<MySqlDbContext>(p => p.UseMySql(connection.GetDefaultConnectionString("MySql"),new MySqlServerVersion(new Version(8, 0, 21))));
-var serverVersion = new MySqlServerVersion(new Version(8, 0, 21));
-string mysqlConnectionString = connection.GetDefaultConnectionString("MySql");
-
-builder.Services.AddDbContext<MySqlDbContext>(p => p.UseMySql(mysqlConnectionString, serverVersion));
-
 builder.Services.AddDbContext<PostgreSqlContext>(options =>
     options.UseNpgsql("Host=127.0.0.1;Port=5434;Database=dmintegrations;Username=django;Password=DM@dj4ng0;ApplicationName=Blazor"));
 
@@ -79,8 +72,8 @@ builder.Services.AddSingleton<BuilderService>();
 builder.Services.AddSingleton<BrandService>();
 builder.Services.AddScoped<InvoicesService>();
 
-builder.Services.AddScoped<Processor>();
-builder.Services.AddScoped<TaskManager>();
+//builder.Services.AddScoped<Processor>();
+//builder.Services.AddScoped<TaskManager>();
 
 builder.Services.AddBlazorDownloadFile();
 builder.Services.AddBlazoredModal();
@@ -103,10 +96,6 @@ builder.Services.AddBlazorise(options =>
     .AddBootstrap5Providers()
     .AddFontAwesomeIcons();
 
-//DataConnection connection = new DataConnection();
-//builder.Services.AddDbContextFactory<AppDbContext>(opt =>
-//    opt.UseOracle(connection.GetConnectionString("Mainapp"),
-//                            b => b.UseOracleSQLCompatibility("11")));
 
 builder.Services.AddDateRangePicker(config =>
 {
@@ -118,28 +107,17 @@ builder.Services.AddDateRangePicker(config =>
 
 ServiceJobs.SetJobs(builder);
 
-//builder.Services.AddSwaggerGen();
-//builder.Services.AddQuickGridEntityFrameworkAdapter();
-
-//DataConnection connection = new DataConnection();
-
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseExceptionHandler("/Error");    
     app.UseHsts();
-    //app.UseSwagger();
-    //app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
 
-// Set up custom content types - associating file extension to MIME type
 var provider = new FileExtensionContentTypeProvider();
-// Add new mappings
 provider.Mappings[".apk"] = "application/vnd.android.package-archive";
 
 app.UseStaticFiles();
@@ -165,8 +143,7 @@ app.UseAuthorization();
 app.MapHub<ChatHub>("/chatHub");
 
 using (var scope = app.Services.CreateScope())
-{
-    var mySqlDbContext = scope.ServiceProvider.GetRequiredService<MySqlDbContext>();
+{    
     var PgDbContext = scope.ServiceProvider.GetRequiredService<PostgreSqlContext>();
 }
 

@@ -1,39 +1,40 @@
 ﻿@page "/hubmanager"
+@using Microsoft.AspNetCore.Authorization
 @inject NavigationManager Navigation
-
 @rendermode InteractiveServer
+@attribute [Authorize]
 
 <h3>HubManager</h3>
 
 <div>
-    Servidor en ejecución: @Servidor/chatHub
+    Servidor en ejecución: 
 </div>
 
 <MudButton 
     Variant="Variant.Filled" 
     Color="Color.Primary"
-           @onclick="() => LaunchCacheBuilderOdoo(null)">Cargar</MudButton>
+           @onclick="() => LoadDevices()">Cargar</MudButton>
 <MudButton 
     Variant="Variant.Filled" 
     Color="Color.Secondary" 
            StartIcon="@Icons.Material.Filled.Delete"
     @onclick="() => ClearDevices()">Limpiar</MudButton>
 
-<MudButton Variant="Variant.Filled"
+@* <MudButton Variant="Variant.Filled"
            Color="Color.Secondary"
-           StartIcon="@Icons.Material.Filled.Delete"
-           @onclick="() => LoadDummy()">Cargar Datos</MudButton>
+           StartIcon="@Icons.Material.Filled.Delete"           
+           @onclick="() => LoadDummy()">Cargar Datos</MudButton> *@
 
-<button type="button" class="btn btn-sm btn-info"
+@* <button type="button" class="btn btn-sm btn-info"
         @onclick="TestDialog"
         data-toggle="tooltip"
         data-placement="top"
         title="Verificar estado">
     <i class="fa fa-sm fa-wifi"></i>
     Probar
-</button>
+</button> *@
 
-<MudDataGrid Items="@Elements.Take(4)">
+<MudDataGrid Items="@devices.Take(4)">
     <Columns>
         <PropertyColumn Property="x => x.AppName" Title="Nr" />
         <PropertyColumn Property="x => x.DeviceName" />
@@ -44,68 +45,22 @@
         <TemplateColumn CellClass="d-flex justify-end">
             <CellTemplate>
                 <MudStack Row>
-                    <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Primary">Hire</MudButton>
+                    @* <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Primary">Hire</MudButton> *@
+
+                    <MudFab Color="Color.Secondary"
+                            StartIcon="@Icons.Material.Filled.Download"
+                            @onclick="(x) => SendMessageDevice(context.Item)"
+                            Size="Size.Small" />
+
+                    <MudFab Color="Color.Success"
+                            StartIcon="@Icons.Material.Filled.Message"
+                            @onclick="(x) => SendMessageDevice(context.Item)"
+                            Size="Size.Small" />
                 </MudStack>
             </CellTemplate>
         </TemplateColumn>
     </Columns>
 </MudDataGrid>
-
-
-@if (devices == null)
-{
-    
-}
-else
-{
-    
-<table class="table">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>App Nombre</th>
-                <th>Disp. Nombre</th>
-            <th>Plataforma</th>
-            <th>Marca</th>
-            <th>Modelo</th>
-            <th>Version</th>
-            <th>-</th>
-        </tr>
-    </thead>
-    <tbody>        
-
-            @foreach (var item in devices)
-        {
-            <tr>
-                    <td class="col-sm">@item.Id</td>
-                    <td>@item.AppName</td>
-                    <td>@item.DeviceName</td>
-                    <td>@item.Platform</td>
-                    <td>@item.Manufacturer</td>
-                    <td>@item.Model</td>
-                    <td>@item.VersionString</td>
-                    <td>
-                        <button type="button" class="btn btn-sm btn-info"
-                                @onclick="() => RequireInfoDevice(item)"
-                                data-toggle="tooltip"
-                                data-placement="top"
-                                title="Enviar">
-                            <i class="fa fa-sm fa-wifi"></i>
-                            Enviar
-                        </button>                        
-
-                        <MudFab 
-                            Color="Color.Secondary" 
-                        StartIcon="@Icons.Material.Filled.Edit" 
-                        @onclick="() => SendMessageDevice(item)" 
-                                Size="Size.Small" />
-                    </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-}
 
 @code {
 

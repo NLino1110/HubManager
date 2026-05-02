@@ -1,40 +1,60 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor.Services;
 using WebMobileManager.Web;
 using WebMobileManager.Web.Components;
 using WebMobileManager.Web.Handlers;
+using WebMobileManager.Web.Handlers.Models;
 using WebMobileManager.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add service defaults & Aspire client integrations.
+
 builder.AddServiceDefaults();
 builder.AddRedisOutputCache("cache");
 
-// Add services to the container.
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddMudServices();
 
+builder.Services.AddScoped<ILocalStorageService, LocalStorageService>();
+
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<HttpClient>();
+
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<ChatHub>();
 
+builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddScoped<CustomAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
+    sp.GetRequiredService<CustomAuthenticationStateProvider>()); 
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 
-//builder.Services.AddHttpClient<WeatherApiClient>(client =>
-//    {
-//        // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
-//        // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
-//        client.BaseAddress = new("https+http://apiservice");
-//    });
+builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, BlazorAuthorizationMiddlewareResultHandler>();
 
-builder.Services.AddScoped<ILocalStorageService, LocalStorageService>();
+//builder.Services.AddAuthentication(options =>
+//{
+//    options.DefaultScheme = "CustomAuth";
+//    options.DefaultAuthenticateScheme = "CustomAuth";
+//    options.DefaultChallengeScheme = "CustomAuth";
+//})
+//.AddCookie("CustomAuth", options =>
+//{
+//    options.LoginPath = "/login"; // Asegúrate de que tu página de login sea @page "/login"
+//});
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
+builder.Services.AddAuthorizationCore();
 
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseExceptionHandler("/Error", createScopeForErrors: true);    
     app.UseHsts();
 }
 

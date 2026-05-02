@@ -7,7 +7,7 @@
              xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
              xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui">
 
-    <ScrollView BackgroundColor="{StaticResource SurfaceVariant}">
+    <ScrollView BackgroundColor="White">
         <StackLayout Padding="0,0,0,10">
             <!--<Label BackgroundColor="{StaticResource ActiveRowColor}" Text="Informacion" FontSize="12" FontAttributes="Bold" HorizontalTextAlignment="Center"/>-->
         
