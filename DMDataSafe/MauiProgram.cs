@@ -1,6 +1,7 @@
 ﻿using BeebTech.Controls.UI;
 using CommunityToolkit.Maui;
 using DMSA.Models.Security;
+using DMSA.Sync.Core.Services;
 using Microsoft.Extensions.Logging;
 using SkiaSharp.Views.Maui.Controls.Hosting;
 
@@ -50,8 +51,12 @@ namespace DMDataSafe
             ////Solo cuando se inicia en modo producción
             //if (App.Session.odooConnection.IsProduction)
             //{
-                
+
             //}
+
+            App.PushRelayGlobal = new PushRelay("https://manager.dmujeres.ec:5001/chatHub");
+            App.PushRelayGlobal.Name = "---";
+            App.PushRelayGlobal.Message = "ConnectCommand";
 
             return builder.Build();
         }

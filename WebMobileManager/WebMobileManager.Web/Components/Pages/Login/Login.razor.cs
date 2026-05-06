@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using WebMobileManager.Web.Handlers;
 using WebMobileManager.Web.Handlers.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WebMobileManager.Web.Components.Pages.Login
 {
@@ -21,6 +22,10 @@ namespace WebMobileManager.Web.Components.Pages.Login
 
     public partial class Login : ComponentBase
     {
+        [Inject]
+        NavigationManager Navigation { get; set; }
+        [Inject] ISnackbar Snackbar { get; set; }
+
         [Inject] CustomAuthenticationStateProvider AuthProvider { get; set; }
 
         private LoginModel model = new();
@@ -47,9 +52,15 @@ namespace WebMobileManager.Web.Components.Pages.Login
             user.EmailAddress = "";
             user.Password = "";
             user.UserName = "";
-            LoginStatusText = "Iniciar sesión";            
-        }
-                
+            LoginStatusText = "Iniciar sesión";
+
+            var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+
+            if (System.Web.HttpUtility.ParseQueryString(uri.Query).Get("logout") == "1")
+            {
+                Snackbar.Add("Sesión cerrada correctamente", Severity.Info);
+            }
+        }       
 
         private async Task ValidateUser()
         {

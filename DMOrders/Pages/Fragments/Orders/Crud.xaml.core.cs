@@ -15,6 +15,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Windows.Input;
+using System.Text.RegularExpressions;
 
 namespace DMOrders.Pages.Fragments.Orders
 {
@@ -1108,7 +1109,6 @@ namespace DMOrders.Pages.Fragments.Orders
                 return;
 
             var lineas = text.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-
             var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
 
             foreach (var linea in lineas)
@@ -1118,51 +1118,49 @@ namespace DMOrders.Pages.Fragments.Orders
                     if (!linea.Contains("["))
                         continue;
 
-                    var partes = linea.Split('\t');
-
-                    if (partes.Length < 10)
+                    // 🔹 1. Extraer código
+                    var matchCodigo = Regex.Match(linea, @"\[(.*?)\]");
+                    if (!matchCodigo.Success)
                         continue;
 
-                    // Código
-                    var codigo = partes[0]
-                        .Split(']')[0]
-                        .Replace("[", "")
-                        .Trim();
+                    var codigo = matchCodigo.Groups[1].Value.Trim();
 
-                    // Cantidades y precio (strings crudos)
-                    var cantidadSolStr = partes[3];
-                    var cantidadStr = partes[4];
-                    var precioStr = partes[6];
+                    // 🔹 2. Extraer números (incluye miles y decimales)
+                    var matchesNumeros = Regex.Matches(linea, @"\d{1,3}(?:,\d{3})*(?:\.\d+)?");
 
-                    // Limpieza
-                    precioStr = precioStr.Replace("$", "").Trim();
-
-                    // Parse seguro (cultura invariante para soportar 15,683.00)
-                    if (!decimal.TryParse(cantidadSolStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var cantidadSol))
+                    if (matchesNumeros.Count < 5)
                         continue;
 
-                    if (!decimal.TryParse(cantidadStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var cantidad))
-                        continue;
+                    // 🔹 3. Mapear según tu estructura actual
+                    // Basado en tu ejemplo:
+                    // [0] stock
+                    // [1] cantidadSol
+                    // [2] cantidad
+                    // ...
+                    // último o antepenúltimo suele ser precio
 
-                    if (!decimal.TryParse(precioStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var precio))
-                        continue;
+                    decimal Parse(string s) =>
+                        decimal.Parse(s.Replace(",", ""), CultureInfo.InvariantCulture);
+
+                    var cantidadSol = Parse(matchesNumeros[5].Value);
+                    var cantidad = Parse(matchesNumeros[6].Value);
+
+                    // Precio → normalmente el último valor antes del total
+                    var precio = Parse(matchesNumeros[8].Value);
 
                     Debug.WriteLine($"Código: {codigo}, Cantidad: {cantidad}, Precio: {precio}");
 
                     var productItem = await productDb.GetItemAsync(p => p.code == codigo);
-
                     if (productItem == null)
                         continue;
 
-                    productItem.list_price = (float) precio;
+                    productItem.list_price = (float)precio;
 
                     var itemPickedArgs = new ItemPickedArgs
                     {
                         product = productItem,
                         qty_real = cantidadSol,
-                        qty_sol = cantidad,                        
-                        // opcional si luego lo necesitas
-                        // price = precio
+                        qty_sol = cantidad
                     };
 
                     OnAddLine(itemPickedArgs);
@@ -1174,43 +1172,43 @@ namespace DMOrders.Pages.Fragments.Orders
             }
         }
 
-    //void ProcesarTexto(string text)
-    //{
-    //    var lineas = text.Split('\n');
-    //    var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
-    //    foreach (var linea in lineas)
-    //    {
-    //        if (!linea.Contains("["))
-    //            continue;
+        //void ProcesarTexto(string text)
+        //{
+        //    var lineas = text.Split('\n');
+        //    var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
+        //    foreach (var linea in lineas)
+        //    {
+        //        if (!linea.Contains("["))
+        //            continue;
 
-    //        var partes = linea.Split('\t');
+        //        var partes = linea.Split('\t');
 
-    //        if (partes.Length < 10)
-    //            continue;
+        //        if (partes.Length < 10)
+        //            continue;
 
-    //        var codigo = partes[0]
-    //            .Split(']')[0]
-    //            .Replace("[", "");
+        //        var codigo = partes[0]
+        //            .Split(']')[0]
+        //            .Replace("[", "");
 
-    //        var cantidad_sol = partes[2];
-    //        var cantidad = partes[4];
-    //        var precio = partes[9]
-    //            .Replace("$", "")
-    //            .Trim();
+        //        var cantidad_sol = partes[2];
+        //        var cantidad = partes[4];
+        //        var precio = partes[9]
+        //            .Replace("$", "")
+        //            .Trim();
 
-    //        Debug.WriteLine($"Código: {codigo}, Cantidad: {cantidad}, Precio: {precio}");
+        //        Debug.WriteLine($"Código: {codigo}, Cantidad: {cantidad}, Precio: {precio}");
 
-    //        var productItem = await productDb.GetItemAsync(p => p.code == codigo);
+        //        var productItem = await productDb.GetItemAsync(p => p.code == codigo);
 
-    //        ItemPickedArgs itemPickedArgs = new ItemPickedArgs
-    //        {
-    //            product = productItem,
-    //            qty_real = cantidad_sol,
-    //            qty_sol = cantidad,
-    //        };
+        //        ItemPickedArgs itemPickedArgs = new ItemPickedArgs
+        //        {
+        //            product = productItem,
+        //            qty_real = cantidad_sol,
+        //            qty_sol = cantidad,
+        //        };
 
-    //        OnAddLine(itemPickedArgs);
-    //    }
-    //}
-}
+        //        OnAddLine(itemPickedArgs);
+        //    }
+        //}
+    }
 }

@@ -1,0 +1,77 @@
+﻿@page "/mobilemanager"
+@using Microsoft.AspNetCore.Authorization
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+@attribute [Authorize]
+
+<h3>HubManager</h3>
+
+<div>
+    Servidor en ejecución: 
+</div>
+
+<MudButton 
+    Variant="Variant.Filled" 
+    Color="Color.Primary"
+    StartIcon="@Icons.Material.Filled.Refresh"
+    @onclick="() => LoadDevices()"></MudButton>
+
+<MudButton 
+    Variant="Variant.Filled" 
+    Color="Color.Secondary" 
+    StartIcon="@Icons.Material.Filled.CleaningServices"
+    @onclick="() => ClearDevices()" 
+    Style="display:none;"></MudButton>
+
+<MudButton Variant="Variant.Filled"
+           Color="Color.Secondary"
+           StartIcon="@Icons.Material.Filled.DataArray"           
+           @onclick="() => LoadDummy()">Test</MudButton>
+
+@* <button type="button" class="btn btn-sm btn-info"
+        @onclick="TestDialog"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Verificar estado">
+    <i class="fa fa-sm fa-wifi"></i>
+    Probar
+</button> *@
+
+<MudDataGrid Items="@devices.Take(20)">
+    <Columns>
+        <PropertyColumn Property="x => x.AppName" Title="App" />
+        <PropertyColumn Property="x => x.VersionString" Title="Version" />
+        <PropertyColumn Property="x => x.DeviceName" Title="Ult.Usu.Ing."/>
+        <PropertyColumn Property="x => x.DeviceName" />
+        <PropertyColumn Property="x => x.Platform" />
+        <PropertyColumn Property="x => x.Manufacturer" Title="Marca"/>
+        <PropertyColumn Property="x => x.Model" />
+        
+        <TemplateColumn CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudStack Row>
+                    @* <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Primary">Hire</MudButton> *@
+
+                    <MudFab Color="Color.Secondary"
+                            StartIcon="@Icons.Material.Filled.Info"
+                            @onclick="(x) => RequireInfoDevice(context.Item)"
+                            Size="Size.Small" />
+
+                    <MudFab Color="Color.Success"
+                            StartIcon="@Icons.Material.Filled.Message"
+                            @onclick="(x) => SendMessageDevice(context.Item)"
+                            Size="Size.Small" />
+
+                    <MudFab Color="Color.Surface"
+                            StartIcon="@Icons.Material.Filled.Update"
+                            @onclick="(x) => SendUpdateNotify(context.Item)"
+                            Size="Size.Small" />
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+</MudDataGrid>
+
+@code {
+
+}

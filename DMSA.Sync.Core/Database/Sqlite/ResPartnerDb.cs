@@ -291,6 +291,11 @@ namespace DMSA.Sync.Core.Database.Sqlite
         //    x.amount_residual > 0).ToListAsync();
         //    //return Database.Table<account_journal>().ToList();
         //}
+                
+        public async Task ClearFullCache()
+        {
+            cachedChannels.Clear();
+        }
 
         public async Task<res_partner> GetItem(int id)
         {

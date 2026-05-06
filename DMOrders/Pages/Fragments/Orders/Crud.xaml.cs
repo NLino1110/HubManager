@@ -307,6 +307,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 }
             }
 
+            OnPropertyChanged(nameof(CurrentCompany));
+
             if (RequiredPreloadData)
             {
                 await LoadData();
@@ -334,43 +336,49 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
-            PartnerAddress = addresses;
+                PartnerAddress = addresses;
 
-            ddfAddress.ItemsSource = PartnerAddress;
-            ddfAddress.ItemDisplayBinding = new Binding("display_full_address");
-            ddfAddress.SelectedItem = PartnerAddress[0];
+                ddfAddress.ItemsSource = PartnerAddress;
+                ddfAddress.ItemDisplayBinding = new Binding("display_full_address");
+                ddfAddress.SelectedItem = PartnerAddress[0];
 
-            if (RequiredPreloadData)
-            {
-                var selected = PartnerAddress.FirstOrDefault(x =>
-                    x.id == CurrentSaleOrder._partner_invoice_id);
-
-                if (selected != null)
-                    ddfAddress.SelectedItem = selected;
-            }
-
-            ddfAddress.SelectedItemChanged += (sender, e) =>
-            {
-                if (ddfAddress.SelectedItem != null) 
+                if (RequiredPreloadData)
                 {
-                    var selectedAddress = (res_partner) ddfAddress.SelectedItem;
-                    if (CurrentSaleOrder != null)
-                    {
-                        CurrentSaleOrder.partner_display_address = selectedAddress.street;
-                    }
-                    else
-                    {
-                        if(CurrentPartner!= null)
-                        {
-                            CurrentPartner.street = selectedAddress.street;
-                        }
-                    }
-                    OnPropertyChanged(nameof(PartnerDisplayAddress));
+                    var selected = PartnerAddress.FirstOrDefault(x =>
+                        x.id == CurrentSaleOrder._partner_invoice_id);
 
-                    //StateCity = ""; // selectedAddress._state_id.ToString() + "" + selectedAddress.city;
-                    //OnPropertyChanged(nameof(StateCity));
+                    if (selected != null)
+                        ddfAddress.SelectedItem = selected;
                 }
-            };
+                else
+                {
+                    var selectedAddress = (res_partner)ddfAddress.SelectedItem;
+                    CurrentPartner.street = selectedAddress.street;
+                    OnPropertyChanged(nameof(PartnerDisplayAddress));
+                }
+
+                ddfAddress.SelectedItemChanged += (sender, e) =>
+                {
+                    if (ddfAddress.SelectedItem != null) 
+                    {
+                        var selectedAddress = (res_partner) ddfAddress.SelectedItem;
+                        if (CurrentSaleOrder != null)
+                        {
+                            CurrentSaleOrder.partner_display_address = selectedAddress.street;
+                        }
+                        else
+                        {
+                            if(CurrentPartner!= null)
+                            {
+                                CurrentPartner.street = selectedAddress.street;
+                            }
+                        }
+                        OnPropertyChanged(nameof(PartnerDisplayAddress));
+
+                        //StateCity = ""; // selectedAddress._state_id.ToString() + "" + selectedAddress.city;
+                        //OnPropertyChanged(nameof(StateCity));
+                    }
+                };
 
                 SearchProductView.CurrentPriceList = CurrentPriceList;
 

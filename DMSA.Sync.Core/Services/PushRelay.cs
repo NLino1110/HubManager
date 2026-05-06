@@ -9,20 +9,15 @@ using System.Diagnostics;
 namespace DMSA.Sync.Core.Services
 {
     public partial class PushRelay
-    {
-        //private readonly HubConnection _hubConnection;
+    {        
         private HubConnection _hubConnection;
 
-        //[ObservableProperty]
         string _name;
-
-        //[ObservableProperty]
+                
         string _message;
-
-        //[ObservableProperty]
+                
         ObservableCollection<string> _messages;
-
-        //[ObservableProperty]
+                
         bool _isConnected;
 
         public bool IsConnected
@@ -44,8 +39,7 @@ namespace DMSA.Sync.Core.Services
         }
 
         public void _PushRelay(string ServerUrl)
-        {
-            //$"https://192.168.204.66:2443/chatHub"
+        {            
             _hubConnection = new HubConnectionBuilder()
                 .WithUrl(ServerUrl,
                 (opts) =>
@@ -76,65 +70,52 @@ namespace DMSA.Sync.Core.Services
                     try
                     {
                         await _hubConnection.StartAsync();
-
-                        //--------------------------------//
-                        //Update deviceinfo for server data
+                        
                         await ReceiveInfoDevice(_hubConnection.ConnectionId);
 
                         if(_hubConnection.State == HubConnectionState.Connected)
-                        {
-                            //Se detiene cuando se conecta por primera vez
-                            // de ahi en adelante .WithAutomaticReconnect() hace el trabajo
+                        {                            
                             retryTimer.Stop();
                         }
                     }
                     catch(Exception ex)
-                    {
-                        //En Android no dispara el error
+                    {                        
                         Debug.WriteLine("SERVIDOR PUSHHH OFFLINE!!");
                     }
                 }
             };
 
-            retryTimer.Interval = 5000; // Intervalo de 5 segundos
+            retryTimer.Interval = 5000;
             retryTimer.Start();
             
             _hubConnection.Reconnected += (string arg) =>
             {
-                Debug.WriteLine($"SE RECONECTOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!!!!");
+                Debug.WriteLine($"SE RECONECTO!!!");
                 ReceiveInfoDevice(_hubConnection.ConnectionId).Wait();
                 return Task.CompletedTask;
             };
-
-            //NO FUNCIONA CON .WithAutomaticReconnect()
+                        
             _hubConnection.Closed += (Exception arg) =>
             {
-                Debug.WriteLine($"SE SALIOOOOO!!!");
-                //retryTimer.Stop();
+                Debug.WriteLine($"SE SALIO!!!");                
                 return Task.CompletedTask;
             };
-
-            //Messages ??= new ObservableCollection<string>();
-
+                        
             _hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
             {
-                //if (MainThread.IsMainThread)
-                //{
+                
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
-                    await Toast.Make($"{user} says {message}").Show();
-                    //Messages.Add($"{user} says {message}");
+                    await Toast.Make($"{user} says {message}").Show();                    
                     Debug.WriteLine($"{user} says {message}");
 
-                });
-                //}
+                });                
             });
 
             _hubConnection.On<string, string>("ReceiveNotify", (user, message) =>
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    //Messages.Add($"{user} says {message}");
                     Debug.WriteLine($"{user} says {message}");
                 });
             });
@@ -150,12 +131,19 @@ namespace DMSA.Sync.Core.Services
                     Debug.WriteLine($"{DeviceId} says {message}");
                 });
             });
-        }
 
-        //public PushRelay()
-        //{
-        //    _PushRelay("https://192.168.204.11:7099/chatHub");
-        //}
+            _hubConnection.On<string, string>("RequireFullInfoDevice", (DeviceId, message) =>
+            {
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    Sensors sensors = new Sensors();
+                    var getdata = await sensors.GetDeviceDataAsync();
+                    await Toast.Make($"{DeviceId} RequireFullInfoDevice").Show();
+                    await ReceiveFullInfoDevice(getdata);
+                    Debug.WriteLine($"{DeviceId} says {message}");
+                });
+            });
+        }
 
         public PushRelay(string ServerPush)
         {
@@ -170,9 +158,6 @@ namespace DMSA.Sync.Core.Services
             try
             {
                 await _hubConnection.StartAsync();
-
-                //--------------------------------//
-                //Update deviceinfo for server data
                 await ReceiveInfoDevice(_hubConnection.ConnectionId);
             }
             catch (Exception e)
@@ -187,8 +172,6 @@ namespace DMSA.Sync.Core.Services
         [RelayCommand]
         async Task ReceiveInfoDevice(string DeviceId)
         {
-            //TODO: Add session data on UserData
-
             ConnectedDevice device = new ConnectedDevice();
             device.Id = DeviceId;
             device.AppName = AppInfo.Current.Name;
@@ -234,8 +217,23 @@ namespace DMSA.Sync.Core.Services
             {
                 Debug.WriteLine($"ReceiveInfoDevice");
                 Debug.WriteLine($"Error: {e}");
+            }            
+        }
+
+        [RelayCommand]
+        async Task ReceiveFullInfoDevice(ConnectedDevice device)
+        {
+            string jsonDataSend = JsonConvert.SerializeObject(device);
+
+            try
+            {
+                await SendMessage("ReceiveFullInfoDevice", jsonDataSend);
             }
-            //Debug.WriteLine($"{DeviceId} says {message}");
+            catch (Exception e)
+            {
+                Debug.WriteLine($"ReceiveFullInfoDevice");
+                Debug.WriteLine($"Error: {e}");
+            }
         }
 
         [RelayCommand]
@@ -256,25 +254,6 @@ namespace DMSA.Sync.Core.Services
             Message = string.Empty;
         }
 
-        //[RelayCommand]
-        //async Task SendMessage()
-        //{
-        //    if (string.IsNullOrWhiteSpace(Name) || string.IsNullOrWhiteSpace(Message)) return;
-
-        //    try
-        //    {
-        //        await _hubConnection.InvokeAsync("SendMessage", Name, Message);
-        //    }
-        //    catch(Exception e)
-        //    {
-        //        Debug.WriteLine($"SendMessage");
-        //        Debug.WriteLine($"Error: {e}");
-        //    }            
-
-        //    Message = string.Empty;
-        //}
-
-        //[RelayCommand]
         async Task SendMessage(string CommandName, string RegularString)
         {
             if (string.IsNullOrWhiteSpace(CommandName) || string.IsNullOrWhiteSpace(RegularString)) return;

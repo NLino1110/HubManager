@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="WeatherApiClient.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="Components\Layout\bk\MainLayout.razor" />
   </ItemGroup>
 

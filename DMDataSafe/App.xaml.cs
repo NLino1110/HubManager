@@ -1,12 +1,13 @@
 ﻿using DMDataSafe.AppPages;
 using DMSA.Models.Security;
+using DMSA.Sync.Core.Services;
 
 namespace DMDataSafe
 {
     public partial class App : Application
     {
         public static AppSession Session { get; set; }
-
+        public static PushRelay PushRelayGlobal { get; set; }
         public App()
         {
             InitializeComponent();            

@@ -253,6 +253,8 @@ public partial class MainPageTab : ContentPage
 
         await MainThread.InvokeOnMainThreadAsync(async () =>
         {
+            await AppTools.ClearCacheData();
+
             var window = App.Current.Windows.FirstOrDefault();
             if (window == null)
                 return;

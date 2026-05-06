@@ -136,6 +136,7 @@
     <Compile Remove="Models\ClienteAprobacion.cs" />
     <Compile Remove="SoapClient.cs" />
     <Compile Remove="Utils\DummyDataProvider.cs" />
+    <Compile Remove="Utils\Sensors.cs" />
     <Compile Remove="ViewModels\MainViewModel.cs" />
   </ItemGroup>
   <ItemGroup>

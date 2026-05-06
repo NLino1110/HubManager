@@ -43,33 +43,33 @@ namespace DMOrders.Services.Update
 
                 Pipeline pipeline = new Pipeline();
 
-                bool packageReady = await pipeline.ExistAttachRecord();
+                //////bool packageReady = await pipeline.ExistAttachRecord();
 
-                if (!packageReady)
-                {
-                    var packFound = await pipeline.NewestZipPack();
+                //////if (!packageReady)
+                //////{
+                //////    var packFound = await pipeline.NewestZipPack();
 
-                    if (packFound != null)
-                    {
-                        await SqliteDbBase<object>.CloseDatabaseAsync();
+                //////    if (packFound != null)
+                //////    {
+                //////        await SqliteDbBase<object>.CloseDatabaseAsync();
 
-                        if (await pipeline.DownloadSqliteZip(true))
-                        {
-                            await pipeline.InsertAttachRecord(packFound);
-                        }
-                        else
-                        {
-                            await Toast.Make("Error al descargar/descomprimir archivo.", ToastDuration.Long)
-                                .Show();
-                        }
+                //////        if (await pipeline.DownloadSqliteZip(true))
+                //////        {
+                //////            await pipeline.InsertAttachRecord(packFound);
+                //////        }
+                //////        else
+                //////        {
+                //////            await Toast.Make("Error al descargar/descomprimir archivo.", ToastDuration.Long)
+                //////                .Show();
+                //////        }
 
-                        await Toast.Make("Actualización rápida terminada", ToastDuration.Short)
-                            .Show();
+                //////        await Toast.Make("Actualización rápida terminada", ToastDuration.Short)
+                //////            .Show();
 
-                        var databaseUserAccess = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
-                        await databaseUserAccess.FixMissingCurrentUser();
-                    }
-                }
+                //////        var databaseUserAccess = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
+                //////        await databaseUserAccess.FixMissingCurrentUser();
+                //////    }
+                //////}
 
                 bool success = await LaunchOnlineUpdate();
 
@@ -126,7 +126,7 @@ namespace DMOrders.Services.Update
                     await SaveSyncDate(user, response.data[0].datetime);
                 }
 
-                await HandleUploadPipeline(App.Session.odooConnection.DbNameSqlite);
+                ///await HandleUploadPipeline(App.Session.odooConnection.DbNameSqlite);
 
                 return success;
             }

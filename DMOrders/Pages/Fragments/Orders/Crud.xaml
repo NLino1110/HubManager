@@ -228,7 +228,7 @@
            FontSize="16" 
            FontAttributes="Bold"
            TextColor="#242322"></Label>
-                <Label Text="{Binding Path=StateCity, Source={x:Reference RootPage}}" 
+                <Label Text="{Binding Path=CurrentCompany.name, Source={x:Reference RootPage}}" 
                     FontSize="11" 
                     FontAttributes="Bold"
                     TextColor="#4d4947"></Label>

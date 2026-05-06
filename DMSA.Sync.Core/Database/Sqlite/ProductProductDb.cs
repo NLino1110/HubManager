@@ -187,6 +187,13 @@ namespace DMSA.Sync.Core.Database.Sqlite
             cachedTaxesList = items.ToDictionary(x => x.id, x => (decimal) x.amount);
         }
 
+        public async Task ClearFullCache()
+        {
+            cachedProductsWithPrices.Clear();
+            cachedTaxesList.Clear();
+            cachedCategorias.Clear();
+            cachedUom.Clear();
+        }
 
         private static AsyncTableQuery<product_product> ApplySort(
             AsyncTableQuery<product_product> q, int filter_sort)

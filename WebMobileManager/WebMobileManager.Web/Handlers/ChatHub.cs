@@ -64,6 +64,12 @@ namespace WebMobileManager.Web.Handlers
         {
             //⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓//
             //~~~~~~~~~~~~~~~~~~~//
+
+            if (Clients == null)
+            {
+                return;
+            }
+
             Console.WriteLine("RequireInfoDevice");
             Console.WriteLine(Id);
             await Clients.Client(Id).SendAsync("RequireInfoDevice", Id, "extra-data");
@@ -88,10 +94,24 @@ namespace WebMobileManager.Web.Handlers
             //await Clients.All.SendAsync("RequireInfoDevice", Id);
         }
 
+        public async Task ReceiveFullInfoDevice(string JsonDeviceData)
+        {
+            if (JsonDeviceData == null) return;
+            Console.WriteLine("ReceiveInfoDevice");
+            Console.WriteLine(JsonDeviceData);
+            ConnectedDevice device = new ConnectedDevice();
+            device = JsonConvert.DeserializeObject<ConnectedDevice>(JsonDeviceData);
+            _connectionManager.UpdateDevice(device);
+        }
+        
+
         public async Task SendMessage(string user, string message)
         {
-            //⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓//
-            //~~~~~~~~~~~~~~~~~~~//
+            if (Clients == null)
+            {
+                return;
+            }
+
             Console.WriteLine("SendMessage");
             Console.WriteLine(user);
             Console.WriteLine(message);
@@ -101,13 +121,30 @@ namespace WebMobileManager.Web.Handlers
 
         public async Task SendMessageDevice(string connectionId, string user, string message)
         {
-            //⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓//
-            //~~~~~~~~~~~~~~~~~~~//
+            if(Clients == null)
+            {
+                return;
+            }
+
             Console.WriteLine("SendMessage");
             Console.WriteLine(user);
             Console.WriteLine(message);
 
             await Clients.Client(connectionId).SendAsync("ReceiveMessage", user, message);
+        }
+
+        public async Task SendNotifyDevice(string connectionId, string user, string message)
+        {
+            if (Clients == null)
+            {
+                return;
+            }
+
+            Console.WriteLine("SendNotifyDevice");
+            Console.WriteLine(user);
+            Console.WriteLine(message);
+
+            await Clients.Client(connectionId).SendAsync("ReceiveNotify", user, message);
         }
 
         public async Task SendToIndividual(string connectionId, string message)

@@ -155,7 +155,7 @@ namespace DMSA.Models.Odoo.Abstract
                 email_domain = "macronegocios.ec",
                 preload_email_domain = true,
                 UsernameFront = "jchonillo",
-                PasswordFront = "PREPROMNSA26"
+                PasswordFront = "Y0.dM3c"
             }
             );
 
@@ -180,7 +180,7 @@ namespace DMSA.Models.Odoo.Abstract
                 prefix_db = "dev_",
                 email_domain = "macronegocios.ec",
                 preload_email_domain = true,
-                PasswordFront = "PREPRODDMujeres26"
+                PasswordFront = "Y0.dM3c"
             }
             );
          
@@ -205,7 +205,7 @@ namespace DMSA.Models.Odoo.Abstract
                 prefix_db = "prod1_",
                 email_domain = "macronegocios.ec",
                 preload_email_domain = true,
-                PasswordFront = "PREPRODDMujeres26"
+                PasswordFront = "Y0.dM3c"
             }
             );
 
@@ -230,7 +230,7 @@ namespace DMSA.Models.Odoo.Abstract
                 prefix_db = "prod1_",
                 email_domain = "macronegocios.ec",
                 preload_email_domain = true,
-                PasswordFront = "PREPROMNSA26"
+                PasswordFront = "Y0.dM3c"
             }
             );
 

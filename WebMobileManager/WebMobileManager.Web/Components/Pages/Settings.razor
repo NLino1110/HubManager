@@ -1,0 +1,115 @@
+﻿@page "/settings"
+@using Microsoft.AspNetCore.Authorization
+@inject ISnackbar Snackbar
+@rendermode InteractiveServer
+@attribute [Authorize]
+
+<h3>Configuraciones del sistema</h3>
+
+<MudContainer MaxWidth="MaxWidth.Medium">
+
+    <MudPaper Class="pa-6 mt-4" Elevation="4">
+
+        <MudText Typo="Typo.h6" Class="mb-4">
+            Configuración de almacenamiento
+        </MudText>
+
+        <EditForm Model="@settings" OnValidSubmit="SaveSettings">
+            <DataAnnotationsValidator />
+
+            <MudTextField Label="Ruta local de almacenamiento"
+                          @bind-Value="settings.StoragePath"
+                          For="@(() => settings.StoragePath)"
+                          Required="true"
+                          HelperText="Ej: /home/proyectos/storage/apps"
+                          Class="mb-4" />
+
+            <MudTextField Label="Ruta de APKs"
+                          @bind-Value="settings.ApkPath"
+                          HelperText="Ej: /home/proyectos/storage/apk"
+                          Class="mb-4" />
+
+            <MudTextField Label="Ruta de logs"
+                          @bind-Value="settings.LogPath"
+                          HelperText="Ej: /var/log/webmobilemanager"
+                          Class="mb-4" />
+
+            <MudSwitch Label="Permitir sobrescritura de archivos"
+                       @bind-value="settings.AllowOverwrite"
+                       Color="Color.Primary"
+                       Class="mb-4" />
+
+            <MudButton ButtonType="ButtonType.Submit"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Disabled="@isSaving">
+
+                @if (isSaving)
+                {
+                    <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="me-2" />
+                    @("Guardando...")
+                }
+                else
+                {
+                    @("Guardar configuración")
+                }
+
+            </MudButton>
+
+        </EditForm>
+
+    </MudPaper>
+
+</MudContainer>
+
+@code {
+
+    private SystemSettings settings = new();
+    private bool isSaving = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSettings();
+    }
+
+    private async Task LoadSettings()
+    {
+        // TODO: traer desde API o archivo config
+        settings = new SystemSettings
+        {
+            StoragePath = "/home/proyectos/storage",
+            ApkPath = "/home/proyectos/storage/apk",
+            LogPath = "/var/log/webmobilemanager",
+            AllowOverwrite = true
+        };
+    }
+
+    private async Task SaveSettings()
+    {
+        isSaving = true;
+
+        try
+        {
+            // TODO: guardar en backend (DB o appsettings o archivo)
+            await Task.Delay(500);
+
+            Snackbar.Add("Configuración guardada correctamente", Severity.Success);
+        }
+        catch
+        {
+            Snackbar.Add("Error al guardar configuración", Severity.Error);
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    public class SystemSettings
+    {
+        public string StoragePath { get; set; }
+        public string ApkPath { get; set; }
+        public string LogPath { get; set; }
+        public bool AllowOverwrite { get; set; }
+    }
+}

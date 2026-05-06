@@ -1,0 +1,160 @@
+﻿@page "/mobileapps"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Mvc
+@using WebMobileManager.Web.Handlers.Models
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@rendermode InteractiveServer
+@attribute [Authorize]
+
+<h3>Aplicaciones móviles</h3>
+
+<MudStack Row Spacing="2" Class="mb-4">
+
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Refresh"
+               OnClick="LoadApps">
+        Refrescar
+    </MudButton>
+
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Success"
+               StartIcon="@Icons.Material.Filled.Add"
+               OnClick="CreateApp">
+        Nueva App
+    </MudButton>
+
+</MudStack>
+
+<MudDataGrid Items="@apps" Hover="true" Dense="true">
+
+    <Columns>
+
+        <PropertyColumn Property="x => x.Name" Title="Aplicación" />
+        <PropertyColumn Property="x => x.PackageId" Title="Package" />
+        <PropertyColumn Property="x => x.Version" Title="Versión" />
+        
+        <TemplateColumn Title="Archivos">
+            <CellTemplate>
+
+                @if (context.Item.Files != null && context.Item.Files.Any())
+                {
+                    <MudStack Row Wrap="Wrap.Wrap" Spacing="1">
+
+                        @foreach (var file in context.Item.Files)
+                        {
+                            @* <MudChip Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small">
+                                @file.Platform - @file.FileName
+                            </MudChip> *@
+
+                            <MudChip Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small">
+                                @file.Platform
+                            </MudChip>
+                        }
+
+                    </MudStack>
+                }
+                else
+                {
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                        Sin archivos
+                    </MudText>
+                }
+
+            </CellTemplate>
+        </TemplateColumn>
+
+        <TemplateColumn Title="Estado">
+            <CellTemplate>
+                <MudChip Color="@(context.Item.IsActive ? Color.Success : Color.Error)">
+                    @(context.Item.IsActive ? "Activa" : "Inactiva")
+                </MudChip>
+            </CellTemplate>
+        </TemplateColumn>
+
+        <TemplateColumn CellClass="d-flex justify-end">
+            <CellTemplate>
+
+                <MudStack Row Spacing="1">
+
+                    <MudFab Color="Color.Primary"
+                            StartIcon="@Icons.Material.Filled.Edit"
+                            Size="Size.Small"
+                            @onclick="() => EditApp(context.Item)" />
+
+                    <MudFab Color="@(context.Item.IsActive ? Color.Error : Color.Success)"
+                            StartIcon="@(context.Item.IsActive ? Icons.Material.Filled.Block : Icons.Material.Filled.Check)"
+                            Size="Size.Small"
+                            @onclick="() => ToggleApp(context.Item)" />
+
+                </MudStack>
+
+            </CellTemplate>
+        </TemplateColumn>
+
+    </Columns>
+
+</MudDataGrid>
+
+@code {
+
+    private List<MobileAppDto> apps = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadApps();
+    }
+
+    private async Task LoadApps()
+    {
+        apps = new List<MobileAppDto>
+        {
+            new() {
+                Name="App Ventas",
+                PackageId="com.dm.ventas",
+                Version="1.2.0",
+                IsActive=true,
+                Files = new List<AppFileDto>
+                {
+                    new() { Platform = PlatformType.Android, FileName = "ventas.apk" },
+                    new() { Platform = PlatformType.iOS, FileName = "ventas.ipa" },
+                    new() { Platform = PlatformType.Windows, FileName = "ventas.exe" }
+                }
+            }
+        };
+    }
+
+    private async Task CreateApp()
+    {
+        var dialog = await DialogService.ShowAsync<AppDialog>("Nueva App");
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var app = (MobileAppDto)result.Data;
+            apps.Add(app);
+            Snackbar.Add("App creada", Severity.Success);
+        }
+    }
+
+    private async Task EditApp(MobileAppDto app)
+    {
+        var parameters = new DialogParameters { ["Model"] = app };
+        var options = new DialogOptions
+        {
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true
+        };
+        var dialog = await DialogService.ShowAsync<AppDialog>("Editar App", parameters, options);
+
+        await dialog.Result;
+    }
+
+    private void ToggleApp(MobileAppDto app)
+    {
+        app.IsActive = !app.IsActive;
+    }
+
+}

@@ -186,6 +186,7 @@ namespace ApiManager
             JObjectExtensions.RemoveProperty(newJObject, "parent_id");
             JObjectExtensions.RemoveProperty(newJObject, "project_id");
             JObjectExtensions.RemoveProperty(newJObject, "stage_id");
+            JObjectExtensions.RemoveProperty(newJObject, "stage_id_");
             JObjectExtensions.RemoveProperty(newJObject, "user_id");
             JObjectExtensions.RemoveProperty(newJObject, "id_sync");
 
@@ -201,7 +202,7 @@ namespace ApiManager
             JObjectExtensions.RenameProperty(newJObject, "_warehouse_id", "warehouse_id");
             JObjectExtensions.RenameProperty(newJObject, "_currency_id", "currency_id");
             JObjectExtensions.RenameProperty(newJObject, "_center_id", "center_id");
-            JObjectExtensions.RenameProperty(newJObject, "stage_id_", "stage_id");
+            //JObjectExtensions.RenameProperty(newJObject, "stage_id_", "stage_id");
             JObjectExtensions.RenameProperty(newJObject, "project_id_", "project_id");
 
             // Eliminar siempre la propiedad 'state' al crear una tarea.

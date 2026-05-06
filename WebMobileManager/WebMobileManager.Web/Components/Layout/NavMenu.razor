@@ -3,6 +3,7 @@
 @inject IDialogService DialogService
 @inject NavigationManager Navigation
 @inject CustomAuthenticationStateProvider AuthProvider
+@inject ISnackbar Snackbar
 
 <MudNavMenu>
 
@@ -10,16 +11,24 @@
         Home
     </MudNavLink>
 
-    <MudNavLink Href="counter" Icon="@Icons.Material.Filled.Add">
+    @* <MudNavLink Href="counter" Icon="@Icons.Material.Filled.Add">
         Counter
-    </MudNavLink>
+    </MudNavLink> *@
 
-    <MudNavLink Href="weather" Icon="@Icons.Material.Filled.List">
+    @* <MudNavLink Href="weather" Icon="@Icons.Material.Filled.List">
         Weather
+    </MudNavLink> *@
+
+    <MudNavLink Href="mobileapps" Icon="@Icons.Material.Filled.Apps">
+        Apps
     </MudNavLink>
 
-    <MudNavLink Href="hubmanager" Icon="@Icons.Material.Filled.PhoneAndroid">
+    <MudNavLink Href="mobilemanager" Icon="@Icons.Material.Filled.PhoneAndroid">
         Mobile Manager
+    </MudNavLink>
+
+    <MudNavLink Href="settings" Icon="@Icons.Material.Filled.Settings">
+        Settings
     </MudNavLink>
 
     <MudNavLink OnClick="ConfirmLogout" Icon="@Icons.Material.Filled.ExitToApp">
@@ -56,7 +65,7 @@
         if (!result.Canceled)
         {
             await AuthProvider.MarkUserAsLoggedOut();
-            Navigation.NavigateTo("/login", true, replace: true);
+            Navigation.NavigateTo("/login?logout=1", true, replace: true);
             //Snackbar.Add("Sesión cerrada correctamente", Severity.Success);
         }
 

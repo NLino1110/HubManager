@@ -56,21 +56,21 @@
 
         <Grid Grid.Row="1" BackgroundColor="LightGray" ColumnSpacing="4" Margin="0,4">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="42"/>
-                <ColumnDefinition Width="6"/>
-                <ColumnDefinition Width="2.5*"/>
+                <ColumnDefinition Width="0.3*"/>
                 <ColumnDefinition Width="1.5*"/>
-                <ColumnDefinition Width="3*"/> 
-                <ColumnDefinition Width="72"/> 
-                <ColumnDefinition Width="72"/>
-                <ColumnDefinition Width="72"/>
-                <ColumnDefinition Width="64"/>
+                <ColumnDefinition Width="1.5*"/>
+                <ColumnDefinition Width="1.5*"/>
+                <ColumnDefinition Width="1.5*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="50"/>
             </Grid.ColumnDefinitions>
 
-            <Label Grid.Column="0" Text="ID" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
-            <Label Grid.Column="1" Text="" />
-            <Label Grid.Column="2" Text="EMPRESA" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Start" VerticalOptions="Center"/>
-            <Label Grid.Column="3" Text="MOTIVO" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Start" VerticalOptions="Center"/>
+            <Label Grid.Column="0" Text="ID" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Center" VerticalOptions="Center"/>            
+            <Label Grid.Column="1" Text="EMPRESA" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Start" VerticalOptions="Center"/>
+            <Label Grid.Column="2" Text="MOTIVO" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Start" VerticalOptions="Center"/>
+            <Label Grid.Column="3" Text="OBS" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Start" VerticalOptions="Center"/>
             <Label Grid.Column="4" Text="CLIENTE" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Start" VerticalOptions="Center"/>
             <Label Grid.Column="5" Text="H. INI" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
             <Label Grid.Column="6" Text="H. FIN" FontAttributes="Bold" FontSize="11" HorizontalTextAlignment="Center" VerticalOptions="Center"/>

@@ -11,7 +11,8 @@
             <ResourceDictionary>
                 <converters:DateToDashConverter x:Key="DateToDashConverter"/>
                 <converters:StateToLabelConverter x:Key="StateToLabelConverter"/>
-            </ResourceDictionary>
+            <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+        </ResourceDictionary>
         </ContentView.Resources>
     <Border
     x:Name="RootBorder"
@@ -131,6 +132,24 @@
                                      Color="White"
                                      Size="14"
                                      FontAutoScalingEnabled="True" />
+                    </Button.ImageSource>
+                </Button>
+
+                <Button
+                    FontSize="10" 
+                    BackgroundColor="LimeGreen" 
+                    TextColor="White" 
+                    Command="{Binding EditCommand, Source={x:Reference ThisRow}}"
+                    CommandParameter="{Binding BindingContext, Source={x:Reference ThisRow}}"
+                    HeightRequest="30"
+                    WidthRequest="30" 
+                    Padding="0"
+                    IsVisible="{Binding is_synchronized}">
+                    <Button.ImageSource>
+                        <FontImageSource 
+                            Size="15"
+                            FontFamily="FontAwesome5Solid"
+                            Glyph="&#xf06e;" />
                     </Button.ImageSource>
                 </Button>
             </HorizontalStackLayout>

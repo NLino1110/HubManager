@@ -1,0 +1,95 @@
+﻿@using MudBlazor
+@using WebMobileManager.Web.Handlers.Models
+@inject IDialogService DialogService
+
+<MudDialog>
+
+    <DialogContent>
+
+        <MudText Typo="Typo.h6">@Title</MudText>
+        <MudText Class="mb-3">@Message</MudText>
+
+        <MudPaper Class="pa-2" Style="max-height:300px; overflow:auto;">
+
+            @foreach (var app in Apps)
+            {
+                @* <MudCheckBox T="bool"
+                             Label="@app.Name"
+                             Checked="@IsSelected(app)"
+                             CheckedChanged="@(v => ToggleSelection(app, v))" /> *@
+
+                <MudCheckBox T="bool"
+                             Label="@app.Name"
+                             Value="true"
+                             ValueChanged="@(v => ToggleSelection(app, v))" />
+            }
+
+        </MudPaper>
+
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Color="Color.Secondary" OnClick="Cancel">
+            Cancelar
+        </MudButton>
+
+        <MudButton Color="Color.Primary" OnClick="Submit">
+            Aceptar
+        </MudButton>
+    </DialogActions>
+
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public string Title { get; set; } = "Seleccionar aplicaciones";
+    [Parameter] public string Message { get; set; } = "Selecciona las apps a notificar";
+    [Parameter] public List<MobileAppDto> Apps { get; set; } = new();
+
+    private HashSet<MobileAppDto> selectedApps = new();
+
+    private bool IsSelected(MobileAppDto app)
+        => selectedApps.Contains(app);
+
+    private void ToggleSelection(MobileAppDto app, bool value)
+    {
+        if (value)
+            selectedApps.Add(app);
+        else
+            selectedApps.Remove(app);
+    }
+
+    private async Task Submit()
+    {
+        if (!selectedApps.Any())
+            return;
+
+        // Confirmación antes de continuar
+        var parameters = new DialogParameters
+        {
+            { "ContentText", $"¿Notificar {selectedApps.Count} aplicación(es)?" },
+            { "ButtonText", "Confirmar" },
+            { "Color", Color.Primary }
+        };
+
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true
+        };
+
+        var confirm = await DialogService.ShowAsync<ConfirmDialog>("Confirmación", parameters, options);
+        var result = await confirm.Result;
+
+        if (!result.Canceled)
+        {
+            MudDialog.Close(DialogResult.Ok(selectedApps.ToList()));
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}

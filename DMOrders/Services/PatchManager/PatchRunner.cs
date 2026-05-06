@@ -29,7 +29,7 @@ namespace DMOrders.Services.PatchManager
             //await PatchExecuter_v1(ConnectionItem);
             //await PatchExecuter_v2(ConnectionItem);
             //await PatchExecuter_v3(ConnectionItem);
-            //await PatchExecuter_v4(ConnectionItem);
+            await PatchExecuter_v4(ConnectionItem);
             //await PatchExecuter_v5(ConnectionItem);
             //await PatchExecuter_v6(ConnectionItem);
             //+ parches

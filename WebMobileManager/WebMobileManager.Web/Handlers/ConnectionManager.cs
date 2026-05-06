@@ -23,8 +23,6 @@ namespace WebMobileManager.Web.Handlers
             {
                 var itemFound = _connectedDevices.Where(i => i.Id == connectedDevice.Id).FirstOrDefault();
 
-                //itemFound = connectedDevice;
-
                 if (itemFound != null)
                 {
                     itemFound.AppName = connectedDevice.AppName;
@@ -38,6 +36,13 @@ namespace WebMobileManager.Web.Handlers
                     itemFound.SerialNumber = connectedDevice.SerialNumber;
                     itemFound.PackageName = connectedDevice.PackageName;
                     itemFound.Model = connectedDevice.Model;
+
+                    itemFound.battery = connectedDevice.battery;
+                    itemFound.CurrentDateTime = connectedDevice.CurrentDateTime;
+                    itemFound.CurrentLocation = connectedDevice.CurrentLocation;
+                    itemFound.freeRam = connectedDevice.freeRam;
+                    itemFound.freeStorage = connectedDevice.freeStorage;
+                    itemFound.UserData = connectedDevice.UserData;
                 }
             }
         }

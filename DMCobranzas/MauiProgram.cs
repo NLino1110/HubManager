@@ -21,8 +21,7 @@ namespace DMCobranzas
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemiBold");
-                    
-                    //Resuelve error en Android
+                                        
                     fonts.AddFont("OpenSans-Medium.ttf", "sans-serif-medium");
                     
                     fonts.AddFont("Font Awesome 5 Free-Regular-400.otf", "FontAwesome5Regular");
@@ -64,7 +63,7 @@ namespace DMCobranzas
             builder.Logging.AddDebug();
 #endif
 
-            App.PushRelayGlobal = new PushRelay("https://192.168.204.11:5001/chatHub");
+            App.PushRelayGlobal = new PushRelay("https://manager.dmujeres.ec:5001/chatHub");
             App.PushRelayGlobal.Name = "---";
             App.PushRelayGlobal.Message = "ConnectCommand";
 

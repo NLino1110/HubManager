@@ -1,0 +1,146 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@using MudBlazor
+@using WebMobileManager.Web.Handlers.Models
+@inject ISnackbar Snackbar
+
+<MudDialog>
+
+    <DialogContent>
+
+        <MudTextField Label="Nombre"
+                      @bind-Value="model.Name"
+                      Required="true" />
+
+        <MudTextField Label="Package"
+                      @bind-Value="model.PackageId" />
+
+        <MudTextField Label="Versión"
+                      @bind-Value="model.Version" />
+        <MudText Typo="Typo.subtitle2">Archivos</MudText>
+
+        @foreach (var file in model.Files.ToList())
+        {
+            <MudPaper Class="pa-3 mb-2">
+
+                <MudGrid>
+
+                    <MudItem xs="12" sm="4">
+                        <MudSelect T="PlatformType" @bind-Value="file.Platform" Label="Plataforma">
+                            <MudSelectItem Value="PlatformType.Android">Android</MudSelectItem>
+                            <MudSelectItem Value="PlatformType.iOS">iOS</MudSelectItem>
+                            <MudSelectItem Value="PlatformType.Windows">Windows</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+
+                    <MudItem xs="12" sm="4">
+
+                        @if (!string.IsNullOrEmpty(file.FileName))
+                        {
+                            <MudText Typo="Typo.caption">@file.FileName</MudText>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Error">
+                                Sin archivo
+                            </MudText>
+                        }
+
+                    </MudItem>
+
+                    <MudItem xs="12" sm="4" Class="d-flex align-center">
+                        @{
+                            var inputId = $"file_{file.Id}";
+                        }
+
+                        <div style="position: relative; width: 40px;">
+                            
+                            <MudIconButton Icon="@(string.IsNullOrEmpty(file.FileName)
+                                                               ? Icons.Material.Filled.Upload
+                                                               : Icons.Material.Filled.Refresh)"
+                                            Variant="Variant.Outlined"
+                                            Color="Color.Default" />
+                            
+                            <InputFile OnChange="e => UploadFile(e, file)"
+                                       style="
+                            position:absolute;
+                            top:0;
+                            left:0;
+                            width:100%;
+                            height:100%;
+                            opacity:0;
+                            cursor:pointer;" />
+
+                        </div>
+
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                       Color="Color.Error"
+                                       OnClick="() => RemoveFile(file)" />
+                    </MudItem>
+
+                </MudGrid>
+
+            </MudPaper>
+        }
+
+        <MudDivider Class="my-4" />
+        <MudButton StartIcon="@Icons.Material.Filled.Add"
+                   Variant="Variant.Outlined"
+                   OnClick="AddFile">
+            Agregar archivo
+        </MudButton>
+
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancelar</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Save">Guardar</MudButton>
+    </DialogActions>
+
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public MobileAppDto Model { get; set; }
+
+    private MobileAppDto model = new();
+
+    protected override void OnInitialized()
+    {
+        if (Model != null)
+            model = Model;
+    }
+
+    private void AddFile()
+    {
+        model.Files.Add(new AppFileDto());
+    }
+
+    private void RemoveFile(AppFileDto file)
+    {
+        model.Files.Remove(file);
+
+        Snackbar.Add($"Archivo {file.Platform} eliminado", Severity.Warning);
+    }
+
+    private async Task UploadFile(InputFileChangeEventArgs e, AppFileDto fileModel)
+    {
+        var file = e.File;
+
+        // TODO: subir a servidor
+        fileModel.FileName = file.Name;
+
+        Snackbar.Add($"Archivo {fileModel.Platform} cargado", Severity.Info);
+    }
+
+    private void Save()
+    {
+        MudDialog.Close(DialogResult.Ok(model));
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }    
+}

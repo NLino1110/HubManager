@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Maui;
 using DMOrders.Services;
 using DMSA.Models.Security;
+using DMSA.Sync.Core.Services;
 using Microsoft.Extensions.Logging;
 using MPowerKit.VirtualizeListView;
 using SkiaSharp.Views.Maui.Controls.Hosting;
@@ -72,6 +73,10 @@ namespace DMOrders
             CultureInfo.DefaultThreadCurrentUICulture = culture;
             Thread.CurrentThread.CurrentCulture = culture;
             Thread.CurrentThread.CurrentUICulture = culture;
+
+            App.PushRelayGlobal = new PushRelay("https://manager.dmujeres.ec:5001/chatHub");
+            App.PushRelayGlobal.Name = "---";
+            App.PushRelayGlobal.Message = "ConnectCommand";
 
             return builder.Build();
         }
