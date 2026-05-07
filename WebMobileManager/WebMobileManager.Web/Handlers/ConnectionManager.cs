@@ -25,6 +25,7 @@ namespace WebMobileManager.Web.Handlers
 
                 if (itemFound != null)
                 {
+                    itemFound.DeviceId = connectedDevice.DeviceId;
                     itemFound.AppName = connectedDevice.AppName;
                     itemFound.VersionString = connectedDevice.VersionString;
                     itemFound.Platform = connectedDevice.Platform;
@@ -42,7 +43,7 @@ namespace WebMobileManager.Web.Handlers
                     itemFound.CurrentLocation = connectedDevice.CurrentLocation;
                     itemFound.freeRam = connectedDevice.freeRam;
                     itemFound.freeStorage = connectedDevice.freeStorage;
-                    itemFound.UserData = connectedDevice.UserData;
+                    itemFound.UserData = connectedDevice.UserData;                    
                 }
             }
         }

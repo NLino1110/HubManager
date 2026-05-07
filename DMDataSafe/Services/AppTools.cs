@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DMOrders.Services.Update
+namespace DMDataSafe.Services
 {
     static public class AppTools
     {
@@ -15,7 +15,7 @@ namespace DMOrders.Services.Update
 
             App.PushRelayGlobal = new PushRelay("https://manager.dmujeres.ec:5001/chatHub", AppTools.GetDeviceId());
             App.PushRelayGlobal.Name = "---";
-            App.PushRelayGlobal.Message = "ConnectCommand";            
+            App.PushRelayGlobal.Message = "ConnectCommand";
         }
 
         static public async Task<bool> ClearCacheData()

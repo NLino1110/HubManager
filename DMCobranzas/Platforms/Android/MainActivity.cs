@@ -91,6 +91,7 @@ namespace DMCobranzas
                                     permiso != "android.permission.READ_MEDIA_VIDEO" &&
                                     permiso != "android.permission.READ_MEDIA_IMAGES" &&
                                     permiso != "android.permission.ACCESS_COARSE_LOCATION" &&
+                                    permiso != "android.permission.BATTERY_STATS" &&
                                     permiso != PackageName + ".DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION")
                         {
                             permisosPorSolicitarLista.Add(permiso);

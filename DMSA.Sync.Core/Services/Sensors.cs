@@ -1,12 +1,9 @@
 ﻿using DMSA.Models.Odoo.Tools;
 using DMSA.Sync.Core.Database.Sqlite;
-using Microsoft.Maui.Devices.Sensors;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Newtonsoft.Json;
 
 namespace DMSA.Sync.Core.Services
-{
+{    
     public class Sensors
     {
         public async Task<string> GetUserData()
@@ -20,15 +17,19 @@ namespace DMSA.Sync.Core.Services
 
             if (lastItem == null)
                 return string.Empty;
-
-            return "";
+            var stringResult = JsonConvert.SerializeObject(lastItem);
+            return stringResult;
         }
 
         public async Task<Location?> GetLocationAsync()
         {
             try
             {
-                var request = new GeolocationRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(10));
+                //var request = new GeolocationRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(10));
+                var request = new GeolocationRequest(
+                        GeolocationAccuracy.Best,
+                        TimeSpan.FromSeconds(10)
+                    );
                 var location = await Geolocation.Default.GetLocationAsync(request);
                 return location;
             }
@@ -46,18 +47,22 @@ namespace DMSA.Sync.Core.Services
             data.CurrentDateTime = DateTime.Now;
                         
             var location = await GetLocationAsync();
-            data.CurrentLocation = location != null
-                ? $"{location.Latitude}, {location.Longitude}"
-                : null;
+            var stringLocation = string.Empty;
+
+            if (location != null)
+                stringLocation = JsonConvert.SerializeObject(location);
+
+            data.CurrentLocation = stringLocation;
                         
             data.battery = (long)(Battery.Default.ChargeLevel * 100);
-                        
+            
             data.freeStorage = 0;
             data.storage = 0;
             data.freeRam = 0;
+            data.UserData = await GetUserData();
 
             return data;
-        }
+        }        
 
         //public async Task<ConnectedDevice> GetDeviceDataWithInfoAsync()
         //{   

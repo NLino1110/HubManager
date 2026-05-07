@@ -2,6 +2,7 @@
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Mvvm.Input;
 using DMDataSafe.AppPages.Sys;
+using DMDataSafe.Services;
 using DMOrders.Controls.Tools;
 using DMSA.Models.Odoo.Abstract;
 using DMSA.Models.Odoo.Accounting;
@@ -56,6 +57,8 @@ public partial class Login : ContentPage
 
     public async Task SetupLogin()
     {
+        AppTools.BuildPushRelay();
+
         var assembly = Assembly.GetExecutingAssembly();
         var titleAttr = assembly.GetCustomAttribute<AssemblyTitleAttribute>();
         string title = titleAttr?.Title ?? "";

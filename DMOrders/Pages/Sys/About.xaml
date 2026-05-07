@@ -49,6 +49,7 @@
                 <Label Text="-" VerticalOptions="Center" x:Name="lblUpdatedInfo"
                     HorizontalOptions="Center" Margin="10,10,10,10"/>
                 <Label Text="App version:" VerticalOptions="Center" x:Name="lblAppVersion" HorizontalOptions="Center" Margin="10,10,10,10"/>
+                <Label Text="{Binding deviceId}" VerticalOptions="Center" HorizontalOptions="Center" Margin="10,10,10,10"/>
             </StackLayout>
         </Border>
 

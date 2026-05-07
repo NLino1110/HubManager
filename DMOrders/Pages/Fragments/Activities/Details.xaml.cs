@@ -185,7 +185,7 @@ public partial class Details : ContentPage, IBackButtonHandler
 
     private async void ButtonSync_Clicked(object sender, EventArgs e)
     {
-        var leave = await DisplayAlert("Enviar", "¿Desea enviar esta actividad al ERP?", "Si", "No");
+        var leave = await DisplayAlertAsync("Enviar", "¿Desea enviar esta actividad al ERP?", "Si", "No");
 
         if (!leave)
         {

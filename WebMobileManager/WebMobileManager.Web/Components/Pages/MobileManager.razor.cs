@@ -53,9 +53,14 @@ namespace WebMobileManager.Web.Components.Pages
         }
 
         private async Task RequireInfoDevice(ConnectedDevice device)
-        {
-            //device = 
+        {            
             await chatHub.RequireInfoDevice(device.Id);
+            StateHasChanged();
+        }
+
+        private async Task RequireFullInfoDevice(ConnectedDevice device)
+        {            
+            await chatHub.RequireFullInfoDevice(device.Id);
             StateHasChanged();
         }
 
@@ -83,41 +88,25 @@ namespace WebMobileManager.Web.Components.Pages
         {            
             devices = new List<ConnectedDevice>
             {
-                new ConnectedDevice { Id = "1", AppName = "DMCobranzas", VersionString="1.0.1", DeviceName="Device 1" },
-                new ConnectedDevice { Id = "2", AppName = "DMCobranzas", VersionString="1.0.1", DeviceName = "Device 2" },
-                new ConnectedDevice { Id = "3", AppName = "DMCobranzas", VersionString="1.0.1", DeviceName = "Device 3" },
+                new ConnectedDevice { Id = "1", AppName = "DMCobranzas", VersionString="1.0.1", DeviceName="Device 1", CurrentLocation="{\"Latitude\":40.7128,\"Longitude\":-74.0060}" },
+                new ConnectedDevice { Id = "2", AppName = "DMOrders", VersionString="1.0.1", DeviceName = "Device 2" },
+                new ConnectedDevice { Id = "3", AppName = "DMOrders", VersionString="1.0.1", DeviceName = "Device 3" },
+                new ConnectedDevice { Id = "4", AppName = "DMOrders", VersionString="1.0.1", DeviceName = "Device 3" },
+                new ConnectedDevice { Id = "5", AppName = "DMCobranzas", VersionString="1.0.1", DeviceName = "Device 3" },
+                new ConnectedDevice { Id = "6", AppName = "DMCobranzas", VersionString="1.0.1", DeviceName = "Device 3" },
+                new ConnectedDevice { Id = "7", AppName = "DMOrders", VersionString="1.0.1", DeviceName = "Device 3" },
+                new ConnectedDevice { Id = "8", AppName = "DMCobranzas", VersionString="1.0.1", DeviceName = "Device 3" },
+                new ConnectedDevice { Id = "9", AppName = "DMCobranzas", VersionString="1.0.1", DeviceName = "Device 3" },
+                new ConnectedDevice { Id = "10", AppName = "DMCobranzas", VersionString="1.0.1", DeviceName = "Device 3" },
+                new ConnectedDevice { Id = "11", AppName = "DMOrders", VersionString="1.0.1", DeviceName = "Device 3" },
+                new ConnectedDevice { Id = "12", AppName = "DMCobranzas", VersionString="1.0.1", DeviceName = "Device 3" },
+                new ConnectedDevice { Id = "13", AppName = "DMCobranzas", VersionString="1.0.1", DeviceName = "Device 3" },
+                new ConnectedDevice { Id = "14", AppName = "DMOrders", VersionString="1.0.1", DeviceName = "Device 3" },
+                new ConnectedDevice { Id = "15", AppName = "DMCobranzas", VersionString="1.0.1", DeviceName = "Device 3" },
+                new ConnectedDevice { Id = "16", AppName = "DMCobranzas", VersionString="1.0.1", DeviceName = "Device 3" },
+                new ConnectedDevice { Id = "17", AppName = "DMDataSafe", VersionString="1.0.1", DeviceName = "Device 3" },
             };
         }
-
-        //private async Task SendMessageDevice(ConnectedDevice device)
-        //{
-        //    string Title = "Enviar mensaje";
-        //    var parameters = new ModalParameters();
-        //    string Message = $@"Ingrese el texto:";
-        //    var options = new ModalOptions
-        //    {
-        //        UseCustomLayout = true,
-        //        DisableBackgroundCancel = true
-        //    };
-
-        //    parameters = new ModalParameters();
-        //    parameters.Add(nameof(DisplayPrompt.Message), Message);
-        //    parameters.Add(nameof(DisplayPrompt.PromptValue), "");
-        //    var messageForm = modalService.Show<DisplayPrompt>(Title, parameters, options);
-        //    var result = await messageForm.Result;
-
-        //    if (result.Data != null)
-        //    {
-        //        string new_message = result.Data.ToString();
-
-        //        if (new_message != null && new_message != string.Empty && new_message != "")
-        //        {
-        //            await chatHub.SendMessageDevice(device.Id, "Servidor", new_message);
-        //            StateHasChanged();
-        //        }
-        //    }
-        //}
-        //        
 
         private async Task SendMessageDevice(ConnectedDevice device)
         {

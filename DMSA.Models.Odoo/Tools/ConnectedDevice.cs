@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DMSA.Models.Odoo.Security;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +10,8 @@ namespace DMSA.Models.Odoo.Tools
 {   
     public class ConnectedDevice
     {
-        public string Id { get; set; }        
+        public string Id { get; set; }
+        public string DeviceId { get; set; }
         public string PackageName { get; set; }
         public string BuildString { get; set; }
         public string VersionString { get; set; }
@@ -22,7 +25,7 @@ namespace DMSA.Models.Odoo.Tools
         public string OsVersion { get; set; }
         public DateTime? DateTimeInit { get; set; }
         public string Status { get; set; }        
-        public string UserData { get; set; }
+        public string? UserData { get; set; }
 
         //================================================//
 
@@ -41,5 +44,73 @@ namespace DMSA.Models.Odoo.Tools
         public bool WithRememberMe { get; set; }
         public bool WithAutoLogin { get; set; }
 
+
+        
+        [JsonIgnore]
+        public string? MapsUrl
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(CurrentLocation))
+                    return null;
+
+                try
+                {
+                    var location = JsonConvert.DeserializeObject<LocationDto>(CurrentLocation);
+
+                    if (location == null)
+                        return null;
+
+                    return $"https://www.google.com/maps?q={location.Latitude},{location.Longitude}";
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+        }
+
+
+
+        [JsonIgnore]
+        public string? LastUserLogged
+        {
+            get
+            {
+                var data = GetUserData();
+                return data?.username ?? data?.name;
+            }
+        }
+
+        [JsonIgnore]
+        public DateTime? LastDateLogged
+        {
+            get
+            {
+                var data = GetUserData();
+                return data?.log_fec_acceso;
+            }
+        }
+                
+        private user_access? GetUserData()
+        {
+            if (string.IsNullOrWhiteSpace(UserData))
+                return null;
+
+            try
+            {
+                return JsonConvert.DeserializeObject<user_access>(UserData);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+    }
+
+    public class LocationDto
+    {
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
     }
 }

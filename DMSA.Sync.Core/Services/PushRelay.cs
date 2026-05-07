@@ -15,7 +15,9 @@ namespace DMSA.Sync.Core.Services
         string _name;
                 
         string _message;
-                
+
+        string _device_id;
+
         ObservableCollection<string> _messages;
                 
         bool _isConnected;
@@ -36,6 +38,12 @@ namespace DMSA.Sync.Core.Services
         {
             get { return _name; }
             set { _name = value; }
+        }
+
+        public string DeviceId
+        {
+            get { return _device_id; }
+            set { _device_id = value; }
         }
 
         public void _PushRelay(string ServerUrl)
@@ -120,34 +128,72 @@ namespace DMSA.Sync.Core.Services
                 });
             });
 
-            _hubConnection.On<string, string>("RequireInfoDevice", (DeviceId, message) =>
+            _hubConnection.On<string, string>("RequireInfoDevice", (HubId, message) =>
             {
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
-                    await Toast.Make($"{DeviceId} RequireInfoDevice").Show();
+                    await Toast.Make($"{HubId} RequireInfoDevice").Show();
 
-                    await ReceiveInfoDevice(DeviceId);
+                    await ReceiveInfoDevice(HubId);
 
-                    Debug.WriteLine($"{DeviceId} says {message}");
+                    Debug.WriteLine($"{HubId} says {message}");
                 });
             });
 
-            _hubConnection.On<string, string>("RequireFullInfoDevice", (DeviceId, message) =>
+            _hubConnection.On<string, string>("RequireFullInfoDevice", (HubId, message) =>
             {
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
+                    await Toast.Make($"{HubId} RequireFullInfoDevice").Show();
+
                     Sensors sensors = new Sensors();
-                    var getdata = await sensors.GetDeviceDataAsync();
-                    await Toast.Make($"{DeviceId} RequireFullInfoDevice").Show();
+                    var getdataExtra = await sensors.GetDeviceDataAsync();
+                    
+                    var getdata = GetDeviceInfo(HubId);
+                    getdata.CurrentLocation = getdataExtra.CurrentLocation;
+                    getdata.battery = getdataExtra.battery;
+                    getdata.freeRam = getdataExtra.freeRam;
+                    getdata.freeStorage = getdataExtra.freeStorage;
+                    getdata.UserData = getdataExtra.UserData;
+
                     await ReceiveFullInfoDevice(getdata);
-                    Debug.WriteLine($"{DeviceId} says {message}");
+                    Debug.WriteLine($"{HubId} says {message}");
                 });
             });
         }
 
+        public ConnectedDevice GetDeviceInfo(string HubId)
+        {
+            ConnectedDevice device = new ConnectedDevice();
+            device.Id = HubId;
+            device.DeviceId = _device_id;
+            device.AppName = AppInfo.Current.Name;
+            device.PackageName = AppInfo.Current.PackageName;
+            device.VersionString = Constants.Session.AppVersion;
+            device.BuildString = AppInfo.Current.BuildString;
+            device.UserData = "";
+            device.Idiom = DeviceInfo.Current.Idiom.ToString();
+            device.Manufacturer = DeviceInfo.Current.Manufacturer;
+            device.DeviceName = DeviceInfo.Current.Name;
+            device.OsVersion = DeviceInfo.Current.VersionString;
+            device.Platform = DeviceInfo.Current.Platform.ToString();
+            device.SerialNumber = "";
+            device.Model = DeviceInfo.Current.Model;
+
+            return device;
+        }
+
+
+        [Obsolete("Ya no se va a usar")]
         public PushRelay(string ServerPush)
         {
             _PushRelay(ServerPush);
+        }
+
+        public PushRelay(string ServerPush, string HubId)
+        {
+            _PushRelay(ServerPush);
+            _device_id = HubId;
         }
 
         [RelayCommand]
@@ -170,10 +216,11 @@ namespace DMSA.Sync.Core.Services
         }
 
         [RelayCommand]
-        async Task ReceiveInfoDevice(string DeviceId)
+        async Task ReceiveInfoDevice(string HubId)
         {
             ConnectedDevice device = new ConnectedDevice();
-            device.Id = DeviceId;
+            device.Id = HubId;
+            device.DeviceId = _device_id;
             device.AppName = AppInfo.Current.Name;
             device.PackageName = AppInfo.Current.PackageName;
             device.VersionString = Constants.Session.AppVersion;

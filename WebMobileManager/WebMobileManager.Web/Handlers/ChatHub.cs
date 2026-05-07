@@ -28,18 +28,10 @@ namespace WebMobileManager.Web.Handlers
             return _connectionManager.GetDevices();
         }
 
-        //public List<string> ObtenerClientesConectados()
-        //{
-        //    return _connectedUsers.GetConnectedUsers();
-        //}
-
         public override async Task OnConnectedAsync()
         {
             ConnectedDevice connectedDevice = new ConnectedDevice();
-            connectedDevice.Id = Context.ConnectionId;
-            
-            //Obtener datos del dispositivo
-            //Llamar por push metodo de extracción de datos del dispositivo
+            connectedDevice.Id = Context.ConnectionId;            
             
             _connectionManager.AddDevice(connectedDevice);
             await base.OnConnectedAsync();
@@ -50,10 +42,6 @@ namespace WebMobileManager.Web.Handlers
             ConnectedDevice connectedDevice = new ConnectedDevice();
             connectedDevice.Id = Context.ConnectionId;
 
-            //Obtener datos del dispositivo
-            //Llamar por push metodo de extracción de datos del dispositivo
-            //Talvez sea necesario o simplemente buscarlo por ID y eliminarlo
-
             Console.WriteLine("DisconnectedAsync");
             Console.WriteLine(connectedDevice.Id);
             _connectionManager.RemoveDevice(connectedDevice);
@@ -61,9 +49,7 @@ namespace WebMobileManager.Web.Handlers
         }
 
         public async Task RequireInfoDevice(string Id)
-        {
-            //⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓⁓//
-            //~~~~~~~~~~~~~~~~~~~//
+        {            
 
             if (Clients == null)
             {
@@ -73,7 +59,6 @@ namespace WebMobileManager.Web.Handlers
             Console.WriteLine("RequireInfoDevice");
             Console.WriteLine(Id);
             await Clients.Client(Id).SendAsync("RequireInfoDevice", Id, "extra-data");
-            //await Clients.All.SendAsync("RequireInfoDevice", Id);
         }
 
         public async Task ReceiveInfoDevice(string JsonDeviceData)
@@ -83,27 +68,32 @@ namespace WebMobileManager.Web.Handlers
             Console.WriteLine("ReceiveInfoDevice");
             Console.WriteLine(JsonDeviceData);
 
-            ConnectedDevice device = new ConnectedDevice();
-            
+            ConnectedDevice device = new ConnectedDevice();            
             device = JsonConvert.DeserializeObject<ConnectedDevice>(JsonDeviceData);
-
-            //var itemFound = GetDevices().Where(i => i.Id == device.Id).FirstOrDefault();
-
             _connectionManager.UpdateDevice(device);
+        }
 
-            //await Clients.All.SendAsync("RequireInfoDevice", Id);
+        public async Task RequireFullInfoDevice(string Id)
+        {
+            if (Clients == null)
+            {
+                return;
+            }
+
+            Console.WriteLine("RequireFullInfoDevice");
+            Console.WriteLine(Id);
+            await Clients.Client(Id).SendAsync("RequireFullInfoDevice", Id, "extra-data");            
         }
 
         public async Task ReceiveFullInfoDevice(string JsonDeviceData)
         {
-            if (JsonDeviceData == null) return;
+            if (string.IsNullOrEmpty(JsonDeviceData)) return;
             Console.WriteLine("ReceiveInfoDevice");
             Console.WriteLine(JsonDeviceData);
             ConnectedDevice device = new ConnectedDevice();
             device = JsonConvert.DeserializeObject<ConnectedDevice>(JsonDeviceData);
             _connectionManager.UpdateDevice(device);
-        }
-        
+        }        
 
         public async Task SendMessage(string user, string message)
         {

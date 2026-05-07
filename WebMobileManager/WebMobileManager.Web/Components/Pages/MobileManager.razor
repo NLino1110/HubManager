@@ -1,4 +1,5 @@
 ﻿@page "/mobilemanager"
+@using DMSA.Models.Odoo.Tools
 @using Microsoft.AspNetCore.Authorization
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
@@ -37,8 +38,9 @@
     Probar
 </button> *@
 
-<MudDataGrid Items="@devices.Take(20)">
+<MudDataGrid Items="@devices" RowsPerPage="5" ShowColumnOptions="true">
     <Columns>
+        <PropertyColumn Property="x => x.DeviceId" Title="DeviceId" Hideable="true" />
         <PropertyColumn Property="x => x.AppName" Title="App" />
         <PropertyColumn Property="x => x.VersionString" Title="Version" />
         <PropertyColumn Property="x => x.DeviceName" Title="Ult.Usu.Ing."/>
@@ -46,15 +48,47 @@
         <PropertyColumn Property="x => x.Platform" />
         <PropertyColumn Property="x => x.Manufacturer" Title="Marca"/>
         <PropertyColumn Property="x => x.Model" />
+        <PropertyColumn Property="x => x.battery" Title="Battery" Format="0'%'" />
+        <PropertyColumn Property="x => x.LastUserLogged" Title="Usuario" />
+                
+        <TemplateColumn Title="Últ. Acc." CellStyle="min-width:160px; white-space:nowrap;">
+            <CellTemplate>
+                @if (context.Item.LastDateLogged != null)
+                {
+                    @context.Item.LastDateLogged.Value.ToString("dd/MM/yyyy HH:mm")
+                }
+                else
+                {
+                    <MudText Color="Color.Secondary">Sin datos</MudText>
+                }
+            </CellTemplate>
+        </TemplateColumn>
+
+        <TemplateColumn Title="Location" CellStyle="min-width:70px; text-align:center;">
+            <CellTemplate>
+                @if (!string.IsNullOrEmpty(context.Item.MapsUrl))
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Map"
+                                    Size="Size.Small"
+                                   Color="Color.Primary"
+                                   Href="@context.Item.MapsUrl"
+                                   Target="_blank" />
+                }
+            </CellTemplate>
+        </TemplateColumn>        
         
         <TemplateColumn CellClass="d-flex justify-end">
             <CellTemplate>
-                <MudStack Row>
-                    @* <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Primary">Hire</MudButton> *@
+                <MudStack Row>                    
 
                     <MudFab Color="Color.Secondary"
                             StartIcon="@Icons.Material.Filled.Info"
                             @onclick="(x) => RequireInfoDevice(context.Item)"
+                            Size="Size.Small" />
+
+                    <MudFab Color="Color.Tertiary"
+                            StartIcon="@Icons.Material.Filled.PermDeviceInformation"
+                            @onclick="(x) => RequireFullInfoDevice(context.Item)"
                             Size="Size.Small" />
 
                     <MudFab Color="Color.Success"
@@ -70,6 +104,10 @@
             </CellTemplate>
         </TemplateColumn>
     </Columns>
+
+    <PagerContent>
+        <MudDataGridPager T="ConnectedDevice" />
+    </PagerContent>
 </MudDataGrid>
 
 @code {

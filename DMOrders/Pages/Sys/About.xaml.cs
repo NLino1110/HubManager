@@ -1,12 +1,16 @@
+using DMOrders.Services.Update;
 using System.Runtime.InteropServices;
 
 namespace DMOrders.AppPages.Sys;
 
 public partial class About : ContentPage
 {
+    public string deviceId {  get; set; }
+
     public About()
 	{
-		InitializeComponent();        
+		InitializeComponent();
+        BindingContext = this;
         ReadDeviceInfo();
     }
 
@@ -47,6 +51,9 @@ public partial class About : ContentPage
         sb.AppendLine($"Odoo Edition");
         lblUpdated.Text = sb.ToString();
         lblAppVersion.Text = "Versión " + App.Session.AppVersion;
+
+        deviceId = AppTools.GetDeviceId();
+        OnPropertyChanged(nameof(deviceId));
     }
 
     private async void btnBack_Clicked(object sender, EventArgs e)

@@ -6,6 +6,7 @@ using DMOrders.Controls.Tools;
 using DMOrders.Pages.Sys;
 using DMOrders.Services.Helpers;
 using DMOrders.Services.PatchManager;
+using DMOrders.Services.Update;
 using DMSA.Models.Odoo.Abstract;
 using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.Native;
@@ -98,6 +99,8 @@ public partial class Login : ContentPage
 
     public async Task SetupLogin()
     {
+        AppTools.BuildPushRelay();
+
         OdooConnectionItems = new ObservableCollection<OdooConnection>();
         ddCompany.ItemsSource = OdooConnectionItems;        
         ddCompany.ItemDisplayBinding = new Binding("Name");

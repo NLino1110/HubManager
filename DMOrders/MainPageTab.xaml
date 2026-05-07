@@ -135,10 +135,10 @@
                     <Label Grid.Column="5"                           
                         x:Name="lblUser"       
                         Text="..."
-                        TextColor="Pink"
+                        TextColor="GhostWhite"
                         VerticalOptions="Center"
                         Padding="5,0,5,0"
-                        FontAttributes="None"
+                        FontAttributes="Bold"
                         FontSize="10"/>
 
                     <Label Grid.Column="6"                           

@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using DMCobranzas.AppPages;
 using DMCobranzas.AppPages.Sys;
 using DMCobranzas.Controls.Tools;
+using DMCobranzas.Services;
 using DMCobranzas.Services.PatchManager.Reset;
 using DMSA.Models.Odoo.Abstract;
 using DMSA.Models.Odoo.Accounting;
@@ -77,7 +78,9 @@ public partial class Login : ContentPage
     }
 
     public async Task SetupLogin()
-    {           
+    {
+        AppTools.BuildPushRelay();
+
         OdooConnectionItems = new ObservableCollection<OdooConnection>();
         ddCompany.ItemsSource = OdooConnectionItems;
         //ddCompany.ItemDisplayBinding = new Binding(nameof(OdooConnection.Name));

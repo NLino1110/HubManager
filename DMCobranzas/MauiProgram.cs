@@ -63,10 +63,6 @@ namespace DMCobranzas
             builder.Logging.AddDebug();
 #endif
 
-            App.PushRelayGlobal = new PushRelay("https://manager.dmujeres.ec:5001/chatHub");
-            App.PushRelayGlobal.Name = "---";
-            App.PushRelayGlobal.Message = "ConnectCommand";
-
             //App.PushRelayGlobal.ConnectCommand.Execute("");
             //var sendcmd = App.PushRelayGlobal.SendMessageCommand;
             //sendcmd.Execute("");
