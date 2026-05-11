@@ -277,7 +277,7 @@ namespace ApiManager
             content.Add(fileContent, "file", $"{filename}.zip");
             content.Add(new StringContent(filename), "fileName");
 
-            var response = await httpClient.PostAsync($"{_appSession.odooConnection.HostDump}api/upload/zip", content);
+            var response = await httpClient.PostAsync($"{_appSession.odooConnection.HostDump}/api/upload/zip", content);
 
             if (!response.IsSuccessStatusCode)
             {
