@@ -33,7 +33,7 @@ namespace DMDataSafe
 
             App.Session = new AppSession();
             App.Session.AppVersion = AppInfo.Current.VersionString;
-            App.Session.SqliteCoreDbName = "DMDataSafe";
+            App.Session.SqliteCoreDbName = "_app";
             App.Session.AppCodeOdoo = "03";
             App.Session.AppMobileId = 3;
 

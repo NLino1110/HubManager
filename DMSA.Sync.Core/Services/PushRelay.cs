@@ -1,10 +1,12 @@
 ﻿using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Mvvm.Input;
+using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Tools;
 using Microsoft.AspNetCore.SignalR.Client;
 using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DMSA.Sync.Core.Services
 {
@@ -179,6 +181,7 @@ namespace DMSA.Sync.Core.Services
             device.Platform = DeviceInfo.Current.Platform.ToString();
             device.SerialNumber = "";
             device.Model = DeviceInfo.Current.Model;
+            device.battery = (long)(Battery.Default.ChargeLevel * 100);
 
             return device;
         }
@@ -217,44 +220,11 @@ namespace DMSA.Sync.Core.Services
 
         [RelayCommand]
         async Task ReceiveInfoDevice(string HubId)
-        {
-            ConnectedDevice device = new ConnectedDevice();
-            device.Id = HubId;
-            device.DeviceId = _device_id;
-            device.AppName = AppInfo.Current.Name;
-            device.PackageName = AppInfo.Current.PackageName;
-            device.VersionString = Constants.Session.AppVersion;
-            device.BuildString = AppInfo.Current.BuildString;
-            device.UserData = "";
-            device.Idiom = DeviceInfo.Current.Idiom.ToString();
-            device.Manufacturer = DeviceInfo.Current.Manufacturer;
-            device.DeviceName = DeviceInfo.Current.Name;
-            device.OsVersion = DeviceInfo.Current.VersionString;
-            device.Platform = DeviceInfo.Current.Platform.ToString();
-            device.SerialNumber = "";
-            device.Model = DeviceInfo.Current.Model;
-
+        {            
+            ConnectedDevice device = GetDeviceInfo(HubId);
+            Sensors sensors = new Sensors();            
+            device.UserData = await sensors.GetUserData();
             string jsonDataSend = JsonConvert.SerializeObject(device);
-
-            //var currentNetwork = Connectivity.NetworkAccess;
-            //if (currentNetwork == NetworkAccess.Internet)
-            //{
-            //    var ipAddress = NetworkInterface.GetAllNetworkInterfaces();
-            //    foreach (var interfaceItem in ipAddress)
-            //    {
-            //        try
-            //        {
-            //            Debug.WriteLine($"Interface: {interfaceItem.Description}");
-            //            Debug.WriteLine($"Dirección IP del dispositivo: {interfaceItem.GetIPStatistics()}");
-            //        }
-            //        catch(Exception ex)
-            //        {
-            //            Debug.WriteLine($"Error obteniendo Ip");
-            //            Debug.WriteLine(ex.Message);
-            //        }
-            //    }
-            //    //Console.WriteLine($"Dirección IP del dispositivo: {ipAddress}");
-            //}
 
             try
             {

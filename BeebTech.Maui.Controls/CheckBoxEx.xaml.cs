@@ -32,6 +32,13 @@ public partial class CheckBoxEx : ContentView
     public static readonly BindableProperty FontFamilyProperty =
         BindableProperty.Create(nameof(FontFamily), typeof(string), typeof(CheckBoxEx), default(string));
 
+
+    public static readonly BindableProperty ScaleXProperty =
+    BindableProperty.Create(nameof(ScaleX), typeof(double), typeof(CheckBoxEx), 1.3);
+
+    public static readonly BindableProperty ScaleYProperty =
+        BindableProperty.Create(nameof(ScaleY), typeof(double), typeof(CheckBoxEx), 1.3);
+
     public Color TextColor
     {
         get => (Color)GetValue(TextColorProperty);
@@ -77,5 +84,17 @@ public partial class CheckBoxEx : ContentView
     {
         get => (string)GetValue(FontFamilyProperty);
         set => SetValue(FontFamilyProperty, value);
+    }
+
+    public double ScaleX
+    {
+        get => (double)GetValue(ScaleXProperty);
+        set => SetValue(ScaleXProperty, value);
+    }
+
+    public double ScaleY
+    {
+        get => (double)GetValue(ScaleYProperty);
+        set => SetValue(ScaleYProperty, value);
     }
 }

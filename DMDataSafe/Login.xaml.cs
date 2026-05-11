@@ -746,6 +746,8 @@ public partial class Login : ContentPage
         App.Session.AppCodeOdoo = "03";
         App.Session.AppMobileId = 3;
 
+        DMSA.Sync.Core.Constants.Session = App.Session;
+
         if (DeviceInfo.Platform == DevicePlatform.Android)
         {
             App.Session.AppVersion = AppInfo.Current.VersionString + "." + AppInfo.Current.BuildString;

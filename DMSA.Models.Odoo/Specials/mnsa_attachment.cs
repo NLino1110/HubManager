@@ -41,6 +41,17 @@ namespace DMSA.Models.Odoo.Specials
             set => attachment_ids = SetIds(attachment_ids, value);
         }
 
+        [Ignore]
+        public JToken lines_url { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
+        public int[] _lines_url
+        {
+            get => GetIds(lines_url);
+            set => lines_url = SetIds(lines_url, value);
+        }
+
         [Column("create_date")]
         [JsonProperty("create_date")]
         [JsonConverter(typeof(OdooNullableDateTimeConverter))]

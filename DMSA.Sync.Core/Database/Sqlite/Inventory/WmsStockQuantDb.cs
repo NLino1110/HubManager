@@ -29,20 +29,20 @@ namespace DMSA.Sync.Core.Database.Sqlite
             return await GetItemsAsync(x => x._product_id == product_id);
         }
 
-        public async Task UpdateCantidadDisponibleAsync()
-        {
-            await Init();
-            string sql = @"
-                    UPDATE product_product
-                    SET cantidad_disponible = (
-                        SELECT IFNULL(SUM(cantidad_disponible), 0)
-                        FROM wms_stock_quant
-                        WHERE wms_stock_quant._product_id = product_product.id
-                    );
-                ";
+        ////public async Task UpdateCantidadDisponibleAsync()
+        ////{
+        ////    await Init();
+        ////    string sql = @"
+        ////            UPDATE product_product
+        ////            SET cantidad_disponible = (
+        ////                SELECT IFNULL(SUM(cantidad_disponible), 0)
+        ////                FROM wms_stock_quant
+        ////                WHERE wms_stock_quant._product_id = product_product.id
+        ////            );
+        ////        ";
 
-            await Database.ExecuteAsync(sql);
-        }
+        ////    await Database.ExecuteAsync(sql);
+        ////}
 
         public async Task UpdateCantidadDisponibleAsync(int[] wh_ids)
         {

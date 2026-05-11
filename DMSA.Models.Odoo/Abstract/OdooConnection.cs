@@ -22,13 +22,16 @@ namespace DMSA.Models.Odoo.Abstract
 
         [Required]
         [Column("host")]
-        public string Host { get; set; } = string.Empty;  // host de Odoo
+        public string Host { get; set; } = string.Empty;
 
         [Obsolete("")]
         [Required]
         [Column("host_dump")]
         public string HostDump { get; set; } = string.Empty;
-        
+                
+        [Column("host_dump_api_key")]
+        public string HostDumpApiKey { get; set; } = string.Empty;
+
         [Required]
         [Column("host_push")]
         public string HostPush { get; set; } = string.Empty;

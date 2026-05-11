@@ -62,26 +62,6 @@ namespace DMSA.Sync.Core.Services
             data.UserData = await GetUserData();
 
             return data;
-        }        
-
-        //public async Task<ConnectedDevice> GetDeviceDataWithInfoAsync()
-        //{   
-        //    ConnectedDevice device = new ConnectedDevice();
-        //    device.Id = "0";
-        //    device.AppName = AppInfo.Current.Name;
-        //    device.PackageName = AppInfo.Current.PackageName;
-        //    device.VersionString = App.Session.AppVersion;
-        //    device.BuildString = AppInfo.Current.BuildString;
-        //    device.UserData = "";
-        //    device.Idiom = DeviceInfo.Current.Idiom.ToString();
-        //    device.Manufacturer = DeviceInfo.Current.Manufacturer;
-        //    device.DeviceName = DeviceInfo.Current.Name;
-        //    device.OsVersion = DeviceInfo.Current.VersionString;
-        //    device.Platform = DeviceInfo.Current.Platform.ToString();
-        //    device.SerialNumber = "";
-        //    device.Model = DeviceInfo.Current.Model;
-        //    return device;
-        //}
-
+        }
     }
 }

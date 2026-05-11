@@ -38,6 +38,9 @@ namespace DMSA.Models.Odoo.Native
         [JsonProperty("image_1920")]
         public string image_1920 { get; set; }
 
+        [JsonProperty("image_url")]
+        public string image_url { get; set; }
+
         [JsonProperty("create_date")]
         [Column("create_date")]
         public DateTime? create_date { get; set; }

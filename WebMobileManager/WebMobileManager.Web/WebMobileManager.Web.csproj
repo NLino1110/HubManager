@@ -34,6 +34,7 @@
 
   <ItemGroup>
     <Folder Include="Components\Layout\bk\" />
+    <Folder Include="wwwroot\uploads\" />
   </ItemGroup>
 
 </Project>

@@ -118,8 +118,33 @@
                                     <beebtech:TextFieldPasswordShowHideAttachment />
                                 </beebtech:TextField.Attachments>
                             </beebtech:TextField>
+                        <HorizontalStackLayout HorizontalOptions="Center">
+                            <beebtechMaui:CheckBoxEx x:Name="chkRememberme" 
+                                 CheckBoxColor="#D32F2F" 
+                                 TextColor="Black" 
+                                 IsChecked="False"
+                                 LabelText="Recordarme"
+                                 FontSize="12"
+                                 FontAttributes="Bold"
+                                 HorizontalOptions="Center"
+                                ScaleX="1"
+                                ScaleY="1"></beebtechMaui:CheckBoxEx>
 
-                            <Button x:Name="BtnTryLogin"
+                            <beebtechMaui:CheckBoxEx x:Name="chkAutoLogin" 
+                                 CheckBoxColor="#D32F2F" 
+                                 TextColor="Black" 
+                                 IsChecked="False"
+                                 IsEnabled="{Binding Source={x:Reference chkRememberme}, Path=IsChecked}"
+                                 IsVisible="False"
+                                 LabelText="Auto Login"
+                                 FontSize="12"
+                                 FontAttributes="Bold"
+                                 HorizontalOptions="Center"
+                                ScaleX="1"
+                                ScaleY="1"></beebtechMaui:CheckBoxEx>
+                        </HorizontalStackLayout>
+                            
+                        <Button x:Name="BtnTryLogin"
                                     Text="Iniciar sesión"
                                     Clicked="OnLoginClicked"
                                     WidthRequest="250"

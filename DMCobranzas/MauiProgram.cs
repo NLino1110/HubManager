@@ -51,6 +51,8 @@ namespace DMCobranzas
 
             App.Session.AppVersion = AppInfo.Current.VersionString;
             App.Session.SqliteCoreDbName = "_app";
+            App.Session.AppCodeOdoo = "01";
+            App.Session.AppMobileId = 1;
 
             if (DeviceInfo.Platform == DevicePlatform.Android)
             {

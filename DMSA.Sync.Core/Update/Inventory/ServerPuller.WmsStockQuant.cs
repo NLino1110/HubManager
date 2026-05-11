@@ -62,10 +62,15 @@ namespace DMSA.Sync.Core.Update
         {
             var stopwatch = Stopwatch.StartNew();
             var wms_database = new WmsStockQuantDb(Constants.Session.odooConnection.DbNameSqlite);
-            int res_center = Constants.Session.odooConnection.res_center_default;
-            var databaseWhs = new StockWareHouseDb(Constants.Session.odooConnection.DbNameSqlite);
-            var whsList = await databaseWhs.GetDefaultByResCenter(res_center);
-            int[] whsIds = whsList.Select(w => w.id).ToArray();
+            //int res_center = Constants.Session.odooConnection.res_center_default;
+            //var databaseWhs = new StockWareHouseDb(Constants.Session.odooConnection.DbNameSqlite);
+            //var whsList = await databaseWhs.GetDefaultByResCenter(res_center);
+            //int[] whsIds = whsList.Select(w => w.id).ToArray();
+
+            int[] whsIds = (await wms_database.GetItemsAsync(w => w.id > 0))
+                    .Select(w => w._warehouse_id)
+                    .Distinct()
+                    .ToArray();
 
             await wms_database.UpdateCantidadDisponibleAsync(whsIds);
 

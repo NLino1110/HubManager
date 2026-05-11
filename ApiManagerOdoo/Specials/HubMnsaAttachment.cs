@@ -5,8 +5,10 @@ using DMSA.Models.Odoo.Tools;
 using DMSA.Models.Security;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using RestSharp;
 using System.Diagnostics;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace ApiManager
@@ -40,28 +42,6 @@ namespace ApiManager
             };
             return await GetCount(args, _custom_args);
         }
-
-        //public async Task<ApiResponseOdooRpcT<mnsa_attachment[]>?> GetTop5()
-        //{
-        //    string mobile_app_id_code = "00";
-
-        //    mobile_app_id_code = _appSession.AppCodeOdoo;
-
-        //    var kwargs = new
-        //    {
-        //        limit = 5,
-        //        order = "date_data_cutoff desc",
-        //        fields = fields_array
-        //    };
-
-        //    object[] args = new object[] { };
-        //    object[] _custom_args = new object[] {
-        //        new object[] { "file_type", "=", "application/zip" },
-        //        new object[] { "mobile_app_id.code", "=", mobile_app_id_code },                
-        //    };
-
-        //    return await SearchRead<ApiResponseOdooRpcT<mnsa_attachment[]>>(args, _custom_args, kwargs, true);
-        //}
 
         public async Task<ApiResponseOdooRpcT<mnsa_attachment[]>?> GetTop5(string dbNameSqlite)
         {
@@ -151,6 +131,7 @@ namespace ApiManager
             return await Create<ApiResponseOdooRpcT<int>>(args, kwargs);
         }
 
+        [Obsolete("Usar modo2")]
         public async Task<ApiResponseOdooRpcT<bool>?> Link(int parent_id, int attachment_id)
         { 
 
@@ -176,13 +157,43 @@ namespace ApiManager
                         }
                     }
             };
-
-            //var serialized = JsonConvert.SerializeObject(SendObject, settings);
-            //var newJObject = JObject.Parse(serialized);
             
             return await Write<ApiResponseOdooRpcT<bool>>(args, kwargs, _modelname);
         }
 
+        public async Task<ApiResponseOdooRpcT<bool>?> LinkMode2(int parent_id, int attachment_id)
+        {
+
+            var settings = new JsonSerializerSettings
+            {
+                DateFormatString = "yyyy-MM-dd HH:mm:ss",
+                //ContractResolver = new IncludeJsonIgnoreResolver(new string[] { "was_odoo_synced", "lines" })
+            };
+
+            var kwargs = new { };
+
+            object[] args = new object[]
+            {
+                    new object[] { parent_id },
+                    new Dictionary<string, object>
+                    {
+                        {
+                            "lines_url",
+                            new object[]
+                            {
+                                new object[] { 4, attachment_id }
+                            }
+                        }
+                    }
+            };
+
+            //var serialized = JsonConvert.SerializeObject(SendObject, settings);
+            //var newJObject = JObject.Parse(serialized);
+
+            return await Write<ApiResponseOdooRpcT<bool>>(args, kwargs, _modelname);
+        }
+
+        [Obsolete("Usar modo2")]
         public async Task<ApiResponseOdooRpcT<int>?> SendAttachment(ir_attachment SendObject)
         {
             var kwargs = new { };
@@ -209,6 +220,80 @@ namespace ApiManager
             return await Create<ApiResponseOdooRpcT<int>>(args, kwargs, "ir.attachment");
         }
 
+        public async Task<ApiResponseOdooRpcT<int>?> SendAttachmentMode2(mnsa_attachment_line SendObject)
+        {
+            var uploadResponse = await SendToExternalServer(SendObject.file_bytes, SendObject.file_name);
+
+            if(uploadResponse == null)
+                return null;
+
+            SendObject.total_file_size_expected = SendObject.file_bytes.Length;
+            SendObject.url = uploadResponse.url;
+            SendObject.success_upload = true;
+
+            var kwargs = new { };
+
+            var settings = new JsonSerializerSettings
+            {
+                DateFormatString = "yyyy-MM-dd HH:mm:ss",
+                //ContractResolver = new IncludeJsonIgnoreResolver(new string[] { "was_odoo_synced", "lines" })
+            };
+
+            var serialized = JsonConvert.SerializeObject(SendObject, settings);
+
+            var newJObject = JObject.Parse(serialized);
+
+            JObjectExtensions.RemoveProperty(newJObject, "name");
+            JObjectExtensions.RemoveProperty(newJObject, "file_bytes");
+            JObjectExtensions.RemoveProperty(newJObject, "package_id");
+
+            object[] args = new object[] { newJObject };
+            var responseCreate = await Create<ApiResponseOdooRpcT<int>>(args, kwargs, "mnsa.attachment.line");
+
+            return responseCreate;
+        }
+
+        public class responseUpload
+        {
+            public string url { get; set; }
+        }
+
+        public async Task<responseUpload?> SendToExternalServer(byte[] fileBytes, string filename)
+        {
+            var handler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+            };
+
+            using var httpClient = new HttpClient(handler);
+
+            httpClient.DefaultRequestHeaders.Add("X-API-KEY", _appSession.odooConnection.HostDumpApiKey);
+
+            using var content = new MultipartFormDataContent();
+
+            var fileContent = new ByteArrayContent(fileBytes);
+            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/zip");
+
+            content.Add(fileContent, "file", $"{filename}.zip");
+            content.Add(new StringContent(filename), "fileName");
+
+            var response = await httpClient.PostAsync($"{_appSession.odooConnection.HostDump}api/upload/zip", content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Error subiendo ZIP: {error}");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            var responseData = JsonConvert.DeserializeObject<responseUpload>(json);
+
+            return responseData;
+        }
+
+
+        [Obsolete("Usar modo2")]
         public async Task<byte[]> DownloadFileAsync(int recordId)
         {
             try
@@ -226,6 +311,24 @@ namespace ApiManager
             }
         }
 
+        public async Task<byte[]> DownloadFileMode2Async(int recordId)
+        {
+            try
+            {
+                string url = $"/web/content/{recordId}?download=true";
+
+                byte[] fileContent = await GetRawBytes(url);
+
+                return fileContent;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                return Array.Empty<byte>();
+            }
+        }
+
+        [Obsolete("Ya no usado")]
         public async Task<byte[]> DownloadFileAsync1(int recordId, string downloadFileName)
         {
             //_appSession = _setAppSession;

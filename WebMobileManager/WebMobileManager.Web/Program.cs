@@ -50,6 +50,8 @@ builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 builder.Services.AddAuthorizationCore();
 
+builder.Services.AddControllers();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -69,8 +71,11 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+app.MapControllers();
 app.MapDefaultEndpoints();
 
 app.MapHub<ChatHub>("/chatHub");
+
+app.UseStaticFiles();
 
 app.Run();

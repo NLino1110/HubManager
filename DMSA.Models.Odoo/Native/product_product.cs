@@ -96,6 +96,11 @@ namespace DMSA.Models.Odoo.Native
         [JsonProperty("type")]
         public string type { get; set; }
 
+
+        [JsonProperty("image_url")]
+        public string? image_url { get; set; }
+
+
         [Ignore]
         [JsonProperty("categ_id")]
         public JToken categ_id { get; set; }

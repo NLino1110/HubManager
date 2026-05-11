@@ -40,10 +40,6 @@ namespace DMSA.Sync.Core.Update
 
                 Console.WriteLine("Página:" + indice);
 
-                //TODO: Se fuerza la salida para que no se quede ciclado en caso de que haya
-                // problemas de conexion con el servidor
-                // el objetivo es que el servidor no se sobrecargue
-
                 if (indice >= maxIndexExceeded)
                 {
                     Console.WriteLine("Página " + indice + ": Se terminará el proceso.");
@@ -77,7 +73,6 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
 
-            //int countTotal = resultCount.result / 300;
             int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
 
             for (int indice = 0; indice <= totalPages; indice++)
@@ -133,9 +128,10 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
 
-            int countTotal = resultCount.result / 300;
+            //int countTotal = resultCount.result / 300;
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
 
-            for (int indice = 0; indice <= countTotal; indice++)
+            for (int indice = 0; indice <= totalPages; indice++)
             {
                 var responseAll = await hubmanager.GetByWriteOnlyImage(limit, indice, lastDate.Value);
 
@@ -144,7 +140,7 @@ namespace DMSA.Sync.Core.Update
                     await database.UpdateImagesBatchAsync(responseAll.result.ToList());                    
                 }
 
-                Console.WriteLine("ProductOnlyImages Página:" + indice + " de " + countTotal);
+                Console.WriteLine("ProductOnlyImages Página:" + indice + " de " + totalPages);
 
                 if (indice >= maxIndexExceeded)
                 {
@@ -161,6 +157,7 @@ namespace DMSA.Sync.Core.Update
             return true;
         }
 
+        [Obsolete("Excluido por ahora")]
         public async Task<bool> OnlineSyncProductProductOnlyImagesV2(bool fullUpdate, Func<int, int, Task>? onProgress = null)
         {
             var databaseImages = new ProductProductPreviewDb(Constants.Session.odooConnection.DbNameSqliteStatic);
@@ -223,6 +220,105 @@ namespace DMSA.Sync.Core.Update
             return true;
         }
 
+        public async Task<bool> OnlineSyncProductProductOnlyImagesUrl(bool fullUpdate, Func<int, int, Task>? onProgress = null)
+        {
+            var databaseImages = new ProductProductPreviewDb(Constants.Session.odooConnection.DbNameSqliteStatic);
+            if (fullUpdate)
+            {
+                await databaseImages.DeleteAllAsync(x => x.id > 0);                
+            }
+
+            var stopwatch = Stopwatch.StartNew();
+
+            DateTime dateEnd = DateTime.Now;
+
+            ApiManager.HubProductProduct hubmanager = new ApiManager.HubProductProduct(appSession);
+            DateTime? lastDate = await databaseImages.GetLastWriteDateAsync(sync_date_since_lower);
+
+            var resultCount = await hubmanager.GetCountOnlyImageUrl(lastDate);
+
+            Debug.WriteLine(resultCount.result);
+
+            if (resultCount.result == 0)
+            {
+                return false;
+            }
+                        
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
+
+            for (int indice = 0; indice <= totalPages; indice++)
+            {
+                var responseAll = await hubmanager.GetByWriteOnlyImageUrl(limit, indice, lastDate.Value);
+
+                if (responseAll != null && responseAll.result != null && responseAll.result.Length > 0)
+                {
+                    foreach (var item in responseAll.result)
+                    {                        
+                        string image_1920 = string.Empty;
+                        string image_256 = string.Empty;
+                        // Construir la URL de la imagen utilizando image_url
+                        // se descarga para guardarlo en base64
+                        if (!string.IsNullOrEmpty(item.image_url))
+                        {
+                            try
+                            {
+                                var handler = new HttpClientHandler
+                                {
+                                    ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+                                };
+
+                                using var httpClient = new HttpClient(handler);
+
+                                var imageBytes = await httpClient.GetByteArrayAsync(item.image_url);
+                                                                
+                                image_1920 = Convert.ToBase64String(imageBytes);
+                                
+                                using var inputStream = new MemoryStream(imageBytes);
+                                using var image = Microsoft.Maui.Graphics.Platform.PlatformImage.FromStream(inputStream);
+
+                                int newWidth = 256;
+                                int newHeight = (int)(image.Height * (256.0 / image.Width));
+
+                                using var resizedImage = image.Resize(newWidth, newHeight);
+
+                                using var outputStream = new MemoryStream();
+                                resizedImage.Save(outputStream, Microsoft.Maui.Graphics.ImageFormat.Jpeg);
+
+                                image_256 = Convert.ToBase64String(outputStream.ToArray());
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Error procesando imagen: {item.image_url} - {ex.Message}");
+                            }
+                        }
+
+                        item.image_256 = image_256;
+                        item.image_1920 = image_1920;
+                    }
+
+                    await databaseImages.InsertBatchAsync(responseAll.result);
+                }
+
+                Debug.WriteLine("ProductOnlyImagesUrl Página:" + indice + " de " + totalPages);
+
+                if (onProgress != null)
+                    await onProgress(indice, totalPages);
+
+                if (indice >= maxIndexExceeded)
+                {
+                    Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
+                    break;
+                }
+            }
+
+            stopwatch.Stop();
+
+            Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+                stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
+            return true;
+        }
+
         public async Task<bool> ProductMarca(Func<int, int, Task>? onProgress = null)
         {
             var stopwatch = Stopwatch.StartNew();
@@ -238,9 +334,10 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
 
-            int countTotal = resultCount.result / 300;
-            
-            for (int indice = 0; indice <= countTotal; indice++)
+            //int countTotal = resultCount.result / 300;
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
+
+            for (int indice = 0; indice <= totalPages; indice++)
             {
                 var responseAll = await hubmanager.GetItems(lastDate.Value, limit, indice);
 
@@ -252,7 +349,7 @@ namespace DMSA.Sync.Core.Update
                 Console.WriteLine("ProductMarca Página:" + indice);
 
                 if (onProgress != null)
-                    await onProgress(indice, countTotal);
+                    await onProgress(indice, totalPages);
 
                 if (indice >= maxIndexExceeded)
                 {

@@ -92,12 +92,12 @@
                             <material:TextField Title="Username" BorderThickness="0.4" Text="{Binding SelectedConnection.Username}" Grid.Row="3" Grid.Column="1"/>
                             <material:TextField Title="Password" BorderThickness="0.4" Text="{Binding SelectedConnection.Password}" Grid.Row="4" Grid.Column="1"/>-->
 
-
                             <!-- Columna 1 -->
                             <controlsUI:TitledEntryLight Title="Nombre" Text="{Binding SelectedConnection.Name}" Grid.Row="0" Grid.Column="0"></controlsUI:TitledEntryLight>
                             <controlsUI:TitledEntryLight Title="Host" Text="{Binding SelectedConnection.Host}" Grid.Row="1" Grid.Column="0"></controlsUI:TitledEntryLight>
                             <controlsUI:TitledEntryLight Title="Host Dump" Text="{Binding SelectedConnection.HostDump}" Grid.Row="2" Grid.Column="0"></controlsUI:TitledEntryLight>
-                            <controlsUI:TitledEntryLight Title="Dump Service" Text="{Binding SelectedConnection.DumpService}" Grid.Row="3" Grid.Column="0"></controlsUI:TitledEntryLight>
+                            <controlsUI:TitledEntryLight Title="Host Dump ApiKey" Text="{Binding SelectedConnection.HostDumpApiKey}" Grid.Row="3" Grid.Column="0" IsPassword="True"></controlsUI:TitledEntryLight>
+                            <controlsUI:TitledEntryLight Title="Dump Service" Text="{Binding SelectedConnection.DumpService}" Grid.Row="5" Grid.Column="0" IsVisible="False"></controlsUI:TitledEntryLight>
 
                             <HorizontalStackLayout Grid.Row="4" Grid.Column="0" HorizontalOptions="Fill" Spacing="5">
                                 <controlsUI:TitledEntryLight Title="Prefix" Text="{Binding SelectedConnection.prefix_db}" MinimumWidthRequest="100"/>

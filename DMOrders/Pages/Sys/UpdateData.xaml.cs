@@ -285,10 +285,16 @@ public partial class UpdateData : ContentPage
 
         Pipeline pipeline = new Pipeline();        
         progressBarPage.SetTitle("Descargando paquete...");
-        await pipeline.DownloadFromFile(App.Session.odooConnection.DbNameSqliteStatic, null, App.Session.odooConnection.DbNameSqlite);
+        //await pipeline.DownloadFromFile(App.Session.odooConnection.DbNameSqliteStatic, null, App.Session.odooConnection.DbNameSqlite);
+        await pipeline.DownloadFromFileMode2(App.Session.odooConnection.DbNameSqliteStatic, null, App.Session.odooConnection.DbNameSqlite);
+
         progressBarPage.SetTitle("Descargando en línea...");
-        await serverPuller.OnlineSyncProductProductOnlyImagesV2(true, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Catálogo"); });
-        await pipeline.UploadToFile(App.Session.odooConnection.DbNameSqliteStatic, App.Session.odooConnection.DbNameSqlite);
+
+        //await serverPuller.OnlineSyncProductProductOnlyImagesV2(true, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Catálogo"); });
+        await serverPuller.OnlineSyncProductProductOnlyImagesUrl(true, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Catálogo"); });
+
+        //await pipeline.UploadToFile(App.Session.odooConnection.DbNameSqliteStatic, App.Session.odooConnection.DbNameSqlite);
+        await pipeline.UploadToFileMode2(App.Session.odooConnection.DbNameSqliteStatic, App.Session.odooConnection.DbNameSqlite);
 
         progressBarPage.SetTotalPercent(1);
         progressBarPage.SetTitle("Finalizado...");
@@ -370,10 +376,15 @@ public partial class UpdateData : ContentPage
         if (sizeDB < 100)
         {
             //await SqliteDbBase<object>.CloseDatabaseAsync();
-            await pipeline.DownloadFromFile(App.Session.odooConnection.DbNameSqliteStatic, tmpExists, App.Session.odooConnection.DbNameSqlite);
+            //await pipeline.DownloadFromFile(App.Session.odooConnection.DbNameSqliteStatic, tmpExists, App.Session.odooConnection.DbNameSqlite);
+            await pipeline.DownloadFromFileMode2(App.Session.odooConnection.DbNameSqliteStatic, tmpExists, App.Session.odooConnection.DbNameSqlite);
+
         }
-        await serverPuller.OnlineSyncProductProductOnlyImagesV2(false, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Catálogo"); });
-        await pipeline.UploadToFile(App.Session.odooConnection.DbNameSqliteStatic, App.Session.odooConnection.DbNameSqlite);
+        //await serverPuller.OnlineSyncProductProductOnlyImagesV2(false, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Catálogo"); });
+        await serverPuller.OnlineSyncProductProductOnlyImagesUrl(false, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Catálogo"); });
+
+        //await pipeline.UploadToFile(App.Session.odooConnection.DbNameSqliteStatic, App.Session.odooConnection.DbNameSqlite);
+        await pipeline.UploadToFileMode2(App.Session.odooConnection.DbNameSqliteStatic, App.Session.odooConnection.DbNameSqlite);
 
         progressBarPage.SetTotalPercent(1);
         progressBarPage.SetTitle("Finalizado...");
@@ -408,14 +419,14 @@ public partial class UpdateData : ContentPage
     private async Task LaunchOnlineUpdate(ProgressBarPage progressBarPage)
     {
         if (chkGroup1.IsChecked)
-        {
+        {            
             await serverPuller.PullPromotions();
         }
         
         progressBarPage.SetTotalPercent(0.30);
 
         if (chkGroup2.IsChecked)
-        {
+        {            
             await serverPuller.ProductMarca(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Marca"); });
             await serverPuller.OnlineSyncCategoria();
             await serverPuller.OnlineSyncSubcategoria();
@@ -433,6 +444,7 @@ public partial class UpdateData : ContentPage
 
         if(chkGroup4.IsChecked)
         {
+            await serverPuller.OnlineSyncProductProductNoImage(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Productos"); });
             await serverPuller.OnlineSyncProductPricelist();
             await serverPuller.OnlineSyncProductPricelistItem(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Lista de precios"); });            
             await serverPuller.OnlineAccountTaxes();
@@ -456,7 +468,7 @@ public partial class UpdateData : ContentPage
 
         if (chkGroup7.IsChecked)
         {
-            await serverPuller.OnlineSyncProductProductNoImage(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Productos"); });
+            
         }
 
         //////Pipeline pipeline = new Pipeline();

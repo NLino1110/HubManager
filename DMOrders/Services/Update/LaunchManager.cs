@@ -153,6 +153,8 @@ namespace DMOrders.Services.Update
 
         private async Task<bool> ExecutePipeline()
         {
+            await SafeExecute(() => serverPuller.OnlineSyncProductProductNoImage(async (current, total) => { await UpdateProgressState(current, total, "Prod."); }), "Product");
+
             await SafeExecute(() => serverPuller.PullPromotions(async (current, total) => { await UpdateProgressState(current, total, "Promociones"); }), "Promotions");
             await SafeExecute(() => serverPuller.ProductMarca(async (current, total) => { await UpdateProgressState(current, total, "Marcas"); }), "ProductMarca");
             await SafeExecute(() => serverPuller.OnlineSyncCategoria(async (current, total) => { await UpdateProgressState(current, total, "Cat. Prod."); }), "Categoria");
@@ -167,8 +169,6 @@ namespace DMOrders.Services.Update
             await SafeExecute(() => serverPuller.OnlineAccountTaxes(async (current, total) => { await UpdateProgressState(current, total, "Taxes"); }), "Taxes");
 
             await ExecuteCriticalStockBlock();
-
-            await SafeExecute(() => serverPuller.OnlineSyncProductProductNoImage(async (current, total) => { await UpdateProgressState(current, total, "Prod."); }), "Product");
             await SafeExecute(() => serverPuller.SyncSaleOrders(), "SaleOrders");
 
             return true;

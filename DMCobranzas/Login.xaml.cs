@@ -17,6 +17,7 @@ using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite.Accounting;
 using DMSA.Sync.Core.Services;
 using DMSA.Sync.Core.Update;
+using Newtonsoft.Json;
 using System.Buffers;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -174,24 +175,24 @@ public partial class Login : ContentPage
 #endif
         }
 
-        if (App.Session.odooConnection.preload_email_domain)
-        {
-            txtUser.Text = "@" + App.Session.odooConnection.email_domain;
-        }
+        //if (App.Session.odooConnection.preload_email_domain)
+        //{
+        //    txtUser.Text = "@" + App.Session.odooConnection.email_domain;
+        //}
 
-        if (App.Session.odooConnection.IsTestMode)
-        {
-            txtUser.Text = "dvaldez@macronegocios.ec";
-            txtPassword.Text = App.Session.odooConnection.PasswordFront;
-        }
-        else
-        {
-            if (!App.Session.odooConnection.preload_email_domain)
-            {
-                txtUser.Text = "";
-                txtPassword.Text = "";
-            }
-        }
+        //if (App.Session.odooConnection.IsTestMode)
+        //{
+        //    txtUser.Text = "dvaldez@macronegocios.ec";
+        //    txtPassword.Text = App.Session.odooConnection.PasswordFront;
+        //}
+        //else
+        //{
+        //    if (!App.Session.odooConnection.preload_email_domain)
+        //    {
+        //        txtUser.Text = "";
+        //        txtPassword.Text = "";
+        //    }
+        //}
 
         Debug.WriteLine(txtEnvironment.Text);
         Debug.WriteLine(lblAppVersion.Text);
@@ -521,8 +522,9 @@ public partial class Login : ContentPage
     {
         if (ddCompany.SelectedItem != null && ddAgency.SelectedItem != null)
         {
-            App.Session.res_Company = SelCompany;            
+            App.Session.res_Company = SelCompany;
             App.Session.res_center = (res_center)ddAgency.SelectedItem;
+            SaveSession(chkRememberme.IsChecked, chkAutoLogin.IsChecked);
             App.Current.MainPage = new AppFlyout();
         }
     }
@@ -815,13 +817,99 @@ public partial class Login : ContentPage
         await Navigation.PushModalAsync(objPage);
     }
 
+    public void SaveSession(bool rememberMe, bool autologin)
+    {
+        Preferences.Set("is_rememberme", rememberMe);
+        Preferences.Set("is_autologin", autologin);
+
+        if (!rememberMe)
+        {
+            Preferences.Remove("App.Session");
+            return;
+        }
+
+        if (App.Session == null)
+            return;
+
+        try
+        {
+            var sessionSerialized = JsonConvert.SerializeObject(App.Session);
+            Preferences.Set("App.Session", sessionSerialized);
+        }
+        catch
+        {
+
+        }
+    }
+
+    public void LoadSession()
+    {
+        try
+        {
+            var rememberMe = Preferences.Get("is_rememberme", false);
+            var autologin = Preferences.Get("is_autologin", false);
+
+            if (!rememberMe)
+            {
+                //App.Session = null;
+                return;
+            }
+
+            string appSession = Preferences.Get("App.Session", string.Empty);
+
+            if (string.IsNullOrEmpty(appSession))
+            {
+                //App.Session = null;
+                return;
+            }
+
+            var LoadedSession = JsonConvert.DeserializeObject<AppSession>(appSession);
+
+            chkRememberme.IsChecked = rememberMe;
+            txtUser.Text = LoadedSession.CurrentUserFront?.username ?? string.Empty;
+            txtPassword.Text = LoadedSession.CurrentUserFront != null ? CryptoHelper.Decrypt(LoadedSession.CurrentUserFront.password) : string.Empty;
+
+            if (!autologin)
+            {
+                return;
+            }
+
+            App.Session = LoadedSession;
+            App.Current.MainPage = new AppFlyout();
+        }
+        catch
+        {
+            Preferences.Remove("App.Session");
+            App.Session = null;
+        }
+    }
+
+    public void ClearSession()
+    {
+        //Preferences.Remove("App.Session");
+        //Preferences.Set("is_rememberme", false);
+        //Preferences.Set("is_autologin", false);
+        //App.Session = null;
+
+        App.Session = new AppSession();
+        App.Session.AppVersion = AppInfo.Current.VersionString;
+        App.Session.SqliteCoreDbName = "_app";
+        App.Session.AppCodeOdoo = "01";
+        App.Session.AppMobileId = 1;
+
+        if (DeviceInfo.Platform == DevicePlatform.Android)
+        {
+            App.Session.AppVersion = AppInfo.Current.VersionString + "." + AppInfo.Current.BuildString;
+        }
+    }
+
     private void btnAccess_Clicked(object sender, EventArgs e)
     {
         if(ddCompany.SelectedItem != null && ddAgency.SelectedItem != null)
         {
             App.Session.res_Company = SelCompany;
-            //App.Session.res_Store = (res_store) ddAgency.SelectedItem;
-            App.Session.res_center = (res_center) ddAgency.SelectedItem;            
+            App.Session.res_center = (res_center) ddAgency.SelectedItem;
+            SaveSession(chkRememberme.IsChecked, chkAutoLogin.IsChecked);
             App.Current.MainPage = new AppFlyout();
         }
     }
@@ -838,6 +926,7 @@ public partial class Login : ContentPage
         {
             Dispatcher.Dispatch(async () =>
             {
+                LoadSession();
                 await SetupLogin();
             });
 
@@ -847,7 +936,7 @@ public partial class Login : ContentPage
         {
             // Esto ocurre cada vez que vuelvas a la página
             Console.WriteLine("La página ya apareció antes.");
-        }        
+        }
     }
 
     private async void DragGestureRecognizer_DragStarting(object sender, DragStartingEventArgs e)

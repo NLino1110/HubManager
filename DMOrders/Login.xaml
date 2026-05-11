@@ -5,6 +5,7 @@
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
     xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+    xmlns:controls="clr-namespace:BeebTech.Maui.Controls;assembly=BeebTech.Maui.Controls"
     xmlns:DMOrders="clr-namespace:DMOrders"
     x:Class="DMOrders.Login"
     Title="Cobranzas Login"
@@ -101,6 +102,32 @@
                                     <material:TextFieldPasswordShowHideAttachment />
                                 </material:TextField.Attachments>
                             </material:TextField>
+
+                            <HorizontalStackLayout HorizontalOptions="Center">
+                                <controls:CheckBoxEx x:Name="chkRememberme" 
+                                     CheckBoxColor="#D32F2F" 
+                                     TextColor="Black" 
+                                     IsChecked="False"
+                                     LabelText="Recordarme"
+                                     FontSize="12"
+                                     FontAttributes="Bold"
+                                     HorizontalOptions="Center"
+                                    ScaleX="1"
+                                    ScaleY="1"></controls:CheckBoxEx>
+
+                                <controls:CheckBoxEx x:Name="chkAutoLogin" 
+                                     CheckBoxColor="#D32F2F" 
+                                     TextColor="Black" 
+                                     IsChecked="False"
+                                     IsEnabled="{Binding Source={x:Reference chkRememberme}, Path=IsChecked}"
+                                     IsVisible="False"
+                                     LabelText="Auto Login"
+                                     FontSize="12"
+                                     FontAttributes="Bold"
+                                     HorizontalOptions="Center"
+                                    ScaleX="1"
+                                    ScaleY="1"></controls:CheckBoxEx>
+                            </HorizontalStackLayout>
 
                             <Button x:Name="BtnTryLogin"
                                     Text="Iniciar sesión"

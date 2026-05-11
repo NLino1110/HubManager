@@ -144,6 +144,8 @@ public partial class CatalogViewerInner : ContentView
         }
     }
 
+    public res_company CurrentCompany { get; set; }
+
     public int CurrentViewMode => viewModesList.ElementAtOrDefault(ViewModesListSelectedIndex)?.id ?? 1;
 
     private ObservableCollection<product_product> _itemsData;
@@ -338,6 +340,8 @@ public partial class CatalogViewerInner : ContentView
 
     public void Setup()
     {
+        CurrentCompany = App.Session.res_Company;
+
         _db = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
         InitViewModes();
         RefreshCommand = new Command(async () => await CmdRefresh());

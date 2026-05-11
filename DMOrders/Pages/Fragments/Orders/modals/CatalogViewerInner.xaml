@@ -144,15 +144,27 @@
                         Glyph="&#xf060;" />
                 </Button.ImageSource>
             </Button>
-            <Label Grid.Row="0" Grid.Column="1" Margin="-60,0,0,0"
-                   Text="Seleccione Productos para pedido" 
-                   TextColor="WhiteSmoke" 
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center"
-                   VerticalOptions="Center">
-            </Label>
+
+            <HorizontalStackLayout Grid.Row="0" Grid.Column="1">
+                <Label Margin="0,0,0,0"
+                       Text="{Binding CurrentCompany.name}" 
+                       TextColor="WhiteSmoke" 
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center">
+                </Label>
+
+                <Label Margin="20,0,0,0"
+                       Text="Seleccione Productos para pedido" 
+                       TextColor="WhiteSmoke" 
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center">
+                </Label>
+            </HorizontalStackLayout>
+
             <Button Grid.Row="0" Text="" 
-                Grid.Column="2" 
+                Grid.Column="3" 
                 TextColor="GhostWhite"
                 BackgroundColor="Transparent"
                 Clicked="OnCloseClicked">

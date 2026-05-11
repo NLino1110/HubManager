@@ -266,13 +266,17 @@ public partial class MainPageTab : ContentPage
 
             await Task.Delay(50);
 
-            window.Page = new Login();
+            var loginPage = new Login();
+            loginPage.ClearSession();
+            window.Page = loginPage;
         });
     }
 
     private async Task ViewCell_Tapped_Exit()
     {
-        App.Current.Windows[0].Page = new Login();
+        var loginPage = new Login();
+        loginPage.ClearSession();
+        App.Current.Windows[0].Page = loginPage;
     }
 
     private async void ShowSettings(object sender, EventArgs e)
