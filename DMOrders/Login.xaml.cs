@@ -57,6 +57,13 @@ public partial class Login : ContentPage
     }
 
     [RelayCommand]
+    private async void Capture()
+    {
+        CaptureScreen capturePage = new CaptureScreen();
+        await Navigation.PushModalAsync(capturePage);
+    }
+
+    [RelayCommand]
     private async void ShowConnections()
     {
         Connections objPage = new Connections();

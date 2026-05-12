@@ -136,6 +136,7 @@
 	  <Compile Remove="Pages\Fragments\Product\DetailsViewModel.cs" />
 	  <Compile Remove="Pages\Sys\ConnectionForm.xaml.cs" />
 	  <Compile Remove="Pages\Sys\UpdateData.xaml.Static.cs" />
+	  <Compile Remove="Pages\Sys\Views\CameraViewViewModel.cs" />
 	  <Compile Remove="Services\Promotions\bk\PromotionEngineLite.cs" />
 	  <Compile Remove="Services\Promotions\bk\PromotionEngineLite.Fixed.cs" />
 	  <Compile Remove="Services\PushRelay.cs" />
@@ -170,7 +171,8 @@
 	</ItemGroup>
 
 	<ItemGroup>		
-        <PackageReference Include="CommunityToolkit.Maui" Version="14.1.0" />
+        <PackageReference Include="CommunityToolkit.Maui" Version="14.1.0" />		
+        <PackageReference Include="CommunityToolkit.Maui.Camera" Version="6.0.1" />
         <PackageReference Include="CommunityToolkit.Maui.Core" Version="14.1.0" />
         <PackageReference Include="CommunityToolkit.Maui.Markup" Version="7.0.1" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
@@ -348,6 +350,9 @@
 	  <MauiXaml Update="Pages\Sys\About.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Pages\Sys\CaptureScreen.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Pages\Sys\Connections.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -367,6 +372,7 @@
 
 	<ItemGroup>
 	  <Folder Include="Pages\Fragments\Orders\modals\bk\" />
+	  <Folder Include="Pages\Sys\Views\" />
 	  <Folder Include="Services\Promotions\bk\" />
 	  <Folder Include="ViewModels\DataGrid\" />
 	</ItemGroup>

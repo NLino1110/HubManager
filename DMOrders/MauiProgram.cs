@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Maui;
+using CommunityToolkit.Maui.Markup;
 using DMOrders.Services;
 using DMOrders.Services.Update;
 using DMSA.Models.Security;
@@ -41,6 +42,8 @@ namespace DMOrders
                 .UseMauiCommunityToolkit(options => {
                     options.SetShouldEnableSnackbarOnWindows(true);
                 })
+                .UseMauiCommunityToolkitMarkup()
+                .UseMauiCommunityToolkitCamera()
                 .UseUraniumUI()
                 .UseUraniumUIMaterial();
 

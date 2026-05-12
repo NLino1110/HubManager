@@ -350,6 +350,7 @@ namespace DMCobranzas.Services.Templates
                 if (line.Type == "transfer")
                 {                    
                     r.Columns($" Cta. {line.AccNumber}",$"Dp# {line.Circular}");
+                    r.Line($" {bank_name}");
                 }
 
                 if (line.Type == "deposito")
