@@ -204,6 +204,20 @@ namespace DMSA.Sync.Core.Update
 
                 if (responseAll != null && responseAll.result != null && responseAll.result.Length > 0)
                 {
+                    var itemsConCero = responseAll.result
+                        .Where(x => x._product_pricelist_id == 0)
+                        .ToList();
+
+                    if (itemsConCero.Any())
+                    {
+                        Debug.WriteLine($"Se encontraron {itemsConCero.Count} items con _product_pricelist_id = 0");
+
+                        foreach (var item in itemsConCero)
+                        {
+                            Debug.WriteLine($"Item ID: {item.id} - {item.name}");
+                        }
+                    }
+
                     await database.InsertBatchAsync(responseAll.result);
                     //await database.InsertBatchControlAsync(responseAll.result);
                 }

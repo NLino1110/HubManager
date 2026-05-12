@@ -16,8 +16,7 @@ namespace DMCobranzas.Controls.Modals.TabbedPages;
 
 [XamlCompilation(XamlCompilationOptions.Compile)]
 public partial class AccountPaymentView : ContentPage
-{
-    private int subclasificacion_gasto_id_default = 73;
+{    
     public bool ClosingSaved { get; set; } = false;
     public res_company Sel_Company_Id { get; set; }
     public res_partner Sel_Res_Partner { get; set; } 
@@ -372,7 +371,7 @@ public partial class AccountPaymentView : ContentPage
             multipleCobrosInvoice.create_uid = App.Session.CurrentUserFront.uid;
             multipleCobrosInvoice.user_id = App.Session.CurrentUserFront.uid;
             multipleCobrosInvoice.center_id = App.Session.odooConnection.res_center_default;
-            multipleCobrosInvoice.subclasificacion_gasto_id = subclasificacion_gasto_id_default;
+            multipleCobrosInvoice.subclasificacion_gasto_id = App.Session.odooConnection.subclasificacion_gasto_default;
 
             multipleCobrosInvoice.partner_id = Sel_MultipleCobrosInvoice.partner_id;
             multipleCobrosInvoice.partner_name = Sel_MultipleCobrosInvoice.partner_name;
@@ -458,7 +457,7 @@ public partial class AccountPaymentView : ContentPage
             multipleCobrosInvoice.create_uid = App.Session.CurrentUserFront.uid;
             multipleCobrosInvoice.user_id = App.Session.CurrentUserFront.uid;
             multipleCobrosInvoice.center_id = App.Session.odooConnection.res_center_default;
-            multipleCobrosInvoice.subclasificacion_gasto_id = subclasificacion_gasto_id_default;
+            multipleCobrosInvoice.subclasificacion_gasto_id = App.Session.odooConnection.subclasificacion_gasto_default;
 
             multipleCobrosInvoice.amount = (float) totalPagado; //.ToString(App.Session.ApplicationCultureInfo);
             multipleCobrosInvoice.total_due = (float) Sel_Res_Partner.total_due;

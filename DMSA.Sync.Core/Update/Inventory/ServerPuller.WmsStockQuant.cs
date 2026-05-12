@@ -72,6 +72,12 @@ namespace DMSA.Sync.Core.Update
                     .Distinct()
                     .ToArray();
 
+            if(whsIds.Length == 0)
+            {
+                Debug.WriteLine("Verificar Bodega [0] - bodegas para actualizar stock en producto");
+                return false;
+            }
+
             await wms_database.UpdateCantidadDisponibleAsync(whsIds);
 
             stopwatch.Stop();

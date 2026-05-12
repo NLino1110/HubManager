@@ -124,7 +124,10 @@ namespace DMSA.Models.Odoo.Abstract
         public int project_id { get; set; }
         [Column("parent_id")]
         public int parent_id { get; set; }
-                
+
+        [Column("subclasificacion_gasto_default")]
+        public int subclasificacion_gasto_default { get; set; }
+
         [Column("username_front")]
         public string UsernameFront { get; set; } = string.Empty;
                 
@@ -158,7 +161,8 @@ namespace DMSA.Models.Odoo.Abstract
                 email_domain = "macronegocios.ec",
                 preload_email_domain = true,
                 UsernameFront = "jchonillo",
-                PasswordFront = "Y0.dM3c"
+                PasswordFront = "Y0.dM3c",
+                subclasificacion_gasto_default = 73
             }
             );
 
@@ -183,7 +187,8 @@ namespace DMSA.Models.Odoo.Abstract
                 prefix_db = "dev_",
                 email_domain = "macronegocios.ec",
                 preload_email_domain = true,
-                PasswordFront = "Y0.dM3c"
+                PasswordFront = "Y0.dM3c",
+                subclasificacion_gasto_default = 147
             }
             );
          
@@ -208,7 +213,8 @@ namespace DMSA.Models.Odoo.Abstract
                 prefix_db = "prod1_",
                 email_domain = "macronegocios.ec",
                 preload_email_domain = true,
-                PasswordFront = "Y0.dM3c"
+                PasswordFront = "Y0.dM3c",
+                subclasificacion_gasto_default = 147
             }
             );
 
@@ -233,7 +239,8 @@ namespace DMSA.Models.Odoo.Abstract
                 prefix_db = "prod1_",
                 email_domain = "macronegocios.ec",
                 preload_email_domain = true,
-                PasswordFront = "Y0.dM3c"
+                PasswordFront = "Y0.dM3c",
+                subclasificacion_gasto_default = 73
             }
             );
 

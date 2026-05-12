@@ -49,12 +49,12 @@ namespace DMSA.Sync.Core.Update.Cloud
                 var responseSend = await hub.CreatePackage(mnsaAttachment);
                 int packageId = responseSend.result;
 
-                var parts = SplitFile(zipBytes, MAX_PART_SIZE).ToList();
+                var parts = SplitFile(zipBytes, MAX_PART_SIZE_LONG).ToList();
                 int totalParts = parts.Count;
 
                 for (int i = 0; i < totalParts; i++)
                 {
-                    string partName = $"{dbNameSqlite}.part{i + 1:D2}.zip";
+                    string partName = $"{packageId}_{dbNameSqlite}_part_{(i + 1):D6}.zip";
 
                     var file_upload_response = await hub.SendAttachmentMode2(new mnsa_attachment_line()
                     {
@@ -97,7 +97,7 @@ namespace DMSA.Sync.Core.Update.Cloud
             bool boolResponse = false;
 
             HubMnsaAttachment hubMnsaAttachment = new HubMnsaAttachment(Constants.Session);
-            HubIrAttachment hubIrAttachment = new HubIrAttachment(Constants.Session);
+            HubIrAttachmentLine hubIrAttachmentLine = new HubIrAttachmentLine(Constants.Session);
 
             var top5List = await hubMnsaAttachment.GetTop5(dbNameSqlite);
 
@@ -105,7 +105,7 @@ namespace DMSA.Sync.Core.Update.Cloud
             {
                 var item_first = top5List.result[0];
 
-                var attachmentIds = item_first._attachment_ids
+                var linesUrlIds = item_first._lines_url
                     .OrderBy(id => id)
                     .ToList();
 
@@ -120,25 +120,54 @@ namespace DMSA.Sync.Core.Update.Cloud
                     $"{nameWithoutExt}_{randomSuffix}{ext}"
                 );
 
-                if (attachmentIds.Count == 0)
+                if (linesUrlIds.Count == 0)
                     return false;
+
+                //using (var output = new FileStream(tempZipPath, FileMode.Create, FileAccess.Write))
+                //{
+                //    int total = linesUrlIds.Count;
+                //    int count = 0;
+                //    foreach (var item in linesUrlIds)
+                //    {
+                //        count++;
+                //        Debug.WriteLine("Descargando archivo " + count + " de " + total );
+                //        var ir_attachment_data = await hubIrAttachmentLine.GetItem(item);
+                //        var item_ir = ir_attachment_data.result[0];
+                //        string FullUrl = item_ir.url;
+
+                //        var partBytes = await hubMnsaAttachment.DownloadFileMode2Async(FullUrl);
+                //        await output.WriteAsync(partBytes, 0, partBytes.Length);
+                //    }
+                //}
 
                 using (var output = new FileStream(tempZipPath, FileMode.Create, FileAccess.Write))
                 {
-                    int total = attachmentIds.Count;
+                    int total = linesUrlIds.Count;
                     int count = 0;
-                    foreach (var item in attachmentIds)
+
+                    foreach (var item in linesUrlIds)
                     {
                         count++;
-                        Debug.WriteLine("Descargando archivo " + count + " de " + total );
-                        var ir_attachment_data = await hubIrAttachment.GetItem(item);
-                        var item_ir = ir_attachment_data.result[0];
+                        Debug.WriteLine($"Descargando {count}/{total}");
 
-                        var partBytes = await hubMnsaAttachment.DownloadFileAsync(item);
+                        var ir_attachment_data = await hubIrAttachmentLine.GetItem(item);
+                        var item_ir = ir_attachment_data.result[0];
+                        string FullUrl = item_ir.url;
+
+                        var partBytes = await hubMnsaAttachment.DownloadFileMode2Async(FullUrl);
+
+                        if (partBytes == null || partBytes.Length == 0)
+                        {
+                            Debug.WriteLine($"ERROR: Parte {count} vacía");
+                            return false;
+                        }
+
+                        Debug.WriteLine($"Parte {count}: {partBytes.Length} bytes");
+
                         await output.WriteAsync(partBytes, 0, partBytes.Length);
                     }
                 }
-                
+
                 bool exists = ZipContainsFile(tempZipPath, nameWithoutExt);
 
                 if (exists)

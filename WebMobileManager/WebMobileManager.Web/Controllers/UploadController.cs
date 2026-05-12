@@ -55,14 +55,23 @@ namespace WebMobileManager.Web
             if (string.IsNullOrWhiteSpace(sku))
                 return BadRequest("Debe enviar el SKU");
 
-            var allowedTypes = new[] { "image/jpeg", "image/png" };
+            //var allowedTypes = new[] { "image/jpeg", "image/png" };
+            //if (!allowedTypes.Contains(file.ContentType))
+            //    return BadRequest("Solo se permiten imágenes JPG o PNG");
+
+            //var extension = Path.GetExtension(file.FileName).ToLower();
+
+            //if (extension != ".jpg" && extension != ".jpeg" && extension != ".png")
+            //    return BadRequest("Extensión inválida");
+
+            var allowedTypes = new[] { "image/jpeg" };
             if (!allowedTypes.Contains(file.ContentType))
-                return BadRequest("Solo se permiten imágenes JPG o PNG");
+                return BadRequest("Solo se permiten imágenes JPG (extensión .jpeg)");
 
             var extension = Path.GetExtension(file.FileName).ToLower();
 
-            if (extension != ".jpg" && extension != ".jpeg" && extension != ".png")
-                return BadRequest("Extensión inválida");
+            if (extension != ".jpeg")
+                return BadRequest("Extensión inválida, solo extensión .jpeg permitida");
 
             var folderPath = Path.Combine(_env.WebRootPath, "uploads/images");
             if (!Directory.Exists(folderPath))

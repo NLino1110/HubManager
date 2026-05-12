@@ -49,6 +49,7 @@ namespace DMSA.Sync.Core.Database.Sqlite
             await Init();
 
             var q = Database.Table<product_product>();
+            q = q.Where(x => !x.code.ToLower().StartsWith("t-") && !x.name.ToLower().Contains("tester"));
 
             await PreloadInfoData();
 
@@ -124,7 +125,7 @@ namespace DMSA.Sync.Core.Database.Sqlite
                 q = q.Where(x => x.active == false);
             }
 
-            q.Where(x => x.otras_venta_pedido == true);
+            q = q.Where(x => x.otras_venta_pedido == true);
 
             // --- 3) Orden ---
             q = ApplySort(q, filter_sort);

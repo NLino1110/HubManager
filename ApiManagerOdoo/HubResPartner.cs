@@ -109,22 +109,22 @@ namespace ApiManager
             return await SearchRead<ApiResponseOdooRpcT<res_partner[]>>(args, _custom_args, kwargs, true);
         }
 
-        public async Task<ApiResponseOdooRpcT<res_partner[]>?> GetByCreateDateRange(int limit, int index, DateTime dateIni, DateTime dateEnd)
-        {
-            var kwargs = new
-            {
-                limit = limit,
-                offset = (index * limit),
-                fields = fields_array 
-            };
+        //public async Task<ApiResponseOdooRpcT<res_partner[]>?> GetByCreateDateRange(int limit, int index, DateTime dateIni, DateTime dateEnd)
+        //{
+        //    var kwargs = new
+        //    {
+        //        limit = limit,
+        //        offset = (index * limit),
+        //        fields = fields_array 
+        //    };
 
-            object[] args = new object[] { };
-            object[] _custom_args = new object[] {
-                new object[] {"create_date", ">=", dateIni.ToString("yyyy-MM-dd 00:00:00") },
-                new object[] {"create_date", "<=", dateEnd.ToString("yyyy-MM-dd 23:59:59") },
-            };
-            return await SearchRead<ApiResponseOdooRpcT<res_partner[]>>(args, _custom_args, kwargs, true);
-        }
+        //    object[] args = new object[] { };
+        //    object[] _custom_args = new object[] {
+        //        new object[] {"create_date", ">=", dateIni.ToString("yyyy-MM-dd 00:00:00") },
+        //        new object[] {"create_date", "<=", dateEnd.ToString("yyyy-MM-dd 23:59:59") },
+        //    };
+        //    return await SearchRead<ApiResponseOdooRpcT<res_partner[]>>(args, _custom_args, kwargs, true);
+        //}
 
         public async Task<ApiResponseOdooRpcT<res_partner[]>?> GetByWriteDate(DateTime dateIni, int limit, int index)
         {
@@ -158,86 +158,5 @@ namespace ApiManager
             };
             return await SearchRead<ApiResponseOdooRpcT<res_partner[]>>(args, _custom_args, kwargs, true);
         }
-
-        //public async Task<ApiResponseOdooRpc?> GetCountByCreateDate(int year, int month, int day)
-        //{
-        //    object[] args = new object[] { };
-        //    object[] _custom_args = new object[] {
-        //        new object[] {"create_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
-        //        new object[] {"create_date", "<=", $"{year}-{month:00}-{day:00} 23:59:59" },
-        //    };
-        //    return await GetCount(args, _custom_args);
-        //}
-
-        //public async Task<ApiResponseOdooRpc?> GetCountByWriteDate(int year, int month, int day)
-        //{
-        //    object[] args = new object[] { };
-        //    object[] _custom_args = new object[] {
-        //        new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
-        //    };
-        //    return await GetCount(args, _custom_args);
-        //}
-
-        //public async Task<ApiResponseOdooRpcT<res_partner[]>?> GetByCreateDate(int year, int month, int day)
-        //{
-        //    var kwargs = new
-        //    {
-        //        fields = new[] { "id", "write_date" }
-        //    };
-
-        //    object[] args = new object[] { };
-        //    object[] _custom_args = new object[] {
-        //        new object[] { "create_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
-        //        new object[] { "create_date", "<=", $"{year}-{month:00}-{day:00} 23:59:59" },
-        //        new object[] { "active", "=", true },
-        //    };
-        //    return await SearchRead<ApiResponseOdooRpcT<res_partner[]>>(args, _custom_args, kwargs);
-        //}
-
-        //public async Task<ApiResponseOdooRpcT<res_partner[]>?> GetByWriteDate_dl(int year, int month, int day)
-        //{   
-        //    var kwargs = new
-        //    {
-        //        fields = new[] { "id", "write_date" }
-        //    };
-
-        //    object[] args = new object[] { };
-        //    object[] _custom_args = new object[] {
-        //        new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
-        //        new object[] { "active", "=", true },
-        //    };
-        //    return await SearchRead<ApiResponseOdooRpcT<res_partner[]>>(args, _custom_args, kwargs);
-        //}
-
-        //public async Task<ApiResponsePartner?> GetByCreateDate_dl(ApiRequestOdoo_v1 apiRequestOdoo_V1, int year, int month, int day)
-        //public async Task<ApiResponseOdooRpcT<res_partner[]>?> GetByCreateDate_dl(int year, int month, int day)
-        //{
-        //    var kwargs = new
-        //    {
-        //        fields = new[] { "id", "create_date", "write_date" }
-        //    };
-
-        //    object[] args = new object[] { };
-        //    object[] _custom_args = new object[] {
-        //        new object[] { "create_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
-        //        new object[] { "active", "=", true },
-        //    };
-        //    return await SearchRead<ApiResponseOdooRpcT<res_partner[]>>(args, _custom_args, kwargs);
-        //}
-
-        //public async Task<ApiResponseOdooRpcT<res_partner[]>?> GetByWriteDate(int year, int month, int day)
-        //{   
-        //    var kwargs = new
-        //    {
-        //        fields = new[] { "id", "create_date", "write_date" }
-        //    };
-
-        //    object[] args = new object[] { };
-        //    object[] _custom_args = new object[] {
-        //        new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
-        //        new object[] { "active", "=", true },
-        //    };
-        //    return await SearchRead<ApiResponseOdooRpcT<res_partner[]>>(args, _custom_args, kwargs);
-        //}
     }
 }

@@ -225,7 +225,7 @@ namespace DMSA.Sync.Core.Database.Sqlite
                     await Database.Table<res_partner>().Take(0).ToListAsync();
                 }
 
-                return await Database.Table<res_partner>().Where(y =>                
+                return await Database.Table<res_partner>().Where(y =>
                 y._parent_id == 0 &&
                 (y._company_id == company_id || y._company_id == 0) && (
                 y.id == findCode ||

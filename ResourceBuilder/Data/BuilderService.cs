@@ -376,42 +376,42 @@ namespace ResourceBuilder.Data
 
             int countTotal = resultCount.result / default_limit;
 
-            for (int indice = 0; indice <= countTotal; indice++)
-            {
-                string jsonFileName = jsonName + "_" + indice.ToString() + ".json";
+            //for (int indice = 0; indice <= countTotal; indice++)
+            //{
+            //    string jsonFileName = jsonName + "_" + indice.ToString() + ".json";
 
-                apiRequest.uid = uid;
-                //apiRequest.cadenaJson = cadenaJson;
-                apiRequest.index = indice;
-                apiRequest.update = esActualizacion;
-                apiRequest.dateIni = DateTime.Parse(fechaActualizaTablet);
+            //    apiRequest.uid = uid;
+            //    //apiRequest.cadenaJson = cadenaJson;
+            //    apiRequest.index = indice;
+            //    apiRequest.update = esActualizacion;
+            //    apiRequest.dateIni = DateTime.Parse(fechaActualizaTablet);
 
-                DateTime dateIni = DateTime.Parse(fechaActualizaTablet);
-                //var responseAll = await hubPartner.GetSpecial(apiRequest);
-                var responseAll = await hubPartner.GetByCreateDateRange(default_limit, indice, dateIni, dateIni);
+            //    DateTime dateIni = DateTime.Parse(fechaActualizaTablet);
+            //    //var responseAll = await hubPartner.GetSpecial(apiRequest);
+            //    var responseAll = await hubPartner.GetByCreateDateRange(default_limit, indice, dateIni, dateIni);
 
-                if (responseAll.result != null && responseAll.result.Length > 0)
-                {
-                    var resultData = Newtonsoft.Json.JsonConvert.SerializeObject(responseAll.result);
+            //    if (responseAll.result != null && responseAll.result.Length > 0)
+            //    {
+            //        var resultData = Newtonsoft.Json.JsonConvert.SerializeObject(responseAll.result);
 
-                    if (resultData != null)
-                    {
-                        PutInFile(jsonFileName, jsonName, resultData);
-                    }
-                }
+            //        if (resultData != null)
+            //        {
+            //            PutInFile(jsonFileName, jsonName, resultData);
+            //        }
+            //    }
 
-                Console.WriteLine("Página:" + indice);
+            //    Console.WriteLine("Página:" + indice);
 
-                //TODO: Se fuerza la salida para que no se quede ciclado en caso de que haya
-                // problemas de conexion con el servidor
-                // el objetivo es que el servidor no se sobrecargue
+            //    //TODO: Se fuerza la salida para que no se quede ciclado en caso de que haya
+            //    // problemas de conexion con el servidor
+            //    // el objetivo es que el servidor no se sobrecargue
 
-                if (indice >= 600)
-                {
-                    Console.WriteLine("Página " + indice + ": Se terminará el proceso.");
-                    break;
-                }
-            }
+            //    if (indice >= 600)
+            //    {
+            //        Console.WriteLine("Página " + indice + ": Se terminará el proceso.");
+            //        break;
+            //    }
+            //}
 
             TimeSpan span = (DateTime.Now - dateTimeIni);
 

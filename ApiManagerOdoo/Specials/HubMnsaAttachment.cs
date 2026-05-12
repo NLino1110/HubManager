@@ -23,6 +23,7 @@ namespace ApiManager
                 "file_type",
                 "date_data_cutoff",                
                 "attachment_ids",
+                "lines_url",
                 "total_file_size",
                 "create_date",
                 "write_date"
@@ -311,12 +312,11 @@ namespace ApiManager
             }
         }
 
-        public async Task<byte[]> DownloadFileMode2Async(int recordId)
+        public async Task<byte[]> DownloadFileMode2Async(string FullUrl)
         {
             try
             {
-                string url = $"/web/content/{recordId}?download=true";
-
+                string url = FullUrl;
                 byte[] fileContent = await GetRawBytes(url);
 
                 return fileContent;
