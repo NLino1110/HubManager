@@ -22,7 +22,22 @@ namespace DMSA.Sync.Core.Database.Sqlite
             await Init();
             OdooConnection appSettings = new OdooConnection();
             
-            foreach(var itemSetting in appSettings.LoadDefault())
+            var defaultData = new List<OdooConnection>();
+
+            if(Constants.Session.AppCodeOdoo == "01")
+            {
+                defaultData = appSettings.LoadDefaultCobranzas();
+            }
+            else if(Constants.Session.AppCodeOdoo == "02")
+            {
+                defaultData = appSettings.LoadDefaultPedidos();
+            }
+            else if (Constants.Session.AppCodeOdoo == "03")
+            {
+                defaultData = appSettings.LoadDefaultPedidos();
+            }
+
+            foreach (var itemSetting in defaultData)
             {
                 try
                 {

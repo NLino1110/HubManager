@@ -243,6 +243,23 @@
 
         <StackLayout Grid.Row="2"  Orientation="Horizontal" HorizontalOptions="Center" Margin="0,2">
             <Button Text=""
+                    Command="{Binding FirstPageCommand}"
+                    IsEnabled="{Binding CanGoPrevious}">
+                <Button.ImageSource>
+                    <FontImageSource x:Name="IconFirst"
+            Color="Black"
+            Size="15"
+            FontFamily="FontAwesome5Solid"
+            Glyph="&#xf100;" />
+                </Button.ImageSource>
+                <Button.Triggers>
+                    <Trigger TargetType="Button" Property="IsEnabled" Value="False">
+                        <Setter TargetName="IconFirst" Property="FontImageSource.Color" Value="DarkGray" />
+                    </Trigger>
+                </Button.Triggers>
+            </Button>
+            
+            <Button Text=""
             Command="{Binding PreviousPageCommand}"
             IsEnabled="{Binding CanGoPrevious}">
                 <Button.ImageSource>
@@ -276,6 +293,22 @@
                 <Button.Triggers>
                     <Trigger TargetType="Button" Property="IsEnabled" Value="False">
                         <Setter TargetName="IconNext" Property="FontImageSource.Color" Value="DarkGray" />
+                    </Trigger>
+                </Button.Triggers>
+            </Button>
+            <Button Text=""
+                Command="{Binding LastPageCommand}"
+                IsEnabled="{Binding CanGoNext}">
+                <Button.ImageSource>
+                    <FontImageSource x:Name="IconLast"
+                         Size="18"
+                         FontFamily="FontAwesome5Solid"
+                         Glyph="&#xf101;"
+                         Color="Black" />
+                </Button.ImageSource>
+                <Button.Triggers>
+                    <Trigger TargetType="Button" Property="IsEnabled" Value="False">
+                        <Setter TargetName="IconLast" Property="FontImageSource.Color" Value="DarkGray" />
                     </Trigger>
                 </Button.Triggers>
             </Button>

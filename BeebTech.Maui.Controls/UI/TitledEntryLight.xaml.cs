@@ -14,6 +14,30 @@ public partial class TitledEntryLight : ContentView
         entryMain.Unfocused += (s, e) => Unfocused?.Invoke(this, e);
     }
 
+    public static readonly BindableProperty AllowPasswordModeProperty =
+        BindableProperty.Create(
+            nameof(AllowPasswordMode),
+            typeof(bool),
+            typeof(TitledEntryLight),
+            false);
+
+    public bool AllowPasswordMode
+    {
+        get => (bool)GetValue(AllowPasswordModeProperty);
+        set => SetValue(AllowPasswordModeProperty, value);
+    }
+
+    public static readonly BindableProperty HidePasswordColorProperty =
+        BindableProperty.Create(nameof(HidePasswordColor), typeof(Color), typeof(TogglePasswordEntry),
+            defaultValue: Colors.Black);
+
+
+    public Color HidePasswordColor
+    {
+        get => (Color)GetValue(HidePasswordColorProperty);
+        set => SetValue(HidePasswordColorProperty, value);
+    }
+
     public static readonly BindableProperty TextProperty =
         BindableProperty.Create(
             nameof(Text),
@@ -79,6 +103,16 @@ public partial class TitledEntryLight : ContentView
         get => (bool)GetValue(IsPasswordProperty);
         set => SetValue(IsPasswordProperty, value);
     }
+
+    //public static readonly BindableProperty HidePasswordProperty =
+    //    BindableProperty.Create(nameof(HidePassword), typeof(bool), typeof(TogglePasswordEntry),
+    //        defaultValue: true);
+
+    //public bool HidePassword
+    //{
+    //    get => (bool)GetValue(HidePasswordProperty);
+    //    set => SetValue(HidePasswordProperty, value);
+    //}
 
     public static readonly BindableProperty MaxLengthProperty =
         BindableProperty.Create(
@@ -204,6 +238,11 @@ public partial class TitledEntryLight : ContentView
             return new Thickness(5, -6, 0, 0);
 
         return new Thickness(5, 0, 0, 0);
+    }
+
+    private void OnImageButtonClicked(object sender, EventArgs e)
+    {
+        IsPassword = !IsPassword;
     }
 
 }

@@ -300,7 +300,7 @@ namespace DMOrders.Pages.Fragments.Customers
                     {
                         var page = Application.Current?.MainPage;
                         if (page != null)
-                            await page.DisplayAlert("Alerta",
+                            await page.DisplayAlertAsync("Alerta",
                                             "El cliente no tiene lista de precio asignada, no se puede continuar",
                                             "Aceptar");
                         button.IsEnabled = true;

@@ -373,6 +373,24 @@ namespace DMOrders.Pages.Fragments.Product
             }
         });
 
+        public ICommand FirstPageCommand => new Command(async () =>
+        {
+            //if (CanGoPrevious)
+            //{
+                Page = 1;
+                LoadDataByTimer();
+            //}
+        });
+
+        public ICommand LastPageCommand => new Command(async () =>
+        {
+            //if (CanGoPrevious)
+            //{
+                Page = TotalPages;
+                LoadDataByTimer();
+            //}
+        });
+
         public event PropertyChangedEventHandler PropertyChanged;
         //private void OnPropertyChanged(string property) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
 

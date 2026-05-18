@@ -221,9 +221,13 @@ namespace ApiManager
             return await Create<ApiResponseOdooRpcT<int>>(args, kwargs, "ir.attachment");
         }
 
-        public async Task<ApiResponseOdooRpcT<int>?> SendAttachmentMode2(mnsa_attachment_line SendObject)
+        public async Task<ApiResponseOdooRpcT<int>?> SendAttachmentMode2(mnsa_attachment_line SendObject, string dbNameSqlite)
         {
-            var uploadResponse = await SendToExternalServer(SendObject.file_bytes, SendObject.file_name);
+            string package_name = _appSession.AppCodeOdoo + "_app_package_" +
+                dbNameSqlite + "_" +
+                DateTime.Now.ToString("yyyyMMddHHmmss");
+
+            var uploadResponse = await SendToExternalServer(SendObject.file_bytes, SendObject.file_name, package_name);
 
             if(uploadResponse == null)
                 return null;
@@ -259,7 +263,7 @@ namespace ApiManager
             public string url { get; set; }
         }
 
-        public async Task<responseUpload?> SendToExternalServer(byte[] fileBytes, string filename)
+        public async Task<responseUpload?> SendToExternalServer(byte[] fileBytes, string filename, string package_name)
         {
             var handler = new HttpClientHandler
             {
@@ -277,6 +281,7 @@ namespace ApiManager
 
             content.Add(fileContent, "file", $"{filename}.zip");
             content.Add(new StringContent(filename), "fileName");
+            content.Add(new StringContent(package_name), "packageName");
 
             var response = await httpClient.PostAsync($"{_appSession.odooConnection.HostDump}/api/upload/zip", content);
 

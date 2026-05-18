@@ -810,7 +810,18 @@ public partial class AccountPaymentCrud : ContentPage
         var paymentTerms = await accountMoveLineDb.GetItemsAsync(
             x => moveIds.Contains(x._move_id) && x.display_type == "payment_term");
 
-        var paymentTermMap = paymentTerms.ToDictionary(x => x._move_id);
+        //var paymentTermMap = paymentTerms.ToDictionary(x => x._move_id);
+
+        //var paymentTermMap = paymentTerms
+        //    .GroupBy(x => x._move_id)
+        //    .ToDictionary(g => g.Key, g => g.First());
+
+        var paymentTermMap = paymentTerms
+            .GroupBy(x => x._move_id)
+            .ToDictionary(
+                g => g.Key,
+                g => g.OrderByDescending(x => x.write_date).First()
+            );       
 
         List<MultipleCobrosInvoiceLineAi> multipleCobrosInvoiceLinesAiAux = new(accMovesByCustomer.Count);
 
@@ -824,11 +835,17 @@ public partial class AccountPaymentCrud : ContentPage
         {            
             txtMonto.IsEnabled = false;
         }
+    
+        UserDb resUserDb = new UserDb(App.Session.odooConnection.DbNameSqlite);
+        var res_User = await resUserDb.GetItemsAsync(x=> x._company_id == App.Session.res_Company.id);        
+        var userMap = res_User.ToDictionary(x => x.id, x => x.complete_name.ToUpper());
 
         foreach (var accountMoveItem in accMovesByCustomer)
         {
             if (!paymentTermMap.TryGetValue(accountMoveItem.id, out var itemPaymentTerm))
                 continue;
+
+            var SellerName = userMap.ContainsKey(accountMoveItem._invoice_user_id) ? userMap[accountMoveItem._invoice_user_id] : "";
 
             MultipleCobrosInvoiceLineAi cobrosInvoiceLineAiAux = new()
             {
@@ -839,7 +856,9 @@ public partial class AccountPaymentCrud : ContentPage
                 docnum_mask = accountMoveItem.docnum_mask,
                 invoice_date = accountMoveItem.invoice_date,
                 invoice_date_due = accountMoveItem.invoice_date_due,
-                amount_residual = accountMoveItem.amount_residual
+                amount_total = accountMoveItem.amount_total,
+                amount_residual = accountMoveItem.amount_residual,
+                seller = SellerName
             };
 
             residualAmount += cobrosInvoiceLineAiAux.amount_residual;

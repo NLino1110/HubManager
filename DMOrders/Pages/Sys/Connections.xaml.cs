@@ -258,6 +258,20 @@ public partial class Connections : TabbedPage
         await Navigation.PopModalAsync();
     }
 
+    private async void btnEncrypt_Clicked(object sender, EventArgs e)
+    {
+        SelectedConnection.Password = CryptoHelper.Encrypt(SelectedConnection.Password);
+        OnPropertyChanged(nameof(SelectedConnection));
+    }
+
+    private async void btnDecrypt_Clicked(object sender, EventArgs e)
+    {
+        string dp = "";
+        dp = CryptoHelper.Decrypt(SelectedConnection.Password);
+        EntryPasswordDb.Title = "Password (" + dp + ")";
+        OnPropertyChanged(nameof(EntryPasswordDb));
+    }
+
     private async void btnSendCloud_Clicked(object sender, EventArgs e)
     {        
         

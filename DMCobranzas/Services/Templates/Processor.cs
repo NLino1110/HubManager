@@ -333,6 +333,8 @@ namespace DMCobranzas.Services.Templates
                     ? bank?.name ?? ""
                     : "";
 
+                string bank_name_target = line.journal_name;
+
                 r.Columns(type, monto);
 
                 if (line.Type == "check" || line.Type == "check_day")
@@ -350,12 +352,13 @@ namespace DMCobranzas.Services.Templates
                 if (line.Type == "transfer")
                 {                    
                     r.Columns($" Cta. {line.AccNumber}",$"Dp# {line.Circular}");
-                    r.Line($" {bank_name}");
+                    r.Line($" {bank_name_target}");
                 }
 
                 if (line.Type == "deposito")
                 {                    
                     r.Columns($" Cta. {line.AccNumber}", $"Dp# {line.Circular}");
+                    r.Line($" {bank_name_target}");
                 }
             }
 

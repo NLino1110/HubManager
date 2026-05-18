@@ -252,7 +252,19 @@ namespace DMOrders.Pages.Fragments.Customers
                 var filter_days = filters.getDays();
                 var filter_status = filters.getStatus();
 
-                var (items, total) = await _db.GetPagedAsync(
+                //var (items, total) = await _db.GetPagedAsync(
+                //    filter_code,
+                //    filter_vat,
+                //    filter_name,
+                //    filter_channel,
+                //    filter_days,
+                //    filter_status,
+                //    0,
+                //    partner_id,
+                //    Page,
+                //    PageSize);
+
+                var (items, total) = await _db.GetPagedSqlAsync(
                     filter_code,
                     filter_vat,
                     filter_name,

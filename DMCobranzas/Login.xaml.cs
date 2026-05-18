@@ -5,6 +5,7 @@ using DMCobranzas.AppPages;
 using DMCobranzas.AppPages.Sys;
 using DMCobranzas.Controls.Tools;
 using DMCobranzas.Services;
+using DMCobranzas.Services.PatchManager;
 using DMCobranzas.Services.PatchManager.Reset;
 using DMSA.Models.Odoo.Abstract;
 using DMSA.Models.Odoo.Accounting;
@@ -101,6 +102,8 @@ public partial class Login : ContentPage
                 databasename = App.Session.odooConnection.DbName,
             };
 
+            PatchRunner patchRunner = new PatchRunner();
+            await patchRunner.PatchExecuter(SelConnection, this);
             LoadEnvironment();
 
             CompanyDb companyDb = new CompanyDb(App.Session.odooConnection.DbNameSqlite);
@@ -138,8 +141,7 @@ public partial class Login : ContentPage
             ddAgency.ItemsSource = storesItems;
             ddAgency.ItemDisplayBinding = new Binding("name");
             ddAgency.SelectedItem = storesItems.FirstOrDefault();
-
-            //await PatchExecuter(SelConnection);
+                        
         };
 
         await LoadSettingsFromDb();
@@ -970,30 +972,4 @@ public partial class Login : ContentPage
         _longPressCts?.Cancel();
         _executed = false;
     }
-
-    private async Task PatchExecuter(OdooConnection ConnectionItem)
-    {
-        //await PatchExecuter_v0(ConnectionItem);
-        await PatchExecuter_v3(ConnectionItem);
-        //+ parches
-    }
-
-    private async Task PatchExecuter_v3(OdooConnection ConnectionItem)
-    {
-        string patch_name = "_patch_v3_" + ConnectionItem.DbName;
-
-        bool patch_applied = Preferences.Get(patch_name, false);
-
-        if (!patch_applied)
-        {
-            ExecuteTask executeTask = new ExecuteTask();
-                        
-            await executeTask.ResetProductsImages();
-
-            Preferences.Set(patch_name, true);
-            Debug.WriteLine(patch_name + " ==== aplicado");
-            await Toast.Make("Patch applied: " + patch_name).Show();
-        }
-    }
-
 }

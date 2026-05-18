@@ -247,7 +247,6 @@ public partial class CobranzasPage : ContentPage
         return true;
     }
 
-
     private async void CerrarDia(object obj)
     {
         var itemgroup = (MultipleCobrosInvoiceGroup) obj;
@@ -256,7 +255,7 @@ public partial class CobranzasPage : ContentPage
 
         if (!resultCerrar)
         {
-            await DisplayAlert("Cierre no permitido", "Aún existen cobros sin procesar, por favor envíelos antes de cerrar el día.", "Cerrar");
+            await DisplayAlertAsync("Cierre no permitido", "Aún existen cobros sin procesar, por favor envíelos antes de cerrar el día.", "Cerrar");
             return;
         }
 
@@ -436,7 +435,7 @@ public partial class CobranzasPage : ContentPage
 
     private async void EnviarCobro(object obj)
     {
-        bool answer = await DisplayAlert("Envío de cobro", "Está seguro que desea enviar este cobro?", "Confirmar", "Cancelar");
+        bool answer = await DisplayAlertAsync("Envío de cobro", "Está seguro que desea enviar este cobro?", "Confirmar", "Cancelar");
         
         if (!answer)
         {
@@ -519,8 +518,49 @@ public partial class CobranzasPage : ContentPage
         }
     }
 
-    private async void NewPayment(object sender, EventArgs e)    
+    private async Task<bool> ExistsPendingDiaryClose()
     {
+        AccountPaymentDailyDb accountPaymentDailyDb = new AccountPaymentDailyDb(App.Session.odooConnection.DbNameSqlite);
+        MultipleCobrosInvoiceDb multipleCobrosInvoiceDb = new MultipleCobrosInvoiceDb(App.Session.odooConnection.DbNameSqlite);
+
+        var resultItems = await multipleCobrosInvoiceDb.GetItemsAsync(x => x.date < DateTime.Now.Date);
+
+        var fechasUnicas = resultItems
+            .Select(x => x.date.Date)
+            .Distinct()
+            .ToList();
+
+        if (!fechasUnicas.Any())
+            return false;
+
+        var fechasSet = fechasUnicas.ToHashSet();
+
+        var cierres_full = await accountPaymentDailyDb.GetItemsAsync(x=> x.was_odoo_synced != null );
+
+        var fechasCierres = cierres_full
+            .Select(x =>
+            {
+                DateTime.TryParse(x.closing_id, out var fecha);
+                return fecha.Date;
+            })
+            .Distinct()
+            .ToHashSet();
+
+        var hayFechasSinCierre = fechasUnicas
+            .Any(f => !fechasCierres.Contains(f));
+
+        return hayFechasSinCierre;
+    }
+
+
+    private async void NewPayment(object sender, EventArgs e)    
+    {   
+        if(await ExistsPendingDiaryClose())
+        {
+            await Toast.Make("Existen cierres pendientes, por favor verifique sus datos antes de continuar.").Show();
+            return;
+        }
+
         var se = (res_company) SelectorCmp.SelectedItem;
         AccountPaymentDailyDb cobCierreDb = new AccountPaymentDailyDb(App.Session.odooConnection.DbNameSqlite);
         var cierres = await cobCierreDb.GetItemAsync(se.id, DateTime.Now.ToString("yyyy-MM-dd"));

@@ -1,0 +1,118 @@
+﻿@page "/imagemanager"
+@using Microsoft.AspNetCore.Authorization
+@inject IWebHostEnvironment Env
+@inject IDialogService DialogService
+
+@attribute [Authorize]
+
+<h3>Image Manager</h3>
+
+<MudTextField Value="@search"
+              ValueChanged="@(async (string value) => await OnSearchChanged(value))"
+              Placeholder="Buscar por nombre..."
+              Adornment="Adornment.Start"
+              AdornmentIcon="@Icons.Material.Filled.Search"
+              Immediate="true"
+              DebounceInterval="300"
+              Class="mb-4" />
+
+<MudTable T="ImageItem"
+          ServerData="LoadServerData"
+          Dense="true"
+          Hover="true"
+          @ref="table">
+
+    <HeaderContent>
+        <MudTh>Imagen</MudTh>
+        <MudTh>Nombre</MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudTd>
+            <img src="@context.Url"
+                 style="height:60px; cursor:pointer"
+                 loading="lazy"
+                 @onclick="() => ShowImage(context)" />
+        </MudTd>
+        <MudTd>@context.Name</MudTd>
+    </RowTemplate>
+
+    <PagerContent>
+        <MudTablePager PageSizeOptions="new int[] { 6, 12, 24, 48 }" />
+    </PagerContent>
+
+</MudTable>
+
+@code {
+    private string search = "";
+    private MudTable<ImageItem> table;
+
+    private Task<TableData<ImageItem>> LoadServerData(TableState state, CancellationToken token)
+    {
+        var path = Path.Combine(Env.WebRootPath, "uploads/images");
+
+        if (!Directory.Exists(path))
+        {
+            return Task.FromResult(new TableData<ImageItem>
+            {
+                TotalItems = 0,
+                Items = new List<ImageItem>()
+            });
+        }
+
+        var files = Directory.EnumerateFiles(path)
+            .Where(f =>
+                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            files = files.Where(f =>
+                Path.GetFileName(f).Contains(search, StringComparison.OrdinalIgnoreCase));
+        }
+
+        var filtered = files.ToList();
+
+        var total = filtered.Count;
+
+        var items = filtered
+            .Skip(state.Page * state.PageSize)
+            .Take(state.PageSize)
+            .Select(f => new ImageItem
+            {
+                Name = Path.GetFileName(f),
+                Url = "/uploads/images/" + Path.GetFileName(f)
+            })
+            .ToList();
+
+        return Task.FromResult(new TableData<ImageItem>
+        {
+            TotalItems = total,
+            Items = items
+        });
+    }
+
+    private async Task OnSearchChanged(string value)
+    {
+        search = value;
+        await table.ReloadServerData();
+    }
+
+    async Task ShowImage(ImageItem img)
+    {
+        var parameters = new DialogParameters
+        {
+            ["ImageUrl"] = img.Url,
+            ["Title"] = img.Name
+        };
+
+        await DialogService.ShowAsync<ImagePreviewDialog>("Vista previa", parameters);
+    }
+
+    class ImageItem
+    {
+        public string Name { get; set; }
+        public string Url { get; set; }
+    }
+}

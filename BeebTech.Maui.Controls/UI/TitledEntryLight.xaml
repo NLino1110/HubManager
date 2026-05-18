@@ -4,15 +4,55 @@
              x:Class="BeebTech.Maui.Controls.UI.TitledEntryLight"             
              x:Name="this">
     <VerticalStackLayout Spacing="2" Padding="0,0,0,5">
-        <Entry x:Name="entryMain"
+        <Grid>
+            
+            <Entry x:Name="entryMain"                   
                Text="{Binding Text, Source={x:Reference this}, Mode=TwoWay}"
                Placeholder="{Binding Placeholder, Source={x:Reference this}}"
                Keyboard="{Binding Keyboard, Source={x:Reference this}}"
                IsPassword="{Binding IsPassword, Source={x:Reference this}}"
                MaxLength="{Binding MaxLength, Source={x:Reference this}}"
                TextColor="{Binding TextColor, Source={x:Reference this}}"
-               BackgroundColor="{Binding EntryBackgroundColor, Source={x:Reference this}}"/>
+               BackgroundColor="{Binding EntryBackgroundColor, Source={x:Reference this}}" />
+
+            <ImageButton Clicked="OnImageButtonClicked"
+                 BackgroundColor="Transparent"
+                 HorizontalOptions="End"
+                 VerticalOptions="Center"
+                 Margin="0,0,5,0" 
+                 WidthRequest="20"
+                         IsVisible="{Binding AllowPasswordMode, Source={x:Reference this}}">
+                <ImageButton.Triggers>
+                    <DataTrigger TargetType="ImageButton"
+                         Binding="{Binding IsPassword, Source={x:Reference this}}"
+                         Value="True">
+                        <Setter Property="Source">
+                            <Setter.Value>
+                                <FontImageSource FontFamily="FontAwesome5Regular"
+                                         Size="18"
+                                         Color="{Binding HidePasswordColor, Source={x:Reference this}}"
+                                         Glyph="&#xf06e;" />
+                            </Setter.Value>
+                        </Setter>
+                    </DataTrigger>
+                    <DataTrigger TargetType="ImageButton"
+                         Binding="{Binding IsPassword, Source={x:Reference this}}"
+                         Value="False">
+                        <Setter Property="Source">
+                            <Setter.Value>
+                                <FontImageSource FontFamily="FontAwesome5Regular"
+                                         Size="18"
+                                         Color="{Binding HidePasswordColor, Source={x:Reference this}}"
+                                         Glyph="&#xf070;" />
+                            </Setter.Value>
+                        </Setter>
+                    </DataTrigger>
+                </ImageButton.Triggers>
+            </ImageButton>
+        </Grid>
+        
         <Label x:Name="labelMain"
                Text="{Binding Title, Source={x:Reference this}}"/>
+        
     </VerticalStackLayout>
 </ContentView>

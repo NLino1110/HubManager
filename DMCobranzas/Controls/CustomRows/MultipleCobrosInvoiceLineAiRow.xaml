@@ -72,7 +72,16 @@
 
                 <!-- Fila 4 -->
                 <Label Grid.Row="3"
+                   Grid.Column="0"
+                   Text="{Binding amount_total, StringFormat='Valor: $ {0:N2}'}"
+                   FontSize="12"
+                   FontAttributes="Bold"
+                   TextColor="Black"
+                   Margin="0,0,10,0"/>
+                
+                <Label Grid.Row="3"
                        Grid.ColumnSpan="3"
+                       Grid.Column="1"
                        Text="{Binding amount_residual, StringFormat='SALDO: $ {0:N2}'}"
                        FontSize="12"
                        FontAttributes="Bold"

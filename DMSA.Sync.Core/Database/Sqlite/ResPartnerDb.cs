@@ -161,6 +161,106 @@ namespace DMSA.Sync.Core.Database.Sqlite
             return q;
         }
 
+        private async Task<(string Sql, object[] Args)> BuildQuerySQL(
+            string filter_code,
+            string filter_vat,
+            string filter_name,
+            int filter_channel,
+            int filter_days,
+            int filter_status,
+            int filter_sort,
+            int filter_adic_commercial)
+        {
+            Init();
+
+            await PreloadInfoData();
+
+            var where = new List<string>();
+            var args = new List<object>();
+
+            var idStr = filter_adic_commercial.ToString();
+
+            var exact_str = $"[{idStr}]";
+            var middle_str = $",{idStr},";
+            var start_str = $"[{idStr},";
+            var end_str = $",{idStr}]";
+
+            where.Add("(is_salesman = 0 AND (_adic_comercial_id = ? OR (adic_comercial_secundarios_ids_json IS NOT NULL AND (adic_comercial_secundarios_ids_json = ? OR adic_comercial_secundarios_ids_json LIKE ? OR adic_comercial_secundarios_ids_json LIKE ? OR adic_comercial_secundarios_ids_json LIKE ?))))");
+
+            args.Add(filter_adic_commercial);
+            args.Add(exact_str);
+            args.Add($"%{middle_str}%");
+            args.Add($"{start_str}%");
+            args.Add($"%{end_str}");
+
+            if (!string.IsNullOrWhiteSpace(filter_code))
+            {
+                var raw = filter_code.Trim();
+
+                if (int.TryParse(raw, out var idCode))
+                {
+                    where.Add("id = ?");
+                    args.Add(idCode);
+                }
+            }
+            else if (!string.IsNullOrWhiteSpace(filter_vat))
+            {
+                where.Add("vat_doc IS NOT NULL AND vat_doc LIKE ? COLLATE NOCASE");
+                args.Add($"%{filter_vat.Trim()}%");
+            }
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(filter_name))
+                {
+                    var term = filter_name.Trim();
+
+                    var term1 = term.Replace("ñ", "Ñ");
+                    var term2 = term.Replace("Ñ", "ñ");
+
+                    where.Add("(name LIKE ? COLLATE NOCASE OR name LIKE ? COLLATE NOCASE)");
+                    args.Add($"%{term1}%");
+                    args.Add($"%{term2}%");
+                }
+
+                if (filter_channel != 0)
+                {
+                    where.Add("_product_pricelist_id = ?");
+                    args.Add(filter_channel);
+                }
+
+                if (filter_status == 1)
+                    where.Add("misc_estado = 'activo'");
+                else if (filter_status == 2)
+                    where.Add("misc_estado = 'inactivo'");
+
+                if (filter_days == 1) where.Add("adic_lunes = 1");
+                if (filter_days == 2) where.Add("adic_martes = 1");
+                if (filter_days == 3) where.Add("adic_miercoles = 1");
+                if (filter_days == 4) where.Add("adic_jueves = 1");
+                if (filter_days == 5) where.Add("adic_viernes = 1");
+                if (filter_days == 6) where.Add("adic_sabado = 1");
+                if (filter_days == 7) where.Add("adic_domingo = 1");
+            }
+
+            var sql = $"SELECT * FROM res_partner WHERE {string.Join(" AND ", where)}";
+            sql = ApplySortSql(sql, filter_sort);
+
+            return (sql, args.ToArray());
+        }
+
+        private string ApplySortSql(string sql, int filter_sort)
+        {
+            switch (filter_sort)
+            {
+                case 1: return sql + " ORDER BY name ASC";
+                case 2: return sql + " ORDER BY name DESC";
+                case 3: return sql + " ORDER BY id ASC";
+                case 4: return sql + " ORDER BY id DESC";
+                default: return sql;
+            }
+        }
+
+
         public async Task<(IList<res_partner> Items, int Total)> GetPagedAsync(
             string filter_code,
             string filter_vat,
@@ -171,7 +271,7 @@ namespace DMSA.Sync.Core.Database.Sqlite
             int filter_sort,
             int filter_adic_commercial,
             int page, int pageSize)
-        {
+        {            
             var q = await BuildQuery(filter_code, filter_vat, filter_name, filter_channel,filter_days, filter_status, filter_sort, filter_adic_commercial);
 
             // COUNT(*) en SQLite, sin traer datos
@@ -180,6 +280,45 @@ namespace DMSA.Sync.Core.Database.Sqlite
             // LIMIT/OFFSET en SQLite (Skip/Take sobre AsyncTableQuery)
             var offset = Math.Max(0, (page - 1) * pageSize);
             var items = await q.Skip(offset).Take(pageSize).ToListAsync();
+
+            foreach (var p in items)
+            {
+                p.display_channel_name = cachedChannels.TryGetValue(p._product_pricelist_id, out var channelName) ? channelName : "";
+            }
+
+            return (items, total);
+        }
+
+        public async Task<(IList<res_partner> Items, int Total)> GetPagedSqlAsync(
+            string filter_code,
+            string filter_vat,
+            string filter_name,
+            int filter_channel,
+            int filter_days,
+            int filter_status,
+            int filter_sort,
+            int filter_adic_commercial,
+            int page, int pageSize)
+        {
+            var (baseSql, args) = await BuildQuerySQL(
+                filter_code,
+                filter_vat,
+                filter_name,
+                filter_channel,
+                filter_days,
+                filter_status,
+                filter_sort,
+                filter_adic_commercial);
+
+            var countSql = $"SELECT COUNT(*) FROM ({baseSql}) AS t";
+            var total = await Database.ExecuteScalarAsync<int>(countSql, args);
+
+            var orderedSql = ApplySortSql(baseSql, filter_sort);
+
+            var offset = Math.Max(0, (page - 1) * pageSize);
+            var pagedSql = $"{orderedSql} LIMIT {pageSize} OFFSET {offset}";
+
+            var items = await Database.QueryAsync<res_partner>(pagedSql, args);
 
             foreach (var p in items)
             {

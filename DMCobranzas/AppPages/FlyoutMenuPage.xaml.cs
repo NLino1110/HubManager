@@ -78,7 +78,7 @@ public partial class FlyoutMenuPage : ContentPage
 
     public async void TryLogout(object sender, EventArgs e)
     {
-        bool answer = await DisplayAlert("Salir", "Está seguro que desea cerrar la sesión?", "Si", "No");
+        bool answer = await DisplayAlertAsync("Salir", "Está seguro que desea cerrar la sesión?", "Si", "No");
         //Debug.WriteLine("Answer: " + answer);
         if(answer)
         { 
@@ -88,7 +88,7 @@ public partial class FlyoutMenuPage : ContentPage
 
     public async Task TryLogout()
     {
-        bool answer = await DisplayAlert("Salir", "Está seguro que desea cerrar la sesión?", "Si", "No");
+        bool answer = await DisplayAlertAsync("Salir", "Está seguro que desea cerrar la sesión?", "Si", "No");
         //Debug.WriteLine("Answer: " + answer);
         if (answer)
         {

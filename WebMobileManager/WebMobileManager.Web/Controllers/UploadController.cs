@@ -94,8 +94,8 @@ namespace WebMobileManager.Web
             return Ok(new { url });
         }
 
-        [HttpPost("zip")]
-        public async Task<IActionResult> UploadZip(
+        [HttpPost("zip_old")]
+        public async Task<IActionResult> UploadZip_old(
             IFormFile file,
             [FromForm] string fileName,
             [FromHeader(Name = "X-API-KEY")] string apiKey)
@@ -140,6 +140,61 @@ namespace WebMobileManager.Web
             }
 
             var url = $"{Request.Scheme}://{Request.Host}/uploads/zips/{finalName}";
+
+            return Ok(new { url });
+        }
+
+
+        [HttpPost("zip")]
+        public async Task<IActionResult> UploadZip(
+            IFormFile file,
+            [FromForm] string fileName,
+            [FromForm] string packageName,
+            [FromHeader(Name = "X-API-KEY")] string apiKey)
+        {
+            const string VALID_API_KEY = "t.0.0.r.1381";
+
+            if (apiKey != VALID_API_KEY)
+                return Unauthorized("No autorizado");
+
+            if (file == null || file.Length == 0)
+                return BadRequest("Archivo vacío");
+
+            if (string.IsNullOrWhiteSpace(fileName))
+                return BadRequest("Debe enviar el nombre del archivo");
+
+            if (string.IsNullOrWhiteSpace(packageName))
+                return BadRequest("Debe enviar el nombre del paquete");
+
+            var extension = Path.GetExtension(file.FileName).ToLower();
+            if (extension != ".zip")
+                return BadRequest("Extensión inválida");
+
+            var folderPath = Path.Combine(_env.WebRootPath, "uploads/zips", packageName);
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
+
+            var nameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+
+            var safeName = new string(nameWithoutExt
+                .Where(c => char.IsLetterOrDigit(c) || c == '.' || c == '_' || c == '-')
+                .ToArray());
+
+            if (string.IsNullOrWhiteSpace(safeName))
+                return BadRequest("Nombre de archivo inválido");
+
+            var finalName = $"{safeName}.zip";
+            var filePath = Path.Combine(folderPath, finalName);
+
+            if (System.IO.File.Exists(filePath))
+                System.IO.File.Delete(filePath);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var url = $"{Request.Scheme}://{Request.Host}/uploads/zips/{packageName}/{finalName}";
 
             return Ok(new { url });
         }

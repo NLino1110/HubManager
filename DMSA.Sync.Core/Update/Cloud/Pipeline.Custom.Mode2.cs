@@ -1,15 +1,7 @@
 ﻿using ApiManager;
-using CommunityToolkit.Maui.Alerts;
 using DMSA.Models.Odoo.Specials;
-using DMSA.Models.Security;
-using DMSA.Sync.Core.Database.Sqlite;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Compression;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DMSA.Sync.Core.Update.Cloud
 {
@@ -64,7 +56,7 @@ namespace DMSA.Sync.Core.Update.Cloud
                         file_bytes = parts[i],
                         file_type = "application/zip",
                         package_id = packageId
-                    });
+                    }, dbNameSqlite);
 
                     if (file_upload_response.result == 0)
                         return (mnsaAttachment, false);

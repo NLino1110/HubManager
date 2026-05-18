@@ -164,7 +164,7 @@ public partial class UpdateData : ContentPage
                                
     private async void DeleteTables(object sender, EventArgs e)
     {
-        bool answer = await DisplayAlert("Borrar tablas?",
+        bool answer = await DisplayAlertAsync("Borrar tablas?",
             "Este proceso eliminará todos los datos actuales",
             "Eliminar",
             "Cancelar");
@@ -196,7 +196,7 @@ public partial class UpdateData : ContentPage
 
     private async void UploadData(object sender, EventArgs e)
     {
-        bool answer = await DisplayAlert("Enviar datos al servidor?",
+        bool answer = await DisplayAlertAsync("Enviar datos al servidor?",
             "Esto realizará la sincronización con el servidor (Odoo).",
             "Sincronizar",
             "Cancelar");
@@ -217,7 +217,7 @@ public partial class UpdateData : ContentPage
         await Navigation.PushModalAsync(progressBarPage, true);
 
         progressBarPage.SetTitle("Finalizado...");
-        await progressBarPage.DisplayAlert("Actualización", "Actualización terminada", "Aceptar");
+        await progressBarPage.DisplayAlertAsync("Actualización", "Actualización terminada", "Aceptar");
         await Navigation.PopModalAsync();
 
         toast = Toast.Make(text, duration, fontSize);
@@ -226,7 +226,7 @@ public partial class UpdateData : ContentPage
 
     private async void LaunchUpdate(object sender, EventArgs e)
     {        
-        bool answer = await DisplayAlert("Actualizar datos de la aplicación?", "Este proceso realiza una sincronización de los datos hacia su dispositivo.", "Actualizar", "Cancelar");
+        bool answer = await DisplayAlertAsync("Actualizar datos de la aplicación?", "Este proceso realiza una sincronización de los datos hacia su dispositivo.", "Actualizar", "Cancelar");
         
         if (!answer)
         {
@@ -266,40 +266,40 @@ public partial class UpdateData : ContentPage
             BoxViewServerStatusOdoo.Color = Colors.SaddleBrown;
             lblServerStatusOdoo.Text = "Servidor Odoo (x)";
 
-            await progressBarPage.DisplayAlert("Error de actualización", "El servidor de datos no está disponible.", "Aceptar");
+            await progressBarPage.DisplayAlertAsync("Error de actualización", "El servidor de datos no está disponible.", "Aceptar");
             await Navigation.PopModalAsync();           
         }
 
         Pipeline pipeline = new Pipeline();
 
-        bool packageReady = await pipeline.ExistAttachRecord();
+        //////bool packageReady = await pipeline.ExistAttachRecord();
 
-        if(!packageReady)
-        {
+        //////if(!packageReady)
+        //////{
                         
-            var packFound = await pipeline.NewestZipPack();
+        //////    var packFound = await pipeline.NewestZipPack();
 
-            if (packFound != null)
-            {
-                await SqliteDbBase<object>.CloseDatabaseAsync();
-                progressBarPage.SetTitle("Iniciando actualización rápida...");
-                progressBarPage.SetTotalPercent(0.2);
+        //////    if (packFound != null)
+        //////    {
+        //////        await SqliteDbBase<object>.CloseDatabaseAsync();
+        //////        progressBarPage.SetTitle("Iniciando actualización rápida...");
+        //////        progressBarPage.SetTotalPercent(0.2);
                 
-                if(await pipeline.DownloadSqliteZip(true, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Archivos"); }))
-                {
-                    await pipeline.InsertAttachRecord(packFound);
-                }
-                else
-                {
-                    await Toast.Make("Hubo un error al descargar/descomprimir archivo.", duration, fontSize).Show();
-                }
+        //////        if(await pipeline.DownloadSqliteZip(true, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Archivos"); }))
+        //////        {
+        //////            await pipeline.InsertAttachRecord(packFound);
+        //////        }
+        //////        else
+        //////        {
+        //////            await Toast.Make("Hubo un error al descargar/descomprimir archivo.", duration, fontSize).Show();
+        //////        }
                 
-                await Toast.Make("Actualización rápida terminada", duration, fontSize).Show();
+        //////        await Toast.Make("Actualización rápida terminada", duration, fontSize).Show();
                 
-                var databaseUserAccess = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
-                await databaseUserAccess.FixMissingCurrentUser();
-            }
-        }
+        //////        var databaseUserAccess = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
+        //////        await databaseUserAccess.FixMissingCurrentUser();
+        //////    }
+        //////}
 
         progressBarPage.SetTitle("Actualización en línea...");
 
@@ -395,17 +395,17 @@ public partial class UpdateData : ContentPage
 
 
         Pipeline pipeline = new Pipeline();
-        bool requiredNewUpload = await pipeline.RequiredNewUploadCustom(App.Session.odooConnection.DbNameSqlite);
-        if (requiredNewUpload)
-        {
-            (var attachData, bool successUpload) = await pipeline.UploadSqliteZip(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Paquetes (upload)"); });
+        //////bool requiredNewUpload = await pipeline.RequiredNewUploadCustom(App.Session.odooConnection.DbNameSqlite);
+        //////if (requiredNewUpload)
+        //////{
+        //////    (var attachData, bool successUpload) = await pipeline.UploadSqliteZip(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Paquetes (upload)"); });
 
-            if (successUpload)
-            {
-                if(!await pipeline.ExistAttachRecord())
-                    await pipeline.InsertAttachRecord(attachData);
-            }
-        }
+        //////    if (successUpload)
+        //////    {
+        //////        if(!await pipeline.ExistAttachRecord())
+        //////            await pipeline.InsertAttachRecord(attachData);
+        //////    }
+        //////}
     }
 
     private async void btnUploadPipeline_Clicked(object sender, EventArgs e)

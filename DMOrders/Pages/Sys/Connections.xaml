@@ -121,7 +121,39 @@
                             </HorizontalStackLayout>
 
                             <controlsUI:TitledEntryLight Title="Username" Text="{Binding SelectedConnection.Username}" Grid.Row="3" Grid.Column="1"/>
-                            <controlsUI:TitledEntryLight Title="Password" Text="{Binding SelectedConnection.Password}" Grid.Row="4" Grid.Column="1"/>
+
+                            <HorizontalStackLayout Grid.Row="4" Grid.Column="1">
+                                <controlsUI:TitledEntryLight 
+                                    x:Name="EntryPasswordDb"
+                                    Title="Password" 
+                                    IsPassword="True" 
+                                    AllowPasswordMode="True" 
+                                    Text="{Binding SelectedConnection.Password,Mode=TwoWay}" WidthRequest="300"/>
+
+                                <Button Clicked="btnEncrypt_Clicked" 
+                                        BackgroundColor="BlueViolet"
+                                        VerticalOptions="Start">
+                                    <Button.ImageSource>
+                                        <FontImageSource FontFamily="FontAwesome5Solid"
+                                        Color="White"
+                                        Size="20"
+                                        FontAutoScalingEnabled="True"
+                                        Glyph="&#xf0e7;" />
+                                    </Button.ImageSource>
+                                </Button>
+
+                                <Button Clicked="btnDecrypt_Clicked" 
+                                        BackgroundColor="BlueViolet"
+                                        VerticalOptions="Start">        
+                                    <Button.ImageSource>
+                                        <FontImageSource FontFamily="FontAwesome5Solid"
+                                        Color="White"
+                                        Size="20"
+                                        FontAutoScalingEnabled="True"
+                                        Glyph="&#xf0e7;" /> 
+                                    </Button.ImageSource>
+                                </Button>
+                            </HorizontalStackLayout>
                         </Grid>
 
                         <StackLayout Orientation="Horizontal" Spacing="10">
