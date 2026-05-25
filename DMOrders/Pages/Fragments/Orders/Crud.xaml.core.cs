@@ -21,6 +21,7 @@ namespace DMOrders.Pages.Fragments.Orders
 {
     public partial class Crud
     {
+        public bool IsLoadingLines { get; set; } = false;
         public ICommand AddLineCommand { get; }
         public ICommand AddLineCommandByQty { get; }
 
@@ -289,50 +290,110 @@ namespace DMOrders.Pages.Fragments.Orders
             OrderLines.Add(NewOrderLine);
         }
 
+        //////public async Task LoadData()
+        //////{
+        //////    if (CurrentSaleOrder == null)
+        //////        return;
+
+        //////    IsLoadingLines = true;
+
+        //////    OnPropertyChanged(nameof(Note));
+        //////    OnPropertyChanged(nameof(Note2));
+
+        //////    var saleOrderLinesDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
+
+        //////    var orderLines = await saleOrderLinesDb.GetItemsAsync(CurrentSaleOrder.id);
+
+        //////    var product_ids = orderLines
+        //////        .Select(ol => ol.product_id)
+        //////        .Distinct()
+        //////        .ToArray();
+
+        //////    var productsList = await new ProductProductDb(App.Session.odooConnection.DbNameSqlite)
+        //////        .GetByProductsIdsLite(product_ids, 0);
+
+        //////    var productsDict = productsList.ToDictionary(p => p.id, p => p);
+
+        //////    var processedLines = orderLines
+        //////        .Where(line => productsDict.ContainsKey(line.product_id))
+        //////        .Select(line =>
+        //////        {
+        //////            var product = productsDict[line.product_id];
+
+        //////            line.product_code = product.code;
+        //////            line.product_display = product.name;
+        //////            line.uom_category_display = product.uom_sale_display;
+
+        //////            return line;
+        //////        })
+        //////        .ToList();
+
+        //////    // YA ESTÁS EN UI THREAD → NO NECESITAS MainThread
+        //////    OrderLines.Clear();
+
+        //////    foreach (var line in processedLines)
+        //////        OrderLines.Add(line);
+
+        //////    IsLoadingLines = false;
+
+        //////    // promociones
+        //////    var saleOrderPromotionsDb = new SaleOrderPromotionsDb(App.Session.odooConnection.DbNameSqlite);
+        //////    var saleOrderPromotions_tmp = await saleOrderPromotionsDb.GetItemsByOrder(CurrentSaleOrder.id);
+
+        //////    saleOrderPromotions.Clear();
+
+        //////    foreach (var sop in saleOrderPromotions_tmp)
+        //////        saleOrderPromotions.Add(sop);
+
+        //////    UpdateTotals();
+        //////}
+
         public async Task LoadData()
         {
+            IsLoadingLines = true;
+
+            if (CurrentSaleOrder == null)
+                return;
+
             OrderLines.Clear();
 
-            if (CurrentSaleOrder != null)
-            {
-                OnPropertyChanged(nameof(Note));
-                OnPropertyChanged(nameof(Note2));
-
-                var saleOrderLinesDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
+            var saleOrderLinesDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
                 
-                var orderLines = await saleOrderLinesDb.GetItemsAsync(CurrentSaleOrder.id);
+            var orderLines = await saleOrderLinesDb.GetItemsAsync(CurrentSaleOrder.id);
 
-                var product_ids = orderLines.Select(ol => ol.product_id).Distinct().ToArray();
-                //var productsList = await new ProductProductDb(App.Session.odooConnection.DbNameSqlite).GetByProductsIds(product_ids, 0);
-                var productsList = await new ProductProductDb(App.Session.odooConnection.DbNameSqlite).GetByProductsIdsLite(product_ids, 0);                
+            var product_ids = orderLines.Select(ol => ol.product_id).Distinct().ToArray();
+            //var productsList = await new ProductProductDb(App.Session.odooConnection.DbNameSqlite).GetByProductsIds(product_ids, 0);
+            var productsList = await new ProductProductDb(App.Session.odooConnection.DbNameSqlite).GetByProductsIdsLite(product_ids, 0);                
 
-                foreach (var line in orderLines)
+            foreach (var line in orderLines)
+            {
+                var product = productsList.FirstOrDefault(p => p.id == line.product_id);
+                if (product != null)
                 {
-                    var product = productsList.FirstOrDefault(p => p.id == line.product_id);
-                    if (product != null)
-                    {
-                        line.product_code = product.code;
-                        line.product_display = product.name;
-                        line.uom_category_display = product.uom_sale_display;
-                        OrderLines.Add(line);
-                    }
-                    else
-                    {
-                        //await Toast.Make("Producto huerfano " + line.product_id.ToString()).Show();
-                        Debug.WriteLine("Producto huerfano " + line.product_id.ToString());
-                    }
+                    line.product_code = product.code;
+                    line.product_display = product.name;
+                    line.uom_category_display = product.uom_sale_display;
+                    OrderLines.Add(line);
                 }
-
-                var saleOrderPromotionsDb = new SaleOrderPromotionsDb(App.Session.odooConnection.DbNameSqlite);
-                var saleOrderPromotions_tmp = await saleOrderPromotionsDb.GetItemsByOrder(CurrentSaleOrder.id);
-
-                foreach (var sop in saleOrderPromotions_tmp)
+                else
                 {
-                    saleOrderPromotions.Add(sop);
+                    //await Toast.Make("Producto huerfano " + line.product_id.ToString()).Show();
+                    Debug.WriteLine("Producto huerfano " + line.product_id.ToString());
                 }
-
-                UpdateTotals();
             }
+
+            var saleOrderPromotionsDb = new SaleOrderPromotionsDb(App.Session.odooConnection.DbNameSqlite);
+            var saleOrderPromotions_tmp = await saleOrderPromotionsDb.GetItemsByOrder(CurrentSaleOrder.id);
+
+            foreach (var sop in saleOrderPromotions_tmp)
+            {
+                saleOrderPromotions.Add(sop);
+            }
+
+            UpdateTotals();
+
+            OnPropertyChanged(nameof(Note));
+            OnPropertyChanged(nameof(Note2));
         }
 
         //private void OnClose()
@@ -457,7 +518,7 @@ namespace DMOrders.Pages.Fragments.Orders
             if (tax_sale != null)
             {
                 tax_sale_amount = tax_sale.amount;
-            }            
+            }
 
             //decimal list_price = (decimal) product.list_price;  // NO SE VA A USAR ESTE CAMPO
             decimal price_list_value = 0m;
@@ -605,13 +666,13 @@ namespace DMOrders.Pages.Fragments.Orders
 
             if (qty_sol > qty_real)
             {
-                await Application.Current.Windows[0].Page.DisplayAlert("Alerta", "La cantidad solicitada no puede ser mayor a la cantidad real.", "Aceptar");
+                await Application.Current.Windows[0].Page.DisplayAlertAsync("Alerta", "La cantidad solicitada no puede ser mayor a la cantidad real.", "Aceptar");
                 return;
             }
 
             if(itemPickedArgs.product.cantidad_disponible < (float) qty_sol)
             {
-                await Application.Current.Windows[0].Page.DisplayAlert("Alerta", "La cantidad solicitada no puede ser mayor a la disponible en inventario.", "Aceptar");
+                await Application.Current.Windows[0].Page.DisplayAlertAsync("Alerta", "La cantidad solicitada no puede ser mayor a la disponible en inventario.", "Aceptar");
                 return;
             }
 
@@ -675,7 +736,98 @@ namespace DMOrders.Pages.Fragments.Orders
                 }
                 else
                 {
-                    await Application.Current.Windows[0].Page.DisplayAlert("Warning", "Producto no se puede agregar porque no existe en la lista de precios.", "OK");
+                    await Application.Current.Windows[0].Page.DisplayAlertAsync("Warning", "Producto no se puede agregar porque no existe en la lista de precios.", "OK");
+                    return;
+                }
+            }
+
+            UpdateTotals();
+        }
+
+
+
+        private async void OnAddLineNoRestrict(ItemPickedArgs itemPickedArgs)
+        {
+            if (itemPickedArgs is null) return;
+
+            var product = itemPickedArgs.product;
+            var qty_real = itemPickedArgs.qty_real;
+            var qty_sol = itemPickedArgs.qty_sol;
+
+            //if (qty_sol > qty_real)
+            //{
+            //    await Application.Current.Windows[0].Page.DisplayAlertAsync("Alerta", "La cantidad solicitada no puede ser mayor a la cantidad real.", "Aceptar");
+            //    return;
+            //}
+
+            //if (itemPickedArgs.product.cantidad_disponible < (float)qty_sol)
+            //{
+            //    await Application.Current.Windows[0].Page.DisplayAlertAsync("Alerta", "La cantidad solicitada no puede ser mayor a la disponible en inventario.", "Aceptar");
+            //    return;
+            //}
+
+            int sequence_line = OrderLines.Count;
+            sequence_line++;
+
+            // Buscar si el producto ya existe en la lista
+            var existingLine = OrderLines.FirstOrDefault(l => l.product_id == product.id && !l.is_gift);
+
+            if (existingLine != null)
+            {
+                // Si existe, aumentar la cantidad
+                existingLine.product_uom_qty_real += qty_real;
+                existingLine.product_uom_qty += qty_sol;
+
+                var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, existingLine.product_uom_qty);
+
+                //product.list_price = (float) priceCalc.Price;                
+                existingLine.price_total = priceCalc.TotalLine;
+                existingLine.price_unit = priceCalc.Price;
+                existingLine.price_subtotal = priceCalc.PriceSubtotal; //(priceCalc.PriceWithoutIva * existingLine.product_uom_qty) - priceCalc.DiscountAmount;
+                existingLine.discount = priceCalc.DiscountPercent;
+                existingLine.amount_discount = priceCalc.DiscountAmount;
+                existingLine.price_tax = priceCalc.PriceTax;
+                existingLine.virtual_price_no_tax = priceCalc.PriceWithoutIva;
+                existingLine.virtual_iva_percentage = priceCalc.IvaPercentage;
+                existingLine.virtual_line_subtotal = priceCalc.LineSubtotal;
+                existingLine.product_tmpl_id = product._product_tmpl_id;
+                OnPropertyChanged(nameof(OrderLines));
+            }
+            else
+            {
+                var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, qty_sol);
+
+                if (priceCalc.ExistsInPriceList)
+                {
+                    // Si no existe, agregar una nueva línea
+                    var line = new sale_order_line
+                    {
+                        sequence = sequence_line,
+                        product_id = product.id,
+                        product_display = product.name,
+                        product_code = product.code,
+                        qty_to_deliver = qty_sol,
+                        product_uom_qty_real = qty_real,
+                        product_uom_qty = qty_sol,
+                        uom_category_display = "UND",
+                        price_subtotal = priceCalc.PriceSubtotal, // (priceCalc.PriceWithoutIva * 1) - priceCalc.DiscountAmount,
+                        discount = priceCalc.DiscountPercent,
+                        amount_discount = priceCalc.DiscountAmount,
+                        price_tax = priceCalc.PriceTax,
+                        price_unit = priceCalc.Price,
+                        price_total = priceCalc.TotalLine,
+                        virtual_price_no_tax = priceCalc.PriceWithoutIva,
+                        virtual_iva_percentage = priceCalc.IvaPercentage,
+                        virtual_line_subtotal = priceCalc.LineSubtotal,
+                        product_tmpl_id = product._product_tmpl_id
+                    };
+
+                    OrderLines.Add(line);
+                }
+                else
+                {
+                    Debug.WriteLine("Producto no se puede agregar porque no existe en la lista de precios. " + product.code);
+                    await Application.Current.Windows[0].Page.DisplayAlertAsync("Warning", "Producto no se puede agregar porque no existe en la lista de precios. " + product.code, "OK");
                     return;
                 }
             }
@@ -778,6 +930,43 @@ namespace DMOrders.Pages.Fragments.Orders
             }
 
             UpdateTotals();
+        }
+
+        public async void UpdateOrderLineLite(sale_order_line sale_Order_Line, product_product product)
+        {
+            if (sale_Order_Line != null)
+            {
+                //////if (!string.IsNullOrEmpty(sale_Order_Line.promotion_data))
+                ////{
+                ////    //List<PromotionEvalItem> promotionEvalItemParent = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItem>>(sale_Order_Line.promotion_data);
+                ////    List<PromotionEvalItem> promotionEvalItemParent = sale_Order_Line.promotionDataList;
+                ////    if (promotionEvalItemParent != null && promotionEvalItemParent.Count > 0)
+                ////    {
+                ////        foreach (var benefitItem in promotionEvalItemParent)
+                ////        {
+                ////            if (benefitItem.Promotion._promotion_type_id == 2 && benefitItem.Promotion._selection_type_id == 2)
+                ////            {
+                ////                //Si contiene regalos asociados manuales, no se procede a recalcular
+                ////                return;
+                ////            }
+                ////        }
+                ////    }
+                ////}
+
+                var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, sale_Order_Line.product_uom_qty);
+                sale_Order_Line.price_total = priceCalc.TotalLine;
+                sale_Order_Line.price_unit = priceCalc.Price;
+                sale_Order_Line.price_subtotal = priceCalc.PriceSubtotal; // (priceCalc.PriceWithoutIva * sale_Order_Line.product_uom_qty) - priceCalc.DiscountAmount;
+                sale_Order_Line.price_tax = priceCalc.PriceTax; //(priceCalc.PriceWithoutIva * sale_Order_Line.product_uom_qty * priceCalc.IvaPercentage) / 100;
+                sale_Order_Line.discount = priceCalc.DiscountPercent;
+                sale_Order_Line.amount_discount = priceCalc.DiscountAmount;
+                sale_Order_Line.virtual_price_no_tax = priceCalc.PriceWithoutIva;
+                sale_Order_Line.virtual_iva_percentage = priceCalc.IvaPercentage;
+                sale_Order_Line.virtual_line_subtotal = priceCalc.LineSubtotal;
+                sale_Order_Line.product_tmpl_id = product._product_tmpl_id;
+                                
+                DMSA.Models.Odoo.Promotions.Tools.ClearPromotionData(sale_Order_Line);
+            }            
         }
 
 
@@ -964,9 +1153,8 @@ namespace DMOrders.Pages.Fragments.Orders
         {
             bool requiredConfirm = await ExistsLinkedGifts(sale_Order_Line);
             if (requiredConfirm)
-            {
-                //await Application.Current.Windows[0].Page.DisplayAlert("Warning", "Producto no se puede eliminar porque tiene regalos relacionados, elimine los regalos para proceder.", "OK");
-                var leave = await Application.Current.Windows[0].Page.DisplayAlert("Atención", "Al eliminar el producto se eliminaran los regalos relacionados", "Si", "No");
+            {                
+                var leave = await Application.Current.Windows[0].Page.DisplayAlertAsync("Atención", "Al eliminar el producto se eliminaran los regalos relacionados", "Si", "No");
 
                 if (!leave)
                 {
@@ -1142,11 +1330,11 @@ namespace DMOrders.Pages.Fragments.Orders
                     decimal Parse(string s) =>
                         decimal.Parse(s.Replace(",", ""), CultureInfo.InvariantCulture);
 
-                    var cantidadSol = Parse(matchesNumeros[5].Value);
-                    var cantidad = Parse(matchesNumeros[6].Value);
+                    var cantidadSol = Parse(matchesNumeros[7].Value);
+                    var cantidad = Parse(matchesNumeros[8].Value);
 
                     // Precio → normalmente el último valor antes del total
-                    var precio = Parse(matchesNumeros[8].Value);
+                    var precio = Parse(matchesNumeros[10].Value);
 
                     Debug.WriteLine($"Código: {codigo}, Cantidad: {cantidad}, Precio: {precio}");
 
@@ -1163,7 +1351,7 @@ namespace DMOrders.Pages.Fragments.Orders
                         qty_sol = cantidad
                     };
 
-                    OnAddLine(itemPickedArgs);
+                    OnAddLineNoRestrict(itemPickedArgs);
                 }
                 catch (Exception ex)
                 {

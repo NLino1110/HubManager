@@ -165,7 +165,7 @@ namespace DMOrders.Services.Update
             await SafeExecute(() => serverPuller.OnlineSyncResPartnerFull(async (current, total) => { await UpdateProgressState(current, total, "Clientes"); }), "ResPartner");
 
             await SafeExecute(() => serverPuller.OnlineSyncProductPricelist(async (current, total) => { await UpdateProgressState(current, total, "L.Precios"); }), "Pricelist");
-            await SafeExecute(() => serverPuller.OnlineSyncProductPricelistItem(async (current, total) => { await UpdateProgressState(current, total, "L.Pr.Items"); }), "PricelistItem");
+            await SafeExecute(() => serverPuller.OnlineSyncProductPricelistItem(async (current, total, title) => { await UpdateProgressState(current, total, title); }), "PricelistItem");
             await SafeExecute(() => serverPuller.OnlineAccountTaxes(async (current, total) => { await UpdateProgressState(current, total, "Taxes"); }), "Taxes");
 
             await ExecuteCriticalStockBlock();

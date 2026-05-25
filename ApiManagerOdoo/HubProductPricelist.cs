@@ -94,43 +94,59 @@ namespace ApiManager
         //    return await SearchRead<ApiResponseOdooRpcT<product_pricelist[]>>(args, _custom_args, kwargs, true);
         //}
 
-        public async Task<ApiResponseOdooRpcT<product_pricelist[]>?> GetByWriteDate_dl(int year, int month, int day)
-        {
-            var kwargs = new
-            {
-                fields = new[] { "id", "write_date" }
-            };
+        //public async Task<ApiResponseOdooRpcT<product_pricelist[]>?> GetByWriteDate_dl(int year, int month, int day)
+        //{
+        //    var kwargs = new
+        //    {
+        //        fields = new[] { "id", "write_date" }
+        //    };
 
-            object[] args = new object[] { };
-            object[] _custom_args = new object[] {
-                new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
-            };
-            return await SearchRead<ApiResponseOdooRpcT<product_pricelist[]>>(args, _custom_args, kwargs);
-        }
+        //    object[] args = new object[] { };
+        //    object[] _custom_args = new object[] {
+        //        new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
+        //    };
+        //    return await SearchRead<ApiResponseOdooRpcT<product_pricelist[]>>(args, _custom_args, kwargs);
+        //}
 
-        public async Task<ApiResponseOdooRpcT<product_pricelist[]>?> GetByCreateDate_dl(int year, int month, int day)
-        {
-            var kwargs = new
-            {
-                fields = new[] { "id", "create_date", "write_date" }
-            };
+        //public async Task<ApiResponseOdooRpcT<product_pricelist[]>?> GetByCreateDate_dl(int year, int month, int day)
+        //{
+        //    var kwargs = new
+        //    {
+        //        fields = new[] { "id", "create_date", "write_date" }
+        //    };
 
-            object[] args = new object[] { };
-            object[] _custom_args = new object[] {
-                new object[] { "create_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
-            };
-            return await SearchRead<ApiResponseOdooRpcT<product_pricelist[]>>(args, _custom_args, kwargs);
-        }
+        //    object[] args = new object[] { };
+        //    object[] _custom_args = new object[] {
+        //        new object[] { "create_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
+        //    };
+        //    return await SearchRead<ApiResponseOdooRpcT<product_pricelist[]>>(args, _custom_args, kwargs);
+        //}
         
-        public async Task<ApiResponseOdooRpcT<product_pricelist[]>?> GetByWriteDate(int year, int month, int day)
+        //public async Task<ApiResponseOdooRpcT<product_pricelist[]>?> GetByWriteDate(int year, int month, int day)
+        //{
+        //    var kwargs = new
+        //    {
+        //        fields = fields_array 
+        //    };
+
+        //    object[] args = new object[] { };
+        //    object[] _custom_args = new object[] {                
+        //        new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
+        //    };
+        //    return await SearchRead<ApiResponseOdooRpcT<product_pricelist[]>>(args, _custom_args, kwargs);
+        //}
+
+        public async Task<ApiResponseOdooRpcT<product_pricelist[]>?> GetByWriteDate(int limit, int index, int year, int month, int day)
         {
             var kwargs = new
             {
-                fields = fields_array 
+                limit = limit,
+                offset = (index * limit),
+                fields = fields_array
             };
 
             object[] args = new object[] { };
-            object[] _custom_args = new object[] {                
+            object[] _custom_args = new object[] {
                 new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
             };
             return await SearchRead<ApiResponseOdooRpcT<product_pricelist[]>>(args, _custom_args, kwargs);

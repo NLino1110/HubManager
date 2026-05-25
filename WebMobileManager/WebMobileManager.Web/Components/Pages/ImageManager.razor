@@ -49,7 +49,7 @@
 
     private Task<TableData<ImageItem>> LoadServerData(TableState state, CancellationToken token)
     {
-        var path = Path.Combine(Env.WebRootPath, "uploads/images");
+        var path = Path.Combine(Env.WebRootPath, "uploads", "images");
 
         if (!Directory.Exists(path))
         {
@@ -79,10 +79,20 @@
         var items = filtered
             .Skip(state.Page * state.PageSize)
             .Take(state.PageSize)
-            .Select(f => new ImageItem
+            // .Select(f => new ImageItem
+            // {
+            //     Name = Path.GetFileName(f),
+            //     Url = "/uploads/images/" + Path.GetFileName(f)
+            // })
+            .Select(f =>
             {
-                Name = Path.GetFileName(f),
-                Url = "/uploads/images/" + Path.GetFileName(f)
+                var nameWithoutExt = Path.GetFileNameWithoutExtension(f);
+                var nameExt = Path.GetExtension(f);
+                return new ImageItem
+                {
+                    Name = Path.GetFileName(f),
+                    Url = $"/uploads/images/{nameWithoutExt}_128" + nameExt
+                };
             })
             .ToList();
 
@@ -101,9 +111,11 @@
 
     async Task ShowImage(ImageItem img)
     {
+        var nameExt = Path.GetExtension(img.Name);
+
         var parameters = new DialogParameters
         {
-            ["ImageUrl"] = img.Url,
+            ["ImageUrl"] = img.Url.Replace($"_128{nameExt}", $"_1024{nameExt}"),
             ["Title"] = img.Name
         };
 

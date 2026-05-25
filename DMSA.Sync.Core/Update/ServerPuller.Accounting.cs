@@ -279,13 +279,13 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
 
-            int countTotal = resultCount.result / limit;
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
 
             var database = new CalificacionCrediticiaDb(DbNameSqlite);
 
-            for (int indice = 0; indice <= countTotal; indice++)
+            for (int indice = 0; indice <= totalPages; indice++)
             {
-                Debug.WriteLine("Página:" + indice);
+                Debug.WriteLine("Página:" + indice + " de " + totalPages);
 
                 var responseAll = await hubmanager.GetByCreateDate(limit, indice, year, month, day);
 

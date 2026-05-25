@@ -15,7 +15,7 @@ namespace DMSA.Sync.Core.Update
             var hubmanager = new HubWmsStockQuant(Constants.Session);
             
             int res_center = Constants.Session.odooConnection.res_center_default;
-            //Obtenermos los warehouses asociados al centro de operaciones
+            //Obtenemos los warehouses asociados al centro de operaciones
             var databaseWhs = new StockWareHouseDb(Constants.Session.odooConnection.DbNameSqlite);
             var whsList = await databaseWhs.GetDefaultByResCenter(res_center);
             int[] whsIds = whsList.Select(w => w.id).ToArray();
@@ -27,13 +27,12 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
 
-            int countTotal = resultCount.result / 300;            
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
 
-            for (int indice = 0; indice <= countTotal; indice++)
+            for (int indice = 0; indice <= totalPages; indice++)
             {
-                Debug.WriteLine("Página:" + indice + " de " + countTotal);
-
-                var responseAll = await hubmanager.GetByWriteDate(whsIds, limit, indice, year, month, day);
+                Debug.WriteLine("Página:" + indice + " de " + totalPages);                
+                var responseAll = await hubmanager.GetByWriteDate(whsIds, limit, indice, lastDate.Value.Year, lastDate.Value.Month, lastDate.Value.Day);
 
                 if (responseAll.result != null && responseAll.result.Length > 0)
                 {
@@ -41,7 +40,7 @@ namespace DMSA.Sync.Core.Update
                 }
 
                 if (onProgress != null)
-                    await onProgress(indice, countTotal);
+                    await onProgress(indice, totalPages);
 
                 if (indice >= maxIndexExceeded)
                 {

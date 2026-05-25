@@ -1,5 +1,6 @@
 ﻿using ApiManager;
 using DMSA.Models.Odoo.Specials;
+using DMSA.Models.Security;
 using System.Diagnostics;
 using System.IO.Compression;
 
@@ -44,6 +45,10 @@ namespace DMSA.Sync.Core.Update.Cloud
                 var parts = SplitFile(zipBytes, MAX_PART_SIZE_LONG).ToList();
                 int totalParts = parts.Count;
 
+                string package_name = Constants.Session.AppCodeOdoo + "_app_package_" +
+                dbNameSqlite + "_" +
+                DateTime.Now.ToString("yyyyMMddHHmmss");
+
                 for (int i = 0; i < totalParts; i++)
                 {
                     string partName = $"{packageId}_{dbNameSqlite}_part_{(i + 1):D6}.zip";
@@ -56,7 +61,7 @@ namespace DMSA.Sync.Core.Update.Cloud
                         file_bytes = parts[i],
                         file_type = "application/zip",
                         package_id = packageId
-                    }, dbNameSqlite);
+                    }, dbNameSqlite, package_name);
 
                     if (file_upload_response.result == 0)
                         return (mnsaAttachment, false);

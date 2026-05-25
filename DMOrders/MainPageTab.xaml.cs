@@ -53,6 +53,11 @@ public partial class MainPageTab : ContentPage
             lblUserName.Text = App.Session.CurrentUserFront.nombres;
         }
 
+        if (App.Session.odooConnection != null)
+        {
+            lblConnection.Text = App.Session.odooConnection.Name;
+        }
+
         imageDebug.IsVisible = IsDebug;
 
         MenuItems = new ObservableCollection<MenuItemModel>

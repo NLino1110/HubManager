@@ -41,7 +41,7 @@ namespace ApiManager
                 "write_uid",
                 "write_date",
                 "active",
-                "cost_unit",
+                //"cost_unit",
                 "cost_price",
                 "cost_price_tax",
                 "margin"

@@ -18,7 +18,7 @@ namespace ApiManager
                 "barcode",
                 "combination_indices",
                 "is_product_variant",
-                "standard_price",
+                //"standard_price",
                 "list_price",
                 "price_extra",
                 "lst_price",

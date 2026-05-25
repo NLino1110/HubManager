@@ -367,7 +367,7 @@
                     <Label Text="TOTAL" FontAttributes="Bold" FontSize="11" TextColor="Black" HorizontalOptions="End" Grid.Column="10"/>
                     <StackLayout Grid.Column="12" MinimumWidthRequest="20"></StackLayout>
                 </Grid>
-
+                <Grid Grid.Row="1">
                 <CollectionView
                     Grid.Row="1"
                     x:Name="OrderLinesCl"
@@ -378,7 +378,8 @@
                     HorizontalOptions="FillAndExpand"
                     VerticalOptions="FillAndExpand"
                     MaximumWidthRequest="1100"
-                    SelectionChanged="detail_SelectionChanged">                    
+                    SelectionChanged="detail_SelectionChanged"
+                    IsVisible="{Binding IsLoadingLines , Source={x:Reference RootPage}, Converter={StaticResource InverseBoolConverter}}">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <customrowsv2:SaleOrderLineRow
@@ -389,6 +390,17 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
+
+                    <Grid IsVisible="{Binding IsLoadingLines,Source={x:Reference RootPage}}" BackgroundColor="#80000000">
+                        <ActivityIndicator
+                            IsRunning="True"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center"
+                            WidthRequest="60"
+                            HeightRequest="60"/>
+                    </Grid>
+                    
+                </Grid>
             </Grid>
 
             <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" HorizontalOptions="FillAndExpand" ColumnDefinitions="*,*,Auto">                

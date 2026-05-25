@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace DMSA.Models.Odoo.Abstract
 {
+    [Obsolete("No encontrada funcionalidad")]
     public class PreloadParameters
     {        
         public required int[] TopMarcas { get; set; }

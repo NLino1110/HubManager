@@ -42,6 +42,9 @@ public partial class Connections : TabbedPage
     {
         await userdb.DropTableAsync(tableName);        
         await Toast.Make(tableName + " eliminado correctamente").Show();
+
+        ExecuteTask executeTask = new ExecuteTask();
+        await executeTask.Vaccum();
     }
 
     public Connections()
@@ -123,6 +126,24 @@ public partial class Connections : TabbedPage
         }
     }
 
+    public ObservableCollection<DatabaseStruct> _dbStructItems { get; set; }
+    public ObservableCollection<DatabaseStruct> dbStructItems
+    {
+        get => _dbStructItems;
+        set
+        {
+            _dbStructItems = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public class DatabaseStruct
+    {
+        public string Name { get; set; }
+        public int Size { get; set; }
+        public string Path { get; set; }
+    }
+
     private string _statusMessage;
     public string StatusMessage
     {
@@ -142,6 +163,27 @@ public partial class Connections : TabbedPage
     {
         var items = await _database.GetItemsAsync();
         ConnectionsItems = new ObservableCollection<OdooConnection>(items);
+
+        dbStructItems = new ObservableCollection<DatabaseStruct>();
+
+        foreach (var item in items)
+        {
+            dbStructItems.Add(
+                new DatabaseStruct
+                {
+                    Name = item.DbNameSqlite,
+                    Size = 0,
+                    Path = item.DbNameSqlite
+                });
+
+            dbStructItems.Add(
+                new DatabaseStruct
+                {
+                    Name = item.DbNameSqlite + "_static",
+                    Size = 0,
+                    Path = item.DbNameSqlite + "_static"
+                });
+        }
     }
 
     private void NewConnection()
@@ -279,7 +321,7 @@ public partial class Connections : TabbedPage
 
     private async void btnRebuildSettings_Clicked(object sender, EventArgs e)
     {
-        bool result = await DisplayAlert("Rehacer configuración", "¿Desea continuar?", "Sí", "No");
+        bool result = await DisplayAlertAsync("Rehacer configuración", "¿Desea continuar?", "Sí", "No");
         if (!result)
         {
             return;
@@ -324,8 +366,8 @@ public partial class Connections : TabbedPage
         if (control == null || control.SelectedItem == null)
             return;
         
-        var selectedConnection = (OdooConnection) control.SelectedItem;
-        userdb = new UserAccessDb(selectedConnection.DbNameSqlite);
+        var selectedConnection = (DatabaseStruct) control.SelectedItem;
+        userdb = new UserAccessDb(selectedConnection.Name);
         LoadTables();
     }
 }

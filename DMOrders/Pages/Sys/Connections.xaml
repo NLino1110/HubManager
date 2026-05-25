@@ -258,8 +258,8 @@
             <HorizontalStackLayout Grid.Row="0" Padding="10" VerticalOptions="Center">
                 <Label>DB:</Label>
                 <Picker Grid.Row="1" 
-                        ItemsSource="{Binding ConnectionsItems}" 
-                        ItemDisplayBinding="{Binding DbNameSqlite}"
+                        ItemsSource="{Binding dbStructItems}" 
+                        ItemDisplayBinding="{Binding Name}"
                         SelectedIndexChanged="DbPicker_SelectedIndexChanged"/>
             </HorizontalStackLayout>
             <HorizontalStackLayout Grid.Row="1" Spacing="5">

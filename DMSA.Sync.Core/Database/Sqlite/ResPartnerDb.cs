@@ -260,7 +260,6 @@ namespace DMSA.Sync.Core.Database.Sqlite
             }
         }
 
-
         public async Task<(IList<res_partner> Items, int Total)> GetPagedAsync(
             string filter_code,
             string filter_vat,

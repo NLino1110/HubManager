@@ -709,23 +709,15 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
         for (int i = 0; i < OrderLines.Count; i++)
         {
-            //regalos se eliminan
-            if (OrderLines[i].is_gift)
-            {
-                OrderLines.RemoveAt(i);
-                continue;
-            }
-
             //Lineas con descuento se resetean a precio original y se eliminan promociones
             if (!OrderLines[i].is_gift && OrderLines[i].discount > 0)
             {
                 OrderLines[i].discount = 0;
                 //continue;
-            }                
+            }
 
             var line = OrderLines[i];
-            line.promotion_data = null;
-            DMSA.Models.Odoo.Promotions.Tools.ClearPromotionData(line);
+            line.promotion_data = null;            
 
             var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
             var product_item = await productDb.GetItemAsync(x => x.id == line.product_id);
@@ -737,7 +729,19 @@ public partial class Crud : ContentPage, IBackButtonHandler
             }
 
             product_item.list_price = (float)line.price_unit;
-            UpdateOrderLine(line, product_item);
+            UpdateOrderLineLite(line, product_item);
+        }
+
+        UpdateTotals();
+
+        for (int i = 0; i < OrderLines.Count; i++)
+        {
+            //regalos se eliminan
+            if (OrderLines[i].is_gift)
+            {
+                OrderLines.RemoveAt(i);
+                continue;
+            }
         }
     }
 
@@ -1268,7 +1272,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
     private async void ButtonSync_Clicked(object sender, EventArgs e)
     {
-        var leave = await DisplayAlert("Enviar", "¿Desea enviar esta orden al ERP? Los cambios realizados serán almacenados.", "Si", "No");
+        var leave = await DisplayAlertAsync("Enviar", "¿Desea enviar esta orden al ERP? Los cambios realizados serán almacenados.", "Si", "No");
 
         if (!leave)
         {
@@ -1305,7 +1309,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
         if(sendOk)
         {
-            await DisplayAlert("Envío de datos", "Envío correcto", "Aceptar");
+            await DisplayAlertAsync("Envío de datos", "Envío correcto", "Aceptar");
             await Navigation.PopModalAsync();
         }
     }
@@ -1457,7 +1461,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 //product_uom_qty = 0;
                 //OrderLinesCl.SelectedItem = null;
 
-                await DisplayAlert("Alerta", "La cantidad solicitada no puede ser mayor a la cantidad real.", "Aceptar");
+                await DisplayAlertAsync("Alerta", "La cantidad solicitada no puede ser mayor a la cantidad real.", "Aceptar");
                 return;
             }
 

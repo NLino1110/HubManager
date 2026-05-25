@@ -30,6 +30,8 @@
     <PackageReference Include="MudBlazor.FontIcons.MaterialSymbols" Version="1.4.0" />
     <PackageReference Include="MudBlazor.ThemeManager" Version="4.0.0" />
     <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.3" />
+    <PackageReference Include="SkiaSharp" Version="3.119.2" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.2" />
   </ItemGroup>
 
   <ItemGroup>

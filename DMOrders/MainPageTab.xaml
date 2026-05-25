@@ -76,11 +76,11 @@
                             Opacity="0.2" />
                     </Grid.Shadow>
 
-                    <Image Grid.Column="0" Source="logo_macronegocios.png" WidthRequest="60"/>
+                    <Image Grid.Column="0" Source="icon_macronegocios.png" WidthRequest="60" VerticalOptions="Center"/>
 
                     <Label Grid.Column="1"
                        x:Name="lblCompany"
-                       Text="Opciones"
+                       Text="-"
                        VerticalOptions="Center"
                        Padding="0"
                        FontSize="12"
@@ -97,23 +97,34 @@
                         FontSize="10"
                         TextColor="DimGray"/>
 
-                    <Image
-                    x:Name="imageDebug"
-                    Grid.Column="3"
-                    BackgroundColor="Transparent"
-                    HorizontalOptions="Start"
-                    VerticalOptions="Center"
-                    HeightRequest="15"
-                    WidthRequest="15"
-                    Margin="10">
-                        <Image.Source>
-                            <FontImageSource FontFamily="FontAwesome5Solid"
-                         Color="DimGray"
-                         Size="10"
-                         FontAutoScalingEnabled="False"
-                         Glyph="&#xf188;" />
-                        </Image.Source>
-                    </Image>
+                    <HorizontalStackLayout Grid.Column="3">
+                        <Image
+                        x:Name="imageDebug"                    
+                        BackgroundColor="Transparent"
+                        HorizontalOptions="Start"
+                        VerticalOptions="Center"
+                        HeightRequest="15"
+                        WidthRequest="15"
+                        Margin="10">
+                            <Image.Source>
+                                <FontImageSource FontFamily="FontAwesome5Solid"
+                             Color="DimGray"
+                             Size="10"
+                             FontAutoScalingEnabled="False"
+                             Glyph="&#xf188;" />
+                            </Image.Source>
+                        </Image>
+
+                        <Label Grid.Column="2"                           
+                            x:Name="lblConnection"
+                            BackgroundColor="Transparent"
+                            Text="..."
+                            VerticalOptions="Center"
+                            Padding="5,0,5,0"
+                            FontAttributes="None"
+                            FontSize="10"
+                            TextColor="GhostWhite"/>
+                    </HorizontalStackLayout>
 
                     <Image 
                         Grid.Column="4"

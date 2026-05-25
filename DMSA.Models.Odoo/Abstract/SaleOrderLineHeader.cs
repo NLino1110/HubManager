@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace DMSA.Models.Odoo.Abstract
 {
+    [Obsolete("No encontrada funcionalidad")]
     public class SaleOrderLineHeader: INotifyPropertyChanged
     {
         public string Number { get; set; }

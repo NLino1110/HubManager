@@ -220,7 +220,119 @@ namespace DMSA.Sync.Core.Update
             return true;
         }
 
-        public async Task<bool> OnlineSyncProductProductOnlyImagesUrl(bool fullUpdate, Func<int, int, Task>? onProgress = null)
+        //////public async Task<bool> OnlineSyncProductProductOnlyImagesUrl(bool fullUpdate, Func<int, int, Task>? onProgress = null)
+        //////{
+        //////    var databaseImages = new ProductProductPreviewDb(Constants.Session.odooConnection.DbNameSqliteStatic);
+
+        //////    if (fullUpdate)
+        //////    {
+        //////        await databaseImages.DeleteAllAsync(x => x.id > 0);
+        //////    }
+
+        //////    var stopwatch = Stopwatch.StartNew();
+
+        //////    DateTime dateEnd = DateTime.Now;
+
+        //////    ApiManager.HubProductProduct hubmanager = new ApiManager.HubProductProduct(appSession);
+        //////    DateTime? lastDate = await databaseImages.GetLastWriteDateAsync(sync_date_since_lower);
+
+        //////    var resultCount = await hubmanager.GetCountOnlyImageUrl(lastDate);
+
+        //////    Debug.WriteLine(resultCount.result);
+
+        //////    if (resultCount.result == 0)
+        //////        return false;
+
+        //////    int limit_large = 20;
+
+        //////    int totalPages = (int)Math.Ceiling((double)resultCount.result / limit_large);
+
+        //////    var handler = new HttpClientHandler
+        //////    {
+        //////        ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+        //////    };
+
+        //////    using var httpClient = new HttpClient(handler);
+        //////    httpClient.Timeout = TimeSpan.FromSeconds(60);
+
+        //////    var semaphore = new SemaphoreSlim(5); // ajusta según tu servidor/red
+
+        //////    for (int indice = 0; indice < totalPages; indice++)
+        //////    {
+        //////        var responseAll = await hubmanager.GetByWriteOnlyImageUrl(limit_large, indice, lastDate.Value);
+
+        //////        if (responseAll?.result != null && responseAll.result.Length > 0)
+        //////        {
+        //////            var tasks = responseAll.result.Select(async item =>
+        //////            {
+        //////                if (string.IsNullOrEmpty(item.image_url))
+        //////                    return;
+
+        //////                await semaphore.WaitAsync();
+
+        //////                try
+        //////                {
+        //////                    var imageBytes = await httpClient.GetByteArrayAsync(item.image_url);
+
+        //////                    item.image_1920 = Convert.ToBase64String(imageBytes);
+
+        //////                    using var inputStream = new MemoryStream(imageBytes);
+        //////                    using var image = Microsoft.Maui.Graphics.Platform.PlatformImage.FromStream(inputStream);
+
+        //////                    int newWidth = 256;
+        //////                    int newHeight = (int)(image.Height * (256.0 / image.Width));
+
+        //////                    using var resizedImage = image.Resize(newWidth, newHeight);
+
+        //////                    using var outputStream = new MemoryStream();
+        //////                    resizedImage.Save(outputStream, Microsoft.Maui.Graphics.ImageFormat.Jpeg);
+
+        //////                    item.image_256 = Convert.ToBase64String(outputStream.ToArray());
+        //////                }
+        //////                catch (Exception ex)
+        //////                {
+        //////                    Debug.WriteLine($"Error procesando imagen: {item.image_url} - {ex.Message}");
+        //////                }
+        //////                finally
+        //////                {
+        //////                    semaphore.Release();
+        //////                }
+        //////            });
+
+        //////            await Task.WhenAll(tasks);
+
+        //////            await databaseImages.InsertBatchAsync(responseAll.result);
+        //////        }
+
+        //////        Debug.WriteLine("ProductOnlyImagesUrl Página:" + indice + " de " + totalPages);
+
+        //////        if (onProgress != null)
+        //////            await onProgress(indice, totalPages);
+
+        //////        if (indice >= maxIndexExceeded)
+        //////        {
+        //////            Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
+        //////            break;
+        //////        }
+        //////    }
+
+        //////    stopwatch.Stop();
+
+        //////    Debug.WriteLine(string.Format(
+        //////        "Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+        //////        stopwatch.Elapsed.Days,
+        //////        stopwatch.Elapsed.Hours,
+        //////        stopwatch.Elapsed.Minutes,
+        //////        stopwatch.Elapsed.Seconds));
+
+        //////    return true;
+        //////}
+
+        public async Task<bool> OnlineSyncProductProductOnlyImagesUrl(
+                bool fullUpdate,
+                Func<int, int, Task>? onProgress = null,
+                int maxParallelPages = 3
+            )
         {
             var databaseImages = new ProductProductPreviewDb(Constants.Session.odooConnection.DbNameSqliteStatic);
 
@@ -231,19 +343,16 @@ namespace DMSA.Sync.Core.Update
 
             var stopwatch = Stopwatch.StartNew();
 
-            DateTime dateEnd = DateTime.Now;
-
             ApiManager.HubProductProduct hubmanager = new ApiManager.HubProductProduct(appSession);
             DateTime? lastDate = await databaseImages.GetLastWriteDateAsync(sync_date_since_lower);
 
             var resultCount = await hubmanager.GetCountOnlyImageUrl(lastDate);
 
-            Debug.WriteLine(resultCount.result);
-
             if (resultCount.result == 0)
                 return false;
 
-            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
+            int limit_large = 20;
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit_large);
 
             var handler = new HttpClientHandler
             {
@@ -253,79 +362,91 @@ namespace DMSA.Sync.Core.Update
             using var httpClient = new HttpClient(handler);
             httpClient.Timeout = TimeSpan.FromSeconds(60);
 
-            var semaphore = new SemaphoreSlim(5); // ajusta según tu servidor/red
+            var semaphoreImages = new SemaphoreSlim(5); // imágenes en paralelo
+            var semaphorePages = new SemaphoreSlim(maxParallelPages); // páginas en paralelo
 
-            for (int indice = 0; indice < totalPages; indice++)
+            int currentProgress = 0;
+
+            var tasksPages = Enumerable.Range(0, totalPages).Select(async indice =>
             {
-                var responseAll = await hubmanager.GetByWriteOnlyImageUrl(limit, indice, lastDate.Value);
+                await semaphorePages.WaitAsync();
 
-                if (responseAll?.result != null && responseAll.result.Length > 0)
+                try
                 {
-                    var tasks = responseAll.result.Select(async item =>
+                    var responseAll = await hubmanager.GetByWriteOnlyImageUrl(limit_large, indice, lastDate.Value);
+
+                    if (responseAll?.result != null && responseAll.result.Length > 0)
                     {
-                        if (string.IsNullOrEmpty(item.image_url))
-                            return;
-
-                        await semaphore.WaitAsync();
-
-                        try
+                        var tasksImages = responseAll.result.Select(async item =>
                         {
-                            var imageBytes = await httpClient.GetByteArrayAsync(item.image_url);
+                            if (string.IsNullOrEmpty(item.image_url))
+                                return;
 
-                            item.image_1920 = Convert.ToBase64String(imageBytes);
+                            await semaphoreImages.WaitAsync();
 
-                            using var inputStream = new MemoryStream(imageBytes);
-                            using var image = Microsoft.Maui.Graphics.Platform.PlatformImage.FromStream(inputStream);
+                            try
+                            {
+                                string sizeImg = "_1024";
 
-                            int newWidth = 256;
-                            int newHeight = (int)(image.Height * (256.0 / image.Width));
+                                var nameExt = Path.GetExtension(item.image_url);
 
-                            using var resizedImage = image.Resize(newWidth, newHeight);
+                                var final_url = item.image_url.Replace(nameExt, sizeImg + nameExt);
 
-                            using var outputStream = new MemoryStream();
-                            resizedImage.Save(outputStream, Microsoft.Maui.Graphics.ImageFormat.Jpeg);
+                                var imageBytes = await httpClient.GetByteArrayAsync(final_url);
 
-                            item.image_256 = Convert.ToBase64String(outputStream.ToArray());
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine($"Error procesando imagen: {item.image_url} - {ex.Message}");
-                        }
-                        finally
-                        {
-                            semaphore.Release();
-                        }
-                    });
+                                item.image_1920 = Convert.ToBase64String(imageBytes);
 
-                    await Task.WhenAll(tasks);
+                                using var inputStream = new MemoryStream(imageBytes);
+                                using var image = Microsoft.Maui.Graphics.Platform.PlatformImage.FromStream(inputStream);
 
-                    await databaseImages.InsertBatchAsync(responseAll.result);
+                                int newWidth = 256;
+                                int newHeight = (int)(image.Height * (256.0 / image.Width));
+
+                                using var resizedImage = image.Resize(newWidth, newHeight);
+
+                                using var outputStream = new MemoryStream();
+                                resizedImage.Save(outputStream, Microsoft.Maui.Graphics.ImageFormat.Jpeg);
+
+                                item.image_256 = Convert.ToBase64String(outputStream.ToArray());
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Error imagen: {item.image_url} - {ex.Message}");
+                            }
+                            finally
+                            {
+                                semaphoreImages.Release();
+                            }
+                        });
+
+                        await Task.WhenAll(tasksImages);
+
+                        await databaseImages.InsertBatchAsync(responseAll.result);
+                    }
+
+                    var progress = Interlocked.Increment(ref currentProgress);
+
+                    Debug.WriteLine($"Página {indice} completada ({progress}/{totalPages})");
+
+                    if (onProgress != null)
+                        await onProgress(progress, totalPages);
                 }
-
-                Debug.WriteLine("ProductOnlyImagesUrl Página:" + indice + " de " + totalPages);
-
-                if (onProgress != null)
-                    await onProgress(indice, totalPages);
-
-                if (indice >= maxIndexExceeded)
+                finally
                 {
-                    Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
-                    break;
+                    semaphorePages.Release();
                 }
-            }
+            });
+
+            await Task.WhenAll(tasksPages);
 
             stopwatch.Stop();
 
-            Debug.WriteLine(string.Format(
-                "Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
-                stopwatch.Elapsed.Days,
-                stopwatch.Elapsed.Hours,
-                stopwatch.Elapsed.Minutes,
-                stopwatch.Elapsed.Seconds));
+            Debug.WriteLine($"Tiempo total: {stopwatch.Elapsed}");
 
             return true;
         }
 
+        [Obsolete("Ya no se usara")]
         public async Task<bool> OnlineSyncProductProductOnlyImagesUrl__(bool fullUpdate, Func<int, int, Task>? onProgress = null)
         {
             var databaseImages = new ProductProductPreviewDb(Constants.Session.odooConnection.DbNameSqliteStatic);

@@ -9,6 +9,7 @@ using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Promotions.Wizard;
 using DMSA.Models.Odoo.Tareas;
+using DMSA.Models.Odoo.Tools;
 using DMSA.Models.Security;
 using DMSA.Sync.Core.Controls;
 using DMSA.Sync.Core.Database.Sqlite;
@@ -16,6 +17,7 @@ using DMSA.Sync.Core.Database.Sqlite.Sales;
 using DMSA.Sync.Core.Database.Sqlite.tareas;
 using Microsoft.Maui.Graphics;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 
 namespace DMSA.Sync.Core.Update.Pusher
@@ -53,7 +55,52 @@ namespace DMSA.Sync.Core.Update.Pusher
             //await OnlineSyncStores();
             return true;
         }
-                
+
+        private async Task<JObject> PreparPayLoad(sale_order sale_Order)
+        {
+            var settings = new JsonSerializerSettings
+            {
+                DateFormatString = "yyyy-MM-dd HH:mm:ss",
+                ContractResolver = new IncludeJsonIgnoreResolver(),
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+
+            var json = JsonConvert.SerializeObject(sale_Order, settings);
+
+            var fullObject = JObject.Parse(json);
+
+            JObjectExtensions.RemovePropertyFromOrderLineItems(fullObject, "_order_id");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(fullObject, "_product_uom_category_id");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(fullObject, "product_code");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(fullObject, "product_display");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(fullObject, "uom_category_display");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(fullObject, "promotionDataList");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(fullObject, "promotion_data");
+
+            var dto = new
+            {
+                version = 1,
+                timestamp = DateTime.UtcNow,
+                data = new SaleOrderDTO
+                {
+                    SaleOrder = fullObject,
+                    PromoData = ""//JsonConvert.DeserializeObject(new object())
+                }
+            };
+
+            return JObject.FromObject(dto);
+        }
+
+
+        public void RemoveGiftLines(ref sale_order sale_Order)
+        {
+            if (sale_Order.order_line == null || !sale_Order.order_line.Any())
+                return;
+            
+            var orderLinesNotGifts = sale_Order.order_line.Where(ol => !((sale_order_line)ol[2]).is_gift).ToList();
+            sale_Order.order_line = orderLinesNotGifts;
+        }
+
         public async Task<bool> SendSaleOrder(sale_order sale_Order)
         {            
             SaleOrderDb saleOrderDb = new SaleOrderDb(Constants.Session.odooConnection.DbNameSqlite);
@@ -67,6 +114,11 @@ namespace DMSA.Sync.Core.Update.Pusher
                 await saleOrderDb.UpdateAsync(sale_Order);
             }
 
+            var dto = await PreparPayLoad(sale_Order);
+            sale_Order.external_payload = dto;
+
+            RemoveGiftLines(ref sale_Order);
+
             HubSaleOrder hubSaleOrder = new HubSaleOrder(Constants.Session);
             ApiResponseOdooRpcT<int> resultTask = await hubSaleOrder.Create(sale_Order, false);
 
@@ -78,6 +130,8 @@ namespace DMSA.Sync.Core.Update.Pusher
                 return false;
             }
 
+            bool byPassExtras = true;
+
             if (resultTask != null && resultTask.result !=null)
             {
                 await Toast.Make("Datos enviados correctamente").Show();
@@ -87,6 +141,8 @@ namespace DMSA.Sync.Core.Update.Pusher
                 sale_Order.date_synchronized = DateTime.Now;
                 
                 await saleOrderDb.UpdateAsync(sale_Order);
+
+                if(byPassExtras) return true;
 
                 var resultDetailTask = await hubSaleOrder.GetLines(sale_Order.erp_id);
 
@@ -178,12 +234,11 @@ namespace DMSA.Sync.Core.Update.Pusher
                                 Stock = line.product_uom_qty,
                                 Price = line.price_unit,
                                 Approve = true,
-                                Lines_Ids = new int[] { line.erp_id },                                
+                                Lines_Ids = new int[] { line.erp_id },
                                 Discount = 0,
                                 Obtained = true
                             }));
-
-                            //if (line.is_manual && !string.IsNullOrEmpty(line.origin_gift_line_ids_offline))
+                            
                             if (!string.IsNullOrEmpty(line.origin_gift_line_ids_offline))
                             {
                                 try
@@ -210,84 +265,6 @@ namespace DMSA.Sync.Core.Update.Pusher
                                     await Toast.Make("Error en el dato de promociones - origin_gift_line_ids_offline" + ex.Message).Show();
                                 }
                             }
-
-                            //////foreach(var originGiftLineId in origin_gift_line_ids)
-                            //////{
-                            //////    var groupedByPromotion = lines
-                            //////        .Where(l =>
-                            //////            l.erp_id == originGiftLineId
-                            //////        )
-                            //////        .SelectMany(l => l.promotion_ids.Select(promo => new
-                            //////        {
-                            //////            PromotionId = promo,
-                            //////            Line = l
-                            //////        }))
-                            //////        .GroupBy(x => x.PromotionId);
-
-                            //////    if(isLineDiscount)
-                            //////    {
-                            //////        groupedByPromotion = line.promotion_ids.Select(promo => new
-                            //////        {
-                            //////            PromotionId = promo,
-                            //////            Line = line
-                            //////        })
-                            //////        .GroupBy(x => x.PromotionId);
-                            //////    }
-
-                            //////    foreach (var promoGroup in groupedByPromotion)
-                            //////    {
-                            //////        int promotionId = promoGroup.Key;
-
-                            //////        var groupedByRule = promoGroup
-                            //////            .SelectMany(x => x.Line.rule_ids.Select(rule => new
-                            //////            {
-                            //////                RuleId = rule,
-                            //////                Line = x.Line
-                            //////            }))
-                            //////            .GroupBy(x => x.RuleId);
-
-                            //////        foreach (var ruleGroup in groupedByRule)
-                            //////        {
-                            //////            int ruleId = ruleGroup.Key;
-
-                            //////            int[] linesIdsArray = new int[] { line.erp_id };
-
-                            //////            int totalAllowedGifts = 0;
-                            //////            var linesGroup = ruleGroup
-                            //////                .Select(x => x.Line)
-                            //////                .Distinct()
-                            //////                .ToArray();
-
-                            //////            foreach (var lineItemGroup in linesGroup)
-                            //////            {
-                            //////                totalAllowedGifts = ruleGroup
-                            //////                        .Select(x => x.Line)
-                            //////                        .Distinct()
-                            //////                        .Where(l => l.promotionDataList.Count > 0)
-                            //////                        .Sum(line =>
-                            //////                        {
-                            //////                            var listPromotionData = lineItemGroup.promotionDataList;
-                            //////                            return listPromotionData?
-                            //////                                .SelectMany(p => p.RuleSet)
-                            //////                                .Sum(r => r.AllowedGifts) ?? 0;
-                            //////                        });
-                            //////            }
-
-                            //////            foreach (var item in ruleGroup)
-                            //////            {
-                            //////                linesIds.Add(new SaleOrderPromotionWizardLineWrapper(new SaleOrderPromotionWizardLine
-                            //////                {
-                            //////                    Promotion_Id = promoGroup.Key,
-                            //////                    Rule_Id = ruleGroup.Key,
-                            //////                    Discount = 100,
-                            //////                    Rule_Value = totalAllowedGifts,
-                            //////                    Qty_Confirmation = true,
-                            //////                    Lines_Ids = linesIdsArray
-                            //////                }));
-                            //////            }
-                            //////        }
-                            //////    }
-                        //}
                         }
                         else
                         {
@@ -317,7 +294,8 @@ namespace DMSA.Sync.Core.Update.Pusher
         }
 
         public async Task SendAllSaleOrders()
-        {           
+        {
+            var saleOrderLinesDb = new SaleOrderLineDb(Constants.Session.odooConnection.DbNameSqlite);
             SaleOrderDb saleOrderDb = new SaleOrderDb(Constants.Session.odooConnection.DbNameSqlite);
             var listOrders = await saleOrderDb.GetItemsAsync(Constants.Session.res_Company.id, false);
             
@@ -329,6 +307,27 @@ namespace DMSA.Sync.Core.Update.Pusher
             foreach (var item in listOrders)
             {
                 itemIndex++;
+
+                if (item.order_line == null)
+                    item.order_line = new List<OrderLineWrapper>();
+
+                var orderLines = await saleOrderLinesDb.GetItemsAsync(item.id);
+
+                //var product_ids = orderLines.Select(ol => ol.product_id).Distinct().ToArray();
+                //var productsList = await new ProductProductDb(Constants.Session.odooConnection.DbNameSqlite).GetByProductsIdsLite(product_ids, 0);
+
+                foreach (var line in orderLines)
+                {
+                    //var product = productsList.FirstOrDefault(p => p.id == line.product_id);
+                    //if (product != null)
+                    //{
+                        //line.product_code = product.code;
+                        //line.product_display = product.name;
+                        //line.uom_category_display = product.uom_sale_display;                        
+                        item.order_line.Add(new OrderLineWrapper(line));
+                    //}
+                }                                        
+                
                 //obj.SetTitle($"Sincronizando pedidos ({itemIndex}/{totalItems})");
                 await SendSaleOrder(item);
             }            

@@ -221,11 +221,9 @@ namespace ApiManager
             return await Create<ApiResponseOdooRpcT<int>>(args, kwargs, "ir.attachment");
         }
 
-        public async Task<ApiResponseOdooRpcT<int>?> SendAttachmentMode2(mnsa_attachment_line SendObject, string dbNameSqlite)
+        public async Task<ApiResponseOdooRpcT<int>?> SendAttachmentMode2(mnsa_attachment_line SendObject, string dbNameSqlite, string package_name)
         {
-            string package_name = _appSession.AppCodeOdoo + "_app_package_" +
-                dbNameSqlite + "_" +
-                DateTime.Now.ToString("yyyyMMddHHmmss");
+            
 
             var uploadResponse = await SendToExternalServer(SendObject.file_bytes, SendObject.file_name, package_name);
 

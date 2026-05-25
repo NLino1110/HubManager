@@ -211,5 +211,9 @@ namespace DMSA.Models.Odoo.Native
                     : JsonConvert.DeserializeObject<int[]>(value);
             }
         }
+
+        [Ignore]
+        [JsonProperty("external_payload")]
+        public JObject external_payload { get; set; }
     }
 }

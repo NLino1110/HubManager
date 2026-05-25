@@ -301,7 +301,7 @@ namespace DMOrders.Pages.Fragments.Customers
                         var page = Application.Current?.MainPage;
                         if (page != null)
                             await page.DisplayAlertAsync("Alerta",
-                                            "El cliente no tiene lista de precio asignada, no se puede continuar",
+                                            "La lista de precios que tiene asignada el cliente no fue encontrada, no se puede continuar",
                                             "Aceptar");
                         button.IsEnabled = true;
                         _isProcessing = false;
@@ -311,7 +311,7 @@ namespace DMOrders.Pages.Fragments.Customers
                     {
                         var page = Application.Current?.MainPage;
                         if (page != null)
-                            await page.DisplayAlert("Alerta",
+                            await page.DisplayAlertAsync("Alerta",
                                             "El cliente no tiene lista de direcciones asignadas, no se puede continuar",
                                             "Aceptar");
                         button.IsEnabled = true;
