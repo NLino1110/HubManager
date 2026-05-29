@@ -105,6 +105,12 @@ public partial class Login : ContentPage
         }
     }
 
+    public async Task RootPatch()
+    {
+        PatchRunner patchRunner = new PatchRunner();
+        await patchRunner.RootPatchExecuter(this);
+    }
+
     public async Task SetupLogin()
     {
         AppTools.BuildPushRelay();
@@ -927,6 +933,7 @@ public partial class Login : ContentPage
         {
             Dispatcher.Dispatch(async () =>
             {
+                await RootPatch();
                 LoadSession();
                 await SetupLogin();
             });

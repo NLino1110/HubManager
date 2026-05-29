@@ -6,7 +6,7 @@ namespace DMSA.Models.Odoo.StaticData
     {
         public static readonly List<AppParameter> data = new()
         {
-            new AppParameter { code = "transfer", name = "Trasferencia", abrev = "==== TRANSFERENCIA" },
+            new AppParameter { code = "transfer", name = "Transferencia", abrev = "==== TRANSFERENCIA" },
             new AppParameter { code = "deposito", name = "Depósito", abrev = "==== DEPOSITO" },
             new AppParameter { code = "cash", name = "Efectivo", abrev = "==== EFECTIVO" },
             new AppParameter { code = "check_day", name = "Cheque Día" , abrev = "==== CH. DIA"},

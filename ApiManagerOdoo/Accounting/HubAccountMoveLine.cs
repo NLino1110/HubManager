@@ -47,7 +47,8 @@ namespace ApiManagerOdoo.Accounting
         {
             object[] args = new object[] { };            
             object[] _custom_args = new object[] {
-                new object[] { "date", ">=", $"{dateIni.ToString("yyyy-MM-dd")}" },
+                //new object[] { "date", ">=", $"{dateIni.ToString("yyyy-MM-dd")}" },
+                new object[] { "write_date", ">=", $"{dateIni.Year}-{dateIni.Month:00}-{dateIni.Day:00} 00:00:00" },
                 new object[] { "invoice_date", "!=", false },
                 new object[] { "move_id.move_type", "=", "out_invoice" }
             };
@@ -77,12 +78,15 @@ namespace ApiManagerOdoo.Accounting
             {
                 limit,
                 offset = index * limit,
-                fields = fields_array
+                fields = fields_array,
+                order = "write_date asc"
             };
 
             object[] args = new object[] { };
             object[] _custom_args = new object[] {
-                new object[] { "date", ">=", $"{dateIni.ToString("yyyy-MM-dd")}" },
+                //new object[] { "date", ">=", $"{dateIni.ToString("yyyy-MM-dd")}" },
+                new object[] { "write_date", ">=", $"{dateIni.Year}-{dateIni.Month:00}-{dateIni.Day:00} 00:00:00" },
+                new object[] { "invoice_date", "!=", false },
                 new object[] { "move_id.move_type", "=", "out_invoice" }
             };
 

@@ -254,15 +254,19 @@ namespace DMCobranzas.Services.Templates
                     {
                         decimal residual = 0;
 
-                        var move = (await accountMoveDb
-                            .GetItemsAsync(x => x.docnum_mask == ai.docnum_mask))
-                            .FirstOrDefault();
+                        //ESTA LOGICA NO ES CORRECTA SEGUN USUARIO
+                        ////var move = (await accountMoveDb
+                        ////    .GetItemsAsync(x => x.docnum_mask == ai.docnum_mask))
+                        ////    .FirstOrDefault();
 
-                        if (move != null)
-                        {
-                            //residual = move.amount_residual_virtual;
-                            residual = move.amount_residual - ai.amount_asigned;
-                        }
+                        ////if (move != null)
+                        ////{
+                        ////    //residual = move.amount_residual_virtual;
+                        ////    residual = move.amount_residual - ai.amount_asigned;
+                        ////}
+                        //==========================================
+
+                        residual = ai.amount_residual - ai.amount_asigned;                        
 
                         accountMoveSummaries.Add(new AccountMoveSummary
                         {

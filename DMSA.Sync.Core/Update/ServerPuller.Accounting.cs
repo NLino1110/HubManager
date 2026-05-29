@@ -621,7 +621,7 @@ namespace DMSA.Sync.Core.Update
             DateTime dateTimeIni = DateTime.Now;
             var databaseDet = new AccountMoveLineDb(Constants.Session.odooConnection.DbNameSqlite);
 
-            Console.WriteLine("Iniciando proceso:" + " " + DateTime.Now.ToString());
+            Debug.WriteLine("Iniciando proceso:" + " " + DateTime.Now.ToString());
 
             HubAccountMoveLine hubmanager = new HubAccountMoveLine(Constants.Session);
             DateTime? lastDate = await databaseDet.GetLastWriteDateAsync(sync_date_since_lower);
@@ -633,13 +633,11 @@ namespace DMSA.Sync.Core.Update
             {
                 return false;
             }
-
-            //int limit = Constants.Session.odooConnection.DbLimitDefault;
+                        
             int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
 
             for (int indice = 0; indice <= totalPages; indice++)
             {
-
                 var responseAll = await hubmanager.GetAccountMoveLines(lastDate.Value, limit, indice);
 
                 if (responseAll.result != null && responseAll.result.Length > 0)

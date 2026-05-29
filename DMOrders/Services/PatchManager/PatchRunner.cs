@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Maui.Alerts;
-using DMOrders.Controls.Tools;
 using DMOrders.Services.PatchManager.Reset;
 using DMSA.Models.Odoo.Abstract;
 using DMSA.Sync.Core.Database.Sqlite;
@@ -9,6 +8,49 @@ namespace DMOrders.Services.PatchManager
 {
     public class PatchRunner
     {
+        public async Task RootPatchExecuter(ContentPage page)
+        {
+            string patch_name = "_patch_rootpatch";
+
+            bool patch_applied = Preferences.Get(patch_name, false);
+
+            if (patch_applied)
+            {
+                return;
+            }
+
+            OdooConnectionDb connectionsDb = new OdooConnectionDb();
+            var filtered = await connectionsDb.GetItemsAsync(c => true);
+            foreach (var connection in filtered)
+            {
+                bool foundDiference = false;
+
+                if (connection.project_id != 2)
+                {
+                    connection.project_id = 2;
+                    foundDiference = true;
+                }
+
+                if (connection.HostDump != "https://manager.dmujeres.ec:5001/")
+                {
+                    connection.HostDump = "https://manager.dmujeres.ec:5001/";
+                    foundDiference = true;
+                }
+                if (connection.HostDumpApiKey != "t.0.0.r.1381")
+                {
+                    connection.HostDumpApiKey = "t.0.0.r.1381";
+                    foundDiference = true;
+                }
+
+                if (foundDiference)
+                {
+                    await connectionsDb.UpdateAsync(connection);
+                }
+            }
+
+            Preferences.Set(patch_name, true);
+        }
+
         public async Task PatchExecuter(OdooConnection ConnectionItem, ContentPage page)
         {
             Preferences.Set("patch_require_update", false);

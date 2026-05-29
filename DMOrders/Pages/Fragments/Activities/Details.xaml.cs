@@ -31,7 +31,7 @@ public partial class Details : ContentPage, IBackButtonHandler
         if (CurrentProjectTask != null && CurrentProjectTask.is_synchronized)
         {
             Debug.WriteLine("[Details] Edit blocked: task is synchronized");
-            await DisplayAlert("Atención", "No se puede editar una actividad sincronizada.", "Aceptar");
+            await DisplayAlertAsync("Atención", "No se puede editar una actividad sincronizada.", "Aceptar");
             return;
         }
 
@@ -126,7 +126,7 @@ public partial class Details : ContentPage, IBackButtonHandler
 
     public async Task<bool> OnBackButtonPressedAsync()
     {
-        bool result = await DisplayAlert("Confirmación", "Minimizar la aplicación, ¿Desea continuar?", "Sí", "No");
+        bool result = await DisplayAlertAsync("Confirmación", "Minimizar la aplicación, ¿Desea continuar?", "Sí", "No");
         if (result)
         {
 #if ANDROID
@@ -162,7 +162,7 @@ public partial class Details : ContentPage, IBackButtonHandler
         if (CurrentProjectTask != null && CurrentProjectTask.is_synchronized)
         {
             Debug.WriteLine("[Details] New blocked: task is synchronized");
-            await DisplayAlert("Atención", "No puede agregar nuevas actividades a una tarea sincronizada.", "Aceptar");
+            await DisplayAlertAsync("Atención", "No puede agregar nuevas actividades a una tarea sincronizada.", "Aceptar");
             return;
         }
 
@@ -206,6 +206,11 @@ public partial class Details : ContentPage, IBackButtonHandler
             catch (Exception exPopup)
             {
                 Debug.WriteLine("[Details] No se pudo mostrar popup: " + exPopup);
+            }
+
+            if(CurrentProjectTask.project_id_ != App.Session.odooConnection.project_id)
+            {
+                CurrentProjectTask.project_id_ = App.Session.odooConnection.project_id;
             }
 
             // Enviar tarea al servidor (ServerPusher puede crear/actualizar id_sync internamente)
@@ -307,7 +312,7 @@ public partial class Details : ContentPage, IBackButtonHandler
             
             var analytic = obj as AccountAnalyticLine;
 
-            bool confirm = await DisplayAlert("Confirmación", "¿Desea eliminar esta actividad?", "Sí", "No");
+            bool confirm = await DisplayAlertAsync("Confirmación", "¿Desea eliminar esta actividad?", "Sí", "No");
             if (!confirm) return;
             
             var db = new AccountAnalyticLineDb(App.Session?.odooConnection?.DbNameSqlite);

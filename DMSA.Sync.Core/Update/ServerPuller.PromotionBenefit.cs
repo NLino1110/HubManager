@@ -244,11 +244,12 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
 
-            int countTotal = resultCount.result / limit; // App.Session.odooConnection.DbLimitDefault;
+            //int countTotal = resultCount.result / limit; // App.Session.odooConnection.DbLimitDefault;
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
 
-            for (int indice = 0; indice <= countTotal; indice++)
+            for (int indice = 0; indice <= totalPages; indice++)
             {
-                Debug.WriteLine("Página:" + indice);
+                Debug.WriteLine("OnlinePromotionProductsByParents Página:" + indice + " de " + totalPages);
 
                 var responseAll = await hubmanager.GetItemsByParentIds(promotions, limit, indice);
 
@@ -340,12 +341,12 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
 
-            int countTotal = resultCount.result / Constants.Session.odooConnection.DbLimitDefault;
+            //int countTotal = resultCount.result / Constants.Session.odooConnection.DbLimitDefault;
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
 
-
-            for (int indice = 0; indice <= countTotal; indice++)
+            for (int indice = 0; indice <= totalPages; indice++)
             {
-                Debug.WriteLine("Página:" + indice);
+                Debug.WriteLine("OnlinePromotionProductDetailByParent Página:" + indice + " de " + totalPages);
 
                 var responseAll = await hubmanager.GetItemsByParentIds(promotions, limit, indice);
 
@@ -389,11 +390,12 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
 
-            int countTotal = resultCount.result / Constants.Session.odooConnection.DbLimitDefault;
+            //int countTotal = resultCount.result / Constants.Session.odooConnection.DbLimitDefault;
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
 
-            for (int indice = 0; indice <= countTotal; indice++)
+            for (int indice = 0; indice <= totalPages; indice++)
             {
-                Debug.WriteLine("Página:" + indice);
+                Debug.WriteLine("OnlinePromotionProductDetailByRules Página:" + indice + " de " + totalPages);
 
                 var responseAll = await hubmanager.GetItemsByBonusId(promotionRule, limit, indice);
 
@@ -437,11 +439,12 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
 
-            int countTotal = resultCount.result / Constants.Session.odooConnection.DbLimitDefault;
+            //int countTotal = resultCount.result / Constants.Session.odooConnection.DbLimitDefault;
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
 
-            for (int indice = 0; indice <= countTotal; indice++)
+            for (int indice = 0; indice <= totalPages; indice++)
             {
-                Debug.WriteLine("Página:" + indice);
+                Debug.WriteLine("OnlinePromotionProductByRules Página:" + indice + " de " + totalPages);
 
                 var responseAll = await hubmanager.GetItemsByBonusId(promotionRule, limit, indice);
 
@@ -524,13 +527,14 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
 
-            int countTotal = resultCount.result / Constants.Session.odooConnection.DbLimitDefault;
+            //int countTotal = resultCount.result / Constants.Session.odooConnection.DbLimitDefault;
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
 
             var database = new PromoCentersDb(DbNameSqlite);
 
-            for (int indice = 0; indice <= countTotal; indice++)
+            for (int indice = 0; indice <= totalPages; indice++)
             {
-                Debug.WriteLine("Página:" + indice);
+                Debug.WriteLine("PromoCenterByParent Página:" + indice + " de " + totalPages);
 
                 var responseAll = await hubmanager.GetItemsByParentIds(promotions, limit, indice);
 
@@ -573,13 +577,12 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
 
-            int countTotal = resultCount.result / Constants.Session.odooConnection.DbLimitDefault;
+            //int countTotal = resultCount.result / Constants.Session.odooConnection.DbLimitDefault;
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
 
-            
-
-            for (int indice = 0; indice <= countTotal; indice++)
+            for (int indice = 0; indice <= totalPages; indice++)
             {
-                Debug.WriteLine("Página:" + indice);
+                Debug.WriteLine("PromoRules Página:" + indice + " de " + totalPages);
 
                 var responseAll = await hubmanager.GetItemsByParentId(promotionBenfit.id, limit, indice);
 
@@ -629,13 +632,12 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
 
-            int countTotal = resultCount.result / Constants.Session.odooConnection.DbLimitDefault;
+            //int countTotal = resultCount.result / Constants.Session.odooConnection.DbLimitDefault;
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
 
-
-
-            for (int indice = 0; indice <= countTotal; indice++)
+            for (int indice = 0; indice <= totalPages; indice++)
             {
-                Debug.WriteLine("Página:" + indice);
+                Debug.WriteLine("PromoRulesByParents Página:" + indice + " de " + totalPages);
 
                 var responseAll = await hubmanager.GetItemsByParentIds(parent_ids, limit, indice);
 
@@ -692,7 +694,7 @@ namespace DMSA.Sync.Core.Update
 
             for (int indice = 0; indice <= totalPages; indice++)
             {
-                Debug.WriteLine("Página:" + indice);
+                Debug.WriteLine("OnlinePromotionBenefit Página:" + indice + " de " + totalPages);
 
                 var responseAll = await hubmanager.GetActivesByWriteDate(lastDate.Value, current_datetime, limit, indice);
 

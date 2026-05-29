@@ -17,6 +17,12 @@ namespace DMCobranzas.Services.PatchManager.Reset
             await userAccessDb.DeleteAllAsync(x => x.uid > 0);
         }
 
+        public async Task ResetAccountMoves()
+        {
+            var accountMoveDb = new AccountMoveDb(App.Session.odooConnection.DbNameSqlite);
+            await accountMoveDb.DropTableAsync();
+        }
+
         public async Task ResetAccountMoveLines()
         {
             var accountMoveLineDb = new AccountMoveLineDb(App.Session.odooConnection.DbNameSqlite);

@@ -65,7 +65,7 @@ namespace ApiManagerOdoo.Accounting
             object[] args = new object[] { };
 
             object[] _custom_args = new object[] {
-                new object[] { "write_date", ">=", $"{year}-{month:00}-{day:00} 23:59:59" },
+                new object[] { "write_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
                 new object[] { "state", "=", "posted" },
                 new object[] { "move_type", "=", "out_invoice" },
                 new object[] { "invoice_date", "!=", false },
@@ -79,12 +79,14 @@ namespace ApiManagerOdoo.Accounting
             {
                 limit,
                 offset = index * limit,
-                fields = fields_array
+                fields = fields_array,
+                order = "write_date asc"
             };
 
             object[] args = new object[] { };
             object[] _custom_args = new object[] {
-                new object[] { "write_date", ">=", dateIni.ToString("yyyy-MM-dd") },
+                //new object[] { "write_date", ">=", dateIni.ToString("yyyy-MM-dd") },
+                new object[] { "write_date", ">=", $"{dateIni.Year}-{dateIni.Month:00}-{dateIni.Day:00} 00:00:00" },
                 new object[] { "state", "=", "posted" },
                 new object[] { "move_type", "=", "out_invoice" },
                 new object[] { "invoice_date", "!=", false },

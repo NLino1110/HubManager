@@ -991,7 +991,6 @@ public partial class AccountPaymentCrud : ContentPage
         pickerFechaCheque.Date = multipleCobrosInvoiceLine.WithdrawalDate.Value;
 
         txtBancoCuenta.Text = multipleCobrosInvoiceLine.AccNumber;
-                
         
         if (multipleCobrosInvoiceLine.BankId != null && multipleCobrosInvoiceLine.BankId > 0)
         {

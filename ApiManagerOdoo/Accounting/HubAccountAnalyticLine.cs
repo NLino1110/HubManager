@@ -138,7 +138,7 @@ namespace ApiManagerOdoo.Accounting
             };
 
             object[] args = new object[] { };
-            object[] _custom_args = new object[] {                
+            object[] _custom_args = new object[] {
                 new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
             };
             return await SearchRead<ApiResponseOdooRpcT<AccountAnalyticLine[]>>(args, _custom_args, kwargs);
@@ -170,7 +170,11 @@ namespace ApiManagerOdoo.Accounting
 
             JObjectExtensions.RemoveProperty(newJObject, "res_company_display");
             JObjectExtensions.RemoveProperty(newJObject, "motivo_display");
-            JObjectExtensions.RemoveProperty(newJObject, "res_partner_display");            
+            JObjectExtensions.RemoveProperty(newJObject, "res_partner_display");
+
+            //JObjectExtensions.RemoveProperty(newJObject, "employee_id");
+
+            //JObjectExtensions.RemoveProperty(newJObject, "account_id");
 
             //JObjectExtensions.RemoveProperty(newJObject, "is_imported");
             //JObjectExtensions.RemoveProperty(newJObject, "date_imported");

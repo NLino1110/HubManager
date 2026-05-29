@@ -155,6 +155,10 @@ namespace DMSA.Models.Odoo.Native
 
         [JsonIgnore]
         public int erp_id { get; set; }
+        
+        [JsonProperty("name")]
+        public string? name { get; set; }
+
         [JsonIgnore]
         public string erp_name { get; set; }
 

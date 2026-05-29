@@ -1299,6 +1299,140 @@ namespace DMOrders.Pages.Fragments.Orders
             var lineas = text.Split('\n', StringSplitOptions.RemoveEmptyEntries);
             var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
 
+            decimal Parse(string s)
+            {
+                if (string.IsNullOrWhiteSpace(s))
+                    return 0;
+
+                s = s.Replace(",", "").Trim();
+
+                if (decimal.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out var val))
+                    return val;
+
+                return 0;
+            }
+
+            foreach (var linea in lineas)
+            {
+                try
+                {
+                    if (!linea.Contains("["))
+                        continue;
+
+                    // extraer codigo
+                    var matchCodigo = Regex.Match(linea, @"\[(.*?)\]");
+                    if (!matchCodigo.Success)
+                        continue;
+
+                    var codigo = matchCodigo.Groups[1].Value.Trim();
+
+                    // extraer numeros
+                    //var matches = Regex.Matches(linea, @"\d+(?:,\d{3})*(?:\.\d+)?")
+                    //                   .Select(m => m.Value)
+                    //                   .ToList();
+
+                    var matchUnidad = Regex.Match(linea, @"\]\s+.*?\s+(UNIDAD|BLISTER|FUNDAS X \d+)\s+(.*)");
+
+                    if (!matchUnidad.Success)
+                        continue;
+
+                    var dataNumerica = matchUnidad.Groups[2].Value;
+
+                    // ahora si extraer numeros limpios
+                    var matches = Regex.Matches(dataNumerica, @"\d+(?:,\d{3})*(?:\.\d+)?")
+                                       .Select(m => m.Value)
+                                       .ToList();
+
+                    if (matches.Count < 6)
+                        continue;
+
+                    int index_CantidadSol = 1;
+                    int index_Cantidad = 2;
+                    int index_Precio = 4;
+
+                    var numeros = matches.Select(Parse).ToList();
+
+                    // estructura estable detectada en tu data:
+                    // [0] stock
+                    // [1] cantidadSol
+                    // [2] cantidad
+                    // [3] 0
+                    // [4] precio unitario
+                    // [5] precio neto
+                    // luego varios ceros
+                    // luego subtotal, impuesto, total
+
+                    var cantidadSol = numeros[index_CantidadSol];
+                    var cantidad = numeros[index_Cantidad];
+                    decimal precio = numeros[index_Precio];
+
+                    if (matches.Count == 13)
+                    {
+                        index_CantidadSol = 3;
+                        index_Cantidad = 4;
+                        index_Precio = 6;
+
+                        cantidadSol = numeros[index_CantidadSol];
+                        cantidad = numeros[index_Cantidad];
+                        precio = numeros[index_Precio];
+                    }                    
+
+                    // fallback fuerte si el precio viene en cero o inconsistente
+                    if (precio <= 0)
+                    {
+                        // buscar precios con simbolo $
+                        var precios = Regex.Matches(linea, @"\$\s*(\d+(?:\.\d+)?)");
+
+                        if (precios.Count > 0)
+                        {
+                            var subtotal = Parse(precios[0].Groups[1].Value);
+
+                            if (cantidad > 0)
+                                precio = subtotal / cantidad;
+                        }
+                    }
+
+                    // validacion extra por seguridad
+                    if (precio <= 0 && numeros.Count >= 8)
+                    {
+                        // intentar detectar precio unitario como el primer decimal "raro"
+                        precio = numeros
+                            .Skip(3)
+                            .FirstOrDefault(n => n > 0 && n < 100);
+                    }
+
+                    Debug.WriteLine($"Codigo: {codigo}, Cantidad: {cantidad}, Precio: {precio}");
+
+                    var productItem = await productDb.GetItemAsync(p => p.code == codigo);
+                    if (productItem == null)
+                        continue;
+
+                    productItem.list_price = (float)precio;
+
+                    var itemPickedArgs = new ItemPickedArgs
+                    {
+                        product = productItem,
+                        qty_real = cantidadSol,
+                        qty_sol = cantidad
+                    };
+
+                    OnAddLineNoRestrict(itemPickedArgs);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error procesando linea: {ex.Message}");
+                }
+            }
+        }
+
+        private async Task ProcesarTextoAsync__(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return;
+
+            var lineas = text.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+            var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
+
             foreach (var linea in lineas)
             {
                 try
@@ -1330,8 +1464,8 @@ namespace DMOrders.Pages.Fragments.Orders
                     decimal Parse(string s) =>
                         decimal.Parse(s.Replace(",", ""), CultureInfo.InvariantCulture);
 
-                    var cantidadSol = Parse(matchesNumeros[7].Value);
-                    var cantidad = Parse(matchesNumeros[8].Value);
+                    var cantidadSol = Parse(matchesNumeros[6].Value);
+                    var cantidad = Parse(matchesNumeros[7].Value);
 
                     // Precio → normalmente el último valor antes del total
                     var precio = Parse(matchesNumeros[10].Value);
@@ -1359,44 +1493,5 @@ namespace DMOrders.Pages.Fragments.Orders
                 }
             }
         }
-
-        //void ProcesarTexto(string text)
-        //{
-        //    var lineas = text.Split('\n');
-        //    var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
-        //    foreach (var linea in lineas)
-        //    {
-        //        if (!linea.Contains("["))
-        //            continue;
-
-        //        var partes = linea.Split('\t');
-
-        //        if (partes.Length < 10)
-        //            continue;
-
-        //        var codigo = partes[0]
-        //            .Split(']')[0]
-        //            .Replace("[", "");
-
-        //        var cantidad_sol = partes[2];
-        //        var cantidad = partes[4];
-        //        var precio = partes[9]
-        //            .Replace("$", "")
-        //            .Trim();
-
-        //        Debug.WriteLine($"Código: {codigo}, Cantidad: {cantidad}, Precio: {precio}");
-
-        //        var productItem = await productDb.GetItemAsync(p => p.code == codigo);
-
-        //        ItemPickedArgs itemPickedArgs = new ItemPickedArgs
-        //        {
-        //            product = productItem,
-        //            qty_real = cantidad_sol,
-        //            qty_sol = cantidad,
-        //        };
-
-        //        OnAddLine(itemPickedArgs);
-        //    }
-        //}
     }
 }

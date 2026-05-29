@@ -27,7 +27,7 @@ namespace DMCobranzas.Services.PatchManager
             //await UITools.SetNotifyLoadingPopup("Aplicando parches...");
             //await PatchExecuter_v0(ConnectionItem);
             //await PatchExecuter_v1(ConnectionItem);
-            //await PatchExecuter_v2(ConnectionItem);
+            await PatchExecuter_v2(ConnectionItem);
             //await PatchExecuter_v3(ConnectionItem);
             //await PatchExecuter_v4(ConnectionItem);
             //await PatchExecuter_v5(ConnectionItem);
@@ -91,6 +91,25 @@ namespace DMCobranzas.Services.PatchManager
                 await executeTask.ResetProductMarca();
                 await executeTask.ResetProductLinea();
                 await executeTask.ResetProductSubCategoria();
+
+                Preferences.Set(patch_name, true);
+                Preferences.Set("patch_require_update", true);
+                Debug.WriteLine(patch_name + " ==== aplicado");
+                await Toast.Make("Patch applied: " + patch_name).Show();
+            }
+        }
+
+        private async Task PatchExecuter_v2(OdooConnection ConnectionItem)
+        {
+            string patch_name = "_patch_v2_" + ConnectionItem.DbName;
+
+            bool patch_applied = Preferences.Get(patch_name, false);
+
+            if (!patch_applied)
+            {
+                ExecuteTask executeTask = new ExecuteTask();
+                await executeTask.ResetAccountMoves();
+                await executeTask.ResetAccountMoveLines();
 
                 Preferences.Set(patch_name, true);
                 Preferences.Set("patch_require_update", true);

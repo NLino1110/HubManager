@@ -77,6 +77,12 @@ namespace DMSA.Sync.Core.Update.Pusher
             JObjectExtensions.RemovePropertyFromOrderLineItems(fullObject, "promotionDataList");
             JObjectExtensions.RemovePropertyFromOrderLineItems(fullObject, "promotion_data");
 
+            foreach( var lineOrder in sale_Order.order_line)
+            {
+                var order_line_item = (sale_order_line)lineOrder[2];
+                Debug.WriteLine(order_line_item.origin_gift_line_ids_offline);
+            }
+
             var dto = new
             {
                 version = 1,
@@ -139,10 +145,20 @@ namespace DMSA.Sync.Core.Update.Pusher
                 sale_Order.erp_id = resultTask.result;
                 sale_Order.is_synchronized = true;
                 sale_Order.date_synchronized = DateTime.Now;
-                
                 await saleOrderDb.UpdateAsync(sale_Order);
 
-                if(byPassExtras) return true;
+                var ErpSaleOrder = await hubSaleOrder.GetById(sale_Order.erp_id);
+
+                if (ErpSaleOrder != null && ErpSaleOrder.result.Length > 0)
+                {
+                    foreach(var erpOrderItem in ErpSaleOrder.result)
+                    {
+                        sale_Order.erp_name = erpOrderItem.name;
+                        await saleOrderDb.UpdateAsync(sale_Order);
+                    }                    
+                }
+
+                if (byPassExtras) return true;
 
                 var resultDetailTask = await hubSaleOrder.GetLines(sale_Order.erp_id);
 
@@ -165,24 +181,7 @@ namespace DMSA.Sync.Core.Update.Pusher
                         {
                             item.erp_id = lineRcp.id;
                             await saleOrderLineDb.UpdateAsync(item);
-
                             details_ok = true;
-
-                            //Actualiza nombre de la orden aprovechando la consulta a los detalles
-                            if (!new_name_order)
-                            {
-                                try
-                                {
-                                    var order_name = lineRcp.order_id?.ElementAtOrDefault(1)?.ToString();
-                                    sale_Order.erp_name = order_name;
-                                    await saleOrderDb.UpdateAsync(sale_Order);
-                                    new_name_order = true;
-                                }
-                                catch (Exception ex)
-                                {
-                                    Debug.WriteLine("Error al obtener el nombre de la orden: " + ex.Message);
-                                }
-                            }
                         }
                     }
 
@@ -399,6 +398,12 @@ namespace DMSA.Sync.Core.Update.Pusher
             var items = await projectTaskDb.GetItemsAsync(projectTask);
             foreach(var item in items)
             {
+                if (item.project_id != Constants.Session.odooConnection.project_id)
+                {
+                    item.project_id = Constants.Session.odooConnection.project_id;                    
+                    await projectTaskDb.UpdateAsync(item);
+                }
+
                 item.task_id_sync = projectTask.id_sync;
                 await SendAccountAnalyticLine(item);
             }

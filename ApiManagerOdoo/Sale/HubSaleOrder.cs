@@ -13,6 +13,7 @@ using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Xml.Linq;
 
 namespace ApiManagerOdoo.Sale
 {
@@ -212,11 +213,7 @@ namespace ApiManagerOdoo.Sale
 
             foreach (var line in lines)
             {
-                //var origin_gift_line_ids = GetPromotionIds(line.promotion_data);
-
-                //if (!origin_gift_line_ids.Any())
-                //    continue;
-
+        
                 int[] origin_gift_line_ids = line.origin_gift_line_ids;
 
                 object[] args = new object[]
@@ -276,7 +273,8 @@ namespace ApiManagerOdoo.Sale
             JObjectExtensions.RemoveProperty(newJObject, "erp_id");
             JObjectExtensions.RemoveProperty(newJObject, "erp_name");
             JObjectExtensions.RemoveProperty(newJObject, "state_view");
-            JObjectExtensions.RemoveProperty(newJObject, "promotion_ids_json");            
+            JObjectExtensions.RemoveProperty(newJObject, "promotion_ids_json");
+            JObjectExtensions.RemoveProperty(newJObject, "name");            
 
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_order_id");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "_product_uom_category_id");

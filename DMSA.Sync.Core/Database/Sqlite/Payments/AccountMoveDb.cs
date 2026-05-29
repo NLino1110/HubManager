@@ -78,7 +78,7 @@ namespace DMSA.Sync.Core.Database.Sqlite.Payments
             return await Database.Table<account_move>().Where(x=>
             x._partner_id == res_Partner.id &&
             x._company_id == res_Partner._company_id &&
-            x.move_type == "out_invoice" && 
+            x.move_type == "out_invoice" &&
             x.amount_residual > 0).ToListAsync();
             //return Database.Table<account_journal>().ToList();
         }
@@ -90,6 +90,7 @@ namespace DMSA.Sync.Core.Database.Sqlite.Payments
             x._partner_id == res_Partner.id &&
             x._company_id == res_Company.id &&
             x.move_type == "out_invoice" &&
+            x.payment_state != "paid" &&
             (x.mcl_check_id == 0 || x.mcl_check_id == null ) &&
             x.amount_residual > 0).ToListAsync();            
         }

@@ -577,7 +577,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
             if (_existPromotionsApplied)
             {
-                var leave = await DisplayAlert("Eliminar promociones anteriores?", "Este pedido ya tiene promociones aplicadas", "Si", "No");
+                var leave = await DisplayAlertAsync("Eliminar promociones anteriores?", "Este pedido ya tiene promociones aplicadas", "Si", "No");
                 //await DisplayAlert("Eliminar promociones aplicadas", "Este pedido ya tiene promociones aplicadas, se eliminarán las promociones anteriores.", "Continuar");
                 if (leave)
                 {
@@ -597,10 +597,10 @@ public partial class Crud : ContentPage, IBackButtonHandler
             
             if (targetOrder != null)
             {                
-                saved_data = true;                
+                saved_data = true;
                 var applyPromo = await ApplyPromo(targetOrder);
 
-                if (applyPromo.Count > 0)
+                if (applyPromo!=null && applyPromo.Count > 0)
                 {                    
                     targetOrder = await SaveOrder();
                 }
@@ -619,7 +619,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
     private async void ButtonPromo_Clicked(object sender, EventArgs e)
     {
-        var leave = await DisplayAlert("Atención", "Se guardarán los cambios antes de aplicar las promociones. ¿Desea continuar?", "Si", "No");
+        var leave = await DisplayAlertAsync("Atención", "Se guardarán los cambios antes de aplicar las promociones. ¿Desea continuar?", "Si", "No");
 
         if (!leave)
         {
@@ -651,6 +651,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         }
     }
 
+    [Obsolete("Ya no se usa al parecer")]
     private async Task CleanPromotionStatus(sale_order saleOrder)
     {
         //saleOrderPromotions?.Clear();
@@ -707,6 +708,17 @@ public partial class Crud : ContentPage, IBackButtonHandler
             saleOrderPromotions.Remove(promo);
         }
 
+        int deletedGifts = 0;
+
+        for (int i = OrderLines.Count - 1; i >= 0; i--)
+        {
+            if (OrderLines[i].is_gift)
+            {
+                OrderLines.RemoveAt(i);
+                deletedGifts++;
+            }
+        }
+
         for (int i = 0; i < OrderLines.Count; i++)
         {
             //Lineas con descuento se resetean a precio original y se eliminan promociones
@@ -732,17 +744,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
             UpdateOrderLineLite(line, product_item);
         }
 
-        UpdateTotals();
-
-        for (int i = 0; i < OrderLines.Count; i++)
-        {
-            //regalos se eliminan
-            if (OrderLines[i].is_gift)
-            {
-                OrderLines.RemoveAt(i);
-                continue;
-            }
-        }
+        UpdateTotals();        
     }
 
     public static string ObtenerIniciales(string nombreCompleto)

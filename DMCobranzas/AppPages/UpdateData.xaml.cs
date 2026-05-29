@@ -314,7 +314,7 @@ public partial class UpdateData : ContentPage
             " (" + String.Format("{0} días, {1} horas, {2} minutos, {3} segundos)",
             span.Days, span.Hours, span.Minutes, span.Seconds);
 
-        await progressBarPage.DisplayAlert("Actualización", "Actualización terminada", "Aceptar");        
+        await progressBarPage.DisplayAlertAsync("Actualización", "Actualización terminada", "Aceptar");        
         
         await Navigation.PopModalAsync();
     }

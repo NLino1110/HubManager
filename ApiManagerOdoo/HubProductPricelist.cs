@@ -56,7 +56,7 @@ namespace ApiManager
         {
             object[] args = new object[] { };            
             object[] _custom_args = new object[] {
-                new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
+                new object[] { "write_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
             };
             return await GetCount(args, _custom_args);
         }
@@ -147,7 +147,7 @@ namespace ApiManager
 
             object[] args = new object[] { };
             object[] _custom_args = new object[] {
-                new object[] { "write_date", ">", $"{year}-{month:00}-{day:00} 23:59:59" },
+                new object[] { "write_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
             };
             return await SearchRead<ApiResponseOdooRpcT<product_pricelist[]>>(args, _custom_args, kwargs);
         }

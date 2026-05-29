@@ -111,6 +111,7 @@ public partial class MainPageTab : ContentPage
         LaunchManager launchManager = new LaunchManager();
         await launchManager.Execute();
 
+        await Task.Delay(500);
         await UITools.HideLoadingPopup();        
         return true;
     }
@@ -192,9 +193,9 @@ public partial class MainPageTab : ContentPage
                 name = nameTodayTask,
                 company_id = App.Session.res_Company.id,
                 create_uid = App.Session.CurrentUserFront.uid,
-                stage_id_ = 57, //etapa predeterminada
-                project_id_ = 1, //proyecto predeterminado
-                parent_id = 1, //tarea predeterminada
+                stage_id_ = 57,
+                project_id_ = App.Session.odooConnection.project_id,
+                parent_id = 1,
                 date_assign = DateTime.Now,
                 date_deadline = DateTime.Now,
                 display_in_project = true,
