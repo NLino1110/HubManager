@@ -8,7 +8,8 @@
              xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"             
              xmlns:modals="clr-namespace:DMOrders.Pages.Fragments.Orders.modals"
              x:Name="RootPage"
-             Title="Pedido Nuevo - Edicion">
+             Title="Pedido Nuevo - Edicion"
+              Shell.PresentationMode="NotAnimated">
     <ContentPage.Resources>
         <ResourceDictionary>
             <OnPlatform x:Key="IsBackButtonEnabled" x:TypeArguments="x:Boolean">
@@ -23,7 +24,15 @@
         <BackButtonBehavior IsEnabled="{StaticResource IsBackButtonEnabled}" IsVisible="{StaticResource IsBackButtonEnabled}"/>
     </Shell.BackButtonBehavior>
 
-    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,*">        
+    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,*">
+        <!--<VerticalStackLayout x:Name="SearchProductView" 
+           IsVisible="False"
+           Grid.Row="0"
+           Grid.RowSpan="2"
+           Grid.Column="0"
+           Grid.ColumnSpan="2">
+        </VerticalStackLayout>-->
+        
         <modals:CatalogViewerInner x:Name="SearchProductView" 
                    IsVisible="False"
                    Grid.Row="0"

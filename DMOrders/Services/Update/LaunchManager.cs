@@ -162,7 +162,11 @@ namespace DMOrders.Services.Update
             await SafeExecute(() => serverPuller.OnlineSyncProductLinea(async (current, total) => { await UpdateProgressState(current, total, "Linea Prod."); }), "ProductLinea");
             await SafeExecute(() => serverPuller.OnlineSyncProductGrupoTipo(async (current, total) => { await UpdateProgressState(current, total, "Tipo Prod."); }), "GrupoTipo");
             await SafeExecute(() => serverPuller.OnlineCalificacionCrediticia(async (current, total) => { await UpdateProgressState(current, total, "Calif."); }), "CalificacionCrediticia");
-            await SafeExecute(() => serverPuller.OnlineSyncResPartnerFull(async (current, total) => { await UpdateProgressState(current, total, "Clientes"); }), "ResPartner");
+
+            await SafeExecute(() => serverPuller.OnlineCalificacionCrediticia(async (current, total) => { await UpdateProgressState(current, total, "Calif."); }), "CalificacionCrediticia");
+            await SafeExecute(() => serverPuller.MotivoActividadDiaria(false), "MotivoActividadDiaria");
+
+            await SafeExecute(() => serverPuller.OnlineSyncResPartnerFull(async (current, total) => { await UpdateProgressState(current, total, "Clientes"); }), "ResPartner");            
 
             await SafeExecute(() => serverPuller.OnlineSyncProductPricelist(async (current, total) => { await UpdateProgressState(current, total, "L.Precios"); }), "Pricelist");
             await SafeExecute(() => serverPuller.OnlineSyncProductPricelistItem(async (current, total, title) => { await UpdateProgressState(current, total, title); }), "PricelistItem");

@@ -303,11 +303,24 @@ public partial class CatalogViewerInner : ContentView
         }
     }
 
+    bool _isSetupDone = false;
+
     public CatalogViewerInner()
     {
         InitializeComponent();
-        Setup();
+        //Setup();
     }
+
+    //protected override async void OnParentSet()
+    //{
+    //    base.OnParentSet();
+
+    //    if (Parent != null && !_isSetupDone)
+    //    {
+    //        _isSetupDone = true;
+    //        Setup();
+    //    }
+    //}
 
     private async Task LoadTopMarcasAsync()
     {
@@ -348,7 +361,7 @@ public partial class CatalogViewerInner : ContentView
         ItemTappedCommand = new Command<product_product>(OnItemTapped);
         ItemPickedInternalCommand = new Command<product_product>(AddProductButtonInternal);
 
-        LoadTopMarcasAsync();
+        _ = Task.Run(async () => await LoadTopMarcasAsync());
 
         newProducts =
         [
@@ -1070,5 +1083,29 @@ public partial class CatalogViewerInner : ContentView
     public class ItemSelectedMessage : ValueChangedMessage<product_product>
     {
         public ItemSelectedMessage(product_product value) : base(value) { }
+    }
+
+    protected override void OnPropertyChanged(string propertyName = null)
+    {
+        if (propertyName == null)
+            return;
+
+        base.OnPropertyChanged(propertyName);
+
+        if (propertyName == nameof(IsVisible))
+        {
+            if (IsVisible)
+            {
+                if (Parent != null && !_isSetupDone)
+                {
+                    _isSetupDone = true;
+                    Setup();
+                }
+            }
+            else
+            {
+                
+            }
+        }
     }
 }

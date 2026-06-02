@@ -522,7 +522,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         {
             if(LockEdition)
             {
-                await Navigation.PopModalAsync();
+                await Navigation.PopModalAsync(false);
             }
 
             if (SearchProductView.IsVisible)
@@ -531,11 +531,11 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 return;
             }
 
-            var leave = await DisplayAlert("Atención", "Los cambios que haya realizado no se guardarán. ¿Desea continuar?", "Si", "No");
+            var leave = await DisplayAlertAsync("Atención", "Los cambios que haya realizado no se guardarán. ¿Desea continuar?", "Si", "No");
 
             if (leave)
             {                
-                await Navigation.PopModalAsync();
+                await Navigation.PopModalAsync(false);
             }
         });
 
@@ -1001,6 +1001,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         view.ItemsData = AppliedPromotionResults;
         view.OrderLines = OrderLines;
         view.saleOrderPromotions = saleOrderPromotions;
+        //dawait view.AutoApplyPromotion();
         await view.ApplyPromosOnList();
 
         ShowPromoPopupLevel2 = view.BenefitsForShow;

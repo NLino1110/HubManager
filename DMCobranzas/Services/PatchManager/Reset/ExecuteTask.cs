@@ -1,4 +1,5 @@
 ﻿using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Accounting;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
 
 namespace DMCobranzas.Services.PatchManager.Reset
@@ -63,6 +64,12 @@ namespace DMCobranzas.Services.PatchManager.Reset
         {
             var productsSubCategoriaDb = new ProductSubcategoriaDb(App.Session.odooConnection.DbNameSqlite);
             await productsSubCategoriaDb.DropTableAsync();
+        }
+
+        public async Task ResetResCenterLine()
+        {
+            var resCenterLineDb = new ResCenterLineDb(App.Session.odooConnection.DbNameSqlite);
+            await resCenterLineDb.DropTableAsync();
         }
 
         public async Task Vaccum()

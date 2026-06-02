@@ -62,9 +62,9 @@ namespace DMSA.Sync.Core.Update
             var stopwatch = Stopwatch.StartNew();
 
             var database = new ResCenterLineDb(DbNameSqlite);
-            //DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since);
+            DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since);
 
-            DateTime? lastDate = await database.GetSafeLastWriteDateAsync(2);
+            //DateTime? lastDate = await database.GetSafeLastWriteDateAsync(2);
 
             var hubmanager = new HubResCenterLine(Constants.Session);
 
@@ -162,9 +162,9 @@ namespace DMSA.Sync.Core.Update
             var stopwatch = Stopwatch.StartNew();
 
             var database = new DocAuthorizationLineDb(DbNameSqlite);
-            //DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since);
+            DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since);
             //DateTime? lastDate = await database.GetSafeLastWriteDateAsync(2);
-            DateTime? lastDate = new DateTime(2005, 8, 5);
+            //DateTime? lastDate = new DateTime(2005, 8, 5);
 
             var hubmanager = new HubDocAuthorizationLine(Constants.Session);
 

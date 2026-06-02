@@ -61,7 +61,7 @@ public partial class CreditNoteRequestGroupView : ContentPage
 
         Dispatcher.Dispatch(async () =>
         {
-            var leave = await DisplayAlert("Atención", "Los cambios que haya realizado no se guardarán. ¿Desea continuar?", "Si", "No");
+            var leave = await DisplayAlertAsync("Atención", "Los cambios que haya realizado no se guardarán. ¿Desea continuar?", "Si", "No");
 
             if (leave)
             {
@@ -137,7 +137,7 @@ public partial class CreditNoteRequestGroupView : ContentPage
     private async void DeleteItem(object objParam)
     {
         Debug.WriteLine("DeleteItem");
-        bool answer = await DisplayAlert("Eliminar", "Está seguro que desea eliminar este item?", "Eliminar", "Cancelar");
+        bool answer = await DisplayAlertAsync("Eliminar", "Está seguro que desea eliminar este item?", "Eliminar", "Cancelar");
         
         if (answer)
         {
@@ -339,7 +339,7 @@ public partial class CreditNoteRequestGroupView : ContentPage
 
     private async void btnClose_Clicked(object sender, EventArgs e)
     {
-        bool answer = await DisplayAlert("Atención", "Los cambios que haya realizado no se guardarán. ¿Desea continuar?", "Si", "No");
+        bool answer = await DisplayAlertAsync("Atención", "Los cambios que haya realizado no se guardarán. ¿Desea continuar?", "Si", "No");
         
         if (!answer)
         {
@@ -486,7 +486,8 @@ public partial class CreditNoteRequestGroupView : ContentPage
 
     async void btnCustomer_Clicked(object sender, EventArgs e)
     {        
-        var resultPopupSelectInvoice = new PopupSelectPartnerSingle(popupSizeConstants);
+        //var resultPopupSelectInvoice = new PopupSelectPartnerSingle(popupSizeConstants);
+        var resultPopupSelectInvoice = new PopupSelectPartner(popupSizeConstants);
         resultPopupSelectInvoice.Company = Sel_Company_Id;
         resultPopupSelectInvoice.DetailMode = 1;
         resultPopupSelectInvoice.CanBeDismissedByTappingOutsideOfPopup = false;        

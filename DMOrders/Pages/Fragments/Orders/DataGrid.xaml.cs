@@ -165,7 +165,7 @@ namespace DMOrders.Pages.Fragments.Orders
                 viewObj.CurrentSaleOrder = (sale_order)obj;
                 viewObj.CurrentCompany = App.Session.res_Company;
                 int resultCrud = await viewObj.PrepareForm();
-                                
+                
                 viewObj.Unloaded += (sender, e) =>
                 {
                     _isNavigating = false;

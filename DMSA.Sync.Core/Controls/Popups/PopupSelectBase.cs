@@ -16,7 +16,8 @@ namespace DMSA.Sync.Core.Controls.Popups
         protected static Grid scrollGridContent { get; set; }
         private AbsoluteLayout _layoutLoading { get; set; }
 
-        private SearchBar _searchBar { get; set; }
+        //private SearchBar _searchBar { get; set; }
+        private Entry _searchBar { get; set; }
 
         public StackLayout _stackLayoutTop;
         public Label _labelOverTitle;
@@ -353,21 +354,36 @@ namespace DMSA.Sync.Core.Controls.Popups
                 Wrap = Microsoft.Maui.Layouts.FlexWrap.Wrap,
                 //HeightRequest = 100,
             };
-            
-            _searchBar = new SearchBar
+
+            //_searchBar = new SearchBar
+            //{
+            //    Placeholder = "",
+            //    //Margin = new Thickness(2, 0, 1, 2),
+            //    HorizontalOptions = LayoutOptions.Fill,
+            //    VerticalOptions = LayoutOptions.Center,
+            //    //MinimumWidthRequest = 250,
+            //    //HeightRequest = 50,
+            //    BackgroundColor = new Color(230,230,230),
+            //    //MaxLength = 250,
+            //    SearchIconColor = Colors.Transparent,                
+            //};
+
+            _searchBar = new Entry
             {
                 Placeholder = "",
                 //Margin = new Thickness(2, 0, 1, 2),
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Center,
-                //MinimumWidthRequest = 250,
+                MinimumWidthRequest = 270,
                 //HeightRequest = 50,
-                BackgroundColor = new Color(230,230,230),
+                BackgroundColor = new Color(230, 230, 230),
                 //MaxLength = 250,
+                ReturnType = ReturnType.Search
             };
 
             //_searchBar.TextChanged += _searchBar_OnTextChanged;
-            _searchBar.SearchButtonPressed += _searchBar_BeginSearchBase;
+            //_searchBar.SearchButtonPressed += _searchBar_BeginSearchBase;
+            _searchBar.Completed += _searchBar_BeginSearchBase;
 
             //Debug.WriteLine("BuildTopSmall");
 
@@ -818,7 +834,7 @@ namespace DMSA.Sync.Core.Controls.Popups
 
             //Label lblInfo = new Label() { Text = "Cabecera" };
             contentViewHeader = new HeaderLikeTable();
-            contentViewHeader.Columns = "Col1, Col2";
+            contentViewHeader.Columns = "-";
 
             gridContent.Children.Add(contentViewHeader);
             Grid.SetRow(contentViewHeader, 2);

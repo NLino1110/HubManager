@@ -331,32 +331,33 @@ public partial class UpdateData : ContentPage
         if (chkGroup1.IsChecked)
         {
             await UpdateProgressState(progressBarPage, 0, 0, "Actualización Facturas");
-            await serverPuller.OnlineSyncAccountMove(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Facturas"); });
-            await serverPuller.OnlineSyncAccountMoveLine(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Det. Facturas"); });
-            await serverPuller.OnlineSyncUsers();
+            await serverPuller.OnlineSyncAccountMove(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Facturas"); });                     
+            progressBarPage.SetTotalPercent(0.80);
+        }
 
+        if(chkGroup2.IsChecked)
+        {
+            await serverPuller.OnlineSyncAccountMoveLine(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Det. Facturas"); });
+        }
+
+        if (chkGroup3.IsChecked)
+        {
+            await serverPuller.OnlineSyncUsers();
             await serverPuller.OnlineSyncProductProductNoImage(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Productos"); });
             await serverPuller.OnlineSyncResPartnerFull(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Clientes"); });
             await serverPuller.OnlineSyncJournal(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Asientos"); });
             await serverPuller.OnlineSyncBank(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Bancos"); });
             await serverPuller.OnlineSyncCompany(false);
             await serverPuller.OnlineCreditNotesRelated(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Credito Data"); });
-            await serverPuller.GetFullResCenterLine(true, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Centros de Recursos"); });
-            progressBarPage.SetTotalPercent(0.80);
-        }
 
-        if(chkGroup2.IsChecked)
-        {
             await serverPuller.GetTarjetas(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Tarjetas"); });
             await serverPuller.GetTarjetasTipoPago(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Tipos de Pago"); });
-            await serverPuller.GetTarjetasPlazosBanco(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Plazos Banco"); });            
+            await serverPuller.GetTarjetasPlazosBanco(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Plazos Banco"); });
             await serverPuller.OnlineSyncAccountPaymentDaily(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Pagos Diarios"); });
             await serverPuller.DownloadAccountMoveRefund(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Reembolsos NC"); });
-        }
 
-        if (chkGroup3.IsChecked)
-        {
             await serverPuller.GetCities(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Ciudades"); });
+            await serverPuller.GetFullResCenterLine(true, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Centros de Recursos"); });
         }
 
         if(chkGroup4.IsChecked)
@@ -364,6 +365,11 @@ public partial class UpdateData : ContentPage
             await serverPuller.GetReceiptReceiptsLine(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Recibos Lines"); });
             await serverPuller.OnlineAccountTaxes(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Impuestos"); });
             await serverPuller.OnlineSyncPaymentHeader(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Cobros"); });
+        }
+
+        if (chkGroup5.IsChecked)
+        {
+            
         }
 
         progressBarPage.SetTotalPercent(1);

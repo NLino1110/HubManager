@@ -76,6 +76,7 @@
                         <controls:CheckBoxEx x:Name="chkGroup2" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Actualizar Facturas (Detalles)"></controls:CheckBoxEx>
                         <controls:CheckBoxEx x:Name="chkGroup3" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Actualizar Parámetros (Cuentas, bancos, módulos, etc.)"></controls:CheckBoxEx>
                         <controls:CheckBoxEx x:Name="chkGroup4" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Datos de usuario (Cobros, Notas de Crédito)"></controls:CheckBoxEx>
+                        <controls:CheckBoxEx x:Name="chkGroup5" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Otros"></controls:CheckBoxEx>
                     </VerticalStackLayout>
                 </StackLayout>
             </Border>            

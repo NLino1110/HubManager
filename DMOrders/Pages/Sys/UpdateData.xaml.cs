@@ -138,7 +138,7 @@ public partial class UpdateData : ContentPage
 
         obj.SetTitle("Finalizado...");
 
-        await obj.DisplayAlert("Actualización", "Actualización terminada", "Aceptar");
+        await obj.DisplayAlertAsync("Actualización", "Actualización terminada", "Aceptar");
 
         await Navigation.PopModalAsync();
 
@@ -148,7 +148,7 @@ public partial class UpdateData : ContentPage
 
     private async void LaunchUpdate(object sender, EventArgs e)
     {        
-        bool answer = await DisplayAlert("Actualizar datos de la aplicación?", "Este proceso realiza una sincronización de los datos hacia su dispositivo.", "Actualizar", "Cancelar");
+        bool answer = await DisplayAlertAsync("Actualizar datos de la aplicación?", "Este proceso realiza una sincronización de los datos hacia su dispositivo.", "Actualizar", "Cancelar");
         
         if (!answer)
         {
@@ -190,7 +190,7 @@ public partial class UpdateData : ContentPage
             BoxViewServerStatusOdoo.Color = Colors.SaddleBrown;
             lblServerStatusOdoo.Text = "Servidor Odoo (x)";
 
-            await progressBarPage.DisplayAlert("Error de actualización", "El servidor de datos no está disponible.", "Aceptar");
+            await progressBarPage.DisplayAlertAsync("Error de actualización", "El servidor de datos no está disponible.", "Aceptar");
             await Navigation.PopModalAsync();           
         }
         
@@ -237,7 +237,7 @@ public partial class UpdateData : ContentPage
             " (" + String.Format("{0} días, {1} horas, {2} minutos, {3} segundos)",
             span.Days, span.Hours, span.Minutes, span.Seconds);
 
-        await progressBarPage.DisplayAlert("Actualización", "Actualización terminada", "Aceptar");        
+        await progressBarPage.DisplayAlertAsync("Actualización", "Actualización terminada", "Aceptar");        
         
         await Navigation.PopModalAsync();
     }
@@ -430,7 +430,8 @@ public partial class UpdateData : ContentPage
             await serverPuller.OnlineSyncSubcategoria();
             await serverPuller.OnlineSyncProductLinea();
             await serverPuller.OnlineSyncProductGrupoTipo();
-            await serverPuller.OnlineCalificacionCrediticia();            
+            await serverPuller.OnlineCalificacionCrediticia();
+            await serverPuller.MotivoActividadDiaria(false);
             progressBarPage.SetTotalPercent(0.80);
         }
 

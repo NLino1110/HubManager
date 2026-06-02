@@ -552,13 +552,13 @@ public partial class CobranzasPage : ContentPage
         return hayFechasSinCierre;
     }
 
-
-    private async void NewPayment(object sender, EventArgs e)    
+    private async void NewPayment(object sender, EventArgs e)
     {   
         if(await ExistsPendingDiaryClose())
         {
-            await Toast.Make("Existen cierres pendientes, por favor verifique sus datos antes de continuar.").Show();
-            return;
+            //await Toast.Make("Existen cierres pendientes, por favor verifique sus datos antes de continuar.").Show();
+            //return;
+            await Toast.Make("Existen cierres pendientes").Show();
         }
 
         var se = (res_company) SelectorCmp.SelectedItem;

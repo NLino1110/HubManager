@@ -1,10 +1,5 @@
 ﻿using CommunityToolkit.Maui.Views;
 using DMSA.Models.Odoo.Native;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DMSA.Sync.Core.Controls.Popups
 {

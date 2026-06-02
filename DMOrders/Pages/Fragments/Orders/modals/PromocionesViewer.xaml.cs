@@ -169,6 +169,7 @@ public partial class PromocionesViewer : ContentView
                     if (benefit.Promotion._promotion_type_id == 2 && benefit.Promotion._selection_type_id == 1)
                     {
                         await AddAutoGiftsAsync(benefit);
+                        //await HandleGiftAutoPromotion(promo.Items, productDb);
                     }
 
                     if(benefit.Promotion._promotion_type_id == 2 && benefit.Promotion._selection_type_id == 2)
@@ -586,6 +587,77 @@ public partial class PromocionesViewer : ContentView
         {
             HandleDiscountPromotion(promoItems);
         }
+    }
+
+    public async Task AutoApplyPromotion()
+    {
+        foreach (var promotionEvalResult in _itemsFullPromos)
+        {
+            if (promotionEvalResult.Items != null)
+            {
+                foreach (var benefit in promotionEvalResult.Items)
+                {
+                    var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
+
+                    var promoItems = _itemsFullPromos
+                        .SelectMany(x => x.Items)
+                        .Where(x => x.Promotion.id == benefit.Promotion.id)
+                        .ToList();
+
+                    if (benefit.Promotion._promotion_type_id == 2)
+                    {
+                        if (benefit.Promotion._selection_type_id == 1)
+                            await HandleGiftAutoPromotion(promoItems, productDb);
+                        //else if (benefit.Promotion._selection_type_id == 2)
+                        //    await HandleGiftAutoPromotion(promoItems, productDb);
+                    }
+                    else if (benefit.Promotion._promotion_type_id == 6) // DESCUENTO
+                    {
+                        HandleDiscountPromotion(promoItems);
+                    }
+                }
+            }
+        }
+    }
+
+    private async Task HandleGiftAutoPromotion(List<PromotionEvalItem> promoItems, ProductProductDb productDb)
+    {
+        var existingCodes = new HashSet<string>();
+
+        int[] product_ids = promoItems.SelectMany(item => item.RuleSet.Select(rule => rule.ProductIdOrigin)).ToArray();
+
+        var products = await productDb.GetByProductsIds(product_ids, SaleOrder._pricelist_id);
+
+        foreach (var itemEval in promoItems)
+        {
+            if (itemEval.Promotion._selection_type_id == 1)
+            {
+                var tasks = itemEval.RuleSet.Select(async ruleEval =>
+                {
+                    var product = products.FirstOrDefault(p => p.id == ruleEval.ProductIdOrigin);                    
+
+                    if (product == null) return null;
+
+                    product.qty_gift = 0;
+                    product.promotionEvalItem = itemEval;
+                    product.allow_add_gift = false;
+
+                    return product;
+                });
+
+                var results = await Task.WhenAll(tasks);
+
+                foreach (var product in results.Where(p => p != null))
+                {
+                    if (existingCodes.Add(product.default_code))
+                        promoGifts.Add(product);
+                }
+            }
+        }
+
+        //OnPropertyChanged(nameof(promoGifts));
+        //OnPropertyChanged(nameof(ComputeTotal));
+        //OnPropertyChanged(nameof(ComputeTotalQty));
     }
 
     private async Task HandleGiftPromotion(List<PromotionEvalItem> promoItems, ProductProductDb productDb)

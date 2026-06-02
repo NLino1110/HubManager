@@ -66,14 +66,14 @@ namespace DMSA.Sync.Core.Controls
 
             for (int i = 0; i < labels.Length; i++)
             {
-                if (i == 3 || i == 6)
-                {
-                    grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-                }
-                else
-                {
+                //if (i == 3 || i == 6)
+                //{
+                //    grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                //}
+                //else
+                //{
                     grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
-                }
+                //}
             }
 
             for (int i = 0; i < labels.Length; i++)

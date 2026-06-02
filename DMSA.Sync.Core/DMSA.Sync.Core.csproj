@@ -6,6 +6,7 @@
 	<UseMaui>true</UseMaui>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Controls\Popups\bk\PopupSelectPartner.cs" />
     <Compile Remove="Database\Sqlite\Payments\AccountModuleDb.cs" />
     <Compile Remove="Database\Sqlite\Payments\AccountPaymentDb.cs" />
     <Compile Remove="Database\Sqlite\Payments\AccountPaymentHeaderDb.cs" />
@@ -62,7 +63,7 @@
     <MauiXaml Update="Controls\CustomRows\Lite\ProductViewerRow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
-    <MauiXaml Update="Controls\CustomRows\Lite\ResPartner.xaml">
+    <MauiXaml Update="Controls\CustomRows\Lite\ResPartnerRow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
     <MauiXaml Update="Controls\CustomRows\Lite\ResPartnerCreditDataRow.xaml">
@@ -86,6 +87,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Controls\Popups\bk\" />
     <Folder Include="Pages\Sys\" />
   </ItemGroup>
 
@@ -101,6 +103,9 @@
     </Compile>
     <Compile Update="Controls\CustomRows\Lite\ResBankRow.xaml.cs">
       <DependentUpon>ResBankRow.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Controls\CustomRows\Lite\ResPartnerRow.xaml.cs">
+      <DependentUpon>ResPartnerRow.xaml</DependentUpon>
     </Compile>
     <Compile Update="Controls\CustomRows\Lite\ResPartnerCreditDataRow.xaml.cs">
       <DependentUpon>ResPartnerCreditDataRow.xaml</DependentUpon>

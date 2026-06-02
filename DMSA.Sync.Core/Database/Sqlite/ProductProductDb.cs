@@ -2,6 +2,7 @@
 using DMSA.Models.Odoo.Inventory;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Sales;
+using Microsoft.Maui.Controls.PlatformConfiguration;
 using SQLite;
 using System.Diagnostics;
 
@@ -358,8 +359,9 @@ namespace DMSA.Sync.Core.Database.Sqlite
 
             cachedUom = items.ToDictionary(uom => uom.id, uom => uom);
 
-            var products = await Database.Table<product_product>().Where(x => product_ids.Contains(x.id)).ToListAsync();
-
+            var ids = product_ids.ToList();
+            var products = await Database.Table<product_product>().Where(x => ids.Contains(x.id)).ToListAsync();
+            
             if (products == null || products.Count == 0)
                 return new List<product_product>();
 

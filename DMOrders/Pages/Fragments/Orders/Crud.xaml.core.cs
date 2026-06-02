@@ -361,8 +361,7 @@ namespace DMOrders.Pages.Fragments.Orders
                 
             var orderLines = await saleOrderLinesDb.GetItemsAsync(CurrentSaleOrder.id);
 
-            var product_ids = orderLines.Select(ol => ol.product_id).Distinct().ToArray();
-            //var productsList = await new ProductProductDb(App.Session.odooConnection.DbNameSqlite).GetByProductsIds(product_ids, 0);
+            var product_ids = orderLines.Select(ol => ol.product_id).Distinct().ToArray();            
             var productsList = await new ProductProductDb(App.Session.odooConnection.DbNameSqlite).GetByProductsIdsLite(product_ids, 0);                
 
             foreach (var line in orderLines)

@@ -75,7 +75,7 @@ namespace DMSA.Sync.Core.Update
                 await OnlineSyncCompany(false);                
                 await OnlineSyncResCenter(false);
                 await OnlineSyncStockWarehouse(false);
-                await MotivoActividadDiaria(true);
+                //await MotivoActividadDiaria(true);
             }
             catch (Exception ex)
             {
@@ -109,7 +109,7 @@ namespace DMSA.Sync.Core.Update
                 //var listCmp = await database.GetItemsAsync();
                 //Debug.WriteLine("Si existen!");
                 //Ya se ha sincronizado previamente
-                //return;
+                return;
             }
 
             HubResCompany hubCompany = new HubResCompany(Constants.Session);
