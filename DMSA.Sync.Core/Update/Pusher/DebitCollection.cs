@@ -252,7 +252,7 @@ namespace DMSA.Sync.Core.Update.Pusher
                 paymentSend = paymentSendList.ToArray();
                 
                 foreach (var payment in paymentSend)
-                {                        
+                {
                     //payment.lines = Array.Empty<MultipleCobrosInvoiceLineAi>();
                     payment.MultipleCobrosInvoiceId = resultTask.result[0].id;
                     var paymentsResult = await accountPaymentHeader.SendPayments(payment);                       

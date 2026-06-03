@@ -13,7 +13,16 @@ namespace DMSA.Models.Odoo.Accounting
     public class credit_note_request_detail_get: OdooEntity
     {
         public int id { get; set; }
-        public int line_id { get; set; }
+        
+        public JToken line_id { get; set; }
+
+        [JsonIgnore]
+        public int line_id_
+        {
+            get => GetId(line_id);
+            set => line_id = SetId(line_id, value);
+        }
+
         [JsonIgnore]
         public int parent_id { get; set; }
         public int move_id { get; set; }

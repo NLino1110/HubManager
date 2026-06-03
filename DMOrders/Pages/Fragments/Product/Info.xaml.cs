@@ -91,6 +91,14 @@ public partial class Info : ContentView
         productProductPreviewDb = new ProductProductPreviewDb(App.Session.odooConnection.DbNameSqliteStatic);
     }
 
+    public void ClearCache()
+    {
+        Cache.PriceListDict.Clear();
+        Cache.PriceListItemsByTemplate.Clear();
+        Cache.StockWarehouseListDict.Clear();
+        Cache.StockQuantListDict.Clear();
+    }
+
     public async Task FillData(product_product _data)
     {
         data = _data;

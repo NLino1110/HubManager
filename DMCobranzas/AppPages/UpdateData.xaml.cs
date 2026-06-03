@@ -273,8 +273,9 @@ public partial class UpdateData : ContentPage
         Pipeline pipeline = new Pipeline();
 
         bool packageReady = await pipeline.ExistAttachRecord();
+        bool isValidData = await pipeline.IsValidData();
 
-        if (!packageReady)
+        if (!packageReady && !isValidData)
         {
             var packFound = await pipeline.NewestZipPack();
 
@@ -292,6 +293,7 @@ public partial class UpdateData : ContentPage
                     async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Archivos"); }))
                 {
                     await pipeline.InsertAttachRecord(packFound);
+                    await pipeline.ResetUserData();
                 }
                 else
                 {
@@ -402,7 +404,7 @@ public partial class UpdateData : ContentPage
                     App.Session.CurrentUserFront.log_fec_sincro_nc = foundUser.log_fec_sincro_nc;
 
                     await database.UpdateAsync(foundUser);
-                }                
+                }
             }
         }
 

@@ -132,6 +132,8 @@
 	  <Compile Remove="Pages\Fragments\Orders\modals\bk\PromocionesViewer.xaml.cs" />
 	  <Compile Remove="Pages\Fragments\Orders\modals\CatalogViewer.xaml.cs" />
 	  <Compile Remove="Pages\Fragments\Orders\modals\CatalogViewerModel.cs" />
+	  <Compile Remove="Pages\Fragments\Product\bk\Details.xaml.cs" />
+	  <Compile Remove="Pages\Fragments\Product\bk\DetailsViewModel.cs" />
 	  <Compile Remove="Pages\Fragments\Product\Details.xaml.cs" />
 	  <Compile Remove="Pages\Fragments\Product\DetailsViewModel.cs" />
 	  <Compile Remove="Pages\Sys\ConnectionForm.xaml.cs" />
@@ -145,6 +147,7 @@
 
 	<ItemGroup>
 	  <MauiXaml Remove="Pages\Fragments\Orders\modals\CatalogViewer.xaml" />
+	  <MauiXaml Remove="Pages\Fragments\Product\bk\Details.xaml" />
 	  <MauiXaml Remove="Pages\Fragments\Product\Details.xaml" />
 	  <MauiXaml Remove="Pages\Sys\ConnectionForm.xaml" />
 	</ItemGroup>
@@ -372,6 +375,7 @@
 
 	<ItemGroup>
 	  <Folder Include="Pages\Fragments\Orders\modals\bk\" />
+	  <Folder Include="Pages\Fragments\Product\bk\" />
 	  <Folder Include="Pages\Sys\Views\" />
 	  <Folder Include="Services\Promotions\bk\" />
 	  <Folder Include="ViewModels\DataGrid\" />

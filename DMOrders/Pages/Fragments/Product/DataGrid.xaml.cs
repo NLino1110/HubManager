@@ -221,7 +221,6 @@ namespace DMOrders.Pages.Fragments.Product
             await customerContainer.LoadInfo((product_product) e.CurrentSelection[0]);
         }
 
-
         public ICommand EditCommand { get; set; }
 
         private async void EditItem(object obj)

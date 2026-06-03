@@ -3,6 +3,8 @@ using DMSA.Models.Odoo.General.Requests;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Specials;
 using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.DebitCollection;
+using DMSA.Sync.Core.Database.Sqlite.Payments;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -327,10 +329,49 @@ namespace DMSA.Sync.Core.Update.Cloud
             return false;
         }
 
+        public async Task<bool> IsValidData()
+        {
+            var accountMoveDb = new AccountMoveDb(Constants.Session.odooConnection.DbNameSqlite);
+            var record = await accountMoveDb.GetItemsAsync(x=> x.id > 0);
+
+            if (record != null && record.Count > 40000)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         public async Task<bool> InsertAttachRecord(mnsa_attachment mnsa_Attachment)
         {
             MnsaAttachmentDb mnsaAttachmentDb = new MnsaAttachmentDb(Constants.Session.odooConnection.DbNameSqlite);
             var record = await mnsaAttachmentDb.InsertAsync(mnsa_Attachment);            
+            return true;
+        }
+
+        public async Task<bool> ResetUserData()
+        {
+            var accountPaymentDailyDb = new AccountPaymentDailyDb(Constants.Session.odooConnection.DbNameSqlite);
+            await accountPaymentDailyDb.DropTableAsync();
+
+            var multipleCobrosInvoice = new MultipleCobrosInvoiceDb(Constants.Session.odooConnection.DbNameSqlite);
+            await multipleCobrosInvoice.DropTableAsync();
+
+            var multipleCobrosInvoiceLine = new MultipleCobrosInvoiceLineDb(Constants.Session.odooConnection.DbNameSqlite);
+            await multipleCobrosInvoiceLine.DropTableAsync();
+
+            var multipleCobrosInvoiceLineAi = new MultipleCobrosInvoiceLineAiDb(Constants.Session.odooConnection.DbNameSqlite);
+            await multipleCobrosInvoiceLineAi.DropTableAsync();
+
+            var creditNoteRequestDb = new CreditNoteRequestDb(Constants.Session.odooConnection.DbNameSqlite);
+            await creditNoteRequestDb.DropTableAsync();
+
+            var creditNoteRequestDetailDb = new CreditNoteRequestDetailDb(Constants.Session.odooConnection.DbNameSqlite);
+            await creditNoteRequestDetailDb.DropTableAsync();
+
+            var creditNoteRequestGroupDb = new CreditNoteRequestGroupDb(Constants.Session.odooConnection.DbNameSqlite);
+            await creditNoteRequestGroupDb.DropTableAsync();
+
             return true;
         }
     }

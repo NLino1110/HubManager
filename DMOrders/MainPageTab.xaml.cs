@@ -233,7 +233,7 @@ public partial class MainPageTab : ContentPage
         is_loading_page = true;
 
         UpdateData obj = new UpdateData();
-        obj.Disappearing += UpdateData_Disappearing;
+        obj.Disappearing += UpdateData_Disappearing;        
         await Navigation.PushModalAsync(obj);
     }
 
@@ -295,6 +295,7 @@ public partial class MainPageTab : ContentPage
     private void UpdateData_Disappearing(object? sender, EventArgs e)
     {
         is_loading_page = false;
+        tabProducts.ClearCache();
     }
 
     private void tabViewMain_SelectedTabChanged(object sender, UraniumUI.Material.Controls.TabItem e)

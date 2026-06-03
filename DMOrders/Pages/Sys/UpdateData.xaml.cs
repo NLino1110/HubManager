@@ -116,7 +116,7 @@ public partial class UpdateData : ContentPage
 
     private async void UploadData(object sender, EventArgs e)
     {
-        bool answer = await DisplayAlert("Enviar datos al servidor?",
+        bool answer = await DisplayAlertAsync("Enviar datos al servidor?",
             "Esto realizará la sincronización con el servidor (Odoo).",
             "Sincronizar",
             "Cancelar");

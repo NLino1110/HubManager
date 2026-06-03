@@ -98,7 +98,8 @@ namespace ApiManagerOdoo.Accounting
 
                 string[] fields_array = {
                     "id",
-                    "product_id"
+                    "line_id",
+                    "product_id",                    
                 };
 
                 var kwargs_step_3 = new {
@@ -118,7 +119,8 @@ namespace ApiManagerOdoo.Accounting
                     {
                         int qty_item = 0;
 
-                        var line_prod = SendObject.lines.Where(x => x.product_id == item.product_id_).FirstOrDefault();
+                        //var line_prod = SendObject.lines.Where(x => x.product_id == item.product_id_ && x.line_id == item.line_id).FirstOrDefault();
+                        var line_prod = SendObject.lines.Where(x => x.line_id == item.line_id_).FirstOrDefault();
 
                         if (line_prod != null)
                         {

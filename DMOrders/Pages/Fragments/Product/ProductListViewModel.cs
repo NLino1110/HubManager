@@ -1,22 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
-using DMOrders.Controls.CustomRows;
-using DMOrders.Models.Filters;
-using DMOrders.Services.Database.Sqlite;
-using DMSA.Models.Odoo.DMOrders;
 using DMSA.Models.Odoo.Native;
 using DMSA.Sync.Core.Database.Sqlite;
-using Microsoft.Maui;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace DMOrders.Pages.Fragments.Product
@@ -26,7 +16,7 @@ namespace DMOrders.Pages.Fragments.Product
         private ProductProductDb _db { get; set; }
         private ObservableCollection<product_product> _itemsData;
 
-        private readonly SemaphoreSlim _loadLock = new(1, 1); // evita cargas simultáneas
+        private readonly SemaphoreSlim _loadLock = new(1, 1);
         private CancellationTokenSource _cts;
         private string BuildFilterSignature() =>
             $"{filters.getCode()}|{filters.getName()}|{filters.getBrand()}|{filters.getCategory()}|{filters.getStatus()}";
@@ -212,7 +202,6 @@ namespace DMOrders.Pages.Fragments.Product
         ////            timer.Stop();
         ////        }
         ////    };
-
         ////    timer.Start();
         ////}
 

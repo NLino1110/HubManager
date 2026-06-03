@@ -46,4 +46,9 @@ public partial class Container : ContentView
         filterProducts.LoadTopMarcasAsync();
         filterProducts.LoadTopCategoriesAsync();
     }
+
+    public void ClearCache()
+    {
+        info.ClearCache();
+    }
 }
