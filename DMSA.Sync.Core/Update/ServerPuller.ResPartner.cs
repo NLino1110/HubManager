@@ -19,8 +19,8 @@ namespace DMSA.Sync.Core.Update
             DateTime dateIni = DateTime.Now.AddDays(-150);
             DateTime dateEnd = DateTime.Now;
 
-            HubCreditNoteRequestGroup hubmanager = new HubCreditNoteRequestGroup(appSession);
-            var resultCount = await hubmanager.GetHeaderCount(dateIni, dateEnd);
+            var hubmanager = new HubCreditNoteRequestGroup(appSession);
+            var resultCount = await hubmanager.GetHeaderCount(dateIni);
 
             Debug.WriteLine(resultCount.result);
 
@@ -37,7 +37,7 @@ namespace DMSA.Sync.Core.Update
 
             for (int indice = 0; indice <= totalPages; indice++)
             {
-                var responseAll = await hubmanager.GetItemsFull(dateIni, dateEnd, indice);
+                var responseAll = await hubmanager.GetItemsFull(dateIni, indice);
 
                 if (responseAll != null && responseAll.Length > 0)
                 {                    

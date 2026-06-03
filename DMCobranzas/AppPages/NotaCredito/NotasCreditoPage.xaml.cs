@@ -129,7 +129,7 @@ public partial class NotasCreditoPage : ContentPage
 
             var database = new CreditNoteRequestGroupDb(App.Session.odooConnection.DbNameSqlite);
             var ls_items = await database.GetItemsAsync(Sel_Company_Id.id, dateIni.Date.Value, dateEndField,
-                 App.Session.CurrentUser.uid, SearchText.Trim());
+                 App.Session.CurrentUserFront.uid, SearchText.Trim());
 
             //Se ordenan los registros por FECHA
             //ls_items.Sort((x, y) => x.FECHA.CompareTo(y.FECHA));
@@ -221,7 +221,7 @@ public partial class NotasCreditoPage : ContentPage
 
         int countMoves = movesItems.Count;
 
-        bool answer = await DisplayAlert("Eliminar solicitud", $"Está seguro que desea eliminar esta solicitud? {countMoves} Nota(s) de Crédito", "Confirmar", "Cancelar");
+        bool answer = await DisplayAlertAsync("Eliminar solicitud", $"Está seguro que desea eliminar esta solicitud? {countMoves} Nota(s) de Crédito", "Confirmar", "Cancelar");
         //Debug.WriteLine("Answer: " + answer);
         if (!answer)
         {
@@ -277,7 +277,8 @@ public partial class NotasCreditoPage : ContentPage
             string error_message = "";
             if(result != null && result.error != null)
             {
-                error_message = result.error.message;
+                //error_message = result.error.message;
+                error_message = result.error.data.message;
             }
 
             await Toast.Make("Envío de solicitud(es) erroneo: " + error_message).Show();

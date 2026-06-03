@@ -22,7 +22,7 @@ namespace ApiManager
                 "file_name",
                 "file_type",
                 "date_data_cutoff",                
-                "attachment_ids",
+                //"attachment_ids",
                 "lines_url",
                 "total_file_size",
                 "create_date",

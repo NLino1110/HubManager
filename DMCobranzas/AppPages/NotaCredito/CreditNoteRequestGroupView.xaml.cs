@@ -370,7 +370,7 @@ public partial class CreditNoteRequestGroupView : ContentPage
             }
 
             creditNoteRequestGroup.create_datetime = fechaActual;
-            creditNoteRequestGroup.uid = App.Session.CurrentUser.uid;
+            creditNoteRequestGroup.uid = App.Session.CurrentUserFront.uid;
             creditNoteRequestGroup.partner_id = Sel_CreditNoteRequestGroup.partner_id;
             creditNoteRequestGroup.partner_name = Sel_CreditNoteRequestGroup.partner_name;            
             creditNoteRequestGroup.request_status = DMSA.Models.MoveStatus.PENDIENTE;            
@@ -427,7 +427,7 @@ public partial class CreditNoteRequestGroupView : ContentPage
             accountPaymentHeader.partner_name = Sel_Res_Partner.name;
             accountPaymentHeader.partner_id = Sel_Res_Partner.id;
             accountPaymentHeader.create_datetime = fechaActual;
-            accountPaymentHeader.uid = App.Session.CurrentUser.uid;
+            accountPaymentHeader.uid = App.Session.CurrentUserFront.uid;
             
             //accountPaymentHeader.payment_amount = totalPagado; //.ToString(App.Session.ApplicationCultureInfo);
             //accountPaymentHeader.total_due = Sel_Res_Partner.total_due;

@@ -75,6 +75,7 @@
             </ProgressBar>-->
 
             <Label Text="Por favor espere hasta que termine el proceso..." Margin="0,30,0,0" TextColor="DimGray"/>
+            <Label Text="{Binding App.Session.odooConnection.DbNameSqlite}" Margin="0,30,0,0" TextColor="DimGray"/>
             <!--<Button
                 x:Name="BtnUpdate"
                 Text="Ingresar"

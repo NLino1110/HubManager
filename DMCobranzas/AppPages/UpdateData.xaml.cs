@@ -272,34 +272,38 @@ public partial class UpdateData : ContentPage
 
         Pipeline pipeline = new Pipeline();
 
-        //////bool packageReady = await pipeline.ExistAttachRecord();
+        bool packageReady = await pipeline.ExistAttachRecord();
 
-        //////if(!packageReady)
-        //////{
-                        
-        //////    var packFound = await pipeline.NewestZipPack();
+        if (!packageReady)
+        {
+            var packFound = await pipeline.NewestZipPack();
 
-        //////    if (packFound != null)
-        //////    {
-        //////        await SqliteDbBase<object>.CloseDatabaseAsync();
-        //////        progressBarPage.SetTitle("Iniciando actualización rápida...");
-        //////        progressBarPage.SetTotalPercent(0.2);
-                
-        //////        if(await pipeline.DownloadSqliteZip(true, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Archivos"); }))
-        //////        {
-        //////            await pipeline.InsertAttachRecord(packFound);
-        //////        }
-        //////        else
-        //////        {
-        //////            await Toast.Make("Hubo un error al descargar/descomprimir archivo.", duration, fontSize).Show();
-        //////        }
-                
-        //////        await Toast.Make("Actualización rápida terminada", duration, fontSize).Show();
-                
-        //////        var databaseUserAccess = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
-        //////        await databaseUserAccess.FixMissingCurrentUser();
-        //////    }
-        //////}
+            if (packFound != null)
+            {
+                await SqliteDbBase<object>.CloseDatabaseAsync();
+                progressBarPage.SetTitle("Iniciando actualización rápida...");
+                progressBarPage.SetTotalPercent(0.2);
+
+                //if (await pipeline.DownloadSqliteZipCustomMode2(true, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Archivos"); }))
+                //if (await pipeline.DownloadSqliteZipCustomMode2(App.Session.odooConnection.DbNameSqlite, true))
+                if(await pipeline.DownloadSqliteZip(
+                    packFound,
+                    true,
+                    async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Archivos"); }))
+                {
+                    await pipeline.InsertAttachRecord(packFound);
+                }
+                else
+                {
+                    await Toast.Make("Hubo un error al descargar/descomprimir archivo.", duration, fontSize).Show();
+                }
+
+                await Toast.Make("Actualización rápida terminada", duration, fontSize).Show();
+
+                var databaseUserAccess = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
+                await databaseUserAccess.FixMissingCurrentUser();
+            }
+        }
 
         progressBarPage.SetTitle("Actualización en línea...");
 
@@ -343,8 +347,7 @@ public partial class UpdateData : ContentPage
         if (chkGroup3.IsChecked)
         {
             await serverPuller.OnlineSyncUsers();
-            await serverPuller.OnlineSyncProductProductNoImage(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Productos"); });
-            await serverPuller.OnlineSyncResPartnerFull(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Clientes"); });
+            await serverPuller.OnlineSyncProductProductNoImage(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Productos"); });            
             await serverPuller.OnlineSyncJournal(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Asientos"); });
             await serverPuller.OnlineSyncBank(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Bancos"); });
             await serverPuller.OnlineSyncCompany(false);
@@ -352,9 +355,7 @@ public partial class UpdateData : ContentPage
 
             await serverPuller.GetTarjetas(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Tarjetas"); });
             await serverPuller.GetTarjetasTipoPago(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Tipos de Pago"); });
-            await serverPuller.GetTarjetasPlazosBanco(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Plazos Banco"); });
-            await serverPuller.OnlineSyncAccountPaymentDaily(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Pagos Diarios"); });
-            await serverPuller.DownloadAccountMoveRefund(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Reembolsos NC"); });
+            await serverPuller.GetTarjetasPlazosBanco(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Plazos Banco"); });            
 
             await serverPuller.GetCities(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Ciudades"); });
             await serverPuller.GetFullResCenterLine(true, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Centros de Recursos"); });
@@ -369,7 +370,13 @@ public partial class UpdateData : ContentPage
 
         if (chkGroup5.IsChecked)
         {
-            
+            await serverPuller.OnlineSyncResPartnerFull(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Clientes"); });
+        }
+
+        if (chkGroup6.IsChecked)
+        {
+            await serverPuller.OnlineSyncAccountPaymentDaily(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Pagos Diarios"); });
+            await serverPuller.DownloadAccountMoveRefund(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Reembolsos NC"); });
         }
 
         progressBarPage.SetTotalPercent(1);
@@ -399,19 +406,20 @@ public partial class UpdateData : ContentPage
             }
         }
 
-
         Pipeline pipeline = new Pipeline();
-        //////bool requiredNewUpload = await pipeline.RequiredNewUploadCustom(App.Session.odooConnection.DbNameSqlite);
-        //////if (requiredNewUpload)
-        //////{
-        //////    (var attachData, bool successUpload) = await pipeline.UploadSqliteZip(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Paquetes (upload)"); });
+        bool requiredNewUpload = await pipeline.RequiredNewUploadCustom(App.Session.odooConnection.DbNameSqlite);
+        if (requiredNewUpload)
+        {
+            //(var attachData, bool successUpload) = await pipeline.UploadSqliteZip(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Paquetes (upload)"); });
+            bool successUpload = await pipeline.UploadToFileMode2(App.Session.odooConnection.DbNameSqlite, 
+                App.Session.odooConnection.DbNameSqlite);
 
-        //////    if (successUpload)
-        //////    {
-        //////        if(!await pipeline.ExistAttachRecord())
-        //////            await pipeline.InsertAttachRecord(attachData);
-        //////    }
-        //////}
+            if (successUpload)
+            {
+                //if (!await pipeline.ExistAttachRecord())
+                //    await pipeline.InsertAttachRecordCustom(attachData);
+            }
+        }
     }
 
     private async void btnUploadPipeline_Clicked(object sender, EventArgs e)
@@ -423,8 +431,8 @@ public partial class UpdateData : ContentPage
     private async void btnFromPipeline_Clicked(object sender, EventArgs e)
     {
         await SqliteDbBase<object>.CloseDatabaseAsync();
-        Pipeline pipeline = new Pipeline();
-        await pipeline.DownloadSqliteZip(true);
+        //Pipeline pipeline = new Pipeline();
+        //await pipeline.DownloadSqliteZip(true);
     }
 
     private async void btnBack_Clicked(object sender, EventArgs e)

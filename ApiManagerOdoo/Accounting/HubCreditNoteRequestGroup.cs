@@ -23,18 +23,17 @@ namespace ApiManagerOdoo.Accounting
             _modelname = "credit.note.request.group";
         }
 
-        public async Task<ApiResponseOdooRpc?> GetHeaderCount(DateTime dateIni, DateTime dateEnd)
+        public async Task<ApiResponseOdooRpc?> GetHeaderCount(DateTime dateIni)
         {
             object[] args = new object[] { };
             object[] _custom_args = new object[] {
-                new object[] {"create_date", ">=", $"{dateIni.Date.Year}-{dateIni.Date.Month:00}-{dateIni.Date.Day:00} 00:00:00" },
-                new object[] {"create_date", "<=", $"{dateEnd.Date.Year} - {dateEnd.Date.Month:00} - {dateEnd.Date.Day:00} 23:59:59" },
+                new object[] {"write_date", ">=", $"{dateIni.Date.Year}-{dateIni.Date.Month:00}-{dateIni.Date.Day:00} 00:00:00" },
             };
 
             return await GetCount(args, _custom_args);
         }
         
-        public async Task<CreditNoteRequestGroup[]?> GetItemsFull(DateTime dateIni, DateTime dateEnd, int index)
+        public async Task<CreditNoteRequestGroup[]?> GetItemsFull(DateTime dateIni, int index)
         {
             int limit = 100;
             //int index = 0;
@@ -48,15 +47,8 @@ namespace ApiManagerOdoo.Accounting
 
             object[] args = new object[] { };
             object[] _custom_args = new object[] {
-                new object[] {"create_date", ">=", $"{dateIni.Date.Year}-{dateIni.Date.Month:00}-{dateIni.Date.Day:00} 00:00:00" },
-                new object[] {"create_date", "<=", $"{dateEnd.Date.Year} - {dateEnd.Date.Month:00} - {dateEnd.Date.Day:00} 23:59:59" },
-            };
-
-            //TODO: TOMAR EN CUENTA EL SETTING DE JSON
-
-            //JsonSerializerSettings settings = new JsonSerializerSettings();
-            ////settings.DateFormatString = "yyyy-MM-dd HH:mm:ss";
-            //settings.ContractResolver = new IncludeJsonIgnoreResolver();
+                new object[] {"write_date", ">=", $"{dateIni.Date.Year}-{dateIni.Date.Month:00}-{dateIni.Date.Day:00} 00:00:00" },
+            };            
 
             var result = await SearchRead<ApiResponseOdooRpcT<CreditNoteRequestGroup[]>>(args, _custom_args, kwargs);
 

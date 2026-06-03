@@ -3,6 +3,7 @@ using DMCobranzas.Services.PatchManager.Reset;
 using DMOrders.Controls.Tools;
 using DMSA.Models.Odoo.Abstract;
 using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Payments;
 using System.Diagnostics;
 
 namespace DMCobranzas.Services.PatchManager
@@ -29,6 +30,7 @@ namespace DMCobranzas.Services.PatchManager
             //await PatchExecuter_v1(ConnectionItem);
             await PatchExecuter_v2(ConnectionItem);
             await PatchExecuter_v3(ConnectionItem);
+            await PatchExecuter_v4(ConnectionItem);
             //await PatchExecuter_v4(ConnectionItem);
             //await PatchExecuter_v5(ConnectionItem);
             //await PatchExecuter_v6(ConnectionItem);
@@ -135,5 +137,23 @@ namespace DMCobranzas.Services.PatchManager
                 await Toast.Make("Patch applied: " + patch_name).Show();
             }
         }
+
+        private async Task PatchExecuter_v4(OdooConnection ConnectionItem)
+        {
+            string patch_name = "_patch_v4_" + ConnectionItem.DbName;
+
+            bool patch_applied = Preferences.Get(patch_name, false);
+
+            if (!patch_applied)
+            {
+                ExecuteTask executeTask = new ExecuteTask();
+                await executeTask.FixCreditNotes();
+
+                Preferences.Set(patch_name, true);
+                Preferences.Set("patch_require_update", true);
+                Debug.WriteLine(patch_name + " ==== aplicado");
+                await Toast.Make("Patch applied: " + patch_name).Show();
+            }
+        }        
     }
 }

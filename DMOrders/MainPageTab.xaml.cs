@@ -118,7 +118,7 @@ public partial class MainPageTab : ContentPage
 
     private async Task<bool> SendFullData()
     {
-        bool result = await DisplayAlert("¿Enviar datos?", "Si envía los datos ya no podrá modificarlos", "Sí", "No");
+        bool result = await DisplayAlertAsync("¿Enviar datos?", "Si envía los datos ya no podrá modificarlos", "Sí", "No");
         if (!result)
         {
             return false;
@@ -251,7 +251,7 @@ public partial class MainPageTab : ContentPage
 
     private async Task Exit_Special()
     {
-        bool result = await DisplayAlert("¿Cerrar la sesión?", "Regresar a la pantalla de login", "Sí", "No");
+        bool result = await DisplayAlertAsync("¿Cerrar la sesión?", "Regresar a la pantalla de login", "Sí", "No");
         if (!result)
         {
             return;

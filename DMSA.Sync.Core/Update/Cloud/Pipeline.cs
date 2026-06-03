@@ -205,86 +205,86 @@ namespace DMSA.Sync.Core.Update.Cloud
             return null;
         }
 
-        public async Task<bool> DownloadSqliteZip(bool removeTmpFile, Func<int, int, Task>? onProgress = null)
-        {
-            bool boolResponse = false;
+        //public async Task<bool> DownloadSqliteZip(bool removeTmpFile, Func<int, int, Task>? onProgress = null)
+        //{
+        //    bool boolResponse = false;
 
-            HubMnsaAttachment hubMnsaAttachment = new HubMnsaAttachment(Constants.Session);
-            HubIrAttachment hubIrAttachment = new HubIrAttachment(Constants.Session);
-            string packName = Constants.Session.odooConnection.DbNameSqlite + ".zip";
-            var top5List = await hubMnsaAttachment.GetTop5(packName);
+        //    HubMnsaAttachment hubMnsaAttachment = new HubMnsaAttachment(Constants.Session);
+        //    HubIrAttachment hubIrAttachment = new HubIrAttachment(Constants.Session);
+        //    string packName = Constants.Session.odooConnection.DbNameSqlite + ".zip";
+        //    var top5List = await hubMnsaAttachment.GetTop5(packName);
 
-            int indexFile = 0;
-            int totalFiles = 0;
+        //    int indexFile = 0;
+        //    int totalFiles = 0;
 
-            if(top5List != null && top5List.result!=null && top5List.result.Length > 0)
-            {
-                var item_first = top5List.result[0];
+        //    if(top5List != null && top5List.result!=null && top5List.result.Length > 0)
+        //    {
+        //        var item_first = top5List.result[0];
 
-                var attachmentIds = item_first._attachment_ids
-                    .OrderBy(id => id)
-                    .ToList();
+        //        var attachmentIds = item_first._attachment_ids
+        //            .OrderBy(id => id)
+        //            .ToList();
 
-                string originalName = item_first.file_name;
-                string nameWithoutExt = Path.GetFileNameWithoutExtension(originalName);
-                string ext = Path.GetExtension(originalName);
+        //        string originalName = item_first.file_name;
+        //        string nameWithoutExt = Path.GetFileNameWithoutExtension(originalName);
+        //        string ext = Path.GetExtension(originalName);
 
-                string randomSuffix = Guid.NewGuid().ToString("N"); // sin guiones
+        //        string randomSuffix = Guid.NewGuid().ToString("N"); // sin guiones
 
-                string tempZipPath = Path.Combine(
-                    FileSystem.AppDataDirectory,
-                    $"{nameWithoutExt}_{randomSuffix}{ext}"
-                );
+        //        string tempZipPath = Path.Combine(
+        //            FileSystem.AppDataDirectory,
+        //            $"{nameWithoutExt}_{randomSuffix}{ext}"
+        //        );
 
-                if (attachmentIds.Count == 0)
-                {
-                    return false;
-                }
+        //        if (attachmentIds.Count == 0)
+        //        {
+        //            return false;
+        //        }
 
-                totalFiles = attachmentIds.Count;
+        //        totalFiles = attachmentIds.Count;
 
-                using (var output = new FileStream(tempZipPath, FileMode.Create, FileAccess.Write))
-                {
-                    foreach (var item in attachmentIds)
-                    {
-                        indexFile++;
+        //        using (var output = new FileStream(tempZipPath, FileMode.Create, FileAccess.Write))
+        //        {
+        //            foreach (var item in attachmentIds)
+        //            {
+        //                indexFile++;
                         
-                        var ir_attachment_data = await hubIrAttachment.GetItem(item);
-                        var item_ir = ir_attachment_data.result[0];
+        //                var ir_attachment_data = await hubIrAttachment.GetItem(item);
+        //                var item_ir = ir_attachment_data.result[0];
 
-                        Debug.WriteLine($"Descargando archivo: {item_ir.name} de tamaño {item_ir.file_size} MB");
+        //                Debug.WriteLine($"Descargando archivo: {item_ir.name} de tamaño {item_ir.file_size} MB");
 
-                        if (onProgress != null)
-                            await onProgress(indexFile, totalFiles);
+        //                if (onProgress != null)
+        //                    await onProgress(indexFile, totalFiles);
 
-                        var partBytes = await hubMnsaAttachment.DownloadFileAsync(item);
-                        await output.WriteAsync(partBytes, 0, partBytes.Length);
-                    }
-                }
+        //                var partBytes = await hubMnsaAttachment.DownloadFileAsync(item);
+        //                await output.WriteAsync(partBytes, 0, partBytes.Length);
+        //            }
+        //        }
 
-                Debug.WriteLine($"ZIP reconstruido en: {tempZipPath}");
+        //        Debug.WriteLine($"ZIP reconstruido en: {tempZipPath}");
 
-                bool exists = ZipContainsFile(tempZipPath, Constants.Session.odooConnection.DbNameSqlite);
+        //        bool exists = ZipContainsFile(tempZipPath, Constants.Session.odooConnection.DbNameSqlite);
 
-                if (exists)
-                {                    
-                    string extractPath = FileSystem.AppDataDirectory;
-                    ZipFile.ExtractToDirectory(tempZipPath, extractPath, true);
-                    Debug.WriteLine("ZIP descomprimido correctamente");
-                    await Task.Delay(2000);
-                    boolResponse = true;
-                }
-                else
-                {
-                    Debug.WriteLine("El archivo no pertenece a esta conexión. No se va a restaurar.");
-                }
+        //        if (exists)
+        //        {                    
+        //            string extractPath = FileSystem.AppDataDirectory;
+        //            ZipFile.ExtractToDirectory(tempZipPath, extractPath, true);
+        //            Debug.WriteLine("ZIP descomprimido correctamente");
+        //            await Task.Delay(2000);
+        //            boolResponse = true;
+        //        }
+        //        else
+        //        {
+        //            Debug.WriteLine("El archivo no pertenece a esta conexión. No se va a restaurar.");
+        //        }
 
-                if (removeTmpFile)
-                    File.Delete(tempZipPath);                
-            }
+        //        if (removeTmpFile)
+        //            File.Delete(tempZipPath);                
+        //    }
 
-            return boolResponse;
-        }
+        //    return boolResponse;
+        //}
 
         public bool ZipContainsFile(string zipPath, string fileName)
         {

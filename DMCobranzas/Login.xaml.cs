@@ -118,6 +118,7 @@ public partial class Login : ContentPage
                 if (!pullResult)
                 {
                     await Toast.Make("Datos incorrectos.").Show();
+                    return;
                 }
                 else
                 {
@@ -130,7 +131,7 @@ public partial class Login : ContentPage
 
                     await serverPuller.GetFullResCenterLine(true);
                     await Toast.Make("Datos correctos.").Show();                    
-                }                
+                }
             }
 
             var storesDb = new ResCenterDb(App.Session.odooConnection.DbNameSqlite);

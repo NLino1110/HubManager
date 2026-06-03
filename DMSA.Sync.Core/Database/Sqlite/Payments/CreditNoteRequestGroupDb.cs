@@ -120,6 +120,25 @@ namespace DMSA.Sync.Core.Database.Sqlite.Payments
                 lastId.ToString();
 
             return codigoRecibo;
-        }    
+        }
+
+
+        public async Task FixWrongUserId()
+        {
+            await Init();
+
+            string sql = @"
+                    UPDATE credit_note_request_group
+                    SET uid = (
+                        SELECT external_create_uid
+                        FROM credit_note_request
+                        WHERE credit_note_request.parent_id = credit_note_request_group.id
+                        LIMIT 1
+                    )
+                    WHERE uid = 0
+                ";
+
+            await Database.ExecuteAsync(sql);
+        }
     }
 }

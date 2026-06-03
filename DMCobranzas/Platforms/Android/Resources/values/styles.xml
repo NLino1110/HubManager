@@ -1,0 +1,9 @@
+﻿<resources>
+	<style name="MainTheme" parent="MainTheme.Base" />
+	<style name="MainTheme.Base" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+		<item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body1</item>
+		<item name="colorPrimary">@color/colorPrimary</item>
+		<item name="colorPrimaryVariant">@color/colorPrimaryDark</item>
+		<item name="colorOnPrimary">@color/colorOnPrimary</item>
+	</style>
+</resources>

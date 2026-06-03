@@ -504,7 +504,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
     public async Task<bool> OnBackButtonPressedAsync()
     {
-        bool result = await DisplayAlert("Confirmación", "Minimizar la aplicación, ¿Desea continuar?", "Sí", "No");
+        bool result = await DisplayAlertAsync("Confirmación", "Minimizar la aplicación, ¿Desea continuar?", "Sí", "No");
         if (result)
         {
 #if ANDROID
@@ -702,10 +702,17 @@ public partial class Crud : ContentPage, IBackButtonHandler
     private async Task CleanPromotionStatusFull(sale_order saleOrder)
     {
         //saleOrderPromotions?.Clear();
-        for (var i = 0; i < saleOrderPromotions.Count(); i++)
+        //for (var i = 0; i < saleOrderPromotions.Count(); i++)
+        //{
+        //    var promo = saleOrderPromotions[i];
+        //    saleOrderPromotions.Remove(promo);
+        //}
+
+        for (var i = saleOrderPromotions.Count - 1; i >= 0; i--)
         {
-            var promo = saleOrderPromotions[i];
-            saleOrderPromotions.Remove(promo);
+            //var promo = saleOrderPromotions[i];
+            //saleOrderPromotions.Remove(promo);
+            saleOrderPromotions.RemoveAt(i);
         }
 
         int deletedGifts = 0;
@@ -837,11 +844,17 @@ public partial class Crud : ContentPage, IBackButtonHandler
             }
 
             CurrentSaleOrder = targetOrder;
-            CurrentSaleOrder = targetOrder;
+            //CurrentSaleOrder = targetOrder;
         }
         else
         {
             targetOrder = CurrentSaleOrder;
+
+            //if (targetOrder._partner_invoice_id != partner_invoice_id || targetOrder._partner_shipping_id != partner_invoice_id)
+            //{
+            //    await Toast.Make("Dirección modificada.").Show();
+            //}
+
             targetOrder.write_date = DateTime.Now;
             targetOrder._center_id = App.Session.res_center.id;
             targetOrder._warehouse_id = warehouseId;
@@ -1411,7 +1424,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 if (text.Length > 0)
                     text = text[..^1]; // elimina el último carácter
 
-                // 👇 si quedó vacío, coloca "0"
+                // si quedó vacío, coloca "0"
                 if (string.IsNullOrEmpty(text))
                     text = "0";
                 break;
@@ -1476,7 +1489,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 product_uom_qty = 0;                
                 OrderLinesCl.SelectedItem = null;
 
-                await DisplayAlert("Alerta", "La cantidad solicitada no puede ser mayor a la disponible en inventario.", "Aceptar");
+                await DisplayAlertAsync("Alerta", "La cantidad solicitada no puede ser mayor a la disponible en inventario.", "Aceptar");
                 return;
             }
 

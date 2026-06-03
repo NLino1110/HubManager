@@ -1,7 +1,6 @@
 ﻿using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.Native;
 using DMSA.Sync.Core.Controls.CustomRows.Lite;
-using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
 using System.Collections.ObjectModel;
 

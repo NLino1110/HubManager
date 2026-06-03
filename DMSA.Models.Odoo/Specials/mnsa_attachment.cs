@@ -30,16 +30,16 @@ namespace DMSA.Models.Odoo.Specials
             set => mobile_app_id = SetId(mobile_app_id, value);
         }
 
-        [Ignore]
-        public JToken attachment_ids { get; set; }
+        //[Ignore]
+        //public JToken attachment_ids { get; set; }
 
-        [Ignore]
-        [JsonIgnore]
-        public int[] _attachment_ids
-        {
-            get => GetIds(attachment_ids);
-            set => attachment_ids = SetIds(attachment_ids, value);
-        }
+        //[Ignore]
+        //[JsonIgnore]
+        //public int[] _attachment_ids
+        //{
+        //    get => GetIds(attachment_ids);
+        //    set => attachment_ids = SetIds(attachment_ids, value);
+        //}
 
         [Ignore]
         public JToken lines_url { get; set; }

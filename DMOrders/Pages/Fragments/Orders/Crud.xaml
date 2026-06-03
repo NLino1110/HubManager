@@ -443,7 +443,7 @@
                                Margin="0,0,0,10" 
                                 Spacing="10">
                     
-                    <uranium:ExpanderView IsExpanded="True" WidthRequest="250">
+                    <!--<uranium:ExpanderView IsExpanded="True" WidthRequest="250">
                         <uranium:ExpanderView.Header>
                             <Label                     
                     BackgroundColor="Transparent" 
@@ -452,12 +452,35 @@
                     FontAttributes="Bold"
                     HorizontalTextAlignment="Center"
                     Padding="3" IsVisible="False"/>
-                        </uranium:ExpanderView.Header>
-                        <StackLayout>
-                            <material:EditorField x:Name="fieldNote" Title="Observac." Text="{Binding Note2, Mode=TwoWay}" 
+                        </uranium:ExpanderView.Header><StackLayout>
+                        <material:EditorField x:Name="fieldNote" Title="Observac." Text="{Binding Note2, Mode=TwoWay}" 
                                 IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={x:Reference RootPage}}"/>
+                        <material:EditorField x:Name="fieldNote" Title="Observac." Text="{Binding Note2, Mode=TwoWay}" 
+        IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={x:Reference RootPage}}"/>
                         </StackLayout>
-                    </uranium:ExpanderView>                    
+                    </uranium:ExpanderView>-->
+                    <VerticalStackLayout Spacing="2" WidthRequest="250">
+                        <Label Text="Observac." 
+               FontSize="12" 
+               TextColor="SlateGray" 
+               FontAttributes="Bold" />
+
+                        <Border Stroke="LightGrey"
+            StrokeThickness="1"
+            Padding="5"
+            HorizontalOptions="FillAndExpand">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="4"/>
+                            </Border.StrokeShape>
+
+                            <Editor x:Name="fieldNote" 
+                Text="{Binding Note2, Mode=TwoWay}"
+                IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={x:Reference RootPage}}"
+                AutoSize="TextChanges"
+                HeightRequest="60"
+                FontSize="13" />
+                        </Border>
+                    </VerticalStackLayout>
                 </HorizontalStackLayout>
 
                 <Grid Grid.Column="2"

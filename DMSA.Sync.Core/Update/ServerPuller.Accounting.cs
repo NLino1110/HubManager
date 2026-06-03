@@ -690,11 +690,15 @@ namespace DMSA.Sync.Core.Update
         //}
 
         public async Task<bool> OnlineSyncAccountPaymentDaily(Func<int, int, Task>? onProgress = null)
-        {
+        {            
             DateTime dateTimeIni = DateTime.Now;
 
-            ApiManager.HubAccountPaymentDaily hubmanager = new ApiManager.HubAccountPaymentDaily(Constants.Session);
-            var resultCount = await hubmanager.GetCountByUser();
+            var database = new AccountPaymentDailyDb(Constants.Session.odooConnection.DbNameSqlite);
+            DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since_lower);
+
+
+            var hubmanager = new ApiManager.HubAccountPaymentDaily(Constants.Session);
+            var resultCount = await hubmanager.GetCountByUser(Constants.Session.CurrentUserFront.uid, lastDate.Value);
 
             Debug.WriteLine(resultCount.result);
 
@@ -703,13 +707,11 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
                         
-            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
-
-            var database = new AccountPaymentDailyDb(Constants.Session.odooConnection.DbNameSqlite);
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);                       
 
             for (int indice = 0; indice <= totalPages; indice++)
             {
-                var responseAll = await hubmanager.GetByUser(0);
+                var responseAll = await hubmanager.GetByUser(Constants.Session.CurrentUserFront.uid, lastDate.Value);
 
                 if (responseAll != null && responseAll.result != null && responseAll.result.Length > 0)
                 {

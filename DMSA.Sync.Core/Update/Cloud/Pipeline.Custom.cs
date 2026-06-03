@@ -160,70 +160,70 @@ namespace DMSA.Sync.Core.Update.Cloud
             return null;
         }
 
-        public async Task<bool> DownloadSqliteZipCustom(string dbNameSqlite, bool removeTmpFile)
-        {
-            bool boolResponse = false;
+        //public async Task<bool> DownloadSqliteZipCustom(string dbNameSqlite, bool removeTmpFile)
+        //{
+        //    bool boolResponse = false;
 
-            HubMnsaAttachment hubMnsaAttachment = new HubMnsaAttachment(Constants.Session);
-            HubIrAttachment hubIrAttachment = new HubIrAttachment(Constants.Session);
+        //    HubMnsaAttachment hubMnsaAttachment = new HubMnsaAttachment(Constants.Session);
+        //    HubIrAttachment hubIrAttachment = new HubIrAttachment(Constants.Session);
 
-            var top5List = await hubMnsaAttachment.GetTop5(dbNameSqlite);
+        //    var top5List = await hubMnsaAttachment.GetTop5(dbNameSqlite);
 
-            if (top5List?.result != null && top5List.result.Length > 0)
-            {
-                var item_first = top5List.result[0];
+        //    if (top5List?.result != null && top5List.result.Length > 0)
+        //    {
+        //        var item_first = top5List.result[0];
 
-                var attachmentIds = item_first._attachment_ids
-                    .OrderBy(id => id)
-                    .ToList();
+        //        var attachmentIds = item_first._attachment_ids
+        //            .OrderBy(id => id)
+        //            .ToList();
 
-                string originalName = item_first.file_name;
-                string nameWithoutExt = Path.GetFileNameWithoutExtension(originalName);
-                string ext = Path.GetExtension(originalName);
+        //        string originalName = item_first.file_name;
+        //        string nameWithoutExt = Path.GetFileNameWithoutExtension(originalName);
+        //        string ext = Path.GetExtension(originalName);
 
-                string randomSuffix = Guid.NewGuid().ToString("N");
+        //        string randomSuffix = Guid.NewGuid().ToString("N");
 
-                string tempZipPath = Path.Combine(
-                    FileSystem.AppDataDirectory,
-                    $"{nameWithoutExt}_{randomSuffix}{ext}"
-                );
+        //        string tempZipPath = Path.Combine(
+        //            FileSystem.AppDataDirectory,
+        //            $"{nameWithoutExt}_{randomSuffix}{ext}"
+        //        );
 
-                if (attachmentIds.Count == 0)
-                    return false;
+        //        if (attachmentIds.Count == 0)
+        //            return false;
 
-                using (var output = new FileStream(tempZipPath, FileMode.Create, FileAccess.Write))
-                {
-                    int total = attachmentIds.Count;
-                    int count = 0;
-                    foreach (var item in attachmentIds)
-                    {
-                        count++;
-                        Debug.WriteLine("Descargando archivo " + count + " de " + total );
-                        var ir_attachment_data = await hubIrAttachment.GetItem(item);
-                        var item_ir = ir_attachment_data.result[0];
+        //        using (var output = new FileStream(tempZipPath, FileMode.Create, FileAccess.Write))
+        //        {
+        //            int total = attachmentIds.Count;
+        //            int count = 0;
+        //            foreach (var item in attachmentIds)
+        //            {
+        //                count++;
+        //                Debug.WriteLine("Descargando archivo " + count + " de " + total );
+        //                var ir_attachment_data = await hubIrAttachment.GetItem(item);
+        //                var item_ir = ir_attachment_data.result[0];
 
-                        var partBytes = await hubMnsaAttachment.DownloadFileAsync(item);
-                        await output.WriteAsync(partBytes, 0, partBytes.Length);
-                    }
-                }
+        //                var partBytes = await hubMnsaAttachment.DownloadFileAsync(item);
+        //                await output.WriteAsync(partBytes, 0, partBytes.Length);
+        //            }
+        //        }
                 
-                bool exists = ZipContainsFile(tempZipPath, nameWithoutExt);
+        //        bool exists = ZipContainsFile(tempZipPath, nameWithoutExt);
 
-                if (exists)
-                {
-                    string extractPath = FileSystem.AppDataDirectory;
-                    ZipFile.ExtractToDirectory(tempZipPath, extractPath, true);
+        //        if (exists)
+        //        {
+        //            string extractPath = FileSystem.AppDataDirectory;
+        //            ZipFile.ExtractToDirectory(tempZipPath, extractPath, true);
 
-                    await Task.Delay(2000);
-                    boolResponse = true;
-                }
+        //            await Task.Delay(2000);
+        //            boolResponse = true;
+        //        }
 
-                if (removeTmpFile)
-                    File.Delete(tempZipPath);
-            }
+        //        if (removeTmpFile)
+        //            File.Delete(tempZipPath);
+        //    }
 
-            return boolResponse;
-        }
+        //    return boolResponse;
+        //}
 
         public async Task<bool> RequiredNewUploadCustom(string dbNameSqlite)
         {

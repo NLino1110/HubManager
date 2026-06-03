@@ -556,7 +556,6 @@ namespace DMSA.Sync.Core.Update.Pusher
 
         public static async Task<ApiResponseOdooRpcT<int>> SendMoveItem(credit_note_request _account_move_send)
         {
-            //TODO: Agregar validaciones
             HubCreditNoteRequest hubAccountMoveRefund = new HubCreditNoteRequest(Constants.Session);
 
             var resultTask = await hubAccountMoveRefund.SendHeader(_account_move_send);

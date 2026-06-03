@@ -347,7 +347,7 @@ public partial class UpdateData : ContentPage
 
     private async Task PartialCatalogUpdate()
     {
-        bool answer = await DisplayAlert("Actualizar parcial el catálogo?", "Este proceso actualizará las imagenes de los productos.", "Actualizar", "Cancelar");
+        bool answer = await DisplayAlertAsync("Actualizar parcial el catálogo?", "Este proceso actualizará las imagenes de los productos.", "Actualizar", "Cancelar");
 
         if (!answer)
         {
@@ -393,7 +393,7 @@ public partial class UpdateData : ContentPage
             " (" + String.Format("{0} días, {1} horas, {2} minutos, {3} segundos)",
             span.Days, span.Hours, span.Minutes, span.Seconds);
 
-        await progressBarPage.DisplayAlert("Actualización", "Actualización terminada", "Aceptar");
+        await progressBarPage.DisplayAlertAsync("Actualización", "Actualización terminada", "Aceptar");
 
         await Navigation.PopModalAsync();
     }
@@ -492,8 +492,8 @@ public partial class UpdateData : ContentPage
     private async void btnFromPipeline_Clicked(object sender, EventArgs e)
     {
         await SqliteDbBase<object>.CloseDatabaseAsync();
-        Pipeline pipeline = new Pipeline();
-        await pipeline.DownloadSqliteZip(true);
+        //Pipeline pipeline = new Pipeline();
+        //await pipeline.DownloadSqliteZip(true);
     }
 
     private async void btnBack_Clicked(object sender, EventArgs e)

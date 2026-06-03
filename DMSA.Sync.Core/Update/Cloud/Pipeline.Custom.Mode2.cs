@@ -181,6 +181,82 @@ namespace DMSA.Sync.Core.Update.Cloud
             }
 
             return boolResponse;
-        }        
+        }
+
+        public async Task<bool> DownloadSqliteZip(mnsa_attachment item_first, bool removeTmpFile, Func<int, int, Task>? onProgress = null)
+        {
+            if(item_first == null)
+                return false;
+
+            bool boolResponse = false;
+
+            HubMnsaAttachment hubMnsaAttachment = new HubMnsaAttachment(Constants.Session);
+            HubIrAttachmentLine hubIrAttachmentLine = new HubIrAttachmentLine(Constants.Session);                
+
+            var linesUrlIds = item_first._lines_url
+                .OrderBy(id => id)
+                .ToList();
+
+            string originalName = item_first.file_name;
+            string nameWithoutExt = Path.GetFileNameWithoutExtension(originalName);
+            string ext = Path.GetExtension(originalName);
+
+            string randomSuffix = Guid.NewGuid().ToString("N");
+
+            string tempZipPath = Path.Combine(
+                FileSystem.AppDataDirectory,
+                $"{nameWithoutExt}_{randomSuffix}{ext}"
+            );
+
+            if (linesUrlIds.Count == 0)
+                return false;
+
+            using (var output = new FileStream(tempZipPath, FileMode.Create, FileAccess.Write))
+            {
+                int total = linesUrlIds.Count;
+                int count = 0;
+
+                foreach (var item in linesUrlIds)
+                {
+                    count++;
+                    Debug.WriteLine($"Descargando {count}/{total}");
+
+                    var ir_attachment_data = await hubIrAttachmentLine.GetItem(item);
+                    var item_ir = ir_attachment_data.result[0];
+                    string FullUrl = item_ir.url;
+
+                    var partBytes = await hubMnsaAttachment.DownloadFileMode2Async(FullUrl);
+
+                    if (partBytes == null || partBytes.Length == 0)
+                    {
+                        Debug.WriteLine($"ERROR: Parte {count} vacía");
+                        return false;
+                    }
+
+                    Debug.WriteLine($"Parte {count}: {partBytes.Length} bytes");
+
+                    if (onProgress != null)
+                        await onProgress(count, total);
+
+                    await output.WriteAsync(partBytes, 0, partBytes.Length);
+                }
+            }
+
+            bool exists = ZipContainsFile(tempZipPath, nameWithoutExt);
+
+            if (exists)
+            {
+                string extractPath = FileSystem.AppDataDirectory;
+                ZipFile.ExtractToDirectory(tempZipPath, extractPath, true);
+
+                await Task.Delay(2000);
+                boolResponse = true;
+            }
+
+            if (removeTmpFile)
+                File.Delete(tempZipPath);            
+
+            return boolResponse;
+        }
     }
 }

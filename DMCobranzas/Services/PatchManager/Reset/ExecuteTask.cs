@@ -1,6 +1,7 @@
 ﻿using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite.Accounting;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
+using System.Diagnostics;
 
 namespace DMCobranzas.Services.PatchManager.Reset
 {
@@ -70,6 +71,20 @@ namespace DMCobranzas.Services.PatchManager.Reset
         {
             var resCenterLineDb = new ResCenterLineDb(App.Session.odooConnection.DbNameSqlite);
             await resCenterLineDb.DropTableAsync();
+        }
+
+        public async Task FixCreditNotes()
+        {
+            try
+            {
+                var creditNoteRequestGroupDb = new CreditNoteRequestGroupDb(App.Session.odooConnection.DbNameSqlite);
+                //var creditNoteRequestDb = new CreditNoteRequestDb(App.Session.odooConnection.DbNameSqlite);
+                await creditNoteRequestGroupDb.FixWrongUserId();
+            }
+            catch(Exception e)
+            {
+                Debug.WriteLine("FixCreditNotes: Error " + e.Message);
+            }
         }
 
         public async Task Vaccum()

@@ -308,7 +308,7 @@ public partial class CatalogViewerInner : ContentView
     public CatalogViewerInner()
     {
         InitializeComponent();
-        //Setup();
+        Setup();
     }
 
     //protected override async void OnParentSet()
@@ -1085,27 +1085,27 @@ public partial class CatalogViewerInner : ContentView
         public ItemSelectedMessage(product_product value) : base(value) { }
     }
 
-    protected override void OnPropertyChanged(string propertyName = null)
-    {
-        if (propertyName == null)
-            return;
+    //protected override void OnPropertyChanged(string propertyName = null)
+    //{
+    //    if (propertyName == null)
+    //        return;
 
-        base.OnPropertyChanged(propertyName);
+    //    base.OnPropertyChanged(propertyName);
 
-        if (propertyName == nameof(IsVisible))
-        {
-            if (IsVisible)
-            {
-                if (Parent != null && !_isSetupDone)
-                {
-                    _isSetupDone = true;
-                    Setup();
-                }
-            }
-            else
-            {
+    //    if (propertyName == nameof(IsVisible))
+    //    {
+    //        if (IsVisible)
+    //        {
+    //            if (Parent != null && !_isSetupDone)
+    //            {
+    //                _isSetupDone = true;
+    //                Setup();
+    //            }
+    //        }
+    //        else
+    //        {
                 
-            }
-        }
-    }
+    //        }
+    //    }
+    //}
 }

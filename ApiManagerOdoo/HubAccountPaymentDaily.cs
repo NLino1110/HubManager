@@ -4,6 +4,7 @@ using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Security;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Security.Cryptography;
 
 namespace ApiManager
 {
@@ -18,7 +19,7 @@ namespace ApiManager
                 "payment_reference",
                 "closing_amount",
                 "closing_details",
-                "was_odoo_synced"
+                //"was_odoo_synced"
                 };
 
         public HubAccountPaymentDaily(AppSession _setAppSession) : base(_setAppSession)
@@ -27,21 +28,42 @@ namespace ApiManager
             _modelname = "account.payment.daily";
         }
 
-        public async Task<ApiResponseOdooRpc?> GetCountByUser()
+        //public async Task<ApiResponseOdooRpcT<account_move[]>?> GetAccountMoves(DateTime dateIni, int limit, int index)
+        //{
+        //    var kwargs = new
+        //    {
+        //        limit,
+        //        offset = index * limit,
+        //        fields = fields_array,
+        //        order = "write_date asc"
+        //    };
+
+        //    object[] args = new object[] { };
+        //    object[] _custom_args = new object[] {
+        //        //new object[] { "write_date", ">=", dateIni.ToString("yyyy-MM-dd") },
+        //        new object[] { "write_date", ">=", $"{dateIni.Year}-{dateIni.Month:00}-{dateIni.Day:00} 00:00:00" },
+        //        new object[] { "state", "=", "posted" },
+        //        new object[] { "move_type", "=", "out_invoice" },
+        //        new object[] { "invoice_date", "!=", false },
+        //    };
+        //    return await SearchRead<ApiResponseOdooRpcT<account_move[]>>(args, _custom_args, kwargs, true);
+        //}
+
+        public async Task<ApiResponseOdooRpc?> GetCountByUser(int uid, DateTime dateIni)
         {
             object[] args = new object[] { };
-            object[] _custom_args = new object[] {
+            object[] _custom_args = new object[] {                
+                //"external_create_uid", "=", uid,
+                new object[] { "uid", "=", uid },
+                new object[] { "write_date", ">=", $"{dateIni.Year}-{dateIni.Month:00}-{dateIni.Day:00} 00:00:00" }
             };
             return await GetCount(args, _custom_args);
         }
 
-        public async Task<ApiResponseOdooRpcT<AccountPaymentDaily[]>?> GetByUser(int uid)
+        public async Task<ApiResponseOdooRpcT<AccountPaymentDaily[]>?> GetByUser(int uid, DateTime dateIni)
         {
             int limit = 100;
             int index = 0;
-            int year = 0;
-            int month = 0;
-            int day = 0;
 
             var kwargs = new
             {
@@ -51,11 +73,10 @@ namespace ApiManager
             };
 
             object[] args = new object[] { };
-            object[] _custom_args = new object[] {
-                new object[] {
-                    "uid", "=", uid,
-                    //"create_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00",                
-                    },
+            object[] _custom_args = new object[] {                
+                //"external_create_uid", "=", uid,
+                new object[] { "uid", "=", uid },
+                new object[] { "write_date", ">=", $"{dateIni.Year}-{dateIni.Month:00}-{dateIni.Day:00} 00:00:00" }                
             };
             return await SearchRead<ApiResponseOdooRpcT<AccountPaymentDaily[]>>(args, _custom_args, kwargs);
         }
