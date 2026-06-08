@@ -9,7 +9,13 @@ using MPowerKit.VirtualizeListView;
 using SkiaSharp.Views.Maui.Controls.Hosting;
 using System.Diagnostics;
 using System.Globalization;
-using UraniumUI;
+using BeebTech.Controls.UI;
+
+using DMOrders.Controls;
+
+#if ANDROID
+using DMOrders.Platforms.Android;
+#endif
 
 namespace DMOrders
 {
@@ -18,6 +24,13 @@ namespace DMOrders
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
+//            builder.ConfigureMauiHandlers(handlers =>
+//            {
+//#if ANDROID
+//                handlers.AddHandler(typeof(NativeSpinnerView), typeof(NativeSpinnerViewHandler));
+//#endif
+//            });
+
             builder
                 .UseMauiApp<App>()
                 .UseSkiaSharp()
@@ -32,22 +45,17 @@ namespace DMOrders
                     fonts.AddFont("Font Awesome 5 Free-Regular-400.otf", "FontAwesome5Regular");
                     fonts.AddFont("Font Awesome 5 Brands-Regular-400.otf", "FontAwesome5Brands");
                     fonts.AddFont("Font Awesome 5 Free-Solid-900.otf", "FontAwesome5Solid");
-                    fonts.AddFont("Consolas.ttf", "Consolas");
-                    fonts.AddFontAwesomeIconFonts();
-                    fonts.AddMaterialSymbolsFonts();
-                    fonts.AddMaterialIconFonts();
-                    fonts.AddFluentIconFonts();
-                })
-                .UseUraniumUIBlurs()
+                    fonts.AddFont("Consolas.ttf", "Consolas");                   
+                   
+                })                
                 .UseMauiCommunityToolkit(options => {
                     options.SetShouldEnableSnackbarOnWindows(true);
                 })
                 .UseMauiCommunityToolkitMarkup()
-                .UseMauiCommunityToolkitCamera()
-                .UseUraniumUI()
-                .UseUraniumUIMaterial();
+                .UseMauiCommunityToolkitCamera()                
+                .UseBeebTechControls();
 
-            builder.Services.AddCommunityToolkitDialogs();
+            //builder.Services.AddCommunityToolkitDialogs();
 
             App.Session = new AppSession();
             App.Session.AppVersion = AppInfo.Current.VersionString;

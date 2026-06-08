@@ -298,154 +298,41 @@ public partial class MainPageTab : ContentPage
         tabProducts.ClearCache();
     }
 
-    //private void tabViewMain_SelectedTabChanged(object sender, UraniumUI.Material.Controls.TabItem e)
-    //{
-    //    Debug.WriteLine(sender);
-    //    Debug.WriteLine(e);
-
-    //    if(e.Title.ToLower() == "clientes")
-    //    {
-    //        tabCustomers?.ReloadData();
-    //    }
-
-    //    if (e.Title.ToLower() == "artículos")
-    //    {            
-    //        tabProducts?.ReloadData();
-    //    }
-
-    //    if (e.Title.ToLower() == "pedidos")
-    //    {            
-    //        tabOrders?.ReloadData();
-    //    }
-
-    //    if (e.Title.ToLower() == "actividades")
-    //    {            
-    //        tabActivities?.ReloadData();
-    //    }
-    //}
-
-    //public void SelectTab(string tabTitle)
-    //{
-    //    foreach (var tab in tabViewMain.Tabs)
-    //    {
-    //        if (tab.Title.Equals(tabTitle, StringComparison.OrdinalIgnoreCase))
-    //        {
-    //            tabViewMain.SelectedTab = tab;
-    //            break;
-    //        }
-    //    }
-    //}
-
-    public void SelectTab(string tab)
+    private void tabViewMain_SelectedTabChanged(object sender, UraniumUI.Material.Controls.TabItem e)
     {
-        //tabCustomers.IsVisible = tab == "customers";
-        //tabProducts.IsVisible = tab == "products";
-        //tabOrders.IsVisible = tab == "orders";
-        //tabActivities.IsVisible = tab == "activities";
+        Debug.WriteLine(sender);
+        Debug.WriteLine(e);
 
-        if (tab == "customers")
+        if(e.Title.ToLower() == "clientes")
         {
-            ShowTab("customers");
-            SetActiveTab("customers");
             tabCustomers?.ReloadData();
         }
-        else if (tab == "products")
-        {
-            ShowTab("products");
-            SetActiveTab("products");
+
+        if (e.Title.ToLower() == "artículos")
+        {            
             tabProducts?.ReloadData();
         }
-        else if (tab == "orders")
-        {
-            ShowTab("orders");
-            SetActiveTab("orders");
+
+        if (e.Title.ToLower() == "pedidos")
+        {            
             tabOrders?.ReloadData();
         }
-        else if (tab == "activities")
-        {
-            ShowTab("activities");
-            SetActiveTab("activities");
+
+        if (e.Title.ToLower() == "actividades")
+        {            
             tabActivities?.ReloadData();
         }
     }
 
-    void ShowTab(string tab)
+    public void SelectTab(string tabTitle)
     {
-        tabCustomers.IsVisible = tab == "customers";
-        tabProducts.IsVisible = tab == "products";
-        tabOrders.IsVisible = tab == "orders";
-        tabActivities.IsVisible = tab == "activities";
-    }
-
-    void OnTabCustomers(object sender, EventArgs e)
-    {
-        ShowTab("customers");
-        SetActiveTab("customers");
-        tabCustomers?.ReloadData();
-    }
-
-    void OnTabProducts(object sender, EventArgs e)
-    {
-        ShowTab("products");
-        SetActiveTab("products");
-        tabProducts?.ReloadData();
-    }
-
-    void OnTabOrders(object sender, EventArgs e)
-    {
-        ShowTab("orders");
-        SetActiveTab("orders");
-        tabOrders?.ReloadData();
-    }
-
-    void OnTabActivities(object sender, EventArgs e)
-    {
-        ShowTab("activities");
-        SetActiveTab("activities");
-        tabActivities?.ReloadData();
-    }
-    void SetActiveTab(string tab)
-    {
-        // Reset (todos apagados)
-        lblTabCustomers.TextColor = Colors.Gray;
-        lblTabProducts.TextColor = Colors.Gray;
-        lblTabOrders.TextColor = Colors.Gray;
-        lblTabActivities.TextColor = Colors.Gray;
-
-        lineTabCustomers.Color = Colors.Transparent;
-        lineTabProducts.Color = Colors.Transparent;
-        lineTabOrders.Color = Colors.Transparent;
-        lineTabActivities.Color = Colors.Transparent;
-
-        tabBtnCustomers.BackgroundColor = Colors.Transparent;
-        tabBtnProducts.BackgroundColor = Colors.Transparent;
-        tabBtnOrders.BackgroundColor = Colors.Transparent;
-        tabBtnActivities.BackgroundColor = Colors.Transparent;
-
-        // Activar seleccionado
-        if (tab == "customers")
+        foreach (var tab in tabViewMain.Tabs)
         {
-            lblTabCustomers.TextColor = Colors.Blue;
-            lineTabCustomers.Color = Colors.Blue;
-            tabBtnCustomers.BackgroundColor = Colors.LightBlue;
-        }
-        else if (tab == "products")
-        {
-            lblTabProducts.TextColor = Colors.Blue;
-            lineTabProducts.Color = Colors.Blue;
-            tabBtnProducts.BackgroundColor = Colors.LightBlue;
-        }
-        else if (tab == "orders")
-        {
-            lblTabOrders.TextColor = Colors.Blue;
-            lineTabOrders.Color = Colors.Blue;
-            tabBtnOrders.BackgroundColor = Colors.LightBlue;
-        }
-        else if (tab == "activities")
-        {
-            lblTabActivities.TextColor = Colors.Blue;
-            lineTabActivities.Color = Colors.Blue;
-            tabBtnActivities.BackgroundColor = Colors.LightBlue;
+            if (tab.Title.Equals(tabTitle, StringComparison.OrdinalIgnoreCase))
+            {
+                tabViewMain.SelectedTab = tab;
+                break;
+            }
         }
     }
 }

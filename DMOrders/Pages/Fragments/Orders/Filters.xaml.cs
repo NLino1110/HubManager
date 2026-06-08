@@ -215,12 +215,12 @@ public partial class Filters : ContentView
     internal DateTime? getDateStart()
     {
         var date = datePickerStart.Date;
-        return new DateTime(date.Year, date.Month, date.Day, 0, 0, 0);
+        return new DateTime(date.Value.Year, date.Value.Month, date.Value.Day, 0, 0, 0);
     }
 
     internal DateTime? getDateEnd()
     {
         var date = datePickerEnd.Date;
-        return new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
+        return new DateTime(date.Value.Year, date.Value.Month, date.Value.Day, 23, 59, 59);
     }
 }

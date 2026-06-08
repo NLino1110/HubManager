@@ -279,7 +279,7 @@ namespace DMSA.Sync.Core.Update.Pusher
                             }
                         }
                     }
-                }                
+                }
             }
 
             return resultTask;

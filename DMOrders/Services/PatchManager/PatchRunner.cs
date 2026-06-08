@@ -71,11 +71,13 @@ namespace DMOrders.Services.PatchManager
             //await PatchExecuter_v1(ConnectionItem);
             //await PatchExecuter_v2(ConnectionItem);
             //await PatchExecuter_v3(ConnectionItem);
-            await PatchExecuter_v4(ConnectionItem);
+            //await PatchExecuter_v4(ConnectionItem);
             //await PatchExecuter_v5(ConnectionItem);
             //await PatchExecuter_v6(ConnectionItem);
             //+ parches
             //await UITools.HideLoadingPopup();
+
+            await PatchExecuter_Custom(ConnectionItem, "reset_res_partner_04062026");
         }
 
         private void ResetFullPatches()
@@ -205,28 +207,9 @@ namespace DMOrders.Services.PatchManager
             }
         }
 
-        private async Task PatchExecuter_v5(OdooConnection ConnectionItem)
+        private async Task PatchExecuter_Custom(OdooConnection ConnectionItem, string name)
         {
-            string patch_name = "_patch_v5_" + ConnectionItem.DbName;
-
-            bool patch_applied = Preferences.Get(patch_name, false);
-
-            if (!patch_applied)
-            {
-                ExecuteTask executeTask = new ExecuteTask();
-
-                await executeTask.ResetResPartners();
-
-                Preferences.Set(patch_name, true);
-                Debug.WriteLine(patch_name + " ==== aplicado");
-                Preferences.Set("patch_require_update", true);
-                await Toast.Make("Patch applied: " + patch_name).Show();
-            }
-        }
-
-        private async Task PatchExecuter_v6(OdooConnection ConnectionItem)
-        {
-            string patch_name = "_patch_v6_" + ConnectionItem.DbName;
+            string patch_name = name + ConnectionItem.DbName;
 
             bool patch_applied = Preferences.Get(patch_name, false);
 

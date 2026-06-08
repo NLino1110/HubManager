@@ -9,7 +9,6 @@ using DMSA.Models.Odoo.Native;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Input;
-using UraniumUI.Dialogs;
 
 namespace DMOrders.Pages.Fragments.Product
 {

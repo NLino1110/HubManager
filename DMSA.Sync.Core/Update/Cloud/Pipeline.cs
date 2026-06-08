@@ -334,7 +334,9 @@ namespace DMSA.Sync.Core.Update.Cloud
             var accountMoveDb = new AccountMoveDb(Constants.Session.odooConnection.DbNameSqlite);
             var record = await accountMoveDb.GetItemsAsync(x=> x.id > 0);
 
-            if (record != null && record.Count > 40000)
+            //var multipleCobrosInvoiceDb = new MultipleCobrosInvoiceDb(Constants.Session.odooConnection.DbNameSqlite);
+
+            if (record != null && record.Count > 2000)
             {
                 return true;
             }

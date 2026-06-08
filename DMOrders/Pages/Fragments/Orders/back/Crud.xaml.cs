@@ -606,7 +606,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 }
                 else
                 {
-                    await Navigation.PopModalAsync(false);
+                    await Navigation.PopModalAsync();
                 }
             }                      
         }
@@ -915,7 +915,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         try
         {
             var mainPage = (MainPageTab) App.Current.MainPage;
-            mainPage.SelectTab("orders");
+            mainPage.SelectTab("Pedidos");
         }
         catch (Exception ex)
         {

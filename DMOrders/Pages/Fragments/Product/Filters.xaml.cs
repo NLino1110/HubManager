@@ -9,9 +9,6 @@ using Spinner.MAUI;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
-using UraniumUI.Controls;
-using UraniumUI.Material.Controls;
-
 namespace DMOrders.Pages.Fragments.Product;
 
 public partial class Filters : ContentView

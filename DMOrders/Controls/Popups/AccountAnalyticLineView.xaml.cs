@@ -115,10 +115,10 @@ public partial class AccountAnalyticLineView : Popup
                         _pickerPlanningReason.SelectedItem = motivo_selected;
                     }
                     var time_start = TimeSpan.FromHours((double)analyticLine.hour_start);
-                    _timePickerStart.TimePickerView.Time = time_start;
+                    _timePickerStart.Time = time_start;
                     //_timePickerStart.TimePickerView.SetValue(TimePickerField.TimeProperty, time_start);
                     var time_end = TimeSpan.FromHours((double)analyticLine.hour_end);
-                    _timePickerEnd.TimePickerView.Time = time_end;
+                    _timePickerEnd.Time = time_end;
                 }
             }
             catch (Exception ex)
@@ -142,10 +142,10 @@ public partial class AccountAnalyticLineView : Popup
 
         var motivo = (MotivoActividadDiaria)_pickerPlanningReason.SelectedItem;
 
-        var time_start = _timePickerStart.Time;
+        var time_start = _timePickerStart.Time.Value;
         double hour_start = time_start.Hours + (time_start.Minutes / 60.0) + (time_start.Seconds / 3600.0);
 
-        var time_end = _timePickerEnd.Time;
+        var time_end = _timePickerEnd.Time.Value;
         double hour_end = time_end.Hours + (time_end.Minutes / 60.0) + (time_end.Seconds / 3600.0);
 
         if (hour_start >= hour_end)

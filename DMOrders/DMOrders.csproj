@@ -33,7 +33,7 @@
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-android|AnyCPU'">
 	  <Optimize>True</Optimize>
 	  <AndroidStoreUncompressedFileExtensions></AndroidStoreUncompressedFileExtensions>
-	  <ApplicationVersion>46</ApplicationVersion>
+	  <ApplicationVersion>47</ApplicationVersion>
 	  <AndroidPackageFormat>aab</AndroidPackageFormat>
 	  <AndroidUseAapt2>True</AndroidUseAapt2>
 	  <AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
@@ -41,28 +41,28 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-ios|AnyCPU'">
 	  <Optimize>True</Optimize>
-	  <ApplicationVersion>46</ApplicationVersion>
+	  <ApplicationVersion>47</ApplicationVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-maccatalyst|AnyCPU'">
 	  <Optimize>True</Optimize>
-	  <ApplicationVersion>46</ApplicationVersion>
+	  <ApplicationVersion>47</ApplicationVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-windows10.0.19041.0|AnyCPU'">
 	  <Optimize>True</Optimize>
-	  <ApplicationVersion>46</ApplicationVersion>
+	  <ApplicationVersion>47</ApplicationVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-android|AnyCPU'">
 	  <AndroidStoreUncompressedFileExtensions></AndroidStoreUncompressedFileExtensions>
-	  <ApplicationVersion>46</ApplicationVersion>
+	  <ApplicationVersion>47</ApplicationVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-ios|AnyCPU'">
-	  <ApplicationVersion>46</ApplicationVersion>
+	  <ApplicationVersion>47</ApplicationVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-maccatalyst|AnyCPU'">
-	  <ApplicationVersion>46</ApplicationVersion>
+	  <ApplicationVersion>47</ApplicationVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-windows10.0.19041.0|AnyCPU'">
-	  <ApplicationVersion>46</ApplicationVersion>
+	  <ApplicationVersion>47</ApplicationVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="$(TargetFramework.Contains('-android'))">
@@ -106,9 +106,11 @@
 	<ItemGroup>
 	  <AndroidResource Remove="Platforms\Android\Resources\drawable\maui_splash.xml" />
 	  <AndroidResource Remove="Platforms\Android\Resources\values\styles.xml" />
+	  <AndroidResource Remove="Platforms\Android\Resources\values\styles_original.xml" />
 	</ItemGroup>	
 
 	<ItemGroup>
+	  <Compile Remove="back\MainPageTab.xaml.cs" />
 	  <Compile Remove="Controls\Base\Row.cs" />
 	  <Compile Remove="Controls\Base\RowAdvance.cs" />
 	  <Compile Remove="Controls\CustomRows\AccountAnalyticLineRow.cs" />
@@ -126,9 +128,13 @@
 	  <Compile Remove="Controls\CustomRows\ResPartnerRow.cs" />
 	  <Compile Remove="Controls\CustomRows\SaleOrderLineRow.cs" />
 	  <Compile Remove="Controls\CustomRows\SaleOrderRow.cs" />
+	  <Compile Remove="Controls\NativeSpinnerViewHandler.cs" />
 	  <Compile Remove="Controls\PopupSelectBrand.cs" />
 	  <Compile Remove="Pages\Fragments\Customers\PartnerItemViewModel.cs" />
+	  <Compile Remove="Pages\Fragments\Orders\back\Crud.xaml.cs" />
+	  <Compile Remove="Pages\Fragments\Orders\back\CrudViewModel.cs" />
 	  <Compile Remove="Pages\Fragments\Orders\CrudViewModel.cs" />
+	  <Compile Remove="Pages\Fragments\Orders\modals\bk\CatalogViewerInner.xaml.cs" />
 	  <Compile Remove="Pages\Fragments\Orders\modals\bk\PromocionesViewer.xaml.cs" />
 	  <Compile Remove="Pages\Fragments\Orders\modals\CatalogViewer.xaml.cs" />
 	  <Compile Remove="Pages\Fragments\Orders\modals\CatalogViewerModel.cs" />
@@ -139,6 +145,7 @@
 	  <Compile Remove="Pages\Sys\ConnectionForm.xaml.cs" />
 	  <Compile Remove="Pages\Sys\UpdateData.xaml.Static.cs" />
 	  <Compile Remove="Pages\Sys\Views\CameraViewViewModel.cs" />
+	  <Compile Remove="Platforms\Android\NativeSpinnerViewHandler.cs" />
 	  <Compile Remove="Services\Promotions\bk\PromotionEngineLite.cs" />
 	  <Compile Remove="Services\Promotions\bk\PromotionEngineLite.Fixed.cs" />
 	  <Compile Remove="Services\PushRelay.cs" />
@@ -146,6 +153,9 @@
 	
 
 	<ItemGroup>
+	  <MauiXaml Remove="back\MainPageTab.xaml" />
+	  <MauiXaml Remove="Pages\Fragments\Orders\back\Crud.xaml" />
+	  <MauiXaml Remove="Pages\Fragments\Orders\modals\bk\CatalogViewerInner.xaml" />
 	  <MauiXaml Remove="Pages\Fragments\Orders\modals\CatalogViewer.xaml" />
 	  <MauiXaml Remove="Pages\Fragments\Product\bk\Details.xaml" />
 	  <MauiXaml Remove="Pages\Fragments\Product\Details.xaml" />
@@ -154,6 +164,7 @@
 
 	<ItemGroup>
 		<None Remove="Platforms\Android\env.conf" />
+		<None Remove="Platforms\Android\Resources\values\styles_original.xml" />
 		<None Remove="Resources\AppIcon\appicon.svg" />
 		<None Remove="Resources\Fonts\Consolas.ttf" />
 		<None Remove="Resources\Fonts\fa-brands-400.ttf" />
@@ -204,20 +215,11 @@
 		<PackageReference Include="Spinner.MAUI" Version="1.1.2" />
 		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.8" />
-		<PackageReference Include="UraniumUI" Version="2.16.0" />
-		<PackageReference Include="UraniumUI.Blurs" Version="2.16.0" />
-		<PackageReference Include="UraniumUI.Dialogs.CommunityToolkit" Version="2.16.0" />
-		<PackageReference Include="UraniumUI.Dialogs.Mopups" Version="2.16.0" />
-		<PackageReference Include="UraniumUI.Icons.FontAwesome" Version="2.16.0" />
-		<PackageReference Include="UraniumUI.Icons.MaterialIcons" Version="2.16.0" />
-		<PackageReference Include="UraniumUI.Icons.MaterialSymbols" Version="2.16.0" />
-		<PackageReference Include="UraniumUI.Icons.SegoeFluent" Version="2.16.0" />
-		<PackageReference Include="UraniumUI.Material" Version="2.16.0" />
-		<PackageReference Include="UraniumUI.Validations.DataAnnotations" Version="2.16.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\ApiManagerOdoo\ApiManagerOdoo.csproj" />
+	  <ProjectReference Include="..\BeebTech.Controls\BeebTech.Controls.csproj" />
 	  <ProjectReference Include="..\BeebTech.Maui.Controls\BeebTech.Maui.Controls.csproj" />
 	  <ProjectReference Include="..\DMSA.Models.Odoo\DMSA.Models.Odoo.csproj" />
 	  <ProjectReference Include="..\DMSA.Sync.Core\DMSA.Sync.Core.csproj" />
@@ -374,6 +376,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="back\" />
+	  <Folder Include="Pages\Fragments\Orders\back\" />
 	  <Folder Include="Pages\Fragments\Orders\modals\bk\" />
 	  <Folder Include="Pages\Fragments\Product\bk\" />
 	  <Folder Include="Pages\Sys\Views\" />

@@ -3,9 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:pages="clr-namespace:DMOrders.Pages.Fragments.Customers"             
              xmlns:controls="clr-namespace:DMOrders.Controls"
-             x:Class="DMOrders.Pages.Fragments.Customers.Container"
-             xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
-             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material" 
+             x:Class="DMOrders.Pages.Fragments.Customers.Container"             
              x:Name="CustomerContainer">
     
     <Grid ColumnDefinitions="Auto,1,*" RowDefinitions="Auto,Auto,Auto,Auto,*">        

@@ -1,35 +1,39 @@
-﻿<?xml version="1.0" encoding="utf-8" ?> 
-<resources>  
-  <style name="NoAnim">
-    <item name="android:activityOpenEnterAnimation">@android:anim/none</item>
-    <item name="android:activityOpenExitAnimation">@android:anim/none</item>
-    <item name="android:activityCloseEnterAnimation">@android:anim/none</item>
-    <item name="android:activityCloseExitAnimation">@android:anim/none</item>
-    <item name="android:taskOpenEnterAnimation">@android:anim/none</item>
-    <item name="android:taskOpenExitAnimation">@android:anim/none</item>
-    <item name="android:taskCloseEnterAnimation">@android:anim/none</item>
-    <item name="android:taskCloseExitAnimation">@android:anim/none</item>
-  </style>
-  
-  <style name="Maui.MainTheme" parent="Theme.Material3.DayNight.NoActionBar">    
-    <item name="android:windowAnimationStyle">@style/NoAnim</item>
-  </style>
-    <style name="MainTheme" parent="Theme.Maui.SplashTheme">
-        <!-- Elimina animaciones de ventana -->
-        <item name="android:windowAnimationStyle">@null</item>
-        <item name="android:windowEnterAnimation">@null</item>
-        <item name="android:windowExitAnimation">@null</item>
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<resources>
 
-        <!-- Elimina animaciones de diálogos -->
-        <item name="android:dialogTheme">@android:style/Theme.Dialog</item>
-        <item name="android:dialogAnimation">@null</item>
+	<style name="NoAnim">
+		<item name="android:activityOpenEnterAnimation">@android:anim/none</item>
+		<item name="android:activityOpenExitAnimation">@android:anim/none</item>
+		<item name="android:activityCloseEnterAnimation">@android:anim/none</item>
+		<item name="android:activityCloseExitAnimation">@android:anim/none</item>
+		<item name="android:taskOpenEnterAnimation">@android:anim/none</item>
+		<item name="android:taskOpenExitAnimation">@android:anim/none</item>
+		<item name="android:taskCloseEnterAnimation">@android:anim/none</item>
+		<item name="android:taskCloseExitAnimation">@android:anim/none</item>
+	</style>
 
-        <!-- Elimina animaciones de tooltips y context menus -->
-        <item name="android:popupAnimationStyle">@null</item>
-    </style>
-
+	<!-- SPLASH -->
 	<style name="Maui.SplashTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
 		<item name="android:windowBackground">@drawable/maui_splash</item>
+	</style>
+
+	<!-- TEMA PRINCIPAL -->
+	<style name="MainTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+
+		<!-- Animaciones OFF -->
+		<item name="android:windowAnimationStyle">@style/NoAnim</item>
+		<item name="android:windowEnterAnimation">@null</item>
+		<item name="android:windowExitAnimation">@null</item>
+
+		<!-- Popups -->
+		<item name="android:popupAnimationStyle">@null</item>
+
+		<!-- COLORES (IMPORTANTE para TextAppearance) -->
+		<item name="colorPrimary">#512BD4</item>
+		<item name="colorOnPrimary">#FFFFFF</item>
+		<item name="colorSecondary">#03DAC6</item>
+		<item name="colorOnSecondary">#000000</item>
+
 	</style>
 
 </resources>

@@ -4,9 +4,8 @@
              x:Class="DMOrders.Pages.Fragments.Orders.Crud"
              xmlns:converters="clr-namespace:DMOrders.Converters"             
              xmlns:customrowsv2="clr-namespace:DMOrders.Controls.CustomRowsV2"             
-            xmlns:beebtech="clr-namespace:BeebTech.Controls.UI;assembly=BeebTech.Controls"
-             
-             xmlns:controls="clr-namespace:BeebTech.Maui.Controls;assembly=BeebTech.Maui.Controls"
+             xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"             
              xmlns:modals="clr-namespace:DMOrders.Pages.Fragments.Orders.modals"
              x:Name="RootPage"
              Title="Pedido Nuevo - Edicion"
@@ -252,7 +251,7 @@
             </VerticalStackLayout>
 
             <HorizontalStackLayout Grid.Column="3" Margin="0,0,15,0">
-                <beebtech:DropdownField
+                <material:DropdownField
                     x:Name="ddfAddress"
                     Title="Dirección"
                     FontSize="11"
@@ -260,13 +259,13 @@
                     AllowClear="False"
                     VerticalOptions="Center"       
                     IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={x:Reference RootPage}}">
-                    <beebtech:DropdownField.Icon>
+                    <material:DropdownField.Icon>
                         <FontImageSource
                 Size="14"
                 FontFamily="FontAwesome5Solid"
                 Glyph="&#xf3c5;" />
-                    </beebtech:DropdownField.Icon>
-                </beebtech:DropdownField>
+                    </material:DropdownField.Icon>
+                </material:DropdownField>
             </HorizontalStackLayout>
 
             <HorizontalStackLayout x:Name="ControlsGroup" Grid.Column="4" HorizontalOptions="Fill" Spacing="4"

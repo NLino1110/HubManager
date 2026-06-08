@@ -12,7 +12,6 @@ using DMSA.Sync.Core.Database.Sqlite;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Input;
-using UraniumUI.Dialogs;
 
 namespace DMOrders.Pages.Fragments.Orders
 {
@@ -273,7 +272,7 @@ namespace DMOrders.Pages.Fragments.Orders
             try
             {
                 var mainPage = (MainPageTab)App.Current.MainPage;
-                mainPage.SelectTab("Clientes");
+                mainPage.SelectTab("customers");
                 await Toast.Make("Seleccione un cliente para crear un nuevo pedido").Show();
             }
             catch (Exception ex)

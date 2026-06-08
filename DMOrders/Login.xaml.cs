@@ -22,10 +22,8 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Timers;
 using System.Windows.Input;
-using UraniumUI.Dialogs;
 
 namespace DMOrders;
-
 public partial class Login : ContentPage
 {
     public OdooConnection SelConnection { get; set; }
@@ -36,7 +34,6 @@ public partial class Login : ContentPage
 
     public ObservableCollection<res_center> Agencies { get; set; } = new();
 
-    public IDialogService DialogService { get; }
 
     private int _tapCount = 0;
     private System.Timers.Timer _timer;
@@ -77,11 +74,11 @@ public partial class Login : ContentPage
     //    await Navigation.PushModalAsync(objPage);
     //}
 
-    public Login(IEnumerable<IDialogService> dialogServices)
-    {
-        InitializeComponent();
-        //ActionCommand = new Command(ShowConnections);
-    }
+    //public Login(IEnumerable<IDialogService> dialogServices)
+    //{
+    //    InitializeComponent();
+    //    //ActionCommand = new Command(ShowConnections);
+    //}
 
     public static class ToastHelper
     {

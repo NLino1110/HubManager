@@ -2,12 +2,10 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:BeebTech.Maui.Controls;assembly=BeebTech.Maui.Controls"
+             xmlns:beebtech="clr-namespace:BeebTech.Controls.UI;assembly=BeebTech.Controls"
              xmlns:sc="clr-namespace:Spinner.MAUI;assembly=Spinner.MAUI"             
              x:Class="DMOrders.Pages.FilterCustomer"
-             x:Name="mainpage"
-             xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
-             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
-             xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui">
+             x:Name="mainpage">
     <ContentView.Resources>
         <ResourceDictionary>
             <Style x:Key="SpinnerItemStyle" TargetType="View">
@@ -48,34 +46,34 @@
 
         <Grid ColumnDefinitions="*" RowSpacing="0" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
 
-            <material:TextField
+            <beebtech:TextField
                 Grid.Row="0"
                 x:Name="entryCode"
                 Title="Cod. Cliente"
                 BorderThickness="0.4"
                 Keyboard="Numeric"
-                Icon="{FontImageSource FontFamily=MaterialRegular, Glyph={x:Static m:MaterialRegular.Confirmation_number}}"
+                
                 Margin="0"
                 Padding="0"
                 />
 
-            <material:TextField
+            <beebtech:TextField
                     Grid.Row="1"
                     x:Name="entryId"
                     Title="Identificación"
                     BorderThickness="0.4"
-                    Icon="{FontImageSource FontFamily=MaterialRegular, Glyph={x:Static m:MaterialRegular.Android}}"
+                    
                 />
 
-            <material:TextField
+            <beebtech:TextField
                     Grid.Row="2"
                     x:Name="entryName"
                     Title="Nombre"
                     BorderThickness="0.4"
-                    Icon="{FontImageSource FontFamily=MaterialRegular, Glyph={x:Static m:MaterialRegular.Person}}"
+                    
             />
 
-            <material:DropdownField x:Name="ddfDays"
+            <beebtech:DropdownField x:Name="ddfDays"
                         Title="Día Visita" 
                         AllowClear="True" 
                         StyleClass="ControlPreview"
@@ -88,9 +86,9 @@
                             <x:String>Option 3</x:String>
                         </x:Array>
                     </material:DropdownField.ItemsSource>-->
-            </material:DropdownField>
+            </beebtech:DropdownField>
 
-            <material:DropdownField x:Name="ddfStatus"
+            <beebtech:DropdownField x:Name="ddfStatus"
                     Title="Estado" 
                     AllowClear="True" 
                     StyleClass="ControlPreview"
@@ -103,7 +101,7 @@
                 <x:String>Option 3</x:String>
             </x:Array>
         </material:DropdownField.ItemsSource>-->
-            </material:DropdownField>
+            </beebtech:DropdownField>
 
         </Grid>
         

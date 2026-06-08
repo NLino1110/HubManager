@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui.Alerts;
+﻿using BeebTech.Controls.UI;
+using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
 using DMSA.Models.Odoo.Native;
@@ -11,9 +12,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using UraniumUI.Dialogs;
-using UraniumUI.Icons.MaterialIcons;
-using UraniumUI.Material.Controls;
 
 namespace DMOrders.Controls
 {
@@ -21,7 +19,6 @@ namespace DMOrders.Controls
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public class PopupAccountAnalyticLine : Popup<AccountAnalyticLine>, INotifyPropertyChanged
     {
-        public IDialogService DialogService { get; private set; }
 
         public ProjectTask projectTask { get; set; }
 
@@ -31,8 +28,8 @@ namespace DMOrders.Controls
 
         private DropdownField _pickerPlanningReason;
         private DropdownField _pickerCompany;
-        private TimePickerField _timePickerStart;
-        private TimePickerField _timePickerEnd;
+        private TimePicker _timePickerStart;
+        private TimePicker _timePickerEnd;
 
         
         //private Picker _pickerCompany;
@@ -178,37 +175,23 @@ namespace DMOrders.Controls
                 Margin = new Thickness(5, 2, 15, 2)
             };
 
-            _timePickerStart = new TimePickerField
+            _timePickerStart = new TimePicker
             {
-                Title = "Hora Inicio",
+            
                 Margin = new Thickness(5, 2, 15, 2),
                 Time = DateTime.Now.TimeOfDay,
                 Format = "HH:mm",
-                Icon = new FontImageSource
-                {
-                    FontFamily = "MaterialSharp",
-                    Color = Colors.Black,
-                    Size = 15,
-                    FontAutoScalingEnabled = true,
-                    Glyph = MaterialSharp.Timer
-                },
+                
                 
             };
 
-            _timePickerEnd = new TimePickerField
+            _timePickerEnd = new TimePicker
             {
-                Title = "Hora Fin",
+                
                 Margin = new Thickness(5, 2, 15, 2),
                 Time = DateTime.Now.TimeOfDay.Add(new TimeSpan(1, 0, 0)),
                 Format = "HH:mm",
-                Icon = new FontImageSource
-                {
-                    FontFamily = "MaterialSharp",
-                    Color = Colors.Black,
-                    Size = 15,
-                    FontAutoScalingEnabled = true,
-                    Glyph = MaterialSharp.Timer
-                },
+                
             };
 
             //_pickerBank = new Picker
@@ -682,10 +665,10 @@ namespace DMOrders.Controls
                             _pickerPlanningReason.SelectedItem = motivo_selected;
                         }
                         var time_start = TimeSpan.FromHours((double)analyticLine.hour_start);                        
-                        _timePickerStart.TimePickerView.Time = time_start;
+                        _timePickerStart.Time = time_start;
                         //_timePickerStart.TimePickerView.SetValue(TimePickerField.TimeProperty, time_start);
                         var time_end = TimeSpan.FromHours((double)analyticLine.hour_end);
-                        _timePickerEnd.TimePickerView.Time = time_end;
+                        _timePickerEnd.Time = time_end;
                     }
                 }
                 catch (Exception ex)
@@ -750,10 +733,10 @@ namespace DMOrders.Controls
 
             var motivo = (MotivoActividadDiaria) _pickerPlanningReason.SelectedItem;
 
-            var time_start = _timePickerStart.Time;
+            var time_start = _timePickerStart.Time.Value;
             double hour_start = time_start.Hours + (time_start.Minutes / 60.0) + (time_start.Seconds / 3600.0);
 
-            var time_end = _timePickerEnd.Time;
+            var time_end = _timePickerEnd.Time.Value;
             double hour_end = time_end.Hours + (time_end.Minutes / 60.0) + (time_end.Seconds / 3600.0);
 
             if(hour_start >= hour_end)

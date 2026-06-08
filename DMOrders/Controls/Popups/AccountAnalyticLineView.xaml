@@ -2,7 +2,7 @@
 <toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                 xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-               xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+               xmlns:beebtech="clr-namespace:BeebTech.Controls.UI;assembly=BeebTech.Controls"
                x:Class="DMOrders.Controls.Popups.AccountAnalyticLineView"
                xmlns:models="clr-namespace:DMSA.Models.Odoo.Tareas;assembly=DMSA.Models.Odoo"
                x:DataType="models:AccountAnalyticLine">
@@ -44,27 +44,25 @@
                         Title="Principal"
                         IsVisible="False"/>
 
-                <material:DropdownField x:Name="_pickerPlanningReason"
+                <beebtech:DropdownField x:Name="_pickerPlanningReason"
                                         Title="Motivo"/>
 
-                <material:TextField x:Name="_inputResPartner"
+                <beebtech:TextField x:Name="_inputResPartner"
                                     Title="Cliente"
                                     Text="Seleccione un cliente..."
                                     IsReadOnly="True">
-                    <material:TextField.GestureRecognizers>
+                    <beebtech:TextField.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnEntryTapped"/>
-                    </material:TextField.GestureRecognizers>
-                </material:TextField>
+                    </beebtech:TextField.GestureRecognizers>
+                </beebtech:TextField>
 
-                <material:TextField x:Name="_inputReview"
+                <beebtech:TextField x:Name="_inputReview"
                                     Title="Observaciones"/>
 
-                <material:TimePickerField x:Name="_timePickerStart"
-                                          Title="Hora Inicio"
+                <TimePicker x:Name="_timePickerStart"                                          
                                           Format="HH:mm"/>
 
-                <material:TimePickerField x:Name="_timePickerEnd"
-                                          Title="Hora Fin"
+                <TimePicker x:Name="_timePickerEnd"                                          
                                           Format="HH:mm"/>
 
                 <HorizontalStackLayout IsVisible="False">

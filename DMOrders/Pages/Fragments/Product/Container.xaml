@@ -4,8 +4,7 @@
              xmlns:pages="clr-namespace:DMOrders.Pages.Fragments.Product"
              xmlns:controls="clr-namespace:DMOrders.Controls"
              x:Class="DMOrders.Pages.Fragments.Product.Container"
-             xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
-             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material" 
+             
              x:Name="ProductContainer">
     
     <Grid ColumnDefinitions="Auto,1,*" RowDefinitions="Auto,Auto,Auto,*">        

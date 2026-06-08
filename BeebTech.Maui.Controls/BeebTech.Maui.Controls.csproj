@@ -61,6 +61,9 @@
 	  <MauiXaml Update="Styles\TitledEntryLightStyles.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="UI\DropDown.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="UI\TitledEntryLight.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

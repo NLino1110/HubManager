@@ -2,10 +2,10 @@
 <ContentPage 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
-    xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"    
     xmlns:controls="clr-namespace:BeebTech.Maui.Controls;assembly=BeebTech.Maui.Controls"
+    xmlns:beebtech="clr-namespace:BeebTech.Controls.UI;assembly=BeebTech.Controls"
+    xmlns:controls2="clr-namespace:DMOrders.Controls;assembly=DMOrders"
     xmlns:DMOrders="clr-namespace:DMOrders"
     x:Class="DMOrders.Login"
     Title="Cobranzas Login"
@@ -34,6 +34,12 @@
     <!-- CONTENIDO PRINCIPAL -->
     <ScrollView>
         <Grid>
+            <!--<controls2:NativeSpinnerView
+    WidthRequest="150"
+    HeightRequest="35"
+    ItemsSource="{Binding Lista}"
+    SelectedItem="{Binding Seleccionado}" />-->
+            
             <!-- Fondo -->
             <Image Source="logo_macronegocios.png"
                    Aspect="AspectFill"
@@ -58,8 +64,8 @@
                                TextColor="Gray"/>
 
                         <!-- Selección de Compañía/Agencia -->
-                        <VerticalStackLayout x:Name="CompanySelector" IsVisible="False" Spacing="10">                            
-                            <material:DropdownField x:Name="ddAgency" Title="Agencia"/>
+                        <VerticalStackLayout x:Name="CompanySelector" IsVisible="False" Spacing="10">
+                            <beebtech:DropdownField x:Name="ddAgency" Title="Agencia"/>
                             <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
                                 <Button x:Name="btnAccess"
                                         Text="Ingresar"
@@ -88,20 +94,20 @@
 
                         <!-- Login -->
                         <VerticalStackLayout x:Name="LoginSelector" Spacing="10">
-                            <material:DropdownField x:Name="ddCompany" Title="Conexión"/>
-                            <material:TextField x:Name="txtUser"
+                            <beebtech:DropdownField x:Name="ddCompany" Title="Conexión"/>
+                            <beebtech:TextField x:Name="txtUser"
                                                 Title="Usuario"
                                                 BorderThickness="0.4"
                                                 Icon="{FontImageSource FontFamily=FontAwesome5Solid, Glyph='&#xf007;'}" />
 
-                            <material:TextField x:Name="txtPassword"
+                            <beebtech:TextField x:Name="txtPassword"
                                                 Title="Password"
                                                 IsPassword="True"
                                                 Icon="{FontImageSource FontFamily=FontAwesome5Solid, Glyph='&#xf084;'}">
-                                <material:TextField.Attachments>
-                                    <material:TextFieldPasswordShowHideAttachment />
-                                </material:TextField.Attachments>
-                            </material:TextField>
+                                <beebtech:TextField.Attachments>
+                                    <beebtech:TextFieldPasswordShowHideAttachment />
+                                </beebtech:TextField.Attachments>
+                            </beebtech:TextField>
 
                             <HorizontalStackLayout HorizontalOptions="Center">
                                 <controls:CheckBoxEx x:Name="chkRememberme" 

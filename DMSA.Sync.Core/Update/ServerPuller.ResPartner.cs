@@ -1,4 +1,5 @@
-﻿using ApiManagerOdoo.Accounting;
+﻿using ApiManager;
+using ApiManagerOdoo.Accounting;
 using DMSA.Models.General.Requests;
 using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.Tools;
@@ -185,7 +186,7 @@ namespace DMSA.Sync.Core.Update
 
             DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since);
 
-            ApiManager.HubResPartner hubmanager = new ApiManager.HubResPartner(appSession);
+            HubResPartner hubmanager = new HubResPartner(appSession);
             var resultCount = await hubmanager.GetCount(lastDate.Value.Year, lastDate.Value.Month, lastDate.Value.Day);
 
             Debug.WriteLine(resultCount.result);
@@ -204,19 +205,28 @@ namespace DMSA.Sync.Core.Update
 
                 if (responseAll != null && responseAll.result != null && responseAll.result.Length > 0)
                 {
-                    var itemsConCero = responseAll.result
-                        .Where(x => x._product_pricelist_id == 0)
-                        .ToList();
+                    //var itemsConCero = responseAll.result
+                    //    .Where(x => x._product_pricelist_id == 0)
+                    //    .ToList();
 
-                    if (itemsConCero.Any())
-                    {
-                        Debug.WriteLine($"Se encontraron {itemsConCero.Count} items con _product_pricelist_id = 0");
+                    //if (itemsConCero.Any())
+                    //{
+                    //    Debug.WriteLine($"Se encontraron {itemsConCero.Count} items con _product_pricelist_id = 0");
 
-                        foreach (var item in itemsConCero)
-                        {
-                            Debug.WriteLine($"Item ID: {item.id} - {item.name}");
-                        }
-                    }
+                    //    foreach (var item in itemsConCero)
+                    //    {
+                    //        Debug.WriteLine($"Item ID: {item.id} - {item.name}");
+                    //    }
+                    //}
+
+                    //var itemsDataTest = responseAll.result
+                    //    .Where(x => x.facturacion_dias_credito_limite > 0)
+                    //    .ToList();
+
+                    //foreach(var item in itemsDataTest)
+                    //{
+                    //    Debug.WriteLine($"Item ID: {item.id} - {item.name}   {item.facturacion_dias_credito_limite}");
+                    //}
 
                     await database.InsertBatchAsync(responseAll.result);
                     //await database.InsertBatchControlAsync(responseAll.result);

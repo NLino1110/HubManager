@@ -78,21 +78,44 @@ namespace DMCobranzas.Settings.helpers
             }
         }
 
+        //public static string CleanServerMessage_v1_old(string message, bool returnAll)
+        //{
+        //    string patron = @"\('([^']+)'\)";
+                        
+        //    Regex regex = new Regex(patron);
+                        
+        //    MatchCollection coincidencias = regex.Matches(message);
+
+        //    string full_return = "";
+            
+        //    foreach (Match coincidencia in coincidencias)
+        //    {
+        //        if (!returnAll)
+        //            return coincidencia.Groups[1].Value;
+        //        //Console.WriteLine(coincidencia.Groups[1].Value);
+        //        full_return += coincidencia.Groups[1].Value;
+        //    }
+
+        //    return full_return;
+        //}
+
         public static string CleanServerMessage_v1(string message, bool returnAll)
         {
             string patron = @"\('([^']+)'\)";
-                        
             Regex regex = new Regex(patron);
-                        
+
             MatchCollection coincidencias = regex.Matches(message);
 
+            if (coincidencias.Count == 0)
+                return message; // 👈 fallback
+
             string full_return = "";
-            
+
             foreach (Match coincidencia in coincidencias)
             {
                 if (!returnAll)
                     return coincidencia.Groups[1].Value;
-                //Console.WriteLine(coincidencia.Groups[1].Value);
+
                 full_return += coincidencia.Groups[1].Value;
             }
 

@@ -67,11 +67,11 @@ public partial class Filters : ContentView
         var date = datePickerEnd.Date;
 
         return new DateTime(
-            date.Year,
-            date.Month,
-            date.Day,
+            date.Value.Year,
+            date.Value.Month,
+            date.Value.Day,
             23, 59, 59,
-            date.Kind
+            date.Value.Kind
         );
     }
 }

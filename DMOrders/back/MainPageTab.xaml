@@ -2,7 +2,8 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:DMOrders="clr-namespace:DMOrders"
-             xmlns:pages="clr-namespace:DMOrders.Pages"             
+             xmlns:pages="clr-namespace:DMOrders.Pages"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
              xmlns:pagesCustomer="clr-namespace:DMOrders.Pages.Fragments.Customers"
              xmlns:pagesActivities="clr-namespace:DMOrders.Pages.Fragments.Activities"
              xmlns:pagesOrders="clr-namespace:DMOrders.Pages.Fragments.Orders"
@@ -24,128 +25,38 @@
         </ControlTemplate>
     </ContentPage.Resources>
     <Grid>
+        <material:TabView x:Name="tabViewMain" 
+                          VerticalOptions="Fill" 
+                          HorizontalOptions="Fill" 
+                          Margin="0,0,0,30" 
+                          CachingStrategy="CacheOnLayout"
+                          SelectedTabChanged="tabViewMain_SelectedTabChanged">               
 
-        <Grid RowDefinitions="Auto,*" Margin="0,0,0,30" >
-            <Grid Grid.Row="0"
-                  HeightRequest="40"
-                  BackgroundColor="White"
-                  ColumnDefinitions="*,*,*,*">
+                <material:TabItem Title="Clientes">
+                    <material:TabItem.Content>
+                        <pagesCustomer:Container x:Name="tabCustomers"></pagesCustomer:Container>
+                    </material:TabItem.Content>
+                </material:TabItem>
 
-                <!-- Clientes -->
-                <Grid Grid.Column="0" x:Name="tabBtnCustomers">
+                <material:TabItem Title="Artículos">
+                    <material:TabItem.Content>
+                        <pagesProducts:Container x:Name="tabProducts"></pagesProducts:Container>
+                    </material:TabItem.Content>
+                </material:TabItem>
 
-                    <Grid Padding="5" RowDefinitions="*,Auto">
+                <material:TabItem Title="Pedidos">
+                    <material:TabItem.Content>
+                        <pagesOrders:Container x:Name="tabOrders"></pagesOrders:Container>
+                </material:TabItem.Content>
+                </material:TabItem>
 
-                        <Grid.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnTabCustomers"/>
-                        </Grid.GestureRecognizers>
-
-                        <Label x:Name="lblTabCustomers"
-                           Text="Clientes"
-                           FontSize="12"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center"
-                           TextColor="Gray"
-                           Grid.Row="0"/>
-
-                        <BoxView x:Name="lineTabCustomers"
-                         HeightRequest="1"
-                         Color="Transparent"
-                         HorizontalOptions="Fill"
-                         Grid.Row="1"/>
-                    </Grid>
-                </Grid>
-
-                <!-- Artículos -->
-                <Grid Grid.Column="1" x:Name="tabBtnProducts" >
-                    <Grid Padding="5" RowDefinitions="*,Auto">
-
-                        <Grid.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnTabProducts"/>
-                        </Grid.GestureRecognizers>
-                        
-                        <Label x:Name="lblTabProducts"
-                           Text="Productos"
-                           FontSize="12"
-                           HorizontalOptions="Center"
-                               VerticalOptions="Center"
-                           TextColor="Gray"
-                               Grid.Row="0"/>
-
-                        <BoxView x:Name="lineTabProducts"
-                             HeightRequest="1"
-                                 Color="Transparent"
-                             BackgroundColor="Transparent"
-                             HorizontalOptions="Fill"
-                                 Grid.Row="1"/>
-                    </Grid>
-                </Grid>
-
-                <!-- Pedidos -->
-                <Grid Grid.Column="2" x:Name="tabBtnOrders" >
-                    <Grid Padding="5" RowDefinitions="*,Auto">
-
-                        <Grid.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnTabOrders"/>
-                        </Grid.GestureRecognizers>
-                        
-
-                        <Label x:Name="lblTabOrders"
-                           Text="Pedidos"
-                           FontSize="12"
-                           HorizontalOptions="Center"
-                               VerticalOptions="Center"
-                           TextColor="Gray"
-                               Grid.Row="0"/>
-
-                        <BoxView x:Name="lineTabOrders"
-                             HeightRequest="1"
-                                 Color="Transparent"
-                             BackgroundColor="Transparent"
-                             HorizontalOptions="Fill"
-                                 Grid.Row="1"/>
-                    </Grid>
-                </Grid>
-
-                <!-- Actividades -->
-                <Grid Grid.Column="3" x:Name="tabBtnActivities" >
-                    <Grid Padding="5" RowDefinitions="*,Auto">
-
-                        <Grid.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnTabActivities"/>
-                        </Grid.GestureRecognizers>
-                        
-                        <Label x:Name="lblTabActivities"
-                           Text="Actividades"
-                           FontSize="12"
-                           HorizontalOptions="Center"
-                               VerticalOptions="Center"
-                           TextColor="Gray"
-                               Grid.Row="0"/>
-
-                        <BoxView x:Name="lineTabActivities"
-                             HeightRequest="1"
-                                 Color="Transparent"
-                             BackgroundColor="Transparent"
-                             HorizontalOptions="Fill"
-                                 Grid.Row="1"/>
-                    </Grid>
-                </Grid>
-
-            </Grid>
-
-            <!-- CONTENIDO (ANTES ERA TabView) -->
-            <Grid Grid.Row="1">
-
-                <pagesCustomer:Container x:Name="tabCustomers" IsVisible="True"/>
-                <pagesProducts:Container x:Name="tabProducts" IsVisible="False"/>
-                <pagesOrders:Container x:Name="tabOrders" IsVisible="False"/>
-                <pagesActivities:Container x:Name="tabActivities" IsVisible="False"/>
-
-            </Grid>
-
-        </Grid>
-
+                <material:TabItem Title="Actividades">
+                    <material:TabItem.Content>
+                        <pagesActivities:Container x:Name="tabActivities"></pagesActivities:Container>
+                </material:TabItem.Content>
+                </material:TabItem>
+            </material:TabView>
+        
         <!-- Panel inferior superpuesto -->
         <ContentView x:Name="OverlayPanel"
                      BackgroundColor="#80000000"

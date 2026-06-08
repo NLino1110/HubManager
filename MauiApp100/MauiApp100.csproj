@@ -87,4 +87,8 @@
 		<PackageReference Include="Plugin.LocalNotification.Geofence" Version="1.1.0" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\BeebTech.Maui.Controls\BeebTech.Maui.Controls.csproj" />
+	</ItemGroup>
+
 </Project>

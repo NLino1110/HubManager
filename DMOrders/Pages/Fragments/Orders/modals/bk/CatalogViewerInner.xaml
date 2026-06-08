@@ -2,9 +2,8 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
             x:Class="DMOrders.Pages.Fragments.Orders.modals.CatalogViewerInner"            
-            
-             xmlns:beebtech="clr-namespace:BeebTech.Controls.UI;assembly=BeebTech.Controls"
-             
+            xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+            xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
             xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
             xmlns:converters="clr-namespace:DMOrders.Converters"             
             xmlns:local="clr-namespace:DMOrders.Pages.Fragments.Orders.modals"            
@@ -187,7 +186,7 @@
               RowSpacing="0"              
               Padding="5">
 
-            <beebtech:TextField
+            <material:TextField
                 Grid.Row="0"
                 FontSize="11"
                 x:Name="TextCode"
@@ -197,7 +196,7 @@
                 Padding="0"
                 PropertyChanged="TextCode_PropertyChanged"/>
 
-            <beebtech:TextField
+            <material:TextField
                 Grid.Row="1"
                 FontSize="11"
                 x:Name="TextDescription"
@@ -205,7 +204,7 @@
                 BorderThickness="0.4"
                  PropertyChanged="TextDescription_PropertyChanged"/>
 
-            <beebtech:DropdownField 
+            <material:DropdownField 
                 x:Name="ddfBrands"
                 Title="Marcas"
                 FontSize="11"
@@ -213,12 +212,12 @@
                 StyleClass="ControlPreview"                
                 BorderThickness="0.4"
                 Grid.Row="2">
-                <beebtech:DropdownField.Icon>
+                <material:DropdownField.Icon>
                     <FontImageSource Size="18" FontFamily="FontAwesome5Solid" Glyph="&#xe066;"  />
-                </beebtech:DropdownField.Icon>
-            </beebtech:DropdownField>
+                </material:DropdownField.Icon>
+            </material:DropdownField>
 
-            <beebtech:DropdownField 
+            <material:DropdownField 
                     Grid.Row="0"
                 Grid.Column="1"
                     x:Name="ddfNews"
@@ -227,15 +226,15 @@
                     AllowClear="True" 
                     StyleClass="ControlPreview"
                     BorderThickness="0.4">
-                <beebtech:DropdownField.Icon>
+                <material:DropdownField.Icon>
                     <FontImageSource
                         Size="18"
                         FontFamily="FontAwesome5Solid"
                         Glyph="&#xf61f;" />
-                </beebtech:DropdownField.Icon>
-            </beebtech:DropdownField>
+                </material:DropdownField.Icon>
+            </material:DropdownField>
 
-            <beebtech:DropdownField 
+            <material:DropdownField 
                     Grid.Row="1"
                     Grid.Column="1"
                     x:Name="ddfStock"
@@ -244,15 +243,15 @@
                     AllowClear="True" 
                     StyleClass="ControlPreview"
                     BorderThickness="0.4">
-                <beebtech:DropdownField.Icon>
+                <material:DropdownField.Icon>
                     <FontImageSource
                     Size="18"
                     FontFamily="FontAwesome5Solid"
                     Glyph="&#xf61f;" />
-                </beebtech:DropdownField.Icon>
-            </beebtech:DropdownField>
+                </material:DropdownField.Icon>
+            </material:DropdownField>
 
-            <beebtech:DropdownField 
+            <material:DropdownField 
                 Grid.Row="2"
                 Grid.Column="1"
                 x:Name="ddfSort"
@@ -261,13 +260,13 @@
                 AllowClear="True" 
                 StyleClass="ControlPreview"
                 BorderThickness="0.4">
-                <beebtech:DropdownField.Icon>
+                <material:DropdownField.Icon>
                     <FontImageSource
                         Size="18"
                         FontFamily="FontAwesome5Solid"
                         Glyph="&#xf61f;" />
-                </beebtech:DropdownField.Icon>
-            </beebtech:DropdownField>
+                </material:DropdownField.Icon>
+            </material:DropdownField>
 
             <input:SelectionView
                 Grid.Row="0"

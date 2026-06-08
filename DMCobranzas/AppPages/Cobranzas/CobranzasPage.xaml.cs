@@ -463,10 +463,11 @@ public partial class CobranzasPage : ContentPage
             string error_message = "";
             if(result.error != null && result.error.message != null)
             {
-                error_message = result.error.message;
+                error_message = result.error.data.message;
+                error_message = ParseTool.CleanServerMessage_v1(error_message, true);
             }
 
-            await Toast.Make("Envío de cobro erroneo:" + ParseTool.CleanServerMessage_v1(error_message, true)).Show();
+            await Toast.Make("Envío de cobro erroneo:" + error_message).Show();
         }
 
         await LoadData();
@@ -477,7 +478,7 @@ public partial class CobranzasPage : ContentPage
     {
         MultipleCobrosInvoice accountPaymentHeader = (MultipleCobrosInvoice)obj;
 
-        bool answer = await DisplayAlert("Reversar cobro", "Está seguro que desea reversar este cobro? " + accountPaymentHeader.receipt_name, "Reversar", "Cancelar");
+        bool answer = await DisplayAlertAsync("Reversar cobro", "Está seguro que desea reversar este cobro? " + accountPaymentHeader.receipt_name, "Reversar", "Cancelar");
         
         if (!answer)
         {

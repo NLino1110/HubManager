@@ -82,7 +82,7 @@ public partial class UpdateData : ContentPage
     [Obsolete("This method is obsolete. Use DeleteTablesAsync instead.")]
     private async void DeleteTables(object sender, EventArgs e)
     {
-        bool answer = await DisplayAlert("Borrar los datos de cache?",
+        bool answer = await DisplayAlertAsync("Borrar los datos de cache?",
             "Esto permitirá volver a leer los datos de cache en la actualización, esto no afectará la base de datos.",
             "Eliminar",
             "Cancelar");
@@ -429,8 +429,7 @@ public partial class UpdateData : ContentPage
             await serverPuller.OnlineSyncCategoria();
             await serverPuller.OnlineSyncSubcategoria();
             await serverPuller.OnlineSyncProductLinea();
-            await serverPuller.OnlineSyncProductGrupoTipo();
-            await serverPuller.OnlineCalificacionCrediticia();
+            await serverPuller.OnlineSyncProductGrupoTipo();            
             await serverPuller.MotivoActividadDiaria(false);
             progressBarPage.SetTotalPercent(0.80);
         }
@@ -439,6 +438,7 @@ public partial class UpdateData : ContentPage
         {            
             //await serverPuller.OnlineSyncResPartner();
             await serverPuller.OnlineSyncResPartnerFull(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Clientes"); });
+            await serverPuller.OnlineCalificacionCrediticia();
         }
 
         if (chkGroup7.IsChecked)

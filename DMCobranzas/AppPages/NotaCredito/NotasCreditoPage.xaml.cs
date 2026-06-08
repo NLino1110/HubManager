@@ -131,8 +131,7 @@ public partial class NotasCreditoPage : ContentPage
             var ls_items = await database.GetItemsAsync(Sel_Company_Id.id, dateIni.Date.Value, dateEndField,
                  App.Session.CurrentUserFront.uid, SearchText.Trim());
 
-            //Se ordenan los registros por FECHA
-            //ls_items.Sort((x, y) => x.FECHA.CompareTo(y.FECHA));
+            //Se ordenan los registros por FECHA            
             ls_items = ls_items.OrderByDescending(c => c.create_datetime).ToList();
 
             // Variable para almacenar la fecha actual
@@ -277,8 +276,8 @@ public partial class NotasCreditoPage : ContentPage
             string error_message = "";
             if(result != null && result.error != null)
             {
-                //error_message = result.error.message;
                 error_message = result.error.data.message;
+                error_message = ParseTool.CleanServerMessage_v1(error_message, true);
             }
 
             await Toast.Make("Envío de solicitud(es) erroneo: " + error_message).Show();

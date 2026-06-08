@@ -1,0 +1,30 @@
+<ContentView 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="BeebTech.Maui.Controls.UI.DropDown">
+
+    <AbsoluteLayout>
+
+        <!-- Botón -->
+        <Button x:Name="MainButton"
+                Text="Seleccionar"
+                Clicked="OnClicked"
+                AbsoluteLayout.LayoutBounds="0,0,1,40"
+                AbsoluteLayout.LayoutFlags="WidthProportional" />
+
+        <!-- Dropdown flotante -->
+        <Frame x:Name="DropPanel"
+               IsVisible="False"
+               BackgroundColor="White"
+               Padding="5"
+               HasShadow="True"
+               AbsoluteLayout.LayoutBounds="0,40,1,-1"
+               AbsoluteLayout.LayoutFlags="WidthProportional">
+
+            <VerticalStackLayout x:Name="ItemsHost"/>
+
+        </Frame>
+
+    </AbsoluteLayout>
+
+</ContentView>
