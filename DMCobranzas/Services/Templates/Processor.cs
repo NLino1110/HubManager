@@ -8,8 +8,6 @@ using DMSA.Models.Odoo.StaticData;
 using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite.DebitCollection;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
-using Fluid;
-using Fluid.Values;
 using Microsoft.Maui.Controls.Shapes;
 using System.Diagnostics;
 using System.Globalization;
@@ -79,8 +77,13 @@ namespace DMCobranzas.Services.Templates
             var lineAiDb = new MultipleCobrosInvoiceLineAiDb(App.Session.odooConnection.DbNameSqlite);
             var userAccessDb = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
             var bankDb = new BankDb(App.Session.odooConnection.DbNameSqlite);
-            
-            var banks = (await bankDb.GetItemsAsync(x=>x.id > 0)).ToDictionary(b => b.id);
+
+            Dictionary<int, ResBank> banks = null;
+
+            if (bankDb != null)
+            {
+                banks = (await bankDb.GetItemsAsync(x => x.id > 0)).ToDictionary(b => b.id);
+            }                
 
             foreach (var item in itemsGroup)
             {
@@ -166,7 +169,7 @@ namespace DMCobranzas.Services.Templates
                 {
                     foreach(var line in item.Lines)
                     {
-                        string bank_name = banks[(int) line.BankId].name;
+                        string bank_name = (line.BankId != null && banks != null && banks.TryGetValue((int)line.BankId, out var bank)) ? bank?.name ?? "" : "";
                         string right = string.IsNullOrEmpty(line.Circular) ? "-" : line.Circular;
                         r.Columns(bank_name, "Tr#" + right);
                         //r.Columns(bank_name, $"{line.Amount:0.00}");

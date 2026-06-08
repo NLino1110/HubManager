@@ -964,6 +964,14 @@ public partial class CatalogViewerInner : ContentView
 
             if (ViewModesListSelectedIndex == 2 && ItemsData.Count > 0)
             {
+                var firstItem = ItemsData?.FirstOrDefault();
+
+                if (firstItem != null)
+                {                    
+                    if (ItemTappedCommand?.CanExecute(firstItem) == true)
+                        ItemTappedCommand.Execute(firstItem);
+                }
+
                 SelectedItem = ItemsData[0];               
                 OnPropertyChanged(nameof(SelectedItem));
             }

@@ -92,6 +92,9 @@ public partial class MainPageTab : ContentPage
         {
             await AutoUpdate();
 
+            ShowTab("customers");
+            SetActiveTab("customers");
+
             tabCustomers.ReloadData();
             tabCustomers.ReloadFilter();
             tabProducts.ReloadFilter();

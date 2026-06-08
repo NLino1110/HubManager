@@ -15,17 +15,17 @@
             RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
 
                 <Label Grid.Row="1" Grid.ColumnSpan="2" FontAttributes="Bold" Text="DATOS CLIENTE - #" x:Name="clienteTitulo" TextColor="{StaticResource OnTertiaryContainer}" />
-                <Label Grid.Row="2" Grid.Column="0" Text="Tipo Ident:" Padding="3" Margin="0" FontSize="11"/>
+                <Label Grid.Row="2" Grid.Column="0" Text="Tipo Ident:" Padding="3,0,0,0" Margin="0" FontSize="11"/>
                 <Label Grid.Row="2" Grid.Column="1" x:Name="tipIden" Text="-" Margin="0" FontSize="11"/>
-                <Label Grid.Row="3" Grid.Column="0" Text="Identificación:" Padding="3" FontSize="11"/>
+                <Label Grid.Row="3" Grid.Column="0" Text="Identificación:" Padding="3,0,0,0" FontSize="11"/>
                 <Label Grid.Row="3" Grid.Column="1" x:Name="vat" Text="-" FontSize="11"/>
-                <Label Grid.Row="4" Grid.Column="0" Text="Teléfono:" Padding="3" FontSize="11"/>
+                <Label Grid.Row="4" Grid.Column="0" Text="Teléfono:" Padding="3,0,0,0" FontSize="11"/>
                 <Label Grid.Row="4" Grid.Column="1" x:Name="telephone" Text="-" FontSize="11"/>
-                <Label Grid.Row="5" Grid.Column="0" Text="Canal Venta:" Padding="3" FontSize="11"/>
+                <Label Grid.Row="5" Grid.Column="0" Text="Canal Venta:" Padding="3,0,0,0" FontSize="11"/>
                 <Label Grid.Row="5" Grid.Column="1" x:Name="channel" Text="-" FontSize="11"/>
-                <Label Grid.Row="6" Grid.Column="0" Text="Vendedor:" Padding="3" FontSize="11"/>
+                <Label Grid.Row="6" Grid.Column="0" Text="Vendedor:" Padding="3,0,0,0" FontSize="11"/>
                 <Label Grid.Row="6" Grid.Column="1" x:Name="seller" Text="-" FontSize="11"/>
-                <Label Grid.Row="7" Grid.Column="0" Text="Estado:" Padding="3" FontSize="11"/>
+                <Label Grid.Row="7" Grid.Column="0" Text="Estado:" Padding="3,0,0,0" FontSize="11"/>
                 <Label Grid.Row="7" Grid.Column="1" x:Name="status" Text="-" FontSize="11"/>
 
             <Label Grid.Row="8" Grid.ColumnSpan="2" FontAttributes="Bold" Text="INFO. CREDITICIA" Padding="0,10,0,0"/>

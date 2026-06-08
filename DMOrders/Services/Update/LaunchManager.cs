@@ -126,7 +126,7 @@ namespace DMOrders.Services.Update
                     await SaveSyncDate(user, response.data[0].datetime);
                 }
 
-                ///await HandleUploadPipeline(App.Session.odooConnection.DbNameSqlite);
+                //await HandleUploadPipeline(App.Session.odooConnection.DbNameSqlite);
 
                 return success;
             }

@@ -288,7 +288,8 @@
                     TextColor="White" 
                     Grid.Row="1"
                     Grid.Column="2"
-                    Clicked="btnClear_Clicked">
+                    Clicked="btnClear_Clicked"
+                    Margin="3">
                 <Button.ImageSource>
                     <FontImageSource 
                         Size="15"
@@ -304,7 +305,8 @@
                     TextColor="White" 
                     Grid.Row="2"
                     Grid.Column="2"
-                    Command="{Binding RefreshCommand}">
+                    Command="{Binding RefreshCommand}"
+                    Margin="3">
                 <Button.ImageSource>
                     <FontImageSource 
             Size="15"

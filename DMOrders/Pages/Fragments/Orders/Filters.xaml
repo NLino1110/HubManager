@@ -28,7 +28,7 @@
             </DatePicker>
 
             <DatePicker                
-                Grid.Row="2"
+                Grid.Row="2"                
                 x:Name="datePickerEnd">
             </DatePicker>
 

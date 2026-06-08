@@ -2,31 +2,45 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:BeebTech.Maui.Controls;assembly=BeebTech.Maui.Controls"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="DMOrders.Pages.Fragments.Product.Filters"
              x:Name="mainpage"             
             xmlns:beebtech="clr-namespace:BeebTech.Controls.UI;assembly=BeebTech.Controls"
              xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui">
     <StackLayout Padding="3">
-        <VerticalStackLayout>            
-                <Label BackgroundColor="Transparent" 
-                   Text="Filtros"
-                   FontSize="12"
-                   FontAttributes="Bold"
-                   HorizontalTextAlignment="Center"
-                   Padding="3"/>            
-            <StackLayout>
-                <Grid ColumnDefinitions="*" RowSpacing="0" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto, Auto">
+        <VerticalStackLayout>
 
-                    <beebtech:DropdownField x:Name="ddfStatus"
+            <toolkit:Expander x:Name="ExpanderCol0" IsExpanded="True" VerticalOptions="FillAndExpand">
+                <toolkit:Expander.Header>
+                    <StackLayout Orientation="Horizontal" BackgroundColor="WhiteSmoke">
+                        <Label Text="Filtros"  FontSize="12" FontAttributes="Bold" HorizontalTextAlignment="Center" Padding="3"/>
+                        <Image WidthRequest="18" HeightRequest="18" VerticalOptions="Center" HorizontalOptions="EndAndExpand">
+                            <Image.Source>
+                                <FontImageSource FontFamily="FontAwesome5Solid" Glyph="&#xf0d7;" Color="Black" Size="25" />
+                            </Image.Source>
+                            <Image.Triggers>
+                                <DataTrigger TargetType="Image" Binding="{Binding Source={x:Reference ExpanderCol0}, Path=IsExpanded}" Value="True">
+                                    <Setter Property="Rotation" Value="0" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Image" Binding="{Binding Source={x:Reference ExpanderCol0}, Path=IsExpanded}" Value="False">
+                                    <Setter Property="Rotation" Value="-180" />
+                                </DataTrigger>
+                            </Image.Triggers>
+                        </Image>
+                    </StackLayout>
+                </toolkit:Expander.Header>
+                <toolkit:Expander.Content>
+                    <StackLayout>
+                        <Grid ColumnDefinitions="*" RowSpacing="0" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto, Auto">
+                            <beebtech:DropdownField x:Name="ddfStatus"
                             Title="Estado" 
                             FontSize="11"
                             AllowClear="False" 
                             StyleClass="ControlPreview"
                             BorderThickness="0.4"
-                            Grid.Row="0">                        
-                    </beebtech:DropdownField>
-
-                    <beebtech:TextField
+                            Grid.Row="0">
+                            </beebtech:DropdownField>
+                            <beebtech:TextField
                         Grid.Row="1"
                         FontSize="11"
                         x:Name="TextCode"
@@ -34,15 +48,13 @@
                         BorderThickness="0.4"                        
                         Margin="0"
                         Padding="0"/>
-
-                    <beebtech:TextField
+                            <beebtech:TextField
                         Grid.Row="2"
                         FontSize="11"
                         x:Name="TextDescription"
                         Title="Descripción"
                         BorderThickness="0.4"/>
-
-                    <beebtech:DropdownField 
+                            <beebtech:DropdownField 
                             x:Name="ddfBrands"                        
                             Title="Marcas"
                             FontSize="11"
@@ -50,15 +62,14 @@
                             StyleClass="ControlPreview"
                             BorderThickness="0.4"
                             Grid.Row="3">
-                        <beebtech:DropdownField.Icon>
-                            <FontImageSource Size="15" 
+                                <beebtech:DropdownField.Icon>
+                                    <FontImageSource Size="15" 
                                 FontAutoScalingEnabled="False"
                                 FontFamily="FontAwesome5Solid" 
                                 Glyph="&#xe066;"  />
-                        </beebtech:DropdownField.Icon>
-                    </beebtech:DropdownField>
-
-                    <beebtech:DropdownField 
+                                </beebtech:DropdownField.Icon>
+                            </beebtech:DropdownField>
+                            <beebtech:DropdownField 
                             x:Name="ddfCategory"
                             Title="Categoría"
                             FontSize="11"
@@ -66,40 +77,42 @@
                             StyleClass="ControlPreview"
                             BorderThickness="0.4"
                             Grid.Row="4">
-                        <beebtech:DropdownField.Icon>
-                            <FontImageSource
+                                <beebtech:DropdownField.Icon>
+                                    <FontImageSource
                                 Size="15"
                                 FontAutoScalingEnabled="False"
                                 FontFamily="FontAwesome5Solid"
                                 Glyph="&#xf61f;" />
-                        </beebtech:DropdownField.Icon>
-                    </beebtech:DropdownField>
-                </Grid>
+                                </beebtech:DropdownField.Icon>
+                            </beebtech:DropdownField>
+                        </Grid>
 
-                <HorizontalStackLayout 
+                        <HorizontalStackLayout 
             Spacing="10" 
             Margin="5,2,5,0"
             AbsoluteLayout.LayoutFlags="PositionProportional"
                                 AbsoluteLayout.LayoutBounds="0.5, 0.9, 1, 0.1">
-                    <Button x:Name="btnClear" Text="Limpiar" FontSize="10" BackgroundColor="Gray" TextColor="White" Clicked="btnClear_Clicked">
-                        <Button.ImageSource>
-                            <FontImageSource 
+                            <Button x:Name="btnClear" Text="Limpiar" FontSize="10" BackgroundColor="Gray" TextColor="White" Clicked="btnClear_Clicked">
+                                <Button.ImageSource>
+                                    <FontImageSource 
                                 Size="15"
                                 FontFamily="FontAwesome5Solid"
                                 Glyph="&#xe05e;" />
                                 </Button.ImageSource>
-                    </Button>
+                            </Button>
 
-                    <Button x:Name="btnSearch" Text="Buscar" FontSize="10" BackgroundColor="IndianRed"  TextColor="White" Clicked="Button_Clicked">
-                        <Button.ImageSource>
-                            <FontImageSource 
+                            <Button x:Name="btnSearch" Text="Buscar" FontSize="10" BackgroundColor="IndianRed"  TextColor="White" Clicked="Button_Clicked">
+                                <Button.ImageSource>
+                                    <FontImageSource 
                                 Size="15"
                                 FontFamily="FontAwesome5Solid"
                                 Glyph="&#xf002;" />
                                 </Button.ImageSource>
-                    </Button>
-                </HorizontalStackLayout>
-            </StackLayout>
+                            </Button>
+                        </HorizontalStackLayout>
+                    </StackLayout>
+                </toolkit:Expander.Content>
+            </toolkit:Expander>
         </VerticalStackLayout>
     </StackLayout>
 </ContentView>
