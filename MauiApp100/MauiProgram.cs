@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui;
+﻿using APES.MAUI;
+using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 using Plugin.LocalNotification;
 using Plugin.LocalNotification.Core.Models;
@@ -95,7 +96,8 @@ namespace MauiApp100
                         });
                     });
 
-                });
+                })
+                .ConfigureContextMenuContainer();
 
 
 #if DEBUG

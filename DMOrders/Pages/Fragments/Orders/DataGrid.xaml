@@ -18,21 +18,20 @@
     </ContentView.Resources>
     <Grid RowDefinitions="Auto,*,Auto">
         
-        <Grid Grid.Row="0"
-            VerticalOptions="Center"
+        <Grid Grid.Row="0"            
             ColumnSpacing="5"
             ColumnDefinitions="70,350,*,*,*,*,100"
             RowDefinitions="*"                
-          BackgroundColor="LightGray"              
-          Padding="3" 
-          HeightRequest="35">
-            <Label Grid.Column="0" FontAttributes="Bold" Text="No." FontSize="11" TextColor="Black" HorizontalTextAlignment="Start"/>
-            <Label Grid.Column="1" FontAttributes="Bold" Text="CLIENTE" FontSize="11" TextColor="Black" HorizontalTextAlignment="Start"/>
-            <Label Grid.Column="2" FontAttributes="Bold" Text="FEC. ORD." FontSize="11" TextColor="Black" HorizontalTextAlignment="Center"/>
-            <Label Grid.Column="3" FontAttributes="Bold" Text="FEC. SINC" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center"/>
-            <Label Grid.Column="4" FontAttributes="Bold" Text="TOTAL" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center"/>
-            <Label Grid.Column="5" FontAttributes="Bold" Text="ESTADO" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center"/>
-            <Label Grid.Column="6" FontAttributes="Bold" Text="-" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center"/>
+            BackgroundColor="LightGray"              
+            Padding="0" 
+            HeightRequest="35">
+            <Label Grid.Column="0" FontAttributes="Bold" Text="No." FontSize="11" TextColor="Black" HorizontalTextAlignment="Start" VerticalOptions="Center"/>
+            <Label Grid.Column="1" FontAttributes="Bold" Text="CLIENTE" FontSize="11" TextColor="Black" HorizontalTextAlignment="Start" VerticalOptions="Center"/>
+            <Label Grid.Column="2" FontAttributes="Bold" Text="FEC. ORD." FontSize="11" TextColor="Black" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+            <Label Grid.Column="3" FontAttributes="Bold" Text="FEC. SINC" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+            <Label Grid.Column="4" FontAttributes="Bold" Text="TOTAL" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+            <Label Grid.Column="5" FontAttributes="Bold" Text="ESTADO" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+            <Label Grid.Column="6" FontAttributes="Bold" Text="-" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
         </Grid>        
 
         <Grid Grid.Row="1">            

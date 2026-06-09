@@ -223,8 +223,6 @@ namespace ApiManager
 
         public async Task<ApiResponseOdooRpcT<int>?> SendAttachmentMode2(mnsa_attachment_line SendObject, string dbNameSqlite, string package_name)
         {
-            
-
             var uploadResponse = await SendToExternalServer(SendObject.file_bytes, SendObject.file_name, package_name);
 
             if(uploadResponse == null)
@@ -263,37 +261,59 @@ namespace ApiManager
 
         public async Task<responseUpload?> SendToExternalServer(byte[] fileBytes, string filename, string package_name)
         {
-            var handler = new HttpClientHandler
+            try
             {
-                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-            };
+                var handler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+                };
 
-            using var httpClient = new HttpClient(handler);
+                using var httpClient = new HttpClient(handler);
+                httpClient.Timeout = TimeSpan.FromSeconds(60);
 
-            httpClient.DefaultRequestHeaders.Add("X-API-KEY", _appSession.odooConnection.HostDumpApiKey);
+                httpClient.DefaultRequestHeaders.Add("X-API-KEY", _appSession.odooConnection.HostDumpApiKey);
 
-            using var content = new MultipartFormDataContent();
+                using var content = new MultipartFormDataContent();
 
-            var fileContent = new ByteArrayContent(fileBytes);
-            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/zip");
+                var fileContent = new ByteArrayContent(fileBytes);
+                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/zip");
 
-            content.Add(fileContent, "file", $"{filename}.zip");
-            content.Add(new StringContent(filename), "fileName");
-            content.Add(new StringContent(package_name), "packageName");
+                content.Add(fileContent, "file", $"{filename}.zip");
+                content.Add(new StringContent(filename), "fileName");
+                content.Add(new StringContent(package_name), "packageName");
 
-            var response = await httpClient.PostAsync($"{_appSession.odooConnection.HostDump}/api/upload/zip", content);
+                var url = $"{_appSession.odooConnection.HostDump}/api/upload/zip";
 
-            if (!response.IsSuccessStatusCode)
-            {
-                var error = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Error subiendo ZIP: {error}");
+                Debug.WriteLine($"Uploading to: {url}");
+
+                var response = await httpClient.PostAsync(url, content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    Debug.WriteLine($"Upload error: {error}");
+                    return null; // ❗ NO lanzar excepción
+                }
+
+                var json = await response.Content.ReadAsStringAsync();
+
+                return JsonConvert.DeserializeObject<responseUpload>(json);
             }
-
-            var json = await response.Content.ReadAsStringAsync();
-
-            var responseData = JsonConvert.DeserializeObject<responseUpload>(json);
-
-            return responseData;
+            catch (HttpRequestException ex)
+            {
+                Debug.WriteLine($"HTTP ERROR: {ex.Message}");
+                return null;
+            }
+            catch (TaskCanceledException ex)
+            {
+                Debug.WriteLine($"TIMEOUT: {ex.Message}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"UNKNOWN ERROR: {ex}");
+                return null;
+            }
         }
 
 

@@ -48,7 +48,7 @@
         <Grid Grid.Row="1" 
                  Grid.Column="0"
                  Padding="10"
-              ColumnDefinitions="Auto"
+                 ColumnDefinitions="Auto"
                  RowDefinitions="Auto,Auto" 
                  WidthRequest="220">
             
@@ -153,7 +153,7 @@
                     </Button.ImageSource>
                 </Button>
 
-                <Grid Grid.Row="3" ColumnDefinitions="Auto,Auto,Auto" RowDefinitions="Auto,Auto,Auto,Auto" Padding="5" RowSpacing="2" ColumnSpacing="2">                    
+                <Grid Grid.Row="3" ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto" Padding="5" RowSpacing="2" ColumnSpacing="2">                    
                     <Button Text="1" Grid.Row="0" Grid.Column="0" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked">
                     </Button>
                     <Button Text="2" Grid.Row="0" Grid.Column="1" FontAttributes="Bold" BackgroundColor="DodgerBlue" TextColor="WhiteSmoke" Clicked="OnKeyClicked">

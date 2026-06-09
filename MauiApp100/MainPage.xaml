@@ -2,12 +2,47 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:beebtechMaui="clr-namespace:BeebTech.Maui.Controls.UI;assembly=BeebTech.Maui.Controls"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:c="http://apes.ge"
              x:Class="MauiApp100.MainPage">
 
     <ScrollView>
-        <VerticalStackLayout
-            Padding="30,0"
-            Spacing="25">
+        <VerticalStackLayout Padding="30,0" Spacing="25">
+
+            <Button Clicked="Button_Clicked" Text="Aquiiii!!!"></Button>
+            
+            <Border BackgroundColor="#4CAF50">
+                <Border.Behaviors>
+                    <toolkit:TouchBehavior
+    PressedOpacity="0.85"
+    PressedScale="0.97"
+    PressedBackgroundColor="#E6F0FF"
+    LongPressDuration="500"
+    LongPressCommand="{Binding ActionCommand}"
+    LongPressCommandParameter="{Binding BindingContext}"
+    DefaultBackgroundColor="Transparent"/>
+                </Border.Behaviors>                
+
+                <Label Text="Mantén presionado aquí"/>
+            </Border>
+
+
+            <Label Text="Basic Context Menu" />
+            <c:ContextMenuContainer x:Name="container1" AutomationId="container1">
+                <c:ContextMenuContainer.MenuItems>
+                    <c:ContextMenuItem x:Name="c1_action1" AutomationId="c1_action1" Text="Action 1" Command="{Binding FirstCommand}" CommandParameter="Action 1 pressed!" />
+                    <c:ContextMenuItem x:Name="c1_action2" AutomationId="c1_action2" Text="Action with icon" Command="{Binding FirstCommand}" CommandParameter="Action with icon pressed!" Icon="{Binding SettingsIconSource}"/>
+                </c:ContextMenuContainer.MenuItems>
+                <c:ContextMenuContainer.Content>
+                    <Border BackgroundColor="#4CAF50">
+                        <StackLayout>
+                            <Label Text="Basic Example" FontSize="16" FontAttributes="Bold" TextColor="White" />
+                            <Label AutomationId="c1_label" Text="{Binding Text}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="Center" />
+                        </StackLayout>
+                    </Border>
+                </c:ContextMenuContainer.Content>
+            </c:ContextMenuContainer>
+
             <beebtechMaui:DropDown></beebtechMaui:DropDown>
             <Image
                 Source="dotnet_bot.png"

@@ -1,18 +1,79 @@
 ﻿using Plugin.LocalNotification;
 using Plugin.LocalNotification.Core.Models;
 using Plugin.LocalNotification.Core.Models.AndroidOption;
-using System.Reflection;
+using System.ComponentModel;
 using System.Net.Http;
+using System.Reflection;
+using System.Windows.Input;
 
 namespace MauiApp100
 {
-    public partial class MainPage : ContentPage
+    public partial class MainPage : ContentPage, INotifyPropertyChanged
     {
+        public FileImageSource SettingsIconSource { get; private set; }
+
+        private string _text;
+        public string Text
+        {
+            get => _text;
+            set => SetField(ref _text, value);
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void NotifyPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = "") => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+
+        protected bool SetField<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            NotifyPropertyChanged(propertyName);
+            return true;
+        }
+
         int count = 0;
+
+        public ICommand FirstCommand { get; }
+
+        private void OnFirstCommandExecuted(string s) => Text = s;
+
+        //public ICommand ShowMenuCommand => new Command<object>(async (item) =>
+        //{
+        //    // Aquí decides cómo mostrar el menú
+        //    await Application.Current.MainPage.DisplayActionSheetAsync(
+        //        "Opciones",
+        //        "Cancelar",
+        //        null,
+        //        "Action 1",
+        //        "Action 2"
+        //    );
+        //});
+
+        public ICommand ActionCommand
+        {
+            get => (ICommand)GetValue(ActionCommandProperty);
+            set => SetValue(ActionCommandProperty, value);
+        }
+
+        public static readonly BindableProperty ActionCommandProperty =
+            BindableProperty.Create(
+                nameof(ActionCommand),
+                typeof(ICommand),
+                typeof(MainPage),
+                null);
+
+        private void OnActionCommandExecuted(object item) => Text = $"Action executed for: {item}";
 
         public MainPage()
         {
             InitializeComponent();
+            FirstCommand = new Command<string>((s) => OnFirstCommandExecuted(s));
+
+            ActionCommand = new Command<object>((item) => OnActionCommandExecuted(item));
+
+            SettingsIconSource = "outline_settings_black_24.png";
+
+            BindingContext = this;            
         }
 
         private async Task<byte[]> getUrlByte()
@@ -81,6 +142,17 @@ namespace MauiApp100
                 }
             };
             await LocalNotificationCenter.Current.Show(urgentNotification);
+        }
+
+        private async void Button_Clicked(object sender, EventArgs e)
+        {            
+            await Application.Current.MainPage.DisplayActionSheetAsync(
+                "Opciones",
+                "Cancelar",
+                null,
+                "Action 1",
+                "Action 2"
+            );
         }
     }
 }

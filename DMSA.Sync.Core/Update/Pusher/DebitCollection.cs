@@ -279,6 +279,11 @@ namespace DMSA.Sync.Core.Update.Pusher
                             }
                         }
                     }
+                    else
+                    {
+                        Debug.WriteLine("ERROR AL ALMACENAR DETALLA DE COBRO");
+                        Debug.WriteLine("===================================");                        
+                    }
                 }
             }
 

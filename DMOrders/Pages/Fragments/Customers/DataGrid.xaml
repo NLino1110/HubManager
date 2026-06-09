@@ -21,7 +21,7 @@
     </ContentView.Resources>
     <Grid RowDefinitions="Auto,*,Auto">
 
-        <Grid Grid.Row="0" BackgroundColor="LightGray" Padding="10" HeightRequest="35">
+        <Grid Grid.Row="0" BackgroundColor="LightGray" HeightRequest="35">
             <Grid.ColumnDefinitions>                
                 <ColumnDefinition Width="50"/>
                 <ColumnDefinition Width="100"/>
@@ -33,14 +33,14 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="20"/>
             </Grid.ColumnDefinitions>
-            <Label Text="Id" Grid.Column="0" FontAttributes="Bold" FontSize="11" Padding="10,0,0,0" HorizontalTextAlignment="Start"/>
-            <Label Text="Ced./Ruc" Grid.Column="1" FontAttributes="Bold"  FontSize="11" Padding="20,0,0,0" HorizontalTextAlignment="Start"/>
-            <Label Text="Nombre" Grid.Column="2" FontAttributes="Bold"  FontSize="11" Padding="30,0,0,0" HorizontalTextAlignment="Start"/>
+            <Label Text="Id" Grid.Column="0" FontAttributes="Bold" FontSize="11" Padding="10,0,0,0" HorizontalTextAlignment="Start" VerticalOptions="Center"/>
+            <Label Text="Ced./Ruc" Grid.Column="1" FontAttributes="Bold"  FontSize="11" Padding="20,0,0,0" HorizontalTextAlignment="Start" VerticalOptions="Center"/>
+            <Label Text="Nombre" Grid.Column="2" FontAttributes="Bold"  FontSize="11" Padding="30,0,0,0" HorizontalTextAlignment="Start" VerticalOptions="Center"/>
             <!--<Label Text="Email" Grid.Column="3" FontAttributes="Bold"  Padding="25,0,0,0" FontSize="11"/>-->
-            <Label Text="Teléfono" Grid.Column="3" FontAttributes="Bold" Padding="15,0,0,0" FontSize="11"/>
-            <Label Text="Estado" Grid.Column="4" FontAttributes="Bold"  Padding="5,0,0,0" FontSize="11"/>
-            <Label Text="Canal" Grid.Column="5" FontAttributes="Bold"  Padding="5,0,0,0" FontSize="11"/>
-            <Label Text="Días" Grid.Column="6" FontAttributes="Bold" Padding="10,0,0,0" FontSize="11"/>
+            <Label Text="Teléfono" Grid.Column="3" FontAttributes="Bold" Padding="15,0,0,0" FontSize="11" VerticalOptions="Center"/>
+            <Label Text="Estado" Grid.Column="4" FontAttributes="Bold"  Padding="5,0,0,0" FontSize="11" VerticalOptions="Center"/>
+            <Label Text="Canal" Grid.Column="5" FontAttributes="Bold"  Padding="5,0,0,0" FontSize="11" VerticalOptions="Center"/>
+            <Label Text="Días" Grid.Column="6" FontAttributes="Bold" Padding="10,0,0,0" FontSize="11" VerticalOptions="Center"/>
         </Grid>
 
         <Grid Grid.Row="1">

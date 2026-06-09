@@ -29,13 +29,11 @@
             <Label Text="Cantidad" Grid.Column="2" FontAttributes="Bold"/>
         </Grid>-->
 
-        <Grid Grid.Row="0"
-                VerticalOptions="Center"
+        <Grid Grid.Row="0"                
                 ColumnSpacing="10"
                 ColumnDefinitions="Auto,480,*,*,*,*,*"
                 RowDefinitions="*"                
-                BackgroundColor="LightGray"              
-                Padding="10" 
+                BackgroundColor="LightGray"                              
                 HeightRequest="35">
 
             <Label 
@@ -44,7 +42,7 @@
                 FontAttributes="Bold"
                 Text="N"
                 FontSize="11"
-                TextColor="Transparent" />
+                TextColor="Transparent" VerticalOptions="Center"/>
             
             <Label 
                 Grid.Row="0" 
@@ -53,7 +51,7 @@
                 FontAttributes="Bold"
                 Text="DESCRIPCIÓN"
                 FontSize="11"
-                TextColor="Black" />
+                TextColor="Black" VerticalOptions="Center"/>
 
             <Label 
                 Grid.RowSpan="2"
@@ -62,7 +60,7 @@
                 Text="UNIDAD"
                 FontSize="11"
                 TextColor="Black"                 
-                HorizontalTextAlignment="Center"/>
+                HorizontalTextAlignment="Center" VerticalOptions="Center"/>
 
             <Label 
                 Grid.RowSpan="2"
@@ -71,7 +69,7 @@
                 Text="MARCA"
                 FontSize="11"
                 TextColor="Black" 
-                HorizontalTextAlignment="Center"/>
+                HorizontalTextAlignment="Center" VerticalOptions="Center"/>
 
             <Label 
                 FontAttributes="Bold"
@@ -80,7 +78,7 @@
                 Grid.Column="4" 
                 FontSize="11"
                 TextColor="Black"
-                HorizontalTextAlignment="Center"/>
+                HorizontalTextAlignment="Center" VerticalOptions="Center"/>
 
             <Label 
                 FontAttributes="Bold"
@@ -89,7 +87,7 @@
                 Grid.Column="5" 
                 FontSize="11"
                 TextColor="Black"
-                HorizontalTextAlignment="Center"/>
+                HorizontalTextAlignment="Center" VerticalOptions="Center"/>
         </Grid>
 
         <Grid Grid.Row="1">            

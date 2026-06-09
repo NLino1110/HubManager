@@ -11,7 +11,7 @@
              x:Name="ActivitiesDataGrid">
 
     <Grid RowDefinitions="Auto,*,Auto">
-        <Grid Grid.Row="0" Grid.Column="1" BackgroundColor="LightGray" ColumnSpacing="10" Padding="10">
+        <Grid Grid.Row="0" Grid.Column="1" BackgroundColor="LightGray" ColumnSpacing="10" Padding="0" HeightRequest="35">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="2.5*"/>
@@ -20,13 +20,12 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="20"/>
             </Grid.ColumnDefinitions>
-            <Label Text="ID" FontAttributes="Bold" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center"/>
-            <Label Text="VENDEDOR" Grid.Column="1" FontAttributes="Bold" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center"/>
-            <Label Text="FECHA REP." Grid.Column="2" FontAttributes="Bold" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center"/>
-            <Label Text="FECHA SINC." Grid.Column="3" FontAttributes="Bold"  FontSize="11" TextColor="Black" HorizontalTextAlignment="Center"/>
-            <!-- USUARIO eliminado -->
-            <Label Text="ESTADO" Grid.Column="4" FontAttributes="Bold" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center"/>
-            <Label Text="-" Grid.Column="5" FontAttributes="Bold" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center"/>
+            <Label Text="ID" FontAttributes="Bold" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+            <Label Text="VENDEDOR" Grid.Column="1" FontAttributes="Bold" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+            <Label Text="FECHA REP." Grid.Column="2" FontAttributes="Bold" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+            <Label Text="FECHA SINC." Grid.Column="3" FontAttributes="Bold"  FontSize="11" TextColor="Black" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+            <Label Text="ESTADO" Grid.Column="4" FontAttributes="Bold" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+            <Label Text="-" Grid.Column="5" FontAttributes="Bold" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
         </Grid>
 
         <Grid Grid.Row="1">
