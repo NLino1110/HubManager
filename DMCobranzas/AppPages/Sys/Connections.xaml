@@ -9,7 +9,10 @@
             BarTextColor="Black"
             SelectedTabColor="DodgerBlue"
             UnselectedTabColor="Gray"
-            NavigationPage.HasBackButton="True">
+            NavigationPage.HasBackButton="True"
+            xmlns:android="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;assembly=Microsoft.Maui.Controls"
+            android:TabbedPage.IsSmoothScrollEnabled="false"
+            android:TabbedPage.IsSwipePagingEnabled="false">
     <ContentPage Title="Conexiones">
         <ContentPage.Content>
             <Grid RowDefinitions="Auto,*,Auto" Padding="10">
@@ -190,21 +193,7 @@
                 Icon="{FontImageSource FontFamily=FontAwesome5Solid, Glyph='&#xf7d9;'}" />-->
 
             <controlsUI:TitledEntryLight x:Name="lblDbPath" Title="Path" Grid.Row="0" Grid.Column="0"></controlsUI:TitledEntryLight>
-
-            <Button Text="Enviar a storage" 
-                    Padding="10,0,10,0" 
-                    Clicked="btnSendCloud_Clicked" 
-                    BackgroundColor="BlueViolet"
-                    TextColor="White"
-                    IsVisible="False">
-                <Button.ImageSource>
-                    <FontImageSource FontFamily="FontAwesome5Solid"
-                        Color="White"
-                        Size="20"
-                        FontAutoScalingEnabled="True"
-                        Glyph="&#xf093;" />
-                </Button.ImageSource>
-            </Button>
+           
 
             <Button Text="Rehacer configuración" 
         Padding="10,0,10,0" 
@@ -217,15 +206,18 @@
             Color="White"
             Size="20"
             FontAutoScalingEnabled="True"
-            Glyph="&#xf093;" />
+            Glyph="&#xe05e;" />
                 </Button.ImageSource>
             </Button>
+
+            
         </VerticalStackLayout>
     </ContentPage>
     <ContentPage Title="Base de datos">
         <Grid RowDefinitions="Auto,Auto,*">
-            <HorizontalStackLayout Grid.Row="0" Padding="10">
-                <Picker Grid.Row="1" 
+            <HorizontalStackLayout Grid.Row="0" Padding="5">
+                <Picker x:Name="pickerDb" Grid.Row="1"
+                        Title="Base de datos..."
                         ItemsSource="{Binding ConnectionsItems}" 
                         ItemDisplayBinding="{Binding DbNameSqlite}"
                         SelectedIndexChanged="DbPicker_SelectedIndexChanged"/>
@@ -259,6 +251,37 @@
                             Glyph="&#xf71e;" />
                     </Button.ImageSource>
                 </Button>
+
+                <Button Text="Enviar" 
+                    Padding="10,0,10,0" 
+                    Clicked="btnUploadDB_Clicked" 
+                    BackgroundColor="LimeGreen"
+                    TextColor="White"
+                    IsVisible="True">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FontAwesome5Solid"
+            Color="White"
+            Size="20"
+            FontAutoScalingEnabled="True"
+            Glyph="&#xf093;" />
+                    </Button.ImageSource>
+                </Button>
+
+                <Button Text="Restaurar" 
+                    Padding="10,0,10,0" 
+                    Clicked="btnDownloadDb_Clicked" 
+                    BackgroundColor="Orange"
+                    TextColor="White"
+                    IsVisible="True">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FontAwesome5Solid"
+                        Color="White"
+                        Size="20"
+                        FontAutoScalingEnabled="True"
+                        Glyph="&#xf019;" />
+                    </Button.ImageSource>
+                </Button>
+                
             </HorizontalStackLayout>
 
             <CollectionView Grid.Row="2" ItemsSource="{Binding Tables}">

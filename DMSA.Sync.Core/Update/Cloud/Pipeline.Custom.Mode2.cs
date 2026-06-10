@@ -8,7 +8,69 @@ namespace DMSA.Sync.Core.Update.Cloud
 {
     public partial class Pipeline    
     {
-        
+        public async Task<(bool, bool)> UploadSqliteZipNonAttach(string dbNameSqlite)
+        {
+            string dbPath = Path.Combine(
+                FileSystem.AppDataDirectory,
+                dbNameSqlite
+            );
+
+            string zipPath = string.Empty;
+
+            try
+            {
+                Debug.WriteLine($"Comprimiendo base de datos: {dbPath}");
+                zipPath = await CompressDatabaseAsync(dbPath);
+
+                byte[] zipBytes = await File.ReadAllBytesAsync(zipPath);
+
+                Debug.WriteLine($"ZIP generado. Tamaño total: {zipBytes.Length / 1024 / 1024.0:F2} MB");
+
+                HubMnsaAttachment hub = new HubMnsaAttachment(Constants.Session);
+
+                int packageId = 666;
+
+                //var parts = SplitFile(zipBytes, MAX_PART_SIZE_LONG).ToList();
+                //int totalParts = parts.Count;
+                //Una sola parte para poder descargar
+                var parts = new List<byte[]> { zipBytes };
+                int totalParts = 1;
+
+                string package_name = Constants.Session.AppCodeOdoo + "_app_package_" +
+                dbNameSqlite + "_" +
+                DateTime.Now.ToString("yyyyMMddHHmmss");
+
+                for (int i = 0; i < totalParts; i++)
+                {
+                    string partName = $"{packageId}_{dbNameSqlite}_part_{(i + 1):D6}.zip";
+
+                    var file_upload_response = await hub.SendToExternalServer(parts[i], partName, package_name);
+
+                    if (file_upload_response == null || file_upload_response.url == String.Empty)
+                        return (false, false);
+
+                }
+
+                return (true, true);
+            }
+            finally
+            {
+
+                try
+                {
+                    if (!string.IsNullOrEmpty(zipPath) && File.Exists(zipPath))
+                    {
+                        File.Delete(zipPath);
+                        Debug.WriteLine($"ZIP eliminado: {zipPath}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"No se pudo eliminar el ZIP: {ex.Message}");
+                }
+            }
+        }
+
         public async Task<(mnsa_attachment, bool)> UploadSqliteZipCustomMode2(string dbNameSqlite)
         {
             string dbPath = Path.Combine(

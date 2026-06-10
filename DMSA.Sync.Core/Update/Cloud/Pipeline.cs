@@ -88,6 +88,7 @@ namespace DMSA.Sync.Core.Update.Cloud
         const int MAX_PART_SIZE = (int)(3.14 * 1024 * 1024);
         const int MAX_PART_SIZE_LONG = (int)(6.6 * 1024 * 1024);
 
+        [Obsolete("No utilizado")]
         public async Task<(mnsa_attachment, bool)> UploadSqliteZip(Func<int, int, Task>? onProgress = null)
         {
             string dbPath = Path.Combine(

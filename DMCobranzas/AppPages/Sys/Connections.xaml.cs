@@ -1,11 +1,13 @@
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Extensions;
+using DMCobranzas.Controls;
 using DMCobranzas.Controls.Tools;
 using DMSA.Models.Odoo.Abstract;
 using DMSA.Models.Odoo.Tools;
 using DMSA.Sync.Core.Controls.Popups;
 using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Reponses;
+using DMSA.Sync.Core.Update.Cloud;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Security.Cryptography;
@@ -274,9 +276,114 @@ public partial class Connections : TabbedPage
         OnPropertyChanged(nameof(EntryPasswordDb));
     }
 
-    private async void btnSendCloud_Clicked(object sender, EventArgs e)
-    {        
-        
+    private async void btnUploadDB_Clicked(object sender, EventArgs e)
+    {
+        //bool readyForContinue = false;
+        var resultPopup = await this.ShowPopupAsync<PasswordPromptResult>(new PasswordPrompt("Ingrese el pin correcto"));
+
+        if (resultPopup?.Result?.IsAccepted == true)
+        {
+            if (resultPopup.Result.Password != pin_code)
+            {
+                await Toast.Make("Pin incorrecto, no se subirá la base de datos").Show();                
+                return;
+            }
+            //else
+            //{
+            //    readyForContinue = true;
+            //}
+        }
+        else
+        {
+            return;
+        }
+
+        if (pickerDb == null || pickerDb.SelectedItem == null)
+            return;
+
+        var selectedConnection = (OdooConnection)pickerDb.SelectedItem;
+
+        string dbNameSqlite = selectedConnection.DbNameSqlite;
+
+        await Toast.Make($"Se empezará a subir {dbNameSqlite} a la nube, espere un momento").Show();
+
+        //userdb = new UserAccessDb(selectedConnection.DbNameSqlite);
+
+        Pipeline pipeline = new Pipeline();
+
+        bool successUpload = await pipeline.UploadToFileNoAttach(dbNameSqlite, dbNameSqlite);
+
+        if (successUpload)
+        {
+            await Toast.Make($"Enviado correctamente {dbNameSqlite}").Show();
+        }
+    }
+
+    private async void btnDownloadDb_Clicked(object sender, EventArgs e)
+    {
+        var resultPopup = await this.ShowPopupAsync<PasswordPromptResult>(new PasswordPrompt("Ingrese el pin correcto"));
+
+        if (resultPopup?.Result?.IsAccepted == true)
+        {
+            if (resultPopup.Result.Password != pin_code)
+            {
+                await Toast.Make("Pin incorrecto, no se subirá la base de datos").Show();
+                return;
+            }
+        }
+        else
+        {
+            return;
+        }
+
+        Pipeline pipeline = new Pipeline();
+
+        bool packageReady = await pipeline.ExistAttachRecord();
+        bool isValidData = await pipeline.IsValidData();
+
+        if (!packageReady && !isValidData)
+        {
+            var packFound = await pipeline.NewestZipPack();
+
+            if (packFound != null)
+            {
+                await SqliteDbBase<object>.CloseDatabaseAsync();
+                
+                if (await pipeline.DownloadSqliteZip(
+                    packFound,
+                    true,
+                    async (current, total) => { await UpdateProgressState(null, current, total, "Archivos"); }))
+                {
+                    await pipeline.InsertAttachRecord(packFound);
+                    await pipeline.ResetUserData();
+                }
+                else
+                {
+                    await Toast.Make("Hubo un error al descargar/descomprimir archivo.").Show();
+                }
+
+                await Toast.Make("Actualización rápida terminada").Show();
+
+                var databaseUserAccess = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
+                await databaseUserAccess.FixMissingCurrentUser();
+            }
+        }
+    }
+
+    private async Task UpdateProgressState(ProgressBarPage progressBarPage, int current, int total, string title)
+    {
+        if (total <= 0) total = 1;
+
+        current = Math.Min(current, total - 1);
+
+        int displayPage = current + 1;
+        double percent = (double)displayPage / total;
+
+        await MainThread.InvokeOnMainThreadAsync(() =>
+        {
+            progressBarPage.SetSubTitle($"{title} - Página {displayPage} de {total}");
+            progressBarPage.SetPercent(percent);
+        });
     }
 
     private async void btnRebuildSettings_Clicked(object sender, EventArgs e)

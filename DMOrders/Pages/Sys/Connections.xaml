@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <TabbedPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-            
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"            
             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
             xmlns:controlsUI="clr-namespace:BeebTech.Maui.Controls.UI;assembly=BeebTech.Maui.Controls"
             x:Class="DMOrders.Pages.Sys.Connections"            
@@ -10,7 +9,10 @@
             BarTextColor="Black"
             SelectedTabColor="DodgerBlue"
             UnselectedTabColor="Gray"
-            NavigationPage.HasBackButton="True">
+            NavigationPage.HasBackButton="True"
+            xmlns:android="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;assembly=Microsoft.Maui.Controls"
+            android:TabbedPage.IsSmoothScrollEnabled="false"
+            android:TabbedPage.IsSwipePagingEnabled="false">
     <ContentPage Title="Conexiones">
         <ContentPage.Content>
             
@@ -222,21 +224,6 @@
 
             <controlsUI:TitledEntryLight x:Name="lblDbPath" Title="Path" Grid.Row="0" Grid.Column="0"></controlsUI:TitledEntryLight>
 
-            <Button Text="Enviar a storage" 
-                    Padding="10,0,10,0" 
-                    Clicked="btnSendCloud_Clicked" 
-                    BackgroundColor="BlueViolet"
-                    TextColor="White"
-                    IsVisible="False">
-                <Button.ImageSource>
-                    <FontImageSource FontFamily="FontAwesome5Solid"
-                        Color="White"
-                        Size="20"
-                        FontAutoScalingEnabled="True"
-                        Glyph="&#xf093;" />
-                </Button.ImageSource>
-            </Button>
-
             <Button Text="Rehacer configuración" 
         Padding="10,0,10,0" 
         Clicked="btnRebuildSettings_Clicked" 
@@ -256,8 +243,8 @@
     <ContentPage Title="Base de datos">
         <Grid RowDefinitions="Auto,Auto,*">
             <HorizontalStackLayout Grid.Row="0" Padding="10" VerticalOptions="Center">
-                <Label>DB:</Label>
-                <Picker Grid.Row="1" 
+                <Picker x:Name="pickerDb" Grid.Row="1" 
+                        Title="Base de datos..."
                         ItemsSource="{Binding dbStructItems}" 
                         ItemDisplayBinding="{Binding Name}"
                         SelectedIndexChanged="DbPicker_SelectedIndexChanged"/>
@@ -289,6 +276,37 @@
                             Size="20"
                             FontAutoScalingEnabled="True"
                             Glyph="&#xf71e;" />
+                    </Button.ImageSource>
+                </Button>
+
+
+                <Button Text="Enviar" 
+                    Padding="10,0,10,0" 
+                    Clicked="btnUploadDB_Clicked" 
+                    BackgroundColor="LimeGreen"
+                    TextColor="White"
+                    IsVisible="True">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FontAwesome5Solid"
+            Color="White"
+            Size="20"
+            FontAutoScalingEnabled="True"
+            Glyph="&#xf093;" />
+                    </Button.ImageSource>
+                </Button>
+
+                <Button Text="Restaurar" 
+                    Padding="10,0,10,0" 
+                    Clicked="btnDownloadDb_Clicked" 
+                    BackgroundColor="Orange"
+                    TextColor="White"
+                    IsVisible="True">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FontAwesome5Solid"
+                        Color="White"
+                        Size="20"
+                        FontAutoScalingEnabled="True"
+                        Glyph="&#xf019;" />
                     </Button.ImageSource>
                 </Button>
             </HorizontalStackLayout>

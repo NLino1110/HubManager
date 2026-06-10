@@ -70,6 +70,7 @@ namespace DMSA.Sync.Core.Update.Cloud
         //    return (mnsaAttachment, true);
         //}
 
+        [Obsolete("Ya no se usará")]
         public async Task<(mnsa_attachment, bool)> UploadSqliteZipCustom(string dbNameSqlite)
         {
             string dbPath = Path.Combine(
