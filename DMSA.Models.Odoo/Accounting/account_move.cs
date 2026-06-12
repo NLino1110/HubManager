@@ -78,6 +78,15 @@ namespace DMSA.Models.Odoo.Accounting
         }
 
         [Ignore]
+        public JToken partner_sale_id { get; set; }
+
+        public int _partner_sale_id
+        {
+            get => GetId(partner_sale_id);
+            set => partner_sale_id = SetId(partner_sale_id, value);
+        }
+
+        [Ignore]
         public JToken journal_id { get; set; }
 
         public int _journal_id
@@ -152,29 +161,29 @@ namespace DMSA.Models.Odoo.Accounting
         public event PropertyChangedEventHandler? PropertyChanged;
     }
 
-    public class Partner_Id
-    {
-        public int id { get; set; }
-        public string name { get; set; }
-    }
+    //public class Partner_Id
+    //{
+    //    public int id { get; set; }
+    //    public string name { get; set; }
+    //}
 
-    public class Journal_Id
-    {
-        public int id { get; set; }
-        public string name { get; set; }
-    }
+    //public class Journal_Id
+    //{
+    //    public int id { get; set; }
+    //    public string name { get; set; }
+    //}
 
-    public class L10n_Latam_Document_Type_Id
-    {
-        public int id { get; set; }
-        public string name { get; set; }
-    }
+    //public class L10n_Latam_Document_Type_Id
+    //{
+    //    public int id { get; set; }
+    //    public string name { get; set; }
+    //}
 
-    public class Invoice_User_Id
-    {
-        public int id { get; set; }
-        public string name { get; set; }
-    }
+    //public class Invoice_User_Id
+    //{
+    //    public int id { get; set; }
+    //    public string name { get; set; }
+    //}
 
     //public class Company_Id
     //{
@@ -182,33 +191,33 @@ namespace DMSA.Models.Odoo.Accounting
     //    public string name { get; set; }
     //}
 
-    public class Team_Id
-    {
-        public int id { get; set; }
-        public string name { get; set; }
-    }
+    //public class Team_Id
+    //{
+    //    public int id { get; set; }
+    //    public string name { get; set; }
+    //}
 
-    public class Invoice_Line_Ids
-    {
-        public int id { get; set; }
-        public string name { get; set; }
-    }
+    //public class Invoice_Line_Ids
+    //{
+    //    public int id { get; set; }
+    //    public string name { get; set; }
+    //}
 
-    public class Reverse_Entry_Ids
-    {
-        public int id { get; set; }
-        public string name { get; set; }
-    }
+    //public class Reverse_Entry_Ids
+    //{
+    //    public int id { get; set; }
+    //    public string name { get; set; }
+    //}
 
-    public class Refund_Invoice_Ids
-    {
-        public int id { get; set; }
-        public string name { get; set; }
-    }
+    //public class Refund_Invoice_Ids
+    //{
+    //    public int id { get; set; }
+    //    public string name { get; set; }
+    //}
 
-    public class Printer_Ids
-    {
-        public int id { get; set; }
-        public string name { get; set; }
-    }
+    //public class Printer_Ids
+    //{
+    //    public int id { get; set; }
+    //    public string name { get; set; }
+    //}
 }

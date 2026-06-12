@@ -87,6 +87,8 @@ namespace DMSA.Sync.Core.Update.Cloud
             return true;
         }
 
+        [Obsolete("Innecesario")]
+
         public async Task<bool> UploadToFileNoAttach(string dbPath, string centralDB)
         {            
             (var attachData, bool successUpload) = await UploadSqliteZipNonAttach(dbPath);

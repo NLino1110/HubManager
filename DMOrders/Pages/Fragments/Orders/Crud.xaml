@@ -396,7 +396,7 @@
                                 Item="{Binding .}"
                                 EditCommand="{Binding Source={x:Reference RootPage}, Path=EditCommand}"
                                 DeleteCommand="{Binding Source={x:Reference RootPage}, Path=DeleteCommand}"
-                                LockEdition="{Binding LockEdition, Source={x:Reference RootPage}}" Style="{StaticResource CollectionItemSelectable}"/>
+                                LockEdition="{Binding LockEdition, Source={x:Reference RootPage}}" Style="{StaticResource CollectionItemSelectableGrid}"/>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
@@ -413,7 +413,11 @@
                 </Grid>
             </Grid>
 
-            <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" HorizontalOptions="FillAndExpand" ColumnDefinitions="*,*,Auto">                
+            <Grid Grid.Row="3" 
+                  Grid.Column="0" 
+                  Grid.ColumnSpan="2" 
+                  HorizontalOptions="FillAndExpand" 
+                  ColumnDefinitions="*,*,Auto">                
                 <CollectionView
                         Grid.Row="0" 
                         Grid.Column="0"
@@ -442,24 +446,7 @@
                                VerticalOptions="Start" 
                                HorizontalOptions="End" 
                                Margin="0,0,0,10" 
-                                Spacing="10">
-                    
-                    <!--<uranium:ExpanderView IsExpanded="True" WidthRequest="250">
-                        <uranium:ExpanderView.Header>
-                            <Label                     
-                    BackgroundColor="Transparent" 
-                    Text="Observaciones"
-                    FontSize="12"
-                    FontAttributes="Bold"
-                    HorizontalTextAlignment="Center"
-                    Padding="3" IsVisible="False"/>
-                        </uranium:ExpanderView.Header><StackLayout>
-                        <material:EditorField x:Name="fieldNote" Title="Observac." Text="{Binding Note2, Mode=TwoWay}" 
-                                IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={x:Reference RootPage}}"/>
-                        <material:EditorField x:Name="fieldNote" Title="Observac." Text="{Binding Note2, Mode=TwoWay}" 
-        IsEnabled="{Binding LockEdition, Converter={StaticResource InverseBoolConverter}, Source={x:Reference RootPage}}"/>
-                        </StackLayout>
-                    </uranium:ExpanderView>-->
+                                Spacing="10">                    
                     <VerticalStackLayout Spacing="2" WidthRequest="250">
                         <Label Text="Observac." 
                FontSize="12" 

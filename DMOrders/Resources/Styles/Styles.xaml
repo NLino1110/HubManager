@@ -416,5 +416,35 @@
 
     </Style>
 
-    
+    <Style x:Key="CollectionItemSelectableGrid" TargetType="Grid">
+
+        <Setter Property="BackgroundColor"
+        Value="Transparent"/>
+
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+
+                <VisualStateGroup Name="CommonStates">
+
+                    <VisualState Name="Normal">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor"
+                            Value="Transparent"/>
+                        </VisualState.Setters>
+                    </VisualState>
+
+                    <VisualState Name="Selected">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="#FFE0B2"/>
+                        </VisualState.Setters>
+                    </VisualState>
+
+                </VisualStateGroup>
+
+            </VisualStateGroupList>
+        </Setter>
+
+    </Style>
+
+
 </ResourceDictionary>

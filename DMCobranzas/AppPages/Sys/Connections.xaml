@@ -193,14 +193,13 @@
                 Icon="{FontImageSource FontFamily=FontAwesome5Solid, Glyph='&#xf7d9;'}" />-->
 
             <controlsUI:TitledEntryLight x:Name="lblDbPath" Title="Path" Grid.Row="0" Grid.Column="0"></controlsUI:TitledEntryLight>
-           
 
             <Button Text="Rehacer configuración" 
-        Padding="10,0,10,0" 
-        Clicked="btnRebuildSettings_Clicked" 
-        BackgroundColor="BlueViolet"
-        TextColor="White"
-        IsVisible="True">
+                Padding="5" 
+                Clicked="btnRebuildSettings_Clicked" 
+                BackgroundColor="BlueViolet"
+                TextColor="White"
+                IsVisible="True">
                 <Button.ImageSource>
                     <FontImageSource FontFamily="FontAwesome5Solid"
             Color="White"
@@ -215,11 +214,11 @@
     </ContentPage>
     <ContentPage Title="Base de datos">
         <Grid RowDefinitions="Auto,Auto,*">
-            <HorizontalStackLayout Grid.Row="0" Padding="5">
+            <HorizontalStackLayout Grid.Row="0" Padding="10" VerticalOptions="Center">
                 <Picker x:Name="pickerDb" Grid.Row="1"
-                        Title="Base de datos..."
-                        ItemsSource="{Binding ConnectionsItems}" 
-                        ItemDisplayBinding="{Binding DbNameSqlite}"
+                        Title="Seleccione Base de datos..."
+                        ItemsSource="{Binding dbStructItems}" 
+                        ItemDisplayBinding="{Binding Name}"
                         SelectedIndexChanged="DbPicker_SelectedIndexChanged"/>
             </HorizontalStackLayout>
             <HorizontalStackLayout Grid.Row="1" Spacing="5">

@@ -25,6 +25,26 @@ public partial class Connections : TabbedPage
 
     UserAccessDb userdb { get; set; }
 
+    DatabaseStruct selectedDatabase { get; set; }
+
+    public ObservableCollection<DatabaseStruct> _dbStructItems { get; set; }
+    public ObservableCollection<DatabaseStruct> dbStructItems
+    {
+        get => _dbStructItems;
+        set
+        {
+            _dbStructItems = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public class DatabaseStruct
+    {
+        public string Name { get; set; }
+        public int Size { get; set; }
+        public string Path { get; set; }
+    }
+
     private async void LoadTables()
     {
         if(userdb == null)
@@ -146,6 +166,27 @@ public partial class Connections : TabbedPage
     {
         var items = await _database.GetItemsAsync();
         ConnectionsItems = new ObservableCollection<OdooConnection>(items);
+
+        dbStructItems = new ObservableCollection<DatabaseStruct>();
+
+        foreach (var item in items)
+        {
+            dbStructItems.Add(
+                new DatabaseStruct
+                {
+                    Name = item.DbNameSqlite,
+                    Size = 0,
+                    Path = item.DbNameSqlite
+                });
+
+            dbStructItems.Add(
+                new DatabaseStruct
+                {
+                    Name = item.DbNameSqlite + "_static",
+                    Size = 0,
+                    Path = item.DbNameSqlite + "_static"
+                });
+        }
     }
 
     private void NewConnection()
@@ -256,7 +297,6 @@ public partial class Connections : TabbedPage
         await userAccessDb.DeleteAllAsync(x => x.uid > 0);
     }
 
-
     private async void btnClose_Clicked(object sender, EventArgs e)
     {
         await Navigation.PopModalAsync();
@@ -277,8 +317,7 @@ public partial class Connections : TabbedPage
     }
 
     private async void btnUploadDB_Clicked(object sender, EventArgs e)
-    {
-        //bool readyForContinue = false;
+    {        
         var resultPopup = await this.ShowPopupAsync<PasswordPromptResult>(new PasswordPrompt("Ingrese el pin correcto"));
 
         if (resultPopup?.Result?.IsAccepted == true)
@@ -288,39 +327,75 @@ public partial class Connections : TabbedPage
                 await Toast.Make("Pin incorrecto, no se subirá la base de datos").Show();                
                 return;
             }
-            //else
-            //{
-            //    readyForContinue = true;
-            //}
         }
         else
         {
             return;
         }
 
-        if (pickerDb == null || pickerDb.SelectedItem == null)
-            return;
+        if (selectedDatabase == null)
+            return;        
 
-        var selectedConnection = (OdooConnection)pickerDb.SelectedItem;
-
-        string dbNameSqlite = selectedConnection.DbNameSqlite;
+        string dbNameSqlite = selectedDatabase.Name;
 
         await Toast.Make($"Se empezará a subir {dbNameSqlite} a la nube, espere un momento").Show();
 
-        //userdb = new UserAccessDb(selectedConnection.DbNameSqlite);
-
         Pipeline pipeline = new Pipeline();
 
-        bool successUpload = await pipeline.UploadToFileNoAttach(dbNameSqlite, dbNameSqlite);
+        (var attachData, bool successUpload) = await pipeline.UploadSqliteZipNonAttach(dbNameSqlite);
 
         if (successUpload)
         {
             await Toast.Make($"Enviado correctamente {dbNameSqlite}").Show();
         }
+        else
+        {
+            await Toast.Make($"ERROR: No se envió correctamente {dbNameSqlite}").Show();
+        }
+    }
+
+    private bool MatchPackageWithSelection(string packageName)
+    {
+        var selectedConnection = (DatabaseStruct)pickerDb.SelectedItem;
+        string dbNameSqlite = selectedConnection.Name;
+
+        var parts = packageName.Split('_');
+        var app_id = parts[0];
+        var nameParts = parts.Skip(3).Take(parts.Length - 4);
+        string originalName = string.Join("_", nameParts);
+
+        if (originalName == dbNameSqlite && app_id == App.Session.AppCodeOdoo)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private async void btnDownloadDb_Clicked(object sender, EventArgs e)
     {
+        string packageName = await DisplayPromptAsync(
+            "Restauración de datos",
+            "Ingrese Nombre del paquete que desea restaurar:",
+            "OK",
+            "Cancelar",
+            placeholder: "ej. 01_app_package_prod1_macronegocios_20260609185423",
+            maxLength: 50,
+            keyboard: Keyboard.Text
+        );
+
+        if (String.IsNullOrEmpty(packageName))
+        {
+            await Toast.Make($"Nombre de paquete nulo o vacío").Show();
+            return;
+        }
+
+        if (!MatchPackageWithSelection(packageName))
+        {
+            await Toast.Make($"Nombre del paquete no coincide con la base de datos seleccionada").Show();
+            return;
+        }
+
         var resultPopup = await this.ShowPopupAsync<PasswordPromptResult>(new PasswordPrompt("Ingrese el pin correcto"));
 
         if (resultPopup?.Result?.IsAccepted == true)
@@ -336,38 +411,21 @@ public partial class Connections : TabbedPage
             return;
         }
 
+        await Toast.Make($"Inciada restauración de base de datos {packageName}").Show();
+
         Pipeline pipeline = new Pipeline();
 
-        bool packageReady = await pipeline.ExistAttachRecord();
-        bool isValidData = await pipeline.IsValidData();
-
-        if (!packageReady && !isValidData)
+        await SqliteDbBase<object>.CloseDatabaseAsync();        
+        if (await pipeline.DownloadSqliteZipByPackage(packageName, true, null))
         {
-            var packFound = await pipeline.NewestZipPack();
 
-            if (packFound != null)
-            {
-                await SqliteDbBase<object>.CloseDatabaseAsync();
-                
-                if (await pipeline.DownloadSqliteZip(
-                    packFound,
-                    true,
-                    async (current, total) => { await UpdateProgressState(null, current, total, "Archivos"); }))
-                {
-                    await pipeline.InsertAttachRecord(packFound);
-                    await pipeline.ResetUserData();
-                }
-                else
-                {
-                    await Toast.Make("Hubo un error al descargar/descomprimir archivo.").Show();
-                }
-
-                await Toast.Make("Actualización rápida terminada").Show();
-
-                var databaseUserAccess = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
-                await databaseUserAccess.FixMissingCurrentUser();
-            }
         }
+        else
+        {
+            await Toast.Make("Hubo un error al descargar/descomprimir archivo.").Show();
+        }
+
+        await Toast.Make($"Restauración de base de datos terminada {packageName}").Show();
     }
 
     private async Task UpdateProgressState(ProgressBarPage progressBarPage, int current, int total, string title)
@@ -388,7 +446,7 @@ public partial class Connections : TabbedPage
 
     private async void btnRebuildSettings_Clicked(object sender, EventArgs e)
     {
-        bool result = await DisplayAlert("Rehacer configuración", "¿Desea continuar?", "Sí", "No");
+        bool result = await DisplayAlertAsync("Rehacer configuración", "¿Desea continuar?", "Sí", "No");
         if (!result)
         {
             return;
@@ -422,7 +480,7 @@ public partial class Connections : TabbedPage
 
     private async void btnDBTask_Reload(object sender, EventArgs e)
     {        
-        LoadTables();        
+        LoadTables();
     }    
 
     private async void DbPicker_SelectedIndexChanged(object sender, EventArgs e)
@@ -433,8 +491,9 @@ public partial class Connections : TabbedPage
         if (control == null || control.SelectedItem == null)
             return;
         
-        var selectedConnection = (OdooConnection) control.SelectedItem;
-        userdb = new UserAccessDb(selectedConnection.DbNameSqlite);
+        var selectedConnection = (DatabaseStruct) control.SelectedItem;
+        selectedDatabase = selectedConnection;
+        userdb = new UserAccessDb(selectedConnection.Name);
         LoadTables();
     }
 }

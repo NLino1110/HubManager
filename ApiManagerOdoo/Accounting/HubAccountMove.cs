@@ -31,6 +31,7 @@ namespace ApiManagerOdoo.Accounting
             "ref",
             "refund_invoice_ids",
             "docnum_mask",
+            "partner_sale_id",
             "create_date",
             "write_date",
             //"printer_id"
@@ -90,6 +91,21 @@ namespace ApiManagerOdoo.Accounting
                 new object[] { "state", "=", "posted" },
                 new object[] { "move_type", "=", "out_invoice" },
                 new object[] { "invoice_date", "!=", false },
+            };
+            return await SearchRead<ApiResponseOdooRpcT<account_move[]>>(args, _custom_args, kwargs, true);
+        }
+
+        public async Task<ApiResponseOdooRpcT<account_move[]>?> GetAccountMove(int[] ids)
+        {
+            var kwargs = new
+            {                
+                fields = fields_array,
+                order = "write_date asc"
+            };
+
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {                
+                new object[] { "id", "in", ids }
             };
             return await SearchRead<ApiResponseOdooRpcT<account_move[]>>(args, _custom_args, kwargs, true);
         }

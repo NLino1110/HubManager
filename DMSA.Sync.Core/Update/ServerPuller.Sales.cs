@@ -106,6 +106,9 @@ namespace DMSA.Sync.Core.Update
             var hubmanager = new HubProductPricelistItem(Constants.Session);            
             var databaseItems = new ProductPricelistItemDb(DbNameSqlite);
             DateTime? lastDate = await databaseItems.GetLastWriteDateAsync(sync_date_since_lower);
+            
+            lastDate = lastDate.HasValue ? lastDate.Value.AddDays(-15) : (DateTime?)null;
+
             var database = new ProductPricelistDb(DbNameSqlite);
 
             var activePriceLists = await database.GetItemsAsync(x=>x.active == true && x.use_mobile_app == true);

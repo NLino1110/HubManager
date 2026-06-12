@@ -147,8 +147,10 @@ public partial class Login : ContentPage
                 await Toast.Make("Datos base correctos.").Show();
             }
 
+            ddAgency.ItemsSource = null;
+
             CompanyDb companyDb = new CompanyDb(App.Session.odooConnection.DbNameSqlite);
-            SelCompany = (await companyDb.GetItemsAsync()).Where(x => x.id == SelConnection.CompanyId).FirstOrDefault();
+            SelCompany = (await companyDb.GetItemsAsync()).Where(x => x.id == SelConnection.CompanyId).FirstOrDefault();            
 
             if (SelCompany == null)
             {

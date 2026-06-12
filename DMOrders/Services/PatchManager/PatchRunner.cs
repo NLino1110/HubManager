@@ -78,6 +78,7 @@ namespace DMOrders.Services.PatchManager
             //await UITools.HideLoadingPopup();
 
             await PatchExecuter_Custom(ConnectionItem, "reset_res_partner_04062026");
+            //await PatchExecuter_Custom(ConnectionItem, "fix_duplicates_pricelist_11062026");
         }
 
         private void ResetFullPatches()
@@ -217,7 +218,11 @@ namespace DMOrders.Services.PatchManager
             {
                 ExecuteTask executeTask = new ExecuteTask();
 
-                await executeTask.ResetResPartners();
+                if(name.Contains("reset_res_partner"))
+                    await executeTask.ResetResPartners();
+
+                //if (name.Contains("fix_duplicates_pricelist"))
+                //    await executeTask.FixDuplicatesPriceList();
 
                 Preferences.Set(patch_name, true);
                 Debug.WriteLine(patch_name + " ==== aplicado");

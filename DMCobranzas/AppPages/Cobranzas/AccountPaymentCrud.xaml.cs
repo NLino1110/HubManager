@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui.Alerts;
+﻿using ApiManagerOdoo.Accounting;
+using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Extensions;
 using DMCobranzas.Settings.helpers;
 using DMSA.Models.Odoo.Abstract;
@@ -836,16 +837,32 @@ public partial class AccountPaymentCrud : ContentPage
             txtMonto.IsEnabled = false;
         }
     
-        UserDb resUserDb = new UserDb(App.Session.odooConnection.DbNameSqlite);
-        var res_User = await resUserDb.GetItemsAsync(x=> x._company_id == App.Session.res_Company.id);        
-        var userMap = res_User.ToDictionary(x => x.id, x => x.complete_name.ToUpper());
+        //UserDb resUserDb = new UserDb(App.Session.odooConnection.DbNameSqlite);
+        //var res_User = await resUserDb.GetItemsAsync(x=> x._company_id == App.Session.res_Company.id);        
+        //var userMap = res_User.ToDictionary(x => x.id, x => x.complete_name.ToUpper());
+
+        ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
+        var res_Partner = await resPartnerDb.GetItemsAsync(x => x.is_salesman);
+        var partnerMap = res_Partner.ToDictionary(x => x.id, x => x.name);
+
+        var hubAccountMove = new HubAccountMove(App.Session);
 
         foreach (var accountMoveItem in accMovesByCustomer)
         {
             if (!paymentTermMap.TryGetValue(accountMoveItem.id, out var itemPaymentTerm))
                 continue;
+            
+            if(accountMoveItem._partner_sale_id == 0)
+            {
+                var responseAll = await hubAccountMove.GetAccountMove(new int[] { accountMoveItem.id });
+                if (responseAll.result != null && responseAll.result.Length > 0)
+                {
+                    accountMoveItem._partner_sale_id = responseAll.result[0]._partner_sale_id;
+                    await accountMoveDb.UpdateAsync(accountMoveItem);
+                }
+            }
 
-            var SellerName = userMap.ContainsKey(accountMoveItem._invoice_user_id) ? userMap[accountMoveItem._invoice_user_id] : "";
+            var SellerName = partnerMap.ContainsKey(accountMoveItem._partner_sale_id) ? partnerMap[accountMoveItem._partner_sale_id] : "";
 
             MultipleCobrosInvoiceLineAi cobrosInvoiceLineAiAux = new()
             {

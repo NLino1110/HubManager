@@ -72,7 +72,7 @@ namespace DMSA.Sync.Core.Update
 
             try
             {
-                await OnlineSyncCompany(false);                
+                await OnlineSyncCompany(false);
                 await OnlineSyncResCenter(false);
                 await OnlineSyncStockWarehouse(false);
                 //await MotivoActividadDiaria(true);

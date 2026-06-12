@@ -77,6 +77,12 @@ namespace DMOrders.Services.PatchManager.Reset
             await patchableDb.DropTableAsync();
         }
 
+        public async Task FixDuplicatesPriceList()
+        {
+            var patchableDb = new ProductPricelistItemDb(App.Session.odooConnection.DbNameSqlite);
+            await patchableDb.FixDuplicates();
+        }
+
         public async Task Vaccum()
         {
             var productsDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
