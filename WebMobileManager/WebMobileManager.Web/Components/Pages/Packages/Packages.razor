@@ -1,0 +1,70 @@
+﻿@page "/packages"
+@using WebMobileManager.Web.Services.Interfaces
+@inject IPackageService packageService
+
+<MudText Typo="Typo.h5">Paquetes</MudText>
+
+<MudDataGrid T="PackageViewDto"
+             ServerData="LoadServerData"
+             Hover="true"
+             Dense="true">
+
+    <Columns>
+
+        <PropertyColumn Property="x => x.Name" Title="Nombre" />
+        <PropertyColumn Property="x => x.database_name" Title="Base de datos" />
+        <PropertyColumn Property="x => x.file_name" Title="Archivo" />
+
+        <TemplateColumn Title="Archivos">
+            <CellTemplate>
+                @if (context.Item.Files != null && context.Item.Files.Any())
+                {
+                    <MudStack Row Wrap="Wrap.Wrap" Spacing="1">
+                        @foreach (var file in context.Item.Files)
+                        {
+                            <MudChip Color="@(file.success_upload ? Color.Success : Color.Error)"
+                                     Size="Size.Small">
+                                @file.file_name
+                            </MudChip>
+                        }
+                    </MudStack>
+                }
+                else
+                {
+                    <MudText Typo="Typo.caption">Sin archivos</MudText>
+                }
+            </CellTemplate>
+        </TemplateColumn>
+
+        <TemplateColumn Title="Estado">
+            <CellTemplate>
+                <MudChip Color="@(context.Item.success_upload ? Color.Success : Color.Warning)">
+                    @(context.Item.processing_state ?? "Pendiente")
+                </MudChip>
+            </CellTemplate>
+        </TemplateColumn>
+
+        <PropertyColumn Property="x => x.created_at" Title="Fecha" />
+
+    </Columns>
+
+</MudDataGrid>
+
+@code
+{
+    private async Task<GridData<PackageViewDto>> LoadServerData(
+    GridState<PackageViewDto> state,
+    CancellationToken cancellationToken)
+    {
+        int page = state.Page + 1;
+        int pageSize = state.PageSize;
+
+        var result = await packageService.GetPackages(page, pageSize);
+
+        return new GridData<PackageViewDto>
+        {
+            Items = result.Item1,
+            TotalItems = result.Item2
+        };
+    }
+}
