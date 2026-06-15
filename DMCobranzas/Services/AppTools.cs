@@ -1,19 +1,31 @@
-﻿using DMSA.Sync.Core.Database.Sqlite;
+﻿using DMSA.Models.Security;
+using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Services;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DMCobranzas.Services
 {
     static public class AppTools
     {
-        static public void BuildPushRelay()
+        static async public Task GlobalSettingInit(AppSession session)
+        {
+            try
+            {
+                var globalSettingsDb = new GlobalSettingsDb();
+                await globalSettingsDb.InitDefault();
+                session.globalSettings = (await globalSettingsDb.GetItemsAsync(x => x.Id > 0)).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error GlobalSettingInit: {ex.Message}");
+            }
+        }
+
+        static public void BuildPushRelay(AppSession session)
         {
             if (App.PushRelayGlobal != null)
                 return;
 
-            App.PushRelayGlobal = new PushRelay("https://manager.dmujeres.ec:5001/chatHub", AppTools.GetDeviceId());
+            App.PushRelayGlobal = new PushRelay(session.globalSettings.PushServer, AppTools.GetDeviceId());
             App.PushRelayGlobal.Name = "---";
             App.PushRelayGlobal.Message = "ConnectCommand";
         }

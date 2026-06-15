@@ -3,15 +3,18 @@ using CommunityToolkit.Maui.Extensions;
 using DMCobranzas.Controls;
 using DMCobranzas.Controls.Tools;
 using DMSA.Models.Odoo.Abstract;
+using DMSA.Models.Odoo.Abstract.Server.Dto;
 using DMSA.Models.Odoo.Tools;
 using DMSA.Sync.Core.Controls.Popups;
 using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Reponses;
-using DMSA.Sync.Core.Update.Cloud;
+//using DMSA.Sync.Core.Update.Cloud.v1_5;
+using DMSA.Sync.Core.Update.Cloud.v2_0;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Windows.Input;
+using static ApiManager.HubMnsaAttachment;
 
 namespace DMCobranzas.AppPages.Sys;
 
@@ -340,18 +343,36 @@ public partial class Connections : TabbedPage
 
         await Toast.Make($"Se empezará a subir {dbNameSqlite} a la nube, espere un momento").Show();
 
-        Pipeline pipeline = new Pipeline();
+        //V1_5
+        //var pipeline = new Pipeline();
+        //(var attachData, bool successUpload, responseUpload file_upload_response) = await pipeline.UploadSqliteZipNonAttach(dbNameSqlite);
 
-        (var attachData, bool successUpload) = await pipeline.UploadSqliteZipNonAttach(dbNameSqlite);
+        //string message_server = "";
+        //if (file_upload_response != null)
+        //    message_server = file_upload_response.message;
 
-        if (successUpload)
+        //if (successUpload)
+        //{
+        //    await Toast.Make($"Enviado correctamente {dbNameSqlite} - {message_server}").Show();
+        //}
+        //else
+        //{            
+        //    await Toast.Make($"ERROR: No se envió correctamente {dbNameSqlite} - {message_server}").Show();
+        //}
+
+        var pipeline = new Pipeline();
+
+        (PackageResponseDto file_upload_response, bool successUpload) = await pipeline.UploadSqliteZip(dbNameSqlite, null);
+
+        if (file_upload_response.success_upload)
         {
             await Toast.Make($"Enviado correctamente {dbNameSqlite}").Show();
         }
         else
         {
-            await Toast.Make($"ERROR: No se envió correctamente {dbNameSqlite}").Show();
+            await Toast.Make($"ERROR: No se envió correctamente {dbNameSqlite} - {file_upload_response.error}").Show();
         }
+
     }
 
     private bool MatchPackageWithSelection(string packageName)
@@ -413,19 +434,20 @@ public partial class Connections : TabbedPage
 
         await Toast.Make($"Inciada restauración de base de datos {packageName}").Show();
 
-        Pipeline pipeline = new Pipeline();
+        //V1_5
+        //var pipeline = new Pipeline();
 
-        await SqliteDbBase<object>.CloseDatabaseAsync();        
-        if (await pipeline.DownloadSqliteZipByPackage(packageName, true, null))
-        {
+        //await SqliteDbBase<object>.CloseDatabaseAsync();        
+        //if (await pipeline.DownloadSqliteZipByPackage(packageName, true, null))
+        //{
 
-        }
-        else
-        {
-            await Toast.Make("Hubo un error al descargar/descomprimir archivo.").Show();
-        }
+        //}
+        //else
+        //{
+        //    await Toast.Make("Hubo un error al descargar/descomprimir archivo.").Show();
+        //}
 
-        await Toast.Make($"Restauración de base de datos terminada {packageName}").Show();
+        //await Toast.Make($"Restauración de base de datos terminada {packageName}").Show();
     }
 
     private async Task UpdateProgressState(ProgressBarPage progressBarPage, int current, int total, string title)

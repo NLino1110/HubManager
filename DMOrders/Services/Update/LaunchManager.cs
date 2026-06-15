@@ -41,7 +41,7 @@ namespace DMOrders.Services.Update
                 await Toast.Make("Iniciando actualización...", ToastDuration.Short, 14)
                     .Show(cancellationTokenSource.Token);
 
-                Pipeline pipeline = new Pipeline();
+                var pipeline = new Pipeline();
 
                 //////bool packageReady = await pipeline.ExistAttachRecord();
 
@@ -219,7 +219,7 @@ namespace DMOrders.Services.Update
 
         private async Task HandleUploadPipeline(string DbName)
         {
-            Pipeline pipeline = new Pipeline();
+            var pipeline = new Pipeline();
 
             bool requiredNewUpload = await pipeline.RequiredNewUploadCustom(DbName);
 

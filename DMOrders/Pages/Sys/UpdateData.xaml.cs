@@ -283,7 +283,7 @@ public partial class UpdateData : ContentPage
 
         progressBarPage.SetTitle("Actualización en línea...");
 
-        Pipeline pipeline = new Pipeline();        
+        var pipeline = new Pipeline();        
         progressBarPage.SetTitle("Descargando paquete...");
         
         //await pipeline.DownloadFromFileMode2(App.Session.odooConnection.DbNameSqliteStatic, null, App.Session.odooConnection.DbNameSqlite);
@@ -365,7 +365,7 @@ public partial class UpdateData : ContentPage
 
         progressBarPage.SetTitle("Actualización en línea...");
 
-        Pipeline pipeline = new Pipeline();
+        var pipeline = new Pipeline();
         //var productProductPreview = new ProductProductPreviewDb(App.Session.odooConnection.DbNameSqliteStatic);
         //double sizeDB = productProductPreview.GetDatabaseSizeMB();
         double sizeDB = getSizeLocalResource(App.Session.odooConnection.DbNameSqliteStatic);
@@ -485,7 +485,7 @@ public partial class UpdateData : ContentPage
 
     private async void btnUploadPipeline_Clicked(object sender, EventArgs e)
     {
-        Pipeline pipeline = new Pipeline();
+        var pipeline = new Pipeline();
         await pipeline.UploadSqliteZip();
     }
 

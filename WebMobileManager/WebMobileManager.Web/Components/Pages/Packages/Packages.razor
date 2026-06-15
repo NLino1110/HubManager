@@ -1,14 +1,25 @@
 ﻿@page "/packages"
 @using WebMobileManager.Web.Services.Interfaces
 @inject IPackageService packageService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
 <MudText Typo="Typo.h5">Paquetes</MudText>
 
-<MudDataGrid T="PackageViewDto"
-             ServerData="LoadServerData"
-             Hover="true"
-             Dense="true">
+<MudStack Row Spacing="2" Class="mb-4">
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Refresh"
+               OnClick="ReloadGrid">
+        Refrescar
+    </MudButton>
+</MudStack>
 
+    <MudDataGrid @ref="grid"
+             T="PackageViewDto"
+                 ServerData="LoadServerData"
+                 Hover="true"
+                 Dense="true">
     <Columns>
 
         <PropertyColumn Property="x => x.Name" Title="Nombre" />
@@ -45,13 +56,21 @@
         </TemplateColumn>
 
         <PropertyColumn Property="x => x.created_at" Title="Fecha" />
-
+        <TemplateColumn Title="Acciones">
+            <CellTemplate>
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Color="Color.Error"
+                               OnClick="@(() => Delete(context.Item.Id))" />
+            </CellTemplate>
+        </TemplateColumn>
     </Columns>
 
 </MudDataGrid>
 
 @code
 {
+    private MudDataGrid<PackageViewDto> grid;
+
     private async Task<GridData<PackageViewDto>> LoadServerData(
     GridState<PackageViewDto> state,
     CancellationToken cancellationToken)
@@ -66,5 +85,28 @@
             Items = result.Item1,
             TotalItems = result.Item2
         };
+    }
+
+    private async Task Delete(int id)
+    {
+        bool? confirm = await DialogService.ShowMessageBoxAsync(
+            "Confirmar",
+            "¿Eliminar este paquete?",
+            yesText: "Sí",
+            cancelText: "Cancelar");
+
+        if (confirm == true)
+        {
+            await packageService.DeletePackage(id);
+
+            Snackbar.Add("Paquete eliminado", Severity.Success);
+
+            await ReloadGrid();
+        }
+    }
+
+    private async Task ReloadGrid()
+    {
+        await grid.ReloadServerData();
     }
 }

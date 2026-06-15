@@ -19,6 +19,7 @@
     <Compile Remove="HubSaleOrder.cs" />
     <Compile Remove="HubTarjetas.cs" />
     <Compile Remove="HubTiposNc.cs" />
+    <Compile Remove="Specials\back\HubPackageClient.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,6 +29,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DMSA.Models.Odoo\DMSA.Models.Odoo.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Specials\back\" />
   </ItemGroup>
 
 </Project>

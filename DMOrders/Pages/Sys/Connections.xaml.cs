@@ -7,11 +7,12 @@ using DMSA.Models.Odoo.Tools;
 using DMSA.Sync.Core.Controls.Popups;
 using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Reponses;
-using DMSA.Sync.Core.Update.Cloud;
+using DMSA.Sync.Core.Update.Cloud.v1_5;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Windows.Input;
+using static ApiManager.HubMnsaAttachment;
 
 namespace DMOrders.Pages.Sys;
 
@@ -333,7 +334,7 @@ public partial class Connections : TabbedPage
             {
                 await Toast.Make("Pin incorrecto, no se subirá la base de datos").Show();
                 return;
-            }            
+            }
         }
         else
         {
@@ -349,14 +350,22 @@ public partial class Connections : TabbedPage
 
         //userdb = new UserAccessDb(selectedConnection.DbNameSqlite);
 
-        Pipeline pipeline = new Pipeline();
+        var pipeline = new Pipeline();
 
         //bool successUpload = await pipeline.UploadToFileNoAttach(dbNameSqlite, dbNameSqlite);
-        (var attachData, bool successUpload) = await pipeline.UploadSqliteZipNonAttach(dbNameSqlite);
+        (var attachData, bool successUpload, responseUpload file_upload_response) = await pipeline.UploadSqliteZipNonAttach(dbNameSqlite);
+
+        string message_server = "";
+        if (file_upload_response != null)
+            message_server = file_upload_response.message;
 
         if (successUpload)
         {
-            await Toast.Make($"Enviado correctamente {dbNameSqlite}").Show();
+            await Toast.Make($"Enviado correctamente {dbNameSqlite} - {message_server}").Show();
+        }
+        else
+        {            
+            await Toast.Make($"ERROR: No se envió correctamente {dbNameSqlite} - {message_server}").Show();
         }
     }
 
@@ -425,7 +434,7 @@ public partial class Connections : TabbedPage
 
         await Toast.Make($"Inciada restauración de base de datos {packageName}").Show();
 
-        Pipeline pipeline = new Pipeline();
+        var pipeline = new Pipeline();
                 
         await SqliteDbBase<object>.CloseDatabaseAsync();
         //string packageName = "02_app_package_prod1_macronegocios_20260609185423";

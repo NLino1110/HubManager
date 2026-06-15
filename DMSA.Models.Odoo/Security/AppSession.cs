@@ -13,6 +13,7 @@ namespace DMSA.Models.Security
 {
     public class AppSession
     {
+        public GlobalSettings globalSettings { get; set; }
         public OdooConnection odooConnection { get; set; }        
         public string SqliteCoreDbName { get; set; }
 

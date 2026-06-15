@@ -3,12 +3,13 @@ using DMSA.Models.Odoo.Specials;
 using DMSA.Models.Security;
 using System.Diagnostics;
 using System.IO.Compression;
+using static ApiManager.HubMnsaAttachment;
 
 namespace DMSA.Sync.Core.Update.Cloud
 {
     public partial class Pipeline    
     {
-        public async Task<(string, bool)> UploadSqliteZipNonAttach(string dbNameSqlite)
+        public async Task<(string, bool, responseUpload)> UploadSqliteZipNonAttach(string dbNameSqlite)
         {
             string dbPath = Path.Combine(
                 FileSystem.AppDataDirectory,
@@ -17,6 +18,8 @@ namespace DMSA.Sync.Core.Update.Cloud
 
             string zipPath = string.Empty;
             string final_url = string.Empty;
+            responseUpload file_upload_response = null;
+
             try
             {
                 Debug.WriteLine($"Comprimiendo base de datos: {dbPath}");
@@ -44,14 +47,20 @@ namespace DMSA.Sync.Core.Update.Cloud
                 {
                     string partName = $"{packageId}_{dbNameSqlite}_part_{(i + 1):D6}.zip";
 
-                    var file_upload_response = await hub.SendToExternalServer(parts[i], partName, package_name);                    
+                    file_upload_response = await hub.SendToExternalServer(parts[i], partName, package_name);                    
                     if (file_upload_response == null || file_upload_response.url == String.Empty)
-                        return (final_url, false);
-                    
+                        return (final_url, false, file_upload_response);
+
+                    //if(file_upload_response.status_code != 200)
+                    //{
+                    //    Debug.WriteLine($"Upload error: {file_upload_response.message}");
+                    //    return (final_url, false);
+                    //}
+
                     final_url = file_upload_response.url;
                 }
 
-                return (final_url, true);
+                return (final_url, true, file_upload_response);
             }
             finally
             {

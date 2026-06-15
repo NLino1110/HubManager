@@ -257,10 +257,89 @@ namespace ApiManager
         public class responseUpload
         {
             public string url { get; set; }
+            public int status_code { get; set; }
+            public string message { get; set; }
         }
 
         public async Task<responseUpload?> SendToExternalServer(byte[] fileBytes, string filename, string package_name)
         {
+            var responseUploadData = new responseUpload();
+
+            try
+            {
+                var handler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+                };
+
+                using var httpClient = new HttpClient(handler)
+                {
+                    //Timeout = TimeSpan.FromSeconds(60)
+                    Timeout = TimeSpan.FromMinutes(5)
+                };
+
+                httpClient.DefaultRequestHeaders.Add("X-API-KEY", _appSession.odooConnection.HostDumpApiKey);
+
+                using var content = new MultipartFormDataContent();
+
+                var fileContent = new ByteArrayContent(fileBytes);
+                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/zip");
+
+                content.Add(fileContent, "file", $"{filename}.zip");
+                content.Add(new StringContent(filename), "fileName");
+                content.Add(new StringContent(package_name), "packageName");
+
+                var url = $"{_appSession.odooConnection.HostDump}/api/upload/zip";
+
+                var response = await httpClient.PostAsync(url, content);
+
+                var responseBody = await response.Content.ReadAsStringAsync();
+
+                responseUploadData.status_code = (int)response.StatusCode;
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    responseUploadData.message = $"HTTP ERROR {(int)response.StatusCode}: {responseBody}";
+                    return responseUploadData;
+                }
+
+                var data = JsonConvert.DeserializeObject<responseUpload>(responseBody);
+
+                if (data != null)
+                {
+                    data.status_code = (int)response.StatusCode;
+                    data.message = "Upload successful";
+                }
+
+                return data;
+            }
+            catch (TaskCanceledException)
+            {
+                // Timeout
+                responseUploadData.status_code = 408; // Request Timeout
+                responseUploadData.message = "Request timeout";
+                return responseUploadData;
+            }
+            catch (HttpRequestException ex)
+            {
+                // Problemas de red
+                responseUploadData.status_code = 503; // Service Unavailable
+                responseUploadData.message = $"Network error: {ex.Message}";
+                return responseUploadData;
+            }
+            catch (Exception ex)
+            {
+                // Error inesperado
+                responseUploadData.status_code = 520; // Unknown Error (custom)
+                responseUploadData.message = $"Unexpected error: {ex.Message}";
+                return responseUploadData;
+            }
+        }
+
+        public async Task<responseUpload?> old_SendToExternalServer(byte[] fileBytes, string filename, string package_name)
+        {
+            responseUpload responseUploadData = new responseUpload();
+
             try
             {
                 var handler = new HttpClientHandler
@@ -292,27 +371,36 @@ namespace ApiManager
                 {
                     var error = await response.Content.ReadAsStringAsync();
                     Debug.WriteLine($"Upload error: {error}");
-                    return null; // ❗ NO lanzar excepción
+                    return null; //NO lanzar excepción
                 }
 
                 var json = await response.Content.ReadAsStringAsync();
 
+                responseUploadData = JsonConvert.DeserializeObject<responseUpload>(json);
+                responseUploadData.status_code = (int)response.StatusCode;
+                responseUploadData.message = "Upload successful";
                 return JsonConvert.DeserializeObject<responseUpload>(json);
             }
             catch (HttpRequestException ex)
             {
                 Debug.WriteLine($"HTTP ERROR: {ex.Message}");
-                return null;
+                responseUploadData.status_code = 500;
+                responseUploadData.message = ex.Message;
+                return responseUploadData;
             }
             catch (TaskCanceledException ex)
             {
                 Debug.WriteLine($"TIMEOUT: {ex.Message}");
-                return null;
+                responseUploadData.status_code = 500;
+                responseUploadData.message = ex.Message;
+                return responseUploadData;
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"UNKNOWN ERROR: {ex}");
-                return null;
+                responseUploadData.status_code = 500;
+                responseUploadData.message = ex.Message;
+                return responseUploadData;
             }
         }
 

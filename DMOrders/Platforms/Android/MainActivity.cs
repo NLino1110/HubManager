@@ -4,6 +4,7 @@ using Android.OS;
 using Android.Window;
 using DMOrders.Shared;
 using ApplicationMaui = Microsoft.Maui.Controls.Application;
+using Microsoft.Maui.Controls.Handlers.Items;
 
 namespace DMOrders
 {
@@ -22,8 +23,15 @@ namespace DMOrders
 
         protected override void OnCreate(Bundle saveInstanceState)
         {
-            base.OnCreate(saveInstanceState);            
+            base.OnCreate(saveInstanceState);
 
+            //Window.ClearFlags(Android.Views.WindowManagerFlags.Secure);
+            CollectionViewHandler.Mapper.AppendToMapping("NoOverScroll", (handler, view) =>
+            {
+#if ANDROID
+                handler.PlatformView.OverScrollMode = Android.Views.OverScrollMode.Never;
+#endif
+            });
             RequestAllPermission();
         }
 

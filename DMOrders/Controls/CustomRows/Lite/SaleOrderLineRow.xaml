@@ -126,11 +126,8 @@
             FontAttributes="Bold"
             HorizontalTextAlignment="End"/>
 
-        <!-- ================= TOOL GRID ================= -->
-        <!--<Grid Grid.Column="11" Grid.RowSpan="2">-->
             <HorizontalStackLayout Grid.Column="11" Grid.RowSpan="2" Spacing="5">
 
-                <!-- Gift -->
                 <Button                    
                     HeightRequest="35"
                     WidthRequest="35"
@@ -143,17 +140,7 @@
                     InputTransparent="{Binding is_gift, Converter={StaticResource InverseBool}}"
                     Padding="3"
                     Margin="2"/>
-
-                <!-- Edit -->
-                <!--<Button
-                    HeightRequest="35"
-                    WidthRequest="35"
-                    BackgroundColor="DodgerBlue"
-                    ImageSource="{FontImage FontFamily=FontAwesome5Solid, Glyph=&#xf303;, Color=White, Size=15}"
-                    Command="{Binding EditCommand, Source={x:Reference Root}}"
-                    CommandParameter="{Binding Item, Source={x:Reference Root}}"/>-->
-
-                <!-- Delete -->
+                
                 <Button
                     HeightRequest="35"
                     WidthRequest="35"

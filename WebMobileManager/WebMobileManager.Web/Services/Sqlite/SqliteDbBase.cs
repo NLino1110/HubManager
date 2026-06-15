@@ -32,18 +32,6 @@ namespace WebMobileManager.Web.Services.Sqlite
             return Constants.DatabasePath;
         }
 
-        //protected async Task Init()
-        //{
-        //    if (Database != null)
-        //        return;
-
-        //    string DatabasePath = Path.Combine(FileSystem.AppDataDirectory, DatabaseFilename);
-
-        //    Database = SqliteConnectionManager.GetConnection(DatabasePath, Constants.Flags);
-
-        //    await Database.CreateTableAsync<T>();
-        //}       
-
         protected async Task Init()
         {
             if (_initialized)
@@ -58,9 +46,15 @@ namespace WebMobileManager.Web.Services.Sqlite
 
                 if (Database == null)
                 {
-                    //string DatabasePath = Path.Combine(FileSystem.AppDataDirectory, DatabaseFilename);
-                    //Database = new SQLiteAsyncConnection(DatabasePath);
-                    Database = SqliteConnectionManager.GetConnection(Constants.DatabasePath, Constants.Flags);
+                    var dbPath = Constants.DatabasePath;
+
+                    var dir = Path.GetDirectoryName(dbPath);
+
+                    if (!Directory.Exists(dir))
+                        Directory.CreateDirectory(dir);
+
+                    Database = SqliteConnectionManager.GetConnection(dbPath, Constants.Flags);
+
                     await Database.CreateTableAsync<T>();
                 }
 
@@ -95,13 +89,6 @@ namespace WebMobileManager.Web.Services.Sqlite
         {
             await Init();
             return await Database.Table<T>().Where(predicate).FirstOrDefaultAsync();
-        }
-
-        [Obsolete("No usar en movil")]
-        public T GetItem(Func<T, bool> predicate)
-        {
-            Init().Wait(); // inicializa la base si no está lista
-            return Database.GetConnection().Table<T>().ToList().FirstOrDefault(predicate);
         }
 
         public async Task<DateTime> GetLastWriteDateAsync(DateTime? defaultDate = null)

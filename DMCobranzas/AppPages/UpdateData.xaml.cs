@@ -270,7 +270,7 @@ public partial class UpdateData : ContentPage
             await Navigation.PopModalAsync();           
         }
 
-        Pipeline pipeline = new Pipeline();
+        var pipeline = new Pipeline();
 
         bool packageReady = await pipeline.ExistAttachRecord();
         bool isValidData = await pipeline.IsValidData();
@@ -408,7 +408,7 @@ public partial class UpdateData : ContentPage
             }
         }
 
-        Pipeline pipeline = new Pipeline();
+        var pipeline = new Pipeline();
         bool requiredNewUpload = await pipeline.RequiredNewUploadCustom(App.Session.odooConnection.DbNameSqlite);
         if (requiredNewUpload)
         {
@@ -426,7 +426,7 @@ public partial class UpdateData : ContentPage
 
     private async void btnUploadPipeline_Clicked(object sender, EventArgs e)
     {
-        Pipeline pipeline = new Pipeline();
+        var pipeline = new Pipeline();
         await pipeline.UploadSqliteZip();
     }
 

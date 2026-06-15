@@ -4,11 +4,9 @@ using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Sales.promotions.abstractCustom;
 using DMSA.Sync.Core.Database.Sqlite;
-using Microsoft.Maui.Controls.Shapes;
 using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
 
 namespace DMOrders.Pages.Fragments.Orders.modals;
 
@@ -208,10 +206,6 @@ public partial class PromocionesViewer : ContentView
                     {
                         var existing = _ItemsDataBenefits.First(x => x.Promotion?.id == benefit.Promotion.id);
 
-                        // Acumulas el qty
-                        //existing.RuleSet.qty += benefit.RuleSet.qty;
-
-                        // Si TotalTimesAllowed también debe acumularse:
                         var totalTimesFound = existing.FoundTimesApplies + 1;
                         if (totalTimesFound > existing.TotalTimesAllowed)
                         {
@@ -227,11 +221,6 @@ public partial class PromocionesViewer : ContentView
                         {
                             //existing.MaxAllowedGifts += existing.FoundTimesApplies * ruleMatch.AllowedGifts;
                         }
-
-                        //foreach (var rule in existing.RuleSet)
-                        //{
-                        //    existing.MaxAllowedGifts += rule.AllowedGifts;
-                        //}
                     }
                 }
             }
@@ -665,11 +654,6 @@ public partial class PromocionesViewer : ContentView
         var existingCodes = new HashSet<string>();
         var promotionCache = new Dictionary<string, List<PromotionEvalItem>>();
 
-        //var relevantLines = SaleOrder.order_line
-        //    .Select(x => (sale_order_line)x[2])
-        //    .Where(l => l.is_gift)
-        //    .ToList();
-
         var relevantLines = SaleOrdersLinesTmp
             .Select(x => (sale_order_line)x[2])
             .Where(l => l.is_gift)
@@ -677,7 +661,6 @@ public partial class PromocionesViewer : ContentView
 
         foreach (var itemEval in promoItems)
         {
-
             if (itemEval.Promotion._selection_type_id == 1)
             {
                 var tasks = itemEval.RuleSet.Select(async ruleEval =>
@@ -865,23 +848,23 @@ public partial class PromocionesViewer : ContentView
         }
     }
 
+    //private async void AddDiscount(object sender, EventArgs e)
+    //{
+    //    bool ShouldSaveToo = false;
+    //    Button button = (Button)sender;
+    //    var product = (PromoRuleMatch)button.BindingContext;
+    //    Debug.WriteLine(product);
+    //}
 
-    private async void AddDiscount(object sender, EventArgs e)
-    {
-        bool ShouldSaveToo = false;
-        Button button = (Button)sender;
-        var product = (PromoRuleMatch)button.BindingContext;
-        Debug.WriteLine(product);
-    }
+    //private async void SubstractDiscount(object sender, EventArgs e)
+    //{
+    //    bool ShouldSaveToo = false;
 
-    private async void SubstractDiscount(object sender, EventArgs e)
-    {
-        bool ShouldSaveToo = false;
+    //    Button button = (Button)sender;
+    //    var product = (PromoRuleMatch)button.BindingContext;
+    //    Debug.WriteLine(product);
+    //}
 
-        Button button = (Button)sender;
-        var product = (PromoRuleMatch)button.BindingContext;
-        Debug.WriteLine(product);
-    }
     private readonly SemaphoreSlim _giftLock = new(1, 1);
 
     private async Task<bool> UpdateGiftIsolated(product_product product, bool ShouldSaveToo, PromotionEvalItem benefit)
@@ -929,7 +912,7 @@ public partial class PromocionesViewer : ContentView
                 {
                     var page = Application.Current?.MainPage;
                     if (page != null)
-                        await page.DisplayAlert("Información", "Cantidad máxima alcanzada en pedido.", "OK");
+                        await page.DisplayAlertAsync("Información", "Cantidad máxima alcanzada en pedido.", "OK");
                 });
 
                 return false;
@@ -1407,7 +1390,7 @@ public partial class PromocionesViewer : ContentView
     {
         if(GlobalTotalManualGiftsApplied < GlobalTotalManualGiftsAllowed)
         {            
-            var leave = await App.Current.Windows[0].Page.DisplayAlert($"¿Desea continuar?", $"No se han aplicado todos los {GlobalTotalManualGiftsAllowed} regalos de los bonificados manuales", "Si", "No");
+            var leave = await App.Current.Windows[0].Page.DisplayAlertAsync($"¿Desea continuar?", $"No se han aplicado todos los {GlobalTotalManualGiftsAllowed} regalos de los bonificados manuales", "Si", "No");
 
             if (!leave)
             {
@@ -1426,7 +1409,7 @@ public partial class PromocionesViewer : ContentView
     {
         if (GlobalTotalManualGiftsApplied < GlobalTotalManualGiftsAllowed)
         {
-            var leave = await App.Current.Windows[0].Page.DisplayAlert($"¿Desea continuar?", $"No se han aplicado todos los {GlobalTotalManualGiftsAllowed} regalos de los bonificados manuales", "Si", "No");
+            var leave = await App.Current.Windows[0].Page.DisplayAlertAsync($"¿Desea continuar?", $"No se han aplicado todos los {GlobalTotalManualGiftsAllowed} regalos de los bonificados manuales", "Si", "No");
 
             if (!leave)
             {
@@ -1548,12 +1531,6 @@ public partial class PromocionesViewer : ContentView
                 {
                     List<PromotionEvalItem> listPromotionData = lineToDiscount.promotionDataList;
 
-                    //List<PromotionEvalItem> listPromotionData = new List<PromotionEvalItem>();
-
-                    //listPromotionData = !string.IsNullOrEmpty(lineToDiscount.promotion_data) ?
-                    //            Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItem>>(lineToDiscount.promotion_data) :
-                    //            new List<PromotionEvalItem>();
-
                     decimal originalPrice = lineToDiscount.price_unit;
                     decimal virtual_price_no_tax = lineToDiscount.virtual_price_no_tax;
 
@@ -1580,9 +1557,6 @@ public partial class PromocionesViewer : ContentView
                     }
 
                     lineToDiscount.promotion_data = JsonConvert.SerializeObject(listPromotionData);
-
-                    //await promotionEngineRunner.AddApplyPromotion(saleOrder, promoResItem, 1, saleOrderPromotions);
-
                     Debug.WriteLine($"Descuento aplicado: {discountPercentage}% al producto ID {productTemplateId}");                        
                 }
             }
@@ -1618,9 +1592,7 @@ public partial class PromocionesViewer : ContentView
         int delta = product.qty_gift_virtual - product.qty_gift;
 
         Debug.WriteLine("ChangeQtyEvent - before UpdateGiftIsolated");
-
         bool success = await UpdateGiftIsolated(product, ShouldSaveToo, selectedPromoEvalItem);
-
         Debug.WriteLine("ChangeQtyEvent - pass UpdateGiftIsolated");
 
         if (!success)

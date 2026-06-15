@@ -8,6 +8,20 @@ namespace DMOrders.Services.Update
 {
     static public class AppTools
     {
+        static public void GlobalSettingInit()
+        {
+            try
+            {
+                var globalSettings = new GlobalSettingsDb();
+                
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error GlobalSettingInit: {ex.Message}");
+               
+            }
+        }
+
         static public void BuildPushRelay()
         {
             if (App.PushRelayGlobal != null)

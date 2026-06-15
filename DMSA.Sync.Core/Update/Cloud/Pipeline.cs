@@ -1,18 +1,10 @@
 ﻿using ApiManager;
-using DMSA.Models.Odoo.General.Requests;
-using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Specials;
 using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite.DebitCollection;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
-using RestSharp;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Compression;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DMSA.Sync.Core.Update.Cloud
 {

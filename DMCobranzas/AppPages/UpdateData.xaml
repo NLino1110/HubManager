@@ -115,6 +115,24 @@
                                     Glyph="&#xf382;" />
                     </Button.ImageSource>
                 </Button>
+
+                <!--<Button Grid.Column="2"
+                        BackgroundColor="Firebrick"
+                        x:Name="BtnDownloadSync"
+                        Text="Obtener Factura"
+                        SemanticProperties.Hint="Actualizar"
+                        Clicked="UploadData"
+                        HorizontalOptions="Center"
+                        Margin="5"
+                        IsVisible="False">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FontAwesome5Solid"
+                            Color="White"
+                            Size="20"
+                            FontAutoScalingEnabled="True"
+                            Glyph="&#xf382;" />
+                    </Button.ImageSource>
+                </Button>-->
             </HorizontalStackLayout>                
         </VerticalStackLayout>
     </VerticalStackLayout>

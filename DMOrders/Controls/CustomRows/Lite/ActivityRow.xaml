@@ -31,7 +31,7 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="28" />
+                <ColumnDefinition Width="60" />
             </Grid.ColumnDefinitions>
 
             <Label x:Name="labelId"
@@ -94,11 +94,11 @@
                                VerticalOptions="Center"
                                Spacing="0"
                                Padding="0"
-                               Margin="0">
+                               Margin="0,0,0,0">
 
                 <Button x:Name="buttonEdit"
-                    HeightRequest="28"
-                    WidthRequest="28"
+                    HeightRequest="35"
+                    WidthRequest="35"
                     BackgroundColor="DodgerBlue"
                     TextColor="White"
                     FontSize="12"
@@ -117,8 +117,8 @@
                 </Button>
 
                 <Button x:Name="buttonDelete"
-                    HeightRequest="28"
-                    WidthRequest="28"
+                    HeightRequest="35"
+                    WidthRequest="35"
                     BackgroundColor="OrangeRed"
                     TextColor="White"
                     FontSize="12"
@@ -141,8 +141,8 @@
                     TextColor="White" 
                     Command="{Binding EditCommand, Source={x:Reference ThisRow}}"
                     CommandParameter="{Binding BindingContext, Source={x:Reference ThisRow}}"
-                    HeightRequest="30"
-                    WidthRequest="30" 
+                    HeightRequest="35"
+                    WidthRequest="35" 
                     Padding="0"
                     IsVisible="{Binding is_synchronized}">
                     <Button.ImageSource>

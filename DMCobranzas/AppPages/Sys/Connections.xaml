@@ -254,7 +254,7 @@
                 <Button Text="Enviar" 
                     Padding="10,0,10,0" 
                     Clicked="btnUploadDB_Clicked" 
-                    BackgroundColor="LimeGreen"
+                    BackgroundColor="MediumVioletRed"
                     TextColor="White"
                     IsVisible="True">
                     <Button.ImageSource>

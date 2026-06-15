@@ -13,7 +13,6 @@ using DMSA.Sync.Core.Database.Sqlite.Sales;
 using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.Windows.Input;
 using System.Text.RegularExpressions;
 
@@ -126,54 +125,6 @@ namespace DMOrders.Pages.Fragments.Orders
             }
         }
 
-        //public decimal Subtotal
-        //{
-        //    get
-        //    {
-        //        Debug.WriteLine($"==================================");
-        //        Debug.WriteLine("Calculo Subtotal");
-
-        //        decimal tmp_Subtotal = 0;
-        //        if(OrderLines != null)
-        //            foreach(var orderLine in OrderLines)
-        //            {
-        //                //if (orderLine.virtual_price_no_tax == 0)
-        //                //    orderLine.virtual_price_no_tax = (decimal) 5.5;
-
-        //                //orderLine.price_subtotal = orderLine.product_uom_qty * orderLine.virtual_price_no_tax;
-        //                //////orderLine.discount_amount = orderLine.price_subtotal * (orderLine.discount / 100);
-        //                //tmp_Subtotal += orderLine.product_uom_qty * orderLine.virtual_price_no_tax;
-        //                //tmp_Subtotal += orderLine.price_subtotal;
-        //                //tmp_Subtotal += orderLine.price_total - orderLine.amount_discount;
-        //                tmp_Subtotal += orderLine.price_subtotal;
-        //                Debug.WriteLine($"price_subtotal: {orderLine.price_subtotal}");
-        //            }
-        //        return tmp_Subtotal;
-        //    }
-        //}
-
-        /// <summary>
-        /// Descuento total aplicado sobre todas las líneas
-        /// </summary>
-        //public decimal Descuento
-        //{
-        //    get
-        //    {
-        //        decimal tmp_Descuento = 0;
-        //        if (OrderLines != null)
-        //        {
-        //            foreach (var orderLine in OrderLines)
-        //            {
-        //                if (orderLine.discount > 0)
-        //                {                            
-        //                    tmp_Descuento += orderLine.amount_discount;
-        //                }
-        //            }
-        //        }
-        //        return tmp_Descuento;
-        //    }
-        //}
-
         private decimal _descuento;
         private bool _descuentoDirty = true;
 
@@ -195,26 +146,6 @@ namespace DMOrders.Pages.Fragments.Orders
         /// </summary>
         public decimal Neto => Subtotal - Descuento;
 
-        /// <summary>
-        /// Impuesto total (suma de los impuestos de cada línea)
-        /// </summary>
-        //public decimal Impuesto
-        //{
-        //    get
-        //    {
-        //        decimal tmp_Impuesto = 0;
-        //        if (OrderLines != null)
-        //        {
-        //            foreach (var orderLine in OrderLines)
-        //            {
-        //                //tmp_Impuesto += (orderLine.virtual_price_no_tax * orderLine._virtual_iva_percentage) / 100;
-        //                tmp_Impuesto += orderLine.price_tax;
-        //            }
-        //        }
-        //        return tmp_Impuesto;
-        //    }
-        //}
-
         private decimal _impuesto;
         private bool _impuestoDirty = true;
 
@@ -230,25 +161,6 @@ namespace DMOrders.Pages.Fragments.Orders
                 return _impuesto;
             }
         }
-
-        /// <summary>
-        /// Contribución solidaria (si aplica en las líneas)
-        /// </summary>
-        //public decimal CompSolidaria
-        //{
-        //    get
-        //    {
-        //        decimal tmp_Comp = 0;
-        //        if (OrderLines != null)
-        //        {
-        //            foreach (var orderLine in OrderLines)
-        //            {
-        //                tmp_Comp += orderLine.price_unit;
-        //            }
-        //        }
-        //        return tmp_Comp;
-        //    }
-        //}
 
         private decimal _compSolidaria;
         private bool _compSolidariaDirty = true;
@@ -281,72 +193,10 @@ namespace DMOrders.Pages.Fragments.Orders
             }
         }
 
-        //public ICommand CloseCommand { get; }        
-        //public ICommand SaveCommand { get; }
-        //public ICommand SyncCommand { get; }
-
         public async Task AddOrderLine(sale_order_line NewOrderLine)
         {
             OrderLines.Add(NewOrderLine);
         }
-
-        //////public async Task LoadData()
-        //////{
-        //////    if (CurrentSaleOrder == null)
-        //////        return;
-
-        //////    IsLoadingLines = true;
-
-        //////    OnPropertyChanged(nameof(Note));
-        //////    OnPropertyChanged(nameof(Note2));
-
-        //////    var saleOrderLinesDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
-
-        //////    var orderLines = await saleOrderLinesDb.GetItemsAsync(CurrentSaleOrder.id);
-
-        //////    var product_ids = orderLines
-        //////        .Select(ol => ol.product_id)
-        //////        .Distinct()
-        //////        .ToArray();
-
-        //////    var productsList = await new ProductProductDb(App.Session.odooConnection.DbNameSqlite)
-        //////        .GetByProductsIdsLite(product_ids, 0);
-
-        //////    var productsDict = productsList.ToDictionary(p => p.id, p => p);
-
-        //////    var processedLines = orderLines
-        //////        .Where(line => productsDict.ContainsKey(line.product_id))
-        //////        .Select(line =>
-        //////        {
-        //////            var product = productsDict[line.product_id];
-
-        //////            line.product_code = product.code;
-        //////            line.product_display = product.name;
-        //////            line.uom_category_display = product.uom_sale_display;
-
-        //////            return line;
-        //////        })
-        //////        .ToList();
-
-        //////    // YA ESTÁS EN UI THREAD → NO NECESITAS MainThread
-        //////    OrderLines.Clear();
-
-        //////    foreach (var line in processedLines)
-        //////        OrderLines.Add(line);
-
-        //////    IsLoadingLines = false;
-
-        //////    // promociones
-        //////    var saleOrderPromotionsDb = new SaleOrderPromotionsDb(App.Session.odooConnection.DbNameSqlite);
-        //////    var saleOrderPromotions_tmp = await saleOrderPromotionsDb.GetItemsByOrder(CurrentSaleOrder.id);
-
-        //////    saleOrderPromotions.Clear();
-
-        //////    foreach (var sop in saleOrderPromotions_tmp)
-        //////        saleOrderPromotions.Add(sop);
-
-        //////    UpdateTotals();
-        //////}
 
         public async Task LoadData()
         {
@@ -394,21 +244,6 @@ namespace DMOrders.Pages.Fragments.Orders
             OnPropertyChanged(nameof(Note));
             OnPropertyChanged(nameof(Note2));
         }
-
-        //private void OnClose()
-        //{
-            
-        //}
-
-        //private void OnSave()
-        //{
-            
-        //}
-
-        //private async void OnSync()
-        //{            
-        //    await Task.Delay(1000);
-        //}
 
         public class PriceCalculationResult
         {
@@ -539,18 +374,6 @@ namespace DMOrders.Pages.Fragments.Orders
             decimal price_without_iva = Math.Round(price_list_value / factor_iva, 7);
             decimal total_line = Math.Round((price_list_value * quantity) - discount_value, decimalPositions);
 
-            //return new PriceCalculationResult
-            //{
-            //    Price = price_list_value,
-            //    PriceWithoutIva = price_without_iva,
-            //    DiscountAmount = discount_value,
-            //    DiscountPercent = discount_percent,
-            //    TotalLine = total_line,
-            //    IvaPercentage = iva_tax,
-            //    PriceTax = (price_without_iva * quantity * iva_tax) / 100,
-            //    ExistsInPriceList = ExistsInPriceList
-            //};
-
             return new PriceCalculationResult
             {
                 Price = Math.Round(price_list_value, decimalPositions),
@@ -565,95 +388,6 @@ namespace DMOrders.Pages.Fragments.Orders
                 ExistsInPriceList = ExistsInPriceList
             };
         }
-
-        ////[Obsolete("Use OnAddLine(ItemPickedArgs itemPickedArgs) instead.")]
-        ////private async void OnAddLine(product_product product)
-        ////{
-        ////    if (product is null) return;
-
-        ////    PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
-
-        ////    int sequence_line = OrderLines.Count;
-        ////    sequence_line++;
-
-        ////    // Buscar si el producto ya existe en la lista
-        ////    var existingLine = OrderLines.Where(l => l.product_id == product.id && !l.is_gift).FirstOrDefault();
-
-        ////    if (existingLine != null)
-        ////    {
-        ////        if ((int)product.cantidad_disponible < (int)(existingLine.product_uom_qty_real + 1))
-        ////        {
-        ////            await Application.Current.Windows[0].Page.DisplayAlert("Warning", "Producto no se puede agregar porque no hay stock sufuciente.", "OK");
-        ////            return;
-        ////        }
-
-        ////        // Si existe, aumentar la cantidad
-        ////        existingLine.product_uom_qty_real += 1;
-        ////        existingLine.product_uom_qty += 1;
-
-        ////        var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, existingLine.product_uom_qty);
-
-        ////        //product.list_price = (float) priceCalc.Price;
-        ////        existingLine.price_total = priceCalc.TotalLine;
-        ////        existingLine.price_unit = priceCalc.Price;
-        ////        existingLine.price_subtotal = priceCalc.PriceSubtotal; //(priceCalc.PriceWithoutIva * existingLine.product_uom_qty) - priceCalc.DiscountAmount;
-        ////        existingLine.discount = priceCalc.DiscountPercent;
-        ////        existingLine.amount_discount = priceCalc.DiscountAmount;
-        ////        existingLine.price_tax = priceCalc.PriceTax;
-        ////        existingLine.virtual_price_no_tax = priceCalc.PriceWithoutIva;
-        ////        existingLine.virtual_iva_percentage = priceCalc.IvaPercentage;
-        ////        existingLine.virtual_line_subtotal = priceCalc.LineSubtotal;
-        ////        existingLine.product_tmpl_id = product._product_tmpl_id;
-        ////        OnPropertyChanged(nameof(OrderLines));
-        ////    }
-        ////    else
-        ////    {
-        ////        var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, 1);
-
-        ////        if(product.cantidad_disponible == 0)
-        ////        {
-        ////            await Application.Current.Windows[0].Page.DisplayAlert("Warning", "Producto no se puede agregar porque no hay stock sufuciente.", "OK");
-        ////            return;
-        ////        }
-
-        ////        if (priceCalc.ExistsInPriceList)
-        ////        {
-        ////            // Si no existe, agregar una nueva línea
-        ////            var line = new sale_order_line
-        ////            {
-        ////                sequence = sequence_line,
-        ////                product_id = product.id,
-        ////                product_display = product.name,
-        ////                product_code = product.code,
-        ////                qty_to_deliver = 1,
-        ////                product_uom_qty_real = 1,
-        ////                product_uom_qty = 1,
-        ////                uom_category_display = "UND",
-        ////                price_subtotal = priceCalc.PriceSubtotal, // (priceCalc.PriceWithoutIva * 1) - priceCalc.DiscountAmount,
-        ////                discount = priceCalc.DiscountPercent,
-        ////                amount_discount = priceCalc.DiscountAmount,
-        ////                price_tax = priceCalc.PriceTax,
-        ////                price_unit = priceCalc.Price,
-        ////                price_total = priceCalc.TotalLine,
-        ////                virtual_price_no_tax = priceCalc.PriceWithoutIva,
-        ////                virtual_iva_percentage = priceCalc.IvaPercentage,
-        ////                virtual_line_subtotal = priceCalc.LineSubtotal,
-        ////                product_tmpl_id = product._product_tmpl_id
-        ////            };
-
-        ////            OrderLines.Add(line);
-        ////            OnPropertyChanged(nameof(OrderLines));
-        ////        }
-        ////        else
-        ////        {
-        ////            await Application.Current.Windows[0].Page.DisplayAlert("Warning", "Producto no se puede agregar porque no existe en la lista de precios.", "OK");
-        ////            return;
-        ////        }
-        ////    }
-
-        ////    await promotionEngineRunner.ResetManualGiftBenefitSoft(CurrentSaleOrder, saleOrderPromotions);
-        ////    UpdateTotals();
-        ////}
 
         private async void OnAddLine(ItemPickedArgs itemPickedArgs)
         {
@@ -743,8 +477,6 @@ namespace DMOrders.Pages.Fragments.Orders
             UpdateTotals();
         }
 
-
-
         private async void OnAddLineNoRestrict(ItemPickedArgs itemPickedArgs)
         {
             if (itemPickedArgs is null) return;
@@ -822,22 +554,18 @@ namespace DMOrders.Pages.Fragments.Orders
         {
             if (sale_Order_Line != null)
             {
-                //if (!string.IsNullOrEmpty(sale_Order_Line.promotion_data))
-                //{
-                    //List<PromotionEvalItem> promotionEvalItemParent = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItem>>(sale_Order_Line.promotion_data);
-                    List<PromotionEvalItem> promotionEvalItemParent = sale_Order_Line.promotionDataList;
-                    if (promotionEvalItemParent != null && promotionEvalItemParent.Count > 0)
+                List<PromotionEvalItem> promotionEvalItemParent = sale_Order_Line.promotionDataList;
+                if (promotionEvalItemParent != null && promotionEvalItemParent.Count > 0)
+                {
+                    foreach (var benefitItem in promotionEvalItemParent)
                     {
-                        foreach (var benefitItem in promotionEvalItemParent)
+                        if (benefitItem.Promotion._promotion_type_id == 2 && benefitItem.Promotion._selection_type_id == 2)
                         {
-                            if (benefitItem.Promotion._promotion_type_id == 2 && benefitItem.Promotion._selection_type_id == 2)
-                            {
-                                //Si contiene regalos asociados manuales, no se procede a recalcular
-                                return;
-                            }
+                            //Si contiene regalos asociados manuales, no se procede a recalcular
+                            return;
                         }
                     }
-                //}
+                }
 
                 var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, sale_Order_Line.product_uom_qty);
                 sale_Order_Line.price_total = priceCalc.TotalLine;
@@ -851,19 +579,15 @@ namespace DMOrders.Pages.Fragments.Orders
                 sale_Order_Line.virtual_line_subtotal = priceCalc.LineSubtotal;
                 sale_Order_Line.product_tmpl_id = product._product_tmpl_id;
 
-                //if (!string.IsNullOrEmpty(sale_Order_Line.promotion_data))
-                //{
-                    //List<PromotionEvalItem> benefitFromData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItem>>(sale_Order_Line.promotion_data);
-                    List<PromotionEvalItem> benefitFromData = sale_Order_Line.promotionDataList;
-                    if (benefitFromData != null && benefitFromData.Count > 0)
+                List<PromotionEvalItem> benefitFromData = sale_Order_Line.promotionDataList;
+                if (benefitFromData != null && benefitFromData.Count > 0)
+                {
+                    PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
+                    foreach (var benefit in benefitFromData)
                     {
-                        PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
-                        foreach (var benefit in benefitFromData)
-                        {
-                            await promotionEngineRunner.AddApplyPromotion(CurrentSaleOrder, benefit, -1, saleOrderPromotions);
-                        }
+                        await promotionEngineRunner.AddApplyPromotion(CurrentSaleOrder, benefit, -1, saleOrderPromotions);
                     }
-                //}
+                }
 
                 sale_Order_Line.promotion_data = "";
                 DMSA.Models.Odoo.Promotions.Tools.ClearPromotionData(sale_Order_Line);
@@ -874,41 +598,29 @@ namespace DMOrders.Pages.Fragments.Orders
                 {
                     foreach (var itemGift in giftList)
                     {
-                        //if (itemGift.promotion_data != null)
-                        //{
-                            //List<PromotionEvalItem> promotionEvalItem = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItem>>(itemGift.promotion_data);
-                            List<PromotionEvalItem> promotionEvalItem = itemGift.promotionDataList;
-                            Debug.WriteLine(promotionEvalItem);
+                        List<PromotionEvalItem> promotionEvalItem = itemGift.promotionDataList;
+                        Debug.WriteLine(promotionEvalItem);
 
-                            if (promotionEvalItem != null && promotionEvalItem.Count > 0)
+                        if (promotionEvalItem != null && promotionEvalItem.Count > 0)
+                        {
+                            foreach (var benefitItem in promotionEvalItem)
                             {
-                                foreach (var benefitItem in promotionEvalItem)
+                                foreach (var ruleMatch in benefitItem.RuleSet)
                                 {
-                                    foreach (var ruleMatch in benefitItem.RuleSet)
-                                    {
-                                        int[] listIdsProd = Newtonsoft.Json.JsonConvert.DeserializeObject<int[]>(ruleMatch.ProductTmplIds);
+                                    int[] listIdsProd = Newtonsoft.Json.JsonConvert.DeserializeObject<int[]>(ruleMatch.ProductTmplIds);
 
-                                        foreach (var productIdCompare in listIdsProd)
+                                    foreach (var productIdCompare in listIdsProd)
+                                    {
+                                        if (sale_Order_Line.product_tmpl_id == productIdCompare && (sale_Order_Line.is_gift && !sale_Order_Line.is_manual))
                                         {
-                                            if (sale_Order_Line.product_tmpl_id == productIdCompare && (sale_Order_Line.is_gift && !sale_Order_Line.is_manual))
-                                            {
-                                                OrderLines.Remove(itemGift);
-                                            }
+                                            OrderLines.Remove(itemGift);
                                         }
                                     }
                                 }
                             }
-                        //}
+                        }
                     }
-                }
-
-
-                //OnPropertyChanged(nameof(OrderLines));
-
-                //foreach (var item in OrderLines.Where(x => x.product_id_origin == sale_Order_Line.product_id).ToList())
-                //{
-                //    OrderLines.Remove(item);
-                //}               
+                }           
 
             }
 
@@ -940,23 +652,19 @@ namespace DMOrders.Pages.Fragments.Orders
             PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
 
             if (sale_Order_Line != null)
-            {
-                //if (!string.IsNullOrEmpty(sale_Order_Line.promotion_data))
-                //{
-                    //List<PromotionEvalItem> promotionEvalItemParent = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItem>>(sale_Order_Line.promotion_data);
+            {                
                 List<PromotionEvalItem> promotionEvalItemParent = sale_Order_Line.promotionDataList;
                 if (promotionEvalItemParent != null && promotionEvalItemParent.Count > 0)
+                {
+                    foreach (var benefitItem in promotionEvalItemParent)
                     {
-                        foreach (var benefitItem in promotionEvalItemParent)
+                        if (benefitItem.Promotion._promotion_type_id == 2 && benefitItem.Promotion._selection_type_id == 2)
                         {
-                            if (benefitItem.Promotion._promotion_type_id == 2 && benefitItem.Promotion._selection_type_id == 2)
-                            {
-                                //Si contiene regalos asociados manuales, no se procede a recalcular
-                                return;
-                            }
+                            //Si contiene regalos asociados manuales, no se procede a recalcular
+                            return;
                         }
                     }
-                //}
+                }                
 
                 var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, sale_Order_Line.product_uom_qty);
                 sale_Order_Line.price_total = priceCalc.TotalLine;
@@ -969,35 +677,16 @@ namespace DMOrders.Pages.Fragments.Orders
                 sale_Order_Line.virtual_iva_percentage = priceCalc.IvaPercentage;
                 sale_Order_Line.virtual_line_subtotal = priceCalc.LineSubtotal;
                 sale_Order_Line.product_tmpl_id = product._product_tmpl_id;
-
                 //await promotionEngineRunner.ResetManualGiftBenefit(CurrentSaleOrder, saleOrderPromotions);
-
-                //if (!string.IsNullOrEmpty(sale_Order_Line.promotion_data))
-                //{
-                //List<PromotionEvalItem> benefitFromData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItem>>(sale_Order_Line.promotion_data);
+                
                 List<PromotionEvalItem> benefitFromData = sale_Order_Line.promotionDataList;
                 if (benefitFromData != null && benefitFromData.Count > 0)
-                    {                        
-                        foreach (var benefit in benefitFromData)
-                        {
-                            //await promotionEngineRunner.AddApplyPromotion(CurrentSaleOrder, benefit, -1, saleOrderPromotions);
-                        }
+                {                        
+                    foreach (var benefit in benefitFromData)
+                    {
+                        //await promotionEngineRunner.AddApplyPromotion(CurrentSaleOrder, benefit, -1, saleOrderPromotions);
                     }
-                //}
-                
-                //Se resetea las promociones tipo regalo manual
-                // y se buscan otras lineas principales que podrian estar relacionadas a la misma promocion
-                //for (var ib = 0; ib < saleOrderPromotions.Count(); ib++)
-                //{
-                //    var benefitMemory = saleOrderPromotions[ib];
-
-                //    if (benefitMemory.promotion_type_id == 2 && benefitMemory.promotion_selection_type_id == 2)
-                //    {
-                //        saleOrderPromotions.Remove(benefitMemory);
-                //    }
-                //}
-
-                //sale_Order_Line.promotion_data = "";
+                }
 
                 for (var si = 0; si < saleOrderPromotions.Count; si++)
                 {
@@ -1087,24 +776,20 @@ namespace DMOrders.Pages.Fragments.Orders
                         if (giftList != null && giftList.Count > 0)
                         {
                             foreach (var itemGift in giftList)
-                            {
-                                //if (itemGift.promotion_data != null)
-                                //{
-                                    //List<PromotionEvalItem> promotionEvalItem = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItem>>(itemGift.promotion_data);
+                            {                                
                                 List<PromotionEvalItem> promotionEvalItem = itemGift.promotionDataList;
                                 Debug.WriteLine(promotionEvalItem);
 
-                                    if (promotionEvalItem != null && promotionEvalItem.Count > 0)
+                                if (promotionEvalItem != null && promotionEvalItem.Count > 0)
+                                {
+                                    foreach (var evalItem in promotionEvalItem)
                                     {
-                                        foreach (var evalItem in promotionEvalItem)
+                                        if (evalItem.Promotion.id == currentBenefit.promotion_id)
                                         {
-                                            if (evalItem.Promotion.id == currentBenefit.promotion_id)
-                                            {
-                                                return true;
-                                            }
+                                            return true;
                                         }
                                     }
-                                //}
+                                }
                             }
                         }
                     }
@@ -1386,75 +1071,6 @@ namespace DMOrders.Pages.Fragments.Orders
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"Error procesando linea: {ex.Message}");
-                }
-            }
-        }
-
-        private async Task ProcesarTextoAsync__(string text)
-        {
-            if (string.IsNullOrWhiteSpace(text))
-                return;
-
-            var lineas = text.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-            var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
-
-            foreach (var linea in lineas)
-            {
-                try
-                {
-                    if (!linea.Contains("["))
-                        continue;
-
-                    // 🔹 1. Extraer código
-                    var matchCodigo = Regex.Match(linea, @"\[(.*?)\]");
-                    if (!matchCodigo.Success)
-                        continue;
-
-                    var codigo = matchCodigo.Groups[1].Value.Trim();
-
-                    // 🔹 2. Extraer números (incluye miles y decimales)
-                    var matchesNumeros = Regex.Matches(linea, @"\d{1,3}(?:,\d{3})*(?:\.\d+)?");
-
-                    if (matchesNumeros.Count < 5)
-                        continue;
-
-                    // 🔹 3. Mapear según tu estructura actual
-                    // Basado en tu ejemplo:
-                    // [0] stock
-                    // [1] cantidadSol
-                    // [2] cantidad
-                    // ...
-                    // último o antepenúltimo suele ser precio
-
-                    decimal Parse(string s) =>
-                        decimal.Parse(s.Replace(",", ""), CultureInfo.InvariantCulture);
-
-                    var cantidadSol = Parse(matchesNumeros[6].Value);
-                    var cantidad = Parse(matchesNumeros[7].Value);
-
-                    // Precio → normalmente el último valor antes del total
-                    var precio = Parse(matchesNumeros[10].Value);
-
-                    Debug.WriteLine($"Código: {codigo}, Cantidad: {cantidad}, Precio: {precio}");
-
-                    var productItem = await productDb.GetItemAsync(p => p.code == codigo);
-                    if (productItem == null)
-                        continue;
-
-                    productItem.list_price = (float)precio;
-
-                    var itemPickedArgs = new ItemPickedArgs
-                    {
-                        product = productItem,
-                        qty_real = cantidadSol,
-                        qty_sol = cantidad
-                    };
-
-                    OnAddLineNoRestrict(itemPickedArgs);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Error procesando línea: {ex.Message}");
                 }
             }
         }

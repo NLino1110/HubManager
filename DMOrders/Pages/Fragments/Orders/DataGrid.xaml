@@ -119,15 +119,15 @@
                                 VerticalOptions="Center">                                
                             </Label>
 
-                            <HorizontalStackLayout Grid.Row="0" Grid.Column="9" IsVisible="{Binding is_synchronized, Converter={StaticResource InverseBoolConverter}}">
+                            <HorizontalStackLayout Grid.Row="0" Grid.Column="9" IsVisible="{Binding is_synchronized, Converter={StaticResource InverseBoolConverter}}" Spacing="3">
                                 <Button
                                         FontSize="10" 
                                         BackgroundColor="DodgerBlue" 
                                         TextColor="White" 
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
                                         CommandParameter="{Binding .}"
-                                        HeightRequest="30"
-                                        WidthRequest="30"                                    
+                                        HeightRequest="35"
+                                        WidthRequest="35"                                    
                                         Padding="0">
                                     <!--<Button.Behaviors>
                                     <bh:SafeTapBehavior 
@@ -148,8 +148,8 @@ CommandParameter="{Binding .}" />
                                     TextColor="White" 
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=DeleteCommand}"
                                     CommandParameter="{Binding .}"
-                                    HeightRequest="30"
-                                    WidthRequest="30"
+                                    HeightRequest="35"
+                                    WidthRequest="35"
                                     Grid.Row="0"
                                     Grid.Column="9"
                                     Grid.RowSpan="3"
@@ -163,15 +163,15 @@ CommandParameter="{Binding .}" />
                                 </Button>
                             </HorizontalStackLayout>
 
-                            <HorizontalStackLayout Grid.Row="0" Grid.Column="9" IsVisible="{Binding is_synchronized}">
+                            <HorizontalStackLayout Grid.Row="0" Grid.Column="9" IsVisible="{Binding is_synchronized}" Spacing="3">
                                 <Button
                                         FontSize="10" 
                                         BackgroundColor="LimeGreen" 
                                         TextColor="White" 
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=EditCommand}"
                                         CommandParameter="{Binding .}"
-                                        HeightRequest="30"
-                                        WidthRequest="30" 
+                                        HeightRequest="35"
+                                        WidthRequest="35" 
                                         Padding="0">
                                     <!--<Button.Behaviors>
                                         <bh:SafeTapBehavior Command="{Binding EditCommand}" />
@@ -188,8 +188,8 @@ CommandParameter="{Binding .}" />
                                         FontSize="10" 
                                         BackgroundColor="LightGray" 
                                         TextColor="White"
-                                        HeightRequest="30"
-                                        WidthRequest="30"
+                                        HeightRequest="35"
+                                        WidthRequest="35"
                                         Grid.Row="0"
                                         Grid.Column="9"
                                         Grid.RowSpan="3"

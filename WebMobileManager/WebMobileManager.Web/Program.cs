@@ -8,12 +8,17 @@ using WebMobileManager.Web.Components;
 using WebMobileManager.Web.Handlers;
 using WebMobileManager.Web.Handlers.Models;
 using WebMobileManager.Web.Services;
+using WebMobileManager.Web.Services.Interfaces;
+using WebMobileManager.Web.Services.Sqlite;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 builder.AddServiceDefaults();
 builder.AddRedisOutputCache("cache");
 
+//SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_e_sqlite3());
+SQLitePCL.Batteries_V2.Init();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -24,6 +29,10 @@ builder.Services.AddScoped<ILocalStorageService, LocalStorageService>();
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<HttpClient>();
+
+builder.Services.AddScoped<IPackageService, PackageService>();
+builder.Services.AddSingleton<PackageDb>();
+builder.Services.AddSingleton<PackageFileDb>();
 
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<ChatHub>();

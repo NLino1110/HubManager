@@ -41,7 +41,7 @@ namespace DMSA.Sync.Core.Update.Cloud
                 dbPath = dbPath + ".zip";
             }
 
-            Pipeline pipeline = new Pipeline();
+            var pipeline = new Pipeline();
 
             bool packageReady = await pipeline.ExistAttachRecordCustom(dbPathCentral, dbPath);
 
@@ -71,7 +71,7 @@ namespace DMSA.Sync.Core.Update.Cloud
 
         public async Task<bool> UploadToFileMode2(string dbPath, string centralDB)
         {
-            Pipeline pipeline = new Pipeline();
+            var pipeline = new Pipeline();
             bool requiredNewUpload = await pipeline.RequiredNewUploadBasePack(dbPath);
             if (requiredNewUpload)
             {
@@ -87,18 +87,18 @@ namespace DMSA.Sync.Core.Update.Cloud
             return true;
         }
 
-        [Obsolete("Innecesario")]
+        //[Obsolete("Innecesario")]
 
-        public async Task<bool> UploadToFileNoAttach(string dbPath, string centralDB)
-        {            
-            (var attachData, bool successUpload) = await UploadSqliteZipNonAttach(dbPath);
+        //public async Task<bool> UploadToFileNoAttach(string dbPath, string centralDB)
+        //{            
+        //    (var attachData, bool successUpload) = await UploadSqliteZipNonAttach(dbPath);
 
-            if (successUpload)
-            {
+        //    if (successUpload)
+        //    {
                     
-            }            
+        //    }            
 
-            return true;
-        }
+        //    return true;
+        //}
     }
 }

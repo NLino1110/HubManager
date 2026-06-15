@@ -32,10 +32,19 @@
     <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.3" />
     <PackageReference Include="SkiaSharp" Version="3.119.2" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.2" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
+    <PackageReference Include="SQLitePCLRaw.config.e_sqlite3" Version="3.0.3" />
+    <PackageReference Include="SQLitePCLRaw.core" Version="3.0.3" />
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3.linux" Version="1.1.14" />
+    <PackageReference Include="SQLitePCLRaw.provider.dynamic_cdecl" Version="3.0.3" />
+    <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="3.0.3" />
+    <PackageReference Include="SQLitePCLRaw.provider.internal" Version="3.0.3" />
+    <PackageReference Include="SQLitePCLRaw.provider.sqlite3" Version="3.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Components\Layout\bk\" />
+    <Folder Include="Services\Sqlite\Tables\" />
     <Folder Include="wwwroot\uploads\" />
   </ItemGroup>
 
