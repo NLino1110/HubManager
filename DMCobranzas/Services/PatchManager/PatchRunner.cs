@@ -31,6 +31,8 @@ namespace DMCobranzas.Services.PatchManager
             await PatchExecuter_v2(ConnectionItem);
             await PatchExecuter_v3(ConnectionItem);
             await PatchExecuter_v4(ConnectionItem);
+            await PatchExecuter_Custom(ConnectionItem, "reset_type_parent_nc_15062026");
+            await PatchExecuter_Custom(ConnectionItem, "fix_res_partner_old_15062026");
             //await PatchExecuter_v4(ConnectionItem);
             //await PatchExecuter_v5(ConnectionItem);
             //await PatchExecuter_v6(ConnectionItem);
@@ -154,6 +156,29 @@ namespace DMCobranzas.Services.PatchManager
                 Debug.WriteLine(patch_name + " ==== aplicado");
                 await Toast.Make("Patch applied: " + patch_name).Show();
             }
-        }        
+        }
+
+        private async Task PatchExecuter_Custom(OdooConnection ConnectionItem, string name)
+        {
+            string patch_name = name + "_" + ConnectionItem.DbNameSqlite;
+
+            bool patch_applied = Preferences.Get(patch_name, false);
+
+            if (!patch_applied)
+            {
+                ExecuteTask executeTask = new ExecuteTask();
+
+                if (name.Contains("reset_type_parent_nc"))
+                    await executeTask.ResetTypeNc();
+
+                if (name.Contains("fix_res_partner_old"))
+                    await executeTask.FixResPartner();
+
+                Preferences.Set(patch_name, true);
+                Debug.WriteLine(patch_name + " ==== aplicado");
+                Preferences.Set("patch_require_update", true);
+                await Toast.Make("Patch applied: " + patch_name).Show();
+            }
+        }
     }
 }

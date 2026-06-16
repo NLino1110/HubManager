@@ -19,13 +19,13 @@ namespace ApiManagerOdoo.Specials
         // =========================
 
         public Task<List<Package>?> GetPackages()
-            => Get<List<Package>>("/api/packages");
+            => Get<List<Package>>("/api/package");
 
         public Task<List<Package>?> GetPackages(string packageName)
-            => Get<List<Package>>("/api/packages");
+            => Get<List<Package>>("/api/package");
 
         public Task<Package?> GetPackage(string packageName)
-            => Get<Package>($"/api/packages/{packageName}");
+            => Get<Package>($"/api/package/{packageName}");
 
         public Task<PackageResponseDto> CreatePackage(CreatePackageDto dto)
             => Post<PackageResponseDto>("/api/package/create", dto);
@@ -35,7 +35,7 @@ namespace ApiManagerOdoo.Specials
         // =========================
 
         public Task<List<PackageFileResponseDto>?> GetFiles(string packageName)
-            => Get<List<PackageFileResponseDto>>($"/api/packages/{packageName}/files");
+            => Get<List<PackageFileResponseDto>>($"/api/package/{packageName}/files");
 
         //public Task<bool> CreateFile(string packageName, CreatePackageFileDto dto)
         //    => Post($"/api/packages/{packageName}/files", dto);
@@ -76,11 +76,11 @@ namespace ApiManagerOdoo.Specials
 
 
         public async Task<bool> UploadFileBytes(
-string packageName,
-byte[] fileBytes,
-string fileName,
-string fileType,
-long totalSize)
+            string packageName,
+            byte[] fileBytes,
+            string fileName,
+            string fileType,
+            long totalSize)
         {
             using var content = new MultipartFormDataContent();
 

@@ -23,6 +23,7 @@ namespace DMCobranzas.Controls.Modals;
 public partial class AccountPaymentCrud : ContentPage
 {
     public ObservableCollection<ResBank> Banks { get; set; } = new();
+    public ObservableCollection<ResBank> BanksTC { get; set; } = new();
     public ObservableCollection<res_city> Cities { get; set; } = new();
     public res_partner _res_partner { get; set; }
     public ObservableCollection<MultipleCobrosInvoiceLineAi> multipleCobrosInvoiceLineAi { get; set; }
@@ -123,7 +124,7 @@ public partial class AccountPaymentCrud : ContentPage
         {            
             if (isEmptyDb)
             {
-                DisplayAlert("Alerta", "Al parecer no se han descargado las actualizaciones de datos. Actualice antes de continuar.", "OK");
+                DisplayAlertAsync("Alerta", "Al parecer no se han descargado las actualizaciones de datos. Actualice antes de continuar.", "OK");
                 btnClose_Clicked(null, null);                
             }
 
@@ -279,9 +280,20 @@ public partial class AccountPaymentCrud : ContentPage
                 Banks.Add(partnerItem);
             }
 
-            ddBankTcId.ItemsSource = Banks;
+            BanksTC =
+            [
+                new ResBank { id = 0, name = "No seleccionada" },
+                new ResBank { id = -1, name = "🔍 Buscar..." }
+            ];
+
+            foreach (var partnerItem in bankItems)
+            {
+                BanksTC.Add(partnerItem);
+            }
+
+            ddBankTcId.ItemsSource = BanksTC;
             ddBankTcId.ItemDisplayBinding = new Binding("name");
-            ddBankTcId.SelectedItem = Banks[0];
+            ddBankTcId.SelectedItem = BanksTC[0];
             ddBankTcId.SelectedItemChanged += ddBankTcId_SelectedItemChanged;
 
             ddBank.ItemsSource = Banks;
@@ -336,7 +348,7 @@ public partial class AccountPaymentCrud : ContentPage
 
                     var banksCopy = new ObservableCollection<ResBank>();
 
-                    foreach (var b in Banks)
+                    foreach (var b in BanksTC)
                     {
                         banksCopy.Add(new ResBank
                         {
@@ -346,10 +358,10 @@ public partial class AccountPaymentCrud : ContentPage
                     }
 
                     banksCopy[0] = selectedBank;
-                    Banks = banksCopy;
+                    BanksTC = banksCopy;
 
-                    ddBankTcId.ItemsSource = Banks;
-                    ddBankTcId.SelectedItem = Banks[0];
+                    ddBankTcId.ItemsSource = BanksTC;
+                    ddBankTcId.SelectedItem = BanksTC[0];
                     selected_bank_tc = selectedBank;
                     ddBankTcId.IsEnabled = true;
                     return;
@@ -363,8 +375,8 @@ public partial class AccountPaymentCrud : ContentPage
             Debug.WriteLine("Clear");
             ddBankTcId.ItemsSource = null;
             var nsBrand = new ResBank { id = 0, name = "No seleccionada" };
-            Banks[0] = nsBrand;
-            ddBankTcId.ItemsSource = Banks;
+            BanksTC[0] = nsBrand;
+            ddBankTcId.ItemsSource = BanksTC;
             ddBankTcId.SelectedItem = nsBrand;
             selected_bank_tc = nsBrand;
             ddBankTcId.IsEnabled = true;

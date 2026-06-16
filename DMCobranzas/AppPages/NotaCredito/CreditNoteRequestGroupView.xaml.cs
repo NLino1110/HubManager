@@ -305,8 +305,12 @@ public partial class CreditNoteRequestGroupView : ContentPage
                 {
                     var display_parent_nc = typeParents.Where(tp => tp.id == creditNoteReqItem.parent_nc_id).FirstOrDefault();
                     var display_type_nc = typeNcs.Where(tp => tp.id == creditNoteReqItem.type_module_id).FirstOrDefault();
-                    creditNoteReqItem.display_parent_nc = display_parent_nc.name;
-                    creditNoteReqItem.display_type_module = display_type_nc.name;
+
+                    if (display_type_nc != null)
+                        creditNoteReqItem.display_parent_nc = display_parent_nc.name;
+
+                    if(display_type_nc != null)
+                        creditNoteReqItem.display_type_module = display_type_nc.name;
 
                     var apl = await accountPaymentLines.GetItemsAsync(creditNoteReqItem);
 

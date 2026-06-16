@@ -96,12 +96,15 @@ namespace DMSA.Sync.Core.Update.Cloud.v2_0
             bool boolResponse = false;
 
             var hubPackageClient = new HubPackageClient(Constants.Session);
-            
-            var filesList = (await hubPackageClient.GetFiles(package.name))
-                .OrderBy(id => id)
-                .ToList();
 
-            string originalName = package.file_name;
+            var packageDto = await hubPackageClient.GetPackage(package.name);
+            
+            var file_name = packageDto.file_name;
+
+            var filesList = (await hubPackageClient.GetFiles(package.name));
+            filesList = filesList.OrderBy(x => x.id).ToList();
+
+            string originalName = file_name;
             string nameWithoutExt = Path.GetFileNameWithoutExtension(originalName);
             string ext = Path.GetExtension(originalName);
 

@@ -73,6 +73,21 @@ namespace DMCobranzas.Services.PatchManager.Reset
             await resCenterLineDb.DropTableAsync();
         }
 
+        public async Task ResetTypeNc()
+        {
+            var typeNcDb = new TypeNcDb(App.Session.odooConnection.DbNameSqlite);
+            await typeNcDb.DropTableAsync();
+
+            var typeParentNcDb = new TypeParentNcDb(App.Session.odooConnection.DbNameSqlite);
+            await typeParentNcDb.DropTableAsync();
+        }
+
+        public async Task FixResPartner()
+        {
+            var resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
+            await resPartnerDb.RemoveOldDataAsync();
+        }
+
         public async Task FixCreditNotes()
         {
             try

@@ -22,13 +22,9 @@ namespace DMSA.Models.Odoo.Abstract.Server
         public int uploaded_files { get; set; }
         public bool success_upload { get; set; }
         public string external_guid { get; set; }
-
-        //total_file_size
-
         public DateTime created_at { get; set; }
-
-        public string processing_state { get; set; }        
-
+        public string processing_state { get; set; }
         public string last_error { get; set; }
+        public bool is_base { get; set; }
     }
 }

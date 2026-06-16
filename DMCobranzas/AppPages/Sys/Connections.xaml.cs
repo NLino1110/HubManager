@@ -3,6 +3,7 @@ using CommunityToolkit.Maui.Extensions;
 using DMCobranzas.Controls;
 using DMCobranzas.Controls.Tools;
 using DMSA.Models.Odoo.Abstract;
+using DMSA.Models.Odoo.Abstract.Server;
 using DMSA.Models.Odoo.Abstract.Server.Dto;
 using DMSA.Models.Odoo.Tools;
 using DMSA.Sync.Core.Controls.Popups;
@@ -23,13 +24,9 @@ public partial class Connections : TabbedPage
     string pin_code = "1381";
 
     public ObservableCollection<string> Tables { get; set; } = new();
-
     public ICommand DeleteTableCommand { get; }
-
     UserAccessDb userdb { get; set; }
-
     DatabaseStruct selectedDatabase { get; set; }
-
     public ObservableCollection<DatabaseStruct> _dbStructItems { get; set; }
     public ObservableCollection<DatabaseStruct> dbStructItems
     {
@@ -39,13 +36,6 @@ public partial class Connections : TabbedPage
             _dbStructItems = value;
             OnPropertyChanged();
         }
-    }
-
-    public class DatabaseStruct
-    {
-        public string Name { get; set; }
-        public int Size { get; set; }
-        public string Path { get; set; }
     }
 
     private async void LoadTables()
@@ -177,17 +167,21 @@ public partial class Connections : TabbedPage
             dbStructItems.Add(
                 new DatabaseStruct
                 {
+                    Host = item.Host,
                     Name = item.DbNameSqlite,
                     Size = 0,
-                    Path = item.DbNameSqlite
+                    Path = item.DbNameSqlite,
+                    OriginalDBName = item.DbName
                 });
 
             dbStructItems.Add(
                 new DatabaseStruct
                 {
+                    Host = item.Host,
                     Name = item.DbNameSqlite + "_static",
                     Size = 0,
-                    Path = item.DbNameSqlite + "_static"
+                    Path = item.DbNameSqlite + "_static",
+                    OriginalDBName = item.DbName
                 });
         }
     }
@@ -320,7 +314,13 @@ public partial class Connections : TabbedPage
     }
 
     private async void btnUploadDB_Clicked(object sender, EventArgs e)
-    {        
+    {
+        if (selectedDatabase == null)
+        {
+            await Toast.Make($"Seleccione base de datos").Show();
+            return;
+        }
+
         var resultPopup = await this.ShowPopupAsync<PasswordPromptResult>(new PasswordPrompt("Ingrese el pin correcto"));
 
         if (resultPopup?.Result?.IsAccepted == true)
@@ -362,7 +362,7 @@ public partial class Connections : TabbedPage
 
         var pipeline = new Pipeline();
 
-        (PackageResponseDto file_upload_response, bool successUpload) = await pipeline.UploadSqliteZip(dbNameSqlite, null);
+        (PackageResponseDto file_upload_response, bool successUpload) = await pipeline.UploadSqliteZip(selectedDatabase, null);
 
         if (file_upload_response.success_upload)
         {
@@ -377,30 +377,40 @@ public partial class Connections : TabbedPage
 
     private bool MatchPackageWithSelection(string packageName)
     {
-        var selectedConnection = (DatabaseStruct)pickerDb.SelectedItem;
-        string dbNameSqlite = selectedConnection.Name;
+        var dbNameSqlite = selectedDatabase.Name;
+
+        if (string.IsNullOrWhiteSpace(packageName))
+            return false;
 
         var parts = packageName.Split('_');
-        var app_id = parts[0];
-        var nameParts = parts.Skip(3).Take(parts.Length - 4);
-        string originalName = string.Join("_", nameParts);
 
-        if (originalName == dbNameSqlite && app_id == App.Session.AppCodeOdoo)
-        {
-            return true;
-        }
+        if (parts.Length < 5)
+            return false;
 
-        return false;
+        var app_id = parts[1];
+
+        var nameParts = parts.Skip(2).Take(parts.Length - 3);
+
+        var extractedDbName = string.Join("_", nameParts);
+
+        return extractedDbName.Equals(dbNameSqlite, StringComparison.OrdinalIgnoreCase)
+               && app_id == App.Session.AppCodeOdoo;
     }
 
     private async void btnDownloadDb_Clicked(object sender, EventArgs e)
     {
+        if (selectedDatabase == null)
+        {
+            await Toast.Make($"Seleccione base de datos").Show();
+            return;
+        }
+
         string packageName = await DisplayPromptAsync(
             "Restauración de datos",
             "Ingrese Nombre del paquete que desea restaurar:",
             "OK",
             "Cancelar",
-            placeholder: "ej. 01_app_package_prod1_macronegocios_20260609185423",
+            placeholder: "ej. pk_01_prod1_macronegocios_00000000000000",
             maxLength: 50,
             keyboard: Keyboard.Text
         );
@@ -413,7 +423,7 @@ public partial class Connections : TabbedPage
 
         if (!MatchPackageWithSelection(packageName))
         {
-            await Toast.Make($"Nombre del paquete no coincide con la base de datos seleccionada").Show();
+            await Toast.Make($"Nombre de paquete no coincide con la base de datos o no pertenece a esta aplicación.").Show();
             return;
         }
 
@@ -448,6 +458,22 @@ public partial class Connections : TabbedPage
         //}
 
         //await Toast.Make($"Restauración de base de datos terminada {packageName}").Show();
+
+        //V2_0
+        await SqliteDbBase<object>.CloseDatabaseAsync();
+        var pipeline = new Pipeline();
+        var packageForDownload = new Package();
+        packageForDownload.name = packageName;
+
+        if (await pipeline.DownloadPackage(packageForDownload, true, null))
+        {
+            await Toast.Make($"Restauración de base de datos terminada {packageName}").Show();
+        }
+        else
+        {
+            await Toast.Make("Hubo un error al descargar/descomprimir archivo.").Show();
+        }
+        
     }
 
     private async Task UpdateProgressState(ProgressBarPage progressBarPage, int current, int total, string title)

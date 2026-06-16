@@ -210,7 +210,7 @@ namespace DMOrders.Services.PatchManager
 
         private async Task PatchExecuter_Custom(OdooConnection ConnectionItem, string name)
         {
-            string patch_name = name + ConnectionItem.DbName;
+            string patch_name = name + ConnectionItem.DbNameSqlite;
 
             bool patch_applied = Preferences.Get(patch_name, false);
 

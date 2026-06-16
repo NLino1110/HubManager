@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Content Remove="Components\Layout\bk\MainLayout.razor" />
+    <Content Remove="wwwroot\data\sqlite\webmobilemanager.db3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,6 +46,7 @@
   <ItemGroup>
     <Folder Include="Components\Layout\bk\" />
     <Folder Include="Services\Sqlite\Tables\" />
+    <Folder Include="wwwroot\data\sqlite\" />
     <Folder Include="wwwroot\uploads\" />
   </ItemGroup>
 

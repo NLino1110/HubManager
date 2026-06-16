@@ -138,7 +138,7 @@ namespace DMSA.Sync.Core.Update.Pusher
 
             bool byPassExtras = true;
 
-            if (resultTask != null && resultTask.result !=null)
+            if (resultTask != null && resultTask.result !=null && resultTask.result > 0)
             {
                 await Toast.Make("Datos enviados correctamente").Show();
 
@@ -158,137 +158,140 @@ namespace DMSA.Sync.Core.Update.Pusher
                     }                    
                 }
 
-                if (byPassExtras) return true;
+                ////////==============================================================
+                //////// PROCESO DE ENVIO TERMINADO, LO QUE SIGUE DE AQUI YA NO SE USA
+                //////if (byPassExtras) return true;
 
-                var resultDetailTask = await hubSaleOrder.GetLines(sale_Order.erp_id);
+                //////var resultDetailTask = await hubSaleOrder.GetLines(sale_Order.erp_id);
 
-                if (resultDetailTask.result != null)
-                {
-                    SaleOrderLineDb saleOrderLineDb = new SaleOrderLineDb(Constants.Session.odooConnection.DbNameSqlite);
-                    var lines = await saleOrderLineDb.GetItemsAsync(sale_Order.id);
+                //////if (resultDetailTask.result != null)
+                //////{
+                //////    SaleOrderLineDb saleOrderLineDb = new SaleOrderLineDb(Constants.Session.odooConnection.DbNameSqlite);
+                //////    var lines = await saleOrderLineDb.GetItemsAsync(sale_Order.id);
 
-                    bool new_name_order = false;
-                    bool details_ok = false;
+                //////    bool new_name_order = false;
+                //////    bool details_ok = false;
 
-                    var linesIds = new List<SaleOrderPromotionWizardLineWrapper>();
-                    var allGifts = new List<AllSaleOrderPromotionWizardGiftWrapper>();
-                    var gift_line_Ids = new List<SaleOrderPromotionWizardGiftWrapper>();
+                //////    var linesIds = new List<SaleOrderPromotionWizardLineWrapper>();
+                //////    var allGifts = new List<AllSaleOrderPromotionWizardGiftWrapper>();
+                //////    var gift_line_Ids = new List<SaleOrderPromotionWizardGiftWrapper>();
 
-                    foreach (var lineRcp in resultDetailTask.result)
-                    {
-                        var item = lines.FirstOrDefault(l => l.product_id == lineRcp._product_id && l.sequence == lineRcp.sequence);                        
-                        if (item != null)
-                        {
-                            item.erp_id = lineRcp.id;
-                            await saleOrderLineDb.UpdateAsync(item);
-                            details_ok = true;
-                        }
-                    }
+                //////    foreach (var lineRcp in resultDetailTask.result)
+                //////    {
+                //////        var item = lines.FirstOrDefault(l => l.product_id == lineRcp._product_id && l.sequence == lineRcp.sequence);                        
+                //////        if (item != null)
+                //////        {
+                //////            item.erp_id = lineRcp.id;
+                //////            await saleOrderLineDb.UpdateAsync(item);
+                //////            details_ok = true;
+                //////        }
+                //////    }
 
-                    var lines_gifts = lines.Where(x => x.is_gift);
+                //////    var lines_gifts = lines.Where(x => x.is_gift);
 
-                    foreach (var item in lines_gifts)// || (!x.is_gift && x.discount > 0)))
-                    {
-                        List<OriginPromoOrderLine> productSequenceApplyList = new List<OriginPromoOrderLine>();
+                //////    foreach (var item in lines_gifts)// || (!x.is_gift && x.discount > 0)))
+                //////    {
+                //////        List<OriginPromoOrderLine> productSequenceApplyList = new List<OriginPromoOrderLine>();
                         
-                        if (string.IsNullOrEmpty(item.origin_gift_line_ids_offline))
-                            continue;
+                //////        if (string.IsNullOrEmpty(item.origin_gift_line_ids_offline))
+                //////            continue;
 
-                        productSequenceApplyList = JsonConvert.DeserializeObject<List<OriginPromoOrderLine>>(item.origin_gift_line_ids_offline);
+                //////        productSequenceApplyList = JsonConvert.DeserializeObject<List<OriginPromoOrderLine>>(item.origin_gift_line_ids_offline);
 
-                        var items_found = lines
-                                .Where(l => productSequenceApplyList.Any(p =>
-                                        p.sequence == l.sequence &&
-                                        p.product_id == l.product_id))
-                                .Select(l => l.erp_id)
-                                .ToList();
+                //////        var items_found = lines
+                //////                .Where(l => productSequenceApplyList.Any(p =>
+                //////                        p.sequence == l.sequence &&
+                //////                        p.product_id == l.product_id))
+                //////                .Select(l => l.erp_id)
+                //////                .ToList();
 
-                        if (items_found != null && items_found.Any())
-                        {
-                            item.origin_gift_line_ids = items_found.ToArray();
-                            await saleOrderLineDb.UpdateAsync(item);
-                        }
-                    }
+                //////        if (items_found != null && items_found.Any())
+                //////        {
+                //////            item.origin_gift_line_ids = items_found.ToArray();
+                //////            await saleOrderLineDb.UpdateAsync(item);
+                //////        }
+                //////    }
 
-                    foreach (var line in lines)
-                    {
-                        if (line.is_gift || line.discount > 0)
-                        {
-                            bool isLineDiscount = false;
-                            decimal Qty = line.product_uom_qty;
-                            int[] origin_gift_line_ids = line.origin_gift_line_ids;
+                //////    foreach (var line in lines)
+                //////    {
+                //////        if (line.is_gift || line.discount > 0)
+                //////        {
+                //////            bool isLineDiscount = false;
+                //////            decimal Qty = line.product_uom_qty;
+                //////            int[] origin_gift_line_ids = line.origin_gift_line_ids;
 
-                            if (line.discount > 0 && !line.is_gift)
-                            {
-                                Qty = line.discount;
-                                isLineDiscount = true;
-                                origin_gift_line_ids = new int[] { line.erp_id };
-                            }
+                //////            if (line.discount > 0 && !line.is_gift)
+                //////            {
+                //////                Qty = line.discount;
+                //////                isLineDiscount = true;
+                //////                origin_gift_line_ids = new int[] { line.erp_id };
+                //////            }
 
-                            allGifts.Add(new AllSaleOrderPromotionWizardGiftWrapper(new AllSaleOrderPromotionWizardGift
-                            {
-                                Product_Id = line.product_tmpl_id,
-                                Qty = Qty,
-                                Promotion_Line_Id = 0, //Se determina cuando ya se haya creado padre
-                                Stock = line.product_uom_qty,
-                                Price = line.price_unit,
-                                Approve = true,
-                                Lines_Ids = new int[] { line.erp_id },
-                                Discount = 0,
-                                Obtained = true
-                            }));
+                //////            allGifts.Add(new AllSaleOrderPromotionWizardGiftWrapper(new AllSaleOrderPromotionWizardGift
+                //////            {
+                //////                Product_Id = line.product_tmpl_id,
+                //////                Qty = Qty,
+                //////                Promotion_Line_Id = 0, //Se determina cuando ya se haya creado padre
+                //////                Stock = line.product_uom_qty,
+                //////                Price = line.price_unit,
+                //////                Approve = true,
+                //////                Lines_Ids = new int[] { line.erp_id },
+                //////                Discount = 0,
+                //////                Obtained = true
+                //////            }));
                             
-                            if (!string.IsNullOrEmpty(line.origin_gift_line_ids_offline))
-                            {
-                                try
-                                {
-                                    List<OriginPromoOrderLine> productSequenceApplyList = new List<OriginPromoOrderLine>();
-                                    productSequenceApplyList = JsonConvert.DeserializeObject<List<OriginPromoOrderLine>>(line.origin_gift_line_ids_offline);
-                                    int[] linesIdsArray = new int[] { line.erp_id };
+                //////            if (!string.IsNullOrEmpty(line.origin_gift_line_ids_offline))
+                //////            {
+                //////                try
+                //////                {
+                //////                    List<OriginPromoOrderLine> productSequenceApplyList = new List<OriginPromoOrderLine>();
+                //////                    productSequenceApplyList = JsonConvert.DeserializeObject<List<OriginPromoOrderLine>>(line.origin_gift_line_ids_offline);
+                //////                    int[] linesIdsArray = new int[] { line.erp_id };
 
-                                    foreach (var itemSequence in productSequenceApplyList)
-                                    {
-                                        linesIds.Add(new SaleOrderPromotionWizardLineWrapper(new SaleOrderPromotionWizardLine
-                                        {
-                                            Promotion_Id = itemSequence.promo_id,
-                                            Rule_Id = itemSequence.rule_id,
-                                            Discount = 100,
-                                            Rule_Value = itemSequence.total_allowed_gifts,
-                                            Qty_Confirmation = true,
-                                            Lines_Ids = linesIdsArray
-                                        }));
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    await Toast.Make("Error en el dato de promociones - origin_gift_line_ids_offline" + ex.Message).Show();
-                                }
-                            }
-                        }
-                        else
-                        {
+                //////                    foreach (var itemSequence in productSequenceApplyList)
+                //////                    {
+                //////                        linesIds.Add(new SaleOrderPromotionWizardLineWrapper(new SaleOrderPromotionWizardLine
+                //////                        {
+                //////                            Promotion_Id = itemSequence.promo_id,
+                //////                            Rule_Id = itemSequence.rule_id,
+                //////                            Discount = 100,
+                //////                            Rule_Value = itemSequence.total_allowed_gifts,
+                //////                            Qty_Confirmation = true,
+                //////                            Lines_Ids = linesIdsArray
+                //////                        }));
+                //////                    }
+                //////                }
+                //////                catch (Exception ex)
+                //////                {
+                //////                    await Toast.Make("Error en el dato de promociones - origin_gift_line_ids_offline" + ex.Message).Show();
+                //////                }
+                //////            }
+                //////        }
+                //////        else
+                //////        {
                             
-                        }
-                    }
+                //////        }
+                //////    }
                     
-                    var newSaleOrderPromotionWizard = new SaleOrderPromotionWizard
-                    {
-                        Order_Id = sale_Order.erp_id,
-                        Line_Ids = linesIds,
-                        Gift_Line_Ids = gift_line_Ids,
-                        All_Gift_Line_Ids = allGifts,
-                        Base = true
-                    };
+                //////    var newSaleOrderPromotionWizard = new SaleOrderPromotionWizard
+                //////    {
+                //////        Order_Id = sale_Order.erp_id,
+                //////        Line_Ids = linesIds,
+                //////        Gift_Line_Ids = gift_line_Ids,
+                //////        All_Gift_Line_Ids = allGifts,
+                //////        Base = true
+                //////    };
 
-                    var hubSaleOrderPromotionWizard = new HubSaleOrderPromotionWizard(Constants.Session);
-                    var createdPromotion = await hubSaleOrderPromotionWizard.Create(newSaleOrderPromotionWizard, true);
+                //////    var hubSaleOrderPromotionWizard = new HubSaleOrderPromotionWizard(Constants.Session);
+                //////    var createdPromotion = await hubSaleOrderPromotionWizard.Create(newSaleOrderPromotionWizard, true);
                     
-                    await hubSaleOrder.WriteLines(lines);
-                }
+                //////    await hubSaleOrder.WriteLines(lines);
+                //////}
 
                 return true;
             }
 
+            await Toast.Make("Es probable que no se haya sincronizado correctamente, se obtuvo un valor erroneo.").Show();
             return false;
         }
 

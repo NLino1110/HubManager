@@ -3,11 +3,13 @@ using CommunityToolkit.Maui.Extensions;
 using DMOrders.Controls.Tools;
 using DMOrders.Services.PatchManager.Reset;
 using DMSA.Models.Odoo.Abstract;
+using DMSA.Models.Odoo.Abstract.Server;
+using DMSA.Models.Odoo.Abstract.Server.Dto;
 using DMSA.Models.Odoo.Tools;
 using DMSA.Sync.Core.Controls.Popups;
 using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Reponses;
-using DMSA.Sync.Core.Update.Cloud.v1_5;
+using DMSA.Sync.Core.Update.Cloud.v2_0;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Security.Cryptography;
@@ -141,13 +143,6 @@ public partial class Connections : TabbedPage
         }
     }
 
-    public class DatabaseStruct
-    {
-        public string Name { get; set; }
-        public int Size { get; set; }
-        public string Path { get; set; }
-    }
-
     private string _statusMessage;
     public string StatusMessage
     {
@@ -175,17 +170,21 @@ public partial class Connections : TabbedPage
             dbStructItems.Add(
                 new DatabaseStruct
                 {
+                    Host = item.Host,
                     Name = item.DbNameSqlite,
                     Size = 0,
-                    Path = item.DbNameSqlite
+                    Path = item.DbNameSqlite,
+                    OriginalDBName = item.DbName
                 });
 
             dbStructItems.Add(
                 new DatabaseStruct
                 {
+                    Host = item.Host,
                     Name = item.DbNameSqlite + "_static",
                     Size = 0,
-                    Path = item.DbNameSqlite + "_static"
+                    Path = item.DbNameSqlite + "_static",
+                    OriginalDBName = item.DbName
                 });
         }
     }
@@ -322,7 +321,7 @@ public partial class Connections : TabbedPage
     {
         if (selectedDatabase == null)
         {
-            await Toast.Make($"Seleccione una base de datos...").Show();
+            await Toast.Make($"Seleccione base de datos").Show();
             return;
         }
 
@@ -348,50 +347,47 @@ public partial class Connections : TabbedPage
 
         await Toast.Make($"Se empezará a subir {dbNameSqlite} a la nube, espere un momento").Show();
 
-        //userdb = new UserAccessDb(selectedConnection.DbNameSqlite);
-
         var pipeline = new Pipeline();
 
-        //bool successUpload = await pipeline.UploadToFileNoAttach(dbNameSqlite, dbNameSqlite);
-        (var attachData, bool successUpload, responseUpload file_upload_response) = await pipeline.UploadSqliteZipNonAttach(dbNameSqlite);
+        (PackageResponseDto file_upload_response, bool successUpload) = await pipeline.UploadSqliteZip(selectedDatabase, null);
 
-        string message_server = "";
-        if (file_upload_response != null)
-            message_server = file_upload_response.message;
-
-        if (successUpload)
+        if (file_upload_response.success_upload)
         {
-            await Toast.Make($"Enviado correctamente {dbNameSqlite} - {message_server}").Show();
+            await Toast.Make($"Enviado correctamente {dbNameSqlite}").Show();
         }
         else
-        {            
-            await Toast.Make($"ERROR: No se envió correctamente {dbNameSqlite} - {message_server}").Show();
+        {
+            await Toast.Make($"ERROR: No se envió correctamente {dbNameSqlite} - {file_upload_response.error}").Show();
         }
     }
 
     private bool MatchPackageWithSelection(string packageName)
     {
-        var selectedConnection = (DatabaseStruct)pickerDb.SelectedItem;
-        string dbNameSqlite = selectedConnection.Name;
+        var dbNameSqlite = selectedDatabase.Name;
+
+        if (string.IsNullOrWhiteSpace(packageName))
+            return false;
 
         var parts = packageName.Split('_');
-        var app_id = parts[0];
-        var nameParts = parts.Skip(3).Take(parts.Length - 4);
-        string originalName = string.Join("_", nameParts);
 
-        if(originalName == dbNameSqlite && app_id == App.Session.AppCodeOdoo)
-        {
-            return true;
-        }
+        if (parts.Length < 5)
+            return false;
 
-        return false;
+        var app_id = parts[1];
+
+        var nameParts = parts.Skip(2).Take(parts.Length - 3);
+
+        var extractedDbName = string.Join("_", nameParts);
+
+        return extractedDbName.Equals(dbNameSqlite, StringComparison.OrdinalIgnoreCase)
+               && app_id == App.Session.AppCodeOdoo;
     }
 
     private async void btnDownloadDb_Clicked(object sender, EventArgs e)
     {
-        if(selectedDatabase == null)
+        if (selectedDatabase == null)
         {
-            await Toast.Make($"Seleccione una base de datos...").Show();
+            await Toast.Make($"Seleccione base de datos").Show();
             return;
         }
 
@@ -400,7 +396,7 @@ public partial class Connections : TabbedPage
             "Ingrese Nombre del paquete que desea restaurar:",
             "OK",
             "Cancelar",
-            placeholder: "ej. 02_app_package_prod1_macronegocios_20260609185423",
+            placeholder: "ej. pk_01_prod1_macronegocios_00000000000000",
             maxLength: 50,
             keyboard: Keyboard.Text
         );
@@ -413,7 +409,7 @@ public partial class Connections : TabbedPage
 
         if (!MatchPackageWithSelection(packageName))
         {
-            await Toast.Make($"Nombre del paquete no coincide con la base de datos seleccionada").Show();
+            await Toast.Make($"Nombre de paquete no coincide con la base de datos o no pertenece a esta aplicación.").Show();
             return;
         }
 
@@ -434,21 +430,20 @@ public partial class Connections : TabbedPage
 
         await Toast.Make($"Inciada restauración de base de datos {packageName}").Show();
 
-        var pipeline = new Pipeline();
-                
+        //V2_0
         await SqliteDbBase<object>.CloseDatabaseAsync();
-        //string packageName = "02_app_package_prod1_macronegocios_20260609185423";
-        //if (await pipeline.DownloadSqliteZipByPackage(packageName,true, async (current, total) => { await UpdateProgressState(null, current, total, "Archivos"); }))
-        if (await pipeline.DownloadSqliteZipByPackage(packageName, true, null))
+        var pipeline = new Pipeline();
+        var packageForDownload = new Package();
+        packageForDownload.name = packageName;
+
+        if (await pipeline.DownloadPackage(packageForDownload, true, null))
         {
-            
+            await Toast.Make($"Restauración de base de datos terminada {packageName}").Show();
         }
         else
         {
             await Toast.Make("Hubo un error al descargar/descomprimir archivo.").Show();
-        }
-
-        await Toast.Make($"Restauración de base de datos terminada {packageName}").Show();
+        }        
     }
 
     private async Task UpdateProgressState(ProgressBarPage progressBarPage, int current, int total, string title)

@@ -439,6 +439,17 @@ namespace DMSA.Sync.Core.Database.Sqlite
         {
             await Init();
             return await Database.Table<res_partner>().Where(i => i.id == id).FirstOrDefaultAsync();
-        }    
+        }
+
+        public async Task RemoveOldDataAsync()
+        {
+            await Init();
+
+            string sql = @"
+               DELETE FROM res_partner WHERE datetime((write_date / 10000000) - 62135596800, 'unixepoch') <= '2026-04-21';
+            ";
+
+            await Database.ExecuteAsync(sql);
+        }
     }
 }

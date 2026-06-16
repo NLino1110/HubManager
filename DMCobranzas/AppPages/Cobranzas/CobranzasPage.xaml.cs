@@ -524,7 +524,8 @@ public partial class CobranzasPage : ContentPage
         AccountPaymentDailyDb accountPaymentDailyDb = new AccountPaymentDailyDb(App.Session.odooConnection.DbNameSqlite);
         MultipleCobrosInvoiceDb multipleCobrosInvoiceDb = new MultipleCobrosInvoiceDb(App.Session.odooConnection.DbNameSqlite);
 
-        var resultItems = await multipleCobrosInvoiceDb.GetItemsAsync(x => x.date < DateTime.Now.Date);
+        var resultItems = await multipleCobrosInvoiceDb.GetItemsAsync(x => x.date < DateTime.Now.Date 
+            && x.create_uid == App.Session.CurrentUserFront.uid);
 
         var fechasUnicas = resultItems
             .Select(x => x.date.Date)
@@ -536,7 +537,7 @@ public partial class CobranzasPage : ContentPage
 
         var fechasSet = fechasUnicas.ToHashSet();
 
-        var cierres_full = await accountPaymentDailyDb.GetItemsAsync(x=> x.was_odoo_synced != null );
+        var cierres_full = await accountPaymentDailyDb.GetItemsAsync(x=> x.was_odoo_synced != null && x.uid == App.Session.CurrentUserFront.uid);
 
         var fechasCierres = cierres_full
             .Select(x =>

@@ -1,4 +1,5 @@
 ﻿using DMSA.Models.Odoo.Abstract.Server;
+using DMSA.Models.Odoo.Abstract.Server.Dto;
 
 namespace WebMobileManager.Web.Services.Sqlite
 {
@@ -47,6 +48,48 @@ namespace WebMobileManager.Web.Services.Sqlite
             return await Database.Table<Package>().CountAsync();
         }
 
+        public async Task<List<Package>> GetAll(PackageFilterDto filter)
+        {
+            await Init();
 
+            var query = Database.Table<Package>();
+
+            if (filter != null)
+            {
+                if (!string.IsNullOrWhiteSpace(filter.Name))
+                    query = query.Where(x => x.name == filter.Name);
+
+                if (!string.IsNullOrWhiteSpace(filter.server))
+                    query = query.Where(x => x.server == filter.server);
+
+                if (!string.IsNullOrWhiteSpace(filter.database_name))
+                    query = query.Where(x => x.database_name == filter.database_name);
+
+                if (!string.IsNullOrWhiteSpace(filter.file_type))
+                    query = query.Where(x => x.file_type == filter.file_type);
+
+                if (!string.IsNullOrWhiteSpace(filter.mobile_app_id))
+                    query = query.Where(x => x.mobile_app_id == filter.mobile_app_id);
+
+                if (!string.IsNullOrWhiteSpace(filter.user_frontend))
+                    query = query.Where(x => x.user_frontend == filter.user_frontend);
+
+                if (!string.IsNullOrWhiteSpace(filter.external_guid))
+                    query = query.Where(x => x.external_guid == filter.external_guid);
+
+                if (filter.date_data_cutoff.HasValue)
+                    query = query.Where(x => x.date_data_cutoff >= filter.date_data_cutoff.Value);
+
+                if (filter.total_files_expected.HasValue)
+                    query = query.Where(x => x.total_files_expected == filter.total_files_expected.Value);
+
+                if (filter.total_file_size_expected.HasValue)
+                    query = query.Where(x => x.total_file_size_expected == filter.total_file_size_expected.Value);
+
+                if (filter.is_base.HasValue)
+                    query = query.Where(x => x.is_base == filter.is_base.Value);
+            }
+            return await query.ToListAsync();
+        }
     }
 }

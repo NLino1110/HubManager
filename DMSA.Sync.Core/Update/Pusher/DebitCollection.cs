@@ -282,7 +282,20 @@ namespace DMSA.Sync.Core.Update.Pusher
                     else
                     {
                         Debug.WriteLine("ERROR AL ALMACENAR DETALLA DE COBRO");
-                        Debug.WriteLine("===================================");                        
+                        Debug.WriteLine("===================================");
+
+                        if(paymentsResult != null)
+                        {
+                            if (resultTask.error == null)
+                            {
+                                resultTask.error = new Error();
+                                resultTask.error.data = new Data();
+                            }
+
+                            resultTask.error.data.message = paymentsResult.error.data.message;
+                            resultTask.error.message = paymentsResult.error.data.message;
+                        }
+                        break;
                     }
                 }
             }

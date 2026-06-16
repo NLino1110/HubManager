@@ -1,4 +1,5 @@
-﻿using DMSA.Sync.Core.Database.Sqlite;
+﻿using DMSA.Models.Security;
+using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Services;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,20 @@ namespace DMOrders.Services.Update
 {
     static public class AppTools
     {
+        static async public Task GlobalSettingInit(AppSession session)
+        {
+            try
+            {
+                var globalSettingsDb = new GlobalSettingsDb();
+                await globalSettingsDb.InitDefault();
+                session.globalSettings = (await globalSettingsDb.GetItemsAsync(x => x.Id > 0)).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error GlobalSettingInit: {ex.Message}");
+            }
+        }
+
         static public void GlobalSettingInit()
         {
             try

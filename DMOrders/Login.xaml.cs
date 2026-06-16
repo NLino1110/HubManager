@@ -110,6 +110,7 @@ public partial class Login : ContentPage
 
     public async Task SetupLogin()
     {
+        await AppTools.GlobalSettingInit(App.Session);
         AppTools.BuildPushRelay();
 
         OdooConnectionItems = new ObservableCollection<OdooConnection>();

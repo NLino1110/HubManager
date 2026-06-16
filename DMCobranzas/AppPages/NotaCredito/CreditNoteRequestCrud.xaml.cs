@@ -819,6 +819,8 @@ public partial class CreditNoteRequestCrud : ContentPage
             creditNoteRequestDetail_Send.docnum_mask = _accountMoveSelected.docnum_mask;
             creditNoteRequestDetail_Send.invoice_date = _accountMoveSelected.invoice_date;
             creditNoteRequestDetail_Send.product_uom_id = item._product_uom_id;
+            creditNoteRequestDetail_Send.discount_balance = item.discount_balance;
+            creditNoteRequestDetail_Send.discount_percentage = item.discount_percentage;
 
             int analitica_id = 0;
             int[] analytics = Array.Empty<int>();
@@ -1017,7 +1019,7 @@ public partial class CreditNoteRequestCrud : ContentPage
 
         Debug.WriteLine(item.name);
     }
-    
+
     private async void btnSave_Clicked(object sender, EventArgs e)
     {
         TypeParentNc selected_module = null;
@@ -1027,19 +1029,27 @@ public partial class CreditNoteRequestCrud : ContentPage
         {
 
         }
-        
+
         if (pickerModulos.SelectedItem != null)
-        {
-            //await Toast.Make("Por favor, seleccione un módulo antes de guardar").Show();
-            //return;
-            selected_module = (TypeParentNc) pickerModulos.SelectedItem;
+        {            
+            selected_module = (TypeParentNc)pickerModulos.SelectedItem;
         }
 
-        if(pickerTipoNc.SelectedItem != null)
+        if (pickerTipoNc.SelectedItem != null)
+        {            
+            selected_type_module = (TypeNc)pickerTipoNc.SelectedItem;
+        }
+
+        if (selected_module == null)
         {
-            //await Toast.Make("Por favor, seleccione un tipo de nota de crédito antes de guardar").Show();
-            //return;
-            selected_type_module = (TypeNc) pickerTipoNc.SelectedItem;
+            await Toast.Make("Por favor, seleccione un módulo antes de guardar").Show();
+            return;
+        }
+
+        if(selected_type_module == null)
+        {
+            await Toast.Make("Por favor, seleccione un tipo de nota de crédito antes de guardar").Show();
+            return;
         }
 
         //TODO: NO ELIMINAR ESTA SECCION DE CODIGO

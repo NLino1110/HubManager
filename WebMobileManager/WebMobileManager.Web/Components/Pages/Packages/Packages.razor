@@ -61,6 +61,9 @@
                 <MudIconButton Icon="@Icons.Material.Filled.Delete"
                                Color="Color.Error"
                                OnClick="@(() => Delete(context.Item.Id))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Download"
+                               Color="Color.Error"
+                               OnClick="@(() => DownloadFullPack(context.Item.Id))" />
             </CellTemplate>
         </TemplateColumn>
     </Columns>
@@ -102,6 +105,21 @@
             Snackbar.Add("Paquete eliminado", Severity.Success);
 
             await ReloadGrid();
+        }
+    }
+
+    private async Task DownloadFullPack(int id)
+    {
+        bool? confirm = await DialogService.ShowMessageBoxAsync(
+            "Confirmar",
+            "¿Descargar este paquete?",
+            yesText: "Sí",
+            cancelText: "Cancelar");
+
+        if (confirm == true)
+        {
+            Snackbar.Add("Descargando Paquete", Severity.Success);
+            
         }
     }
 

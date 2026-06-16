@@ -1,6 +1,7 @@
 ﻿using DMSA.Models.Odoo.Abstract.Server;
 using DMSA.Models.Odoo.Abstract.Server.Dto;
 using Microsoft.AspNetCore.Mvc;
+using WebMobileManager.Web.Components.Pages.Packages;
 using WebMobileManager.Web.Services.Sqlite;
 
 namespace WebMobileManager.Web.Controllers
@@ -47,6 +48,13 @@ namespace WebMobileManager.Web.Controllers
                     }                    
                     );
 
+            bool is_base = false;
+
+            if (dto.is_base.HasValue) 
+            {
+                is_base = dto.is_base.Value;
+            }
+
             var pkg = new Package
             {
                 name = dto.Name,
@@ -63,7 +71,8 @@ namespace WebMobileManager.Web.Controllers
                 created_at = DateTime.UtcNow,
                 processing_state = "Pending",                
                 uploaded_files = 0,
-                success_upload = true
+                success_upload = true,
+                is_base = is_base,
             };
 
             await _packageDb.InsertAsync(pkg);
@@ -84,12 +93,12 @@ namespace WebMobileManager.Web.Controllers
         }
 
         // 3. Listar paquetes
-        [HttpGet("all")]
-        public async Task<IActionResult> GetAll()
-        {
-            var list = await _packageDb.GetAll();
-            return Ok(list);
-        }
+        //[HttpGet("all")]
+        //public async Task<IActionResult> GetAll()
+        //{
+        //    var list = await _packageDb.GetAll();
+        //    return Ok(list);
+        //}
 
         [HttpPost("{packageName}/file")]
             public async Task<IActionResult> AddFile(
@@ -184,6 +193,13 @@ namespace WebMobileManager.Web.Controllers
             });
 
             return Ok(result);
+        }
+
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAll([FromQuery] PackageFilterDto filter)
+        {
+            var list = await _packageDb.GetAll(filter);
+            return Ok(list);
         }
 
         private string BuildFileUrl(string packageName, string fileName)

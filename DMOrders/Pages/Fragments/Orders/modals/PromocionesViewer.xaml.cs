@@ -1566,12 +1566,25 @@ public partial class PromocionesViewer : ContentView
 
     private async Task ChangeDiscountEvent(PromoRuleMatch rule, bool ShouldSaveToo)
     {
-        if (rule.discount > rule.discount_base || rule.discount < 2)
+        //if (rule.discount > rule.discount_base || rule.discount < 2)
+        //{
+        //    rule.discount = rule.discount_base;
+        //    await Toast.Make("El descuento no puede ser mayor a " + rule.discount_base + "% ni menos del 2%").Show();
+
+        //    OnPropertyChanged(nameof(promoDiscounts)); 
+        //    return;
+        //}
+        //else
+        //{
+        //    await Toast.Make("El descuento del " + rule.discount + "% aplicado!").Show();
+        //}
+
+        if (rule.discount > rule.discount_base || rule.discount < 0)
         {
             rule.discount = rule.discount_base;
-            await Toast.Make("El descuento no puede ser mayor a " + rule.discount_base + "% ni menos del 2%").Show();
-            
-            OnPropertyChanged(nameof(promoDiscounts)); 
+            await Toast.Make("El descuento no puede ser mayor a " + rule.discount_base + " ni negativo").Show();
+
+            OnPropertyChanged(nameof(promoDiscounts));
             return;
         }
         else

@@ -106,6 +106,35 @@ namespace DMSA.Models.Odoo.Abstract
 
             defaultSettings.Add(new OdooConnection()
             {
+                Id = 32,
+                CompanyId = 1,
+                Name = "DMujeres (QA)",
+                Host = "http://qa.dmujeres:8069/",
+                DbName = "qa.dmujeres",
+                Username = "admin_cobranzas",
+                Password = CryptoHelper.Encrypt("2OGFnIMttn3I8FdB"),
+                Active = false,
+                HostDump = "https://manager.dmujeres.ec:5001",
+                HostDumpApiKey = "t.0.0.r.1381",
+                DumpService = "/resources/tmp/android/sqlite/",
+                DbLimitDefault = 300,
+                IsProduction = false,
+                IsTestMode = true,
+                DataToleranceDays = 365,
+                sale_channel_default = 8,
+                res_center_default = 49,
+                prefix_db = "dev_",
+                email_domain = "macronegocios.ec",
+                preload_email_domain = true,
+                PasswordFront = "Y0.dM3c",
+                subclasificacion_gasto_default = 147,
+                project_id = 2,
+                stage_id = 0,
+            }
+            );
+
+            defaultSettings.Add(new OdooConnection()
+            {
                 Id = 6,
                 CompanyId = 1,
                 Name = "DMujeres Prod",
