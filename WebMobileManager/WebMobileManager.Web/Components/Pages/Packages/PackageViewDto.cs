@@ -10,6 +10,10 @@ namespace WebMobileManager.Web.Components.Pages.Packages
         public string file_name { get; set; }
         public bool success_upload { get; set; }
         public string processing_state { get; set; }
+
+        public int total_files_expected { get; set; }
+        public int total_file_size_expected { get; set; }
+
         public DateTime created_at { get; set; }
 
         public List<PackageFileDto> Files { get; set; } = new();

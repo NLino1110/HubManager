@@ -6,5 +6,6 @@ namespace WebMobileManager.Web.Services.Interfaces
     {
         Task<(List<PackageViewDto> items, int total)> GetPackages(int page, int pageSize);
         Task DeletePackage(int id);
+        Task<byte[]> DownloadFullPackage(int packageId);
     }
 }

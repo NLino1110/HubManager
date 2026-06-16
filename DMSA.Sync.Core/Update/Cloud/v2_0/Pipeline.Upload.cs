@@ -24,6 +24,10 @@ namespace DMSA.Sync.Core.Update.Cloud.v2_0
 
             Debug.WriteLine($"ZIP generado. Tamaño total: {zipBytes.Length / 1024 / 1024.0:F2} MB");
 
+            // Partir el ZIP
+            var parts = SplitFile(zipBytes, MAX_PART_SIZE).ToList();
+            int totalParts = parts.Count;
+
             var hub = new HubPackageClient(Constants.Session);
 
             string package_name = $"pk_{Constants.Session.AppCodeOdoo}_{DbNameSqlite}_{DateTime.Now:yyyyMMddHHmmss}";
@@ -39,7 +43,7 @@ namespace DMSA.Sync.Core.Update.Cloud.v2_0
                 date_data_cutoff = DateTime.UtcNow,
                 mobile_app_id = Constants.Session.AppCodeOdoo,
                 //user_frontend = Constants.Session.CurrentUserFront.username,
-                //total_files_expected = 0,
+                total_files_expected = totalParts,
                 //total_file_size_expected = 0,
                 external_guid = Guid.NewGuid().ToString(),                
             };
@@ -60,9 +64,7 @@ namespace DMSA.Sync.Core.Update.Cloud.v2_0
 
             Debug.WriteLine($"Paquete creado con ID: {responseSend.id}");
 
-            // Partir el ZIP
-            var parts = SplitFile(zipBytes, MAX_PART_SIZE).ToList();
-            int totalParts = parts.Count;
+            
 
             Debug.WriteLine($"Archivo dividido en {totalParts} partes");
 

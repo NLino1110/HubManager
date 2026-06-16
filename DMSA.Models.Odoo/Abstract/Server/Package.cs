@@ -17,9 +17,9 @@ namespace DMSA.Models.Odoo.Abstract.Server
         public DateTime date_data_cutoff { get; set; }
         public string mobile_app_id { get; set; }
         public string user_frontend { get; set; }
-        public int total_files_expected { get; set; }
+        public int total_files_expected { get; set; }        
         public int total_file_size_expected { get; set; }
-        public int uploaded_files { get; set; }
+        public int total_files_uploaded { get; set; }
         public bool success_upload { get; set; }
         public string external_guid { get; set; }
         public DateTime created_at { get; set; }

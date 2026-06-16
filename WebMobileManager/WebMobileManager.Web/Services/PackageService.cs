@@ -37,7 +37,8 @@ namespace WebMobileManager.Web.Services
                 success_upload = p.success_upload,
                 processing_state = p.processing_state,
                 created_at = p.created_at,
-
+                total_files_expected = p.total_files_expected,
+                total_file_size_expected = p.total_file_size_expected,
                 Files = files
                     .Where(f => f.package_id == p.id)
                     .Select(f => new PackageFileDto
@@ -88,6 +89,45 @@ namespace WebMobileManager.Web.Services
 
                 await _packageDb.DeleteAsync(pkg);
             }
+        }
+
+        public async Task<byte[]> DownloadFullPackage(int packageId)
+        {
+            var pkg = (await _packageDb.GetItemsAsync(x => x.id == packageId)).FirstOrDefault();
+
+            if (pkg == null)
+                return null;
+
+            var files = await _fileDb.GetItemsAsync(x => x.package_id == packageId);
+
+            var orderedFiles = files.OrderBy(f => f.id).ToList();
+
+            if (!orderedFiles.Any())
+                return null;
+
+            var folderPath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot",
+                "uploads",
+                "zips",
+                pkg.name
+            );
+
+            using var ms = new MemoryStream();
+
+            foreach (var file in orderedFiles)
+            {
+                var fullPath = Path.Combine(folderPath, file.file_name);
+
+                if (!File.Exists(fullPath))
+                    continue;
+
+                var bytes = await File.ReadAllBytesAsync(fullPath);
+
+                await ms.WriteAsync(bytes, 0, bytes.Length);
+            }
+
+            return ms.ToArray();
         }
     }
 }

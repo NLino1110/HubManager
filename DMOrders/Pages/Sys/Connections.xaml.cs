@@ -428,7 +428,7 @@ public partial class Connections : TabbedPage
             return;
         }
 
-        await Toast.Make($"Inciada restauración de base de datos {packageName}").Show();
+        await Toast.Make($"Iniciada restauración de base de datos {packageName}").Show();
 
         //V2_0
         await SqliteDbBase<object>.CloseDatabaseAsync();

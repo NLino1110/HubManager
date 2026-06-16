@@ -442,7 +442,7 @@ public partial class Connections : TabbedPage
             return;
         }
 
-        await Toast.Make($"Inciada restauración de base de datos {packageName}").Show();
+        await Toast.Make($"Iniciada restauración de base de datos {packageName}").Show();
 
         //V1_5
         //var pipeline = new Pipeline();

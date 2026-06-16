@@ -2,6 +2,7 @@
 using DMSA.Models.Odoo.Abstract.Server.Dto;
 using Microsoft.AspNetCore.Mvc;
 using WebMobileManager.Web.Components.Pages.Packages;
+using WebMobileManager.Web.Services.Interfaces;
 using WebMobileManager.Web.Services.Sqlite;
 
 namespace WebMobileManager.Web.Controllers
@@ -13,13 +14,16 @@ namespace WebMobileManager.Web.Controllers
     {
         private readonly PackageDb _packageDb;
         private readonly PackageFileDb _fileDb;
+        private readonly IPackageService _packageService;
 
-        public PackageController()
+        public PackageController(
+            PackageDb packageDb,
+            PackageFileDb fileDb,
+            IPackageService packageService)
         {
-            var dbPath = Constants.DatabasePath;
-
-            _packageDb = new PackageDb(dbPath);
-            _fileDb = new PackageFileDb(dbPath);
+            _packageDb = packageDb;
+            _fileDb = fileDb;
+            _packageService = packageService;
         }
 
         // 1. Crear paquete
@@ -70,7 +74,7 @@ namespace WebMobileManager.Web.Controllers
                 external_guid = dto.external_guid,
                 created_at = DateTime.UtcNow,
                 processing_state = "Pending",                
-                uploaded_files = 0,
+                total_files_uploaded = 0,
                 success_upload = true,
                 is_base = is_base,
             };
@@ -163,8 +167,7 @@ namespace WebMobileManager.Web.Controllers
 
             await _fileDb.InsertAsync(fileRecord);
 
-            pkg.total_files_expected += 1;
-            pkg.uploaded_files += 1;
+            pkg.total_files_uploaded += 1;
 
             await _packageDb.UpdateAsync(pkg);
 
@@ -200,6 +203,17 @@ namespace WebMobileManager.Web.Controllers
         {
             var list = await _packageDb.GetAll(filter);
             return Ok(list);
+        }
+
+        [HttpGet("download/{id}")]
+        public async Task<IActionResult> Download(int id)
+        {
+            var data = await _packageService.DownloadFullPackage(id);
+
+            if (data == null)
+                return NotFound();
+
+            return File(data, "application/zip", $"package_{id}.zip");
         }
 
         private string BuildFileUrl(string packageName, string fileName)

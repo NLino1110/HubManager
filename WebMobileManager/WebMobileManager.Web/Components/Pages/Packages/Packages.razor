@@ -15,15 +15,15 @@
     </MudButton>
 </MudStack>
 
-    <MudDataGrid @ref="grid"
+<MudDataGrid @ref="grid"
              T="PackageViewDto"
-                 ServerData="LoadServerData"
-                 Hover="true"
-                 Dense="true">
+            ServerData="LoadServerData"
+            Hover="true"
+            Dense="true">
     <Columns>
 
         <PropertyColumn Property="x => x.Name" Title="Nombre" />
-        <PropertyColumn Property="x => x.database_name" Title="Base de datos" />
+        <PropertyColumn Property="x => x.database_name" Title="Db" />
         <PropertyColumn Property="x => x.file_name" Title="Archivo" />
 
         <TemplateColumn Title="Archivos">
@@ -47,6 +47,8 @@
             </CellTemplate>
         </TemplateColumn>
 
+        <PropertyColumn Property="x => x.total_files_expected" Title="Count" />
+
         <TemplateColumn Title="Estado">
             <CellTemplate>
                 <MudChip Color="@(context.Item.success_upload ? Color.Success : Color.Warning)">
@@ -68,10 +70,15 @@
         </TemplateColumn>
     </Columns>
 
+    <PagerContent>
+        <MudDataGridPager T="PackageViewDto" />
+    </PagerContent>
+
 </MudDataGrid>
 
 @code
 {
+    [Inject] IJSRuntime JS { get; set; }
     private MudDataGrid<PackageViewDto> grid;
 
     private async Task<GridData<PackageViewDto>> LoadServerData(
@@ -118,10 +125,89 @@
 
         if (confirm == true)
         {
-            Snackbar.Add("Descargando Paquete", Severity.Success);
-            
+            var url = $"api/package/download/{id}";
+
+            await JS.InvokeVoidAsync("open", url, "_blank");
+
+            Snackbar.Add("Descargando paquete...", Severity.Success);
         }
     }
+
+    // public async Task<bool> DownloadPackage(Package package,
+    //         bool removeTmpFile,
+    //         Func<int, int, Task>? onProgress = null)
+    // {
+    //     if (package == null)
+    //         return false;
+
+    //     bool boolResponse = false;
+
+    //     var hubPackageClient = new HubPackageClient(Constants.Session);
+
+    //     var packageDto = await hubPackageClient.GetPackage(package.name);
+
+    //     var file_name = packageDto.file_name;
+
+    //     var filesList = (await hubPackageClient.GetFiles(package.name));
+    //     filesList = filesList.OrderBy(x => x.id).ToList();
+
+    //     string originalName = file_name;
+    //     string nameWithoutExt = Path.GetFileNameWithoutExtension(originalName);
+    //     string ext = Path.GetExtension(originalName);
+
+    //     string randomSuffix = Guid.NewGuid().ToString("N");
+
+    //     string tempZipPath = Path.Combine(
+    //         FileSystem.AppDataDirectory,
+    //         $"{nameWithoutExt}_{randomSuffix}{ext}"
+    //     );
+
+    //     if (filesList.Count == 0)
+    //         return false;
+
+    //     using (var output = new FileStream(tempZipPath, FileMode.Create, FileAccess.Write))
+    //     {
+    //         int total = filesList.Count;
+    //         int count = 0;
+
+    //         foreach (var item in filesList)
+    //         {
+    //             count++;
+    //             Debug.WriteLine($"Descargando {count}/{total}");
+
+    //             var partBytes = await hubPackageClient.DownloadDirect(item.url);
+
+    //             if (partBytes == null || partBytes.Length == 0)
+    //             {
+    //                 Debug.WriteLine($"ERROR: Parte {count} vacía");
+    //                 return false;
+    //             }
+
+    //             Debug.WriteLine($"Parte {count}: {partBytes.Length} bytes");
+
+    //             if (onProgress != null)
+    //                 await onProgress(count, total);
+
+    //             await output.WriteAsync(partBytes, 0, partBytes.Length);
+    //         }
+    //     }
+
+    //     bool exists = ZipContainsFile(tempZipPath, nameWithoutExt);
+
+    //     if (exists)
+    //     {
+    //         string extractPath = FileSystem.AppDataDirectory;
+    //         ZipFile.ExtractToDirectory(tempZipPath, extractPath, true);
+
+    //         await Task.Delay(2000);
+    //         boolResponse = true;
+    //     }
+
+    //     if (removeTmpFile)
+    //         File.Delete(tempZipPath);
+
+    //     return boolResponse;
+    // }
 
     private async Task ReloadGrid()
     {
