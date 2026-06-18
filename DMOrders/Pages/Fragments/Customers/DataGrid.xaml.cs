@@ -318,6 +318,17 @@ namespace DMOrders.Pages.Fragments.Customers
                         _isProcessing = false;
                     }
 
+                    if (resultCrud == 3)
+                    {
+                        var page = Application.Current?.MainPage;
+                        if (page != null)
+                            await page.DisplayAlertAsync("Alerta",
+                                            "El dato del cliente no fue encontrado, por favor actualice los datos",
+                                            "Aceptar");
+                        button.IsEnabled = true;
+                        _isProcessing = false;
+                    }
+
                     if (resultCrud == 0)
                     {
                     viewObj.Unloaded += (sender, e) =>

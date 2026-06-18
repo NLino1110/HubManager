@@ -1,4 +1,5 @@
 ﻿using ApiManagerOdoo.Accounting;
+using BeebTech.Controls.UI;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Extensions;
 using DMCobranzas.Settings.helpers;
@@ -407,10 +408,9 @@ public partial class AccountPaymentCrud : ContentPage
     }
 
     private async Task RefreshPlan()
-    {
-        
+    {        
         int selected_journal = 0;
-        int selected_bank = 0;        
+        int selected_bank = 0;
         int _pos_tipo_pago = 0;
 
         if (pickerDiario.SelectedIndex != -1)
@@ -928,6 +928,45 @@ public partial class AccountPaymentCrud : ContentPage
         OnPropertyChanged(nameof(totalAssigned));
     }
 
+    private async Task<ObservableCollection<ResBank>> RebuildBanksList(long? BankId, ObservableCollection<ResBank> originList, DropdownField dropdownField)
+    {
+        if (!BankId.HasValue || BankId.Value == 0)
+            return null;
+
+        List<string> bank_ids = new List<string> { "10", "30", "17", "36", "37", "32", "232", "42" };
+
+        var bank = new BankDb(App.Session.odooConnection.DbNameSqlite);
+        
+        var bankItems = (await bank.GetItemsAsync(x => bank_ids.Contains(x.bic))).ToList();
+
+        ObservableCollection<ResBank> BanksVar =
+            [
+                new ResBank { id = 0, name = "No seleccionada" },
+                new ResBank { id = -1, name = "🔍 Buscar..." }
+            ];
+
+        foreach (var partnerItem in bankItems)
+        {
+            BanksVar.Add(partnerItem);
+        }
+
+        var banco = originList.Where(x => x.id == multipleCobrosInvoiceLine.BankId).FirstOrDefault();
+
+        if (banco == null)
+        {
+            banco = (await bank.GetItemsAsync(x => x.id == BankId)).FirstOrDefault();
+        }
+
+        if (banco != null)
+        {
+            BanksVar.Add(banco);
+        }
+
+        dropdownField.SelectedItem = banco;
+
+        return BanksVar;
+    }
+
     private async Task LoadDataForEdition()
     {
         LoadingEditionData = true;
@@ -1020,33 +1059,36 @@ public partial class AccountPaymentCrud : ContentPage
         pickerFechaCheque.Date = multipleCobrosInvoiceLine.WithdrawalDate.Value;
 
         txtBancoCuenta.Text = multipleCobrosInvoiceLine.AccNumber;
-        
-        if (multipleCobrosInvoiceLine.BankId != null && multipleCobrosInvoiceLine.BankId > 0)
-        {
-            var banco = Banks.Where(x => x.id == multipleCobrosInvoiceLine.BankId).FirstOrDefault();
-            if (banco == null)
-            {
-                var bank = new BankDb(App.Session.odooConnection.DbNameSqlite);
-                banco = (await bank.GetItemsAsync(x => x.id == multipleCobrosInvoiceLine.BankId)).FirstOrDefault();
-                Banks.Add(banco);                
-            }
-            ddBank.SelectedItem = banco;
-        }
+
+        await RebuildBanksList(multipleCobrosInvoiceLine.BankId, Banks, ddBank);
+        //if (multipleCobrosInvoiceLine.BankId != null && multipleCobrosInvoiceLine.BankId > 0)
+        //{
+        //    var banco = Banks.Where(x => x.id == multipleCobrosInvoiceLine.BankId).FirstOrDefault();
+        //    if (banco == null)
+        //    {
+        //        var bank = new BankDb(App.Session.odooConnection.DbNameSqlite);
+        //        banco = (await bank.GetItemsAsync(x => x.id == multipleCobrosInvoiceLine.BankId)).FirstOrDefault();
+        //        Banks.Add(banco);                
+        //    }
+        //    ddBank.SelectedItem = banco;
+        //}
 
         var tarjeta = tarjetasItems.Where(x => x.id == multipleCobrosInvoiceLine.CardId).FirstOrDefault();
         pickerCardId.SelectedItem = tarjeta;
-        
-        if (multipleCobrosInvoiceLine.BankTcId != null && multipleCobrosInvoiceLine.BankTcId > 0)
-        {
-            var bancoTarjeta = Banks.Where(x => x.id == multipleCobrosInvoiceLine.BankTcId).FirstOrDefault();
-            if (bancoTarjeta == null)
-            {
-                var bank = new BankDb(App.Session.odooConnection.DbNameSqlite);
-                bancoTarjeta = (await bank.GetItemsAsync(x => x.id == multipleCobrosInvoiceLine.BankTcId)).FirstOrDefault();
-                Banks.Add(bancoTarjeta);                
-            }
-            ddBankTcId.SelectedItem = bancoTarjeta;
-        }
+
+        await RebuildBanksList(multipleCobrosInvoiceLine.BankTcId, BanksTC, ddBankTcId);
+
+        //if (multipleCobrosInvoiceLine.BankTcId != null && multipleCobrosInvoiceLine.BankTcId > 0)
+        //{
+        //    var bancoTarjeta = BanksTC.Where(x => x.id == multipleCobrosInvoiceLine.BankTcId).FirstOrDefault();
+        //    if (bancoTarjeta == null)
+        //    {
+        //        var bank = new BankDb(App.Session.odooConnection.DbNameSqlite);
+        //        bancoTarjeta = (await bank.GetItemsAsync(x => x.id == multipleCobrosInvoiceLine.BankTcId)).FirstOrDefault();
+        //        BanksTC.Add(bancoTarjeta);                
+        //    }
+        //    ddBankTcId.SelectedItem = bancoTarjeta;
+        //}
 
         var tarjetaTipoPago = tarjetasTipoPagoItems.Where(x => x.id == multipleCobrosInvoiceLine.PaymentTypeId).FirstOrDefault();
         pickerPaymentTypeId.SelectedItem = tarjetaTipoPago;
@@ -1087,6 +1129,7 @@ public partial class AccountPaymentCrud : ContentPage
         }
 
         IsLoadingDocs = true;
+        //collectionView.IsEnabled = false;
 
         List<MultipleCobrosInvoiceLineAi> accountPaymentLinesMem = new List<MultipleCobrosInvoiceLineAi>();
 
@@ -1121,7 +1164,10 @@ public partial class AccountPaymentCrud : ContentPage
         OnPropertyChanged(nameof(totalAssigned));
 
         IsLoadingDocs = false;
+        //collectionView.IsEnabled = true;
+
     }
+
     private async void btnLoadDocs_Clicked(object sender, EventArgs e)
     {
         await LoadPaymentLinesForNew();

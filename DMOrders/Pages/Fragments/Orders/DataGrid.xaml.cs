@@ -170,8 +170,7 @@ namespace DMOrders.Pages.Fragments.Orders
                     _isNavigating = false;
                     ((ListViewModel)this.BindingContext).LoadDataByTimer();
                 };
-
-                await Navigation.PushModalAsync(viewObj, false);
+                                
 
                 //if (resultCrud == 1)
                 //{
@@ -190,6 +189,21 @@ namespace DMOrders.Pages.Fragments.Orders
                 //                        "El cliente no tiene lista de direcciones asignadas, no se puede continuar",
                 //                        "Aceptar");
                 //}
+
+                if (resultCrud == 3)
+                {
+                    viewObj = null;
+                    _isNavigating = false;
+                    var page = Application.Current?.MainPage;
+                    if (page != null)
+                        await page.DisplayAlertAsync("Alerta",
+                                        "El dato del cliente no fue encontrado, por favor actualice los datos",
+                                        "Aceptar");
+                    return;
+                    
+                }
+
+                await Navigation.PushModalAsync(viewObj, false);
 
                 //if (resultCrud == 0)
                 //{

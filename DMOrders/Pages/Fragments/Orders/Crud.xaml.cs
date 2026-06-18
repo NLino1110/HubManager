@@ -249,8 +249,13 @@ public partial class Crud : ContentPage, IBackButtonHandler
                     CurrentSaleOrder._partner_id
                 );
 
-                if (CurrentPartner != null)
-                    Title = CurrentPartner.name;
+                if(CurrentPartner == null )
+                {
+                    return 3;
+                }
+
+                //if (CurrentPartner != null)
+                Title = CurrentPartner.name;
 
                 if (CurrentSaleOrder != null)
                 {
@@ -903,7 +908,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
                     await Toast.Make("Promociones manuales no aplicadas.").Show();
                 }
 
-                await Navigation.PopModalAsync();
+                await Navigation.PopModalAsync(false);
             }
         }
 
@@ -1081,7 +1086,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         if(sendOk)
         {
             await DisplayAlertAsync("Envío de datos", "Envío correcto", "Aceptar");
-            await Navigation.PopModalAsync();
+            await Navigation.PopModalAsync(false);
         }
     }
 

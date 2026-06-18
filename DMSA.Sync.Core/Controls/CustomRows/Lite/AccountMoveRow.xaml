@@ -39,16 +39,23 @@
             HorizontalOptions="Fill"
             BackgroundColor="Transparent"
             Padding="0">
-                
+
+                <HorizontalStackLayout Spacing="3">
                 <Label
-                Text="{Binding docnum_mask, StringFormat='FAC # {0}'}"
-                FontAttributes="Bold"
-                FontSize="14"
-                TextColor="Black" />
+                    Text="{Binding docnum_mask, StringFormat='FAC # {0}'}"
+                    FontAttributes="Bold"
+                    FontSize="14"
+                    TextColor="Black" />
+                <Label
+                    Text="{Binding amount_total, StringFormat='(${0})'}"
+                    FontAttributes="Bold"
+                    FontSize="14"
+                    TextColor="Black" />
+                </HorizontalStackLayout>
 
                 <Label Grid.Row="1"
                    Grid.ColumnSpan="3"
-                   Text="{Binding seller, StringFormat='VEND: {0}'}"
+                   Text="{Binding l10n_ec_authorization_number, StringFormat='VEND: {0}', TargetNullValue='VEND: -'}"
                    FontSize="11"
                    FontAttributes="Bold"/>
 
@@ -73,7 +80,9 @@
                     TextColor="Red" />
 
                 <Label
-                    Text="CH-POSF:-"
+                    Text="{Binding mcl_check_id, 
+                    StringFormat='CH-POSF: ${0}', 
+                    TargetNullValue='CH-POSF: -'}"
                     FontSize="12"
                     FontAttributes="Bold"
                     TextColor="MediumSeaGreen" />

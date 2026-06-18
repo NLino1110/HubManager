@@ -11,6 +11,7 @@ namespace DMSA.Models.Odoo.Abstract.Server.Dto
         public string? database_name { get; set; }
         public string? file_type { get; set; }
         public string? mobile_app_id { get; set; }
+        public string? device_id { get; set; }         
         public string? user_frontend { get; set; }
         public string? external_guid { get; set; }
         public DateTime? date_data_cutoff { get; set; }

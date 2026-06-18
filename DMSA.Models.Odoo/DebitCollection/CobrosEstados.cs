@@ -13,5 +13,6 @@ namespace DMSA.Models.Odoo.DebitCollection
         public static string ERROR = "ERROR";
         public static string PROCESADO = "PROCESADO";
         public static string CANCELADO = "CANCELADO";
+        public static string APLICADO = "APLICADO";
     }
 }

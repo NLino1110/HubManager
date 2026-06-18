@@ -33,6 +33,7 @@ namespace DMCobranzas.Services.PatchManager
             await PatchExecuter_v4(ConnectionItem);
             await PatchExecuter_Custom(ConnectionItem, "reset_type_parent_nc_15062026");
             await PatchExecuter_Custom(ConnectionItem, "fix_res_partner_old_15062026");
+            await PatchExecuter_Custom(ConnectionItem, "reset_account_journal_17062026");
             //await PatchExecuter_v4(ConnectionItem);
             //await PatchExecuter_v5(ConnectionItem);
             //await PatchExecuter_v6(ConnectionItem);
@@ -173,6 +174,9 @@ namespace DMCobranzas.Services.PatchManager
 
                 if (name.Contains("fix_res_partner_old"))
                     await executeTask.FixResPartner();
+
+                if (name.Contains("reset_account_journal"))
+                    await executeTask.ResetAccountJournal();
 
                 Preferences.Set(patch_name, true);
                 Debug.WriteLine(patch_name + " ==== aplicado");

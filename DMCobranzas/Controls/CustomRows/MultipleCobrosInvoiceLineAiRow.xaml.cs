@@ -1,7 +1,4 @@
-using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.DebitCollection;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
 namespace DMCobranzas.Controls.CustomRows;
@@ -43,11 +40,21 @@ public partial class MultipleCobrosInvoiceLineAiRow : ContentView
         set => SetValue(ClearValueCommandProperty, value);
     }
 
+    public static readonly BindableProperty ActionCommandProperty =
+        BindableProperty.Create(nameof(ActionCommand), typeof(ICommand), typeof(CustomHeaderView), null);
+
+    public ICommand ActionCommand
+    {
+        get => (ICommand)GetValue(ActionCommandProperty);
+        set => SetValue(ActionCommandProperty, value);
+    }
+
     public MultipleCobrosInvoiceLineAiRow()
 	{
 		InitializeComponent();
 
         ClearValueCommand = new Command(ClearValue);
+        ActionCommand = new Command(ActionButton);
     }
 
     private void ClearValue(object obj)
@@ -57,67 +64,91 @@ public partial class MultipleCobrosInvoiceLineAiRow : ContentView
 
     private CancellationTokenSource _cts;
 
-    private async void EntryPagoImporte_TextChanged(object sender, TextChangedEventArgs e)
+    private void ActionButton(object obj)
     {
         try
         {
-            if (dataItem == null) return;
-            if (!dataItem.EventsOn) return;
-                        
+            
+            if (ValueChangedCommand?.CanExecute(obj) == true)
+            {
+                ValueChangedCommand.Execute(obj);
+            }
+        }
+        catch (TaskCanceledException)
+        {
+        }
+    }
+
+    private async void Old_EntryPagoImporte_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        try
+        {
+            var currentItem = dataItem; // snapshot REAL
+
+            if (currentItem == null) return;
+            if (!currentItem.EventsOn) return;
+
             _cts?.Cancel();
             _cts = new CancellationTokenSource();
             var token = _cts.Token;
 
             try
-            {                
+            {
                 await Task.Delay(400, token);
 
                 if (token.IsCancellationRequested)
                     return;
-                                
-                if (ValueChangedCommand?.CanExecute(dataItem) == true)
+
+                //  VALIDACIÓN CRÍTICA (AQUÍ ESTÁ LA SOLUCIÓN)
+                if (currentItem != dataItem) return;        // item cambió (recycling)
+                if (!currentItem.EventsOn) return;          // se desactivó mientras tanto
+                if (BindingContext != currentItem) return;  // seguridad extra
+
+                if (ValueChangedCommand?.CanExecute(currentItem) == true)
                 {
-                    ValueChangedCommand.Execute(dataItem);
+                    ValueChangedCommand.Execute(currentItem);
                 }
             }
             catch (TaskCanceledException)
             {
-                // esperado, no hacer nada
             }
         }
         catch
         {
-            // opcional log
         }
     }
 
-    private void EntryPagoImporte_Unfocused(object sender, FocusEventArgs e)
-    {        
-        _cts?.Cancel();
+    //////private async void EntryPagoImporte_TextChanged(object sender, TextChangedEventArgs e)
+    //////{
+    //////    try
+    //////    {
+    //////        if (dataItem == null) return;
+    //////        if (!dataItem.EventsOn) return;
 
-        if (ValueChangedCommand?.CanExecute(dataItem) == true)
-        {
-            ValueChangedCommand.Execute(dataItem);
-        }
-    }
+    //////        _cts?.Cancel();
+    //////        _cts = new CancellationTokenSource();
+    //////        var token = _cts.Token;
 
-    //private async void EntryPagoImporte_TextChanged(object sender, TextChangedEventArgs e)
-    //{
-    //    try
-    //    {
-    //        if (dataItem == null) return;
+    //////        try
+    //////        {                
+    //////            await Task.Delay(400, token);
 
-    //        if (!dataItem.EventsOn)
-    //            return;
+    //////            if (token.IsCancellationRequested)
+    //////                return;
 
-    //        if (ValueChangedCommand?.CanExecute(dataItem) == true)
-    //        {
-    //            ValueChangedCommand.Execute(dataItem);
-    //        }
-    //    }
-    //    catch (TaskCanceledException)
-    //    {
-
-    //    }
-    //}
+    //////            if (ValueChangedCommand?.CanExecute(dataItem) == true)
+    //////            {
+    //////                ValueChangedCommand.Execute(dataItem);
+    //////            }
+    //////        }
+    //////        catch (TaskCanceledException)
+    //////        {
+    //////            // esperado, no hacer nada
+    //////        }
+    //////    }
+    //////    catch
+    //////    {
+    //////        // opcional log
+    //////    }
+    //////}
 }

@@ -96,7 +96,7 @@ namespace DMSA.Models.Odoo.DebitCollection
 
         [JsonIgnore]
         [Ignore]
-        public bool EventsOn { get; set; } = true;
+        public bool EventsOn { get; set; } = false;
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)

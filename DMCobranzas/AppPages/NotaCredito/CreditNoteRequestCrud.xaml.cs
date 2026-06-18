@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui.Alerts;
+﻿using ApiManagerOdoo.Accounting;
+using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Mvvm.Input;
@@ -778,6 +779,16 @@ public partial class CreditNoteRequestCrud : ContentPage
         var taxes = await taxDb.GetItemsAsync(x => x._company_id == default_res_company.id);
         var tax_amounts = taxes.ToDictionary(x => x.id, x => x.amount);
 
+        var hubAccountMoveLine = new HubAccountMoveLine(App.Session);
+        var resultUpdateItems = await hubAccountMoveLine.GetAccountMoveLinesByMove(_accountMoveSelected.id);
+
+        account_move_line[] server_movelines = null;
+
+        if (resultUpdateItems != null && resultUpdateItems.result != null)
+        {
+            server_movelines = resultUpdateItems.result;            
+        }
+
         foreach (var item in result)
         {
             Debug.WriteLine($"Cantidad disponible {item.quantity_available}");
@@ -787,7 +798,17 @@ public partial class CreditNoteRequestCrud : ContentPage
                 continue;
             }
 
-            if( item._tax_ids != null && item._tax_ids.Length > 0)
+            if(item.discount == 0 && item.tax_ids_json == "[]")
+            {
+                var resultUpdateItem = server_movelines.Where(x=>x.id == item.id).FirstOrDefault();
+                if (resultUpdateItem != null && item.discount != resultUpdateItem.discount)
+                {
+                    item.discount = resultUpdateItem.discount;
+                    await database.UpdateAsync(item);
+                }
+            }
+
+            if ( item._tax_ids != null && item._tax_ids.Length > 0)
             {
                 var taxId = item._tax_ids[0];
                 if (tax_amounts.ContainsKey(taxId))
@@ -820,7 +841,7 @@ public partial class CreditNoteRequestCrud : ContentPage
             creditNoteRequestDetail_Send.invoice_date = _accountMoveSelected.invoice_date;
             creditNoteRequestDetail_Send.product_uom_id = item._product_uom_id;
             creditNoteRequestDetail_Send.discount_balance = item.discount_balance;
-            creditNoteRequestDetail_Send.discount_percentage = item.discount_percentage;
+            creditNoteRequestDetail_Send.discount_percentage = item.discount;
 
             int analitica_id = 0;
             int[] analytics = Array.Empty<int>();
@@ -906,6 +927,19 @@ public partial class CreditNoteRequestCrud : ContentPage
         var taxes = await taxDb.GetItemsAsync(x => x._company_id == default_res_company.id);
         var tax_amounts = taxes.ToDictionary(x => x.id, x => x.amount);
 
+        AccountMoveLineDb databaseAML = new AccountMoveLineDb(App.Session.odooConnection.DbNameSqlite);
+
+        var linesIds = linesForAdd.Select(x => x.id).ToList();
+        var hubAccountMoveLine = new HubAccountMoveLine(App.Session);
+        var resultUpdateItems = await hubAccountMoveLine.GetAccountMoveLineByIds(linesIds.ToArray(),100,0);
+
+        account_move_line[] server_movelines = null;
+
+        if (resultUpdateItems != null && resultUpdateItems.result != null)
+        {
+            server_movelines = resultUpdateItems.result;
+        }
+
         foreach (var item in linesForAdd)
         {
             var product_display_name = products.FirstOrDefault(x => x.id == item._product_id)?.display_name;
@@ -917,6 +951,22 @@ public partial class CreditNoteRequestCrud : ContentPage
             {
                 //item.quantity_available = 50;
                 continue;
+            }
+
+            if (item.discount == 0 && item.tax_ids_json == "[]")
+            {
+                var resultUpdateItem = server_movelines.Where(x => x.id == item.id).FirstOrDefault();
+                if (resultUpdateItem != null && item.discount != resultUpdateItem.discount)
+                {
+                    var account_Move_Line_For_Update = (await databaseAML.GetItemsAsync(x=>x.id == item.id)).FirstOrDefault();
+                    if (account_Move_Line_For_Update != null)
+                    {
+                        account_Move_Line_For_Update.discount = resultUpdateItem.discount;
+                        await databaseAML.UpdateAsync(account_Move_Line_For_Update);
+
+                        item.discount = resultUpdateItem.discount;
+                    }
+                }
             }
 
             //buscamos si existe previamente para no agregar duplicado  
@@ -959,7 +1009,9 @@ public partial class CreditNoteRequestCrud : ContentPage
             creditNoteRequestDetail_Send.quantity_available = item.quantity_available;
             creditNoteRequestDetail_Send.docnum_mask = docnum_mask;
             creditNoteRequestDetail_Send.invoice_date = invoice_date;
-            creditNoteRequestDetail_Send.product_uom_id = item._product_uom_id;
+            creditNoteRequestDetail_Send.product_uom_id = item._product_uom_id;            
+            creditNoteRequestDetail_Send.discount_balance = item.discount_balance;
+            creditNoteRequestDetail_Send.discount_percentage = item.discount;
 
             int analitica_id = 0;
             int[] analytics = Array.Empty<int>();

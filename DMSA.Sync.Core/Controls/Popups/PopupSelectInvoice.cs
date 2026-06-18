@@ -1,6 +1,7 @@
 ﻿using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.Native;
 using DMSA.Sync.Core.Controls.CustomRows.Lite;
+using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -45,6 +46,11 @@ namespace DMSA.Sync.Core.Controls.Popups
         async Task<int> LoadDataLast20()
         {
             await SetWorkingStatus();
+
+            ResPartnerDb resPartnerDb = new ResPartnerDb(Constants.Session.odooConnection.DbNameSqlite);
+            var res_Partner = await resPartnerDb.GetItemsAsync(x => x.is_salesman);
+            var partnerMap = res_Partner.ToDictionary(x => x.id, x => x.name);
+
             var database = new AccountMoveDb(Constants.Session.odooConnection.DbNameSqlite);
             var result = await database.GetItemsAsync(Company.id, partner.id, "", 25);
 
@@ -54,6 +60,12 @@ namespace DMSA.Sync.Core.Controls.Popups
                 //////var itemsToUpdate = result
                 //////    .Where(i => i.amount_residual_virtual == 0 && i.amount_residual > 0)
                 //////    .ToList();         
+
+                foreach (var accountMoveItem in result)
+                {
+                    var SellerName = partnerMap.ContainsKey(accountMoveItem._partner_sale_id) ? partnerMap[accountMoveItem._partner_sale_id] : "";
+                    accountMoveItem.l10n_ec_authorization_number = SellerName;
+                }
 
                 var itemsToUpdate = result
                    .Where(i => i.amount_residual > 0)

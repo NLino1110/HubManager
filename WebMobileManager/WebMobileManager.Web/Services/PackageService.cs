@@ -38,7 +38,9 @@ namespace WebMobileManager.Web.Services
                 processing_state = p.processing_state,
                 created_at = p.created_at,
                 total_files_expected = p.total_files_expected,
+                total_files_uploaded = p.total_files_uploaded,
                 total_file_size_expected = p.total_file_size_expected,
+                description = p.description,
                 Files = files
                     .Where(f => f.package_id == p.id)
                     .Select(f => new PackageFileDto

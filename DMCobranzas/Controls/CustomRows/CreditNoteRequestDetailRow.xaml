@@ -49,7 +49,7 @@
     FontSize="11"
     FontAttributes="Bold"
     TextColor="Black"
-    Text="{Binding DataItem.price_unit,
+    Text="{Binding DataItem.price_total,
            Source={x:Reference root},
            StringFormat='PRECIO FACTURADO: ${0}'}" />
             

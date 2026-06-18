@@ -19,14 +19,16 @@
              T="PackageViewDto"
             ServerData="LoadServerData"
             Hover="true"
-            Dense="true">
+            Dense="true"
+            ShowColumnOptions="true">
     <Columns>
 
         <PropertyColumn Property="x => x.Name" Title="Nombre" />
         <PropertyColumn Property="x => x.database_name" Title="Db" />
         <PropertyColumn Property="x => x.file_name" Title="Archivo" />
+        <PropertyColumn Property="x => x.description" Title="Description" />
 
-        <TemplateColumn Title="Archivos">
+        <TemplateColumn Title="Archivos" Hideable="true">
             <CellTemplate>
                 @if (context.Item.Files != null && context.Item.Files.Any())
                 {
@@ -48,6 +50,7 @@
         </TemplateColumn>
 
         <PropertyColumn Property="x => x.total_files_expected" Title="Count" />
+        <PropertyColumn Property="x => x.total_files_uploaded" Title="Uploaded" />
 
         <TemplateColumn Title="Estado">
             <CellTemplate>

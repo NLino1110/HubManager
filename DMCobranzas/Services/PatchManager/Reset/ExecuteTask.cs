@@ -82,6 +82,12 @@ namespace DMCobranzas.Services.PatchManager.Reset
             await typeParentNcDb.DropTableAsync();
         }
 
+        public async Task ResetAccountJournal()
+        {
+            var database = new AccountJournalDb(App.Session.odooConnection.DbNameSqlite);
+            await database.DropTableAsync();
+        }
+
         public async Task FixResPartner()
         {
             var resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);

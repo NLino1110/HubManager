@@ -20,7 +20,7 @@
         MinimumHeightRequest="70">
 
         <!-- GRID PRINCIPAL -->
-        <Grid ColumnDefinitions="*,80,50"
+        <Grid ColumnDefinitions="*,80,50,50"
               RowDefinitions="Auto">
 
             <!-- ===================== -->
@@ -29,24 +29,13 @@
             <Grid Grid.Column="0"
                   RowDefinitions="Auto,Auto,Auto,Auto"
                   ColumnDefinitions="Auto,Auto,*">
-
-                <!-- Fila 1 -->
-                <!--<Label Text="{Binding invoice_id}"
-                       FontSize="10"
-                       FontAttributes="Bold"
-                       TextColor="DimGray"/>-->
+               
 
                 <Label Text="{Binding docnum_mask}"
                        Grid.Column="1"
                        FontSize="11"
                        FontAttributes="Bold"
                        TextColor="DimGray"/>
-
-                <!--<Label Text="{Binding invoice_name}"
-                       Grid.Column="2"
-                       FontSize="12"
-                       FontAttributes="Bold"
-                       LineBreakMode="TailTruncation"/>-->
 
                 <!-- Fila 2 -->
                 <Label Grid.Row="1"
@@ -99,25 +88,29 @@
                    Keyboard="Numeric"
                    HorizontalTextAlignment="End"
                    VerticalOptions="Center"
-                   Placeholder="Pago"
-                   TextChanged="EntryPagoImporte_TextChanged"
-                   />   
-            <!--<Entry Grid.Column="1"
-                   x:Name="entryPagoImporte"
-                   Text="{Binding amount_asigned, Mode=TwoWay,Converter={StaticResource DecimalToStringConverter}}"
-                   WidthRequest="75"
-                   HeightRequest="40"
-                   Keyboard="Numeric"
-                   HorizontalTextAlignment="End"
-                   VerticalOptions="Center"
-                   Placeholder="Pago"
-                   TextChanged="EntryPagoImporte_TextChanged"
-                   />-->
+                   Placeholder="0"                   
+                   />
 
             <!-- ========= -->
             <!-- BOTÓN     -->
             <!-- ========= -->
             <Button Grid.Column="2"
+                WidthRequest="40"
+                HeightRequest="40"
+                CornerRadius="20"
+                BackgroundColor="LimeGreen"
+                Command="{Binding ActionCommand, Source={x:Reference Name=ThisRow}}"
+                CommandParameter="{Binding .}"
+                Padding="0"
+                VerticalOptions="Center">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FontAwesome5Solid"
+                         Glyph="&#xf00c;"
+                         Color="White"
+                         Size="14"/>
+                </Button.ImageSource>
+            </Button>
+            <Button Grid.Column="3"
                     WidthRequest="40"
                     HeightRequest="40"
                     CornerRadius="20"

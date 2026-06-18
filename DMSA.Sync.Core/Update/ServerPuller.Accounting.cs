@@ -349,6 +349,11 @@ namespace DMSA.Sync.Core.Update
             var database = new AccountMoveDb(Constants.Session.odooConnection.DbNameSqlite);
             DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since_lower);
 
+            //if (lastDate.HasValue)
+            //{
+            //    lastDate = lastDate.Value.AddMonths(-4);
+            //}
+
             HubAccountMove hubmanager = new HubAccountMove(Constants.Session);
             var resultCount = await hubmanager.GetHeaderCount(lastDate.Value.Year, lastDate.Value.Month, lastDate.Value.Day);
 
@@ -506,6 +511,11 @@ namespace DMSA.Sync.Core.Update
 
             DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since);
 
+            if (lastDate.HasValue)
+            {
+                lastDate = lastDate.Value.AddMonths(-2);
+            }
+
             HubAccountJournal hubmanager = new HubAccountJournal(appSession);
             var resultCount = await hubmanager.GetCount(lastDate.Value.Year, lastDate.Value.Month, lastDate.Value.Day);
 
@@ -545,74 +555,7 @@ namespace DMSA.Sync.Core.Update
             Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
                 stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
 
-            return true;
-        
-
-        //////InboundPaymentMethodDb inboundPaymentMethodDb = new InboundPaymentMethodDb(Constants.Session.odooConnection.DbNameSqlite);
-        //////    await inboundPaymentMethodDb.Truncate();
-
-        //////    //Se obtienen los diarios para ser insertados en la base local
-        //////    ApiManager.HubAccountJournal hubDiarios = new HubAccountJournal(Constants.Session);
-
-        //////    var ids = Constants.Session.CurrentUserFront.empresas.Select(e => e.id);
-        //////    //string strEmpresas = string.Join(",", ids);
-
-        //////    var responsehubhubDiariosAll = await hubDiarios.GetAccountJournal(ids.ToArray());
-
-        //////    AccountJournalDb accountJournalDb = new AccountJournalDb(Constants.Session.odooConnection.DbNameSqlite);
-        //////    BankDb bankDb = new BankDb(Constants.Session.odooConnection.DbNameSqlite);
-        //////    await bankDb.Truncate();
-        //////    //var res = accountJournalDb.GetItemsAsync();
-
-        //////    //string[] accounts_journal_ids = new string[] { };
-        //////    List<string> accounts_journal_ids_list = new List<string>();
-
-        //////    if (responsehubhubDiariosAll != null && responsehubhubDiariosAll.result != null)
-        //////    {
-        //////        //Debug.WriteLine(res.Count);
-        //////        foreach (var itemData in responsehubhubDiariosAll.result)
-        //////        {
-        //////            //Se evalúa si debe usarse en la app
-        //////            if (!itemData.use_mobile_app)
-        //////            {
-        //////                var isForApp = itemData.mobile_app_tag_ids.Where(i => i.code == Constants.Session.AppCodeOdoo).FirstOrDefault();
-        //////                if (isForApp != null)
-        //////                {
-
-        //////                }
-        //////                else
-        //////                {
-        //////                    //TODO: Se debe quitar comentario cuando se solucione el tema de los diarios de Odoo
-        //////                    //continue;
-        //////                }
-        //////            }
-
-        //////            //accountJournalDb.InsertAsync(itemData);
-        //////            //itemData._bank_account_id = 0;
-        //////            //if (itemData.bank_account_id.Count > 0)
-        //////            //{
-        //////            //    itemData._bank_account_id = itemData.bank_account_id.FirstOrDefault().id;
-
-        //////            //    //Se agrega a la lista
-        //////            //    accounts_journal_ids_list.Add(itemData.bank_account_id.FirstOrDefault().id.ToString());
-        //////            //}
-
-        //////            //itemData._company_id = 0;
-        //////            //if (itemData.company_id.Count > 0)
-        //////            //{
-        //////            //    itemData._company_id = itemData.company_id.FirstOrDefault().id;
-        //////            //}
-
-        //////            //if (itemData.inbound_payment_method_line_ids.Count > 0)
-        //////            //{
-        //////            //    itemData.inbound_payment_method_line_ids.ForEach(x => x.parent_id = itemData.id);
-        //////            //    await inboundPaymentMethodDb.InsertBatchAsync(itemData.inbound_payment_method_line_ids.ToArray());
-        //////            //}
-
-        //////            //Solo se insertarán las cuentas que tengan habilitado su uso en las apps móviles
-        //////            await accountJournalDb.InsertOrReplaceAsync(itemData);
-        //////        }
-        //////    }
+            return true;        
         }
 
         [UpdateAction("Actualizar Detalles de Facturas")]
@@ -625,6 +568,12 @@ namespace DMSA.Sync.Core.Update
 
             HubAccountMoveLine hubmanager = new HubAccountMoveLine(Constants.Session);
             DateTime? lastDate = await databaseDet.GetLastWriteDateAsync(sync_date_since_lower);
+
+            //if (lastDate.HasValue)
+            //{
+            //    lastDate = lastDate.Value.AddMonths(-4);
+            //}
+
             var resultCount = await hubmanager.GetDetailCount(lastDate.Value);
 
             Debug.WriteLine(resultCount.result);
@@ -748,18 +697,7 @@ namespace DMSA.Sync.Core.Update
         }
 
         public async Task OnlineSyncFacturas(Func<int, int, Task>? onProgress = null)
-        {
-            //var database = new AccountMoveDb(Constants.Session.odooConnection.DbNameSqlite);
-
-            //bool esActualizacion = false;
-
-            //if ((await database.GetCount()) > 0)
-            //{
-            //    esActualizacion = true;
-            //}
-
-            //DateTime dateTimeIni = DateTime.Now;
-
+        {            
             await OnlineSyncAccountMove(onProgress);
             await OnlineSyncAccountMoveLine(onProgress);
             await OnlineSyncUsers();
@@ -826,8 +764,7 @@ namespace DMSA.Sync.Core.Update
             var databaseInvoLine = new MultipleCobrosInvoiceLineAiDb(Constants.Session.odooConnection.DbNameSqlite);
 
             for (int indice = 0; indice <= totalPages; indice++)
-            {
-                
+            {                
                 var responseAll = await hubmanager.GetItemsFull(uid, dateIni, limit, indice);
 
                 if (responseAll.result != null && responseAll.result.Length > 0)
@@ -842,16 +779,21 @@ namespace DMSA.Sync.Core.Update
                             Debug.WriteLine(foundHeader.receipt_name);
 
                             if(headerItem.state != foundHeader.state || headerItem.state_applied != foundHeader.state_applied)
-                            {                                
-                                headerItem.state = foundHeader.state;
-                                headerItem.state_applied = foundHeader.state_applied;
+                            {
+                                foundHeader.state = headerItem.state;
+                                foundHeader.state_applied = headerItem.state_applied;
 
                                 if(foundHeader.state == "cancel")
                                 {
-                                    headerItem.payment_status = CobrosEstados.CANCELADO;
+                                    foundHeader.payment_status = CobrosEstados.CANCELADO;
                                 }
 
-                                await database.UpdateAsync(headerItem);
+                                //if (foundHeader.state == "done")
+                                //{
+                                //    foundHeader.payment_status = CobrosEstados.APLICADO;
+                                //}
+
+                                await database.UpdateAsync(foundHeader);
                             }
 
                             continue;

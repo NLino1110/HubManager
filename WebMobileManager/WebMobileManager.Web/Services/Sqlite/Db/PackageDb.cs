@@ -71,6 +71,9 @@ namespace WebMobileManager.Web.Services.Sqlite
                 if (!string.IsNullOrWhiteSpace(filter.mobile_app_id))
                     query = query.Where(x => x.mobile_app_id == filter.mobile_app_id);
 
+                if (!string.IsNullOrWhiteSpace(filter.device_id))
+                    query = query.Where(x => x.device_id == filter.device_id);
+
                 if (!string.IsNullOrWhiteSpace(filter.user_frontend))
                     query = query.Where(x => x.user_frontend == filter.user_frontend);
 

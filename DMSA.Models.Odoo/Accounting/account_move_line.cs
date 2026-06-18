@@ -15,7 +15,8 @@ namespace DMSA.Models.Odoo.Accounting
         public decimal quantity_available { get; set; }
         public decimal price_unit { get; set; }
         public decimal price_subtotal { get; set; }
-        public decimal discount_balance { get; set; }
+        public decimal discount { get; set; }
+        public decimal discount_balance { get; set; }        
         public decimal price_total { get; set; }
         public decimal discount_percentage { get; set; }
         public string display_type { get; set; }        

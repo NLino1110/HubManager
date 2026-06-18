@@ -22,7 +22,7 @@ public partial class AppFlyout : FlyoutPage
                 item.TargetType.Name != "SettingsPage"
                 ))
             {
-                await DisplayAlert("Atención", "Actualice la información del sistema antes de empezar a realizar operaciones.", "Cerrar");
+                await DisplayAlertAsync("Atención", "Actualice la información del sistema antes de empezar a realizar operaciones.", "Cerrar");
                 return;
             }
 

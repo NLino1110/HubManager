@@ -1,7 +1,6 @@
 ﻿using DMSA.Models.Odoo.Abstract.Server;
 using DMSA.Models.Odoo.Abstract.Server.Dto;
 using Microsoft.AspNetCore.Mvc;
-using WebMobileManager.Web.Components.Pages.Packages;
 using WebMobileManager.Web.Services.Interfaces;
 using WebMobileManager.Web.Services.Sqlite;
 
@@ -68,6 +67,7 @@ namespace WebMobileManager.Web.Controllers
                 file_type = dto.file_type,
                 date_data_cutoff = dto.date_data_cutoff ?? DateTime.UtcNow,
                 mobile_app_id = dto.mobile_app_id,
+                device_id = dto.device_id,
                 user_frontend = dto.user_frontend,
                 total_files_expected = dto.total_files_expected ?? 0,
                 total_file_size_expected = dto.total_file_size_expected ?? 0,
@@ -77,6 +77,7 @@ namespace WebMobileManager.Web.Controllers
                 total_files_uploaded = 0,
                 success_upload = true,
                 is_base = is_base,
+                description = dto.description
             };
 
             await _packageDb.InsertAsync(pkg);
