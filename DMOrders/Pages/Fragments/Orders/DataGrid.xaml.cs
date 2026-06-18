@@ -74,7 +74,7 @@ namespace DMOrders.Pages.Fragments.Orders
         void OnTapGestureRecognizerTapped(object sender, TappedEventArgs args)
         {
             var viewModel = (ListViewModel)BindingContext;
-            viewModel.LoadDataByTimer();
+            viewModel.LoadData();
 
             Debug.WriteLine("Tap:" + sender.ToString());
         }
@@ -121,7 +121,7 @@ namespace DMOrders.Pages.Fragments.Orders
                 
         private void btnBuscar_Clicked(object sender, EventArgs e)
         {
-            ((ListViewModel)this.BindingContext).LoadDataByTimer();
+            ((ListViewModel)this.BindingContext).LoadData();
         }
 
         internal void LoadData(Filters _filters)
@@ -168,7 +168,7 @@ namespace DMOrders.Pages.Fragments.Orders
                 viewObj.Unloaded += (sender, e) =>
                 {
                     _isNavigating = false;
-                    ((ListViewModel)this.BindingContext).LoadDataByTimer();
+                    ((ListViewModel)this.BindingContext).LoadData();
                 };
                                 
 
@@ -252,7 +252,7 @@ namespace DMOrders.Pages.Fragments.Orders
                 saleOrderItem.is_synchronized = false;
                 saleOrderItem.external_guid = null;
                 await saleOrderDb.UpdateAsync(saleOrderItem);
-                ((ListViewModel)this.BindingContext).LoadDataByTimer();
+                ((ListViewModel)this.BindingContext).LoadData();
                 await Toast.Make("Orden marcada para resíncronización").Show();
             }
             finally
@@ -278,7 +278,7 @@ namespace DMOrders.Pages.Fragments.Orders
         private void ViewObj_Disappearing(object? sender, EventArgs e)
         {
             Debug.WriteLine("ViewObj_Disappearing");
-            ((ListViewModel)this.BindingContext).LoadDataByTimer();
+            ((ListViewModel)this.BindingContext).LoadData();
         }
 
         private async void GotoCustomers_Clicked(object sender, EventArgs e)

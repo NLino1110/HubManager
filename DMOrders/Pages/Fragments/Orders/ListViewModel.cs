@@ -236,9 +236,9 @@ namespace DMOrders.Pages.Fragments.Orders
             }
         }
 
-        public void LoadDataByTimer()
-        {
-            LoadData();
+        //public void LoadDataByTimer()
+        //{
+            //LoadData();
             ////// Usamos el dispatcher global de la app para garantizar ejecución en UI
             //////var dispatcher = Application.Current.Dispatcher;
             ////var dispatcher = Dispatcher.GetForCurrentThread();
@@ -263,7 +263,7 @@ namespace DMOrders.Pages.Fragments.Orders
             ////};
 
             ////timer.Start();
-        }
+        //}
 
         public async Task RemoveOrder(sale_order order)
         {
@@ -280,7 +280,7 @@ namespace DMOrders.Pages.Fragments.Orders
             if (CanGoNext)
             {
                 Page++;
-                LoadDataByTimer();
+                LoadData();
             }
         });
 
@@ -289,7 +289,7 @@ namespace DMOrders.Pages.Fragments.Orders
             if (CanGoPrevious)
             {
                 Page--;
-                LoadDataByTimer();
+                LoadData();
             }
         });
 

@@ -139,13 +139,13 @@
                     </Button.ImageSource>
                 </Button>
 
+                <HorizontalStackLayout Grid.Row="0" Grid.Column="2" >
                 <Button                    
                     CornerRadius="5"
-                    Grid.Row="0" 
-                    Grid.Column="2" 
+                    
                     x:Name="btnCustomerAccounts"                    
                     Text="Ver saldos" 
-                    BackgroundColor="DeepSkyBlue"                     
+                    BackgroundColor="LimeGreen"                     
                     Margin="0,8,0,8"
                     HorizontalOptions="Center">
                     <Button.Behaviors>
@@ -155,11 +155,32 @@
                         <FontImageSource FontFamily="FontAwesome5Solid"
                                          Color="White"
                                          Size="20"
-                                         FontAutoScalingEnabled="True"                                                         
+                                         FontAutoScalingEnabled="True" 
                                          Glyph="&#xf4c0;" />
                     </Button.ImageSource>
                 </Button>
-                
+
+                <Button                    
+                    CornerRadius="5"                    
+                    x:Name="btnDownloadData"                    
+                    Text="" 
+                    BackgroundColor="DeepSkyBlue"                     
+                    Margin="0,8,0,8"
+                    HorizontalOptions="Center">
+                    <Button.Behaviors>
+                            <bh:SafeTapBehavior Command="{Binding DownloadDataCommand}" />
+                    </Button.Behaviors>
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FontAwesome5Solid"
+                         Color="White"
+                         Size="20"
+                         FontAutoScalingEnabled="True"                                                         
+                         Glyph="&#xf019;" />
+                    </Button.ImageSource>
+                </Button>
+
+                </HorizontalStackLayout>
+
 
                 <HorizontalStackLayout Grid.Column="0" Grid.Row="2" Spacing="10" Margin="10">
                     <Label HorizontalOptions="Center" 

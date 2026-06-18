@@ -475,10 +475,15 @@
                      ColumnDefinitions="*,*"                    
                      RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
                      RowSpacing="4" 
-                     ColumnSpacing="15"
+                     ColumnSpacing="10"
                      BackgroundColor="GhostWhite"
-                      Padding="10"
-                      Margin="20">
+                      Padding="10">
+                    <Grid.Margin>
+                        <OnPlatform x:TypeArguments="Thickness">
+                            <On Platform="WinUI" Value="10,10,10,60" />
+                            <On Platform="Android,iOS,MacCatalyst" Value="10" />
+                        </OnPlatform>
+                    </Grid.Margin>
                     <Label Text="Subtotal:" Grid.Row="1" Grid.Column="0" FontSize="11"/>
                     <Label Grid.Row="1" Grid.Column="1" Text="{Binding Subtotal, StringFormat='${0:N2}'}" 
                          FontSize="11" 

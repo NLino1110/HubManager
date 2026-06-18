@@ -7,7 +7,9 @@ using DMSA.Sync.Core.Controls.Popups;
 using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite.DebitCollection;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
+using DMSA.Sync.Core.Update;
 using Microsoft.Maui.Layouts;
+using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
@@ -40,6 +42,7 @@ public partial class AccountPaymentView : ContentPage
     public ICommand SeleccionarClienteCommand { get; set; }
     public ICommand VerSaldosCommand { get; set; }
     public ICommand AddCobroCommand { get; set; }
+    public ICommand DownloadDataCommand { get; set; }
 
     public AccountPaymentView()
 	{
@@ -64,6 +67,10 @@ public partial class AccountPaymentView : ContentPage
             btnAddAccountPayment_Clicked(null, null);
         });
 
+        DownloadDataCommand = new Command(async () =>
+        {
+            DownloadDataCustomer(null, null);
+        });
 
         BindingContext = this;
     }
@@ -561,4 +568,57 @@ public partial class AccountPaymentView : ContentPage
         }
     }
 
+    async void DownloadDataCustomer(object sender, EventArgs e)
+    {
+        if (Sel_Res_Partner == null)
+            return;
+
+        bool answer = await DisplayAlertAsync("Atención", "Obtener actualizaciones de facturas. ¿Desea continuar?", "Si", "No");
+
+        if (!answer)
+        {
+            return;
+        }
+
+        try
+        {
+            var serverPuller = new ServerPuller();
+            //await serverPuller.OnlineSyncAccountMove(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Facturas"); });
+            await serverPuller.OnlineSyncAccountMoveByResPartner(Sel_Res_Partner.id);
+
+            var databaseAccountMove = new AccountMoveDb(App.Session.odooConnection.DbNameSqlite);
+            var listCustomer = await databaseAccountMove.GetItemsAsync(x => x._partner_id == Sel_Res_Partner.id);
+            if (listCustomer != null && listCustomer.Count > 0)
+            {
+                foreach (var item in listCustomer)
+                {
+                    await serverPuller.OnlineSyncAccountMoveLineByMove(item.id);
+
+                    //int[] linesIds = Array.Empty<int>();
+
+                    //if (!string.IsNullOrWhiteSpace(item._invoice_line_ids))
+                    //{
+                    //    try
+                    //    {
+                    //        linesIds = JsonConvert.DeserializeObject<int[]>(item._invoice_line_ids)
+                    //                   ?? Array.Empty<int>();
+
+                    //        await serverPuller.OnlineSyncAccountMoveLineByIds(linesIds);
+
+                    //    }
+                    //    catch (JsonException)
+                    //    {
+                    //        linesIds = Array.Empty<int>();
+                    //    }
+                    //}
+                }
+            }
+
+            await Toast.Make("Terminado.").Show();
+        }
+        catch (Exception ex)
+        {
+            await Toast.Make("Error:" + ex.Message).Show();
+        }        
+    }
 }

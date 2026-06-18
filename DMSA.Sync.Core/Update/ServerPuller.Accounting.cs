@@ -349,10 +349,10 @@ namespace DMSA.Sync.Core.Update
             var database = new AccountMoveDb(Constants.Session.odooConnection.DbNameSqlite);
             DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since_lower);
 
-            //if (lastDate.HasValue)
-            //{
-            //    lastDate = lastDate.Value.AddMonths(-4);
-            //}
+            if (lastDate.HasValue)
+            {
+                lastDate = lastDate.Value.AddMonths(-4);
+            }
 
             HubAccountMove hubmanager = new HubAccountMove(Constants.Session);
             var resultCount = await hubmanager.GetHeaderCount(lastDate.Value.Year, lastDate.Value.Month, lastDate.Value.Day);
@@ -569,10 +569,10 @@ namespace DMSA.Sync.Core.Update
             HubAccountMoveLine hubmanager = new HubAccountMoveLine(Constants.Session);
             DateTime? lastDate = await databaseDet.GetLastWriteDateAsync(sync_date_since_lower);
 
-            //if (lastDate.HasValue)
-            //{
-            //    lastDate = lastDate.Value.AddMonths(-4);
-            //}
+            if (lastDate.HasValue)
+            {
+                lastDate = lastDate.Value.AddMonths(-4);
+            }
 
             var resultCount = await hubmanager.GetDetailCount(lastDate.Value);
 

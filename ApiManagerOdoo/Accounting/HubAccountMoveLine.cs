@@ -105,7 +105,16 @@ namespace ApiManagerOdoo.Accounting
             return await SearchRead<ApiResponseOdooRpcT<account_move_line[]>>(args, _custom_args, kwargs, true);
 
         }
-        
+
+        public async Task<ApiResponseOdooRpc?> GetCountByIds(int[] ids)
+        {
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] { "id", "in", ids }
+            };
+            return await GetCount(args, _custom_args);
+        }
+
         public async Task<ApiResponseOdooRpcT<account_move_line[]>?> GetAccountMoveLineByIds(int[] ids, int limit, int index)
         {
             var kwargs = new
@@ -122,6 +131,34 @@ namespace ApiManagerOdoo.Accounting
             };
 
             return await SearchRead<ApiResponseOdooRpcT<account_move_line[]>>(args, _custom_args, kwargs, true);
+        }
+
+        public async Task<ApiResponseOdooRpc?> GetCountByMove(int move_id)
+        {
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] { "move_id", "=", move_id }
+            };
+            return await GetCount(args, _custom_args);
+        }
+
+        public async Task<ApiResponseOdooRpcT<account_move_line[]>?> GetAccountMoveLinesByMove(int move_id, int limit, int index)
+        {
+            var kwargs = new
+            {
+                limit,
+                offset = index * limit,
+                fields = fields_array,
+                order = "write_date asc"
+            };
+
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] {
+                new object[] { "move_id", "=", move_id },
+            };
+
+            return await SearchRead<ApiResponseOdooRpcT<account_move_line[]>>(args, _custom_args, kwargs, true);
+
         }
     }
 }

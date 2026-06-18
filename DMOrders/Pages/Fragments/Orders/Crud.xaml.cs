@@ -464,6 +464,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         }
     }
 
+    [Obsolete("Debe eliminarse")]
     private async void ButtonPromo_Clicked(object sender, EventArgs e)
     {
         var leave = await DisplayAlertAsync("Atención", "Se guardarán los cambios antes de aplicar las promociones. ¿Desea continuar?", "Si", "No");
@@ -575,134 +576,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         return $"{prefijo}{secuencialFormateado}-{iniciales}{fecha}";
     }
 
-    private async Task<sale_order> SaveOrder()
-    {        
-        var orderLines = OrderLines;
-        var orderPromotions = saleOrderPromotions;
-        var saleOrderDb = new SaleOrderDb(App.Session.odooConnection.DbNameSqlite);
-        var saleOrderLineDb = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
-        
-        sale_order targetOrder;
-
-        bool isNew = CurrentSaleOrder == null;
-
-        int warehouseId = 0;
-        int partner_invoice_id = ((res_partner) ddfAddress.SelectedItem).id;
-
-        StockWareHouseDb stockWareHouseDb = new StockWareHouseDb(App.Session.odooConnection.DbNameSqlite);
-        var warehouseList = await stockWareHouseDb.GetDefaultByResCenter(App.Session.res_center.id);
-        if (warehouseList != null && warehouseList.Count > 0)
-        {
-            warehouseId = warehouseList[0].id;
-        }
-
-        if (isNew)
-        {
-            string new_id_referencia = GenerarCodigo(CurrentPartner.name, await saleOrderDb.GetNextSecuentialId());
-
-            targetOrder = new sale_order
-            {
-                _partner_id = _CurrentPartner.id,
-                _company_id = CurrentCompany.id,
-                date_order = DateTime.Now,
-                mobile_create_date = DateTime.Now,
-                _center_id = App.Session.res_center.id,
-                _warehouse_id = warehouseId,
-                sale_channel = App.Session.odooConnection.sale_channel_default,
-                id_referencia = new_id_referencia,
-                _pricelist_id = CurrentPriceList.id,
-                amount_total = Total,
-                amount_tax = Impuesto,
-                amount_untaxed = Subtotal,
-                state = "draft",
-                partner_display_name = CurrentPartner?.name,
-                partner_display_address = CurrentPartner?.street,
-                partner_display_status = (CurrentPartner != null ? (CurrentPartner.active ? "Activo" : "Inactivo") : string.Empty),
-                partner_sale_id = App.Session.CurrentUserFront.partner_id,
-                _partner_invoice_id = partner_invoice_id,
-                _partner_shipping_id = partner_invoice_id,
-                note2 = Note2,
-                external_create_uid = App.Session.CurrentUserFront.uid,                
-                external_guid = Guid.NewGuid().ToString("N"),
-                mobile_sync = true
-            };
-
-            if (await saleOrderDb.InsertAsync(targetOrder) <= 0)
-            {
-                await Toast.Make("Error al crear la orden").Show();
-                return null;
-            }
-
-            CurrentSaleOrder = targetOrder;
-            //CurrentSaleOrder = targetOrder;
-        }
-        else
-        {
-            targetOrder = CurrentSaleOrder;
-
-            targetOrder.write_date = DateTime.Now;
-            targetOrder._center_id = App.Session.res_center.id;
-            targetOrder._warehouse_id = warehouseId;
-            targetOrder.sale_channel = App.Session.odooConnection.sale_channel_default;
-            targetOrder._partner_invoice_id = partner_invoice_id;
-            targetOrder._partner_shipping_id = partner_invoice_id;
-            targetOrder._pricelist_id = CurrentPriceList.id;
-            targetOrder.amount_total = Total;
-            targetOrder.amount_tax = Impuesto;
-            targetOrder.amount_untaxed = Subtotal;
-            targetOrder.note2 = Note2;
-
-            targetOrder.promotion_ids = orderPromotions?
-                .Where(x => x != null)
-                .Select(x => x.promotion_id)
-                .Distinct()
-                .ToArray()
-                ?? Array.Empty<int>();
-
-            if (await saleOrderDb.UpdateAsync(targetOrder) <= 0)
-            {
-                await Toast.Make("Error al actualizar la orden").Show();
-                return null;
-            }
-
-            // Eliminar líneas anteriores antes de insertar las nuevas
-            await saleOrderLineDb.DeleteItemOfParent(targetOrder);
-            //await saleOrderPromoDb.DeleteItemOfParent(targetOrder);
-            await ResetPromotions(targetOrder);
-        }
-
-        int ordinal = 1;
-        
-        targetOrder.order_line = new List<OrderLineWrapper>();
-
-        // Asignar el ID de la orden a las líneas y guardar
-        foreach (var orderLine in orderLines)
-        {
-            orderLine._order_id = targetOrder.id;
-            orderLine.sequence = ordinal;
-            await saleOrderLineDb.InsertAsync(orderLine);
-
-            //Datos referenciales
-            targetOrder.order_line.Add(new OrderLineWrapper(orderLine));
-            
-            ordinal++;
-        }
-
-        await SavePromotions(true, false);
-
-        try
-        {
-            var mainPage = (MainPageTab) App.Current.MainPage;
-            mainPage.SelectTab("orders");
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error al cambiar a la pestaña Pedidos: {ex.Message}");
-        }
-
-        await Toast.Make(isNew ? "Orden creada" : "Orden actualizada").Show();        
-        return targetOrder;
-    }
+    
 
     private async Task ResetPromotions(sale_order targetOrder)
     {
@@ -761,9 +635,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 }
 
                 if (promoResItem.Promotion._promotion_type_id == 4) // es NXN
-                {
-                    //await ApplyNxN(saleOrder, promoResItem);
-                    //((CrudViewModel)BindingContext).UpdateTotals();
+                {                    
                     ShowPromoPopup = true;
                     break;
                 }
@@ -771,8 +643,10 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 // ES DESCUENTO DEBE APLICARSE PRIMERO
                 if (promoResItem.Promotion._promotion_type_id == 6)
                 {
-                    await ApplyDiscount(saleOrder, promoResItem);
-                    UpdateTotals();
+                    //await ApplyDiscount(saleOrder, promoResItem);
+                    //UpdateTotals();
+
+                    await PrepareDiscount(saleOrder, promoResItem);
 
                     ShowPromoPopup = true;
                     break;
@@ -915,108 +789,6 @@ public partial class Crud : ContentPage, IBackButtonHandler
         return resultData;
     }
 
-    private async Task ApplyDiscount(sale_order saleOrder, PromotionEvalItem promoResItem)
-    {
-        PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
-
-        foreach (var ruleMatch in promoResItem.RuleSet)
-        {
-            if (ruleMatch.IsDiscount)
-            {
-                int maxProductTarget = ruleMatch.ProductTmplIdMaxTotal;
-                if ( ruleMatch.variable == "qty_product_unts")
-                {
-                    maxProductTarget = ruleMatch.ProductTmplIdMaxQty;                    
-                }
-
-                int[] listIdsProd = JsonConvert.DeserializeObject<int[]>(ruleMatch.ProductTmplIds);
-                                
-                bool existedBefore = listIdsProd.Contains(maxProductTarget);
-                                
-                var cleanedList = listIdsProd.Where(id => id != maxProductTarget);
-                                
-                listIdsProd = (new int[] { maxProductTarget })
-                                .Concat(cleanedList)
-                                .ToArray();
-                
-                if (!existedBefore)
-                {
-                    Debug.WriteLine(
-                        $"[Promotions] maxProductTarget ({maxProductTarget}) no existía en ProductTmplIds: {ruleMatch.ProductTmplIds}. Fue agregado manualmente."
-                    );
-                }
-
-                foreach (var productTarget in listIdsProd)
-                {
-                    if (!await promotionEngineRunner.CanApplyPromotion(saleOrder, promoResItem, saleOrderPromotions))
-                    {
-                        Debug.WriteLine($"{promoResItem.Promotion.name} ya ha sido aplicado maximo de veces - Crud-ApplyDiscount");
-                        return;
-                    }
-
-                    double discountPercentage = ruleMatch.discount;
-                    int productTemplateId = ruleMatch.ProductTmplId;
-                    var orderLines = saleOrder.order_line;
-
-                    var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
-
-                    var lineToDiscount = orderLines
-                            .Select(line => line.Count > 2 ? line[2] as sale_order_line : null)
-                            .FirstOrDefault(l => l != null && l.product_tmpl_id == productTarget);
-
-                    if (lineToDiscount != null)
-                    {
-                        List<PromotionEvalItem> listPromotionData = new List<PromotionEvalItem>();
-
-                        listPromotionData = lineToDiscount.promotionDataList;
-                                                
-                        if (listPromotionData.Exists(p => p.Promotion.id == promoResItem.Promotion.id))
-                        {
-                            Debug.WriteLine($"Descuento de promoción ya ha sido aplicado anteriormente");
-                            //continue;
-                        }
-
-                        listPromotionData.Add(promoResItem);
-
-                        if (lineToDiscount.discount == 0)
-                        {
-                            decimal originalPrice = lineToDiscount.price_unit;
-                            decimal virtual_price_no_tax = lineToDiscount.virtual_price_no_tax;
-                            decimal discountAmount = (virtual_price_no_tax * lineToDiscount.product_uom_qty_real) * (decimal)(discountPercentage / 100);
-                            lineToDiscount.discount = (decimal)discountPercentage;
-                            lineToDiscount.amount_discount = discountAmount;
-                            lineToDiscount.price_subtotal = (virtual_price_no_tax * lineToDiscount.product_uom_qty_real) - discountAmount;
-                            lineToDiscount.price_tax = (lineToDiscount.price_subtotal * lineToDiscount.virtual_iva_percentage) / 100;
-                            lineToDiscount.price_total = lineToDiscount.price_subtotal + lineToDiscount.price_tax;
-                            lineToDiscount.virtual_line_subtotal = virtual_price_no_tax * lineToDiscount.product_uom_qty_real;
-                            lineToDiscount.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(listPromotionData);
-                            await promotionEngineRunner.AddApplyPromotion(saleOrder, promoResItem, 1, saleOrderPromotions);
-                            DMSA.Models.Odoo.Promotions.Tools.SetPromotionData(lineToDiscount, 
-                                new List<PromotionEvalItem> { promoResItem });
-
-                            
-                            lineToDiscount.origin_gift_line_ids_offline =
-                                    Newtonsoft.Json.JsonConvert.SerializeObject(
-                                        ruleMatch.ProductSequenceApplyList
-                                    );
-
-                            lineToDiscount.origin_gift_line_ids_offline =
-                                    Newtonsoft.Json.JsonConvert.SerializeObject(
-                                        listPromotionData
-                                            .Where(x => x.RuleSet != null)
-                                            .SelectMany(x => x.RuleSet)
-                                            .Where(r => r.ProductSequenceApplyList != null)
-                                            .SelectMany(r => r.ProductSequenceApplyList)
-                                            .Distinct()
-                                            .ToList()
-                                    );
-                        }
-                        Debug.WriteLine($"Descuento aplicado: {discountPercentage}% al producto ID {productTemplateId}");
-                    }
-                }
-            }
-        }
-    }
 
     public async Task EvalPromotions(sale_order saleOrder)
     {
@@ -1062,7 +834,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         if(orderHasChanges)
         {
             await UITools.SetNotifyLoadingPopup("Almacenando orden...");
-            await SaveOrder();
+            //await SaveOrder();
         }
 
         await UITools.SetNotifyLoadingPopup("Preparando orden...");

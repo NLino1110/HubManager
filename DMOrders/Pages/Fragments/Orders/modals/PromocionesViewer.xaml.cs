@@ -1470,6 +1470,7 @@ public partial class PromocionesViewer : ContentView
         }
         catch (TaskCanceledException)
         {
+
         }
         catch (Exception ex)
         {
@@ -1482,8 +1483,8 @@ public partial class PromocionesViewer : ContentView
         bool ShouldSaveToo = false;
         Button viewObject = (Button) sender;
         PromoRuleMatch ruleMatch = (PromoRuleMatch) viewObject.BindingContext;
-        await ApplyDiscountRule(SaleOrder, ruleMatch);
-        await ChangeDiscountEvent(ruleMatch, false);
+        if(await ChangeDiscountEvent(ruleMatch, false))
+            await ApplyDiscountRule(SaleOrder, ruleMatch);
     }
 
     private async Task ApplyDiscountRule(sale_order saleOrder, PromoRuleMatch ruleMatch)
@@ -1564,33 +1565,21 @@ public partial class PromocionesViewer : ContentView
         }
     }
 
-    private async Task ChangeDiscountEvent(PromoRuleMatch rule, bool ShouldSaveToo)
+    private async Task<bool> ChangeDiscountEvent(PromoRuleMatch rule, bool ShouldSaveToo)
     {
-        //if (rule.discount > rule.discount_base || rule.discount < 2)
-        //{
-        //    rule.discount = rule.discount_base;
-        //    await Toast.Make("El descuento no puede ser mayor a " + rule.discount_base + "% ni menos del 2%").Show();
-
-        //    OnPropertyChanged(nameof(promoDiscounts)); 
-        //    return;
-        //}
-        //else
-        //{
-        //    await Toast.Make("El descuento del " + rule.discount + "% aplicado!").Show();
-        //}
-
         if (rule.discount > rule.discount_base || rule.discount < 0)
         {
             rule.discount = rule.discount_base;
             await Toast.Make("El descuento no puede ser mayor a " + rule.discount_base + " ni negativo").Show();
 
             OnPropertyChanged(nameof(promoDiscounts));
-            return;
+            return false; 
         }
         else
         {
             await Toast.Make("El descuento del " + rule.discount + "% aplicado!").Show();
         }
+        return true;
     }
 
     private async Task ChangeQtyEvent(product_product product, bool ShouldSaveToo)
