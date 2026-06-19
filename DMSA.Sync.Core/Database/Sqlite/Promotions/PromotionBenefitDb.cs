@@ -9,6 +9,25 @@ namespace DMSA.Sync.Core.Database.Sqlite.Benefits
 
         }
 
+        protected override async Task OnAfterInit()
+        {
+            await Database.RunInTransactionAsync(tran =>
+            {
+                tran.Execute(@"
+                    CREATE INDEX IF NOT EXISTS idx_promotion_benefit_search 
+                    ON promotion_benefit(
+                        _company_id,
+                        _target_segment_id,
+                        active,
+                        state,
+                        start_datetime,
+                        end_datetime,
+                        create_date
+                    )
+                ");
+            });
+        }
+
         public async Task<List<PromotionBenefit>> GetItemsAsync(string state)
         {
             await Init();

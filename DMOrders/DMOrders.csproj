@@ -137,6 +137,7 @@
 	  <Compile Remove="Pages\Fragments\Orders\CrudViewModel.cs" />
 	  <Compile Remove="Pages\Fragments\Orders\modals\bk\CatalogViewerInner.xaml.cs" />
 	  <Compile Remove="Pages\Fragments\Orders\modals\bk\PromocionesViewer.xaml.cs" />
+	  <Compile Remove="Pages\Fragments\Orders\modals\bk\PromocionesViewer.xaml.handles.cs" />
 	  <Compile Remove="Pages\Fragments\Orders\modals\CatalogViewer.xaml.cs" />
 	  <Compile Remove="Pages\Fragments\Orders\modals\CatalogViewerModel.cs" />
 	  <Compile Remove="Pages\Fragments\Product\bk\Details.xaml.cs" />

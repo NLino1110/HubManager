@@ -9,6 +9,14 @@ namespace DMSA.Sync.Core.Database.Sqlite.Benefits
 
         }
 
+        protected override async Task OnAfterInit()
+        {
+            await Database.RunInTransactionAsync(tran =>
+            {
+                tran.Execute("CREATE INDEX IF NOT EXISTS idx_promotion_product_promo_id ON promotion_product(_promo_id)");
+            });
+        }
+
         public async Task<List<PromotionProduct>> GetItemsAsync()
         {
             await Init();
@@ -19,7 +27,7 @@ namespace DMSA.Sync.Core.Database.Sqlite.Benefits
         {
             await Init();
             return await Database.Table<PromotionProduct>().Where(x=>x.id == id).FirstOrDefaultAsync();
-        }        
+        }
 
         public async Task<List<PromotionProduct>> GetItemsByPromo(int promoId)
         {
