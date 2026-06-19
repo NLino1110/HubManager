@@ -1,21 +1,27 @@
-﻿using System.Globalization;
+﻿using CommunityToolkit.Maui;
+using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Maui.Views;
 using DMOrders.Models;
+using DMOrders.Pages.Fragments.Orders.modals;
 using DMOrders.Services.Promotions;
 using DMSA.Models.Odoo.Abstract;
 using DMSA.Models.Odoo.DMOrders.promotions;
 using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Sales;
+using DMSA.Models.Odoo.Sales.promotions.abstractCustom;
 using DMSA.Sync.Core;
 using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite.Benefits;
 using DMSA.Sync.Core.Database.Sqlite.Sales;
+using Microsoft.Maui.Controls.Shapes;
 using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Windows.Input;
+using System.Globalization;
 using System.Text.RegularExpressions;
-using CommunityToolkit.Maui.Alerts;
+using System.Windows.Input;
 
 namespace DMOrders.Pages.Fragments.Orders
 {
@@ -226,6 +232,191 @@ namespace DMOrders.Pages.Fragments.Orders
                     }
                 }
             }
+        }
+
+        private async Task<List<string>> ApplyPromo(sale_order saleOrder)
+        {
+            List<string> resultData = new List<string>();
+
+            await EvalPromotions(saleOrder);
+
+            bool ShowPromoPopup = false;
+
+            if (AppliedPromotionResults.Count == 0)
+            {
+                await Toast.Make("No hay promociones aplicables").Show();
+                return new List<string>();
+            }
+
+            foreach (var promoResult in AppliedPromotionResults)
+            {
+                foreach (var promoResItem in promoResult.Items)
+                {
+                    resultData.Add(promoResItem.Promotion.name);
+
+                    if (promoResItem.Promotion._promotion_type_id == 2) //REGALO
+                    {
+                        ShowPromoPopup = true;
+                        break;
+                    }
+
+                    if (promoResItem.Promotion._promotion_type_id == 4) // es NXN
+                    {
+                        ShowPromoPopup = true;
+                        break;
+                    }
+
+                    // ES DESCUENTO DEBE APLICARSE PRIMERO
+                    if (promoResItem.Promotion._promotion_type_id == 6)
+                    {
+                        //await ApplyDiscount(saleOrder, promoResItem);
+                        //UpdateTotals();
+
+                        await PrepareDiscount(saleOrder, promoResItem);
+
+                        ShowPromoPopup = true;
+                        break;
+                    }
+                }
+            }
+
+            //No se muestra Popup si no hay elemento que elegir
+            if (!ShowPromoPopup)
+            {
+                return new List<string>();
+            }
+
+            bool ShowPromoPopupLevel2 = false;
+
+            var view = new PromocionesViewer(saleOrder);
+            view.ItemsData = AppliedPromotionResults;
+            view.OrderLines = OrderLines;
+            view.saleOrderPromotions = saleOrderPromotions;
+            //dawait view.AutoApplyPromotion();
+            await view.ApplyPromosOnList();
+
+            ShowPromoPopupLevel2 = view.BenefitsForShow;
+
+            //Se guardan las promociones que no son manuales
+            await SavePromotions(true, false);
+
+            //if (!ShowPromoPopupLevel2) return new List<string>();
+
+            var popup = new Popup
+            {
+                Content = view,
+                BackgroundColor = Colors.Black.WithAlpha(0.4f), // fondo semi-transparente
+                CanBeDismissedByTappingOutsideOfPopup = false,
+                Padding = new Thickness(0),
+                Margin = new Thickness(0)
+            };
+
+            view.ClosePopupAction = (promo) => PopupExtensions.ClosePopupAsync(Application.Current.Windows[0].Page, promo);
+
+            var result = await PopupExtensions.ShowPopupAsync<PromoResultPopup>(App.Current.Windows[0].Page, popup, new PopupOptions
+            {
+                Shape = new RoundRectangle
+                {
+                    CornerRadius = new CornerRadius(0),
+                    Stroke = Colors.Gray,
+                    StrokeThickness = 0.1,
+                },
+                Shadow = new Shadow
+                {
+                    Brush = Brush.Black,
+                    Offset = new Point(5, 5),
+                    Opacity = 0.5f,
+                    Radius = 0
+                },
+            });
+
+            if (result.Result != null && result.Result is PromoResultPopup selected)
+            {
+                if (selected.ActionResult == 1 || selected.ActionResult == 2) //Aplicar - Aplicar y continuar
+                {
+                    var toRemove = OrderLines
+                    .Where(x => x.is_gift && x.is_manual)
+                    .ToList();
+
+                    foreach (var item in toRemove)
+                    {
+                        Debug.WriteLine("ELIMINAR LINEA ===========================================");
+                        Debug.WriteLine(item);
+                        Debug.WriteLine(item.sequence);
+                        Debug.WriteLine(item.product_id);
+                        OrderLines.Remove(item);
+                    }
+
+                    //Solo se hace el proceso para regalos manuales
+                    foreach (var giftLine in selected.manualGifts)
+                    {
+                        giftLine._order_id = CurrentSaleOrder.id;
+                        await new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite).InsertAsync(giftLine);
+                        OrderLines.Add(giftLine);
+                    }
+
+                    var db = new SaleOrderLineDb(App.Session.odooConnection.DbNameSqlite);
+
+                    // índice para evitar búsquedas repetidas
+                    var lineIndex = OrderLines
+                        .GroupBy(x => (x.product_id, x.sequence))
+                        .ToDictionary(g => g.Key, g => g.First());
+
+                    var updates = new List<sale_order_line>();
+
+                    foreach (var benefit in selected.benefits)
+                    {
+                        foreach (var promoItem in benefit.Items.Where(x =>
+                            x.Promotion._promotion_type_id == 2 &&
+                            x.Promotion._selection_type_id == 2))
+                        {
+                            foreach (var rule in promoItem.RuleSet)
+                            {
+                                foreach (var data in rule.ProductSequenceApplyList)
+                                {
+                                    if (!lineIndex.TryGetValue((data.product_id, data.sequence), out var line))
+                                        continue;
+
+                                    // promotion_ids (int[])
+                                    var promoList = line.promotion_ids?.ToList() ?? new List<int>();
+                                    if (!promoList.Contains(promoItem.Promotion.id))
+                                        promoList.Add(promoItem.Promotion.id);
+                                    line.promotion_ids = promoList.ToArray();
+
+                                    // rule_ids (int[])
+                                    var ruleList = line.rule_ids?.ToList() ?? new List<int>();
+                                    if (!ruleList.Contains(rule.id))
+                                        ruleList.Add(rule.id);
+                                    line.rule_ids = ruleList.ToArray();
+
+                                    updates.Add(line);
+                                }
+                            }
+                        }
+                    }
+
+                    // ejecutar updates (puedes paralelizar si quieres)
+                    foreach (var line in updates.Distinct())
+                    {
+                        await db.UpdateAsync(line);
+                    }
+
+                    //Almacenar ahora información de bonificados manuales
+                    await SavePromotions(false, true);
+                }
+
+                if (selected.ActionResult == 1 || selected.ActionResult == 0)
+                {
+                    if (selected.ActionResult == 0)
+                    {
+                        await Toast.Make("Promociones manuales no aplicadas.").Show();
+                    }
+
+                    await Navigation.PopModalAsync(false);
+                }
+            }
+
+            return resultData;
         }
     }
 }

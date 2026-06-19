@@ -188,20 +188,20 @@
 	</ItemGroup>
 
 	<ItemGroup>		
-        <PackageReference Include="CommunityToolkit.Maui" Version="14.1.1" />		
-        <PackageReference Include="CommunityToolkit.Maui.Camera" Version="6.0.1" />
-        <PackageReference Include="CommunityToolkit.Maui.Core" Version="14.1.1" />
+        <PackageReference Include="CommunityToolkit.Maui" Version="14.2.0" />		
+        <PackageReference Include="CommunityToolkit.Maui.Camera" Version="6.1.0" />
+        <PackageReference Include="CommunityToolkit.Maui.Core" Version="14.2.0" />
         <PackageReference Include="CommunityToolkit.Maui.Markup" Version="7.0.1" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-        <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.8" />
-        <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.70" />
-        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="10.0.70" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.8" />
-        <PackageReference Include="Microsoft.Maui.Graphics" Version="10.0.70" />
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.8" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.8" />
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.8" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.8" />
+        <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.9" />
+        <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.71" />
+        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="10.0.71" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.9" />
+        <PackageReference Include="Microsoft.Maui.Graphics" Version="10.0.71" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.9" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.9" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
 		
 		<PackageReference Include="M.BindableProperty.Generator" Version="0.11.1" />
 		
@@ -216,8 +216,7 @@
 		<PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="3.119.4" />
 		<PackageReference Include="SkiaSharp.Views.Maui.Core" Version="3.119.4" />
 		<PackageReference Include="Spinner.MAUI" Version="1.1.2" />
-		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.9" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -677,6 +677,11 @@ namespace DMSA.Sync.Core.Update
             DateTime current_datetime = DateTime.Now;
 
             var stopwatch = Stopwatch.StartNew();
+                        
+            if (force)
+            {
+                await database.DeleteAllAsync(x => x.id > 0);
+            }
 
             HubPromotionBenefit hubmanager = new HubPromotionBenefit(Constants.Session);
             //var resultCount = await hubmanager.GetCount(lastDate.Value.Year, lastDate.Value.Month, lastDate.Value.Day);

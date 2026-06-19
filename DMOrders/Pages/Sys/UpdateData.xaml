@@ -70,14 +70,19 @@
                                 </RadioButton>
                             </StackLayout>
                         </StackLayout>
-                    <VerticalStackLayout Margin="20">                        
-                        <controls:CheckBoxEx x:Name="chkGroup1" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Promociones"></controls:CheckBoxEx>
+                    <VerticalStackLayout Margin="20">
+                        <Border Margin="0" Padding="15,0,0,0">
+                            <HorizontalStackLayout Spacing="25">
+                                <controls:CheckBoxEx x:Name="chkGroup1" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Promociones"></controls:CheckBoxEx>
+                                <controls:CheckBoxEx x:Name="chkRemovePromo" CheckBoxColor="OrangeRed" TextColor="Black" IsChecked="True" LabelText="Eliminar datos existentes"></controls:CheckBoxEx>
+                            </HorizontalStackLayout>
+                        </Border>
                         <controls:CheckBoxEx x:Name="chkGroup2" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Marcas, categorías ..."></controls:CheckBoxEx>                        
                         <controls:CheckBoxEx x:Name="chkGroup3" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Clientes"></controls:CheckBoxEx>
                         <controls:CheckBoxEx x:Name="chkGroup7" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Productos"></controls:CheckBoxEx>
                         <controls:CheckBoxEx x:Name="chkGroup4" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Precios"></controls:CheckBoxEx>
                         <controls:CheckBoxEx x:Name="chkGroup5" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Stock"></controls:CheckBoxEx>
-                        <controls:CheckBoxEx x:Name="chkGroup6" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Ordenes"></controls:CheckBoxEx>
+                        <controls:CheckBoxEx x:Name="chkGroup6" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Pedidos (Estados)"></controls:CheckBoxEx>
                     </VerticalStackLayout>
                 </StackLayout>
                 </Border>

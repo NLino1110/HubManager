@@ -506,6 +506,7 @@ public partial class PromocionesViewer : ContentView
                     uom_category_display = productGift.uom_sale_display,
                     price_subtotal = 0,
                     _virtual_price_no_tax = (decimal)productGift.list_price,
+                    virtual_line_subtotal = (decimal)productGift.list_price * qty_assign,
                     amount_discount = qty_assign * (decimal)productGift.list_price,
                     discount = 100,
                     price_tax = 0,
@@ -1178,6 +1179,7 @@ public partial class PromocionesViewer : ContentView
                         product_uom_qty = qty_assign,
                         uom_category_display = productGift.uom_sale_display,
                         price_subtotal = 0,
+                        _virtual_price_no_tax = (decimal)productGift.list_price,
                         virtual_line_subtotal = qty_assign * (decimal)productGift.list_price,
                         amount_discount = qty_assign * (decimal)productGift.list_price,
                         discount = 100,
@@ -1185,8 +1187,7 @@ public partial class PromocionesViewer : ContentView
                         price_total = 0,
                         is_gift = true,
                         is_manual = false,
-                        product_tmpl_id = productGift._product_tmpl_id,
-                        _virtual_price_no_tax = (decimal)productGift.list_price,
+                        product_tmpl_id = productGift._product_tmpl_id,                        
                         product_id_origin = ruleMatch.ProductIdOrigin,
                         promotion_data = JsonConvert.SerializeObject(
                             new List<PromotionEvalItem> { productGift.promotionEvalItem }

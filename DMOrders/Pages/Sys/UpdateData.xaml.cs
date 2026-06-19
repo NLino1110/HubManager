@@ -467,8 +467,7 @@ public partial class UpdateData : ContentPage
         {
             await serverPuller.SyncSaleOrders();
         }
-
-        
+                
         //////Pipeline pipeline = new Pipeline();
         //////bool requiredNewUpload = await pipeline.RequiredNewUploadCustom(App.Session.odooConnection.DbNameSqlite);
         //////if (requiredNewUpload)

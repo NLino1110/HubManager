@@ -7,6 +7,7 @@ using DMSA.Sync.Core;
 using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Update;
 using DMSA.Sync.Core.Update.Cloud;
+using System.Diagnostics;
 
 namespace DMOrders.Services.Update
 {
@@ -130,8 +131,9 @@ namespace DMOrders.Services.Update
 
                 return success;
             }
-            catch
+            catch(Exception e)
             {
+                Debug.WriteLine("Error: " + e.Message);
                 return false;
             }
         }

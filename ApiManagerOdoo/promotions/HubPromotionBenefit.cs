@@ -62,9 +62,9 @@ namespace ApiManagerOdoo.promotions
 
             object[] _custom_args = new object[] {
                 new object[] { "write_date", ">=", dateIni.ToString("yyyy-MM-dd HH:mm:ss") },
-                 //new object[] { "end_datetime", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
-                 new object[] { "target_segment_id", "=", 1 },
-                 new object[] { "state", "=", "authorized" },
+                //new object[] { "end_datetime", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
+                new object[] { "target_segment_id", "=", 1 },
+                new object[] { "state", "=", "authorized" },
             };
             return await GetCount(args, _custom_args);
         }
