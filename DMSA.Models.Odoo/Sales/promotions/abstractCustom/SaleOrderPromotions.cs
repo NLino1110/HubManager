@@ -20,6 +20,8 @@ namespace DMSA.Models.Odoo.DMOrders.promotions.abstractCustom
         public int order_id { get; set; }
         [Column("promotion_id")]
         public int promotion_id { get; set; }
+        [Column("rule_id")]
+        public int rule_id { get; set; }
 
         [Column("promotion_type_id")]
         public int promotion_type_id { get; set; }

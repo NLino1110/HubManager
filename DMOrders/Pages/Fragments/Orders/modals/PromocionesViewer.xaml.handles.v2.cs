@@ -7,100 +7,8 @@ using System.Diagnostics;
 namespace DMOrders.Pages.Fragments.Orders.modals;
 
 public partial class PromocionesViewer
-{
-    //private async Task HandleGiftPromotion(List<PromotionEvalItem> promoItems, ProductProductDb productDb)
-    //{
-    //    var existingCodes = new HashSet<string>();
-    //    var promotionCache = new Dictionary<string, List<PromotionEvalItem>>();
-
-    //    var relevantLines = SaleOrdersLinesTmp
-    //        .Select(x => (sale_order_line)x[2])
-    //        .Where(l => l.is_gift)
-    //        .ToList();
-
-    //    foreach (var itemEval in promoItems)
-    //    {
-    //        if (itemEval.Promotion._selection_type_id == 1)
-    //        {
-    //            var tasks = itemEval.RuleSet.Select(async ruleEval =>
-    //            {
-    //                var product = await productDb
-    //                    .GetByProductTemplate(ruleEval.ProductIdOrigin, SaleOrder._pricelist_id);
-
-    //                if (product == null) return null;
-
-    //                product.qty_gift = 0;
-    //                product.promotionEvalItem = itemEval;
-    //                product.allow_add_gift = false;
-
-    //                return product;
-    //            });
-
-    //            var results = await Task.WhenAll(tasks);
-
-    //            foreach (var product in results.Where(p => p != null))
-    //            {
-    //                if (existingCodes.Add(product.default_code))
-    //                    promoGifts.Add(product);
-    //            }
-    //        }
-
-
-    //        if (itemEval.Promotion._selection_type_id == 2)
-    //        {
-    //            EditQty = true;
-
-    //            var listIds = itemEval.Promotion._product_details_promotion_ids
-    //                .Select(x => x._product_id)
-    //                .ToArray();
-
-    //            var products = await productDb
-    //                .GetByProductsTemplate(listIds, SaleOrder._pricelist_id);
-
-    //            if (products == null) continue;
-
-    //            foreach (var prod in products)
-    //            {
-    //                int qty = 0;
-
-    //                foreach (var line in relevantLines)
-    //                {
-    //                    if (line.product_id != prod.id)
-    //                        continue;
-
-    //                    var promoData = GetPromotionData(line.promotion_data, promotionCache);
-
-    //                    if (promoData.Any(x => x.Promotion.id == itemEval.Promotion.id))
-    //                    {
-    //                        qty += (int)line.product_uom_qty_real;
-
-    //                        GlobalTotalManualGiftsApplied += (int)line.product_uom_qty_real;
-
-    //                        if (!realApplied.Contains(line))
-    //                            realApplied.Add(line);
-    //                    }
-    //                }
-
-    //                prod.qty_gift = qty;
-
-    //                prod.qty_gift_virtual = qty;
-
-    //                prod.promotionEvalItem = itemEval;
-    //                prod.allow_add_gift = true;
-
-    //                if (existingCodes.Add(prod.default_code))
-    //                    promoGifts.Add(prod);
-    //            }
-    //        }
-    //    }
-
-    //    OnPropertyChanged(nameof(promoGifts));
-    //    OnPropertyChanged(nameof(ComputeTotal));
-    //    OnPropertyChanged(nameof(ComputeTotalQty));
-    //}
-
-
-    private async Task HandlePromotionSelection(PromotionEvalItem selectedPromoEvalItem)
+{    
+    private async Task HandlePromotionSelection(PromoRuleItem selectedPromoRuleEvalItem)
     {
         EditQty = false;
 
@@ -109,35 +17,36 @@ public partial class PromocionesViewer
         promoGifts ??= new ObservableCollection<product_product>();
         promoGifts.Clear();
 
-        if (selectedPromoEvalItem == null)
+        if (selectedPromoRuleEvalItem == null)
             return;
 
-        this.selectedPromoEvalItem = selectedPromoEvalItem;
+        this.selectedPromoRuleEvalItem = selectedPromoRuleEvalItem;
 
         var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
 
         //Filtrar promos una sola vez
         var promoItems = _itemsFullPromos
             .SelectMany(x => x.Items)
-            .Where(x => x.Promotion.id == selectedPromoEvalItem.Promotion.id)
+            .Where(x => x.Promotion.id == selectedPromoRuleEvalItem.promo_id)
             .ToList();
 
-        if (selectedPromoEvalItem.Promotion._promotion_type_id == 2) // REGALO
+        if (selectedPromoRuleEvalItem.promotion_type_id == 2) // REGALO
         {
             BorderBenefits.IsVisible = true;
             BorderDiscount.IsVisible = false;
 
             await HandleGiftPromotion(promoItems, productDb);
         }
-        else if (selectedPromoEvalItem.Promotion._promotion_type_id == 6) // DESCUENTO
+        else if (selectedPromoRuleEvalItem.promotion_type_id == 6) // DESCUENTO
         {
             HandleDiscountPromotion(promoItems);
         }
     }
-    private async Task HandleGiftPromotion(List<PromotionEvalItem> promoItems, ProductProductDb productDb)
+
+    private async Task nn_HandleGiftPromotion(List<PromotionEvalItem> promoItems, ProductProductDb productDb)
     {
         var existingCodes = new HashSet<string>();
-        var promotionCache = new Dictionary<string, List<PromoRuleItem>>();
+        var promotionCache = new Dictionary<string, List<PromotionEvalItem>>();
 
         // HashSet para O(1)
         var realAppliedSet = new HashSet<sale_order_line>(realApplied);
@@ -154,12 +63,12 @@ public partial class PromocionesViewer
 
         foreach (var line in relevantLines)
         {
-            var promoData = GetPromotionData(line.promotion_data, promotionCache);
+            var promoData = __GetPromotionData(line.promotion_data, promotionCache);
 
             // Convertir a HashSet UNA sola vez
             var promoIds = new HashSet<int>();
             foreach (var p in promoData)
-                promoIds.Add(p.promo_id);
+                promoIds.Add(p.Promotion.id);
 
             if (!linesByProductId.TryGetValue(line.product_id, out var list))
             {
@@ -289,7 +198,7 @@ public partial class PromocionesViewer
         OnPropertyChanged(nameof(ComputeTotalQty));
     }
 
-    private void HandleDiscountPromotion(List<PromotionEvalItem> promoItems)
+    private void nn_HandleDiscountPromotion(List<PromotionEvalItem> promoItems)
     {
         BorderBenefits.IsVisible = false;
         BorderDiscount.IsVisible = true;
@@ -316,7 +225,7 @@ public partial class PromocionesViewer
     }
 
 
-    private async Task HandleGiftAutoPromotion(List<PromotionEvalItem> promoItems, ProductProductDb productDb)
+    private async Task nn_HandleGiftAutoPromotion(List<PromotionEvalItem> promoItems, ProductProductDb productDb)
     {
         var existingCodes = new HashSet<string>();
 
@@ -356,4 +265,43 @@ public partial class PromocionesViewer
         //OnPropertyChanged(nameof(ComputeTotalQty));
     }
 
+    private async Task HandleGiftAutoPromotion(PromoRuleItem promoRuleItem, ProductProductDb productDb)
+    {
+        var existingCodes = new HashSet<string>();
+
+        //int[] product_ids = promoRuleItem.SelectMany(item => item.RuleSet.Select(rule => rule.ProductIdOrigin)).ToArray();
+
+        int[] product_ids = new int[] { promoRuleItem.ProductIdOrigin };
+
+        var products = await productDb.GetByProductsIds(product_ids, SaleOrder._pricelist_id);
+                
+        if (promoRuleItem.selection_type_id == 1)
+        {
+            //var tasks = itemEval.RuleSet.Select(async ruleEval =>
+            //{
+                var product = products.FirstOrDefault();
+
+                if (product == null) return;
+
+                product.qty_gift = 0;
+                product.promoRuleItem = promoRuleItem;
+                product.allow_add_gift = false;
+
+                //return product;
+            //});
+
+            //var results = await Task.WhenAll(tasks);
+
+            //foreach (var product in results.Where(p => p != null))
+            //{
+                if (existingCodes.Add(product.default_code))
+                    promoGifts.Add(product);
+            //}
+        }
+        
+
+        //OnPropertyChanged(nameof(promoGifts));
+        //OnPropertyChanged(nameof(ComputeTotal));
+        //OnPropertyChanged(nameof(ComputeTotalQty));
+    }
 }

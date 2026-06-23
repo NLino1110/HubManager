@@ -294,6 +294,10 @@ namespace DMSA.Models.Odoo.Native
         [JsonIgnore]
         public PromotionEvalItem promotionEvalItem { get; set; }
 
+        [Ignore]
+        [JsonIgnore]
+        public PromoRuleItem promoRuleItem { get; set; }
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {

@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace DMOrders.Services.Promotions
 {
-    public class PromotionEngineRunner
+    public partial class PromotionEngineRunner_old
     {
         public string GetRelatedProductTmplIds(PromotionEvalItem promotionEvalItem)
         {
@@ -35,133 +35,133 @@ namespace DMOrders.Services.Promotions
             return fullProductTmplIds;
         }
 
-        public async Task<bool> CanApplyPromotion(
-            sale_order order, 
-            PromotionEvalItem promotionEvalItem, 
-            List<SaleOrderPromotions> saleOrderPromotions)
-        {
-            bool exists = saleOrderPromotions.Any(x =>
-                x.order_id == order.id &&
-                x.promotion_id == promotionEvalItem.Promotion.id &&
-                x.promotion_centers == promotionEvalItem.PricelistId
-                );
+        //public async Task<bool> __CanApplyPromotion(
+        //    sale_order order, 
+        //    PromotionEvalItem promotionEvalItem, 
+        //    List<SaleOrderPromotions> saleOrderPromotions)
+        //{
+        //    bool exists = saleOrderPromotions.Any(x =>
+        //        x.order_id == order.id &&
+        //        x.promotion_id == promotionEvalItem.Promotion.id &&
+        //        x.promotion_centers == promotionEvalItem.PricelistId
+        //        );
 
-            if (exists)
-            {
-                var existingPromos = saleOrderPromotions.Where(x => x.order_id == order.id &&
-                x.promotion_id == promotionEvalItem.Promotion.id &&
-                x.promotion_centers == promotionEvalItem.PricelistId).ToList();
+        //    if (exists)
+        //    {
+        //        var existingPromos = saleOrderPromotions.Where(x => x.order_id == order.id &&
+        //        x.promotion_id == promotionEvalItem.Promotion.id &&
+        //        x.promotion_centers == promotionEvalItem.PricelistId).ToList();
                 
-                if (existingPromos == null || existingPromos.Count == 0)
-                {
-                    return true;
-                }
+        //        if (existingPromos == null || existingPromos.Count == 0)
+        //        {
+        //            return true;
+        //        }
 
-                foreach (var promo in existingPromos)
-                {
-                    Debug.WriteLine($"Promoción existente: ID {promo.promotion_id}, Aplicada: {promo.applied}");
-                    if (promo.applied == true || promo.times_inv == promo.times_inv_applied)
-                    {
-                        Debug.WriteLine($"Descuento de promoción ya ha sido aplicado");
-                        return false;
-                    }
-                    else
-                    {
+        //        foreach (var promo in existingPromos)
+        //        {
+        //            Debug.WriteLine($"Promoción existente: ID {promo.promotion_id}, Aplicada: {promo.applied}");
+        //            if (promo.applied == true || promo.times_inv == promo.times_inv_applied)
+        //            {
+        //                Debug.WriteLine($"Descuento de promoción ya ha sido aplicado");
+        //                return false;
+        //            }
+        //            else
+        //            {
                         
-                    }
-                }
-            }
-            else
-            {
-                string fullProductTmplIds = GetRelatedProductTmplIds(promotionEvalItem);
+        //            }
+        //        }
+        //    }
+        //    else
+        //    {
+        //        string fullProductTmplIds = GetRelatedProductTmplIds(promotionEvalItem);
 
-                var newItem = new SaleOrderPromotions
-                {
-                    order_id = order.id,
-                    promotion_id = promotionEvalItem.Promotion.id,
-                    promotion_type_id = promotionEvalItem.Promotion._promotion_type_id,
-                    promotion_selection_type_id = promotionEvalItem.Promotion._selection_type_id,
-                    promotion_centers = promotionEvalItem.PricelistId,
-                    times_inv = promotionEvalItem.TotalTimesAllowed,
-                    times_inv_applied = 0,
-                    applied = false,
-                    related_product_tmpl_ids = fullProductTmplIds
-                };
+        //        var newItem = new SaleOrderPromotions
+        //        {
+        //            order_id = order.id,
+        //            promotion_id = promotionEvalItem.Promotion.id,
+        //            promotion_type_id = promotionEvalItem.Promotion._promotion_type_id,
+        //            promotion_selection_type_id = promotionEvalItem.Promotion._selection_type_id,
+        //            promotion_centers = promotionEvalItem.PricelistId,
+        //            times_inv = promotionEvalItem.TotalTimesAllowed,
+        //            times_inv_applied = 0,
+        //            applied = false,
+        //            related_product_tmpl_ids = fullProductTmplIds
+        //        };
 
-                saleOrderPromotions.Add(newItem);
-            }
-            return true;
-        }
+        //        saleOrderPromotions.Add(newItem);
+        //    }
+        //    return true;
+        //}
 
-        public async Task<bool> AddApplyPromotion(sale_order order, 
-            PromotionEvalItem promotionEvalItem, 
-            int times_inv, 
-            List<SaleOrderPromotions> saleOrderPromotions)
-        {
-            //saleOrderPromotions != null && saleOrderPromotions.Count > 0
+        //public async Task<bool> __AddApplyPromotion(sale_order order, 
+        //    PromotionEvalItem promotionEvalItem, 
+        //    int times_inv, 
+        //    List<SaleOrderPromotions> saleOrderPromotions)
+        //{
+        //    //saleOrderPromotions != null && saleOrderPromotions.Count > 0
 
-            var existingPromos = saleOrderPromotions.Where(x => x.order_id == order.id &&
-                x.promotion_id == promotionEvalItem.Promotion.id &&
-                x.promotion_centers == promotionEvalItem.PricelistId).ToList();
+        //    var existingPromos = saleOrderPromotions.Where(x => x.order_id == order.id &&
+        //        x.promotion_id == promotionEvalItem.Promotion.id &&
+        //        x.promotion_centers == promotionEvalItem.PricelistId).ToList();
 
-            if (existingPromos != null && existingPromos.Count > 0)
-            {
-                foreach (var item in existingPromos)
-                {
-                    var newValue = item.times_inv_applied + times_inv;
+        //    if (existingPromos != null && existingPromos.Count > 0)
+        //    {
+        //        foreach (var item in existingPromos)
+        //        {
+        //            var newValue = item.times_inv_applied + times_inv;
 
-                    if (newValue > item.times_inv)
-                    {
-                        continue;
-                    }
+        //            if (newValue > item.times_inv)
+        //            {
+        //                continue;
+        //            }
 
-                    if(newValue < 0)
-                    {
-                        newValue = 0;
-                    }
+        //            if(newValue < 0)
+        //            {
+        //                newValue = 0;
+        //            }
 
-                    item.times_inv_applied = newValue;
+        //            item.times_inv_applied = newValue;
 
-                    item.applied = item.times_inv_applied >= item.times_inv;
-                    //item.max_gifts = promotionEvalItem.MaxAllowedGifts;
-                    //item.assigned_gifts = promotionEvalItem.MaxAllowedGifts;
-                }
-            }
+        //            item.applied = item.times_inv_applied >= item.times_inv;
+        //            //item.max_gifts = promotionEvalItem.MaxAllowedGifts;
+        //            //item.assigned_gifts = promotionEvalItem.MaxAllowedGifts;
+        //        }
+        //    }
 
-            return true;
-        }
+        //    return true;
+        //}
 
-        public async Task<bool> UpdateApplyPromotion(sale_order order,
-            PromotionEvalItem promotionEvalItem,            
-            List<SaleOrderPromotions> saleOrderPromotions)
-        {
-            var existingPromos = saleOrderPromotions.Where(x => x.order_id == order.id &&
-                x.promotion_id == promotionEvalItem.Promotion.id &&
-                x.promotion_centers == promotionEvalItem.PricelistId).ToList();
+        //public async Task<bool> __UpdateApplyPromotion(sale_order order,
+        //    PromotionEvalItem promotionEvalItem,            
+        //    List<SaleOrderPromotions> saleOrderPromotions)
+        //{
+        //    var existingPromos = saleOrderPromotions.Where(x => x.order_id == order.id &&
+        //        x.promotion_id == promotionEvalItem.Promotion.id &&
+        //        x.promotion_centers == promotionEvalItem.PricelistId).ToList();
 
-            string fullProductTmplIds = GetRelatedProductTmplIds(promotionEvalItem);
+        //    string fullProductTmplIds = GetRelatedProductTmplIds(promotionEvalItem);
 
-            if (existingPromos != null && existingPromos.Count > 0)
-            {
-                foreach (var item in existingPromos)
-                {
-                    item.gifts_for_remove = 0;
+        //    if (existingPromos != null && existingPromos.Count > 0)
+        //    {
+        //        foreach (var item in existingPromos)
+        //        {
+        //            item.gifts_for_remove = 0;
                     
-                    //Aquí se evalúa si es que se deben eliminar items
-                    if (item.assigned_gifts > promotionEvalItem.MaxAllowedGifts)
-                    {
-                        item.gifts_for_remove = item.assigned_gifts - promotionEvalItem.MaxAllowedGifts;
-                    }
+        //            //Aquí se evalúa si es que se deben eliminar items
+        //            if (item.assigned_gifts > promotionEvalItem.MaxAllowedGifts)
+        //            {
+        //                item.gifts_for_remove = item.assigned_gifts - promotionEvalItem.MaxAllowedGifts;
+        //            }
                     
-                    promotionEvalItem.GiftsForRemove = item.gifts_for_remove;
-                    item.max_gifts = promotionEvalItem.MaxAllowedGifts;
-                    item.related_product_tmpl_ids = fullProductTmplIds;
-                    //item.assigned_gifts = promotionEvalItem.MaxAllowedGifts;
-                }
-            }
+        //            promotionEvalItem.GiftsForRemove = item.gifts_for_remove;
+        //            item.max_gifts = promotionEvalItem.MaxAllowedGifts;
+        //            item.related_product_tmpl_ids = fullProductTmplIds;
+        //            //item.assigned_gifts = promotionEvalItem.MaxAllowedGifts;
+        //        }
+        //    }
 
-            return true;
-        }
+        //    return true;
+        //}
 
         public async Task<bool> ResetManualGiftBenefitSoft(
             sale_order order,
@@ -210,23 +210,23 @@ namespace DMOrders.Services.Promotions
             return true;
         }
 
-        public async Task<SaleOrderPromotions> GetDataBenefit(
-            sale_order order,
-            PromotionEvalItem promotionEvalItem,
-            List<SaleOrderPromotions> saleOrderPromotions
-            )
-        {
-            var existingBenefit = saleOrderPromotions.Where(x => x.order_id == order.id &&
-                x.promotion_id == promotionEvalItem.Promotion.id &&
-                x.promotion_centers == promotionEvalItem.PricelistId).FirstOrDefault();
+        //public async Task<SaleOrderPromotions> __GetDataBenefit(
+        //    sale_order order,
+        //    PromotionEvalItem promotionEvalItem,
+        //    List<SaleOrderPromotions> saleOrderPromotions
+        //    )
+        //{
+        //    var existingBenefit = saleOrderPromotions.Where(x => x.order_id == order.id &&
+        //        x.promotion_id == promotionEvalItem.Promotion.id &&
+        //        x.promotion_centers == promotionEvalItem.PricelistId).FirstOrDefault();
 
-            if (existingBenefit != null)
-            {
-                return existingBenefit;                
-            }
+        //    if (existingBenefit != null)
+        //    {
+        //        return existingBenefit;                
+        //    }
 
-            return null;
-        }
+        //    return null;
+        //}
 
         //public async Task<SaleOrderPromotions> AddGitfs(
         //    sale_order order,

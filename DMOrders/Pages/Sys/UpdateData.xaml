@@ -74,7 +74,7 @@
                         <Border Margin="0" Padding="15,0,0,0">
                             <HorizontalStackLayout Spacing="25">
                                 <controls:CheckBoxEx x:Name="chkGroup1" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Promociones"></controls:CheckBoxEx>
-                                <controls:CheckBoxEx x:Name="chkRemovePromo" CheckBoxColor="OrangeRed" TextColor="Black" IsChecked="True" LabelText="Eliminar datos existentes"></controls:CheckBoxEx>
+                                <controls:CheckBoxEx x:Name="chkRemovePromo" CheckBoxColor="OrangeRed" TextColor="Black" IsChecked="True" LabelText="Eliminar datos existentes" IsVisible="False"></controls:CheckBoxEx>
                             </HorizontalStackLayout>
                         </Border>
                         <controls:CheckBoxEx x:Name="chkGroup2" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Marcas, categorías ..."></controls:CheckBoxEx>                        

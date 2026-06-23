@@ -1,5 +1,4 @@
-﻿using DMOrders.Services.Database.Sqlite;
-using DMSA.Models.Odoo.Abstract;
+﻿using DMSA.Models.Odoo.Abstract;
 using DMSA.Models.Odoo.DMOrders.promotions;
 using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
@@ -39,8 +38,7 @@ namespace DMOrders.Services.Promotions
             var candidates = (await _repo.Search(company_id, nowUtc))
                 .Where(p => p != null)
                 .Where(p => p.active)
-                //.Where(p => string.Equals(p.state ?? string.Empty, "authorized", StringComparison.OrdinalIgnoreCase))
-                // fechas de vigencia de la cabecera (start_datetime / end_datetime)
+                //.Where(p => string.Equals(p.state ?? string.Empty, "authorized", StringComparison.OrdinalIgnoreCase))                
                 .Where(p =>
                     (p.start_datetime == null || p.start_datetime <= nowUtc) &&
                     (p.end_datetime == null || p.end_datetime >= nowUtc))
@@ -277,6 +275,7 @@ namespace DMOrders.Services.Promotions
                     if (ruleItem.variable == "total_product_amount")
                     {
                         //allowed_gifts = (int)Math.Floor(variableValue / r.value);
+                        Debug.WriteLine(allowed_gifts);
                     }
                     else if(ruleItem.variable == "total_order")
                     {
@@ -299,8 +298,7 @@ namespace DMOrders.Services.Promotions
                 }
 
                 if (promo._promotion_type_id == 4) // es NXN
-                {                   
-
+                {
                     decimal variableValue = GetVariableValue(ruleItem.variable);
                     cumple = OperatorEvaluator.Evaluate(ruleItem.operator_, variableValue, ruleItem.value, 0);
 
@@ -351,14 +349,26 @@ namespace DMOrders.Services.Promotions
                 // aquí podrías incluir chequeos de método de pago, selección, etc. si los pasas como parámetros.
 
                 if (cumple)
-                { 
+                {
 
-                    foreach(var applyItem in ProductSequenceApplyList)
+                    //foreach(var applyItem in ProductSequenceApplyList)
+                    //{
+                    //    applyItem.promo_id = ruleItem._promo_id;
+                    //    applyItem.rule_id = ruleItem.id;
+                    //    applyItem.total_allowed_gifts = allowed_gifts;
+                    //}
+
+                    var clonedList = ProductSequenceApplyList
+                    .Select(x => new OriginPromoOrderLine()
                     {
-                        applyItem.promo_id = ruleItem._promo_id;
-                        applyItem.rule_id = ruleItem.id;
-                        applyItem.total_allowed_gifts = allowed_gifts;
-                    }
+                        sequence = x.sequence,
+                        product_id = x.product_id,
+                        product_tmpl_id = x.product_tmpl_id,                                           
+                        promo_id = ruleItem._promo_id,
+                        rule_id = ruleItem.id,
+                        total_allowed_gifts = allowed_gifts,                        
+                    })
+                    .ToList();
 
                     var newRuleSet = new PromoRuleMatch
                     {
@@ -397,7 +407,7 @@ namespace DMOrders.Services.Promotions
                         AllowedGifts = allowed_gifts,
                         productIdParentMatch = productIdParentMatch,
                         ProductTmplIds = JsonConvert.SerializeObject(ProductApplyList),
-                        ProductSequenceApplyList = ProductSequenceApplyList,
+                        ProductSequenceApplyList = clonedList,
                         ProductTmplIdMaxTotal = productWithMaxValue != null ? productWithMaxValue.product_tmpl_id : 0,
                         ProductTmplIdMaxQty = productWithMaxQty != null ? productWithMaxQty.product_tmpl_id : 0
                     };

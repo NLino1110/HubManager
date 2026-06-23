@@ -56,7 +56,7 @@ namespace DMSA.Sync.Core.Update.Pusher
             return true;
         }
 
-        private async Task<JObject> PreparPayLoad(sale_order sale_Order)
+        private async Task<JObject> PreparePayLoad(sale_order sale_Order)
         {
             var settings = new JsonSerializerSettings
             {
@@ -120,7 +120,7 @@ namespace DMSA.Sync.Core.Update.Pusher
                 await saleOrderDb.UpdateAsync(sale_Order);
             }
 
-            var dto = await PreparPayLoad(sale_Order);
+            var dto = await PreparePayLoad(sale_Order);
             sale_Order.external_payload = dto;
 
             RemoveGiftLines(ref sale_Order);

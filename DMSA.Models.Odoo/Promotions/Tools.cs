@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DMSA.Models.Odoo.Promotions
 {
-    public class Tools
+    public partial class Tools
     {
         public static void ClearPromotionData(sale_order_line order_line)
         {
@@ -17,8 +17,8 @@ namespace DMSA.Models.Odoo.Promotions
             order_line.rule_ids = Array.Empty<int>();
             order_line.origin_gift_line_ids = Array.Empty<int>();
         }
-
-        public static void SetPromotionData(sale_order_line order_line, List<PromotionEvalItem> listPromotionData)
+                
+        public static void __SetPromotionData(sale_order_line order_line, List<PromotionEvalItem> listPromotionData)
         {
             if (listPromotionData == null || !listPromotionData.Any())
                 return;
@@ -42,7 +42,7 @@ namespace DMSA.Models.Odoo.Promotions
         }
 
         [Obsolete("Ya no se usará ya que los códigos requeridos se generan al momento de almacenar en Odoo")]
-        public static void SetPromotionDataGift(sale_order_line order_line, List<PromotionEvalItem> listPromotionData)
+        public static void __SetPromotionDataGift(sale_order_line order_line, List<PromotionEvalItem> listPromotionData)
         {
             if (listPromotionData == null || !listPromotionData.Any())
                 return;

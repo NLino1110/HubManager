@@ -11,6 +11,13 @@ using System.Diagnostics;
 
 namespace DMOrders.Services.Update
 {
+    public class LaunchManagerResponse
+    {
+        public int Code { get; set; } = 0;
+        public string Message {  get; set; }
+        public bool IsError { get; set; } = false;
+    }
+
     public class LaunchManager
     {
         private static bool _isRunning = false;
@@ -72,18 +79,8 @@ namespace DMOrders.Services.Update
                 //////    }
                 //////}
 
-                bool success = await LaunchOnlineUpdate();
-
-                if (success)
-                {
-                    await Toast.Make("Actualización terminada", ToastDuration.Short, 14)
-                        .Show();
-                }
-                else
-                {
-                    await Toast.Make("Actualización incompleta", ToastDuration.Long, 14)
-                        .Show();
-                }
+                var launchManagerResponse = await LaunchOnlineUpdate();
+                await Toast.Make(launchManagerResponse.Message, ToastDuration.Short, 14).Show();
             }
             catch (Exception ex)
             {
@@ -96,25 +93,42 @@ namespace DMOrders.Services.Update
             }
         }
 
-        private async Task<bool> LaunchOnlineUpdate()
+        private async Task<LaunchManagerResponse> LaunchOnlineUpdate()
         {
+            var lmResponse = new LaunchManagerResponse();
+
             var userDb = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
             var hubUser = new ApiManager.HubUser(App.Session);
 
             var response = await hubUser.ValidaSincronizacionAsync(App.Session.CurrentUser, DateTime.Now);
 
             if (!response.success)
-                return false;
+            {
+                lmResponse.Code = 501;
+                lmResponse.Message = "Error al valida sincronizacion";
+                lmResponse.IsError = true;
+                return lmResponse;
+            }
 
             var user = await userDb.GetItemAsync(App.Session.CurrentUserFront.uid);
 
             if (user == null)
-                return false;
+            {
+                lmResponse.Code = 502;
+                lmResponse.Message = "Error al obtener datos del usuario";
+                lmResponse.IsError = true;
+                return lmResponse;
+            }
 
             bool patchRequireUpdate = Preferences.Get("patch_require_update", false);
 
             if (user.log_fec_sincro.Date == response.data[0].datetime.Date && !patchRequireUpdate)
-                return false;
+            {
+                lmResponse.Code = 503;
+                lmResponse.Message = "Actualización automática ya ha sido realizada.";
+                lmResponse.IsError = true;
+                return lmResponse;
+            }
 
             bool success = false;
 
@@ -125,16 +139,30 @@ namespace DMOrders.Services.Update
                 if (success)
                 {
                     await SaveSyncDate(user, response.data[0].datetime);
+                    lmResponse.Code = 200;
+                    lmResponse.Message = "Sincronización terminada con exito";
+                    lmResponse.IsError = false;
+                    return lmResponse;
+                }
+                else
+                {
+                    lmResponse.Code = 504;
+                    lmResponse.Message = "Error en sincronización de alguno de los datos";
+                    lmResponse.IsError = true;
+                    return lmResponse;
                 }
 
                 //await HandleUploadPipeline(App.Session.odooConnection.DbNameSqlite);
-
-                return success;
+                
+                return lmResponse;
             }
             catch(Exception e)
             {
                 Debug.WriteLine("Error: " + e.Message);
-                return false;
+                lmResponse.Code = 505;
+                lmResponse.Message = e.Message;
+                lmResponse.IsError = true;
+                return lmResponse;
             }
         }
 

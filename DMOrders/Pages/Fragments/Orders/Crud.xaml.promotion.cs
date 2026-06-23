@@ -9,6 +9,7 @@ using DMSA.Models.Odoo.Abstract;
 using DMSA.Models.Odoo.DMOrders.promotions;
 using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Promotions;
 using DMSA.Models.Odoo.Sales;
 using DMSA.Models.Odoo.Sales.promotions.abstractCustom;
 using DMSA.Sync.Core;
@@ -35,6 +36,8 @@ namespace DMOrders.Pages.Fragments.Orders
             {
                 if (ruleMatch.IsDiscount)
                 {
+                    var ruleItem = Tools.FromBenefitRule(promoResItem, ruleMatch, CurrentSaleOrder);
+
                     int maxProductTarget = ruleMatch.ProductTmplIdMaxTotal;
                     if (ruleMatch.variable == "qty_product_unts")
                     {
@@ -60,7 +63,7 @@ namespace DMOrders.Pages.Fragments.Orders
 
                     foreach (var productTarget in listIdsProd)
                     {
-                        if (!await promotionEngineRunner.CanApplyPromotion(saleOrder, promoResItem, saleOrderPromotions))
+                        if (!await promotionEngineRunner.CanApplyPromotion(saleOrder, ruleItem, saleOrderPromotions))
                         {
                             Debug.WriteLine($"{promoResItem.Promotion.name} ya ha sido aplicado maximo de veces - Crud-ApplyDiscount");
                             return;
@@ -101,10 +104,10 @@ namespace DMOrders.Pages.Fragments.Orders
                                 lineToDiscount.price_tax = (lineToDiscount.price_subtotal * lineToDiscount.virtual_iva_percentage) / 100;
                                 lineToDiscount.price_total = lineToDiscount.price_subtotal + lineToDiscount.price_tax;
                                 lineToDiscount.virtual_line_subtotal = virtual_price_no_tax * lineToDiscount.product_uom_qty_real;
-                                lineToDiscount.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(listPromotionData);
-                                await promotionEngineRunner.AddApplyPromotion(saleOrder, promoResItem, 1, saleOrderPromotions);
+                                lineToDiscount.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(new List<PromoRuleItem>() { ruleItem });
+                                await promotionEngineRunner.AddApplyPromotion(saleOrder, ruleItem, 1, saleOrderPromotions);
                                 DMSA.Models.Odoo.Promotions.Tools.SetPromotionData(lineToDiscount,
-                                    new List<PromotionEvalItem> { promoResItem });
+                                    new List<PromoRuleItem> { ruleItem });
 
 
                                 lineToDiscount.origin_gift_line_ids_offline =
@@ -112,16 +115,16 @@ namespace DMOrders.Pages.Fragments.Orders
                                             ruleMatch.ProductSequenceApplyList
                                         );
 
-                                lineToDiscount.origin_gift_line_ids_offline =
-                                        Newtonsoft.Json.JsonConvert.SerializeObject(
-                                            listPromotionData
-                                                .Where(x => x.RuleSet != null)
-                                                .SelectMany(x => x.RuleSet)
-                                                .Where(r => r.ProductSequenceApplyList != null)
-                                                .SelectMany(r => r.ProductSequenceApplyList)
-                                                .Distinct()
-                                                .ToList()
-                                        );
+                                //lineToDiscount.origin_gift_line_ids_offline =
+                                //        Newtonsoft.Json.JsonConvert.SerializeObject(
+                                //            listPromotionData
+                                //                .Where(x => x.RuleSet != null)
+                                //                .SelectMany(x => x.RuleSet)
+                                //                .Where(r => r.ProductSequenceApplyList != null)
+                                //                .SelectMany(r => r.ProductSequenceApplyList)
+                                //                .Distinct()
+                                //                .ToList()
+                                //        );
                             }
                             Debug.WriteLine($"Descuento aplicado: {discountPercentage}% al producto ID {productTemplateId}");
                         }
@@ -160,10 +163,12 @@ namespace DMOrders.Pages.Fragments.Orders
                             $"[Promotions] maxProductTarget ({maxProductTarget}) no existía en ProductTmplIds: {ruleMatch.ProductTmplIds}. Fue agregado manualmente."
                         );
                     }
+                                        
+                    var ruleItem = Tools.FromBenefitRule(promoResItem, ruleMatch, CurrentSaleOrder);
 
                     foreach (var productTarget in listIdsProd)
                     {
-                        if (!await promotionEngineRunner.CanApplyPromotion(saleOrder, promoResItem, saleOrderPromotions))
+                        if (!await promotionEngineRunner.CanApplyPromotion(saleOrder, ruleItem, saleOrderPromotions))
                         {
                             Debug.WriteLine($"{promoResItem.Promotion.name} ya ha sido aplicado maximo de veces - Crud-ApplyDiscount");
                             return;
@@ -183,16 +188,17 @@ namespace DMOrders.Pages.Fragments.Orders
 
                         if (lineToDiscount != null)
                         {
-                            List<PromotionEvalItem> listPromotionData = new List<PromotionEvalItem>();
+                            //List<PromotionEvalItem> listPromotionData = new List<PromotionEvalItem>();
 
-                            listPromotionData = lineToDiscount.promotionDataList;
-
-                            if (listPromotionData.Exists(p => p.Promotion.id == promoResItem.Promotion.id))
+                            //listPromotionData = lineToDiscount.promotionDataList;
+                            var promotionRules = lineToDiscount.promotionRules;
+                            if (promotionRules.Exists(p => p.promo_id == ruleItem.promo_id))
                             {
                                 Debug.WriteLine($"Descuento de promoción ya ha sido aplicado anteriormente");                                
                             }
 
-                            listPromotionData.Add(promoResItem);
+                            //listPromotionData.Add(promoResItem);
+                            promotionRules.Add(ruleItem);
 
                             if (lineToDiscount.discount == 0)
                             {
@@ -205,10 +211,10 @@ namespace DMOrders.Pages.Fragments.Orders
                                 lineToDiscount.price_tax = (lineToDiscount.price_subtotal * lineToDiscount.virtual_iva_percentage) / 100;
                                 lineToDiscount.price_total = lineToDiscount.price_subtotal + lineToDiscount.price_tax;
                                 lineToDiscount.virtual_line_subtotal = virtual_price_no_tax * lineToDiscount.product_uom_qty_real;
-                                lineToDiscount.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(listPromotionData);
-                                await promotionEngineRunner.AddApplyPromotion(saleOrder, promoResItem, 1, saleOrderPromotions);
+                                lineToDiscount.promotion_data = Newtonsoft.Json.JsonConvert.SerializeObject(new List<PromoRuleItem>() { ruleItem });
+                                await promotionEngineRunner.AddApplyPromotion(saleOrder, ruleItem, 1, saleOrderPromotions);
                                 DMSA.Models.Odoo.Promotions.Tools.SetPromotionData(lineToDiscount,
-                                    new List<PromotionEvalItem> { promoResItem });
+                                    new List<PromoRuleItem> { ruleItem });
 
 
                                 lineToDiscount.origin_gift_line_ids_offline =
@@ -216,16 +222,14 @@ namespace DMOrders.Pages.Fragments.Orders
                                             ruleMatch.ProductSequenceApplyList
                                         );
 
-                                lineToDiscount.origin_gift_line_ids_offline =
-                                        Newtonsoft.Json.JsonConvert.SerializeObject(
-                                            listPromotionData
-                                                .Where(x => x.RuleSet != null)
-                                                .SelectMany(x => x.RuleSet)
-                                                .Where(r => r.ProductSequenceApplyList != null)
-                                                .SelectMany(r => r.ProductSequenceApplyList)
-                                                .Distinct()
-                                                .ToList()
-                                        );
+                                //lineToDiscount.origin_gift_line_ids_offline =
+                                //        Newtonsoft.Json.JsonConvert.SerializeObject(
+                                //            promotionRules                                                
+                                //                .Where(r => r.ProductSequenceApplyList != null)
+                                //                .SelectMany(r => r.ProductSequenceApplyList)
+                                //                .Distinct()
+                                //                .ToList()
+                                //        );
                             }
                             Debug.WriteLine($"Descuento aplicado: {discountPercentage}% al producto ID {productTemplateId}");
                         }

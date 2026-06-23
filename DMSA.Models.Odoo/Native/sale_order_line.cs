@@ -265,6 +265,27 @@ namespace DMSA.Models.Odoo.Native
 
         [Ignore]
         [JsonIgnore]
+        public List<PromoRuleItem> promotionRules
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(promotion_data))
+                    return new List<PromoRuleItem>();
+
+                try
+                {
+                    return JsonConvert.DeserializeObject<List<PromoRuleItem>>(promotion_data)
+                           ?? new List<PromoRuleItem>();
+                }
+                catch
+                {
+                    return new List<PromoRuleItem>();
+                }
+            }
+        }
+
+        [Ignore]
+        [JsonIgnore]
         public decimal _virtual_price_no_tax { get; set; }
                 
         [JsonIgnore]

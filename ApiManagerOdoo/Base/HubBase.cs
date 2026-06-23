@@ -4,7 +4,6 @@ using DMSA.Models.Security;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
-using System;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
@@ -49,7 +48,7 @@ namespace ApiManagerOdoo.Base
         }
 
         public async Task RequireLogin()
-         {
+        {
             if(_cookieContainer.Count>0)
             {
                 return;

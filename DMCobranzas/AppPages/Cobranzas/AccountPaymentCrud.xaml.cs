@@ -818,6 +818,8 @@ public partial class AccountPaymentCrud : ContentPage
 
         var accMovesByCustomer = await accountMoveDb.GetItemsByPartnerAndCompany(_res_partner, Sel_Company_Id);
 
+        accMovesByCustomer = accMovesByCustomer.OrderBy(x => x.invoice_date).ToList();
+
         var moveIds = accMovesByCustomer.Select(x => x.id).ToList();
 
         var paymentTerms = await accountMoveLineDb.GetItemsAsync(

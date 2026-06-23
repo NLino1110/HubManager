@@ -14,6 +14,7 @@
     <Compile Remove="Database\Sqlite\Payments\AccountTypeModuleDb.cs" />
     <Compile Remove="Database\Sqlite\Payments\ProductBrandDb.cs" />
     <Compile Remove="Database\Sqlite\Payments\ProductCategoryDb.cs" />
+    <Compile Remove="Database\Sqlite\Promotions\PromotionEvalItemDb.cs" />
   </ItemGroup>
   <ItemGroup>
 	  <PackageReference Include="CommunityToolkit.Maui" Version="14.2.0" />

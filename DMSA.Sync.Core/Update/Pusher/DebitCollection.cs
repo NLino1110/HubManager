@@ -281,7 +281,7 @@ namespace DMSA.Sync.Core.Update.Pusher
                     }
                     else
                     {
-                        Debug.WriteLine("ERROR AL ALMACENAR DETALLA DE COBRO");
+                        Debug.WriteLine("ERROR AL ALMACENAR DETALLE DE COBRO");
                         Debug.WriteLine("===================================");
 
                         if(paymentsResult != null)
@@ -294,6 +294,10 @@ namespace DMSA.Sync.Core.Update.Pusher
 
                             resultTask.error.data.message = paymentsResult.error.data.message;
                             resultTask.error.message = paymentsResult.error.data.message;
+
+                            multipleCobrosInvoice.payment_status = CobrosEstados.ERROR;
+                            multipleCobrosInvoice.write_date = DateTime.Now;
+                            await multipleCobrosInvoiceDB.UpdateAsync(multipleCobrosInvoice);
                         }
                         break;
                     }

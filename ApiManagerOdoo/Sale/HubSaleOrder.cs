@@ -313,7 +313,8 @@ namespace ApiManagerOdoo.Sale
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "origin_gift_line_ids");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "erp_id");
             JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "origin_gift_line_ids_offline");
-            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "promotionDataList"); 
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "promotionDataList");
+            JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "promotionRules");
             //FIX: Eliminados temporalmente
             //JObjectExtensions.RemovePropertyFromOrderLineItems(newJObject, "gift_id");            
 

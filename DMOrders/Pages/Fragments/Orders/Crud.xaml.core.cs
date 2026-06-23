@@ -579,7 +579,7 @@ namespace DMOrders.Pages.Fragments.Orders
                 sale_Order_Line.virtual_line_subtotal = priceCalc.LineSubtotal;
                 sale_Order_Line.product_tmpl_id = product._product_tmpl_id;
 
-                List<PromotionEvalItem> benefitFromData = sale_Order_Line.promotionDataList;
+                List<PromoRuleItem> benefitFromData = sale_Order_Line.promotionRules;
                 if (benefitFromData != null && benefitFromData.Count > 0)
                 {
                     PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
@@ -888,7 +888,7 @@ namespace DMOrders.Pages.Fragments.Orders
                             if (mainOrderLine != null) // && mainOrderLine.promotion_data != null)
                             {
                                 //List<PromotionEvalItem> benefitFromData = JsonConvert.DeserializeObject<List<PromotionEvalItem>>(mainOrderLine.promotion_data);
-                                List<PromotionEvalItem> benefitFromData = mainOrderLine.promotionDataList;
+                                List<PromoRuleItem> benefitFromData = mainOrderLine.promotionRules;
                                 if (benefitFromData != null && benefitFromData.Count > 0)
                                 {
                                     foreach (var benefit in benefitFromData)

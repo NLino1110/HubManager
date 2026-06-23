@@ -31,11 +31,10 @@
         <!-- Cabecera de la tabla -->
         <HorizontalStackLayout
             BackgroundColor="#DDDDDD"
-            Padding="10,4,10,4"
-            Spacing="10">
+            Padding="10,4,10,4">
             <Label Text="Nº" WidthRequest="40" FontAttributes="Bold" FontSize="11" />
             <Label Text="CÓDIGO" WidthRequest="100" FontAttributes="Bold" FontSize="11" />
-            <Label Text="└DESCRIP." WidthRequest="150" FontAttributes="Bold" FontSize="11" />
+            <Label Text="└DESCRIP." WidthRequest="100" FontAttributes="Bold" FontSize="11" />
             <Label Text="TIPO PROMO." WidthRequest="100" FontAttributes="Bold" FontSize="11" />
             <Label Text="CANTIDAD" WidthRequest="80" HorizontalTextAlignment="Start" FontAttributes="Bold" FontSize="11" />
             <Label Text="ESTADO" WidthRequest="100" HorizontalTextAlignment="Start" FontAttributes="Bold" FontSize="11" />
@@ -43,7 +42,7 @@
         
         <!-- Lista principal -->
         <Border StrokeThickness="1" StrokeLineCap="Flat" Padding="0" HeightRequest="200">            
-            <!--<CollectionView 
+            <CollectionView 
                 x:Name="ListaDetallesPromocion" 
                 ItemsSource="{Binding ItemsDataBenefits, Source={x:Reference Root}}"                
                 EmptyView="No hay datos de promociones..."
@@ -52,16 +51,16 @@
                 SelectionChanged="detail_SelectionChanged">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <HorizontalStackLayout Padding="10" Spacing="10">
+                        <HorizontalStackLayout Padding="10">
                             <Label Text="{Binding Promotion.id}" WidthRequest="40" FontSize="11"/>
                             <Label Text="{Binding Promotion.code}" WidthRequest="100" FontSize="11"/>
-                            <Label Text="{Binding Promotion.name}" MaxLines="2" WidthRequest="150" FontSize="11"/>
+                            <Label Text="{Binding Promotion.name}" MaxLines="2" WidthRequest="100" FontSize="11"/>
                             <Label Text="-" WidthRequest="100" HorizontalTextAlignment="Start" FontSize="11"/>
-                            --><!--<Label Text="{Binding _selection_type_id}" WidthRequest="80" HorizontalTextAlignment="Center" />
+                            <!--<Label Text="{Binding _selection_type_id}" WidthRequest="80" HorizontalTextAlignment="Center" />
                             <Label Text="{Binding _selection_type_id}" WidthRequest="80" HorizontalTextAlignment="Center" />-->
-                            <!--<Label Text="{Binding code}" WidthRequest="100" />--><!--
+                            <!--<Label Text="{Binding code}" WidthRequest="100" />-->
                             <Label Text="{Binding MaxAllowedGifts}" WidthRequest="80" HorizontalTextAlignment="Start" FontSize="11"/>
-                            --><!--<Label Text="{Binding Promotion.state}" WidthRequest="100" HorizontalTextAlignment="Start" FontSize="11"/>--><!--
+                            <!--<Label Text="{Binding Promotion.state}" WidthRequest="100" HorizontalTextAlignment="Start" FontSize="11"/>-->
                             <Label Grid.Column="5" FontSize="12" TextColor="Gray" HorizontalTextAlignment="Center">
                                 <Label.Triggers>
                                     <DataTrigger 
@@ -74,42 +73,6 @@
                                         TargetType="Label"
                                         Binding="{Binding Promotion.active}"
                                         Value="False">      
-                                        <Setter Property="Text" Value="Inactivo" />
-                                    </DataTrigger>
-                                </Label.Triggers>
-                            </Label>
-                        </HorizontalStackLayout>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>-->
-
-            <CollectionView 
-                x:Name="ListaDetallesPromocion" 
-                ItemsSource="{Binding ItemsDataBenefitsRules, Source={x:Reference Root}}"                
-                EmptyView="No hay datos de promociones..."
-                SelectionMode="Single"
-                HorizontalOptions="Fill"
-                SelectionChanged="detail_SelectionChanged">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <HorizontalStackLayout Padding="10" Spacing="10">
-                            <Label Text="{Binding promo_id}" WidthRequest="40" FontSize="11"/>
-                            <Label Text="{Binding promo_code}" WidthRequest="100" FontSize="11"/>
-                            <Label Text="{Binding promo_name}" MaxLines="2" WidthRequest="150" FontSize="11"/>
-                            <Label Text="{Binding promo_type_name}" WidthRequest="100" HorizontalTextAlignment="Start" FontSize="11"/>                            
-                            <Label Text="{Binding MaxAllowedGifts}" WidthRequest="80" HorizontalTextAlignment="Start" FontSize="11"/>                            
-                            <Label Grid.Column="5" FontSize="12" TextColor="Gray" HorizontalTextAlignment="Center">
-                                <Label.Triggers>
-                                    <DataTrigger 
-                                TargetType="Label"
-                                Binding="{Binding promo_active}"
-                                Value="True">
-                                        <Setter Property="Text" Value="Activo" />
-                                    </DataTrigger>
-                                    <DataTrigger 
-                            TargetType="Label"
-                            Binding="{Binding promo_active}"
-                            Value="False">
                                         <Setter Property="Text" Value="Inactivo" />
                                     </DataTrigger>
                                 </Label.Triggers>

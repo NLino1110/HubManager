@@ -35,23 +35,23 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-android|AnyCPU'">
 		<AndroidStoreUncompressedFileExtensions></AndroidStoreUncompressedFileExtensions>
-		<ApplicationVersion>50</ApplicationVersion>
+		<ApplicationVersion>52</ApplicationVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-ios|AnyCPU'">
-	  <ApplicationVersion>50</ApplicationVersion>
+	  <ApplicationVersion>52</ApplicationVersion>
 	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 	  <FileAlignment>8192</FileAlignment>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-maccatalyst|AnyCPU'">
-	  <ApplicationVersion>50</ApplicationVersion>
+	  <ApplicationVersion>52</ApplicationVersion>
 	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 	  <FileAlignment>8192</FileAlignment>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-windows10.0.19041.0|AnyCPU'">
-	  <ApplicationVersion>50</ApplicationVersion>
+	  <ApplicationVersion>52</ApplicationVersion>
 	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 	  <FileAlignment>8192</FileAlignment>
 	</PropertyGroup>
@@ -59,26 +59,26 @@
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-android|AnyCPU'">
 		<Optimize>True</Optimize>
 		<AndroidStoreUncompressedFileExtensions></AndroidStoreUncompressedFileExtensions>
-		<ApplicationVersion>50</ApplicationVersion>
+		<ApplicationVersion>52</ApplicationVersion>
 		<AndroidPackageFormat>aab</AndroidPackageFormat>
 		<AndroidUseAapt2>True</AndroidUseAapt2>
 		<AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-ios|AnyCPU'">
-	  <ApplicationVersion>50</ApplicationVersion>
+	  <ApplicationVersion>52</ApplicationVersion>
 	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 	  <FileAlignment>8192</FileAlignment>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-maccatalyst|AnyCPU'">
-	  <ApplicationVersion>50</ApplicationVersion>
+	  <ApplicationVersion>52</ApplicationVersion>
 	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 	  <FileAlignment>8192</FileAlignment>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-windows10.0.19041.0|AnyCPU'">
-	  <ApplicationVersion>50</ApplicationVersion>
+	  <ApplicationVersion>52</ApplicationVersion>
 	  <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 	  <FileAlignment>8192</FileAlignment>
 	</PropertyGroup>
@@ -233,19 +233,19 @@
 	</ItemGroup>
 
 	<ItemGroup>
-        <PackageReference Include="CommunityToolkit.Maui" Version="14.1.0" />
-        <PackageReference Include="CommunityToolkit.Maui.Core" Version="14.1.0" />
+        <PackageReference Include="CommunityToolkit.Maui" Version="14.2.0" />
+        <PackageReference Include="CommunityToolkit.Maui.Core" Version="14.2.0" />
         <PackageReference Include="CommunityToolkit.Maui.Markup" Version="7.0.1" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
 		<PackageReference Include="Fluid.Core" Version="2.31.0" />
 		<PackageReference Include="Microsoft.AppCenter" Version="5.0.7" />
 		<PackageReference Include="Microsoft.AppCenter.Analytics" Version="5.0.7" />
 		<PackageReference Include="Microsoft.AppCenter.Crashes" Version="5.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.7" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.6" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.9" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.9" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 		<PackageReference Include="RestSharp" Version="114.0.0" />
-		<PackageReference Include="SkiaSharp" Version="3.119.2" />
+		<PackageReference Include="SkiaSharp" Version="3.119.4" />
 		<PackageReference Include="SkiaSharp.QrCode" Version="0.12.0" />		
 	</ItemGroup>
 
@@ -400,8 +400,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-        <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.51" />
-        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="10.0.51" />		
+        <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.71" />
+        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="10.0.71" />		
 	</ItemGroup>
 
 	<ItemGroup>

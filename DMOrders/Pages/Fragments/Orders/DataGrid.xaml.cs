@@ -170,7 +170,6 @@ namespace DMOrders.Pages.Fragments.Orders
                     _isNavigating = false;
                     ((ListViewModel)this.BindingContext).LoadData();
                 };
-                                
 
                 //if (resultCrud == 1)
                 //{
@@ -233,7 +232,7 @@ namespace DMOrders.Pages.Fragments.Orders
 
             if (_isNavigating) return;
 
-            var leave = await Application.Current.Windows[0].Page.DisplayAlert("Atención", "Desea marcar esta orden para resincronizar?", "Si", "No");
+            var leave = await Application.Current.Windows[0].Page.DisplayAlertAsync("Atención", "Desea marcar esta orden para resincronizar?", "Si", "No");
 
             if (!leave)
             {

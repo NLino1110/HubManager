@@ -25,6 +25,8 @@
     <Compile Remove="General\ApiResponse_REPORTE_COMISIONES.cs" />
     <Compile Remove="GenModulosNC.cs" />
     <Compile Remove="GenTiposNotaCredito.cs" />
+    <Compile Remove="Sales\promotions\abstract\PromotionEvalItem.cs" />
+    <Compile Remove="Sales\promotions\abstract\PromotionEvalResult.cs" />
     <Compile Remove="user_access.cs" />
   </ItemGroup>
 
@@ -35,6 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Sales\promotions\abstract\" />
     <Folder Include="Tesoreria\" />
   </ItemGroup>
 
