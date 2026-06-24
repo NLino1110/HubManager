@@ -110,29 +110,47 @@ namespace DMSA.Models.Odoo.Promotions
         //////            );
         //////    }
         //////}
-        
+
         public static void SetPromotionDataGift(sale_order_line order_line, List<PromoRuleItem> promoRuleItems)
         {
-            if (promoRuleItems == null || !promoRuleItems.Any())
+            var firstPSA = promoRuleItems?
+                .FirstOrDefault()?
+                .ProductSequenceApplyList?
+                .FirstOrDefault();
+
+            if (firstPSA == null)
                 return;
 
-            order_line.origin_gift_line_ids = new int[] { };
+            order_line.origin_gift_line_ids = Array.Empty<int>();
 
-            var firstItem = promoRuleItems.FirstOrDefault();
-
-            if (firstItem.ProductSequenceApplyList == null || firstItem.ProductSequenceApplyList.Count == 0)
-                return;
-            
-            var firstPSA = firstItem.ProductSequenceApplyList.FirstOrDefault();
-
-            if (firstPSA != null)
-            {
-                order_line.origin_gift_line_ids_offline =
-                    Newtonsoft.Json.JsonConvert.SerializeObject(
-                        new List <OriginPromoOrderLine>  { firstPSA }
-                    );
-            }
+            order_line.origin_gift_line_ids_offline =
+                Newtonsoft.Json.JsonConvert.SerializeObject(
+                    new List<OriginPromoOrderLine> { firstPSA }
+                );
         }
+
+        //public static void SetPromotionDataGift(sale_order_line order_line, List<PromoRuleItem> promoRuleItems)
+        //{
+        //    if (promoRuleItems == null || !promoRuleItems.Any())
+        //        return;
+
+        //    order_line.origin_gift_line_ids = new int[] { };
+
+        //    var firstItem = promoRuleItems.FirstOrDefault();
+
+        //    if (firstItem.ProductSequenceApplyList == null || firstItem.ProductSequenceApplyList.Count == 0)
+        //        return;
+            
+        //    var firstPSA = firstItem.ProductSequenceApplyList.FirstOrDefault();
+
+        //    if (firstPSA != null)
+        //    {
+        //        order_line.origin_gift_line_ids_offline =
+        //            Newtonsoft.Json.JsonConvert.SerializeObject(
+        //                new List <OriginPromoOrderLine>  { firstPSA }
+        //            );
+        //    }
+        //}
 
         public static void SetPromotionData(sale_order_line order_line, List<PromoRuleItem> listPromoRuleItem)
         {

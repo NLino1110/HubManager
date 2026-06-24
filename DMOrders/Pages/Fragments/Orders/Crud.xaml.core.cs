@@ -605,15 +605,19 @@ namespace DMOrders.Pages.Fragments.Orders
                         {
                             foreach (var benefitItem in promotionEvalItem)
                             {
-                                foreach (var ruleMatch in benefitItem.RuleSet)
+                                //TODO: Arreglar parche
+                                if (benefitItem.RuleSet != null && benefitItem.RuleSet.Count > 0)
                                 {
-                                    int[] listIdsProd = Newtonsoft.Json.JsonConvert.DeserializeObject<int[]>(ruleMatch.ProductTmplIds);
-
-                                    foreach (var productIdCompare in listIdsProd)
+                                    foreach (var ruleMatch in benefitItem.RuleSet)
                                     {
-                                        if (sale_Order_Line.product_tmpl_id == productIdCompare && (sale_Order_Line.is_gift && !sale_Order_Line.is_manual))
+                                        int[] listIdsProd = Newtonsoft.Json.JsonConvert.DeserializeObject<int[]>(ruleMatch.ProductTmplIds);
+
+                                        foreach (var productIdCompare in listIdsProd)
                                         {
-                                            OrderLines.Remove(itemGift);
+                                            if (sale_Order_Line.product_tmpl_id == productIdCompare && (sale_Order_Line.is_gift && !sale_Order_Line.is_manual))
+                                            {
+                                                OrderLines.Remove(itemGift);
+                                            }
                                         }
                                     }
                                 }

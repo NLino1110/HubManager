@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SQLite;
-using SQLiteNetExtensions.Attributes;
 
 namespace DMSA.Models.Odoo.Accounting
 {
