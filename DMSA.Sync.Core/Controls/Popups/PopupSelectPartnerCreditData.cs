@@ -1,10 +1,7 @@
 ﻿using DMOrders.Controls.CustomRows.Lite;
 using DMSA.Models.Odoo.Native;
-using DMSA.Sync.Core.Controls.CustomRows.Lite;
-using DMSA.Sync.Core.Controls.Popups;
 using DMSA.Sync.Core.Database.Sqlite;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 
 namespace DMSA.Sync.Core.Controls.Popups
 {

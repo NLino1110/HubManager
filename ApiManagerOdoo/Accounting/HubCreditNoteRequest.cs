@@ -144,9 +144,18 @@ namespace ApiManagerOdoo.Accounting
                         {
                             Debug.WriteLine($"No se encontró el producto {item.product_id_} en las líneas del request");
                         }
-                    }                    
+                    }
                 }
 
+                //ETAPA BARBARA
+                object[] args_step_3_0 = new object[] { new_record };
+                var kwargs_step_3_0 = new { };
+                var process_review_ventas = await CallMethod<ApiResponseOdooRpcT<OdooRpcResultInt>>(EndPointApi,
+                    Method.Post,
+                    args_step_3_0,
+                    kwargs_step_3_0,
+                    "credit.note.request",
+                    "process_review_ventas");
             }
             else
             { 

@@ -17,8 +17,8 @@ public partial class Congratulations : ContentPage
     private readonly SKPaint textPaint = new()
     {
         Color = SKColors.Red,        
-        TextSize = 100,
-        TextAlign = SKTextAlign.Center,        
+        //TextSize = 100,
+        //TextAlign = SKTextAlign.Center,                
         IsAntialias = true
     };
 
