@@ -1,6 +1,7 @@
 using DMSA.Models.Odoo.Native;
 using SkiaSharp;
 using SkiaSharp.Views.Maui;
+using SkiaSharp.Views.Maui.Controls;
 using System.Diagnostics;
 using System.Windows.Input;
 
@@ -8,28 +9,6 @@ namespace MauiApp100.Controls;
 
 public partial class SaleOrderLineSkiaView : ContentView
 {
-    private static float ScaleText = 1.0f;
-    private static float ScaleLayout = 1.0f;
-
-    static SaleOrderLineSkiaView()
-    {        
-        if (DeviceInfo.Current.Platform == DevicePlatform.WinUI)
-        {
-            ScaleText = 0.65f;
-            ScaleLayout = 0.6f;
-        }
-        else if (DeviceInfo.Current.Platform == DevicePlatform.iOS || DeviceInfo.Current.Platform == DevicePlatform.MacCatalyst)
-        {
-            ScaleText = 1.0f;
-            ScaleLayout = 1.0f;
-        }
-        else
-        {
-            ScaleText = 1.0f;
-            ScaleLayout = 1.0f;
-        }
-    }
-
     public static readonly BindableProperty ItemProperty =
         BindableProperty.Create(
             nameof(Item),
@@ -49,7 +28,10 @@ public partial class SaleOrderLineSkiaView : ContentView
         control.canvas?.InvalidateSurface();
     }
 
+    // HITBOXES
     private readonly List<(SKRect rect, string action)> _hits = new();
+
+    // Estado temporal para saber qué botón se está presionando actualmente
     private string _pressedAction = string.Empty;
     private bool _isRowPressed = false;
 
@@ -62,12 +44,18 @@ public partial class SaleOrderLineSkiaView : ContentView
         canvas.EnableTouchEvents = true;
         canvas.Touch += OnTouch;
 
+        this.SizeChanged += (s, e) => canvas?.InvalidateSurface();
+
         _ = LoadFontAwesomeAsync();
     }
 
     private void OnTouch(object sender, SKTouchEventArgs e)
     {
-        var p = e.Location;
+        // Evitar división por cero si la vista no se ha renderizado completamente
+        if (Width <= 0 || canvas == null) return;
+
+        float scale = (float)(canvas.CanvasSize.Width / Width);
+        var p = new SKPoint(e.Location.X / scale, e.Location.Y / scale);
 
         if (e.ActionType == SKTouchAction.Pressed)
         {
@@ -76,17 +64,41 @@ public partial class SaleOrderLineSkiaView : ContentView
                 if (h.rect.Contains(p))
                 {
                     _pressedAction = h.action;
-                    canvas?.InvalidateSurface();
+                    canvas.InvalidateSurface();
                     e.Handled = true;
                     return;
                 }
             }
-            Debug.WriteLine("Pressed =============================================");
+        }
+        else if (e.ActionType == SKTouchAction.Moved)
+        {
+            // En Windows, mover el ratón un píxel puede disparar este evento.
+            // Si nos salimos del área del botón que se estaba presionando, cancelamos el estado visual.
+            if (!string.IsNullOrEmpty(_pressedAction))
+            {
+                bool stillInButton = false;
+                foreach (var h in _hits)
+                {
+                    if (h.action == _pressedAction && h.rect.Contains(p))
+                    {
+                        stillInButton = true;
+                        break;
+                    }
+                }
+
+                if (!stillInButton)
+                {
+                    _pressedAction = string.Empty;
+                    canvas.InvalidateSurface();
+                }
+                e.Handled = true;
+            }
         }
         else if (e.ActionType == SKTouchAction.Released)
         {
             if (!string.IsNullOrEmpty(_pressedAction))
             {
+                // Verificar si el puntero se liberó dentro del botón objetivo
                 foreach (var h in _hits)
                 {
                     if (h.action == _pressedAction && h.rect.Contains(p))
@@ -95,12 +107,12 @@ public partial class SaleOrderLineSkiaView : ContentView
                         {
                             case "DELETE":
                                 DeleteCommand?.Execute(Item);
-                                Debug.WriteLine("DELETE");
+                                Debug.WriteLine("DELETE ejecutado");
                                 break;
 
                             case "GIFT":
                                 GiftCommand?.Execute(Item);
-                                Debug.WriteLine("GIFT");
+                                Debug.WriteLine("GIFT ejecutado");
                                 break;
                         }
                         break;
@@ -108,7 +120,7 @@ public partial class SaleOrderLineSkiaView : ContentView
                 }
 
                 _pressedAction = string.Empty;
-                canvas?.InvalidateSurface();
+                canvas.InvalidateSurface(); // Quita el efecto visual de presionado
                 e.Handled = true;
             }
         }
@@ -117,7 +129,7 @@ public partial class SaleOrderLineSkiaView : ContentView
             if (!string.IsNullOrEmpty(_pressedAction))
             {
                 _pressedAction = string.Empty;
-                canvas?.InvalidateSurface();
+                canvas.InvalidateSurface();
                 e.Handled = true;
             }
         }
@@ -148,27 +160,43 @@ public partial class SaleOrderLineSkiaView : ContentView
 
         canvas.Clear(SKColors.Transparent);
 
-        if (Item == null) return;
+        // Si no hay ítem o la superficie de Skia está vacía, no dibujamos
+        if (Item == null || info.Width <= 0 || info.Height <= 0) return;
+
+        // Capturar el ancho lógico de forma segura
+        float mauiWidth = (float)Width;
+
+        // Si MAUI aún no calcula el Width (está en 0 o -1), calculamos una escala temporal basada en Windows
+        if (mauiWidth <= 0)
+        {
+            // En Windows, habitualmente la escala por defecto es 1, o puedes usar un fallback defensivo
+            mauiWidth = info.Width;
+        }
+
+        canvas.Save();
+        float scale = info.Width / mauiWidth;
+        canvas.Scale(scale);
 
         _hits.Clear();
 
-        float width = info.Width;
+        // Usar la variable segura de ancho
+        float width = mauiWidth;
 
-        // Se escala el ancho fijo de la columna de secuencia (40) y botones (160)
+        // 3. Definición de columnas adaptativas en base al ancho lógico
         float[] cols = new float[]
         {
-            40 * ScaleLayout,
-            width * 0.18f,
-            width * 0.07f,
-            width * 0.07f,
-            width * 0.07f,
-            width * 0.07f,
-            width * 0.07f,
-            width * 0.07f,
-            width * 0.07f,
-            width * 0.07f,
-            width * 0.07f,
-            160 * ScaleLayout
+        30,           // Secuencia
+        width * 0.15f, // Código / Producto
+        width * 0.06f, // UOM
+        width * 0.06f, // Cantidad Real
+        width * 0.06f, // Cantidad
+        width * 0.08f, // Precio Unitario
+        width * 0.08f, // Subtotal
+        width * 0.06f, // Descuento %
+        width * 0.06f, // Importe Descuento
+        width * 0.06f, // Impuesto
+        width * 0.08f, // Total
+        85            // Espacio fijo para botones (GIFT + DELETE)
         };
 
         float[] colX = new float[cols.Length];
@@ -179,42 +207,47 @@ public partial class SaleOrderLineSkiaView : ContentView
             acc += cols[i];
         }
 
-        // Se escalan las posiciones verticales de las filas
-        float row1Y = 25 * ScaleLayout;
-        float row2Y = 50 * ScaleLayout;
+        // Coordenadas Y lógicas y tamaños de fuente más balanceados para pantallas
+        float row1Y = 22;
+        float row2Y = 42;
 
         var paint = new SKPaint { IsAntialias = true, Color = SKColors.Black };
 
-        // Se escalan los tamaños de las fuentes
-        var fontNormal = new SKFont { Size = 22 * ScaleText };
-        var fontSmall = new SKFont { Size = 18 * ScaleText };
-        var fontAwesome = new SKFont { Typeface = _fontAwesomeTypeface, Size = 24 * ScaleText };
-        var fontBold = new SKFont { Size = 22 * ScaleText, Embolden = true };
-        var fontRight = new SKFont { Size = 22 * ScaleText, Embolden = true };
+        // Fuentes escaladas a tamaños independientes de la densidad (DIU)
+        var fontNormal = new SKFont { Size = 14 };
+        var fontSmall = new SKFont { Size = 11 };
+        var fontAwesome = new SKFont { Typeface = _fontAwesomeTypeface, Size = 14 };
+        var fontBold = new SKFont { Size = 13, Embolden = true };
+        var fontRight = new SKFont { Size = 13, Embolden = true };
 
-        // COLUMN 0
+        // COLUMNA 0: Secuencia
         paint.Color = SKColors.Green;
         canvas.DrawText(Item.sequence.ToString(), colX[0] + 2, row1Y, fontNormal, paint);
 
-        // COLUMN 1
+        // COLUMNA 1: Producto
+        paint.Color = SKColors.Black;
         canvas.DrawText(Item.product_code ?? "", colX[1], row1Y, fontBold, paint);
 
         paint.Color = SKColors.DarkGray;
-        // Se escala también el desplazamiento fijo del ID (+120)
-        canvas.DrawText($"({Item.product_id})", colX[1] + (120 * ScaleLayout), row1Y, fontSmall, paint);
+        // Desplazamiento dinámico para que no se encima con el código
+        var codeBounds = new SKRect();
+        fontBold.MeasureText(Item.product_code ?? "", out codeBounds);
+        canvas.DrawText($"({Item.product_id})", colX[1] + codeBounds.Width + 8, row1Y, fontSmall, paint);
 
         paint.Color = SKColors.Black;
         canvas.DrawText(Item.product_display ?? "", colX[1], row2Y, fontSmall, paint);
 
+        // COLUMNAS ESTÁNDAR
         canvas.DrawText(Item.uom_category_display ?? "", colX[2], row1Y, fontBold, paint);
         canvas.DrawText(Item.product_uom_qty_real.ToString("N2"), colX[3], row1Y, fontBold, paint);
         canvas.DrawText(Item.product_uom_qty.ToString("N2"), colX[4], row1Y, fontBold, paint);
 
+        // Función auxiliar local para alineación derecha
         void DrawRight(string text, float x, float widthCol)
         {
             var bounds = new SKRect();
             fontRight.MeasureText(text, out bounds);
-            canvas.DrawText(text, x + widthCol - bounds.Width - 5, row1Y, fontRight, paint);
+            canvas.DrawText(text, x + widthCol - bounds.Width - 4, row1Y, fontRight, paint);
         }
 
         DrawRight(Item.price_unit.ToString("N4"), colX[5], cols[5]);
@@ -225,57 +258,66 @@ public partial class SaleOrderLineSkiaView : ContentView
         DrawRight(Item.price_total.ToString("N2"), colX[10], cols[10]);
 
         // ==========================================
-        // RENDERIZADO DE BOTONES ESCALADOS
+        // RENDERIZADO DE BOTONES (Dimensiones lógicas)
         // ==========================================
-        float btnSize = 70 * ScaleLayout;
-        float startX = colX[11] + (15 * ScaleLayout);
-        float btnY = row1Y - (10 * ScaleLayout);
+        float btnSize = 32; // Tamaño óptimo en unidades lógicas
+        float startX = colX[11] + 5;
+        float btnY = row1Y - 10;
 
         // BOTÓN DE REGALO (GIFT)
         if (Item.is_gift)
         {
-            DrawButton(canvas, startX, btnY, size: btnSize, SKColors.DodgerBlue, "\uf06b", "GIFT", fontAwesome, isCircle: true, cornerRadius: 10);
+            DrawButton(canvas, startX, btnY, size: btnSize, SKColors.DodgerBlue, "\uf06b", "GIFT", fontAwesome, isCircle: true);
         }
 
         // BOTÓN DE ELIMINAR (DELETE)
-        float deleteBtnX = Item.is_gift ? (startX + btnSize + (5 * ScaleLayout)) : startX;
-        DrawButton(canvas, deleteBtnX, btnY, size: btnSize, SKColors.OrangeRed, "\uf2ed", "DELETE", fontAwesome, isCircle: true, cornerRadius: 10);
+        float deleteBtnX = Item.is_gift ? (startX + btnSize + 6) : startX;
+        DrawButton(canvas, deleteBtnX, btnY, size: btnSize, SKColors.OrangeRed, "\uf2ed", "DELETE", fontAwesome, isCircle: true);
+
+        // Restaurar el lienzo a su estado original
+        canvas.Restore();
     }
 
+
     private void DrawButton(
-        SKCanvas canvas,
-        float x,
-        float y,
-        float size,
-        SKColor color,
-        string text,
-        string actionName,
-        SKFont font,
-        bool isCircle = false,
-        float cornerRadius = 0)
+    SKCanvas canvas,
+    float x,
+    float y,
+    float size,
+    SKColor color,
+    string text,
+    string actionName,
+    SKFont font,
+    bool isCircle = false,
+    float cornerRadius = 0)
     {
+        // CAMBIO: Eliminamos el "- 20" para usar la "y" limpia que calculamos arriba
         var rect = new SKRect(x, y, x + size, y + size);
 
-        // Al construirse el SKRect con valores ya escalados, el Hitbox nativo funciona perfecto
+        // Registrar el Hitbox siempre para mantener la consistencia
         _hits.Add((rect, actionName));
 
+        // Evaluar si este botón específico está siendo presionado actualmente
         bool isPressed = _pressedAction == actionName;
 
+        // Si está presionado, alteramos levemente el tamaño para dar efecto "Click" de escala hacia el centro
         if (isPressed)
         {
-            float offset = size * 0.06f;
+            float offset = size * 0.06f; // Reducción del 6% del tamaño
             x += offset;
             y += offset;
             size -= (offset * 2);
             rect = new SKRect(rect.Left + offset, rect.Top + offset, rect.Right - offset, rect.Bottom - offset);
         }
 
+        // Dibujar la forma del botón (Si está presionado, usamos un color con menor opacidad)
         var targetColor = isPressed ? color.WithAlpha((byte)(color.Alpha * 0.7f)) : color;
 
         using (var paint = new SKPaint { IsAntialias = true, Color = targetColor })
         {
             if (isCircle)
             {
+                // Ajuste para el círculo centrado perfectamente en su nuevo bounding box
                 canvas.DrawCircle(rect.MidX, rect.MidY, size / 2, paint);
             }
             else if (cornerRadius > 0)
@@ -288,6 +330,7 @@ public partial class SaleOrderLineSkiaView : ContentView
             }
         }
 
+        // Dibujar el Texto o Ícono centrado
         using (var textPaint = new SKPaint { IsAntialias = true, Color = SKColors.White })
         {
             var bounds = new SKRect();
@@ -299,4 +342,5 @@ public partial class SaleOrderLineSkiaView : ContentView
             canvas.DrawText(text, textX, textY, font, textPaint);
         }
     }
+
 }

@@ -33,6 +33,7 @@ public partial class SaleOrderLineSkiaView : ContentView
 
     // Estado temporal para saber qué botón se está presionando actualmente
     private string _pressedAction = string.Empty;
+    private bool _isRowPressed = false;
 
     public ICommand? DeleteCommand { get; set; }
     public ICommand? GiftCommand { get; set; }
@@ -57,11 +58,12 @@ public partial class SaleOrderLineSkiaView : ContentView
                 if (h.rect.Contains(p))
                 {
                     _pressedAction = h.action;
-                    canvas?.InvalidateSurface(); // Redibuja para mostrar el efecto visual presionado
+                    canvas?.InvalidateSurface();
                     e.Handled = true;
                     return;
                 }
             }
+            Debug.WriteLine("Pressed =============================================");
         }
         else if (e.ActionType == SKTouchAction.Released)
         {
@@ -137,7 +139,7 @@ public partial class SaleOrderLineSkiaView : ContentView
 
         float[] cols = new float[]
         {
-            20,
+            40,
             width * 0.18f,
             width * 0.07f,
             width * 0.07f,
@@ -206,33 +208,36 @@ public partial class SaleOrderLineSkiaView : ContentView
         // ==========================================
         // RENDERIZADO DE BOTONES DE 60PX EN FILA HORIZONTAL
         // ==========================================
-        float btnSize = 60;
+        float btnSize = 70;
         float startX = colX[11] + 15;
         float btnY = row1Y - 10;
 
         // BOTÓN DE REGALO (GIFT)
         if (Item.is_gift)
         {
-            DrawButton(canvas, startX, btnY, size: btnSize, SKColors.DodgerBlue, "\uf2ed", "GIFT", fontAwesome, isCircle: true);
+            DrawButton(canvas, startX, btnY, size: btnSize, SKColors.DodgerBlue, "\uf06b", "GIFT", fontAwesome, isCircle: true, cornerRadius: 10);
         }
 
         // BOTÓN DE ELIMINAR (DELETE)
         float deleteBtnX = Item.is_gift ? (startX + btnSize + 5) : startX;
-        DrawButton(canvas, deleteBtnX, btnY, size: btnSize, SKColors.OrangeRed, "\uf06b", "DELETE", fontAwesome, isCircle: false);
+        DrawButton(canvas, deleteBtnX, btnY, size: btnSize, SKColors.OrangeRed, "\uf2ed", "DELETE", fontAwesome, isCircle: true, cornerRadius: 10);
     }
 
+
     private void DrawButton(
-        SKCanvas canvas,
-        float x,
-        float y,
-        float size,
-        SKColor color,
-        string text,
-        string actionName,
-        SKFont font,
-        bool isCircle = false)
+    SKCanvas canvas,
+    float x,
+    float y,
+    float size,
+    SKColor color,
+    string text,
+    string actionName,
+    SKFont font,
+    bool isCircle = false,
+    float cornerRadius = 0)
     {
-        var rect = new SKRect(x, y - 20, x + size, y + (size - 20));
+        // CAMBIO: Eliminamos el "- 20" para usar la "y" limpia que calculamos arriba
+        var rect = new SKRect(x, y, x + size, y + size);
 
         // Registrar el Hitbox siempre para mantener la consistencia
         _hits.Add((rect, actionName));
@@ -257,7 +262,12 @@ public partial class SaleOrderLineSkiaView : ContentView
         {
             if (isCircle)
             {
-                canvas.DrawCircle(x + (size / 2), y - 5 + (isPressed ? size * 0.06f : 0), size / 2, paint);
+                // Ajuste para el círculo centrado perfectamente en su nuevo bounding box
+                canvas.DrawCircle(rect.MidX, rect.MidY, size / 2, paint);
+            }
+            else if (cornerRadius > 0)
+            {
+                canvas.DrawRoundRect(rect, cornerRadius, cornerRadius, paint);
             }
             else
             {
@@ -277,4 +287,5 @@ public partial class SaleOrderLineSkiaView : ContentView
             canvas.DrawText(text, textX, textY, font, textPaint);
         }
     }
+
 }

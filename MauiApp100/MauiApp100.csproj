@@ -66,6 +66,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Controls\bk2\SaleOrderLineSkiaView.xaml.cs" />
 	  <Compile Remove="Controls\bk\SaleOrderLineSkiaView.xaml.cs" />
 	</ItemGroup>
 
@@ -76,6 +77,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Remove="Controls\bk2\SaleOrderLineSkiaView.xaml" />
 	  <MauiXaml Remove="Controls\bk\SaleOrderLineSkiaView.xaml" />
 	</ItemGroup>
 
@@ -140,6 +142,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="Controls\bk2\" />
 	  <Folder Include="Controls\bk\" />
 	</ItemGroup>
 

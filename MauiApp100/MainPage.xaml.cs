@@ -10,7 +10,6 @@ using System.Reflection;
 using System.Windows.Input;
 using System;
 
-
 namespace MauiApp100
 {
     public partial class MainPage : ContentPage, INotifyPropertyChanged
