@@ -25,14 +25,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" Version="13.2.4" />
-    <PackageReference Include="MudBlazor" Version="9.4.0" />
+    <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" Version="13.4.6" />
+    <PackageReference Include="MudBlazor" Version="9.5.0" />
     <PackageReference Include="MudBlazor.FontIcons.MaterialIcons" Version="1.4.0" />
     <PackageReference Include="MudBlazor.FontIcons.MaterialSymbols" Version="1.4.0" />
     <PackageReference Include="MudBlazor.ThemeManager" Version="4.0.0" />
-    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.3" />
-    <PackageReference Include="SkiaSharp" Version="3.119.2" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.2" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.16.0" />
+    <PackageReference Include="SkiaSharp" Version="4.148.0" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.148.0" />
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
     <PackageReference Include="SQLitePCLRaw.config.e_sqlite3" Version="3.0.3" />
     <PackageReference Include="SQLitePCLRaw.core" Version="3.0.3" />

@@ -3,9 +3,36 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:beebtechMaui="clr-namespace:BeebTech.Maui.Controls.UI;assembly=BeebTech.Maui.Controls"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             xmlns:c="http://apes.ge"
+             xmlns:c="http://apes.ge"             
+             xmlns:customrows="clr-namespace:MauiApp100.Controls"
              x:Class="MauiApp100.MainPage">
+    <VerticalStackLayout>
 
+        <Button Clicked="Button_LoadData" Text="Cargar"></Button>
+        
+        <CollectionView
+            Grid.Row="1"
+            x:Name="OrderLinesCl"
+            ItemsSource="{Binding OrderLines}" 
+            EmptyView="No hay productos seleccionados..."
+            SelectionMode="Single"
+            HorizontalOptions="FillAndExpand"
+            VerticalOptions="FillAndExpand"
+            MaximumWidthRequest="1100"
+            MinimumHeightRequest="500"
+            MaximumHeightRequest="500"
+            SelectedItem="{Binding SelectedOrderLine, Mode=TwoWay}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <customrows:SaleOrderLineSkiaView Item="{Binding .}" 
+                                                      HeightRequest="70"
+    HorizontalOptions="Fill"
+    VerticalOptions="Fill"/>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+          
+        
     <ScrollView>
         <VerticalStackLayout Padding="30,0" Spacing="25">
 
@@ -69,5 +96,6 @@
                 HorizontalOptions="Fill" />
         </VerticalStackLayout>
     </ScrollView>
+    </VerticalStackLayout>
 
 </ContentPage>

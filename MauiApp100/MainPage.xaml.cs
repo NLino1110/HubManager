@@ -1,15 +1,107 @@
-﻿using Plugin.LocalNotification;
+﻿using DMSA.Models.Odoo.Native;
+using Newtonsoft.Json.Linq;
+using Plugin.LocalNotification;
 using Plugin.LocalNotification.Core.Models;
 using Plugin.LocalNotification.Core.Models.AndroidOption;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Net.Http;
 using System.Reflection;
 using System.Windows.Input;
+using System;
+
 
 namespace MauiApp100
 {
     public partial class MainPage : ContentPage, INotifyPropertyChanged
     {
+
+        private sale_order_line _selectedOrderLine;
+        public sale_order_line SelectedOrderLine
+        {
+            get => _selectedOrderLine;
+            set
+            {
+                _selectedOrderLine = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<sale_order_line> GenerarOrderLinesFake(int cantidad = 100)
+        {
+            var random = new Random();
+            var list = new ObservableCollection<sale_order_line>();
+
+            for (int i = 1; i <= cantidad; i++)
+            {
+                var qty = Math.Round((decimal)(random.NextDouble() * 10 + 1), 2);
+                var price = Math.Round((decimal)(random.NextDouble() * 100 + 5), 2);
+                var discount = Math.Round((decimal)(random.NextDouble() * 20), 2);
+
+                var subtotal = qty * price;
+                var discountAmount = subtotal * (discount / 100);
+                var taxed = (subtotal - discountAmount) * 0.12m;
+                var total = subtotal - discountAmount + taxed;
+
+                list.Add(new sale_order_line
+                {
+                    id = i,
+                    sequence = i,
+                    product_id = random.Next(1, 50),
+                    product_tmpl_id = random.Next(1, 50),
+
+                    product_uom_qty = qty,
+                    product_uom_qty_real = qty,
+                    qty_to_deliver = qty,
+
+                    price_unit = price,
+                    discount = discount,
+                    amount_discount = discountAmount,
+
+                    price_subtotal = subtotal,
+                    price_tax = taxed,
+                    price_total = total,
+
+                    product_uom_category_id = JToken.FromObject(new object[] { 1, "Unidad" }),
+
+                    product_code = $"PROD-{i:000}",
+                    product_display = $"Producto Fake {i}",
+                    uom_category_display = "Unidad",
+
+                    is_gift = (i % 10 == 0),
+                    is_manual = false,
+
+                    virtual_iva_percentage = 12,
+                    virtual_line_subtotal = subtotal,
+
+                    product_id_origin = 0,
+                    show_delete_button = true,
+
+                    promotion_ids = new int[] { random.Next(1, 5) },
+                    rule_ids = new int[] { random.Next(1, 5) },
+                    origin_gift_line_ids = Array.Empty<int>(),
+
+                    erp_id = 0
+                });
+            }
+
+            return list;
+        }
+
+        private async void Button_LoadData(object sender, EventArgs e)
+        {
+            OrderLines = new ObservableCollection<sale_order_line>(GenerarOrderLinesFake(100));
+            OnPropertyChanged(nameof(OrderLines));
+        }
+
+        public void LoadFakeData()
+        {
+            OrderLines = new ObservableCollection<sale_order_line>(GenerarOrderLinesFake(100));
+            OnPropertyChanged(nameof(OrderLines));
+        }
+
+        public ObservableCollection<sale_order_line> OrderLines { get; set; }
+
         public FileImageSource SettingsIconSource { get; private set; }
 
         private string _text;
@@ -72,8 +164,9 @@ namespace MauiApp100
             ActionCommand = new Command<object>((item) => OnActionCommandExecuted(item));
 
             SettingsIconSource = "outline_settings_black_24.png";
-
-            BindingContext = this;            
+            OrderLines = new ObservableCollection<sale_order_line>(GenerarOrderLinesFake(500));
+            OnPropertyChanged(nameof(OrderLines));
+            BindingContext = this;
         }
 
         private async Task<byte[]> getUrlByte()
