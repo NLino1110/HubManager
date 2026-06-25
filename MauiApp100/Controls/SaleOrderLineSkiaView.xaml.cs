@@ -191,11 +191,10 @@ public partial class SaleOrderLineSkiaView : ContentView
         var fontAwesome = new SKFont { Typeface = _fontAwesomeTypeface, Size = 24 * ScaleText };
         var fontBold = new SKFont { Size = 22 * ScaleText, Embolden = true };
         var fontRight = new SKFont { Size = 22 * ScaleText, Embolden = true };
-        var textAlign = SKTextAlign.Right;
-        
+                
         // COLUMN 0
         paint.Color = SKColors.Green;
-        canvas.DrawText(Item.sequence.ToString(), colX[0] + 2, row1Y, textAlign, fontNormal, paint);
+        canvas.DrawText(Item.sequence.ToString(), colX[0] + 2, row1Y, SKTextAlign.Right, fontNormal, paint);
 
         // COLUMN 1
         canvas.DrawText(Item.product_code ?? "", colX[1], row1Y, fontBold, paint);
