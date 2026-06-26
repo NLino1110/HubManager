@@ -35,6 +35,8 @@ namespace DMOrders.Services.Promotions
             PromoRuleItem promoRuleItem, 
             List<SaleOrderPromotions> saleOrderPromotions)
         {
+            if (promoRuleItem == null) return false;
+
             bool exists = saleOrderPromotions.Any(x =>
                 x.order_id == order.id &&
                 x.promotion_id == promoRuleItem.promo_id &&
@@ -96,6 +98,8 @@ namespace DMOrders.Services.Promotions
             int times_inv, 
             List<SaleOrderPromotions> saleOrderPromotions)
         {
+            if (promoRuleItem == null)
+                return false;
             //saleOrderPromotions != null && saleOrderPromotions.Count > 0
 
             var existingPromos = saleOrderPromotions.Where(x => x.order_id == order.id &&
@@ -134,6 +138,8 @@ namespace DMOrders.Services.Promotions
             PromoRuleItem promoRuleItem,            
             List<SaleOrderPromotions> saleOrderPromotions)
         {
+            if (promoRuleItem == null) return false;
+
             var existingPromos = saleOrderPromotions.Where(
                 x => x.order_id == order.id &&
                 x.promotion_id == promoRuleItem.promo_id &&
@@ -212,14 +218,17 @@ namespace DMOrders.Services.Promotions
 
         public async Task<SaleOrderPromotions> GetDataBenefit(
             sale_order order,
-            PromoRuleItem promotionEvalItem,
+            PromoRuleItem promoRuleItem,
             List<SaleOrderPromotions> saleOrderPromotions
             )
         {
+
+            if (promoRuleItem == null) return null;
+
             var existingBenefit = saleOrderPromotions.Where(x => x.order_id == order.id &&
-                x.promotion_id == promotionEvalItem.promo_id &&
-                x.promotion_centers == promotionEvalItem.promo_pricelist_id &&
-                x.rule_id == promotionEvalItem.id).FirstOrDefault();
+                x.promotion_id == promoRuleItem.promo_id &&
+                x.promotion_centers == promoRuleItem.promo_pricelist_id &&
+                x.rule_id == promoRuleItem.id).FirstOrDefault();
 
             if (existingBenefit != null)
             {

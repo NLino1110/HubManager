@@ -559,7 +559,7 @@ namespace DMOrders.Pages.Fragments.Orders
                 {
                     foreach (var benefitItem in promotionEvalItemParent)
                     {
-                        if (benefitItem.Promotion._promotion_type_id == 2 && benefitItem.Promotion._selection_type_id == 2)
+                        if (benefitItem != null && benefitItem.Promotion._promotion_type_id == 2 && benefitItem.Promotion._selection_type_id == 2)
                         {
                             //Si contiene regalos asociados manuales, no se procede a recalcular
                             return;
