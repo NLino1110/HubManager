@@ -43,6 +43,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMobileManager.ApiService
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMobileManager.Web", "WebMobileManager\WebMobileManager.Web\WebMobileManager.Web.csproj", "{AB9ADD9B-F241-91C0-147D-0F60AD0FB10F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiApp100.Generators", "MauiApp100.Generators\MauiApp100.Generators.csproj", "{C95B2B2D-02B1-44D9-8278-7C780263742B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -137,6 +139,10 @@ Global
 		{AB9ADD9B-F241-91C0-147D-0F60AD0FB10F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB9ADD9B-F241-91C0-147D-0F60AD0FB10F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB9ADD9B-F241-91C0-147D-0F60AD0FB10F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C95B2B2D-02B1-44D9-8278-7C780263742B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C95B2B2D-02B1-44D9-8278-7C780263742B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C95B2B2D-02B1-44D9-8278-7C780263742B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C95B2B2D-02B1-44D9-8278-7C780263742B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

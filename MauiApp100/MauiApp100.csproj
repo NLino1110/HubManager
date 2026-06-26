@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net10.0-android</TargetFrameworks>
@@ -25,7 +25,7 @@
 		     For individual files, you can override by setting Inflator metadata:
 		       <MauiXaml Update="MyPage.xaml" Inflator="Default" /> (reverts to defaults: Runtime for Debug, XamlC for Release)
 		       <MauiXaml Update="MyPage.xaml" Inflator="Runtime" /> (force runtime inflation) -->
-		<MauiXamlInflator>SourceGen</MauiXamlInflator>
+		
 
 		<!-- Display name -->
 		<ApplicationTitle>MauiApp100</ApplicationTitle>
@@ -45,6 +45,7 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+		<AnalysisLevel>latest</AnalysisLevel>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -106,6 +107,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\BeebTech.Maui.Controls\BeebTech.Maui.Controls.csproj" />
+		<ProjectReference Include="..\MauiApp100.Generators\MauiApp100.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -113,6 +115,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Controls\SaleOrderLineSkiaView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Controls\SkiaViews\NewContent1.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
@@ -146,4 +151,19 @@
 	  <Folder Include="Controls\bk\" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<AdditionalFiles Include="Controls\SkiaViews\**\*.xaml" LinkBase="Generators\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <AdditionalFiles Update="Controls\SkiaViews\NewContent1.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </AdditionalFiles>
+	</ItemGroup>
+
+	<Target Name="PasarXamlAlGenerador" BeforeTargets="GenerateMSBuildEditorConfigFileShouldRun;CoreCompile">
+		<ItemGroup>
+			<AdditionalFiles Include="@(MauiXaml)" Condition="$([System.String]::new('%(Identity)').Contains('SkiaViews'))" />
+		</ItemGroup>
+	</Target>
 </Project>
