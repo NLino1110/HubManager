@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="DMOrders.Controls.CustomRowsV2.SaleOrderLineRow"             
+             xmlns:models="clr-namespace:DMSA.Models.Odoo.Native"
+             x:DataType="models:sale_order_line"
             xmlns:converters="clr-namespace:DMOrders.Converters"
             x:Name="Root">
     <ContentView.Resources>
@@ -36,20 +37,20 @@
         <Label
         Grid.RowSpan="2"
         Grid.Column="0"
-        Text="{Binding Item.sequence, Source={x:Reference Root}}"
+        Text="{Binding sequence}"
         FontSize="12"
         TextColor="Green"/>
 
         <!-- Code + SKU -->
         <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="6">
             <Label
-            Text="{Binding Item.product_code, Source={x:Reference Root}}"
+            Text="{Binding product_code}"
             FontSize="14"
             FontAttributes="Bold"
             TextColor="Green"/>
 
             <Label
-            Text="{Binding Item.product_id, Source={x:Reference Root}, StringFormat='({0})'}"
+            Text="{Binding product_id, StringFormat='({0})'}"
             FontSize="10"
             FontAttributes="Bold"
             TextColor="DarkGray"
@@ -61,13 +62,13 @@
         Grid.Row="1"
         Grid.Column="1"
         Grid.ColumnSpan="5"
-        Text="{Binding Item.product_display, Source={x:Reference Root}}"
+        Text="{Binding product_display}"
         FontSize="11"
         TextColor="Black"/>
 
         <!-- UOM -->
         <Label Grid.Column="2"
-            Text="{Binding Item.uom_category_display, Source={x:Reference Root}}"
+            Text="{Binding uom_category_display}"
             FontSize="12"
             FontAttributes="Bold"/>
 
@@ -148,9 +149,9 @@
                     ImageSource="{FontImage FontFamily=FontAwesome5Solid, Glyph=&#xf2ed;, Color=White, Size=15}"
                     Padding="3"
                     Margin="2"
-                    Command="{Binding DeleteCommand, Source={x:Reference Root}}"
-                    CommandParameter="{Binding Item, Source={x:Reference Root}}"
-                    IsVisible="{Binding LockEdition, Source={x:Reference Root}, Converter={StaticResource InverseBool}}"/>
+                    Command="{Binding DeleteCommand}"
+                    CommandParameter="{Binding Item}"
+                    IsVisible="{Binding LockEdition, Converter={StaticResource InverseBool}}"/>
 
             </HorizontalStackLayout>
         <!--</Grid>-->

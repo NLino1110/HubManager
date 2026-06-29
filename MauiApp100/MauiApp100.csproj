@@ -82,6 +82,7 @@
 	<ItemGroup>
 	  <MauiXaml Remove="Controls\bk2\SaleOrderLineSkiaView.xaml" />
 	  <MauiXaml Remove="Controls\bk\SaleOrderLineSkiaView.xaml" />
+	  <MauiXaml Remove="Controls\SkiaViews\SaleOrderLineRow.xaml" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -113,16 +114,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="Controls\SaleOrderLineRow.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
 	  <MauiXaml Update="Controls\SaleOrderLineSkiaView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Controls\SkiaViews\NewContent2.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Controls\SkiaViews\NewContent1.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
@@ -162,8 +154,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <AdditionalFiles Update="Controls\SkiaViews\NewContent1.xaml">
-	    <Generator>MSBuild:Compile</Generator>
+	  <AdditionalFiles Update="Controls\SkiaViews\SaleOrderLineRow.xaml">
+	    <Generator></Generator>
 	  </AdditionalFiles>
 	</ItemGroup>
 
