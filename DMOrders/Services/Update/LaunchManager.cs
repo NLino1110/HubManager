@@ -7,6 +7,7 @@ using DMSA.Sync.Core;
 using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Update;
 using DMSA.Sync.Core.Update.Cloud;
+using Newtonsoft.Json;
 using System.Diagnostics;
 
 namespace DMOrders.Services.Update
@@ -210,28 +211,51 @@ namespace DMOrders.Services.Update
 
         private async Task ExecuteCriticalStockBlock()
         {
-            await serverPuller.OnlineSyncStockWarehouse(false);
-            //await serverPuller.OnlineSyncStockLocation();
-            //await serverPuller.OnlineSyncStockQuant();
-            await serverPuller.UomUom(true);
-            await serverPuller.OnlineSyncWmsStockQuant(async (current, total) => { await UpdateProgressState(current, total, "Stock WMS"); });
-            await serverPuller.UpdateWmsStockQuant(async (current, total) => { await UpdateProgressState(current, total, "WmsStockQuant"); });
+            await SafeExecute(async () =>
+            {
+                await serverPuller.OnlineSyncStockWarehouse(false);
+                //await serverPuller.OnlineSyncStockLocation();
+                //await serverPuller.OnlineSyncStockQuant();
+                await serverPuller.UomUom(true);
+                await serverPuller.OnlineSyncWmsStockQuant(async (current, total) => { await UpdateProgressState(current, total, "Stock WMS"); });
+                await serverPuller.UpdateWmsStockQuant(async (current, total) => { await UpdateProgressState(current, total, "WmsStockQuant"); });
+            }, "Stock");
         }
 
         private async Task SafeExecute(Func<Task> action, string name)
         {
-            try
-            {
-                await action();
-            }
-            catch (Exception ex)
+            var (ok, ex) = await SyncActivityLog.RunAsync(name, action, swallowErrors: true);
+            if (!ok && ex != null)
             {
                 await Toast.Make($"Error en {name}: {ex.Message}", ToastDuration.Long)
                     .Show();
             }
         }
 
-        private async Task SaveSyncDate(user_access user, DateTime serverDate)
+        public async Task PersistSyncDateAfterManualUpdateAsync()
+        {
+            var userDb = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
+            var user = await userDb.GetItemAsync(App.Session.CurrentUserFront.uid);
+            if (user == null)
+                return;
+
+            var syncDate = DateTime.Now;
+            try
+            {
+                var hubUser = new ApiManager.HubUser(App.Session);
+                var response = await hubUser.ValidaSincronizacionAsync(App.Session.CurrentUser, DateTime.Now);
+                if (response != null && response.success && response.data != null && response.data.Length > 0)
+                    syncDate = response.data[0].datetime;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("PersistSyncDateAfterManualUpdateAsync: " + ex.Message);
+            }
+
+            await SaveSyncDate(user, syncDate);
+        }
+
+        public async Task SaveSyncDate(user_access user, DateTime serverDate)
         {
             var userDb = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
 
@@ -245,6 +269,23 @@ namespace DMOrders.Services.Update
             App.Session.CurrentUserFront.log_fec_sincro = user.log_fec_sincro;
 
             await userDb.UpdateAsync(user);
+            Preferences.Set("last_log_fec_sincro", serverDate.ToString("o"));
+            PersistSessionPreferences();
+        }
+
+        private static void PersistSessionPreferences()
+        {
+            try
+            {
+                if (!Preferences.Get("is_rememberme", false) || App.Session == null)
+                    return;
+
+                Preferences.Set("App.Session", JsonConvert.SerializeObject(App.Session));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("PersistSessionPreferences: " + ex.Message);
+            }
         }
 
         private async Task HandleUploadPipeline(string DbName)

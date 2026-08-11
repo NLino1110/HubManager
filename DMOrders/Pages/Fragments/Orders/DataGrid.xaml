@@ -18,6 +18,13 @@
     </ContentView.Resources>
     <Grid RowDefinitions="Auto,*,Auto">
         
+        <!--
+          ETAPA (free_order_state): UI comentada a propósito.
+          Para reactivar: ColumnDefinitions con 8 cols (…,*,*,*,100),
+          descomentar header ETAPA (col 6), Label free_order_state_view (col 6)
+          y poner acciones en Grid.Column="7".
+          Backend (modelo, sync, ALTER) se mantiene activo.
+        -->
         <Grid Grid.Row="0"            
             ColumnSpacing="5"
             ColumnDefinitions="70,350,*,*,*,*,100"
@@ -31,7 +38,9 @@
             <Label Grid.Column="3" FontAttributes="Bold" Text="FEC. SINC" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
             <Label Grid.Column="4" FontAttributes="Bold" Text="TOTAL" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
             <Label Grid.Column="5" FontAttributes="Bold" Text="ESTADO" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+            <!-- <Label Grid.Column="6" FontAttributes="Bold" Text="ETAPA" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center" VerticalOptions="Center"/> -->
             <Label Grid.Column="6" FontAttributes="Bold" Text="-" FontSize="11" TextColor="Black" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+            <!-- Acciones con ETAPA activa: Grid.Column="7" -->
         </Grid>        
 
         <Grid Grid.Row="1">            
@@ -119,7 +128,22 @@
                                 VerticalOptions="Center">                                
                             </Label>
 
-                            <HorizontalStackLayout Grid.Row="0" Grid.Column="9" IsVisible="{Binding is_synchronized, Converter={StaticResource InverseBoolConverter}}" Spacing="3">
+                            <!--
+                            Columna ETAPA (free_order_state_view). Descomentar junto con
+                            ColumnDefinitions de 8 columnas y header ETAPA; acciones → col 7.
+                            <Label 
+                                Grid.RowSpan="2"
+                                Grid.Column="6" 
+                                Text="{Binding free_order_state_view}"
+                                FontSize="11"
+                                TextColor="Gray"
+                                HorizontalTextAlignment="Center"
+                                VerticalOptions="Center"
+                                LineBreakMode="TailTruncation"
+                                MaxLines="2"/>
+                            -->
+
+                            <HorizontalStackLayout Grid.Row="0" Grid.Column="6" IsVisible="{Binding is_synchronized, Converter={StaticResource InverseBoolConverter}}" Spacing="3">
                                 <Button
                                         FontSize="10" 
                                         BackgroundColor="DodgerBlue" 
@@ -163,7 +187,8 @@ CommandParameter="{Binding .}" />
                                 </Button>
                             </HorizontalStackLayout>
 
-                            <HorizontalStackLayout Grid.Row="0" Grid.Column="9" IsVisible="{Binding is_synchronized}" Spacing="3">
+                            <HorizontalStackLayout Grid.Row="0" Grid.Column="6" IsVisible="{Binding is_synchronized}" Spacing="3">
+                                <!-- Con ETAPA activa usar Grid.Column="7" -->
                                 <Button
                                         FontSize="10" 
                                         BackgroundColor="LimeGreen" 

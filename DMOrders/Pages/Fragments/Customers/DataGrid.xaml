@@ -51,7 +51,7 @@
                                 IsPullToRefreshEnabled="False">
                 <mpowerkit:VirtualizeListView x:Name="listView"
                                         Padding="0"
-                                        BackgroundColor="Gray"
+                                        BackgroundColor="White"
                                         ItemsSource="{Binding ItemsData}" 
                                               ItemTapCommand="{Binding ItemTappedCommand}">
                     <mpowerkit:VirtualizeListView.ItemTemplate>

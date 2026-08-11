@@ -1,11 +1,9 @@
-﻿using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core;
+using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Benefits;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
 using DMSA.Sync.Core.Database.Sqlite.Sales;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace DMOrders.Services.PatchManager.Reset
 {
@@ -90,6 +88,93 @@ namespace DMOrders.Services.PatchManager.Reset
 
             var productsPreviewDb = new ProductProductPreviewDb(App.Session.odooConnection.DbNameSqliteStatic);
             await productsPreviewDb.Vaccum();
+        }
+
+        /// <summary>
+        /// Vacía tablas de sync de catálogo (promos, marcas/categorías, productos,
+        /// precios, stock e imágenes preview) para poder sincronizar de cero.
+        /// No toca pedidos ni clientes.
+        /// </summary>
+        public async Task ClearCatalogSyncDataAsync()
+        {
+            string db = App.Session.odooConnection.DbNameSqlite;
+            string dbStatic = App.Session.odooConnection.DbNameSqliteStatic;
+
+            async Task SafeTruncate(Func<Task> action, string name)
+            {
+                try
+                {
+                    await action();
+                    Debug.WriteLine($"ClearCatalog: OK {name}");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"ClearCatalog: fallo {name}: {ex.Message}");
+                }
+            }
+
+            // Promociones (sync chkGroup1)
+            await SafeTruncate(() => new PromotionProductDetailDb(db).Truncate(), "PromotionProductDetail");
+            await SafeTruncate(() => new PromotionProductDb(db).Truncate(), "PromotionProduct");
+            await SafeTruncate(() => new PromoRulesDb(db).Truncate(), "PromoRules");
+            await SafeTruncate(() => new PromoCentersDb(db).Truncate(), "PromoCenters");
+            await SafeTruncate(() => new LoyaltyFiltersDetailsDb(db).Truncate(), "LoyaltyFiltersDetails");
+            await SafeTruncate(() => new LoyaltyFiltersDb(db).Truncate(), "LoyaltyFilters");
+            await SafeTruncate(() => new PosPaymentMethodDb(db).Truncate(), "PosPaymentMethod");
+            await SafeTruncate(() => new PosTarjetasCanalDb(db).Truncate(), "PosTarjetasCanal");
+            await SafeTruncate(() => new PromotionBenefitDb(db).Truncate(), "PromotionBenefit");
+            await SafeTruncate(() => new SaleOrderPromotionsDb(db).Truncate(), "SaleOrderPromotions");
+
+            // Marcas / categorías / maestros (chkGroup2)
+            await SafeTruncate(() => new ProductMarcaDb(db).Truncate(), "ProductMarca");
+            await SafeTruncate(() => new ProductCategoriaDb(db).Truncate(), "ProductCategoria");
+            await SafeTruncate(() => new ProductSubcategoriaDb(db).Truncate(), "ProductSubcategoria");
+            await SafeTruncate(() => new ProductLineaDb(db).Truncate(), "ProductLinea");
+            await SafeTruncate(() => new ProductGrupoTipoDb(db).Truncate(), "ProductGrupoTipo");
+
+            // Productos + UoM (chkGroup7)
+            await SafeTruncate(() => new ProductProductDb(db).Truncate(), "ProductProduct");
+            await SafeTruncate(() => new ProductTemplateDb(db).Truncate(), "ProductTemplate");
+            await SafeTruncate(() => new UomUomDb(db).Truncate(), "UomUom");
+
+            // Imágenes (BD estática)
+            //await SafeTruncate(() => new ProductProductPreviewDb(dbStatic).Truncate(), "ProductProductPreview");
+
+            // Precios / impuestos (chkGroup4)
+            await SafeTruncate(() => new ProductPricelistItemDb(db).Truncate(), "ProductPricelistItem");
+            await SafeTruncate(() => new ProductPricelistDb(db).Truncate(), "ProductPricelist");
+            await SafeTruncate(() => new AccountTaxDb(db).Truncate(), "AccountTax");
+
+            // Stock (chkGroup5)
+            await SafeTruncate(() => new WmsStockQuantDb(db).Truncate(), "WmsStockQuant");
+            await SafeTruncate(() => new StockQuantDb(db).Truncate(), "StockQuant");
+            await SafeTruncate(() => new StockLocationDb(db).Truncate(), "StockLocation");
+            await SafeTruncate(() => new StockWareHouseDb(db).Truncate(), "StockWarehouse");
+        }
+
+        /// <summary>
+        /// Vacía la tabla local de personas/clientes (res_partner) y cuentas bancarias
+        /// asociadas, para poder sincronizar de cero. No toca pedidos ni catálogo.
+        /// </summary>
+        public async Task ClearPartnersSyncDataAsync()
+        {
+            string db = App.Session.odooConnection.DbNameSqlite;
+
+            async Task SafeTruncate(Func<Task> action, string name)
+            {
+                try
+                {
+                    await action();
+                    Debug.WriteLine($"ClearPartners: OK {name}");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"ClearPartners: fallo {name}: {ex.Message}");
+                }
+            }
+
+            await SafeTruncate(() => new ResPartnerDb(db).Truncate(), "ResPartner");
+            await SafeTruncate(() => new PartnerBankDb(db).Truncate(), "PartnerBank");
         }
     }
 }

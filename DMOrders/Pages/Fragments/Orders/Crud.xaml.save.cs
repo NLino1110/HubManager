@@ -1,13 +1,219 @@
-﻿using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Abstract;
+using DMSA.Models.Odoo.Native;
 using DMSA.Sync.Core.Database.Sqlite;
 using System.Diagnostics;
 using CommunityToolkit.Maui.Alerts;
+using Newtonsoft.Json;
 
 namespace DMOrders.Pages.Fragments.Orders
 {
+    /// <summary>
+    /// Crud.xaml.save.cs — PERSISTENCIA DEL PEDIDO EN SQLITE LOCAL
+    /// ---------------------------------------------------------------------
+    /// Guarda/actualiza cabecera (sale_order) y líneas (sale_order_line).
+    ///
+    /// Sequence / promociones (FIX):
+    /// Odoo SaleOrderExtend relaciona regalos con (product_id, sequence) vía
+    /// origin_gift_line_ids_offline. Por eso el sequence de líneas producto
+    /// NO se renumera a 1..n al guardar (eso rompía el match al borrar/reaplicar
+    /// regalos). AssignStableSequences conserva sequences de productos y solo
+    /// asigna libres a líneas nuevas / gifts; remapea el JSON si hace falta.
+    /// </summary>
     public partial class Crud
     {
         private bool IsSaving = false;
+
+        /// <summary>
+        /// Conserva sequence de productos (!is_gift con sequence &gt; 0).
+        /// Asigna sequences libres a productos nuevos (seq 0) y a regalos.
+        /// Si algún producto cambia de sequence, remapea origin_gift_line_ids_offline.
+        /// </summary>
+        private void AssignStableSequences(IList<sale_order_line> orderLines)
+        {
+            if (orderLines == null || orderLines.Count == 0)
+                return;
+
+            var productLines = orderLines.Where(l => l != null && !l.is_gift).ToList();
+            var giftLines = orderLines.Where(l => l != null && l.is_gift).ToList();
+
+            var used = new HashSet<int>();
+            var remaps = new Dictionary<(int productId, int oldSeq), int>();
+
+            // 1) Productos con sequence ya asignado: conservar (resolver colisiones)
+            foreach (var line in productLines.Where(l => l.sequence > 0).OrderBy(l => l.sequence))
+            {
+                int oldSeq = line.sequence;
+                if (used.Contains(line.sequence))
+                {
+                    int next = 1;
+                    while (used.Contains(next)) next++;
+                    line.sequence = next;
+                }
+
+                used.Add(line.sequence);
+
+                if (oldSeq != line.sequence)
+                    remaps[(line.product_id, oldSeq)] = line.sequence;
+            }
+
+            // 2) Productos nuevos (sequence 0): siguiente libre
+            foreach (var line in productLines.Where(l => l.sequence <= 0))
+            {
+                int oldSeq = line.sequence;
+                int next = 1;
+                while (used.Contains(next)) next++;
+                line.sequence = next;
+                used.Add(next);
+
+                if (oldSeq > 0 && oldSeq != line.sequence)
+                    remaps[(line.product_id, oldSeq)] = line.sequence;
+            }
+
+            // 3) Regalos: sequences libres (solo presentación local; Odoo usa el JSON)
+            foreach (var gift in giftLines)
+            {
+                if (gift.sequence > 0 && !used.Contains(gift.sequence))
+                {
+                    used.Add(gift.sequence);
+                    continue;
+                }
+
+                int next = 1;
+                while (used.Contains(next)) next++;
+                gift.sequence = next;
+                used.Add(next);
+            }
+
+            if (remaps.Count > 0)
+                RemapOriginGiftOfflineSequences(giftLines, remaps);
+
+            // Alinea JSON al sequence actual del padre (product_id + sequence viejo → actual)
+            AlignGiftOriginsToCurrentParents(orderLines);
+        }
+
+        /// <summary>
+        /// Actualiza sequence dentro de origin_gift_line_ids_offline cuando un padre cambió de N°.
+        /// </summary>
+        private static void RemapOriginGiftOfflineSequences(
+            IEnumerable<sale_order_line> giftLines,
+            Dictionary<(int productId, int oldSeq), int> remaps)
+        {
+            if (giftLines == null || remaps == null || remaps.Count == 0)
+                return;
+
+            foreach (var gift in giftLines)
+            {
+                if (string.IsNullOrWhiteSpace(gift.origin_gift_line_ids_offline))
+                    continue;
+
+                try
+                {
+                    var origins = JsonConvert.DeserializeObject<List<OriginPromoOrderLine>>(
+                        gift.origin_gift_line_ids_offline);
+
+                    if (origins == null || origins.Count == 0)
+                        continue;
+
+                    bool changed = false;
+                    foreach (var origin in origins)
+                    {
+                        if (remaps.TryGetValue((origin.product_id, origin.sequence), out int newSeq)
+                            && origin.sequence != newSeq)
+                        {
+                            origin.sequence = newSeq;
+                            changed = true;
+                        }
+                    }
+
+                    if (changed)
+                        gift.origin_gift_line_ids_offline = JsonConvert.SerializeObject(origins);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"RemapOriginGiftOfflineSequences: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Si el JSON del regalo apunta a un sequence que ya no existe en el padre,
+        /// lo corrige al sequence actual de esa línea producto (misma product_id).
+        /// Escala a muchos detalles: solo toca gifts desfasados.
+        /// </summary>
+        private static void AlignGiftOriginsToCurrentParents(IList<sale_order_line> orderLines)
+        {
+            if (orderLines == null || orderLines.Count == 0)
+                return;
+
+            var parentsByProduct = orderLines
+                .Where(l => l != null && !l.is_gift)
+                .GroupBy(l => l.product_id)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            var parentKeys = new HashSet<(int productId, int sequence)>(
+                orderLines
+                    .Where(l => l != null && !l.is_gift)
+                    .Select(l => (l.product_id, l.sequence)));
+
+            foreach (var gift in orderLines.Where(l => l != null && l.is_gift))
+            {
+                if (string.IsNullOrWhiteSpace(gift.origin_gift_line_ids_offline))
+                    continue;
+
+                try
+                {
+                    var origins = JsonConvert.DeserializeObject<List<OriginPromoOrderLine>>(
+                        gift.origin_gift_line_ids_offline);
+
+                    if (origins == null || origins.Count == 0)
+                        continue;
+
+                    bool changed = false;
+                    foreach (var origin in origins)
+                    {
+                        if (parentKeys.Contains((origin.product_id, origin.sequence)))
+                            continue;
+
+                        if (!parentsByProduct.TryGetValue(origin.product_id, out var parents)
+                            || parents.Count == 0)
+                            continue;
+
+                        // Una sola línea de ese producto → sequence actual seguro
+                        if (parents.Count == 1)
+                        {
+                            if (origin.sequence != parents[0].sequence)
+                            {
+                                origin.sequence = parents[0].sequence;
+                                changed = true;
+                            }
+                            continue;
+                        }
+
+                        // Varias líneas del mismo SKU: preferir la que coincida por sequence;
+                        // si no, la de sequence más cercano (no inventar match ambiguo fuerte).
+                        var exact = parents.FirstOrDefault(p => p.sequence == origin.sequence);
+                        if (exact != null)
+                            continue;
+
+                        var closest = parents
+                            .OrderBy(p => Math.Abs(p.sequence - origin.sequence))
+                            .First();
+                        if (origin.sequence != closest.sequence)
+                        {
+                            origin.sequence = closest.sequence;
+                            changed = true;
+                        }
+                    }
+
+                    if (changed)
+                        gift.origin_gift_line_ids_offline = JsonConvert.SerializeObject(origins);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"AlignGiftOriginsToCurrentParents: {ex.Message}");
+                }
+            }
+        }
 
         private async Task<sale_order> new_SaveOrder()
         {
@@ -107,7 +313,6 @@ namespace DMOrders.Pages.Fragments.Orders
                     await ResetPromotions(targetOrder);
                 }
 
-                int ordinal = 1;
                 targetOrder.order_line = new List<OrderLineWrapper>();
 
                 // ELIMINAR SOLO LO QUE YA NO EXISTE
@@ -126,11 +331,11 @@ namespace DMOrders.Pages.Fragments.Orders
                     }
                 }
 
-                // INSERT / UPDATE SEGURO
+                AssignStableSequences(orderLines);
+
                 foreach (var orderLine in orderLines)
                 {
                     orderLine._order_id = targetOrder.id;
-                    orderLine.sequence = ordinal;
 
                     if (orderLine.id == 0)
                         await saleOrderLineDb.InsertAsync(orderLine);
@@ -138,7 +343,6 @@ namespace DMOrders.Pages.Fragments.Orders
                         await saleOrderLineDb.UpdateAsync(orderLine);
 
                     targetOrder.order_line.Add(new OrderLineWrapper(orderLine));
-                    ordinal++;
                 }
 
                 await SavePromotions(true, false);
@@ -162,6 +366,10 @@ namespace DMOrders.Pages.Fragments.Orders
             }
         }
 
+        /// <summary>
+        /// Guarda el pedido local (cabecera + líneas). Usado por la UI al confirmar.
+        /// En edición: borra líneas hijas y las vuelve a insertar con sequences estables.
+        /// </summary>
         private async Task<sale_order> SaveOrder()
         {
             var orderLines = OrderLines;
@@ -174,7 +382,15 @@ namespace DMOrders.Pages.Fragments.Orders
             bool isNew = CurrentSaleOrder == null;
 
             int warehouseId = 0;
-            int partner_invoice_id = ((res_partner)ddfAddress.SelectedItem).id;
+            // ANTES: ((res_partner)ddfAddress.SelectedItem).id → NRE si SelectedItem era null.
+            // DESPUÉS: pattern-match; aborta el guardado con mensaje claro.
+            if (ddfAddress?.SelectedItem is not res_partner invoicePartner)
+            {
+                await Toast.Make("Seleccione una dirección de facturación.").Show();
+                return null;
+            }
+
+            int partner_invoice_id = invoicePartner.id;
 
             StockWareHouseDb stockWareHouseDb = new StockWareHouseDb(App.Session.odooConnection.DbNameSqlite);
             var warehouseList = await stockWareHouseDb.GetDefaultByResCenter(App.Session.res_center.id);
@@ -221,7 +437,6 @@ namespace DMOrders.Pages.Fragments.Orders
                 }
 
                 CurrentSaleOrder = targetOrder;
-                //CurrentSaleOrder = targetOrder;
             }
             else
             {
@@ -254,25 +469,19 @@ namespace DMOrders.Pages.Fragments.Orders
 
                 // Eliminar líneas anteriores antes de insertar las nuevas
                 await saleOrderLineDb.DeleteItemOfParent(targetOrder);
-                //await saleOrderPromoDb.DeleteItemOfParent(targetOrder);
                 await ResetPromotions(targetOrder);
             }
 
-            int ordinal = 1;
-
             targetOrder.order_line = new List<OrderLineWrapper>();
 
-            // Asignar el ID de la orden a las líneas y guardar
+            AssignStableSequences(orderLines);
+
             foreach (var orderLine in orderLines)
             {
                 orderLine._order_id = targetOrder.id;
-                orderLine.sequence = ordinal;
                 await saleOrderLineDb.InsertAsync(orderLine);
 
-                //Datos referenciales
                 targetOrder.order_line.Add(new OrderLineWrapper(orderLine));
-
-                ordinal++;
             }
 
             await SavePromotions(true, false);

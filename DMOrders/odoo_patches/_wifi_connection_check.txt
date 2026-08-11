@@ -1,0 +1,200 @@
+﻿================================================================================
+INFORME: Verificación de conectividad Odoo tras cambio de WiFi
+Fecha: 2026-08-07
+Equipo: Windows + WSL Ubuntu-24.04 (usuario rchonillo)
+================================================================================
+
+RESUMEN RÁPIDO
+--------------
+- IP WiFi actual (usar en la tablet): 192.168.205.99
+- Odoo está CORRIENDO (WSL, puerto 8069)
+- Firewall Windows: regla "Odoo 8069 LAN" PERMITE TCP 8069 (entrada)
+- Portproxy Windows: 0.0.0.0:8069 -> 172.18.61.90:8069 (WSL)
+- URLs que responden HTTP 200 desde Windows:
+    * http://127.0.0.1:8069/web/login          -> 200
+    * http://192.168.205.99:8069/web/login     -> 200  << TABLET
+    * http://172.18.61.90:8069/web/login       -> 200  (solo red WSL/Hyper-V)
+- URL recomendada para la tablet:
+    http://192.168.205.99:8069
+  (o http://192.168.205.99:8069/web/login para probar en el navegador)
+
+================================================================================
+1) DIRECCIONES IPv4 EN WINDOWS (ipconfig)
+================================================================================
+- Ethernet 3: desconectado
+- Ethernet 5 (VirtualBox Host-Only): 192.168.56.1 / 255.255.255.0  (sin gateway)
+- Wi-Fi: 192.168.205.99 / 255.255.255.128
+  Sufijo DNS: dmujeres.com
+  Gateway: 192.168.205.126
+- Ethernet: desconectado
+- vEthernet (WSL Hyper-V): 172.18.48.1 / 255.255.240.0
+
+IP QUE DEBE USAR LA TABLET (misma WiFi/LAN que el PC):
+  >>> 192.168.205.99 <<<
+
+NO usar en la tablet:
+  - 172.18.61.90 (IP interna WSL; no es la red WiFi del tablet)
+  - 192.168.56.1 (VirtualBox Host-Only; no es la WiFi actual)
+  - 127.0.0.1 / localhost (solo en este PC)
+
+================================================================================
+2) IP DE WSL
+================================================================================
+Comando: wsl -d Ubuntu-24.04 -- hostname -I
+Resultado: 172.18.61.90
+
+NOTA: La IP de WSL puede cambiar al reiniciar WSL/PC. Si deja de responder
+el puerto 8069 desde Windows/tablet, revisar y actualizar portproxy:
+  netsh interface portproxy show all
+  netsh interface portproxy set v4tov4 listenaddress=0.0.0.0 listenport=8069 connectaddress=<NUEVA_IP_WSL> connectport=8069
+
+================================================================================
+3) ¿ODOO ESTÁ ESCUCHANDO?
+================================================================================
+WSL (ss):
+  LISTEN  0.0.0.0:8069  python pid=79936
+
+WSL (pgrep -af odoo / proceso relacionado):
+  Odoo corriendo vía debugpy / odoo-bin:
+  /home/rchonillo/odoo/server/.venv/bin/python ... odoo-bin
+    -c /home/rchonillo/odoo/server/odoo_linux.conf
+    --workers=0 --dev=assets
+  PIDs relevantes: 79915 (debugpy adapter), 79928/79936 (launcher + odoo)
+
+Windows (netstat):
+  TCP  0.0.0.0:8069  LISTENING  (PID 5928 = svchost / portproxy)
+  Hay conexiones ESTABLISHED hacia 172.18.61.90:8069
+
+Portproxy:
+  Escuchar 0.0.0.0:8069  ->  Conectar 172.18.61.90:8069
+
+Conclusión: Odoo SÍ está en ejecución y expuesto en el puerto 8069
+a través de portproxy de Windows.
+
+================================================================================
+4) CONFIGURACIÓN ODOO (odoo_linux.conf)
+================================================================================
+Archivo activo (según proceso):
+  /home/rchonillo/odoo/server/odoo_linux.conf
+
+También existen:
+  /home/rchonillo/odoo/server/odoo.conf
+  /home/rchonillo/odoo/server/debian/odoo.conf
+
+Claves relevantes (odoo_linux.conf):
+  http_enable     = True
+  http_interface  = 0.0.0.0
+  http_port       = 8069
+  gevent_port     = 8072
+  proxy_mode      = True
+  dbfilter        = qa.macronegocios
+  list_db         = True
+  workers         = 4   (pero el arranque actual usa --workers=0)
+
+http_interface=0.0.0.0 es correcto para aceptar conexiones desde Windows
+y, vía portproxy, desde la tablet.
+
+================================================================================
+5) PRUEBAS HTTP DESDE WINDOWS (curl, timeout corto)
+================================================================================
+URL                                              Código
+------------------------------------------------ ------
+http://127.0.0.1:8069/web/login                  200 (~0.08s)
+http://192.168.205.99:8069/web/login             200 (~0.09s)
+http://172.18.61.90:8069/web/login               200 (~0.11s)
+
+Invoke-WebRequest falló por modo no interactivo de PowerShell;
+curl.exe confirmó los códigos 200 correctamente.
+
+================================================================================
+6) FIREWALL WINDOWS
+================================================================================
+Regla encontrada:
+  Nombre:     Odoo 8069 LAN
+  Habilitada: Sí
+  Dirección:  Entrada (Dentro)
+  Perfiles:   Dominio, Privada, Pública
+  Protocolo:  TCP
+  LocalPort:  8069
+  Acción:     Permitir
+  RemoteIP:   Cualquiera
+
+El firewall NO parece estar bloqueando el puerto 8069.
+
+================================================================================
+7) AJUSTES EN DMOrders / HubManager (referencia)
+================================================================================
+appsettings.json (DMOrders):
+  ApiConfig.BaseUrl = "http://192.168.56.1:8069"
+  *** DESACTUALIZADO para la WiFi actual ***
+  (192.168.56.1 es VirtualBox Host-Only, no la WiFi 192.168.205.99)
+
+OdooConnection defaults (DMSA.Models.Odoo / OdooConnection.Extend.cs):
+  Host ejemplos: http://qa.macronegocios:8069/
+                 http://qa.dmujeres:8069/
+                 http://localhost:8069/
+
+AppSettings defaults (developer):
+  http://192.168.204.66:8069  (otra IP histórica; no es la WiFi de hoy)
+
+InitDefault carga LoadDefaultPedidos() cuando AppCodeOdoo == "03".
+
+Para la tablet / app en esta red WiFi nueva, la URL de conexión
+debe apuntar a:
+  http://192.168.205.99:8069
+(no a 192.168.56.1 ni a localhost).
+
+================================================================================
+8) QUÉ PONER EN LA TABLET
+================================================================================
+1. Tablet y PC en la MISMA red WiFi (gateway típico 192.168.205.126).
+2. En el navegador de la tablet probar:
+     http://192.168.205.99:8069/web/login
+3. En DMOrders / conexión Odoo, Host / URL:
+     http://192.168.205.99:8069
+   (o con barra final según el formato que use la app)
+
+================================================================================
+9) SI ALGO FALLA — SIGUIENTE PASO EXACTO
+================================================================================
+A) La tablet no abre http://192.168.205.99:8069
+   - Confirmar que tablet y PC están en la misma WiFi.
+   - Desde el PC, repetir: curl http://192.168.205.99:8069/web/login
+   - Si el PC responde 200 pero la tablet no: revisar aislamiento de
+     clientes (AP isolation / guest WiFi) en el router/AP.
+   - Verificar regla firewall "Odoo 8069 LAN" sigue habilitada:
+       netsh advfirewall firewall show rule name="Odoo 8069 LAN"
+
+B) Desde Windows tampoco responde 8069
+   - Ver si Odoo corre en WSL:
+       wsl -d Ubuntu-24.04 -u rchonillo -- pgrep -af odoo-bin
+   - Si no corre: arrancar Odoo con odoo_linux.conf (como en VS Code debug).
+   - Ver portproxy y que connectaddress = IP actual de WSL:
+       wsl -d Ubuntu-24.04 -- hostname -I
+       netsh interface portproxy show all
+   - Si la IP WSL cambió, actualizar portproxy (comando en sección 2).
+
+C) No usar la IP de WSL (172.18.x.x) en la tablet
+   - Esa red es Hyper-V/WSL; la tablet no la alcanza de forma fiable.
+   - Siempre usar la IP WiFi de Windows: 192.168.205.99
+
+D) appsettings / conexiones de la app siguen con IPs viejas
+   - Actualizar BaseUrl / Host a http://192.168.205.99:8069
+   - Tras otro cambio de WiFi, volver a chequear ipconfig y actualizar.
+
+E) Login / dbfilter
+   - dbfilter = qa.macronegocios
+   - Si el login pide BD o falla el filtro, usar el nombre de BD esperado
+     por ese filtro o ajustar dbfilter en odoo_linux.conf.
+
+================================================================================
+ESTADO FINAL
+================================================================================
+Odoo:          ACTIVO (WSL :8069 + portproxy Windows)
+WiFi PC:       192.168.205.99
+Tablet URL:    http://192.168.205.99:8069
+Pruebas HTTP:  200 en localhost, WiFi IP y WSL IP (desde Windows)
+Firewall:      Permitido (regla Odoo 8069 LAN)
+Acción tablet: Probar /web/login con la IP WiFi anterior y configurar
+               esa misma URL en DMOrders (no 192.168.56.1 ni WSL IP).
+================================================================================

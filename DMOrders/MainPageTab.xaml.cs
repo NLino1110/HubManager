@@ -64,9 +64,9 @@ public partial class MainPageTab : ContentPage
         {
             new() { Icon = "\uf279", Title = "Nueva actividad", Description = "Seguimiento de proceso.", Action = async () => ViewCell_Add_Task(null, EventArgs.Empty) },
             new() { Icon = "\uf1d8", Title = "Enviar datos", Description = "Sincronizar datos locales.", Action = () => SendFullData() },
-            new() { Icon = "\uf103", Title = "Actualización", Description = "Sincronizar los datos principales.", Action = async () => ViewCell_Tapped_Update(null, EventArgs.Empty) },
+            new() { Icon = "\uf103", Title = "Actualizaci\u00f3n", Description = "Sincronizar los datos principales.", Action = async () => ViewCell_Tapped_Update(null, EventArgs.Empty) },
             new() { Icon = "\uf2f5", Title = "Salir", Description = "Volver a ingresar credenciales.", Action = async () => await Exit_Special() },
-            new() { Icon = "\uf05a", Title = "Acerca de", Description = "Informacíón de la aplicación.", Action = async () => ViewCell_Tapped_About(null, EventArgs.Empty) },
+            new() { Icon = "\uf05a", Title = "Acerca de", Description = "Informaci\u00f3n de la aplicaci\u00f3n.", Action = async () => ViewCell_Tapped_About(null, EventArgs.Empty) },
         };
 
         Loaded += (_, __) => ReloadData();
@@ -102,14 +102,14 @@ public partial class MainPageTab : ContentPage
         }
         catch (Exception ex)
         {
-            await Toast.Make("Error en actualización: " + ex.Message).Show();
+            await Toast.Make("Error en actualizaci\u00f3n: " + ex.Message).Show();
         }
     }
 
     private async Task<bool> AutoUpdate()
     {
         await UITools.ShowLoadingPopup(this);
-        await UITools.SetNotifyLoadingPopup("Ejecutando actualización...");
+        await UITools.SetNotifyLoadingPopup("Ejecutando actualizaci\u00f3n...");
         
         LaunchManager launchManager = new LaunchManager();
         await launchManager.Execute();
@@ -121,26 +121,46 @@ public partial class MainPageTab : ContentPage
 
     private async Task<bool> SendFullData()
     {
-        bool result = await DisplayAlertAsync("¿Enviar datos?", "Si envía los datos ya no podrá modificarlos", "Sí", "No");
+        bool result = await DisplayAlertAsync(
+            "\u00bfEnviar datos?",
+            "Si env\u00eda los datos ya no podr\u00e1 modificarlos",
+            "S\u00ed",
+            "No");
         if (!result)
         {
             return false;
         }
 
-        //Enviará las ordenes y las tareas que no se han sincronizado
         await UITools.ShowLoadingPopup(this);
-        await UITools.SetNotifyLoadingPopup("Ejecutando envío de datos...");
-        
+        await UITools.SetNotifyLoadingPopup("Ejecutando env\u00edo de datos...");
+
         SaleOrders serverPusher = new SaleOrders();
-        await serverPusher.SendAllSaleOrders();
+        var syncedOrders = await serverPusher.SendAllSaleOrders();
         await serverPusher.SendAllProjectTask();
 
-        await UITools.SetNotifyLoadingPopup("Ejecutando extracción de datos...");
+        await UITools.SetNotifyLoadingPopup("Ejecutando extracci\u00f3n de datos...");
 
         ServerPuller serverPuller = new ServerPuller();
         await serverPuller.SyncSaleOrders();
-                
+
         await UITools.HideLoadingPopup();
+
+        // Refrescar lista para mostrar erp_name sin cerrar sesi\u00f3n
+        tabOrders?.ReloadData();
+        SelectTab("orders");
+
+        string summary;
+        if (syncedOrders == null || syncedOrders.Count == 0)
+        {
+            summary = "No hab\u00eda pedidos pendientes por sincronizar.";
+        }
+        else
+        {
+            summary = $"Pedidos sincronizados ({syncedOrders.Count}):\n\n"
+                      + string.Join("\n", syncedOrders);
+        }
+
+        await DisplayAlertAsync("Env\u00edo de datos", summary, "Aceptar");
 
         return true;
     }
@@ -254,7 +274,11 @@ public partial class MainPageTab : ContentPage
 
     private async Task Exit_Special()
     {
-        bool result = await DisplayAlertAsync("¿Cerrar la sesión?", "Regresar a la pantalla de login", "Sí", "No");
+        bool result = await DisplayAlertAsync(
+            "\u00bfCerrar la sesi\u00f3n?",
+            "Regresar a la pantalla de login",
+            "S\u00ed",
+            "No");
         if (!result)
         {
             return;
@@ -311,7 +335,7 @@ public partial class MainPageTab : ContentPage
     //        tabCustomers?.ReloadData();
     //    }
 
-    //    if (e.Title.ToLower() == "artículos")
+    //    if (e.Title.ToLower() == "articulos")
     //    {            
     //        tabProducts?.ReloadData();
     //    }

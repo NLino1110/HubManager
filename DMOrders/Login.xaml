@@ -153,6 +153,20 @@
                                FontAttributes="Bold"
                                TextColor="Gray"/>
 
+                        <Label x:Name="lblLastSync"
+                               Text="Ult. sincronizacion: -"
+                               FontSize="11"
+                               HorizontalOptions="Center"
+                               FontAttributes="Bold"
+                               TextColor="Gray"/>
+
+                        <Label x:Name="lblAppUpdateDate"
+                               Text="Actualizacion APK: -"
+                               FontSize="11"
+                               HorizontalOptions="Center"
+                               FontAttributes="Bold"
+                               TextColor="Gray"/>
+
                         <Label x:Name="txtEnvironment"
                                Text="Environment"
                                FontSize="12"

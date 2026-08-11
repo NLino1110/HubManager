@@ -23,7 +23,8 @@ namespace ApiManagerOdoo.Sale
                 "id",
                 "name",
                 "company_id",
-                "state"
+                "state",
+                "free_order_state"
         };
 
         public HubSaleOrder(AppSession _setAppSession) : base(_setAppSession)
@@ -273,6 +274,8 @@ namespace ApiManagerOdoo.Sale
             JObjectExtensions.RemoveProperty(newJObject, "erp_id");
             JObjectExtensions.RemoveProperty(newJObject, "erp_name");
             JObjectExtensions.RemoveProperty(newJObject, "state_view");
+            JObjectExtensions.RemoveProperty(newJObject, "free_order_state_view");
+            JObjectExtensions.RemoveProperty(newJObject, "free_order_state");
             JObjectExtensions.RemoveProperty(newJObject, "promotion_ids_json");
             JObjectExtensions.RemoveProperty(newJObject, "name");            
 
@@ -332,7 +335,7 @@ namespace ApiManagerOdoo.Sale
             //}
 
             object[] args = new object[] { newJObject };
-            var created_data = await Create<ApiResponseOdooRpcT<int>>(args, kwargs);
+                var created_data = await Create<ApiResponseOdooRpcT<int>>(args, kwargs);
 
             if(created_data.result > 0)
             {

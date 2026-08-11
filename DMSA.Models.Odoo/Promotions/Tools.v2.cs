@@ -1,4 +1,4 @@
-﻿using DMSA.Models.Odoo.Abstract;
+using DMSA.Models.Odoo.Abstract;
 using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
 using System;
@@ -9,12 +9,39 @@ using System.Threading.Tasks;
 
 namespace DMSA.Models.Odoo.Promotions
 {
+    /// <summary>
+    /// Tools.v2.cs — UTILIDADES DE PROMOCIONES (mapear reglas y marcar líneas gift)
+    /// ---------------------------------------------------------------------
+    /// FromBenefitRule:
+    ///   Convierte PromotionEvalItem + PromoRuleMatch + sale_order en un
+    ///   PromoRuleItem usable por la UI / motor (incluye ProductSequenceApplyList
+    ///   con product_id + sequence de las líneas padre que dispararon la promo).
+    ///
+    /// SetPromotionDataGift:
+    ///   En una línea REGALO escribe origin_gift_line_ids_offline (JSON) con el
+    ///   origen offline (product_id, sequence, promo_id, rule_id, total_allowed_gifts).
+    ///   Odoo SaleOrderExtend usa ese JSON para buscar la línea padre con
+    ///   (product_id, sequence) tras el create del pedido.
+    ///   Guarda todos los ítems de ProductSequenceApplyList (deduplicados).
+    ///
+    /// SetPromotionData:
+    ///   En una línea guarda promotion_data, promotion_ids y rule_ids.
+    /// </summary>
     public partial class Tools
     {
+        /// <summary>
+        /// Mapea beneficio + regla + pedido a PromoRuleItem.
+        /// ANTES: benefit.Promotion.* y SaleOrder._pricelist_id sin null-check → NRE
+        ///   al preparar descuentos/regalos si faltaba Promotion o SaleOrder.
+        /// DESPUÉS: retorna null si benefit/Promotion/rule inválidos; pricelist con ??.
+        /// </summary>
         public static PromoRuleItem FromBenefitRule(PromotionEvalItem benefit, 
             PromoRuleMatch rule, 
             sale_order SaleOrder)
         {
+            if (benefit?.Promotion == null || rule == null)
+                return null;
+
             string promo_type_name = "";
 
             if (benefit.Promotion._promotion_type_id == 1)
@@ -73,7 +100,7 @@ namespace DMSA.Models.Odoo.Promotions
                 promo_active = benefit.Promotion.active,
                 qty = rule.qty,
                 raffle_template_id = rule.raffle_template_id,
-                Reasons = rule.Reasons,
+                Reasons = rule.Reasons ?? new List<string>(),
                 SequenceOrigin = rule.selection_type_id,
                 start_date = rule.start_date,
                 state = rule.state,
@@ -83,7 +110,7 @@ namespace DMSA.Models.Odoo.Promotions
                 variable = rule.variable,
                 MaxAllowedGifts = rule.AllowedGifts, //benefit.MaxAllowedGifts,
                 TotalTimesAllowed = benefit.TotalTimesAllowed,
-                promo_pricelist_id = SaleOrder._pricelist_id,
+                promo_pricelist_id = SaleOrder?._pricelist_id ?? 0,
                 GiftsForRemove = benefit.GiftsForRemove,
                 product_details_promotion_ids = benefit.Promotion._product_details_promotion_ids,
                 product_details_promotion_ids_for_apply = benefit.Promotion._product_details_promotion_ids_for_apply,
@@ -111,22 +138,31 @@ namespace DMSA.Models.Odoo.Promotions
         //////    }
         //////}
 
+        /// <summary>
+        /// Marca en la línea gift el origen offline (product_id + sequence del/los padre(s)).
+        /// Serializa TODOS los ítems de ProductSequenceApplyList (no solo el primero),
+        /// para que Odoo pueda matchear cada origen por (product_id, sequence).
+        /// </summary>
         public static void SetPromotionDataGift(sale_order_line order_line, List<PromoRuleItem> promoRuleItems)
         {
-            var firstPSA = promoRuleItems?
-                .FirstOrDefault()?
-                .ProductSequenceApplyList?
-                .FirstOrDefault();
+            if (promoRuleItems == null || promoRuleItems.Count == 0)
+                return;
 
-            if (firstPSA == null)
+            var allOrigins = promoRuleItems
+                .Where(r => r?.ProductSequenceApplyList != null)
+                .SelectMany(r => r.ProductSequenceApplyList)
+                .Where(o => o != null)
+                .GroupBy(o => new { o.product_id, o.sequence, o.promo_id, o.rule_id })
+                .Select(g => g.First())
+                .ToList();
+
+            if (allOrigins.Count == 0)
                 return;
 
             order_line.origin_gift_line_ids = Array.Empty<int>();
 
             order_line.origin_gift_line_ids_offline =
-                Newtonsoft.Json.JsonConvert.SerializeObject(
-                    new List<OriginPromoOrderLine> { firstPSA }
-                );
+                Newtonsoft.Json.JsonConvert.SerializeObject(allOrigins);
         }
 
         //public static void SetPromotionDataGift(sale_order_line order_line, List<PromoRuleItem> promoRuleItems)
@@ -152,6 +188,10 @@ namespace DMSA.Models.Odoo.Promotions
         //    }
         //}
 
+        /// <summary>
+        /// Guarda en la línea el detalle de reglas/promos aplicadas (promotion_data,
+        /// promotion_ids, rule_ids) para UI y sync.
+        /// </summary>
         public static void SetPromotionData(sale_order_line order_line, List<PromoRuleItem> listPromoRuleItem)
         {
             if (listPromoRuleItem == null || !listPromoRuleItem.Any())

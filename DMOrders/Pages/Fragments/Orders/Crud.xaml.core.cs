@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using DMOrders.Models;
 using DMOrders.Services.Promotions;
 using DMSA.Models.Odoo.Abstract;
@@ -389,6 +389,355 @@ namespace DMOrders.Pages.Fragments.Orders
             };
         }
 
+        // =====================================================================
+        // Crud.xaml.core.cs — LÓGICA DE LÍNEAS DEL PEDIDO (detalle)
+        // ---------------------------------------------------------------------
+        // OnAddLine / OnAddLineNoRestrict:
+        // - Mismo product_id (no gift): merge (suma qty) si AllowSeparateSameProductLines=false.
+        // - Línea nueva: sequence = GetNextProductSequence() (ignora regalos;
+        //   Count+1 desplazaba el N° del padre cuando había gifts).
+        // Al guardar, AssignStableSequences (Crud.xaml.save.cs) conserva ese
+        // sequence de producto para que origin_gift_line_ids_offline cuadre
+        // con Odoo (product_id + sequence).
+        //
+        // PRUEBA 2026-08-05 — líneas separadas + stock acumulado (padres):
+        // ANTES: mismo SKU → merge; stock solo vs qty de la petición / línea actual.
+        // DESPUÉS (flag true): mismo SKU → otra línea; stock = suma padres (!is_gift)
+        //   del mismo product_id + qty a aplicar. Regalos no entran en la suma.
+        // Revertir separación: AllowSeparateSameProductLines = false.
+        // =====================================================================
+
+        /// <summary>
+        /// PRUEBA: true = al seleccionar el mismo producto se crea otra línea (no merge).
+        /// Revertir: poner en false (comportamiento original: suma qty en la línea existente).
+        ///
+        /// ANTES: siempre merge — FirstOrDefault(product_id &amp;&amp; !is_gift) y sumaba qty.
+        /// DESPUÉS (true): existingLine = null → siempre Add línea nueva con sequence nuevo.
+        /// </summary>
+        private const bool AllowSeparateSameProductLines = true;
+
+        /// <summary>
+        /// Suma product_uom_qty de líneas padre (!is_gift) del mismo product_id.
+        /// excludeLine: al editar en detalle, no contar la línea actual (se usa la qty nueva).
+        ///
+        /// ANTES: no existía; stock no consideraba otras líneas del mismo SKU.
+        /// DESPUÉS: base para ExceedsParentStock (solo padres; ignora regalos/promos).
+        /// </summary>
+        private decimal SumParentProductQty(int productId, sale_order_line? excludeLine = null)
+        {
+            if (OrderLines == null || OrderLines.Count == 0)
+                return 0;
+
+            return OrderLines
+                .Where(l => l != null
+                    && !l.is_gift
+                    && l.product_id == productId
+                    && !ReferenceEquals(l, excludeLine))
+                .Sum(l => l.product_uom_qty);
+        }
+
+        /// <summary>
+        /// true si la qty de padres del mismo SKU (más la qty a aplicar) supera el stock.
+        /// No incluye regalos / líneas de promoción.
+        ///
+        /// ANTES: cantidad_disponible &lt; qty_sol (solo la qty de esa acción).
+        /// ERROR: con 2 líneas del mismo padre (p.ej. 6+5) y stock 10, la 2ª pasaba
+        ///   si 5 ≤ 10 aunque el total fuera 11.
+        /// DESPUÉS: SumParentProductQty(+ exclude) + qtyToApply &gt; stock.
+        /// </summary>
+        private bool ExceedsParentStock(
+            int productId,
+            decimal stockAvailable,
+            decimal qtyToApply,
+            sale_order_line? excludeLine = null)
+        {
+            return SumParentProductQty(productId, excludeLine) + qtyToApply > stockAvailable;
+        }
+
+        /// <summary>
+        /// Siguiente sequence solo entre líneas de producto (no gift).
+        /// </summary>
+        private int GetNextProductSequence()
+        {
+            if (OrderLines == null || OrderLines.Count == 0)
+                return 1;
+
+            return OrderLines
+                .Where(l => l != null && !l.is_gift)
+                .Select(l => l.sequence)
+                .DefaultIfEmpty(0)
+                .Max() + 1;
+        }
+
+        /// <summary>
+        /// Al cambiar qty o eliminar un producto padre, limpia regalos/promos ligados.
+        ///
+        /// ANTES (solo qty): limpiaba regalos y reseteaba contadores.
+        /// ANTES (delete): lógica frágil por promotionDataList / related_product_tmpl_ids;
+        ///   a menudo dejaba regalos y entradas de saleOrderPromotions huérfanas.
+        ///
+        /// ERROR / COMPORTAMIENTO INCORRECTO:
+        /// - Al borrar el padre, promociones y regalos atados seguían en el pedido.
+        ///
+        /// DESPUÉS:
+        /// - Misma detección (origen offline + promo ids + related tmpl).
+        /// - removePromoEntries=false (cambio qty): resetea contadores para re-elegir.
+        /// - removePromoEntries=true (delete padre): elimina también de saleOrderPromotions.
+        /// </summary>
+        private bool ClearPromotionsOnParentQtyChange(sale_order_line parentLine, bool removePromoEntries = false)
+        {
+            if (parentLine == null || parentLine.is_gift || OrderLines == null)
+                return false;
+
+            var affectedPromoIds = CollectAffectedPromoIdsForParent(parentLine);
+
+            if (affectedPromoIds.Count == 0)
+                return false;
+
+            bool hadGifts = OrderLines.Any(g =>
+                g != null && g.is_gift && (GiftBelongsToPromos(g, affectedPromoIds) || GiftOriginPointsToParent(g, parentLine)));
+
+            bool hadAssigned = saleOrderPromotions != null && saleOrderPromotions.Any(p =>
+                affectedPromoIds.Contains(p.promotion_id) && (p.assigned_gifts > 0 || p.applied));
+
+            bool parentHadPromoData = !string.IsNullOrWhiteSpace(parentLine.promotion_data)
+                || (parentLine.promotion_ids != null && parentLine.promotion_ids.Length > 0)
+                || parentLine.discount > 0;
+
+            if (!hadGifts && !hadAssigned && !parentHadPromoData && !removePromoEntries)
+                return false;
+
+            foreach (var gift in OrderLines.Where(g => g != null && g.is_gift).ToList())
+            {
+                if (GiftBelongsToPromos(gift, affectedPromoIds) || GiftOriginPointsToParent(gift, parentLine))
+                    OrderLines.Remove(gift);
+            }
+
+            if (saleOrderPromotions != null)
+            {
+                if (removePromoEntries)
+                {
+                    saleOrderPromotions.RemoveAll(p =>
+                        p != null && affectedPromoIds.Contains(p.promotion_id));
+                }
+                else
+                {
+                    foreach (var promo in saleOrderPromotions.Where(p => affectedPromoIds.Contains(p.promotion_id)))
+                    {
+                        promo.assigned_gifts = 0;
+                        promo.applied = false;
+                        promo.times_inv_applied = 0;
+                    }
+                }
+            }
+
+            foreach (var line in OrderLines.Where(l => l != null && !l.is_gift))
+            {
+                if (!LineTouchesPromos(line, affectedPromoIds)
+                    && !(line.product_id == parentLine.product_id && line.sequence == parentLine.sequence))
+                    continue;
+
+                line.promotion_data = "";
+                line.promotion_ids = Array.Empty<int>();
+                line.rule_ids = Array.Empty<int>();
+            }
+
+            UpdateTotals();
+            return true;
+        }
+
+        private HashSet<int> CollectAffectedPromoIdsForParent(sale_order_line parentLine)
+        {
+            var affectedPromoIds = new HashSet<int>();
+
+            if (saleOrderPromotions != null)
+            {
+                foreach (var promo in saleOrderPromotions)
+                {
+                    if (promo == null || string.IsNullOrWhiteSpace(promo.related_product_tmpl_ids))
+                        continue;
+
+                    try
+                    {
+                        var tmplIds = JsonConvert.DeserializeObject<int[]>(promo.related_product_tmpl_ids);
+                        if (tmplIds != null && tmplIds.Contains(parentLine.product_tmpl_id))
+                            affectedPromoIds.Add(promo.promotion_id);
+                    }
+                    catch
+                    {
+                        // ignore
+                    }
+                }
+            }
+
+            foreach (var gift in OrderLines.Where(g => g != null && g.is_gift).ToList())
+            {
+                if (!GiftOriginPointsToParent(gift, parentLine))
+                    continue;
+
+                CollectPromoIdsFromLine(gift, affectedPromoIds);
+            }
+
+            CollectPromoIdsFromLine(parentLine, affectedPromoIds);
+            return affectedPromoIds;
+        }
+
+        private bool ParentHasLinkedPromotions(sale_order_line parentLine)
+        {
+            if (parentLine == null || parentLine.is_gift || OrderLines == null)
+                return false;
+
+            var affected = CollectAffectedPromoIdsForParent(parentLine);
+            if (affected.Count == 0)
+            {
+                return OrderLines.Any(g => g != null && g.is_gift && GiftOriginPointsToParent(g, parentLine))
+                    || !string.IsNullOrWhiteSpace(parentLine.promotion_data)
+                    || (parentLine.promotion_ids != null && parentLine.promotion_ids.Length > 0);
+            }
+
+            return true;
+        }
+
+        private static void CollectPromoIdsFromLine(sale_order_line line, HashSet<int> promoIds)
+        {
+            if (line == null || promoIds == null)
+                return;
+
+            if (line.promotion_ids != null)
+            {
+                foreach (var id in line.promotion_ids)
+                    promoIds.Add(id);
+            }
+
+            try
+            {
+                foreach (var rule in line.promotionRules ?? new List<PromoRuleItem>())
+                {
+                    if (rule != null && rule.promo_id > 0)
+                        promoIds.Add(rule.promo_id);
+                }
+            }
+            catch
+            {
+                // promotion_data puede no ser PromoRuleItem
+            }
+
+            try
+            {
+                foreach (var eval in line.promotionDataList ?? new List<PromotionEvalItem>())
+                {
+                    if (eval?.Promotion != null && eval.Promotion.id > 0)
+                        promoIds.Add(eval.Promotion.id);
+                }
+            }
+            catch
+            {
+                // ignore
+            }
+        }
+
+        private static bool GiftBelongsToPromos(sale_order_line gift, HashSet<int> promoIds)
+        {
+            if (gift == null || promoIds == null || promoIds.Count == 0)
+                return false;
+
+            if (gift.promotion_ids != null && gift.promotion_ids.Any(id => promoIds.Contains(id)))
+                return true;
+
+            try
+            {
+                if (gift.promotionRules != null && gift.promotionRules.Any(r => r != null && promoIds.Contains(r.promo_id)))
+                    return true;
+            }
+            catch { }
+
+            try
+            {
+                if (gift.promotionDataList != null
+                    && gift.promotionDataList.Any(e => e?.Promotion != null && promoIds.Contains(e.Promotion.id)))
+                    return true;
+            }
+            catch { }
+
+            return false;
+        }
+
+        private static bool LineTouchesPromos(sale_order_line line, HashSet<int> promoIds)
+        {
+            return GiftBelongsToPromos(line, promoIds);
+        }
+
+        private static bool GiftOriginPointsToParent(sale_order_line gift, sale_order_line parentLine)
+        {
+            if (gift == null || parentLine == null || string.IsNullOrWhiteSpace(gift.origin_gift_line_ids_offline))
+                return false;
+
+            try
+            {
+                var origins = JsonConvert.DeserializeObject<List<DMSA.Models.Odoo.Abstract.OriginPromoOrderLine>>(
+                    gift.origin_gift_line_ids_offline);
+
+                return origins != null && origins.Any(o =>
+                    o != null
+                    && o.product_id == parentLine.product_id
+                    && (o.sequence == 0 || o.sequence == parentLine.sequence));
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Al sumar qty del mismo producto, quita regalos auto cuyo origen apunta
+        /// a ese product_id para forzar recálculo limpio al Confirmar/Aplicar.
+        /// Conserva el sequence del padre.
+        /// </summary>
+        private void InvalidatePromotionsForMergedProductLine(sale_order_line productLine)
+        {
+            if (productLine == null || OrderLines == null)
+                return;
+
+            productLine.promotion_data = "";
+            productLine.promotion_ids = Array.Empty<int>();
+            productLine.rule_ids = Array.Empty<int>();
+
+            var toRemove = new List<sale_order_line>();
+
+            foreach (var gift in OrderLines.Where(g => g != null && g.is_gift && !g.is_manual))
+            {
+                if (string.IsNullOrWhiteSpace(gift.origin_gift_line_ids_offline))
+                    continue;
+
+                try
+                {
+                    var origins = Newtonsoft.Json.JsonConvert.DeserializeObject<List<DMSA.Models.Odoo.Abstract.OriginPromoOrderLine>>(
+                        gift.origin_gift_line_ids_offline);
+
+                    if (origins != null && origins.Any(o => o.product_id == productLine.product_id))
+                        toRemove.Add(gift);
+                }
+                catch
+                {
+                    // ignore JSON inválido
+                }
+            }
+
+            foreach (var gift in toRemove)
+                OrderLines.Remove(gift);
+        }
+
+        /// <summary>
+        /// Agrega producto al pedido (selector / añadir).
+        ///
+        /// ANTES (merge + stock):
+        /// - Si ya existía el product_id (!is_gift) → sumaba qty en esa línea.
+        /// - Stock: cantidad_disponible &lt; qty_sol (solo la qty nueva).
+        ///
+        /// DESPUÉS (PRUEBA):
+        /// - AllowSeparateSameProductLines=true → siempre línea nueva (sequence nuevo).
+        /// - Stock: ExceedsParentStock (suma padres del mismo SKU + qty; ignora gifts).
+        /// </summary>
         private async void OnAddLine(ItemPickedArgs itemPickedArgs)
         {
             if (itemPickedArgs is null) return;
@@ -403,30 +752,33 @@ namespace DMOrders.Pages.Fragments.Orders
                 return;
             }
 
-            if(itemPickedArgs.product.cantidad_disponible < (float) qty_sol)
+            // ANTES: cantidad_disponible < qty_sol
+            // DESPUÉS: suma padres mismo SKU + qty_sol vs stock (ignora gifts).
+            if (ExceedsParentStock(product.id, (decimal)product.cantidad_disponible, qty_sol))
             {
                 await Application.Current.Windows[0].Page.DisplayAlertAsync("Alerta", "La cantidad solicitada no puede ser mayor a la disponible en inventario.", "Aceptar");
                 return;
             }
 
-            int sequence_line = OrderLines.Count;
-            sequence_line++;
+            int sequence_line = GetNextProductSequence();
 
-            // Buscar si el producto ya existe en la lista
-            var existingLine = OrderLines.FirstOrDefault(l => l.product_id == product.id && !l.is_gift);
+            // ANTES: siempre buscaba existingLine para merge.
+            // DESPUÉS (flag true): null → fuerza línea nueva.
+            var existingLine = AllowSeparateSameProductLines
+                ? null
+                : OrderLines.FirstOrDefault(l => l.product_id == product.id && !l.is_gift);
 
             if (existingLine != null)
             {
-                // Si existe, aumentar la cantidad
+                // Si existe, aumentar la cantidad (merge) — sequence del padre se conserva
                 existingLine.product_uom_qty_real += qty_real;
                 existingLine.product_uom_qty += qty_sol;
 
                 var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, existingLine.product_uom_qty);
 
-                //product.list_price = (float) priceCalc.Price;                
                 existingLine.price_total = priceCalc.TotalLine;
                 existingLine.price_unit = priceCalc.Price;
-                existingLine.price_subtotal = priceCalc.PriceSubtotal; //(priceCalc.PriceWithoutIva * existingLine.product_uom_qty) - priceCalc.DiscountAmount;
+                existingLine.price_subtotal = priceCalc.PriceSubtotal;
                 existingLine.discount = priceCalc.DiscountPercent;
                 existingLine.amount_discount = priceCalc.DiscountAmount;
                 existingLine.price_tax = priceCalc.PriceTax;
@@ -434,6 +786,8 @@ namespace DMOrders.Pages.Fragments.Orders
                 existingLine.virtual_iva_percentage = priceCalc.IvaPercentage;
                 existingLine.virtual_line_subtotal = priceCalc.LineSubtotal;
                 existingLine.product_tmpl_id = product._product_tmpl_id;
+
+                ClearPromotionsOnParentQtyChange(existingLine);
                 OnPropertyChanged(nameof(OrderLines));
             }
             else
@@ -453,7 +807,7 @@ namespace DMOrders.Pages.Fragments.Orders
                         product_uom_qty_real = qty_real,
                         product_uom_qty = qty_sol,
                         uom_category_display = "UND",
-                        price_subtotal = priceCalc.PriceSubtotal, // (priceCalc.PriceWithoutIva * 1) - priceCalc.DiscountAmount,
+                        price_subtotal = priceCalc.PriceSubtotal,
                         discount = priceCalc.DiscountPercent,
                         amount_discount = priceCalc.DiscountAmount,
                         price_tax = priceCalc.PriceTax,
@@ -477,6 +831,13 @@ namespace DMOrders.Pages.Fragments.Orders
             UpdateTotals();
         }
 
+        /// <summary>
+        /// Agrega producto sin la validación qty_sol ≤ qty_real (flujos internos).
+        /// Misma lógica de separación / stock acumulado que <see cref="OnAddLine"/>.
+        ///
+        /// ANTES: sin chequeo de stock; merge si existía el product_id.
+        /// DESPUÉS: ExceedsParentStock + AllowSeparateSameProductLines (igual que OnAddLine).
+        /// </summary>
         private async void OnAddLineNoRestrict(ItemPickedArgs itemPickedArgs)
         {
             if (itemPickedArgs is null) return;
@@ -485,18 +846,28 @@ namespace DMOrders.Pages.Fragments.Orders
             var qty_real = itemPickedArgs.qty_real;
             var qty_sol = itemPickedArgs.qty_sol;
 
-            int sequence_line = OrderLines.Count;
-            sequence_line++;
+            // ANTES: sin validación de stock aquí.
+            // DESPUÉS: suma padres del mismo SKU vs stock (ignora gifts).
+            if (ExceedsParentStock(product.id, (decimal)product.cantidad_disponible, qty_sol))
+            {
+                await Application.Current.Windows[0].Page.DisplayAlertAsync("Alerta", "La cantidad solicitada no puede ser mayor a la disponible en inventario.", "Aceptar");
+                return;
+            }
 
-            var existingLine = OrderLines.FirstOrDefault(l => l.product_id == product.id && !l.is_gift);
+            int sequence_line = GetNextProductSequence();
+
+            // ANTES: merge por product_id. DESPUÉS (flag true): línea nueva.
+            var existingLine = AllowSeparateSameProductLines
+                ? null
+                : OrderLines.FirstOrDefault(l => l.product_id == product.id && !l.is_gift);
 
             if (existingLine != null)
-            {                
+            {
                 existingLine.product_uom_qty_real += qty_real;
                 existingLine.product_uom_qty += qty_sol;
 
                 var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, existingLine.product_uom_qty);
-         
+
                 existingLine.price_total = priceCalc.TotalLine;
                 existingLine.price_unit = priceCalc.Price;
                 existingLine.price_subtotal = priceCalc.PriceSubtotal;
@@ -507,6 +878,8 @@ namespace DMOrders.Pages.Fragments.Orders
                 existingLine.virtual_iva_percentage = priceCalc.IvaPercentage;
                 existingLine.virtual_line_subtotal = priceCalc.LineSubtotal;
                 existingLine.product_tmpl_id = product._product_tmpl_id;
+
+                ClearPromotionsOnParentQtyChange(existingLine);
                 OnPropertyChanged(nameof(OrderLines));
             }
             else
@@ -514,7 +887,7 @@ namespace DMOrders.Pages.Fragments.Orders
                 var priceCalc = await getPriceWithPricelist(product, CurrentPriceList, qty_sol);
 
                 if (priceCalc.ExistsInPriceList)
-                {                   
+                {
                     var line = new sale_order_line
                     {
                         sequence = sequence_line,
@@ -754,61 +1127,36 @@ namespace DMOrders.Pages.Fragments.Orders
             UpdateTotals();
         }
 
+        /// <summary>
+        /// Indica si el padre tiene regalos/promos ligados (para confirmar el borrado).
+        /// ANTES: solo miraba promotionDataList en gifts + related_product_tmpl_ids
+        ///   (fallaba si el JSON no matcheaba o tmplIds era null → riesgo NRE).
+        /// DESPUÉS: usa ParentHasLinkedPromotions / origen offline.
+        /// </summary>
         public async Task<bool> ExistsLinkedGifts(sale_order_line sale_Order_Line)
         {
-            if (sale_Order_Line != null)
-            {
-                if (!sale_Order_Line.is_gift)
-                {
-                    for (var si = 0; si < saleOrderPromotions.Count; si++)
-                    {
-                        var currentBenefit = saleOrderPromotions[si];
-                        var tmplIds = saleOrderPromotions[si].related_product_tmpl_ids;
-                        int[] ints = Newtonsoft.Json.JsonConvert.DeserializeObject<int[]>(tmplIds);
+            if (sale_Order_Line == null || sale_Order_Line.is_gift)
+                return false;
 
-                        if (!ints.Any())
-                        {
-                            continue;
-                        }
-
-                        if (!ints.Contains(sale_Order_Line.product_tmpl_id))
-                        {
-                            continue;
-                        }
-
-                        var giftList = OrderLines.Where(x => x.is_gift).ToList();
-                        if (giftList != null && giftList.Count > 0)
-                        {
-                            foreach (var itemGift in giftList)
-                            {                                
-                                List<PromotionEvalItem> promotionEvalItem = itemGift.promotionDataList;
-                                Debug.WriteLine(promotionEvalItem);
-
-                                if (promotionEvalItem != null && promotionEvalItem.Count > 0)
-                                {
-                                    foreach (var evalItem in promotionEvalItem)
-                                    {
-                                        if (evalItem.Promotion.id == currentBenefit.promotion_id)
-                                        {
-                                            return true;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            return false;
+            return ParentHasLinkedPromotions(sale_Order_Line)
+                || OrderLines.Any(g => g != null && g.is_gift && GiftOriginPointsToParent(g, sale_Order_Line));
         }
 
+        /// <summary>
+        /// Elimina una línea del pedido (UI).
+        /// ANTES: aviso solo de "regalos relacionados".
+        /// DESPUÉS: aviso de promociones y regalos; confirma antes de borrar.
+        /// </summary>
         public async void RemoveOrderLine(sale_order_line sale_Order_Line)
         {
             bool requiredConfirm = await ExistsLinkedGifts(sale_Order_Line);
             if (requiredConfirm)
             {                
-                var leave = await Application.Current.Windows[0].Page.DisplayAlertAsync("Atención", "Al eliminar el producto se eliminaran los regalos relacionados", "Si", "No");
+                var leave = await Application.Current.Windows[0].Page.DisplayAlertAsync(
+                    "Atención",
+                    "Al eliminar el producto también se eliminarán las promociones y regalos relacionados. ¿Continuar?",
+                    "Si",
+                    "No");
 
                 if (!leave)
                 {
@@ -819,60 +1167,27 @@ namespace DMOrders.Pages.Fragments.Orders
             await RemoveOrderLineProcess(sale_Order_Line);
         }
 
+        /// <summary>
+        /// Proceso de borrado de línea.
+        ///
+        /// ANTES (padre): loop sobre saleOrderPromotions + Deserialize de tmplIds sin null-check;
+        ///   solo quitaba gifts si promotionDataList coincidía → regalos/promos quedaban.
+        ///
+        /// DESPUÉS (padre): ClearPromotionsOnParentQtyChange(..., removePromoEntries: true)
+        ///   elimina regalos atados + entradas de promo + limpia promotion_data.
+        /// (Regalo individual): se mantiene el ajuste de contadores vía origen offline.
+        /// </summary>
         public async Task RemoveOrderLineProcess(sale_order_line sale_Order_Line) //, product_product product)
         {
             PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
 
             if (sale_Order_Line != null)
             {
-                //Cuando es un producto main (asumiendo que contenga regalos asociados)
-                //Se buscan los regalos asociados a la línea seleccionada
-                // para eliminarlos también
+                // Producto padre: limpia regalos + entradas de promo atadas
+                // (ver resumen del método: removePromoEntries=true)
                 if (!sale_Order_Line.is_gift)
                 {
-                    for (var si = 0; si < saleOrderPromotions.Count; si++)
-                    {
-                        var currentBenefit = saleOrderPromotions[si];
-                        var tmplIds = saleOrderPromotions[si].related_product_tmpl_ids;
-                        int[] ints = Newtonsoft.Json.JsonConvert.DeserializeObject<int[]>(tmplIds);
-
-                        if (!ints.Any())
-                        {
-                            continue;
-                        }
-
-                        if (!ints.Contains(sale_Order_Line.product_tmpl_id))
-                        {
-                            continue;
-                        }
-
-                        var giftList = OrderLines.Where(x => x.is_gift).ToList();
-                        if (giftList != null && giftList.Count > 0)
-                        {
-                            await promotionEngineRunner.ResetManualGiftBenefit(CurrentSaleOrder, saleOrderPromotions);
-
-                            foreach (var itemGift in giftList)
-                            {
-                                //if (itemGift.promotion_data != null)
-                                //{
-                                //List<PromotionEvalItem> promotionEvalItem = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PromotionEvalItem>>(itemGift.promotion_data);
-                                List<PromotionEvalItem> promotionEvalItem = itemGift.promotionDataList;
-                            Debug.WriteLine(promotionEvalItem);
-
-                                    if (promotionEvalItem != null && promotionEvalItem.Count > 0)
-                                    {
-                                        foreach (var evalItem in promotionEvalItem)
-                                        {
-                                            if (evalItem.Promotion.id == currentBenefit.promotion_id)
-                                            {
-                                                OrderLines.Remove(itemGift);
-                                            }
-                                        }
-                                    }
-                                //}
-                            }
-                        }
-                    }
+                    ClearPromotionsOnParentQtyChange(sale_Order_Line, removePromoEntries: true);
                 }
                 else
                 {
@@ -884,7 +1199,7 @@ namespace DMOrders.Pages.Fragments.Orders
                         var originIds = JsonConvert.DeserializeObject<List<OriginPromoOrderLine>>(sale_Order_Line.origin_gift_line_ids_offline);
                         //var mainOrderLine = OrderLines.Where(x => x.product_id == sale_Order_Line.product_id_origin).FirstOrDefault();
 
-                        if (originIds.Any())
+                        if (originIds != null && originIds.Any())
                         {
 
                             var mainOrderLine = OrderLines.Where(x => x.product_id == originIds[0].product_id && x.sequence == originIds[0].sequence).FirstOrDefault();

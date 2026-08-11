@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Maui;
+using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
@@ -206,7 +206,11 @@ public partial class Crud : ContentPage, IBackButtonHandler
         Debug.WriteLine(e.PropertyName);        
     }
 
-    public async Task<int> PrepareForm()
+    /// <param name="showLoadingPopup">
+    /// Si false (editar desde listado), no usa el popup: el caller controla IsLoading
+    /// hasta después de PushModalAsync.
+    /// </param>
+    public async Task<int> PrepareForm(bool showLoadingPopup = true)
     {
         //0 - Todo Correcto y se procede a avanzar
         //1 - Error en lista de precios
@@ -218,8 +222,11 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
         try
         {
-            await UITools.ShowLoadingPopup(this);
-            await UITools.SetNotifyLoadingPopup("Cargando datos...");                        
+            if (showLoadingPopup)
+            {
+                await UITools.ShowLoadingPopup(this);
+                await UITools.SetNotifyLoadingPopup("Cargando datos...");
+            }
             await Task.Yield();
 
             BlockControls();
@@ -277,7 +284,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
             if (CurrentPriceList == null || CurrentPartner._product_pricelist_id == 0)
             {
-                await UITools.HideLoadingPopup();                                
+                if (showLoadingPopup)
+                    await UITools.HideLoadingPopup();
                 return 1;
             }
 
@@ -287,7 +295,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
             if (addresses == null || addresses.Count == 0)
             {
-                await UITools.HideLoadingPopup();
+                if (showLoadingPopup)
+                    await UITools.HideLoadingPopup();
                 return 2;
             }
 
@@ -345,11 +354,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
         finally
         {
             UnlockControls();
-            if(!RequiredPreloadData)
-            {
-                //await Task.Delay(500);
-            }            
-            await UITools.HideLoadingPopup();            
+            if (showLoadingPopup)
+                await UITools.HideLoadingPopup();
         }
 
         return 0;
@@ -364,7 +370,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
             Platform.CurrentActivity?.MoveTaskToBack(true);
 #endif
         }
-        return !result; // true => lo manejo yo y no cierro la app; false => dejar cerrar
+        // Siempre consumir el back: no dejar que Android cierre/mate la app
+        return true;
     }
 
     protected override bool OnBackButtonPressed()
@@ -373,9 +380,12 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
         Dispatcher.Dispatch(async () =>
         {
+            await UITools.HideLoadingPopup();
+
             if(LockEdition)
             {
                 await Navigation.PopModalAsync(false);
+                return;
             }
 
             if (SearchProductView.IsVisible)
@@ -406,11 +416,98 @@ public partial class Crud : ContentPage, IBackButtonHandler
         SearchProductView.IsVisible = true;
     }
 
+    /// <summary>
+    /// Valida que el detalle se pueda guardar: hay líneas, cantidades &gt; 0
+    /// y (en no-gift) precio unitario &gt; 0.
+    /// </summary>
+    private bool ValidateOrderLinesBeforeSave(out string message)
+    {
+        message = null;
+
+        if (OrderLines == null || OrderLines.Count == 0)
+        {
+            message = "El pedido no tiene productos. Agregue al menos un detalle antes de guardar.";
+            return false;
+        }
+
+        var sinCantidad = new List<string>();
+        var sinPrecio = new List<string>();
+
+        foreach (var line in OrderLines)
+        {
+            if (line == null)
+                continue;
+
+            string label = !string.IsNullOrWhiteSpace(line.product_code)
+                ? line.product_code
+                : (!string.IsNullOrWhiteSpace(line.product_display)
+                    ? line.product_display
+                    : $"Seq {line.sequence} (id {line.product_id})");
+
+            if (line.product_uom_qty <= 0)
+                sinCantidad.Add(label);
+
+            // Regalos (is_gift) pueden ir a precio 0; el resto debe tener precio
+            if (!line.is_gift && line.price_unit <= 0)
+                sinPrecio.Add(label);
+        }
+
+        if (sinCantidad.Count == 0 && sinPrecio.Count == 0)
+            return true;
+
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("No se puede guardar el pedido. Revise lo siguiente:");
+        sb.AppendLine();
+
+        if (sinCantidad.Count > 0)
+        {
+            sb.AppendLine("Productos con cantidad en cero o vacía:");
+            foreach (var item in sinCantidad.Take(10))
+                sb.AppendLine($" • {item}");
+            if (sinCantidad.Count > 10)
+                sb.AppendLine($" • ... y {sinCantidad.Count - 10} más");
+            sb.AppendLine();
+        }
+
+        if (sinPrecio.Count > 0)
+        {
+            sb.AppendLine("Productos sin precio (precio unitario 0):");
+            foreach (var item in sinPrecio.Take(10))
+                sb.AppendLine($" • {item}");
+            if (sinPrecio.Count > 10)
+                sb.AppendLine($" • ... y {sinPrecio.Count - 10} más");
+        }
+
+        message = sb.ToString().TrimEnd();
+        return false;
+    }
+
+    /// <summary>
+    /// Guardar pedido + aplicar promociones.
+    ///
+    /// ANTES:
+    /// - Si ya había promos: "Sí, eliminar" limpiaba; "No eliminar" seguía igual a Save+ApplyPromo.
+    /// - ApplyPromo hacía PopModal y el finally de este método también → doble PopModal.
+    /// - El loading se cerraba antes de ApplyPromo → hueco hasta el modal de promos.
+    ///
+    /// DESPUÉS / POR QUÉ:
+    /// - "No eliminar" conserva promos pero SÍ abre el modal (producto nuevo con promos nuevas).
+    /// - Un solo PopModal (aquí en finally, con ModalStack).
+    /// - Loading "Calculando promociones..." se mantiene hasta que ApplyPromo va a mostrar el modal
+    ///   (o hasta salir sin modal si no hay promos a elegir).
+    /// - try/catch para no tumbar la app; muestra alerta con el mensaje.
+    /// </summary>
     private async void ButtonSave_Clicked(object sender, EventArgs e)
     {
         if (_saving)
         {
             Debug.WriteLine("Guardado ya en proceso, por favor espere...");
+            return;
+        }
+
+        if (!ValidateOrderLinesBeforeSave(out string validationMessage))
+        {
+            await DisplayAlertAsync("No se puede guardar", validationMessage, "Aceptar");
             return;
         }
                 
@@ -426,8 +523,11 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
             if (_existPromotionsApplied)
             {
+                // Texto explícito: No eliminar NO debe saltarse el modal de promociones.
                 var leave = await DisplayAlertAsync("⚠️ Confirmación requerida",
-                    "Este pedido ya tiene promociones aplicadas.\n\nSi continúas, se eliminarán y se recalcularán.",
+                    "Este pedido ya tiene promociones aplicadas.\n\n" +
+                    "• Sí, eliminar: limpia las actuales y las vuelve a calcular.\n" +
+                    "• No eliminar: conserva las actuales y abre el modal para nuevas o para revisarlas.",
                     "Sí, eliminar",
                     "No eliminar");
 
@@ -436,6 +536,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
                     await CleanPromotionStatusFull(CurrentSaleOrder);
                     await Toast.Make("Promociones eliminadas.").Show();
                 }
+                // "No eliminar": no limpia; igual se evalúa y se muestra el modal.
             }
 
             await UITools.ShowLoadingPopup(this);
@@ -454,24 +555,59 @@ public partial class Crud : ContentPage, IBackButtonHandler
             if (targetOrder != null)
             {                
                 saved_data = true;
+
+                // Loading sigue abierto: ApplyPromo lo cierra al desplegar el modal
+                // (o si no hay promos / no hay nada que elegir).
                 applyPromo = await ApplyPromo(targetOrder);
 
-                if (applyPromo!=null && applyPromo.Count > 0)
-                {                    
+                if (applyPromo != null && applyPromo.Count > 0)
+                {
+                    await UITools.ShowLoadingPopup(this);
+                    await UITools.SetNotifyLoadingPopup("Guardando pedido...");
                     targetOrder = await SaveOrder();
                 }
+            }
+        }
+        catch (Exception ex)
+        {
+            // ANTES: excepción no controlada → cierre de app (UnhandledException).
+            Debug.WriteLine($"ButtonSave_Clicked error: {ex}");
+            try
+            {
+                await DisplayAlertAsync(
+                    "Error al guardar",
+                    "Ocurrió un problema al guardar o aplicar promociones.\n\n" + ex.Message,
+                    "Aceptar");
+            }
+            catch
+            {
+                // ignore
             }
         }
         finally
         {
             _saving = false;
             UnlockControls();
-            await UITools.HideLoadingPopup();
+            try
+            {
+                await UITools.HideLoadingPopup();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"HideLoadingPopup: {ex.Message}");
+            }
 
-            //if (applyPromo == null)
-            //{
-                await Navigation.PopModalAsync(false);
-            //}
+            try
+            {
+                // ANTES: PopModal siempre + otro PopModal dentro de ApplyPromo → crash.
+                // DESPUÉS: un solo cierre, solo si aún hay modal.
+                if (Navigation?.ModalStack?.Count > 0)
+                    await Navigation.PopModalAsync(false);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"PopModalAsync after save: {ex.Message}");
+            }
         }
     }
 
@@ -621,6 +757,12 @@ public partial class Crud : ContentPage, IBackButtonHandler
     
 
 
+    /// <summary>
+    /// Evalúa promociones aplicables al pedido.
+    /// ANTES: si EvaluatePromotions devolvía null, AppliedPromotionResults quedaba null
+    /// y ApplyPromo hacía .Count → NullReferenceException.
+    /// DESPUÉS: siempre colección no nula (?? new / catch).
+    /// </summary>
     public async Task EvalPromotions(sale_order saleOrder)
     {
         try
@@ -638,13 +780,13 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
             AppliedPromotionResults = await engine.EvaluatePromotions(
                 saleOrder: saleOrder
-            );           
-
+            ) ?? new ObservableCollection<PromotionEvalResult>();
 
             Debug.WriteLine($"Promociones aplicadas: {AppliedPromotionResults.Count}");
         }
         catch (Exception ex)
         {
+            AppliedPromotionResults ??= new ObservableCollection<PromotionEvalResult>();
             Debug.WriteLine($"Error evaluando promociones: {ex}");
         }
     }
@@ -822,6 +964,17 @@ public partial class Crud : ContentPage, IBackButtonHandler
         }
     }
 
+    /// <summary>
+    /// Aplica cambios de cantidad en la pestaña detalle (botón añadir / aplicar).
+    ///
+    /// ANTES (stock): ProductEditing.cantidad_disponible &lt; product_uom_qty
+    ///   (solo la línea en edición; no sumaba otras líneas padre del mismo SKU).
+    /// ERROR: con líneas separadas del mismo producto, se podía superar el stock.
+    ///
+    /// DESPUÉS:
+    /// - Padre (!is_gift): ExceedsParentStock (otras líneas padre + qty nueva; exclude = línea actual).
+    /// - Regalo (is_gift): se mantiene validación de una sola línea vs stock.
+    /// </summary>
     private async void ApplyValueChanges(object sender, EventArgs e)
     {
         if (CurrentSaleOrderLine != null)
@@ -838,7 +991,17 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 return;
             }
 
-            if ((decimal)ProductEditing.cantidad_disponible < product_uom_qty)
+            // ANTES: (decimal)ProductEditing.cantidad_disponible < product_uom_qty
+            // DESPUÉS: padres → suma SKU; regalos → línea sola.
+            bool exceedsStock = CurrentSaleOrderLine.is_gift
+                ? (decimal)ProductEditing.cantidad_disponible < product_uom_qty
+                : ExceedsParentStock(
+                    CurrentSaleOrderLine.product_id,
+                    (decimal)ProductEditing.cantidad_disponible,
+                    product_uom_qty,
+                    CurrentSaleOrderLine);
+
+            if (exceedsStock)
             {
                 CurrentSaleOrderLine = null;
                 ProductEditing = null;
@@ -856,10 +1019,10 @@ public partial class Crud : ContentPage, IBackButtonHandler
                 return;
             }
 
-            bool requireRefresh = false;
-            if (product_uom_qty_real < CurrentSaleOrderLine.product_uom_qty_real || product_uom_qty < CurrentSaleOrderLine.product_uom_qty)
+            bool clearedPromos = false;
+            if (!CurrentSaleOrderLine.is_gift)
             {
-                requireRefresh = true;
+                clearedPromos = ClearPromotionsOnParentQtyChange(CurrentSaleOrderLine);
             }
 
             CurrentSaleOrderLine.product_uom_qty_real = product_uom_qty_real;
@@ -876,16 +1039,16 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
             product_item.list_price = (float) CurrentSaleOrderLine.price_unit;
 
-            if (requireRefresh)
-            {
-                UpdateOrderLineRefresh(CurrentSaleOrderLine, product_item);
-            }
-            else
-            {
-                PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
-                await promotionEngineRunner.ResetManualGiftBenefitSoft(CurrentSaleOrder, saleOrderPromotions);
+            PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
+            await promotionEngineRunner.ResetManualGiftBenefit(CurrentSaleOrder, saleOrderPromotions);
+            UpdateOrderLine(CurrentSaleOrderLine, product_item);
 
-                UpdateOrderLine(CurrentSaleOrderLine, product_item);
+            if (clearedPromos)
+            {
+                await DisplayAlertAsync(
+                    "Información",
+                    "Se ha realizado un cambio en las unidades del producto padre, por lo que es necesario volver a seleccionar las promociones.",
+                    "OK");
             }
             
             CurrentSaleOrderLine = null;

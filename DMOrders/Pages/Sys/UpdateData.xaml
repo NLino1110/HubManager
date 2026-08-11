@@ -80,6 +80,7 @@
                         <controls:CheckBoxEx x:Name="chkGroup2" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Marcas, categorías ..."></controls:CheckBoxEx>                        
                         <controls:CheckBoxEx x:Name="chkGroup3" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Clientes"></controls:CheckBoxEx>
                         <controls:CheckBoxEx x:Name="chkGroup7" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Productos"></controls:CheckBoxEx>
+                        <controls:CheckBoxEx x:Name="chkGroup8" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="False" LabelText="Imágenes de productos"></controls:CheckBoxEx>
                         <controls:CheckBoxEx x:Name="chkGroup4" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Precios"></controls:CheckBoxEx>
                         <controls:CheckBoxEx x:Name="chkGroup5" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Stock"></controls:CheckBoxEx>
                         <controls:CheckBoxEx x:Name="chkGroup6" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Pedidos (Estados)"></controls:CheckBoxEx>

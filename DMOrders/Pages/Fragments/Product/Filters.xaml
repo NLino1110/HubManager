@@ -109,6 +109,25 @@
                                 Glyph="&#xf002;" />
                                 </Button.ImageSource>
                             </Button>
+
+                            <Button x:Name="btnClearCatalog"
+                                    Text=""
+                                    FontSize="10"
+                                    BackgroundColor="OrangeRed"
+                                    TextColor="White"
+                                    WidthRequest="40"
+                                    HeightRequest="36"
+                                    Padding="0"
+                                    Clicked="btnClearCatalog_Clicked"
+                                    ToolTipProperties.Text="Vaciar catálogo local (promos, marcas, productos, precios, stock)">
+                                <Button.ImageSource>
+                                    <FontImageSource
+                                        Size="15"
+                                        FontFamily="FontAwesome5Solid"
+                                        Glyph="&#xf2ed;"
+                                        Color="White" />
+                                </Button.ImageSource>
+                            </Button>
                         </HorizontalStackLayout>
                     </StackLayout>
                 </toolkit:Expander.Content>

@@ -1,5 +1,6 @@
 ﻿using DMSA.Models.Odoo.Native;
 using SQLite;
+using System.Linq;
 
 namespace DMSA.Sync.Core.Database.Sqlite
 {
@@ -8,6 +9,38 @@ namespace DMSA.Sync.Core.Database.Sqlite
         public SaleOrderDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
 
+        }
+
+        /// <summary>
+        /// CreateTableAsync NO recrea tablas existentes ni agrega columnas nuevas.
+        /// En tablets con BD previa hay que hacer ALTER TABLE.
+        /// </summary>
+        protected override async Task OnAfterInit()
+        {
+            await EnsureColumnAsync("free_order_state", "TEXT");
+        }
+
+        private async Task EnsureColumnAsync(string columnName, string columnTypeSql)
+        {
+            var cols = await Database.QueryAsync<SqliteColumnInfo>(
+                "PRAGMA table_info(sale_order)");
+
+            if (cols != null && cols.Any(c =>
+                    string.Equals(c.name, columnName, StringComparison.OrdinalIgnoreCase)))
+                return;
+
+            await Database.ExecuteAsync(
+                $"ALTER TABLE sale_order ADD COLUMN {columnName} {columnTypeSql}");
+        }
+
+        private sealed class SqliteColumnInfo
+        {
+            public int cid { get; set; }
+            public string name { get; set; }
+            public string type { get; set; }
+            public int notnull { get; set; }
+            public string dflt_value { get; set; }
+            public int pk { get; set; }
         }
                         
         public async Task<List<sale_order>> GetItemsAsync(int company_id)

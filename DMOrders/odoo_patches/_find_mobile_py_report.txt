@@ -1,0 +1,254 @@
+================================================================================
+INFORME: Archivos .py Odoo relacionados con sync / datos hacia DMOrders (tablet)
+Fecha: 2026-08-07
+WSL distro: Ubuntu-24.04 (Running, WSL2)  [salida de: wsl -l -v]
+Usuario Odoo: rchonillo
+Ruta addons custom: /home/rchonillo/odoo/server/odoo/addons_mnsa_18/
+================================================================================
+
+1. ESTRUCTURA addons_mnsa_18 (alto nivel)
+----------------------------------------
+addons_mnsa_18/
+  base/          -> accounting, inventory, pos, purchase, sale, tools, tools_m2
+  ecuador/
+  personalized/  -> ~28 modulos (mnsa_mobile, mnsa_base, mnsa_sync_manager_web, ...)
+
+base/sale/ contiene solo: mic2_sale (extensiones sale.order / sale.order.line / reportes).
+NO hay un modulo "tablet" o "dmorders" dedicado en base/sale.
+
+personalized/ modulos relevantes al movil:
+  - mnsa_mobile          << PRINCIPAL (API HTTP + modelos app movil)
+  - mnsa_base            << campos de negocio en res.partner / sale.order (misc_estado, mobile_sync, ...)
+  - mnsa_sync_manager_web << id_referencia en sale.order (tambien VTEX/plataformas)
+  - mnsa_data_gateway    << API metricas internas (NO parece ser el pull de DMOrders)
+  - mnsa_intercompany, mnsa_pos_promociones, mnsa_partner_retail (tangenciales)
+
+No se encontraron coincidencias de: dmorder, dm_order (ningun .py).
+"tablet" solo aparece en temas/UI irrelevantes + cobranzas_mobile_api.py (campo mobile de partner).
+
+
+2. CONCLUSION EJECUTIVA (como llega data a la tablet)
+-----------------------------------------------------
+Hay DOS caminos posibles en Odoo hacia apps moviles:
+
+A) JSON-RPC estandar Odoo (call_kw -> search_read / search_count / create / write)
+   - HubManager/DMOrders (contexto previo) usa call_kw sobre modelos estandar
+     (res.partner, sale.order, etc.) via wrappers tipo HubResPartner.
+   - En ese camino, NO hace falta un controller custom para el PULL:
+     Odoo core sirve search_read. Los .py custom solo PARTICIPAN porque
+     EXTENDEN los modelos (anaden campos como misc_estado, mobile_sync,
+     use_mobile_app, id_referencia) que el cliente puede pedir en "fields".
+
+B) Controllers HTTP custom del modulo mnsa_mobile (/connect/*, /apiped/*)
+   - Endpoints dedicados que serializan partners, journals, invoices,
+     catalogo, stock, etc. con search / search_read internos.
+   - Estos SI son codigo Python que "sirve" datos a apps moviles
+     (cobranzas / pedidos), independientemente de call_kw.
+
+Para DMOrders tablet orientado a JSON-RPC: el pull es mayormente call_kw
+estandar; los .py listados abajo aportan el ESQUEMA/CAMPOS y, en push,
+logica al crear sale.order con mobile_sync/id_referencia.
+
+
+3. ARCHIVOS QUE SI PARTICIPAN EN SERVIR / MODELAR DATOS PARA APP MOVIL
+----------------------------------------------------------------------
+
+### 3.1 Modulo PRINCIPAL: personalized/mnsa_mobile/
+
+Manifest: "MNSA Mobile Manager" / "Macronegocios Mobile"
+Depends: account, sale, mic2_tesoreria, mnsa_account, ...
+
+CONTROLLERS (sirven datos HTTP a apps moviles):
+
+  controllers/cobranzas_mobile_api.py
+    Rutas relevantes:
+      /connect/new_password
+      /connect/checkonline
+      /connect/actualizasincronizacion_nc
+      /connect/validasincronizacion
+      /connect/get_res_partner     << search_count + search de res.partner,
+                                      serializa vat, name, total_due, parent_id,
+                                      city_id, mobile, etc. (auth=user)
+      /connect/get_account_journal
+      /connect/get_settings
+    => PARTICIPA DIRECTAMENTE en pull de partners via HTTP (no call_kw).
+
+  controllers/mngsa_mobile_pedido_api.py  (~909 lineas)
+    Rutas /apiped/* (auth=public, api_key en kwargs):
+      /apiped/validasincronizacion
+      /apiped/obtenerComercial
+      /apiped/obtenerMarcas | Lineas | Categorias | Equivalencias | Articulos
+      /apiped/obtenerTiposCliente
+      /apiped/obtenerPreciosVentaActualizar
+      /apiped/obtenerClientes          << res.partner.search_read(domain, fields)
+      /apiped/obtenerStock
+      /apiped/obtenerMotivos
+      /apiped/obtenerParametros | getparameters
+    => PARTICIPA DIRECTAMENTE en sync de maestros/clientes para pedidos moviles.
+
+  controllers/request_account_move.py
+    /connect/get_account_move
+    /connect/get_res_partner_deprecated
+    /connect/get_account_journal_dep
+    /connect/get_settings
+    => Pull de facturas / partners (legacy) para cobranzas moviles.
+
+  controllers/cobranzas_mobile_sale_order.py
+    /connect/check_credit_note_overdraft
+    => Logica de NC / credito (no sync masivo de catalogo).
+
+  controllers/rest_base.py
+    /api/  (infra REST base)
+    helpers de respuesta JSON.
+
+MODELOS (catalogo app + flags + push desde tablet):
+
+  models/mngsa_mobile_app.py
+    _name = mngsa_mobile_app  (codigo/nombre de apps moviles)
+
+  models/mngsa_mobile_sync.py
+    _name = mngsa_mobile_sync  (registro sync; test_orm hace search en res.partner)
+    => Metadatos de sync; no es el endpoint de pull de DMOrders.
+
+  models/mngsa_mobile_modulo.py / mngsa_mobile_tipo_mod.py
+    Catalogo de modulos/tipos de la app movil.
+
+  models/account_journal.py
+  models/account_journal_extend.py
+    Campos: use_mobile_app, mobile_app_tag_ids, recipe_name
+    => Filtran diarios visibles en app (flag use_mobile_app).
+
+  models/product_marca_extend.py
+  models/product_pricelist_extend.py
+    Campo use_mobile_app en product.marca / product.pricelist
+    => Filtrado de maestros para app.
+
+  models/sale_order_extend.py  (_inherit sale.order)
+    Campos: external_guid, external_create_uid, external_payload
+    En create(): si id_referencia AND mobile_sync => _procesos_especiales_externa()
+    => PARTICIPA en PUSH/creacion de pedidos desde app (promos, payload externo).
+    NOTA: id_referencia NO se define aqui; se usa el campo de mnsa_sync_manager_web.
+
+  Otros models mnsa_mobile (cobros/NC/consent/attachment/config):
+    account_move.py, account_move_extend.py, account_payment_daily.py,
+    credit_note_request_*.py, customer_data_consent.py,
+    m2_multiple_cobros_invoice_model_extend.py, mnsa_attachment*.py,
+    motivo_actividad_diaria.py, nc_modulo.py, anular_cobro_wizard.py,
+    account_analytic_line_extend.py, res_company_setting_extend.py,
+    res_config.py, res_config_settings_extend.py
+    => Soporte de cobranzas/NC/configuracion movil; no son el search_read
+       masivo de partners/orders de DMOrders via call_kw.
+
+
+### 3.2 Campos de negocio que la tablet puede leer via call_kw
+     (extensions de modelos estandar - NO son controllers)
+
+  personalized/mnsa_base/models/sale_order_extend.py  (_inherit sale.order)
+    mobile_sync (Boolean "Sincronizacion Movil")
+    mobile_create_date ("Fecha Toma Pedido")
+    misc_estado (Selection activo/inactivo, tambien copiado desde partner)
+    + partner_sale_id, free_order_state, state_sync, cupo, etc.
+    => Si DMOrders hace search_read de sale.order pidiendo estos fields,
+       ESTE archivo es el que los define.
+
+  personalized/mnsa_base/models/res_partner_extend.py  (_inherit res.partner)
+    clave_externa_*, sale_available, is_salesman_state, is_cobrador_state, ...
+    => Campos extra de partner disponibles en call_kw.
+
+  personalized/mnsa_base/models/res_partner_balance_extend.py
+    Usa child_ids (Odoo estandar) para logica de saldos/direcciones.
+    => No redefine el pull; afecta calculos si se leen campos computados.
+
+  personalized/mnsa_base/models/res_partner_retail.py
+    Redefine/extiende child_ids One2many (contexto retail).
+    => Relevante si la tablet pide child_ids en search_read de partners.
+
+  personalized/mnsa_base/models/multibase_request_partner.py
+  personalized/mnsa_base/models/multibase_response_partner.py
+  personalized/mnsa_base/models/res_partner_override.py
+    Extienden res.partner (request/response multibase / override de vistas).
+    => Mentions de mobile/misc_estado en algunos; no son API tablet dedicada.
+
+  base/accounting/mic2_accounting/models/m2_res_partner_model.py
+    _inherit res.partner
+    DEFINE misc_estado = Selection([activo, inactivo], "Estado Comercial")
+    + facturacion_*, adic_comercial_*, is_salesman, is_cobrador, city_id, etc.
+    => FUENTE PRINCIPAL del campo misc_estado que DMOrders suele filtrar.
+
+  personalized/mnsa_sync_manager_web/models/sale_order_extend.py
+    DEFINE id_referencia = fields.Char("Id Referencia")
+    => Campo usado por mnsa_mobile/sale_order_extend al detectar pedido movil.
+
+  base/sale/mic2_sale/models/m2_sale_order_model.py
+    _inherit sale.order: center_id, partner_sale_id, totales custom.
+    => Extiende sale.order leido por call_kw; NO tiene keywords mobile/tablet.
+    => Participa indirectamente (schema de ordenes), no sync tablet dedicado.
+
+  base/sale/mic2_sale/models/m2_sale_order_line_model.py
+    _inherit sale.order.line - mismo comentario (indirecto).
+
+
+4. ARCHIVOS CON KEYWORDS PERO NO (o poco) RELACIONADOS CON DMOrders PULL
+------------------------------------------------------------------------
+  - personalized/mnsa_intercompany/... (mobile_sync / misc_estado en flujo IC)
+  - personalized/mnsa_pos_promociones/models/pos_order_extend.py (mobile_sync POS)
+  - personalized/mnsa_sync_manager_web/.../sync_deals.py (id_referencia VTEX)
+  - personalized/mnsa_pos_store_sync/... (sync tiendas POS, no tablet DMOrders)
+  - personalized/mnsa_data_gateway/... (pasarela metricas entre DBs; no DMOrders)
+  - base/pos/... id_referencia (POS / plataformas digitales)
+  - Temas payroll/sh_entmate_theme con "mobile" en UI - IGNORAR
+
+
+5. SOBRE search_read DE PARTNERS
+-------------------------------
+Controllers custom que envuelven search_read/search de res.partner:
+  1) mnsa_mobile/controllers/cobranzas_mobile_api.py -> get_res_partner
+  2) mnsa_mobile/controllers/mngsa_mobile_pedido_api.py -> obtenerClientes
+  3) mnsa_mobile/controllers/request_account_move.py -> get_res_partner_deprecated
+
+Si DMOrders usa unicamente JSON-RPC call_kw("res.partner","search_read",...),
+entonces esos controllers NO se invocan; Odoo core atiende la peticion y
+los campos custom vienen de m2_res_partner_model.py + mnsa_base partner extends.
+
+
+6. LISTA CORTA - .py "must know" para DMOrders / tablet
+-------------------------------------------------------
+DIRECTOS (API movil HTTP o push pedido movil):
+  personalized/mnsa_mobile/controllers/cobranzas_mobile_api.py
+  personalized/mnsa_mobile/controllers/mngsa_mobile_pedido_api.py
+  personalized/mnsa_mobile/controllers/request_account_move.py
+  personalized/mnsa_mobile/controllers/cobranzas_mobile_sale_order.py
+  personalized/mnsa_mobile/controllers/rest_base.py
+  personalized/mnsa_mobile/models/sale_order_extend.py
+  personalized/mnsa_mobile/models/mngsa_mobile_app.py
+  personalized/mnsa_mobile/models/mngsa_mobile_sync.py
+  personalized/mnsa_mobile/models/account_journal.py
+  personalized/mnsa_mobile/models/account_journal_extend.py
+  personalized/mnsa_mobile/models/product_marca_extend.py
+  personalized/mnsa_mobile/models/product_pricelist_extend.py
+
+SCHEMA / CAMPOS que call_kw puede leer (pull estandar):
+  base/accounting/mic2_accounting/models/m2_res_partner_model.py   (misc_estado)
+  personalized/mnsa_base/models/sale_order_extend.py               (mobile_sync, mobile_create_date, misc_estado)
+  personalized/mnsa_base/models/res_partner_extend.py
+  personalized/mnsa_base/models/res_partner_balance_extend.py      (child_ids usage)
+  personalized/mnsa_base/models/res_partner_retail.py              (child_ids)
+  personalized/mnsa_sync_manager_web/models/sale_order_extend.py   (id_referencia)
+  base/sale/mic2_sale/models/m2_sale_order_model.py                (sale.order base MNSA)
+  base/sale/mic2_sale/models/m2_sale_order_line_model.py
+
+
+7. VEREDICTO
+------------
+- El modulo custom que concentra la app movil es personalized/mnsa_mobile.
+- No existe un modulo "DMOrders" en Odoo; dmorder/dm_order no aparecen en .py.
+- base/sale (mic2_sale) aporta extensiones generales de sale.order, no sync tablet.
+- Si la tablet HubManager hace pull con JSON-RPC call_kw search_read/search_count,
+  el "serving" es el ORM/JSON-RPC de Odoo core; los .py anteriores solo aportan
+  campos/extends y (en create) logica cuando mobile_sync + id_referencia.
+- Los controllers /connect/* y /apiped/* son el camino HTTP alternativo/legacy
+  para cobranzas y pedidos moviles (search_read embebido de partners y maestros).
+
+================================================================================
+FIN DEL INFORME
+================================================================================

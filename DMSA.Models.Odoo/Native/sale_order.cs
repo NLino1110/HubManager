@@ -177,6 +177,12 @@ namespace DMSA.Models.Odoo.Native
         [JsonProperty("state")]
         public string? state { get; set; }
 
+        /// <summary>
+        /// Etapa del flujo web (Odoo free_order_state). Vacío si el pedido aún no está en ERP.
+        /// </summary>
+        [JsonProperty("free_order_state")]
+        public string? free_order_state { get; set; }
+
         [JsonProperty("partner_sale_id")]
         public int partner_sale_id { get; set; }
 
@@ -198,6 +204,31 @@ namespace DMSA.Models.Odoo.Native
                     ("done", _) => "TERMINADO",
                     ("cancel", _) => "CANCELADO",
                     _ => state
+                };
+
+        /// <summary>
+        /// Texto de etapa para el listado. Null/vacío (pedido local no sync) → "-".
+        /// </summary>
+        [Ignore]
+        [JsonIgnore]
+        public string free_order_state_view =>
+            string.IsNullOrWhiteSpace(free_order_state)
+                ? "-"
+                : free_order_state switch
+                {
+                    "INGRESADO" => "INGRESADO",
+                    "REVCREDITO" => "REVISIÓN CREDITO",
+                    "ESPERAAPROBACION" => "EN ESPERA APROBACIÓN",
+                    "REVCOMPLETA" => "REVISIÓN COMPLETA",
+                    "ESPERAWMS" => "EN PROCESO WMS",
+                    "RESTRICCION" => "RESTRICCIÓN",
+                    "FINALIZADO" => "FACTURADO",
+                    "RECHAZADO" => "RECHAZADO",
+                    "APROBADO" => "APROBADO",
+                    "RESPALDO" => "RESPALDO PEDIDO",
+                    "False" => "-",
+                    "false" => "-",
+                    _ => free_order_state
                 };
 
         [Ignore]

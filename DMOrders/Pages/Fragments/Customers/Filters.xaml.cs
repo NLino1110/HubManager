@@ -1,4 +1,7 @@
-﻿using DMOrders.Models.Filters;
+﻿using CommunityToolkit.Maui.Alerts;
+using DMOrders.Controls.Tools;
+using DMOrders.Models.Filters;
+using DMOrders.Services.PatchManager.Reset;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Sales;
 using DMSA.Sync.Core.Database.Sqlite;
@@ -101,6 +104,55 @@ public partial class Filters : ContentView
     private void Button_Clicked(object sender, EventArgs e)
     {
         OnSearchButtonClicked?.Invoke(this, EventArgs.Empty);
+    }
+
+    private async void btnClearPartners_Clicked(object sender, EventArgs e)
+    {
+        var page = Application.Current?.Windows?[0]?.Page
+            ?? Application.Current?.MainPage;
+
+        if (page == null)
+            return;
+
+        bool confirm = await page.DisplayAlertAsync(
+            "⚠️ Vaciar personas locales",
+            "Se eliminarán de la tablet: clientes, direcciones y cuentas bancarias locales.\n\n" +
+            "No se borran pedidos ni catálogo.\n\n" +
+            "Después deberá sincronizar de nuevo (Personas / Clientes).",
+            "Vaciar",
+            "Cancelar");
+
+        if (!confirm)
+            return;
+
+        btnClearPartners.IsEnabled = false;
+
+        try
+        {
+            if (page is ContentPage contentPage)
+            {
+                await UITools.ShowLoadingPopup(contentPage);
+                await UITools.SetNotifyLoadingPopup("Vaciando personas...");
+            }
+
+            await Task.Yield();
+            await new ExecuteTask().ClearPartnersSyncDataAsync();
+
+            btnClear_Clicked(sender, e);
+            OnSearchButtonClicked?.Invoke(this, EventArgs.Empty);
+
+            await Toast.Make("Personas locales vaciadas. Sincronice de nuevo para traer datos.").Show();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"btnClearPartners: {ex}");
+            await page.DisplayAlertAsync("Error", "No se pudo vaciar las personas.\n\n" + ex.Message, "Aceptar");
+        }
+        finally
+        {
+            await UITools.HideLoadingPopup();
+            btnClearPartners.IsEnabled = true;
+        }
     }
 
     private void btnClear_Clicked(object sender, EventArgs e)

@@ -178,6 +178,8 @@ public partial class Login : ContentPage
         Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0, 10));
         
         lblAppVersion.Text = "Versión " + App.Session.AppVersion;
+        await RefreshLastSyncLabelAsync();
+        RefreshAppUpdateDateLabel();
 
         if (App.Session.useOfflineMode)
         {
@@ -368,13 +370,20 @@ public partial class Login : ContentPage
         itemInsert.companies = Newtonsoft.Json.JsonConvert.SerializeObject(resultValidacion.data[0].companies);
 
         var foundUser = await database.GetItemAsync(resultUser.uid);
-        if (foundUser == null)
+        if (foundUser != null)
         {
-            await database.InsertAsync(itemInsert);
+            // Conservar fechas de sincronización locales (no vienen del login online)
+            itemInsert.log_fec_sincro = foundUser.log_fec_sincro;
+            itemInsert.log_fec_sincro_nc = foundUser.log_fec_sincro_nc;
+            resultUser.log_fec_sincro = foundUser.log_fec_sincro;
+            resultUser.log_fec_sincro_nc = foundUser.log_fec_sincro_nc;
+            App.Session.CurrentUserFront.log_fec_sincro = foundUser.log_fec_sincro;
+            App.Session.CurrentUserFront.log_fec_sincro_nc = foundUser.log_fec_sincro_nc;
+            await database.UpdateAsync(itemInsert);
         }
         else
         {
-            await database.UpdateAsync(itemInsert);
+            await database.InsertAsync(itemInsert);
         }
 
         return true;
@@ -625,6 +634,7 @@ public partial class Login : ContentPage
 
                 LoginSelector.IsVisible = false;
                 CompanySelector.IsVisible = true;
+                await RefreshLastSyncLabelAsync();
             }
             else
             {
@@ -765,10 +775,11 @@ public partial class Login : ContentPage
             }            
 
             // Configuración post-login
-            if (resultUser?.uid > 0)
+            if (resultUser?.uid > 0)    
             {
                 LoginSelector.IsVisible = false;
-                CompanySelector.IsVisible = true;                            
+                CompanySelector.IsVisible = true;
+                await RefreshLastSyncLabelAsync();
             }
             else
             {
@@ -874,6 +885,7 @@ public partial class Login : ContentPage
             chkRememberme.IsChecked = rememberMe;
             txtUser.Text = LoadedSession.CurrentUserFront?.username ?? string.Empty;
             txtPassword.Text = LoadedSession.CurrentUserFront != null ? CryptoHelper.Decrypt(LoadedSession.CurrentUserFront.password) : string.Empty;
+            _ = RefreshLastSyncLabelAsync(LoadedSession);
 
             if (!autologin)
             {
@@ -887,6 +899,98 @@ public partial class Login : ContentPage
         {
             Preferences.Remove("App.Session");
             App.Session = null;
+        }
+    }
+
+    private async Task RefreshLastSyncLabelAsync(AppSession session = null)
+    {
+        try
+        {
+            var syncDate = DateTime.MinValue;
+
+            // 1) Sesión en memoria (solo si la fecha es válida)
+            var source = session ?? App.Session;
+            if (source?.CurrentUserFront != null && source.CurrentUserFront.log_fec_sincro.Year > 2000)
+                syncDate = source.CurrentUserFront.log_fec_sincro;
+
+            // 2) Preference dedicada (sobrevive ClearSession / login online)
+            if (syncDate.Year <= 2000)
+            {
+                var raw = Preferences.Get("last_log_fec_sincro", string.Empty);
+                if (!string.IsNullOrEmpty(raw) && DateTime.TryParse(raw, out var prefDate) && prefDate.Year > 2000)
+                    syncDate = prefDate;
+            }
+
+            // 3) Sesión guardada (Recordarme)
+            if (syncDate.Year <= 2000)
+            {
+                var appSession = Preferences.Get("App.Session", string.Empty);
+                if (!string.IsNullOrEmpty(appSession))
+                {
+                    var loaded = JsonConvert.DeserializeObject<AppSession>(appSession);
+                    if (loaded?.CurrentUserFront != null && loaded.CurrentUserFront.log_fec_sincro.Year > 2000)
+                        syncDate = loaded.CurrentUserFront.log_fec_sincro;
+                }
+            }
+
+            // 4) SQLite local
+            if (syncDate.Year <= 2000 && App.Session?.odooConnection != null
+                && !string.IsNullOrWhiteSpace(App.Session.odooConnection.DbNameSqlite))
+            {
+                var userDb = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
+                user_access found = null;
+
+                if (source?.CurrentUserFront?.uid > 0)
+                    found = await userDb.GetItemAsync(source.CurrentUserFront.uid);
+
+                if (found == null && !string.IsNullOrWhiteSpace(txtUser?.Text))
+                {
+                    var userName = txtUser.Text.Trim();
+                    var users = await userDb.GetItemsAsync();
+                    found = users?.FirstOrDefault(u => u.username == userName);
+                }
+
+                if (found == null)
+                {
+                    var users = await userDb.GetItemsAsync();
+                    found = users?
+                        .Where(u => u.log_fec_sincro.Year > 2000)
+                        .OrderByDescending(u => u.log_fec_sincro)
+                        .FirstOrDefault();
+                }
+
+                if (found != null && found.log_fec_sincro.Year > 2000)
+                    syncDate = found.log_fec_sincro;
+            }
+
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                lblLastSync.Text = syncDate.Year > 2000
+                    ? "Ult. sincronizacion: " + syncDate.ToString("dd/MM/yyyy HH:mm")
+                    : "Ult. sincronizacion: -";
+            });
+        }
+        catch
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                lblLastSync.Text = "Ult. sincronizacion: -";
+            });
+        }
+    }
+
+    private void RefreshAppUpdateDateLabel()
+    {
+        try
+        {
+            var updateDate = AppTools.GetAppInstallOrUpdateDate();
+            lblAppUpdateDate.Text = updateDate.HasValue && updateDate.Value.Year > 2000
+                ? "Actualizacion APK: " + updateDate.Value.ToString("dd/MM/yyyy HH:mm")
+                : "Actualizacion APK: -";
+        }
+        catch
+        {
+            lblAppUpdateDate.Text = "Actualizacion APK: -";
         }
     }
 
@@ -944,6 +1048,7 @@ public partial class Login : ContentPage
         {
             // Esto ocurre cada vez que vuelvas a la página
             Console.WriteLine("La página ya apareció antes.");
+            _ = RefreshLastSyncLabelAsync();
         }        
     }
 

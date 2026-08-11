@@ -1,7 +1,9 @@
-﻿using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Alerts;
 using DMOrders.Services.Promotions;
+using DMSA.Models.Odoo.Abstract;
 using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Promotions;
 using DMSA.Models.Odoo.Sales.promotions.abstractCustom;
 using DMSA.Sync.Core.Database.Sqlite;
 using Microsoft.Maui.Controls.Shapes;
@@ -13,6 +15,62 @@ namespace DMOrders.Pages.Fragments.Orders.modals;
 
 public partial class PromocionesViewer
 {
+    private PromoRuleItem? ResolvePromoRuleItem(PromoRuleMatch ruleMatch)
+    {
+        if (ruleMatch == null)
+            return null;
+
+        var fromList = _ItemsDataBenefitsRules?
+            .FirstOrDefault(r => r != null && r.id == ruleMatch.id);
+
+        if (fromList != null)
+            return fromList;
+
+        if (selectedPromoEvalItem != null)
+        {
+            try
+            {
+                return Tools.FromBenefitRule(selectedPromoEvalItem, ruleMatch, SaleOrder);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"ResolvePromoRuleItem: {ex.Message}");
+            }
+        }
+
+        return null;
+    }
+
+    private async Task ApplyPendingDiscountsAsync()
+    {
+        if (promoDiscounts == null || promoDiscounts.Count == 0 || SaleOrder == null)
+            return;
+
+        foreach (var ruleMatch in promoDiscounts.Where(r => r != null && r.IsDiscount && r.discount > 0))
+        {
+            if (!await ValidateDiscountRuleAsync(ruleMatch))
+                continue;
+
+            await ApplyDiscountRule(SaleOrder, ruleMatch);
+        }
+    }
+
+    private async Task<bool> ValidateDiscountRuleAsync(PromoRuleMatch rule)
+    {
+        if (rule.discount > rule.discount_base || rule.discount < 0)
+        {
+            rule.discount = 0;
+            await App.Current.Windows[0].Page.DisplayAlertAsync(
+                "⚠️ Confirmación requerida",
+                "El descuento ingresado supera el máximo permitido (" + rule.discount_base + "%) o es inválido.\n\nSe restableció a 0. Ingrese un valor válido e intente de nuevo.",
+                "Aceptar");
+            OnPropertyChanged(nameof(promoDiscounts));
+            return false;
+        }
+
+        return true;
+    }
+
     private async Task ApplyDiscountRule(sale_order saleOrder, PromoRuleMatch ruleMatch)
     {
         PromotionEngineRunner promotionEngineRunner = new PromotionEngineRunner();
@@ -71,22 +129,26 @@ public partial class PromocionesViewer
 
                     lineToDiscount.virtual_line_subtotal = virtual_price_no_tax * lineToDiscount.product_uom_qty_real;
 
-                    //foreach (var promoItem in listPromotionData)
-                    //{
-                    //    foreach (var rulesInside in promoItem.RuleSet)
-                    //    {
-                    //        if (rulesInside.id == ruleMatch.id)
-                    //        {
-                    //            rulesInside.discount = ruleMatch.discount;
-                    //            break;
-                    //        }
-                    //    }
-                    //}
+                    var ruleItem = ResolvePromoRuleItem(ruleMatch);
+                    if (ruleItem == null)
+                    {
+                        Debug.WriteLine($"ApplyDiscountRule: no se encontró regla {ruleMatch.id}");
+                        continue;
+                    }
 
-                    PromoRuleItem ruleItem = null;
+                    if (saleOrderPromotions != null
+                        && await promotionEngineRunner.CanApplyPromotion(saleOrder, ruleItem, saleOrderPromotions))
+                    {
+                        await promotionEngineRunner.AddApplyPromotion(saleOrder, ruleItem, 1, saleOrderPromotions);
+                    }
 
-                    lineToDiscount.promotion_data = JsonConvert.SerializeObject(new List<PromoRuleItem>() { ruleItem });
-                    Debug.WriteLine($"Descuento aplicado: {discountPercentage}% al producto ID {productTemplateId}");
+                    DMSA.Models.Odoo.Promotions.Tools.SetPromotionData(
+                        lineToDiscount, new List<PromoRuleItem> { ruleItem });
+
+                    lineToDiscount.origin_gift_line_ids_offline = JsonConvert.SerializeObject(
+                        ruleMatch.ProductSequenceApplyList ?? new List<OriginPromoOrderLine>());
+
+                    Debug.WriteLine($"Descuento aplicado: {discountPercentage}% (${discountAmount:N2}) al producto tmpl {productTemplateId}");
                 }
             }
         }
@@ -803,6 +865,8 @@ public partial class PromocionesViewer
                         )
                     };
 
+                    DMSA.Models.Odoo.Promotions.Tools.SetPromotionData(line,
+                        new List<PromoRuleItem> { promoRuleItem });
                     DMSA.Models.Odoo.Promotions.Tools.SetPromotionDataGift(line,
                         new List<PromoRuleItem> { promoRuleItem });
 

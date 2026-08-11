@@ -142,6 +142,9 @@ public partial class PromocionesViewer
 
                 EditQty = true;
 
+                // Recalcular aplicados de esta selección (evitar acumular al reabrir/cambiar promo)
+                int appliedForThisPromo = 0;
+
                 foreach (var detail in itemEval.Promotion._product_details_promotion_ids)
                 {
                     var swLookup = Stopwatch.StartNew();
@@ -166,7 +169,7 @@ public partial class PromocionesViewer
                             int lineQty = (int)line.product_uom_qty_real;
 
                             qty += lineQty;
-                            GlobalTotalManualGiftsApplied += lineQty;
+                            appliedForThisPromo += lineQty;
 
                             if (realAppliedSet.Add(line))
                                 realApplied.Add(line);
@@ -184,6 +187,8 @@ public partial class PromocionesViewer
                     if (existingCodes.Add(prod.default_code))
                         promoGifts.Add(prod);
                 }
+
+                GlobalTotalManualGiftsApplied = appliedForThisPromo;
 
                 swTotal.Stop();
 

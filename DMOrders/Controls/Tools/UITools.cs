@@ -110,27 +110,44 @@ namespace DMOrders.Controls.Tools
 
         public static async Task HideLoadingPopup()
         {
-            if (!_isShowing || simplePopup == null)
+            var popup = simplePopup;
+            _isShowing = false;
+            simplePopup = null;
+
+            if (popup == null)
                 return;
 
             try
             {
-                await simplePopup.CloseAsync();
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    try
+                    {
+                        await popup.CloseAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"HideLoadingPopup CloseAsync: {ex.Message}");
+                    }
+                });
             }
-            catch
+            catch (Exception ex)
             {
-                // evita crash si ya se cerró
-                Debug.WriteLine("Error indeterminado en HideLoadingPopup");
-            }
-            finally
-            {
-                _isShowing = false;
-                simplePopup = null;
+                Debug.WriteLine($"HideLoadingPopup: {ex.Message}");
             }
         }
 
+        /// <summary>
+        /// Actualiza el texto del popup de loading.
+        /// ANTES: simplePopup.SetNotify sin validar → NullReferenceException si el popup
+        ///   no estaba creado o ya se había cerrado (HideLoading deja simplePopup = null).
+        /// DESPUÉS: return si simplePopup es null.
+        /// </summary>
         public static async Task SetNotifyLoadingPopup(string newNotify)
         {
+            if (simplePopup == null)
+                return;
+
             simplePopup.SetNotify(newNotify);
         }
     }

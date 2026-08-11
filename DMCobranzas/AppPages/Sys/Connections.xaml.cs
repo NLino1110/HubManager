@@ -74,7 +74,7 @@ public partial class Connections : TabbedPage
             {
                 if (resultPopup.Result.Password != pin_code)
                 {
-                    await Toast.Make("Pin incorrecto, no se eliminar� la tabla").Show();
+                    await Toast.Make("Pin incorrecto, no se eliminará la tabla").Show();
                     return;
                 }
                 else
@@ -201,7 +201,7 @@ public partial class Connections : TabbedPage
         {
             if (resultPopup.Result.Password != pin_code)
             {
-                await Toast.Make("Pin incorrecto, no se guardar�n cambios").Show();
+                await Toast.Make("Pin incorrecto, no se guardarán cambios").Show();
                 return;
             }            
         }

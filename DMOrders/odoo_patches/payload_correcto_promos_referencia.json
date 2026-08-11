@@ -1,0 +1,224 @@
+{
+  "_meta": {
+    "titulo": "Payload de referencia — promociones (caso PYUNKANG + SATINE)",
+    "pedido": "M002-QL28072026 / external_guid 0d2759b5a080446db56dfcc262f0052d",
+    "fecha": "2026-07-28",
+    "imagen_incorrecta": "Regla con PROMO0311-001 repetida 2–3 veces; BAG qty 15 y 81664 qty 3 (×3); Origin Gift duplicado igual",
+    "imagen_correcta": "Padres con PROMO0310 + PROMO0311 (una vez c/u); BAG qty 5 y 81664 qty 1; Origin Gift = 2 padres distintos (82067 y 80353)",
+    "causa_raiz": "En Odoo, crear una wizard-line / gift-cmd POR CADA origen multiplica promo en padres y cantidad en regalos. Debe ser 1 entrada por (promo, regla) con TODOS los origin_ids en lines_ids, y 1 gift-cmd por producto regalo con qty única."
+  },
+  "comparacion_web": {
+    "incorrecto_imagen_1": {
+      "linea_2_82067_regla": ["PROMO0310-001", "PROMO0311-001", "PROMO0311-001"],
+      "linea_3_80353_regla": ["PROMO0310-001", "PROMO0311-001", "PROMO0311-001"],
+      "BAG-PKY-01": { "qty": 15, "nota": "debería ser 5 (×3)" },
+      "81664": { "qty": 3, "nota": "debería ser 1 (×3)" }
+    },
+    "correcto_imagen_2": {
+      "linea_1_SA-600": { "promo": ["PROMO0278"], "qty": 20 },
+      "linea_2_82067": { "promo": ["PROMO0310", "PROMO0311"], "qty": 20, "desc_pct": 10 },
+      "linea_3_80353": { "promo": ["PROMO0310", "PROMO0311"], "qty": 20, "desc_pct": 10 },
+      "SA-080": { "qty": 3, "origin": ["SA-600"] },
+      "SA-007": { "qty": 3, "origin": ["SA-600"] },
+      "BAG-PKY-01": { "qty": 5, "origin": ["82067", "80353"] },
+      "81664": { "qty": 1, "origin": ["82067", "80353"] }
+    }
+  },
+  "data": {
+    "promo_data": "",
+    "sale_order": {
+      "id": 2,
+      "id_referencia": "M002-QL28072026",
+      "external_guid": "0d2759b5a080446db56dfcc262f0052d",
+      "state": "draft",
+      "mobile_sync": true,
+      "_partner_id": 20894,
+      "_center_id": 49,
+      "_company_id": 1,
+      "_pricelist_id": 38,
+      "_warehouse_id": 136,
+      "sale_channel": 8,
+      "partner_sale_id": 237,
+      "external_create_uid": 236,
+      "promotion_ids": [1464, 1465, 1429],
+      "amount_untaxed": 531.47826,
+      "amount_tax": 79.7217,
+      "amount_total": 611.19996,
+      "order_line": [
+        {
+          "_comentario": "SA-600 — padre SATINE / PROMO0278",
+          "sequence": 1,
+          "product_id": 3372,
+          "product_tmpl_id": 3405,
+          "is_gift": false,
+          "is_manual": false,
+          "product_uom_qty": 20.0,
+          "discount": 0.0,
+          "promotion_ids": [1429],
+          "rule_ids": [4211],
+          "origin_gift_line_ids_offline": null
+        },
+        {
+          "_comentario": "82067 moisture — descuento PROMO0310 (1464). origin offline = SOLO esta línea",
+          "sequence": 2,
+          "product_id": 55256,
+          "product_tmpl_id": 55156,
+          "is_gift": false,
+          "is_manual": false,
+          "product_uom_qty": 20.0,
+          "discount": 10.0,
+          "amount_discount": 25.0434782,
+          "promotion_ids": [1464],
+          "rule_ids": [4318],
+          "origin_gift_line_ids_offline": [
+            {
+              "sequence": 2,
+              "product_id": 55256,
+              "product_tmpl_id": 55156,
+              "rule_id": 4318,
+              "promo_id": 1464,
+              "total_allowed_gifts": 0
+            }
+          ]
+        },
+        {
+          "_comentario": "80353 toner — descuento PROMO0310 (1464). origin offline = SOLO esta línea",
+          "sequence": 3,
+          "product_id": 55314,
+          "product_tmpl_id": 55214,
+          "is_gift": false,
+          "is_manual": false,
+          "product_uom_qty": 20.0,
+          "discount": 10.0,
+          "amount_discount": 22.5391304,
+          "promotion_ids": [1464],
+          "rule_ids": [4318],
+          "origin_gift_line_ids_offline": [
+            {
+              "sequence": 3,
+              "product_id": 55314,
+              "product_tmpl_id": 55214,
+              "rule_id": 4318,
+              "promo_id": 1464,
+              "total_allowed_gifts": 0
+            }
+          ]
+        },
+        {
+          "_comentario": "BAG-PKY-01 — regalo auto PROMO0311 regla 4323. qty=5 UNA vez. origins=ambos padres (correcto, 2 tags distintos)",
+          "sequence": 4,
+          "product_id": 55335,
+          "product_tmpl_id": 55235,
+          "is_gift": true,
+          "is_manual": false,
+          "product_uom_qty": 5.0,
+          "discount": 100.0,
+          "promotion_ids": [1465],
+          "rule_ids": [4323],
+          "origin_gift_line_ids_offline": [
+            {
+              "sequence": 2,
+              "product_id": 55256,
+              "product_tmpl_id": 55156,
+              "rule_id": 4323,
+              "promo_id": 1465,
+              "total_allowed_gifts": 5
+            },
+            {
+              "sequence": 3,
+              "product_id": 55314,
+              "product_tmpl_id": 55214,
+              "rule_id": 4323,
+              "promo_id": 1465,
+              "total_allowed_gifts": 5
+            }
+          ]
+        },
+        {
+          "_comentario": "81664 cleanser — regalo auto PROMO0311 regla 4324. qty=1 UNA vez. origins=ambos padres",
+          "sequence": 5,
+          "product_id": 54959,
+          "product_tmpl_id": 54859,
+          "is_gift": true,
+          "is_manual": false,
+          "product_uom_qty": 1.0,
+          "discount": 100.0,
+          "promotion_ids": [1465],
+          "rule_ids": [4324],
+          "origin_gift_line_ids_offline": [
+            {
+              "sequence": 2,
+              "product_id": 55256,
+              "product_tmpl_id": 55156,
+              "rule_id": 4324,
+              "promo_id": 1465,
+              "total_allowed_gifts": 1
+            },
+            {
+              "sequence": 3,
+              "product_id": 55314,
+              "product_tmpl_id": 55214,
+              "rule_id": 4324,
+              "promo_id": 1465,
+              "total_allowed_gifts": 1
+            }
+          ]
+        },
+        {
+          "_comentario": "SA-080 — regalo manual PROMO0278. origin=SA-600",
+          "sequence": 6,
+          "product_id": 54644,
+          "product_tmpl_id": 54544,
+          "is_gift": true,
+          "is_manual": true,
+          "product_uom_qty": 3.0,
+          "discount": 100.0,
+          "product_id_origin": 3372,
+          "promotion_ids": [1429],
+          "rule_ids": [4211],
+          "origin_gift_line_ids_offline": [
+            {
+              "sequence": 1,
+              "product_id": 3372,
+              "product_tmpl_id": 3405,
+              "rule_id": 4211,
+              "promo_id": 1429,
+              "total_allowed_gifts": 6
+            }
+          ]
+        },
+        {
+          "_comentario": "SA-007 — regalo manual PROMO0278. origin=SA-600",
+          "sequence": 7,
+          "product_id": 3313,
+          "product_tmpl_id": 3346,
+          "is_gift": true,
+          "is_manual": true,
+          "product_uom_qty": 3.0,
+          "discount": 100.0,
+          "product_id_origin": 3372,
+          "promotion_ids": [1429],
+          "rule_ids": [4211],
+          "origin_gift_line_ids_offline": [
+            {
+              "sequence": 1,
+              "product_id": 3372,
+              "product_tmpl_id": 3405,
+              "rule_id": 4211,
+              "promo_id": 1429,
+              "total_allowed_gifts": 6
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "version": 1,
+  "timestamp": "2026-07-28 15:17:48",
+  "reglas_para_odoo": [
+    "Descuento: origen = (product_id, sequence) de ESA línea; no mezclar padres del JSON.",
+    "Regalo wizard: key = (promo_id, rule_id); lines_ids = TODOS los padres; NO una key por padre.",
+    "Gift cmd: UNO por producto regalo (product_tmpl_id + promo + rule); qty una vez; lines_ids = todos los padres.",
+    "Si se crea 1 gift-cmd por cada origen con qty=5 → en web BAG sale 10 o 15 y Origin/Regla se duplican."
+  ]
+}

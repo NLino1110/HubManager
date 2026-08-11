@@ -160,37 +160,33 @@ namespace DMOrders.Pages.Fragments.Orders
 
             try
             {
+                var hostPage = Application.Current?.Windows[0]?.Page as ContentPage
+                    ?? Application.Current?.MainPage as ContentPage;
+
+                if (hostPage != null)
+                {
+                    await UITools.ShowLoadingPopup(hostPage);
+                    await UITools.SetNotifyLoadingPopup("Cargando datos...");
+                }
+
+                await Task.Yield();
+
                 var viewObj = new Crud();
                 viewObj.CurrentSaleOrder = (sale_order)obj;
                 viewObj.CurrentCompany = App.Session.res_Company;
-                int resultCrud = await viewObj.PrepareForm();
+                int resultCrud = await viewObj.PrepareForm(showLoadingPopup: false);
                 
-                viewObj.Unloaded += (sender, e) =>
+                viewObj.Unloaded += async (sender, e) =>
                 {
+                    // Por si quedó un popup huérfano al volver al listado.
+                    await UITools.HideLoadingPopup();
                     _isNavigating = false;
                     ((ListViewModel)this.BindingContext).LoadData();
                 };
 
-                //if (resultCrud == 1)
-                //{
-                //    var page = Application.Current?.MainPage;
-                //    if (page != null)
-                //        await page.DisplayAlert("Alerta",
-                //                        "El cliente no tiene lista de precio asignada, no se puede continuar",
-                //                        "Aceptar");
-                //}
-
-                //if (resultCrud == 2)
-                //{
-                //    var page = Application.Current?.MainPage;
-                //    if (page != null)
-                //        await page.DisplayAlert("Alerta",
-                //                        "El cliente no tiene lista de direcciones asignadas, no se puede continuar",
-                //                        "Aceptar");
-                //}
-
                 if (resultCrud == 3)
                 {
+                    await UITools.HideLoadingPopup();
                     viewObj = null;
                     _isNavigating = false;
                     var page = Application.Current?.MainPage;
@@ -199,27 +195,22 @@ namespace DMOrders.Pages.Fragments.Orders
                                         "El dato del cliente no fue encontrado, por favor actualice los datos",
                                         "Aceptar");
                     return;
-                    
                 }
 
+                // Cerrar "Cargando datos..." ANTES del PushModal.
+                // Si se cierra después, el popup queda en MainPage bajo el modal
+                // y al regresar a pedidos sigue visible.
+                await UITools.HideLoadingPopup();
                 await Navigation.PushModalAsync(viewObj, false);
-
-                //if (resultCrud == 0)
-                //{
-                //    viewObj.Unloaded += (sender, e) =>
-                //    {
-                //        button.IsEnabled = true;
-                //        _isProcessing = false;
-
-                //    };
-
-                //    await Navigation.PushModalAsync(viewObj, false);
-                //}
-
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"EditItem: {ex}");
+                _isNavigating = false;
             }
             finally
             {
-                //_isNavigating = false;
+                await UITools.HideLoadingPopup();
             }
         }
 

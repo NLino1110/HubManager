@@ -263,6 +263,12 @@ namespace DMSA.Models.Odoo.Native
             }
         }
 
+        /// <summary>
+        /// Reglas de promo deserializadas desde promotion_data.
+        /// ANTES: Deserialize podía devolver null o lista con elementos null →
+        ///   NRE en Exists/Add al preparar descuentos (PrepareDiscount).
+        /// DESPUÉS: nunca null; filtra elementos null; catch → lista vacía.
+        /// </summary>
         [Ignore]
         [JsonIgnore]
         public List<PromoRuleItem> promotionRules
@@ -275,6 +281,8 @@ namespace DMSA.Models.Odoo.Native
                 try
                 {
                     return JsonConvert.DeserializeObject<List<PromoRuleItem>>(promotion_data)
+                           ?.Where(x => x != null)
+                           .ToList()
                            ?? new List<PromoRuleItem>();
                 }
                 catch

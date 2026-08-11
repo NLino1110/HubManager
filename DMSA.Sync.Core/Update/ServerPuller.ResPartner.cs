@@ -1,4 +1,4 @@
-﻿using ApiManager;
+using ApiManager;
 using ApiManagerOdoo.Accounting;
 using DMSA.Models.General.Requests;
 using DMSA.Models.Odoo.Accounting;
@@ -153,10 +153,6 @@ namespace DMSA.Sync.Core.Update
                         {
                             await database.InsertBatchAsync(responseChild.result);
                         }
-                        //foreach (var child_id in _childs_ids)
-                        //{
-
-                        //}
                     }
                 }
 

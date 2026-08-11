@@ -15,15 +15,10 @@ public partial class PromocionesViewer
 
     private async void OnApplyButtonClicked(object sender, EventArgs e)
     {
-        if (GlobalTotalManualGiftsApplied < GlobalTotalManualGiftsAllowed)
-        {
-            var leave = await App.Current.Windows[0].Page.DisplayAlertAsync($"¿Desea continuar?", $"No se han aplicado todos los {GlobalTotalManualGiftsAllowed} regalos de los bonificados manuales", "Si", "No");
+        if (!await ConfirmIncompleteManualGiftsIfNeeded())
+            return;
 
-            if (!leave)
-            {
-                return;
-            }
-        }
+        await ApplyPendingDiscountsAsync();
 
         var resultPopup = new PromoResultPopup();
         resultPopup.benefits = ItemsData.ToList();
@@ -34,21 +29,89 @@ public partial class PromocionesViewer
 
     private async void OnApplyAndContinueButtonClicked(object sender, EventArgs e)
     {
-        if (GlobalTotalManualGiftsApplied < GlobalTotalManualGiftsAllowed)
-        {
-            var leave = await App.Current.Windows[0].Page.DisplayAlertAsync($"¿Desea continuar?", $"No se han aplicado todos los {GlobalTotalManualGiftsAllowed} regalos de los bonificados manuales", "Si", "No");
+        if (!await ConfirmIncompleteManualGiftsIfNeeded())
+            return;
 
-            if (!leave)
-            {
-                return;
-            }
-        }
+        await ApplyPendingDiscountsAsync();
 
         var resultPopup = new PromoResultPopup();
         resultPopup.benefits = ItemsData.ToList();
         resultPopup.manualGifts = wholeRealApplied?.ToList() ?? new List<sale_order_line>();
         resultPopup.ActionResult = 2;
         ClosePopupAction?.Invoke(resultPopup);
+    }
+
+    /// <summary>
+    /// Solo advierte regalos incompletos si la promo seleccionada es regalo manual.
+    /// Evita el falso aviso al aplicar solo descuentos.
+    /// </summary>
+    private async Task<bool> ConfirmIncompleteManualGiftsIfNeeded()
+    {
+        var selected = selectedPromoRuleEvalItem;
+        bool isManualGiftSelected = selected != null
+            && selected.promotion_type_id == 2
+            && selected.selection_type_id == 2;
+
+        // Descuento u otra promo: no exigir cupo global de regalos
+        if (selected != null && !isManualGiftSelected)
+            return true;
+
+        if (!isManualGiftSelected)
+        {
+            bool anyManualGift = _ItemsDataBenefitsRules?.Any(b =>
+                b.promotion_type_id == 2 && b.selection_type_id == 2) == true;
+
+            if (!anyManualGift || GlobalTotalManualGiftsAllowed <= 0)
+                return true;
+
+            // Sin selección de regalo y sin nada aplicado: no bloquear
+            if (GlobalTotalManualGiftsApplied <= 0
+                && (promoGifts == null || promoGifts.Sum(p => p.qty_gift) <= 0))
+                return true;
+        }
+
+        int allowed = isManualGiftSelected
+            ? GetSelectedManualGiftAllowed()
+            : GlobalTotalManualGiftsAllowed;
+
+        int applied = isManualGiftSelected
+            ? (promoGifts?.Sum(p => p.qty_gift) ?? 0)
+            : Math.Max(GlobalTotalManualGiftsApplied, promoGifts?.Sum(p => p.qty_gift) ?? 0);
+
+        if (allowed > 0 && applied < allowed)
+        {
+            var leave = await App.Current.Windows[0].Page.DisplayAlertAsync(
+                "¿Desea continuar?",
+                $"No se han aplicado todos los {allowed} regalos de los bonificados manuales (aplicados: {applied}).",
+                "Si",
+                "No");
+
+            return leave;
+        }
+
+        return true;
+    }
+
+    private int GetSelectedManualGiftAllowed()
+    {
+        if (selectedPromoRuleEvalItem == null)
+            return GlobalTotalManualGiftsAllowed;
+
+        var benefit = _itemsFullPromos?
+            .Where(p => p.Items != null)
+            .SelectMany(p => p.Items)
+            .FirstOrDefault(b =>
+                b.Promotion != null
+                && b.Promotion.id == selectedPromoRuleEvalItem.promo_id
+                && b.Promotion._promotion_type_id == 2
+                && b.Promotion._selection_type_id == 2);
+
+        if (benefit != null && benefit.MaxAllowedGifts > 0)
+            return benefit.MaxAllowedGifts;
+
+        return selectedPromoRuleEvalItem.AllowedGifts > 0
+            ? selectedPromoRuleEvalItem.AllowedGifts
+            : GlobalTotalManualGiftsAllowed;
     }
 
 
@@ -118,8 +181,11 @@ public partial class PromocionesViewer
     {
         if (rule.discount > rule.discount_base || rule.discount < 0)
         {
-            rule.discount = rule.discount_base;
-            await Toast.Make("El descuento no puede ser mayor a " + rule.discount_base + " ni negativo").Show();
+            rule.discount = 0;
+            await App.Current.Windows[0].Page.DisplayAlertAsync(
+                "⚠️ Confirmación requerida",
+                "El descuento ingresado supera el máximo permitido (" + rule.discount_base + "%) o es inválido.\n\nSe restableció a 0. Ingrese un valor válido e intente de nuevo.",
+                "Aceptar");
 
             OnPropertyChanged(nameof(promoDiscounts));
             return false;

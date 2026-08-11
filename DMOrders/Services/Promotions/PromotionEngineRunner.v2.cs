@@ -30,14 +30,21 @@ namespace DMOrders.Services.Promotions
             return fullProductTmplIds;
         }
 
+        /// <summary>
+        /// Indica si la promo/regla aún puede aplicarse al pedido.
+        /// ANTES: saleOrderPromotions.Any(...) sin null-check → NRE si la lista era null.
+        /// DESPUÉS: retorna false si order / promoRuleItem / lista son null; ignora ítems null.
+        /// </summary>
         public async Task<bool> CanApplyPromotion(
             sale_order order,
             PromoRuleItem promoRuleItem, 
             List<SaleOrderPromotions> saleOrderPromotions)
         {
-            if (promoRuleItem == null) return false;
+            if (promoRuleItem == null || order == null) return false;
+            if (saleOrderPromotions == null) return false;
 
             bool exists = saleOrderPromotions.Any(x =>
+                x != null &&
                 x.order_id == order.id &&
                 x.promotion_id == promoRuleItem.promo_id &&
                 x.promotion_centers == promoRuleItem.promo_pricelist_id &&

@@ -25,11 +25,30 @@ namespace DMSA.Sync.Core.Update
                 foreach(var orderItem in responseAll.result)
                 {
                     var orderForUpdate = await database.GetItemAsync(x=>x.erp_id == orderItem.id);
+                    if (orderForUpdate == null)
+                        continue;
+
+                    // Odoo a veces manda False (sin selección) → tratar como vacío.
+                    var etapa = orderItem.free_order_state;
+                    if (string.Equals(etapa, "False", StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(etapa, "false", StringComparison.OrdinalIgnoreCase))
+                        etapa = null;
+
+                    bool changed = false;
                     if (orderForUpdate.state != orderItem.state)
                     {
                         orderForUpdate.state = orderItem.state;
-                        await database.UpdateAsync(orderForUpdate);
+                        changed = true;
                     }
+
+                    if (!string.Equals(orderForUpdate.free_order_state, etapa, StringComparison.Ordinal))
+                    {
+                        orderForUpdate.free_order_state = etapa;
+                        changed = true;
+                    }
+
+                    if (changed)
+                        await database.UpdateAsync(orderForUpdate);
                 }
             }
             

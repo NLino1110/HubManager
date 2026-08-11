@@ -1,4 +1,4 @@
-﻿using ApiManager;
+using ApiManager;
 using ApiManagerOdoo.Accounting;
 using ApiManagerOdoo.Sale;
 using CommunityToolkit.Maui.Alerts;
@@ -69,6 +69,11 @@ namespace DMSA.Sync.Core.Update.Pusher
 
             var fullObject = JObject.Parse(json);
 
+            // Solo UI / solo lectura en sync de bajada: no enviar al create ni en external_payload
+            JObjectExtensions.RemoveProperty(fullObject, "state_view");
+            JObjectExtensions.RemoveProperty(fullObject, "free_order_state_view");
+            JObjectExtensions.RemoveProperty(fullObject, "free_order_state");
+
             JObjectExtensions.RemovePropertyFromOrderLineItems(fullObject, "_order_id");
             JObjectExtensions.RemovePropertyFromOrderLineItems(fullObject, "_product_uom_category_id");
             JObjectExtensions.RemovePropertyFromOrderLineItems(fullObject, "product_code");
@@ -107,6 +112,23 @@ namespace DMSA.Sync.Core.Update.Pusher
             sale_Order.order_line = orderLinesNotGifts;
         }
 
+        public void RemovePromoRulesData(ref sale_order saleOrder)
+        {
+            if (saleOrder?.order_line == null || !saleOrder.order_line.Any())
+                return;
+
+            foreach (var itemLine in saleOrder.order_line)
+            {
+                if (itemLine[2] is sale_order_line line)
+                {
+                    line.promotion_ids = [];
+                    line.promotion_ids_json = "[]";
+                    line.rule_ids = [];
+                    line.rule_ids_json = "[]";
+                }
+            }
+        }
+
         public async Task<bool> SendSaleOrder(sale_order sale_Order)
         {            
             SaleOrderDb saleOrderDb = new SaleOrderDb(Constants.Session.odooConnection.DbNameSqlite);
@@ -124,6 +146,7 @@ namespace DMSA.Sync.Core.Update.Pusher
             sale_Order.external_payload = dto;
 
             RemoveGiftLines(ref sale_Order);
+            RemovePromoRulesData(ref sale_Order);
 
             HubSaleOrder hubSaleOrder = new HubSaleOrder(Constants.Session);
             ApiResponseOdooRpcT<int> resultTask = await hubSaleOrder.Create(sale_Order, false);
@@ -295,14 +318,15 @@ namespace DMSA.Sync.Core.Update.Pusher
             return false;
         }
 
-        public async Task SendAllSaleOrders()
+        public async Task<List<string>> SendAllSaleOrders()
         {
+            var syncedLabels = new List<string>();
             var saleOrderLinesDb = new SaleOrderLineDb(Constants.Session.odooConnection.DbNameSqlite);
             SaleOrderDb saleOrderDb = new SaleOrderDb(Constants.Session.odooConnection.DbNameSqlite);
             var listOrders = await saleOrderDb.GetItemsAsync(Constants.Session.res_Company.id, false);
-            
-            if(listOrders == null || listOrders.Count == 0)
-                return;
+
+            if (listOrders == null || listOrders.Count == 0)
+                return syncedLabels;
 
             int totalItems = listOrders.Count;
             int itemIndex = 0;
@@ -315,24 +339,24 @@ namespace DMSA.Sync.Core.Update.Pusher
 
                 var orderLines = await saleOrderLinesDb.GetItemsAsync(item.id);
 
-                //var product_ids = orderLines.Select(ol => ol.product_id).Distinct().ToArray();
-                //var productsList = await new ProductProductDb(Constants.Session.odooConnection.DbNameSqlite).GetByProductsIdsLite(product_ids, 0);
-
                 foreach (var line in orderLines)
                 {
-                    //var product = productsList.FirstOrDefault(p => p.id == line.product_id);
-                    //if (product != null)
-                    //{
-                        //line.product_code = product.code;
-                        //line.product_display = product.name;
-                        //line.uom_category_display = product.uom_sale_display;                        
-                        item.order_line.Add(new OrderLineWrapper(line));
-                    //}
-                }                                        
-                
-                //obj.SetTitle($"Sincronizando pedidos ({itemIndex}/{totalItems})");
-                await SendSaleOrder(item);
-            }            
+                    item.order_line.Add(new OrderLineWrapper(line));
+                }
+
+                bool ok = await SendSaleOrder(item);
+                if (ok)
+                {
+                    var label = !string.IsNullOrWhiteSpace(item.erp_name)
+                        ? item.erp_name
+                        : item.id_referencia;
+                    if (string.IsNullOrWhiteSpace(label))
+                        label = $"id local {item.id} (erp {item.erp_id})";
+                    syncedLabels.Add(label);
+                }
+            }
+
+            return syncedLabels;
         }
 
         public async Task<int> CreateProjectTask(ProjectTask projectTask)

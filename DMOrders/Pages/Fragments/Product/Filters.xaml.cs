@@ -1,8 +1,11 @@
-﻿using CommunityToolkit.Maui.Extensions;
+﻿using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
 using DMOrders.Controls;
+using DMOrders.Controls.Tools;
 using DMOrders.Models.Filters;
 using DMOrders.Services.Database.Sqlite;
+using DMOrders.Services.PatchManager.Reset;
 using DMSA.Models.Odoo.Native;
 using DMSA.Sync.Core.Database.Sqlite;
 using Spinner.MAUI;
@@ -281,6 +284,58 @@ public partial class Filters : ContentView
     private void Button_Clicked(object sender, EventArgs e)
     {
         OnSearchButtonClicked?.Invoke(this, EventArgs.Empty);
+    }
+
+    private async void btnClearCatalog_Clicked(object sender, EventArgs e)
+    {
+        var page = Application.Current?.Windows?[0]?.Page
+            ?? Application.Current?.MainPage;
+
+        if (page == null)
+            return;
+
+        bool confirm = await page.DisplayAlertAsync(
+            "Vaciar catálogo local",
+            "Se eliminarán de la tablet: promociones, marcas, categorías, productos, precios, stock e imágenes.\n\n" +
+            "No se borran pedidos ni clientes.\n\n" +
+            "Después deberá sincronizar de nuevo (Promos / Marcas / Productos / Precios / Stock).",
+            "Vaciar",
+            "Cancelar");
+
+        if (!confirm)
+            return;
+
+        btnClearCatalog.IsEnabled = false;
+
+        try
+        {
+            if (page is ContentPage contentPage)
+            {
+                await UITools.ShowLoadingPopup(contentPage);
+                await UITools.SetNotifyLoadingPopup("Vaciando catálogo...");
+            }
+
+            await Task.Yield();
+            await new ExecuteTask().ClearCatalogSyncDataAsync();
+
+            await LoadTopMarcasAsync();
+            await LoadTopCategoriesAsync();
+            ClearFilters();
+
+            OnSearchButtonClicked?.Invoke(this, EventArgs.Empty);
+
+            await Toast.Make("Catálogo local vaciado. Sincronice de nuevo para traer datos.").Show();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"btnClearCatalog: {ex}");
+            await page.DisplayAlertAsync("Error", "No se pudo vaciar el catálogo.\n\n" + ex.Message, "Aceptar");
+        }
+        finally
+        {
+            await UITools.HideLoadingPopup();
+            btnClearCatalog.IsEnabled = true;
+        }
     }
 
     private void btnClear_Clicked(object sender, EventArgs e)

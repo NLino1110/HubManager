@@ -6,7 +6,10 @@ using DMOrders.Services.Helpers;
 using DMOrders.Services.Update;
 using DMSA.Models.Security;
 using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Update;
 using DMSA.Sync.Core.Update.Cloud;
+using System.Diagnostics;
+
 namespace DMOrders.Pages.Sys;
 
 public partial class UpdateData : ContentPage
@@ -18,7 +21,7 @@ public partial class UpdateData : ContentPage
     public UpdateData()
     {
         InitializeComponent();
-        lblUpdated.Text = "Ult. ActualizaciÛn: " + App.Session.CurrentUserFront.log_fec_sincro.ToString("dd/MM/yyyy HH:mm:ss");        
+        lblUpdated.Text = "Ult. Actualizaci√≥n: " + App.Session.CurrentUserFront.log_fec_sincro.ToString("dd/MM/yyyy HH:mm:ss");        
 
         if (!App.Session.odooConnection.IsProduction)
         {
@@ -83,7 +86,7 @@ public partial class UpdateData : ContentPage
     private async void DeleteTables(object sender, EventArgs e)
     {
         bool answer = await DisplayAlertAsync("Borrar los datos de cache?",
-            "Esto permitir· volver a leer los datos de cache en la actualizaciÛn, esto no afectar· la base de datos.",
+            "Esto permitir√° volver a leer los datos de cache en la actualizaci√≥n, esto no afectar√° la base de datos.",
             "Eliminar",
             "Cancelar");
         
@@ -117,7 +120,7 @@ public partial class UpdateData : ContentPage
     private async void UploadData(object sender, EventArgs e)
     {
         bool answer = await DisplayAlertAsync("Enviar datos al servidor?",
-            "Esto realizar· la sincronizaciÛn con el servidor (Odoo).",
+            "Esto realizar√° la sincronizaci√≥n con el servidor (Odoo).",
             "Sincronizar",
             "Cancelar");
         
@@ -138,7 +141,7 @@ public partial class UpdateData : ContentPage
 
         obj.SetTitle("Finalizado...");
 
-        await obj.DisplayAlertAsync("ActualizaciÛn", "ActualizaciÛn terminada", "Aceptar");
+        await obj.DisplayAlertAsync("Actualizaci√≥n", "Actualizaci√≥n terminada", "Aceptar");
 
         await Navigation.PopModalAsync();
 
@@ -148,7 +151,7 @@ public partial class UpdateData : ContentPage
 
     private async void LaunchUpdate(object sender, EventArgs e)
     {        
-        bool answer = await DisplayAlertAsync("Actualizar datos de la aplicaciÛn?", "Este proceso realiza una sincronizaciÛn de los datos hacia su dispositivo.", "Actualizar", "Cancelar");
+        bool answer = await DisplayAlertAsync("Actualizar datos de la aplicaci√≥n?", "Este proceso realiza una sincronizaci√≥n de los datos hacia su dispositivo.", "Actualizar", "Cancelar");
         
         if (!answer)
         {
@@ -167,7 +170,7 @@ public partial class UpdateData : ContentPage
 
         DateTime dateTimeIni = DateTime.Now;
 
-        string text = "Iniciando actualizaciÛn...";
+        string text = "Iniciando actualizaci√≥n...";
         ToastDuration duration = ToastDuration.Short;
         double fontSize = 14;
         var toast = Toast.Make(text, duration, fontSize);
@@ -190,7 +193,7 @@ public partial class UpdateData : ContentPage
             BoxViewServerStatusOdoo.Color = Colors.SaddleBrown;
             lblServerStatusOdoo.Text = "Servidor Odoo (x)";
 
-            await progressBarPage.DisplayAlertAsync("Error de actualizaciÛn", "El servidor de datos no est· disponible.", "Aceptar");
+            await progressBarPage.DisplayAlertAsync("Error de actualizaci√≥n", "El servidor de datos no est√° disponible.", "Aceptar");
             await Navigation.PopModalAsync();           
         }
         
@@ -205,7 +208,7 @@ public partial class UpdateData : ContentPage
         //////    if (packFound != null)
         //////    {
         //////        await SqliteDbBase<object>.CloseDatabaseAsync();
-        //////        progressBarPage.SetTitle("Iniciando actualizaciÛn r·pida...");
+        //////        progressBarPage.SetTitle("Iniciando actualizaci√≥n r√°pida...");
         //////        progressBarPage.SetTotalPercent(0.2);
                 
         //////        if(await pipeline.DownloadSqliteZip(true))
@@ -217,16 +220,20 @@ public partial class UpdateData : ContentPage
         //////            await Toast.Make("Hubo un error al descargar/descomprimir archivo.", duration, fontSize).Show();
         //////        }
 
-        //////        await Toast.Make("ActualizaciÛn r·pida terminada", duration, fontSize).Show();
+        //////        await Toast.Make("Actualizaci√≥n r√°pida terminada", duration, fontSize).Show();
 
         //////        var databaseUserAccess = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
         //////        await databaseUserAccess.FixMissingCurrentUser();
         //////    }
         //////}
 
-        progressBarPage.SetTitle("ActualizaciÛn en lÌnea...");
+        progressBarPage.SetTitle("Actualizaci√≥n en l√≠nea...");
 
-        await LaunchOnlineUpdate(progressBarPage);       
+        await LaunchOnlineUpdate(progressBarPage);
+
+        var launchManager = new LaunchManager();
+        await launchManager.PersistSyncDateAfterManualUpdateAsync();
+        lblUpdated.Text = "Ult. Actualizaci√≥n: " + App.Session.CurrentUserFront.log_fec_sincro.ToString("dd/MM/yyyy HH:mm:ss");
 
         progressBarPage.SetTotalPercent(1);
         progressBarPage.SetTitle("Finalizado...");
@@ -234,10 +241,10 @@ public partial class UpdateData : ContentPage
         TimeSpan span = (DateTime.Now - dtInitialize);
 
         lblUpdatedInfo.Text += ", finalizada: " + DateTime.Now +
-            " (" + String.Format("{0} dÌas, {1} horas, {2} minutos, {3} segundos)",
+            " (" + String.Format("{0} d√≠as, {1} horas, {2} minutos, {3} segundos)",
             span.Days, span.Hours, span.Minutes, span.Seconds);
 
-        await progressBarPage.DisplayAlertAsync("ActualizaciÛn", "ActualizaciÛn terminada", "Aceptar");        
+        await progressBarPage.DisplayAlertAsync("Actualizaci√≥n", "Actualizaci√≥n terminada", "Aceptar");        
         
         await Navigation.PopModalAsync();
     }
@@ -265,7 +272,7 @@ public partial class UpdateData : ContentPage
     
     private async Task FullCatalogUpdate()
     {
-        bool answer = await DisplayAlertAsync("Actualizar total el cat·logo?", "Este proceso actualizar· todas las imagenes de los productos.", "Actualizar", "Cancelar");
+        bool answer = await DisplayAlertAsync("Actualizar total el cat√°logo?", "Este proceso actualizar√° todas las imagenes de los productos.", "Actualizar", "Cancelar");
 
         if (!answer)
         {
@@ -275,22 +282,25 @@ public partial class UpdateData : ContentPage
         DateTime dtInitialize = DateTime.Now;
         lblUpdatedInfo.Text = "Iniciada: " + dtInitialize;
 
-        await Toast.Make("Iniciando actualizaciÛn de cat·logo").Show();
+        await Toast.Make("Iniciando actualizaci√≥n de cat√°logo").Show();
         ProgressBarPage progressBarPage = new ProgressBarPage();
         await Navigation.PushModalAsync(progressBarPage, true);
         bool launchSalesUpdate = true;
         progressBarPage.SetTotalPercent(0.10);
 
-        progressBarPage.SetTitle("ActualizaciÛn en lÌnea...");
+        progressBarPage.SetTitle("Actualizaci√≥n en l√≠nea...");
 
         var pipeline = new Pipeline();        
         progressBarPage.SetTitle("Descargando paquete...");
         
         //await pipeline.DownloadFromFileMode2(App.Session.odooConnection.DbNameSqliteStatic, null, App.Session.odooConnection.DbNameSqlite);
 
-        progressBarPage.SetTitle("Descargando en lÌnea...");
+        progressBarPage.SetTitle("Descargando en l√≠nea...");
                 
-        await serverPuller.OnlineSyncProductProductOnlyImagesUrl(true, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Cat·logo"); });
+        await SyncActivityLog.RunAsync("CatalogoImagenes", async () =>
+        {
+            await serverPuller.OnlineSyncProductProductOnlyImagesUrl(true, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Cat√°logo"); });
+        }, "Total");
                 
         //await pipeline.UploadToFileMode2(App.Session.odooConnection.DbNameSqliteStatic, App.Session.odooConnection.DbNameSqlite);
 
@@ -300,10 +310,10 @@ public partial class UpdateData : ContentPage
         TimeSpan span = (DateTime.Now - dtInitialize);
 
         lblUpdatedInfo.Text += ", finalizada: " + DateTime.Now +
-            " (" + String.Format("{0} dÌas, {1} horas, {2} minutos, {3} segundos)",
+            " (" + String.Format("{0} d√≠as, {1} horas, {2} minutos, {3} segundos)",
             span.Days, span.Hours, span.Minutes, span.Seconds);
 
-        await progressBarPage.DisplayAlertAsync("ActualizaciÛn", "ActualizaciÛn terminada", "Aceptar");
+        await progressBarPage.DisplayAlertAsync("Actualizaci√≥n", "Actualizaci√≥n terminada", "Aceptar");
 
         await Navigation.PopModalAsync();
     }
@@ -347,7 +357,7 @@ public partial class UpdateData : ContentPage
 
     private async Task PartialCatalogUpdate()
     {
-        bool answer = await DisplayAlertAsync("Actualizar parcial el cat·logo?", "Este proceso actualizar· las imagenes de los productos.", "Actualizar", "Cancelar");
+        bool answer = await DisplayAlertAsync("Actualizar parcial el cat√°logo?", "Este proceso actualizar√° las imagenes de los productos.", "Actualizar", "Cancelar");
 
         if (!answer)
         {
@@ -357,13 +367,13 @@ public partial class UpdateData : ContentPage
         DateTime dtInitialize = DateTime.Now;
         lblUpdatedInfo.Text = "Iniciada: " + dtInitialize;
 
-        await Toast.Make("Iniciando actualizaciÛn de cat·logo").Show();
+        await Toast.Make("Iniciando actualizaci√≥n de cat√°logo").Show();
         ProgressBarPage progressBarPage = new ProgressBarPage();
         await Navigation.PushModalAsync(progressBarPage, true);
         bool launchSalesUpdate = true;
         progressBarPage.SetTotalPercent(0.10);
 
-        progressBarPage.SetTitle("ActualizaciÛn en lÌnea...");
+        progressBarPage.SetTitle("Actualizaci√≥n en l√≠nea...");
 
         var pipeline = new Pipeline();
         //var productProductPreview = new ProductProductPreviewDb(App.Session.odooConnection.DbNameSqliteStatic);
@@ -378,8 +388,11 @@ public partial class UpdateData : ContentPage
             await pipeline.DownloadFromFileMode2(App.Session.odooConnection.DbNameSqliteStatic, tmpExists, App.Session.odooConnection.DbNameSqlite);
 
         }
-        //await serverPuller.OnlineSyncProductProductOnlyImagesV2(false, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Cat·logo"); });
-        await serverPuller.OnlineSyncProductProductOnlyImagesUrl(false, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Cat·logo"); });
+        //await serverPuller.OnlineSyncProductProductOnlyImagesV2(false, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Cat√°logo"); });
+        await SyncActivityLog.RunAsync("CatalogoImagenes", async () =>
+        {
+            await serverPuller.OnlineSyncProductProductOnlyImagesUrl(false, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Cat√°logo"); });
+        }, "Parcial");
 
         //await pipeline.UploadToFile(App.Session.odooConnection.DbNameSqliteStatic, App.Session.odooConnection.DbNameSqlite);
         await pipeline.UploadToFileMode2(App.Session.odooConnection.DbNameSqliteStatic, App.Session.odooConnection.DbNameSqlite);
@@ -390,10 +403,10 @@ public partial class UpdateData : ContentPage
         TimeSpan span = (DateTime.Now - dtInitialize);
 
         lblUpdatedInfo.Text += ", finalizada: " + DateTime.Now +
-            " (" + String.Format("{0} dÌas, {1} horas, {2} minutos, {3} segundos)",
+            " (" + String.Format("{0} d√≠as, {1} horas, {2} minutos, {3} segundos)",
             span.Days, span.Hours, span.Minutes, span.Seconds);
 
-        await progressBarPage.DisplayAlertAsync("ActualizaciÛn", "ActualizaciÛn terminada", "Aceptar");
+        await progressBarPage.DisplayAlertAsync("Actualizaci√≥n", "Actualizaci√≥n terminada", "Aceptar");
 
         await Navigation.PopModalAsync();
     }
@@ -409,77 +422,106 @@ public partial class UpdateData : ContentPage
 
         await MainThread.InvokeOnMainThreadAsync(() =>
         {
-            progressBarPage.SetSubTitle($"{title} - P·gina {displayPage} de {total}");
+            progressBarPage.SetSubTitle($"{title} - P√°gina {displayPage} de {total}");
             progressBarPage.SetPercent(percent);
         });
     }
 
     private async Task LaunchOnlineUpdate(ProgressBarPage progressBarPage)
     {
-        if (chkGroup1.IsChecked)
-        {            
-            await serverPuller.PullPromotions();
-        }
-        
-        progressBarPage.SetTotalPercent(0.30);
-
-        if (chkGroup2.IsChecked)
-        {            
-            await serverPuller.ProductMarca(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Marca"); });
-            await serverPuller.OnlineSyncCategoria();
-            await serverPuller.OnlineSyncSubcategoria();
-            await serverPuller.OnlineSyncProductLinea();
-            await serverPuller.OnlineSyncProductGrupoTipo();            
-            await serverPuller.MotivoActividadDiaria(false);
-            progressBarPage.SetTotalPercent(0.80);
-        }
-
-        if(chkGroup3.IsChecked)
-        {            
-            //await serverPuller.OnlineSyncResPartner();
-            await serverPuller.OnlineSyncResPartnerFull(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Clientes"); });
-            await serverPuller.OnlineCalificacionCrediticia();
-        }
-
-        if (chkGroup7.IsChecked)
+        using var sessionLog = SyncActivityLog.Begin("ActualizacionManual", "LaunchOnlineUpdate");
+        try
         {
-            await serverPuller.UomUom(true);
-            await serverPuller.OnlineSyncProductProductNoImage(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Productos"); });
-        }
+            if (chkGroup1.IsChecked)
+            {
+                await SyncActivityLog.RunAsync("Promociones", async () =>
+                {
+                    await serverPuller.PullPromotions();
+                });
+            }
 
-        if (chkGroup4.IsChecked)
-        {            
-            await serverPuller.OnlineSyncProductPricelist();
-            await serverPuller.OnlineSyncProductPricelistItem(async (current, total, titleProc) => { await UpdateProgressState(progressBarPage, current, total, titleProc); });            
-            await serverPuller.OnlineAccountTaxes();
-        }
+            progressBarPage.SetTotalPercent(0.30);
 
-        if (chkGroup5.IsChecked)
+            if (chkGroup2.IsChecked)
+            {
+                await SyncActivityLog.RunAsync("CatalogoMaestros", async () =>
+                {
+                    await serverPuller.ProductMarca(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Marca"); });
+                    await serverPuller.OnlineSyncCategoria();
+                    await serverPuller.OnlineSyncSubcategoria();
+                    await serverPuller.OnlineSyncProductLinea();
+                    await serverPuller.OnlineSyncProductGrupoTipo();
+                    await serverPuller.MotivoActividadDiaria(false);
+                });
+                progressBarPage.SetTotalPercent(0.80);
+            }
+
+            if (chkGroup3.IsChecked)
+            {
+                await SyncActivityLog.RunAsync("Clientes", async () =>
+                {
+                    //await serverPuller.OnlineSyncResPartner();
+                    await serverPuller.OnlineSyncResPartnerFull(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Clientes"); });
+                    await serverPuller.OnlineCalificacionCrediticia();
+                });
+            }
+
+            if (chkGroup7.IsChecked)
+            {
+                await SyncActivityLog.RunAsync("Productos", async () =>
+                {
+                    await serverPuller.UomUom(true);
+                    await serverPuller.OnlineSyncProductProductNoImage(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Productos"); });
+                });
+            }
+
+            // Desmarcado por defecto: proceso pesado (URLs ‚Üí product_product_preview).
+            // false = incremental (igual que cat√°logo parcial). Bot√≥n Cat√°logo sigue para total/parcial.
+            if (chkGroup8.IsChecked)
+            {
+                await SyncActivityLog.RunAsync("CatalogoImagenes", async () =>
+                {
+                    await serverPuller.OnlineSyncProductProductOnlyImagesUrl(
+                        false,
+                        async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Im√°genes"); });
+                }, "DesdeActualizacion");
+            }
+
+            if (chkGroup4.IsChecked)
+            {
+                await SyncActivityLog.RunAsync("ListasPrecios", async () =>
+                {
+                    await serverPuller.OnlineSyncProductPricelist();
+                    await serverPuller.OnlineSyncProductPricelistItem(async (current, total, titleProc) => { await UpdateProgressState(progressBarPage, current, total, titleProc); });
+                    await serverPuller.OnlineAccountTaxes();
+                });
+            }
+
+            if (chkGroup5.IsChecked)
+            {
+                await SyncActivityLog.RunAsync("Stock", async () =>
+                {
+                    await serverPuller.OnlineSyncStockWarehouse(false);
+                    await serverPuller.OnlineSyncStockLocation();
+                    await serverPuller.OnlineSyncStockQuant();
+                    await serverPuller.OnlineSyncWmsStockQuant(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Stock WMS"); });
+                    await serverPuller.UpdateWmsStockQuant(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "UpdateWms"); });
+                });
+            }
+
+            if (chkGroup6.IsChecked)
+            {
+                await SyncActivityLog.RunAsync("Pedidos", async () =>
+                {
+                    await serverPuller.SyncSaleOrders();
+                });
+            }
+        }
+        catch (Exception ex)
         {
-            await serverPuller.OnlineSyncStockWarehouse(false);
-            await serverPuller.OnlineSyncStockLocation();
-            await serverPuller.OnlineSyncStockQuant();
-            await serverPuller.OnlineSyncWmsStockQuant(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Stock WMS"); });
-            await serverPuller.UpdateWmsStockQuant(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "UpdateWms"); });            
+            sessionLog.MarkFailed(ex);
+            throw;
         }
-
-        if(chkGroup6.IsChecked)
-        {
-            await serverPuller.SyncSaleOrders();
-        }
-                
-        //////Pipeline pipeline = new Pipeline();
-        //////bool requiredNewUpload = await pipeline.RequiredNewUploadCustom(App.Session.odooConnection.DbNameSqlite);
-        //////if (requiredNewUpload)
-        //////{
-        //////    (var attachData, bool successUpload) = await pipeline.UploadSqliteZip();
-
-        //////    if (successUpload)
-        //////    {
-        //////        if(!await pipeline.ExistAttachRecord())
-        //////            await pipeline.InsertAttachRecord(attachData);
-        //////    }
-        //////}
     }
 
     private async void btnUploadPipeline_Clicked(object sender, EventArgs e)
