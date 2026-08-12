@@ -135,7 +135,7 @@ public partial class MainPageTab : ContentPage
         await UITools.SetNotifyLoadingPopup("Ejecutando env\u00edo de datos...");
 
         SaleOrders serverPusher = new SaleOrders();
-        var syncedOrders = await serverPusher.SendAllSaleOrders();
+        var (syncedOrders, failedOrders) = await serverPusher.SendAllSaleOrders();
         await serverPusher.SendAllProjectTask();
 
         await UITools.SetNotifyLoadingPopup("Ejecutando extracci\u00f3n de datos...");
@@ -150,14 +150,28 @@ public partial class MainPageTab : ContentPage
         SelectTab("orders");
 
         string summary;
-        if (syncedOrders == null || syncedOrders.Count == 0)
+        if ((syncedOrders == null || syncedOrders.Count == 0)
+            && (failedOrders == null || failedOrders.Count == 0))
         {
             summary = "No hab\u00eda pedidos pendientes por sincronizar.";
         }
         else
         {
-            summary = $"Pedidos sincronizados ({syncedOrders.Count}):\n\n"
-                      + string.Join("\n", syncedOrders);
+            var parts = new List<string>();
+            if (syncedOrders != null && syncedOrders.Count > 0)
+            {
+                parts.Add($"Pedidos sincronizados ({syncedOrders.Count}):\n"
+                          + string.Join("\n", syncedOrders));
+            }
+
+            if (failedOrders != null && failedOrders.Count > 0)
+            {
+                parts.Add($"Pedidos con error ({failedOrders.Count}):\n"
+                          + string.Join("\n", failedOrders.Select(f =>
+                              $"- {f.OrderLabel}: {f.ErrorMessage.Split('\n')[0]}")));
+            }
+
+            summary = string.Join("\n\n", parts);
         }
 
         await DisplayAlertAsync("Env\u00edo de datos", summary, "Aceptar");

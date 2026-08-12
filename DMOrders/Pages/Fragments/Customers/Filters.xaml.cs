@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Alerts;
 using DMOrders.Controls.Tools;
 using DMOrders.Models.Filters;
 using DMOrders.Services.PatchManager.Reset;

@@ -1,4 +1,4 @@
-﻿#if WINDOWS
+#if WINDOWS
 using Microsoft.Maui.Animations;
 using Microsoft.Maui.Handlers;
 using Microsoft.Maui.Platform;
@@ -214,6 +214,27 @@ public partial class DropdownHandler : ButtonHandler
     private static void SetFlyoutItemText(Dropdown dropdown, Microsoft.UI.Xaml.Controls.MenuFlyoutItem menuItem, object item)
     {
         menuItem.Text = GetTextForItem(dropdown, item);
+        TryColorFlyoutItemByAddressStatus(menuItem, item);
+    }
+
+    private static void TryColorFlyoutItemByAddressStatus(Microsoft.UI.Xaml.Controls.MenuFlyoutItem menuItem, object item)
+    {
+        try
+        {
+            var prop = item?.GetType().GetProperty("IsAddressActive");
+            if (prop?.GetValue(item) is not bool isActive)
+                return;
+
+            var color = isActive
+                ? Microsoft.UI.ColorHelper.FromArgb(255, 0x2E, 0x7D, 0x32)
+                : Microsoft.UI.ColorHelper.FromArgb(255, 0xC6, 0x28, 0x28);
+
+            menuItem.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(color);
+        }
+        catch
+        {
+            // ignore
+        }
     }
 }
 #endif

@@ -1,4 +1,4 @@
-﻿using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
+using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Sales.promotions.abstractCustom;
 using DMSA.Sync.Core.Database.Sqlite;
@@ -9,6 +9,12 @@ namespace DMOrders.Pages.Fragments.Orders.modals;
 
 public partial class PromocionesViewer
 {
+    /// <summary>
+    /// Regalos manuales: una línea por (product_id, promo_id).
+    /// Revertir: false y/o git checkout de prepare.cs + UpdateGiftIsolated en items.cs.
+    /// </summary>
+    private const bool ManualGiftsSeparateLinePerPromo = true;
+
     private int GlobalTotalManualGiftsAllowed = 0;
     private int GlobalTotalManualGiftsApplied = 0;
     public int GlobalTotalManualGiftsForRemove = 0;

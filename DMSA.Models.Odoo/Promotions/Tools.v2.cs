@@ -210,6 +210,61 @@ namespace DMSA.Models.Odoo.Promotions
                    .Select(r => r.id)
                    .Distinct()
                    .ToArray();
-        }             
+        }
+
+        /// <summary>
+        /// Líneas padre del pedido (no regalo) desde order_line envuelto en OrderLineWrapper.
+        /// </summary>
+        public static IEnumerable<sale_order_line> FlattenParentOrderLines(
+            IEnumerable<OrderLineWrapper>? orderLines)
+        {
+            if (orderLines == null)
+                yield break;
+
+            foreach (var row in orderLines)
+            {
+                if (row == null || row.Count <= 2)
+                    continue;
+
+                if (row[2] is sale_order_line line && !line.is_gift)
+                    yield return line;
+            }
+        }
+
+        /// <summary>
+        /// Resuelve las líneas a las que aplica un descuento para un product_tmpl_id.
+        /// Prioriza ProductSequenceApplyList (product_id + sequence); si no hay match,
+        /// cae al comportamiento anterior (primera línea con ese template).
+        /// </summary>
+        public static List<sale_order_line> ResolveDiscountTargetLines(
+            IEnumerable<OrderLineWrapper>? orderLines,
+            int productTmplTarget,
+            IEnumerable<OriginPromoOrderLine>? sequenceApplyList)
+        {
+            var flat = FlattenParentOrderLines(orderLines).ToList();
+            var result = new List<sale_order_line>();
+
+            if (sequenceApplyList != null)
+            {
+                foreach (var seq in sequenceApplyList.Where(s =>
+                    s != null && s.product_tmpl_id == productTmplTarget))
+                {
+                    var line = flat.FirstOrDefault(l =>
+                        l.product_id == seq.product_id && l.sequence == seq.sequence);
+
+                    if (line != null && !result.Contains(line))
+                        result.Add(line);
+                }
+            }
+
+            if (result.Count > 0)
+                return result;
+
+            var fallback = flat.FirstOrDefault(l => l.product_tmpl_id == productTmplTarget);
+            if (fallback != null)
+                result.Add(fallback);
+
+            return result;
+        }
     }
 }

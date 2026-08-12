@@ -8,6 +8,7 @@ using DMSA.Models.Security;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
+using System;
 using System.Diagnostics;
 
 namespace ApiManagerOdoo.Sale
@@ -38,6 +39,30 @@ namespace ApiManagerOdoo.Sale
                 new object[] {"write_date", ">=", date.ToString("yyyy-MM-dd 00:00:00") },
             };
             return await SearchRead<ApiResponseOdooRpcT<sale_order[]>>(args, _custom_args, kwargs, true);
+        }
+
+        /// <summary>
+        /// Busca una orden en Odoo por external_guid (recuperación tras error de duplicado).
+        /// </summary>
+        public async Task<ApiResponseOdooRpcT<sale_order[]>?> GetByExternalGuid(string externalGuid)
+        {
+            if (string.IsNullOrWhiteSpace(externalGuid))
+                return null;
+
+            var kwargs = new
+            {
+                limit = 1,
+                offset = 0,
+                fields = new[] { "id", "name", "external_guid", "state" }
+            };
+
+            object[] args = Array.Empty<object>();
+            object[] customArgs = new object[]
+            {
+                new object[] { "external_guid", "=", externalGuid }
+            };
+
+            return await SearchRead<ApiResponseOdooRpcT<sale_order[]>>(args, customArgs, kwargs, true);
         }
     }
 }

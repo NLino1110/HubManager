@@ -1,4 +1,6 @@
-﻿#if ANDROID
+#if ANDROID
+using Android.Text;
+using Android.Text.Style;
 using Android.Views;
 using Google.Android.Material.Button;
 using Microsoft.Maui.Handlers;
@@ -35,7 +37,9 @@ public partial class DropdownHandler : ButtonHandler
         {
             foreach (var item in VirtualViewDropdown.ItemsSource)
             {
-                var menuItem = popupMenu.Menu.Add(new Java.Lang.String(GetTextForItem(VirtualViewDropdown, item)));
+                var text = GetTextForItem(VirtualViewDropdown, item);
+                var menuItem = popupMenu.Menu.Add(new Java.Lang.String(text));
+                TryColorMenuItemByAddressStatus(menuItem, text, item);
 
                 menuItem.SetOnMenuItemClickListener(new MenuItemOnMenuItemClickListener((menuitem) =>
                 {
@@ -120,6 +124,28 @@ public partial class DropdownHandler : ButtonHandler
             Microsoft.Maui.TextAlignment.End => Android.Views.TextAlignment.TextEnd,
             _ => Android.Views.TextAlignment.TextStart
         };
+    }
+
+    private static void TryColorMenuItemByAddressStatus(IMenuItem menuItem, string text, object item)
+    {
+        try
+        {
+            var prop = item?.GetType().GetProperty("IsAddressActive");
+            if (prop?.GetValue(item) is not bool isActive)
+                return;
+
+            var color = isActive
+                ? Android.Graphics.Color.ParseColor("#2E7D32")
+                : Android.Graphics.Color.ParseColor("#C62828");
+
+            var span = new SpannableString(text);
+            span.SetSpan(new ForegroundColorSpan(color), 0, text.Length, SpanTypes.ExclusiveExclusive);
+            menuItem.SetTitle(span);
+        }
+        catch
+        {
+            // ignore: item sin misc_estado / IsAddressActive
+        }
     }
 
     public static void MapTextColor(DropdownHandler handler, Dropdown dropdown)

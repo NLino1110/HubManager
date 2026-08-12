@@ -129,9 +129,12 @@ namespace DMSA.Sync.Core.Update.Pusher
             }
         }
 
-        public async Task<bool> SendSaleOrder(sale_order sale_Order)
+        public async Task<SaleOrderSendResult> SendSaleOrder(sale_order sale_Order)
         {            
             SaleOrderDb saleOrderDb = new SaleOrderDb(Constants.Session.odooConnection.DbNameSqlite);
+            string orderLabel = !string.IsNullOrWhiteSpace(sale_Order.id_referencia)
+                ? sale_Order.id_referencia
+                : $"id local {sale_Order.id}";
 
             if (!sale_Order.mobile_sync)
                 sale_Order.mobile_sync = true;
@@ -153,10 +156,24 @@ namespace DMSA.Sync.Core.Update.Pusher
 
             if (resultTask != null && resultTask.error != null)
             {
-                Debug.WriteLine(resultTask.error.data.message);
-                Debug.WriteLine(resultTask.error.data.debug);
-                await Toast.Make("Error:" + resultTask.error.data.message).Show();
-                return false;
+                string serverMessage = resultTask.error.data?.message ?? resultTask.error.message ?? string.Empty;
+                string serverDebug = resultTask.error.data?.debug ?? string.Empty;
+                Debug.WriteLine(serverMessage);
+                Debug.WriteLine(serverDebug);
+
+                bool duplicateGuid = SaleOrderSyncErrorParser.IsDuplicateExternalGuid(serverMessage, serverDebug);
+                if (duplicateGuid)
+                {
+                    var recoverResult = await RecoverSaleOrderFromErp(sale_Order, hubSaleOrder, saleOrderDb);
+                    if (recoverResult.Ok)
+                        return recoverResult;
+
+                    string userMessage = SaleOrderSyncErrorParser.BuildUserMessage(serverMessage, true);
+                    return SaleOrderSendResult.Fail(userMessage, duplicateGuid: true, orderLabel: orderLabel);
+                }
+
+                string genericMessage = SaleOrderSyncErrorParser.BuildUserMessage(serverMessage, false);
+                return SaleOrderSendResult.Fail(genericMessage, orderLabel: orderLabel);
             }
 
             bool byPassExtras = true;
@@ -181,159 +198,109 @@ namespace DMSA.Sync.Core.Update.Pusher
                     }                    
                 }
 
-                ////////==============================================================
-                //////// PROCESO DE ENVIO TERMINADO, LO QUE SIGUE DE AQUI YA NO SE USA
-                //////if (byPassExtras) return true;
-
-                //////var resultDetailTask = await hubSaleOrder.GetLines(sale_Order.erp_id);
-
-                //////if (resultDetailTask.result != null)
-                //////{
-                //////    SaleOrderLineDb saleOrderLineDb = new SaleOrderLineDb(Constants.Session.odooConnection.DbNameSqlite);
-                //////    var lines = await saleOrderLineDb.GetItemsAsync(sale_Order.id);
-
-                //////    bool new_name_order = false;
-                //////    bool details_ok = false;
-
-                //////    var linesIds = new List<SaleOrderPromotionWizardLineWrapper>();
-                //////    var allGifts = new List<AllSaleOrderPromotionWizardGiftWrapper>();
-                //////    var gift_line_Ids = new List<SaleOrderPromotionWizardGiftWrapper>();
-
-                //////    foreach (var lineRcp in resultDetailTask.result)
-                //////    {
-                //////        var item = lines.FirstOrDefault(l => l.product_id == lineRcp._product_id && l.sequence == lineRcp.sequence);                        
-                //////        if (item != null)
-                //////        {
-                //////            item.erp_id = lineRcp.id;
-                //////            await saleOrderLineDb.UpdateAsync(item);
-                //////            details_ok = true;
-                //////        }
-                //////    }
-
-                //////    var lines_gifts = lines.Where(x => x.is_gift);
-
-                //////    foreach (var item in lines_gifts)// || (!x.is_gift && x.discount > 0)))
-                //////    {
-                //////        List<OriginPromoOrderLine> productSequenceApplyList = new List<OriginPromoOrderLine>();
-                        
-                //////        if (string.IsNullOrEmpty(item.origin_gift_line_ids_offline))
-                //////            continue;
-
-                //////        productSequenceApplyList = JsonConvert.DeserializeObject<List<OriginPromoOrderLine>>(item.origin_gift_line_ids_offline);
-
-                //////        var items_found = lines
-                //////                .Where(l => productSequenceApplyList.Any(p =>
-                //////                        p.sequence == l.sequence &&
-                //////                        p.product_id == l.product_id))
-                //////                .Select(l => l.erp_id)
-                //////                .ToList();
-
-                //////        if (items_found != null && items_found.Any())
-                //////        {
-                //////            item.origin_gift_line_ids = items_found.ToArray();
-                //////            await saleOrderLineDb.UpdateAsync(item);
-                //////        }
-                //////    }
-
-                //////    foreach (var line in lines)
-                //////    {
-                //////        if (line.is_gift || line.discount > 0)
-                //////        {
-                //////            bool isLineDiscount = false;
-                //////            decimal Qty = line.product_uom_qty;
-                //////            int[] origin_gift_line_ids = line.origin_gift_line_ids;
-
-                //////            if (line.discount > 0 && !line.is_gift)
-                //////            {
-                //////                Qty = line.discount;
-                //////                isLineDiscount = true;
-                //////                origin_gift_line_ids = new int[] { line.erp_id };
-                //////            }
-
-                //////            allGifts.Add(new AllSaleOrderPromotionWizardGiftWrapper(new AllSaleOrderPromotionWizardGift
-                //////            {
-                //////                Product_Id = line.product_tmpl_id,
-                //////                Qty = Qty,
-                //////                Promotion_Line_Id = 0, //Se determina cuando ya se haya creado padre
-                //////                Stock = line.product_uom_qty,
-                //////                Price = line.price_unit,
-                //////                Approve = true,
-                //////                Lines_Ids = new int[] { line.erp_id },
-                //////                Discount = 0,
-                //////                Obtained = true
-                //////            }));
-                            
-                //////            if (!string.IsNullOrEmpty(line.origin_gift_line_ids_offline))
-                //////            {
-                //////                try
-                //////                {
-                //////                    List<OriginPromoOrderLine> productSequenceApplyList = new List<OriginPromoOrderLine>();
-                //////                    productSequenceApplyList = JsonConvert.DeserializeObject<List<OriginPromoOrderLine>>(line.origin_gift_line_ids_offline);
-                //////                    int[] linesIdsArray = new int[] { line.erp_id };
-
-                //////                    foreach (var itemSequence in productSequenceApplyList)
-                //////                    {
-                //////                        linesIds.Add(new SaleOrderPromotionWizardLineWrapper(new SaleOrderPromotionWizardLine
-                //////                        {
-                //////                            Promotion_Id = itemSequence.promo_id,
-                //////                            Rule_Id = itemSequence.rule_id,
-                //////                            Discount = 100,
-                //////                            Rule_Value = itemSequence.total_allowed_gifts,
-                //////                            Qty_Confirmation = true,
-                //////                            Lines_Ids = linesIdsArray
-                //////                        }));
-                //////                    }
-                //////                }
-                //////                catch (Exception ex)
-                //////                {
-                //////                    await Toast.Make("Error en el dato de promociones - origin_gift_line_ids_offline" + ex.Message).Show();
-                //////                }
-                //////            }
-                //////        }
-                //////        else
-                //////        {
-                            
-                //////        }
-                //////    }
-                    
-                //////    var newSaleOrderPromotionWizard = new SaleOrderPromotionWizard
-                //////    {
-                //////        Order_Id = sale_Order.erp_id,
-                //////        Line_Ids = linesIds,
-                //////        Gift_Line_Ids = gift_line_Ids,
-                //////        All_Gift_Line_Ids = allGifts,
-                //////        Base = true
-                //////    };
-
-                //////    var hubSaleOrderPromotionWizard = new HubSaleOrderPromotionWizard(Constants.Session);
-                //////    var createdPromotion = await hubSaleOrderPromotionWizard.Create(newSaleOrderPromotionWizard, true);
-                    
-                //////    await hubSaleOrder.WriteLines(lines);
-                //////}
-
-                return true;
+                return SaleOrderSendResult.Success(erpName: sale_Order.erp_name ?? string.Empty);
             }
 
-            await Toast.Make("Es probable que no se haya sincronizado correctamente, se obtuvo un valor erroneo.").Show();
-            return false;
+            return SaleOrderSendResult.Fail(
+                "Es probable que no se haya sincronizado correctamente; el servidor devolvió un valor inválido.",
+                orderLabel: orderLabel);
         }
 
-        public async Task<List<string>> SendAllSaleOrders()
+        /// <summary>
+        /// Busca en Odoo por external_guid y vincula erp_id / erp_name en local.
+        /// </summary>
+        public async Task<SaleOrderSendResult> RecoverSaleOrderFromErp(sale_order sale_Order)
+        {
+            SaleOrderDb saleOrderDb = new SaleOrderDb(Constants.Session.odooConnection.DbNameSqlite);
+            HubSaleOrder hubSaleOrder = new HubSaleOrder(Constants.Session);
+
+            if (string.IsNullOrWhiteSpace(sale_Order.external_guid))
+            {
+                return SaleOrderSendResult.Fail(
+                    "Este pedido no tiene identificador externo (external_guid) para recuperar en el ERP.",
+                    orderLabel: sale_Order.id_referencia ?? $"id local {sale_Order.id}");
+            }
+
+            var result = await RecoverSaleOrderFromErp(sale_Order, hubSaleOrder, saleOrderDb);
+            if (result.Ok)
+                await Toast.Make($"Pedido recuperado: {result.ErpName}").Show();
+
+            return result;
+        }
+
+        private static async Task<SaleOrderSendResult> RecoverSaleOrderFromErp(
+            sale_order sale_Order,
+            HubSaleOrder hubSaleOrder,
+            SaleOrderDb saleOrderDb)
+        {
+            string orderLabel = !string.IsNullOrWhiteSpace(sale_Order.id_referencia)
+                ? sale_Order.id_referencia
+                : $"id local {sale_Order.id}";
+
+            var existing = await hubSaleOrder.GetByExternalGuid(sale_Order.external_guid);
+            if (existing?.result == null || existing.result.Length == 0)
+            {
+                return SaleOrderSendResult.Fail(
+                    "No se encontró en el ERP un pedido con este identificador externo.\n\n"
+                    + "Si el pedido nunca se envió, use Reintentar envío.",
+                    duplicateGuid: true,
+                    orderLabel: orderLabel);
+            }
+
+            var erpOrder = existing.result[0];
+            sale_Order.erp_id = erpOrder.id;
+            sale_Order.erp_name = erpOrder.name;
+            sale_Order.is_synchronized = true;
+            sale_Order.date_synchronized = DateTime.Now;
+            await saleOrderDb.UpdateAsync(sale_Order);
+
+            return SaleOrderSendResult.Success(linkedExisting: true, erpName: erpOrder.name ?? string.Empty);
+        }
+
+        /// <summary>
+        /// Reintento seguro: primero valida si ya existe en ERP (recupera); si no existe, crea con GUID nuevo.
+        /// </summary>
+        public async Task<SaleOrderSendResult> RetrySendAfterValidation(sale_order sale_Order)
+        {
+            SaleOrderDb saleOrderDb = new SaleOrderDb(Constants.Session.odooConnection.DbNameSqlite);
+            HubSaleOrder hubSaleOrder = new HubSaleOrder(Constants.Session);
+
+            if (!string.IsNullOrWhiteSpace(sale_Order.external_guid))
+            {
+                var recoverAttempt = await RecoverSaleOrderFromErp(sale_Order, hubSaleOrder, saleOrderDb);
+                if (recoverAttempt.Ok)
+                {
+                    await Toast.Make($"El pedido ya existía en el ERP: {recoverAttempt.ErpName}").Show();
+                    return recoverAttempt;
+                }
+            }
+
+            sale_Order.external_guid = Guid.NewGuid().ToString("N");
+            sale_Order.is_synchronized = false;
+            sale_Order.erp_id = 0;
+            sale_Order.erp_name = null;
+            await saleOrderDb.UpdateAsync(sale_Order);
+
+            return await SendSaleOrder(sale_Order);
+        }
+
+        [Obsolete("Use RetrySendAfterValidation")]
+        public Task<SaleOrderSendResult> RegenerateExternalGuidAndSend(sale_order sale_Order) =>
+            RetrySendAfterValidation(sale_Order);
+
+        public async Task<(List<string> SyncedLabels, List<SaleOrderSendResult> Failures)> SendAllSaleOrders()
         {
             var syncedLabels = new List<string>();
+            var failures = new List<SaleOrderSendResult>();
             var saleOrderLinesDb = new SaleOrderLineDb(Constants.Session.odooConnection.DbNameSqlite);
             SaleOrderDb saleOrderDb = new SaleOrderDb(Constants.Session.odooConnection.DbNameSqlite);
             var listOrders = await saleOrderDb.GetItemsAsync(Constants.Session.res_Company.id, false);
 
             if (listOrders == null || listOrders.Count == 0)
-                return syncedLabels;
+                return (syncedLabels, failures);
 
-            int totalItems = listOrders.Count;
-            int itemIndex = 0;
             foreach (var item in listOrders)
             {
-                itemIndex++;
-
                 if (item.order_line == null)
                     item.order_line = new List<OrderLineWrapper>();
 
@@ -344,8 +311,8 @@ namespace DMSA.Sync.Core.Update.Pusher
                     item.order_line.Add(new OrderLineWrapper(line));
                 }
 
-                bool ok = await SendSaleOrder(item);
-                if (ok)
+                var sendResult = await SendSaleOrder(item);
+                if (sendResult.Ok)
                 {
                     var label = !string.IsNullOrWhiteSpace(item.erp_name)
                         ? item.erp_name
@@ -354,9 +321,13 @@ namespace DMSA.Sync.Core.Update.Pusher
                         label = $"id local {item.id} (erp {item.erp_id})";
                     syncedLabels.Add(label);
                 }
+                else
+                {
+                    failures.Add(sendResult);
+                }
             }
 
-            return syncedLabels;
+            return (syncedLabels, failures);
         }
 
         public async Task<int> CreateProjectTask(ProjectTask projectTask)

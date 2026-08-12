@@ -18,8 +18,6 @@ public partial class PromocionesViewer
         if (!await ConfirmIncompleteManualGiftsIfNeeded())
             return;
 
-        await ApplyPendingDiscountsAsync();
-
         var resultPopup = new PromoResultPopup();
         resultPopup.benefits = ItemsData.ToList();
         resultPopup.manualGifts = wholeRealApplied?.ToList() ?? new List<sale_order_line>();
@@ -31,8 +29,6 @@ public partial class PromocionesViewer
     {
         if (!await ConfirmIncompleteManualGiftsIfNeeded())
             return;
-
-        await ApplyPendingDiscountsAsync();
 
         var resultPopup = new PromoResultPopup();
         resultPopup.benefits = ItemsData.ToList();

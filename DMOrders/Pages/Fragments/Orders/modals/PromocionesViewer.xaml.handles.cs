@@ -1,4 +1,4 @@
-﻿using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
+using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
 using DMSA.Sync.Core.Database.Sqlite;
 using System.Collections.ObjectModel;
@@ -305,20 +305,21 @@ public partial class PromocionesViewer
 
         foreach (var promoItem in promoDiscounts)
         {
+            if (promoItem?.ProductSequenceApplyList == null)
+                continue;
+
+            int loadedDiscount = 0;
             foreach (var sequenceData in promoItem.ProductSequenceApplyList)
             {
-                var order_line_match = OrderLines.Where(x => x.product_id == sequenceData.product_id
-                    && x.sequence == sequenceData.sequence).FirstOrDefault();
+                var order_line_match = OrderLines.FirstOrDefault(x =>
+                    x.product_id == sequenceData.product_id && x.sequence == sequenceData.sequence);
 
-                if (order_line_match != null && order_line_match.discount > 0)
-                {
-                    promoItem.discount = (int)order_line_match.discount;
-                }
-                else if (promoItem.discount <= 0 && promoItem.discount_base > 0)
-                {
-                    promoItem.discount = promoItem.discount_base;
-                }
+                if (order_line_match != null && order_line_match.discount > loadedDiscount)
+                    loadedDiscount = (int)order_line_match.discount;
             }
+
+            if (loadedDiscount > 0)
+                promoItem.discount = loadedDiscount;
         }
 
         OnPropertyChanged(nameof(promoDiscounts));

@@ -84,8 +84,13 @@ namespace DMOrders.Pages.Fragments.Orders
                 used.Add(next);
             }
 
+            // Regalos y líneas con descuento/promo (origin_gift_line_ids_offline): remapear si un padre cambió sequence.
             if (remaps.Count > 0)
-                RemapOriginGiftOfflineSequences(giftLines, remaps);
+            {
+                var linesWithOriginJson = orderLines
+                    .Where(l => l != null && !string.IsNullOrWhiteSpace(l.origin_gift_line_ids_offline));
+                RemapOriginGiftOfflineSequences(linesWithOriginJson, remaps);
+            }
 
             // Alinea JSON al sequence actual del padre (product_id + sequence viejo → actual)
             AlignGiftOriginsToCurrentParents(orderLines);
@@ -93,6 +98,7 @@ namespace DMOrders.Pages.Fragments.Orders
 
         /// <summary>
         /// Actualiza sequence dentro de origin_gift_line_ids_offline cuando un padre cambió de N°.
+        /// Aplica a regalos y a líneas con descuento/promo que llevan ese JSON.
         /// </summary>
         private static void RemapOriginGiftOfflineSequences(
             IEnumerable<sale_order_line> giftLines,
@@ -387,6 +393,15 @@ namespace DMOrders.Pages.Fragments.Orders
             if (ddfAddress?.SelectedItem is not res_partner invoicePartner)
             {
                 await Toast.Make("Seleccione una dirección de facturación.").Show();
+                return null;
+            }
+
+            if (!invoicePartner.IsAddressActive)
+            {
+                await DisplayAlertAsync(
+                    "⚠️ Confirmación requerida",
+                    "La dirección seleccionada está INACTIVA.\n\nSeleccione otra dirección activa para continuar con el pedido.",
+                    "Aceptar");
                 return null;
             }
 

@@ -1,4 +1,4 @@
-﻿using DMSA.Models.Odoo.Base;
+using DMSA.Models.Odoo.Base;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SQLite;
@@ -264,22 +264,46 @@ namespace DMSA.Models.Odoo.Native
 
         [Ignore]
         [JsonIgnore]
+        public string display_address_base =>
+            $"{name} / {street}".Trim();
+
+        [Ignore]
+        [JsonIgnore]
+        public string display_misc_estado
+        {
+            get
+            {
+                var str = misc_estado?.Trim().ToLowerInvariant();
+                return str switch
+                {
+                    "activo" => "ACTIVO",
+                    "inactivo" => "INACTIVO",
+                    _ => "-"
+                };
+            }
+        }
+
+        /// <summary>
+        /// Dirección/contacto habilitado para pedidos (misc_estado = activo).
+        /// </summary>
+        [Ignore]
+        [JsonIgnore]
+        public bool IsAddressActive =>
+            string.Equals(misc_estado?.Trim(), "activo", StringComparison.OrdinalIgnoreCase);
+
+        [Ignore]
+        [JsonIgnore]
         public string display_full_address
         {
             get
             {
-                //var address = $"{contact_address}";
+                var address = display_address_base;
 
-                //if (string.IsNullOrWhiteSpace(address))
-                //    return string.Empty;
+                var estado = display_misc_estado;
+                if (!string.IsNullOrEmpty(estado) && estado != "-")
+                    address = $"{address} - {estado}";
 
-                //address = address.Replace("\r\n", "\n").Replace("\r", "\n");
-                //address = Regex.Replace(address, @"\n\s*\n+", "\n");
-                //return address.Trim();
-
-                var address = $"{name} / {street}";
-
-                return address.Trim();
+                return address;
             }
         }
 

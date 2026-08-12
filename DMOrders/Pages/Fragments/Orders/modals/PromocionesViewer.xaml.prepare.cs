@@ -1,4 +1,4 @@
-﻿using DMOrders.Services.Promotions;
+using DMOrders.Services.Promotions;
 using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Promotions;
@@ -264,5 +264,49 @@ public partial class PromocionesViewer
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Regalo manual (ManualGiftsSeparateLinePerPromo): identifica línea por promo_id.
+    /// </summary>
+    private static bool GiftLineBelongsToPromo(sale_order_line? line, int promoId)
+    {
+        if (line == null || !line.is_gift)
+            return false;
+
+        if (line.promotion_ids != null && line.promotion_ids.Contains(promoId))
+            return true;
+
+        if (string.IsNullOrWhiteSpace(line.promotion_data))
+            return false;
+
+        try
+        {
+            var rules = JsonConvert.DeserializeObject<List<PromoRuleItem>>(line.promotion_data);
+            return rules?.Any(r => r != null && r.promo_id == promoId) == true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static sale_order_line? FindGiftLineForPromo(
+        IEnumerable<sale_order_line> orderLines,
+        int productId,
+        int promoId)
+    {
+        return orderLines.FirstOrDefault(l =>
+            l != null
+            && l.is_gift
+            && l.product_id == productId
+            && GiftLineBelongsToPromo(l, promoId));
+    }
+
+    private static int SumGiftQtyForPromo(IEnumerable<sale_order_line> orderLines, int promoId)
+    {
+        return orderLines
+            .Where(l => l != null && l.is_gift && GiftLineBelongsToPromo(l, promoId))
+            .Sum(l => (int)l.product_uom_qty_real);
     }
 }

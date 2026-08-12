@@ -174,7 +174,7 @@ namespace DMOrders.Services.PatchManager.Reset
             }
 
             await SafeTruncate(() => new ResPartnerDb(db).Truncate(), "ResPartner");
-            await SafeTruncate(() => new PartnerBankDb(db).Truncate(), "PartnerBank");
+            ///await SafeTruncate(() => new PartnerBankDb(db).Truncate(), "PartnerBank");
         }
     }
 }

@@ -100,23 +100,32 @@ public partial class PromocionesViewer
                 );
             }
 
+            var ruleItem = ResolvePromoRuleItem(ruleMatch);
+            if (ruleItem == null)
+            {
+                Debug.WriteLine($"ApplyDiscountRule: no se encontró regla {ruleMatch.id}");
+                return;
+            }
+
             foreach (var productTarget in listIdsProd)
             {
                 double discountPercentage = ruleMatch.discount;
-                int productTemplateId = ruleMatch.ProductTmplId;
-                var orderLines = saleOrder.order_line;
+                var linesToDiscount = DMSA.Models.Odoo.Promotions.Tools.ResolveDiscountTargetLines(
+                    saleOrder.order_line,
+                    productTarget,
+                    ruleMatch.ProductSequenceApplyList);
 
-                var productDb = new ProductProductDb(App.Session.odooConnection.DbNameSqlite);
+                if (linesToDiscount.Count == 0)
+                    continue;
 
-                var lineToDiscount = orderLines
-                        .Select(line => line.Count > 2 ? line[2] as sale_order_line : null)
-                        .FirstOrDefault(l => l != null && l.product_tmpl_id == productTarget);
-
-                if (lineToDiscount != null)
+                if (saleOrderPromotions != null
+                    && await promotionEngineRunner.CanApplyPromotion(saleOrder, ruleItem, saleOrderPromotions))
                 {
-                    List<PromotionEvalItem> listPromotionData = lineToDiscount.promotionDataList;
+                    await promotionEngineRunner.AddApplyPromotion(saleOrder, ruleItem, 1, saleOrderPromotions);
+                }
 
-                    decimal originalPrice = lineToDiscount.price_unit;
+                foreach (var lineToDiscount in linesToDiscount)
+                {
                     decimal virtual_price_no_tax = lineToDiscount.virtual_price_no_tax;
 
                     decimal discountAmount = (virtual_price_no_tax * lineToDiscount.product_uom_qty_real) * (decimal)(discountPercentage / 100);
@@ -129,26 +138,15 @@ public partial class PromocionesViewer
 
                     lineToDiscount.virtual_line_subtotal = virtual_price_no_tax * lineToDiscount.product_uom_qty_real;
 
-                    var ruleItem = ResolvePromoRuleItem(ruleMatch);
-                    if (ruleItem == null)
-                    {
-                        Debug.WriteLine($"ApplyDiscountRule: no se encontró regla {ruleMatch.id}");
-                        continue;
-                    }
-
-                    if (saleOrderPromotions != null
-                        && await promotionEngineRunner.CanApplyPromotion(saleOrder, ruleItem, saleOrderPromotions))
-                    {
-                        await promotionEngineRunner.AddApplyPromotion(saleOrder, ruleItem, 1, saleOrderPromotions);
-                    }
-
                     DMSA.Models.Odoo.Promotions.Tools.SetPromotionData(
                         lineToDiscount, new List<PromoRuleItem> { ruleItem });
 
                     lineToDiscount.origin_gift_line_ids_offline = JsonConvert.SerializeObject(
                         ruleMatch.ProductSequenceApplyList ?? new List<OriginPromoOrderLine>());
 
-                    Debug.WriteLine($"Descuento aplicado: {discountPercentage}% (${discountAmount:N2}) al producto tmpl {productTemplateId}");
+                    Debug.WriteLine(
+                        $"Descuento aplicado: {discountPercentage}% (${discountAmount:N2}) " +
+                        $"product_id={lineToDiscount.product_id} seq={lineToDiscount.sequence} tmpl={productTarget}");
                 }
             }
         }
@@ -536,8 +534,13 @@ public partial class PromocionesViewer
             if (saleOrderLineOrigin == null)
                 return false;
 
-            var giftLine = orderLines
-                .FirstOrDefault(line => line.product_id == product.id && line.is_gift);
+            int promoId = promoRuleItem.promo_id;
+            sale_order_line? giftLine;
+
+            if (ManualGiftsSeparateLinePerPromo)
+                giftLine = FindGiftLineForPromo(orderLines, product.id, promoId);
+            else
+                giftLine = orderLines.FirstOrDefault(line => line.product_id == product.id && line.is_gift);
 
             int delta = targetQty - currentQty;
 
@@ -548,8 +551,15 @@ public partial class PromocionesViewer
             {
                 if (giftLine != null)
                 {
-                    dataBenefitFound.assigned_gifts -= currentQty;
-                    GlobalTotalManualGiftsApplied -= currentQty;
+                    if (ManualGiftsSeparateLinePerPromo)
+                    {
+                        GlobalTotalManualGiftsApplied -= currentQty;
+                    }
+                    else
+                    {
+                        dataBenefitFound.assigned_gifts -= currentQty;
+                        GlobalTotalManualGiftsApplied -= currentQty;
+                    }
 
                     // eliminar seguro
                     var wrapperSnapshot = SaleOrdersLinesTmp.ToList();
@@ -573,13 +583,18 @@ public partial class PromocionesViewer
 
                     await MainThread.InvokeOnMainThreadAsync(() =>
                     {
-                        //OrderLines.Remove(giftLine);
                         realApplied.Remove(giftLine);
                         wholeRealApplied.Remove(giftLine);
                     });
 
                     if (ShouldSaveToo)
                         await saleOrderLineDb.DeleteAsync(giftLine);
+
+                    if (ManualGiftsSeparateLinePerPromo)
+                    {
+                        orderLines.Remove(giftLine);
+                        dataBenefitFound.assigned_gifts = SumGiftQtyForPromo(orderLines, promoId);
+                    }
                 }
 
                 product.qty_gift = 0;
@@ -622,16 +637,14 @@ public partial class PromocionesViewer
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
                     SaleOrdersLinesTmp.Add(new OrderLineWrapper(giftLine));
-                    //SaleOrder.order_line.Add(new OrderLineWrapper(giftLine));
-                    //OrderLines.Add(giftLine);
                     realApplied.Add(giftLine);
-                    wholeRealApplied.Add(giftLine);
+                    if (!wholeRealApplied.Contains(giftLine))
+                        wholeRealApplied.Add(giftLine);
                 });
 
                 DMSA.Models.Odoo.Promotions.Tools.SetPromotionDataGift(giftLine, new List<PromoRuleItem> { promoRuleItem });
 
-                var originProducts = promoRuleItem.ProductSequenceApplyList;
-
+                orderLines.Add(giftLine);
             }
             else
             {
@@ -642,6 +655,14 @@ public partial class PromocionesViewer
                 giftLine.virtual_line_subtotal = targetQty * price;
                 giftLine.amount_discount = targetQty * price;
 
+                if (ManualGiftsSeparateLinePerPromo)
+                {
+                    DMSA.Models.Odoo.Promotions.Tools.SetPromotionData(
+                        giftLine, new List<PromoRuleItem> { promoRuleItem });
+                    DMSA.Models.Odoo.Promotions.Tools.SetPromotionDataGift(
+                        giftLine, new List<PromoRuleItem> { promoRuleItem });
+                }
+
                 if (ShouldSaveToo)
                     await saleOrderLineDb.UpdateAsync(giftLine);
             }
@@ -650,10 +671,17 @@ public partial class PromocionesViewer
             // CONTADORES
             // =========================================================
 
-            var promoSnapshotFinal = _promoGifts?.ToList() ?? new List<product_product>();
-            var totalAssignedPreviewFinal = promoSnapshotFinal.Sum(x => x.qty_gift_virtual);
+            if (ManualGiftsSeparateLinePerPromo)
+            {
+                dataBenefitFound.assigned_gifts = SumGiftQtyForPromo(orderLines, promoId);
+            }
+            else
+            {
+                var promoSnapshotFinal = _promoGifts?.ToList() ?? new List<product_product>();
+                var totalAssignedPreviewFinal = promoSnapshotFinal.Sum(x => x.qty_gift_virtual);
+                dataBenefitFound.assigned_gifts = totalAssignedPreviewFinal;
+            }
 
-            dataBenefitFound.assigned_gifts = totalAssignedPreviewFinal;
             GlobalTotalManualGiftsApplied += delta;
 
             if (dataBenefitFound.assigned_gifts >= dataBenefitFound.max_gifts)
@@ -665,26 +693,22 @@ public partial class PromocionesViewer
             product.qty_gift = targetQty;
             product.qty_gift_virtual = targetQty;
 
-            // =========================================================
-            // JSON SEGURO
-            // =========================================================
-            List<PromotionEvalItem> listPromotionData;
-
-            try
+            if (!ManualGiftsSeparateLinePerPromo)
             {
+                // Legacy: pisaba promotion_data al final (una sola línea por producto).
+                List<PromotionEvalItem> listPromotionData;
+                try
+                {
+                    listPromotionData = giftLine.promotionDataList;
+                }
+                catch
+                {
+                    listPromotionData = new List<PromotionEvalItem>();
+                }
 
-                listPromotionData = giftLine.promotionDataList;
+                listPromotionData.Add(product.promotionEvalItem);
+                giftLine.promotion_data = JsonConvert.SerializeObject(new List<PromoRuleItem>() { promoRuleItem });
             }
-            catch
-            {
-                listPromotionData = new List<PromotionEvalItem>();
-            }
-
-            listPromotionData.Add(product.promotionEvalItem);
-
-            giftLine.promotion_data = JsonConvert.SerializeObject(new List<PromoRuleItem>() { promoRuleItem });
-
-            //DMSA.Models.Odoo.Promotions.Tools.SetPromotionDataGift(giftLine, listPromotionData, ruleMatch);
 
             return true;
         }

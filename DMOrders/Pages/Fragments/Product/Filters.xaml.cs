@@ -295,7 +295,7 @@ public partial class Filters : ContentView
             return;
 
         bool confirm = await page.DisplayAlertAsync(
-            "Vaciar catálogo local",
+            "⚠️ Vaciar catálogo local",
             "Se eliminarán de la tablet: promociones, marcas, categorías, productos, precios, stock e imágenes.\n\n" +
             "No se borran pedidos ni clientes.\n\n" +
             "Después deberá sincronizar de nuevo (Promos / Marcas / Productos / Precios / Stock).",

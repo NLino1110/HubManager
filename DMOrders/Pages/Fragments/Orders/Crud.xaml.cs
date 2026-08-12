@@ -306,7 +306,8 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
                 ddfAddress.ItemsSource = PartnerAddress;
                 ddfAddress.ItemDisplayBinding = new Binding("display_full_address");
-                ddfAddress.SelectedItem = PartnerAddress[0];
+                ddfAddress.SelectedItem =
+                    PartnerAddress.FirstOrDefault(x => x.IsAddressActive) ?? PartnerAddress[0];
 
                 if (RequiredPreloadData)
                 {
@@ -483,6 +484,29 @@ public partial class Crud : ContentPage, IBackButtonHandler
     }
 
     /// <summary>
+    /// La dirección seleccionada debe tener misc_estado = activo (misma regla que alta de pedido desde clientes).
+    /// </summary>
+    private bool ValidateSelectedAddress(out string message)
+    {
+        message = null;
+
+        if (ddfAddress?.SelectedItem is not res_partner selected)
+        {
+            message = "Seleccione una dirección de facturación.";
+            return false;
+        }
+
+        if (selected.IsAddressActive)
+            return true;
+
+        message =
+            "La dirección seleccionada está INACTIVA.\n\n" +
+            "Seleccione otra dirección activa para continuar con el pedido.";
+
+        return false;
+    }
+
+    /// <summary>
     /// Guardar pedido + aplicar promociones.
     ///
     /// ANTES:
@@ -508,6 +532,12 @@ public partial class Crud : ContentPage, IBackButtonHandler
         if (!ValidateOrderLinesBeforeSave(out string validationMessage))
         {
             await DisplayAlertAsync("No se puede guardar", validationMessage, "Aceptar");
+            return;
+        }
+
+        if (!ValidateSelectedAddress(out string addressMessage))
+        {
+            await DisplayAlertAsync("⚠️ Confirmación requerida", addressMessage, "Aceptar");
             return;
         }
                 
@@ -824,14 +854,144 @@ public partial class Crud : ContentPage, IBackButtonHandler
         }
 
         await UITools.SetNotifyLoadingPopup("Sincronizando orden...");
-        bool sendOk = await serverPusher.SendSaleOrder(CurrentSaleOrder);
+        var sendResult = await serverPusher.SendSaleOrder(CurrentSaleOrder);
 
         await UITools.HideLoadingPopup();
 
-        if(sendOk)
+        if (sendResult.Ok)
         {
-            await DisplayAlertAsync("Envío de datos", "Envío correcto", "Aceptar");
+            await ShowSendSuccessAndCloseAsync(sendResult);
+            return;
+        }
+
+        await HandleSaleOrderSyncFailureAsync(sendResult, serverPusher);
+    }
+
+    private async Task ShowSendSuccessAndCloseAsync(SaleOrderSendResult sendResult)
+    {
+        string successMessage;
+        if (sendResult.LinkedExistingOrder)
+            successMessage = $"Pedido recuperado en el ERP: {sendResult.ErpName}";
+        else if (!string.IsNullOrWhiteSpace(sendResult.ErpName))
+            successMessage = $"Envío correcto: {sendResult.ErpName}";
+        else if (!string.IsNullOrWhiteSpace(CurrentSaleOrder?.erp_name))
+            successMessage = $"Envío correcto: {CurrentSaleOrder.erp_name}";
+        else
+            successMessage = "Envío correcto";
+
+        await DisplayAlertAsync("Envío de datos", successMessage, "Aceptar");
+        await Navigation.PopModalAsync(false);
+        NavigateToOrdersTab();
+    }
+
+    private static void NavigateToOrdersTab()
+    {
+        try
+        {
+            if (App.Current?.MainPage is MainPageTab mainPage)
+                mainPage.SelectTab("orders");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"NavigateToOrdersTab: {ex.Message}");
+        }
+    }
+
+    private async Task HandleSaleOrderSyncFailureAsync(SaleOrderSendResult sendResult, SaleOrders serverPusher)
+    {
+        if (!sendResult.IsDuplicateExternalGuid)
+        {
+            var retry = await DisplayAlertAsync(
+                "⚠️ Confirmación requerida",
+                sendResult.ErrorMessage,
+                "Reintentar envío",
+                "Cancelar");
+
+            if (!retry)
+                return;
+
+            await UITools.ShowLoadingPopup(this);
+            await UITools.SetNotifyLoadingPopup("Reintentando envío...");
+            var retryResult = await serverPusher.SendSaleOrder(CurrentSaleOrder);
+            await UITools.HideLoadingPopup();
+
+            if (retryResult.Ok)
+            {
+                await ShowSendSuccessAndCloseAsync(retryResult);
+                return;
+            }
+
+            await DisplayAlertAsync("⚠️ Confirmación requerida", retryResult.ErrorMessage, "Aceptar");
+            return;
+        }
+
+        await DisplayAlertAsync("⚠️ Confirmación requerida", sendResult.ErrorMessage, "Continuar");
+
+        var options = new List<string>
+        {
+            "Recuperar pedido en ERP",
+            "Reintentar envío",
+            "Ir a pedidos"
+        };
+
+        string action = await DisplayActionSheet(
+            "¿Qué desea hacer?",
+            "Cancelar",
+            null,
+            options.ToArray());
+
+        if (string.IsNullOrEmpty(action) || action == "Cancelar")
+            return;
+
+        if (action == "Recuperar pedido en ERP")
+        {
+            await UITools.ShowLoadingPopup(this);
+            await UITools.SetNotifyLoadingPopup("Recuperando pedido en ERP...");
+            var recoverResult = await serverPusher.RecoverSaleOrderFromErp(CurrentSaleOrder);
+            await UITools.HideLoadingPopup();
+
+            if (recoverResult.Ok)
+            {
+                await ShowSendSuccessAndCloseAsync(recoverResult);
+                return;
+            }
+
+            await DisplayAlertAsync("⚠️ Confirmación requerida", recoverResult.ErrorMessage, "Aceptar");
+            return;
+        }
+
+        if (action == "Ir a pedidos")
+        {
             await Navigation.PopModalAsync(false);
+            NavigateToOrdersTab();
+            return;
+        }
+
+        if (action == "Reintentar envío")
+        {
+            var confirmRetry = await DisplayAlertAsync(
+                "⚠️ Confirmación requerida",
+                "Se validará primero si el pedido ya existe en el ERP.\n\n"
+                + "• Si existe → se recuperará el número ERP (no se crea duplicado).\n"
+                + "• Si no existe → se generará un nuevo identificador y se creará el pedido.",
+                "Sí, continuar",
+                "Cancelar");
+
+            if (!confirmRetry)
+                return;
+
+            await UITools.ShowLoadingPopup(this);
+            await UITools.SetNotifyLoadingPopup("Validando y reintentando envío...");
+            var retryResult = await serverPusher.RetrySendAfterValidation(CurrentSaleOrder);
+            await UITools.HideLoadingPopup();
+
+            if (retryResult.Ok)
+            {
+                await ShowSendSuccessAndCloseAsync(retryResult);
+                return;
+            }
+
+            await DisplayAlertAsync("⚠️ Confirmación requerida", retryResult.ErrorMessage, "Aceptar");
         }
     }
 
