@@ -1,4 +1,4 @@
-using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
+﻿using DMSA.Models.Odoo.DMOrders.promotions.abstractCustom;
 using DMSA.Models.Odoo.Native;
 using DMSA.Sync.Core.Database.Sqlite;
 using System.Collections.ObjectModel;
@@ -124,6 +124,7 @@ public partial class PromocionesViewer
 
         if (selectedPromoEvalItem.Promotion._promotion_type_id == 2) // REGALO
         {
+            PanelSeleccionArticulos.IsVisible = true;
             BorderBenefits.IsVisible = true;
             BorderDiscount.IsVisible = false;
 
@@ -296,6 +297,7 @@ public partial class PromocionesViewer
 
     private void HandleDiscountPromotion(List<PromotionEvalItem> promoItems)
     {
+        PanelSeleccionArticulos.IsVisible = false;
         BorderBenefits.IsVisible = false;
         BorderDiscount.IsVisible = true;
 

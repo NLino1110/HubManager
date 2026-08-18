@@ -32,6 +32,7 @@ public partial class PromocionesViewer
 
         if (selectedPromoRuleEvalItem.promotion_type_id == 2) // REGALO
         {
+            PanelSeleccionArticulos.IsVisible = true;
             BorderBenefits.IsVisible = true;
             BorderDiscount.IsVisible = false;
 

@@ -239,9 +239,9 @@ public partial class PromocionesViewer
             .Select(x => (sale_order_line)x[2])
             .ToList();
 
-        // HashSet para evitar Any()
-        var existingCodes = new HashSet<string>(
-            _promoGiftsAuto.Where(x => x != null).Select(x => x.default_code)
+        // Clave (código, promo, regla): cada promo aporta su propia línea regalo.
+        var existingAutoKeys = new HashSet<string>(
+            _promoGiftsAuto.Where(x => x != null).Select(AutoGiftKey)
         );
 
         // Cache JSON
@@ -308,7 +308,16 @@ public partial class PromocionesViewer
             productGift.promoRuleItem = promoRuleItem;
             productGift.qty_gift = promoRuleItem.AllowedGifts;
 
-            bool productExistsInOrder = existingCodes.Contains(productGift.default_code);
+            string autoGiftKey = AutoGiftKey(
+                productGift.default_code, promoRuleItem.promo_id, promoRuleItem.id);
+
+            // El pedido puede traer ya la línea de esta promo (reabrir con "No eliminar").
+            bool productExistsInOrder =
+                existingAutoKeys.Contains(autoGiftKey)
+                || orderLines.Any(l => l != null
+                    && l.is_gift
+                    && l.product_id == productGift.id
+                    && AutoGiftLineMatchesRule(l, promoRuleItem));
 
             // CanApplyPromotion cacheado
             if (canApplyPromotionCache == null)
@@ -324,13 +333,16 @@ public partial class PromocionesViewer
             }
 
             Debug.WriteLine($"Auto gift: {productGift.name}");
-            _promoGiftsAuto.Add(productGift);
-            existingCodes.Add(productGift.default_code);
+
+            if (existingAutoKeys.Add(autoGiftKey))
+                _promoGiftsAuto.Add(productGift);
 
             foreach (var lineObject in orderLines)
             {
-                //Caso gift existente
-                if (lineObject.product_id == productGift.id && lineObject.is_gift)
+                //Caso gift existente: solo acumula sobre la línea de esta misma promo/regla.
+                if (lineObject.product_id == productGift.id
+                    && lineObject.is_gift
+                    && AutoGiftLineMatchesRule(lineObject, promoRuleItem))
                 {
                     if (promoRuleItem.selection_type_id == 1)
                     {
@@ -368,7 +380,8 @@ public partial class PromocionesViewer
                         listPromotionData = new List<PromotionEvalItem>();
                     }
 
-                    listPromotionData.Add(productGift.promotionEvalItem);
+                    if (productGift.promotionEvalItem != null)
+                        listPromotionData.Add(productGift.promotionEvalItem);
 
                     lineObject.promotion_data = JsonConvert.SerializeObject(new List<PromoRuleItem>() { promoRuleItem });
 
@@ -403,6 +416,7 @@ public partial class PromocionesViewer
                     price_tax = 0,
                     price_total = 0,
                     is_gift = true,
+                    is_manual = false,
                     product_id_origin = promoRuleItem.ProductIdOrigin,
                     promotion_data = JsonConvert.SerializeObject(
                         new List<PromoRuleItem>() { promoRuleItem }
@@ -729,8 +743,9 @@ public partial class PromocionesViewer
             .Select(x => (sale_order_line)x[2])
             .ToList();
 
-        var existingCodes = new HashSet<string>(
-            _promoGiftsAuto.Where(x => x != null).Select(x => x.default_code)
+        // Clave (código, promo, regla): cada promo aporta su propia línea regalo.
+        var existingAutoKeys = new HashSet<string>(
+            _promoGiftsAuto.Where(x => x != null).Select(AutoGiftKey)
         );
 
         var jsonCache = new Dictionary<string, List<PromotionEvalItem>>();
@@ -780,7 +795,16 @@ public partial class PromocionesViewer
                 productGift.promoRuleItem = promoRuleItem;
                 productGift.qty_gift = promoRuleItem.AllowedGifts;
 
-                bool productExistsInOrder = existingCodes.Contains(productGift.default_code);
+                string autoGiftKey = AutoGiftKey(
+                    productGift.default_code, promoRuleItem.promo_id, promoRuleItem.id);
+
+                // El pedido puede traer ya la línea de esta promo (reabrir con "No eliminar").
+                bool productExistsInOrder =
+                    existingAutoKeys.Contains(autoGiftKey)
+                    || orderLines.Any(l => l != null
+                        && l.is_gift
+                        && l.product_id == productGift.id
+                        && AutoGiftLineMatchesRule(l, promoRuleItem));
 
                 // Cache CanApplyPromotion
                 if (canApplyPromotionCache == null)
@@ -799,8 +823,10 @@ public partial class PromocionesViewer
 
                 foreach (var lineObject in orderLines)
                 {
-                    //Gift existente
-                    if (lineObject.product_id == productGift.id && lineObject.is_gift)
+                    //Gift existente: solo cuenta el de esta misma promo/regla.
+                    if (lineObject.product_id == productGift.id
+                        && lineObject.is_gift
+                        && AutoGiftLineMatchesRule(lineObject, promoRuleItem))
                     {
                         if (promoRuleItem.selection_type_id == 1)
                         {
@@ -859,8 +885,9 @@ public partial class PromocionesViewer
                     productGift.qty_gift = qty_assign;
 
                     Debug.WriteLine($"Auto gift NxN: {productGift.name}");
-                    _promoGiftsAuto.Add(productGift);
-                    existingCodes.Add(productGift.default_code);
+
+                    if (existingAutoKeys.Add(autoGiftKey))
+                        _promoGiftsAuto.Add(productGift);
 
                     var line = new sale_order_line
                     {

@@ -805,7 +805,7 @@ namespace DMOrders.Controls
             catch (Exception ex)
             {
                 await Toast.Make("Error al guardar actividad: " + ex.Message).Show();
-            }
+               }
 
             await CloseAsync(analyticLine);
         }

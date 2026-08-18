@@ -508,18 +508,6 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
     /// <summary>
     /// Guardar pedido + aplicar promociones.
-    ///
-    /// ANTES:
-    /// - Si ya había promos: "Sí, eliminar" limpiaba; "No eliminar" seguía igual a Save+ApplyPromo.
-    /// - ApplyPromo hacía PopModal y el finally de este método también → doble PopModal.
-    /// - El loading se cerraba antes de ApplyPromo → hueco hasta el modal de promos.
-    ///
-    /// DESPUÉS / POR QUÉ:
-    /// - "No eliminar" conserva promos pero SÍ abre el modal (producto nuevo con promos nuevas).
-    /// - Un solo PopModal (aquí en finally, con ModalStack).
-    /// - Loading "Calculando promociones..." se mantiene hasta que ApplyPromo va a mostrar el modal
-    ///   (o hasta salir sin modal si no hay promos a elegir).
-    /// - try/catch para no tumbar la app; muestra alerta con el mensaje.
     /// </summary>
     private async void ButtonSave_Clicked(object sender, EventArgs e)
     {
@@ -586,15 +574,18 @@ public partial class Crud : ContentPage, IBackButtonHandler
             {                
                 saved_data = true;
 
-                // Loading sigue abierto: ApplyPromo lo cierra al desplegar el modal
-                // (o si no hay promos / no hay nada que elegir).
-                applyPromo = await ApplyPromo(targetOrder);
+                var promoOutcome = await ApplyPromo(targetOrder);
+                applyPromo = promoOutcome.PromotionNames;
 
                 if (applyPromo != null && applyPromo.Count > 0)
                 {
                     await UITools.ShowLoadingPopup(this);
                     await UITools.SetNotifyLoadingPopup("Guardando pedido...");
                     targetOrder = await SaveOrder();
+                }
+                else if (!promoOutcome.InteractiveModalShown)
+                {
+                    await Navigation.PopModalAsync(false);
                 }
             }
         }
@@ -626,18 +617,6 @@ public partial class Crud : ContentPage, IBackButtonHandler
             {
                 Debug.WriteLine($"HideLoadingPopup: {ex.Message}");
             }
-
-            try
-            {
-                // ANTES: PopModal siempre + otro PopModal dentro de ApplyPromo → crash.
-                // DESPUÉS: un solo cierre, solo si aún hay modal.
-                if (Navigation?.ModalStack?.Count > 0)
-                    await Navigation.PopModalAsync(false);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"PopModalAsync after save: {ex.Message}");
-            }
         }
     }
 
@@ -661,7 +640,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
             {
                 var applyPromo = await ApplyPromo(targetOrder);
 
-                if (applyPromo.Count > 0)
+                if (applyPromo.PromotionNames.Count > 0)
                 {
 
                 }

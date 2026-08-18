@@ -178,17 +178,27 @@ public partial class PromocionesViewer
                         //NxN
                         if (benefit.Promotion._promotion_type_id == 4 && benefit.Promotion._selection_type_id == 1)
                         {
+                            // El regalo auto se marca con promoRuleItem; promotionEvalItem queda null
+                            // y hacía que el total mostrado cayera a 0.
                             int totalGifts = 0;
                             foreach (var giftItem in _promoGiftsAuto)
                             {
+                                if (giftItem == null)
+                                    continue;
+
+                                int giftPromoId = giftItem.promoRuleItem?.promo_id
+                                    ?? giftItem.promotionEvalItem?.Promotion?.id
+                                    ?? 0;
+
+                                if (giftPromoId != benefit.Promotion.id)
+                                    continue;
+
                                 Debug.WriteLine($"Este es el regalo {giftItem.qty_gift}");
-                                if (giftItem.promotionEvalItem != null && giftItem.promotionEvalItem.Promotion.id == benefit.Promotion.id)
-                                {
-                                    totalGifts += giftItem.qty_gift;
-                                }
+                                totalGifts += giftItem.qty_gift;
                             }
 
-                            benefit.MaxAllowedGifts = totalGifts;
+                            if (totalGifts > 0)
+                                benefit.MaxAllowedGifts = totalGifts;
                         }
                     }
                 }
@@ -308,5 +318,71 @@ public partial class PromocionesViewer
         return orderLines
             .Where(l => l != null && l.is_gift && GiftLineBelongsToPromo(l, promoId))
             .Sum(l => (int)l.product_uom_qty_real);
+    }
+
+    /// <summary>
+    /// Regalo automático (AutoGiftsSeparateLinePerPromo): identifica línea por (promo_id, rule_id).
+    /// Con el flag apagado la clave es solo el código, replicando la fusión anterior.
+    /// </summary>
+    private static string AutoGiftKey(string? defaultCode, int promoId, int ruleId)
+    {
+        return AutoGiftsSeparateLinePerPromo
+            ? $"{defaultCode}|{promoId}|{ruleId}"
+            : defaultCode ?? string.Empty;
+    }
+
+    private static string AutoGiftKey(product_product? product)
+    {
+        if (product == null)
+            return string.Empty;
+
+        return AutoGiftKey(
+            product.default_code,
+            product.promoRuleItem?.promo_id ?? 0,
+            product.promoRuleItem?.id ?? 0);
+    }
+
+    private static bool GiftLineBelongsToPromoRule(sale_order_line? line, int promoId, int ruleId)
+    {
+        if (line == null || !line.is_gift)
+            return false;
+
+        if (!string.IsNullOrWhiteSpace(line.promotion_data))
+        {
+            try
+            {
+                var rules = JsonConvert.DeserializeObject<List<PromoRuleItem>>(line.promotion_data);
+
+                if (rules != null && rules.Count > 0)
+                    return rules.Any(r => r != null && r.promo_id == promoId && r.id == ruleId);
+            }
+            catch
+            {
+                // promotion_data puede no ser PromoRuleItem; se evalúan los arrays.
+            }
+        }
+
+        return line.promotion_ids != null
+            && line.rule_ids != null
+            && line.promotion_ids.Contains(promoId)
+            && line.rule_ids.Contains(ruleId);
+    }
+
+    /// <summary>
+    /// True si la línea regalo corresponde a esta misma promo/regla automática y por tanto
+    /// puede acumular cantidad. Los regalos manuales nunca entran aquí.
+    /// </summary>
+    private static bool AutoGiftLineMatchesRule(sale_order_line? line, PromoRuleItem promoRuleItem)
+    {
+        if (line == null || promoRuleItem == null)
+            return false;
+
+        if (!AutoGiftsSeparateLinePerPromo)
+            return true;
+
+        if (line.is_manual)
+            return false;
+
+        return GiftLineBelongsToPromoRule(line, promoRuleItem.promo_id, promoRuleItem.id);
     }
 }

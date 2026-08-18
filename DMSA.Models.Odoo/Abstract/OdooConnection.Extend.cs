@@ -191,6 +191,64 @@ namespace DMSA.Models.Odoo.Abstract
             }
             );
 
+            defaultSettings.Add(new OdooConnection()
+            {
+                Id = 48,
+                CompanyId = 1,
+                Name = "Macronegocios (Local)",
+                Host = "http://192.168.204.32:8069/",
+                DbName = "qa.macronegocios",
+                Username = "admin",
+                Password = CryptoHelper.Encrypt("demo"),
+                Active = false,
+                HostDump = "https://manager.dmujeres.ec:5001",
+                HostDumpApiKey = "t.0.0.r.1381",
+                DumpService = "/resources/tmp/android/sqlite/",
+                DbLimitDefault = 300,
+                IsProduction = false,
+                IsTestMode = true,
+                DataToleranceDays = 365,
+                sale_channel_default = 8,
+                res_center_default = 49,
+                prefix_db = "loca_",
+                email_domain = "macronegocios.ec",
+                preload_email_domain = true,
+                PasswordFront = "Y0.dM3c",
+                subclasificacion_gasto_default = 147,
+                project_id = 2,
+                stage_id = 0,
+            }
+            );
+
+            defaultSettings.Add(new OdooConnection()
+            {
+                Id = 49,
+                CompanyId = 1,
+                Name = "DMujeres (Local)",
+                Host = "http://192.168.204.32:8069/",
+                DbName = "qa.demujeres",
+                Username = "admin",
+                Password = CryptoHelper.Encrypt("demo"),
+                Active = false,
+                HostDump = "https://manager.dmujeres.ec:5001",
+                HostDumpApiKey = "t.0.0.r.1381",
+                DumpService = "/resources/tmp/android/sqlite/",
+                DbLimitDefault = 300,
+                IsProduction = false,
+                IsTestMode = true,
+                DataToleranceDays = 365,
+                sale_channel_default = 8,
+                res_center_default = 49,
+                prefix_db = "loca_",
+                email_domain = "macronegocios.ec",
+                preload_email_domain = true,
+                PasswordFront = "Y0.dM3c",
+                subclasificacion_gasto_default = 147,
+                project_id = 2,
+                stage_id = 0,
+            }
+            );
+
             return defaultSettings;
         }
 
@@ -375,6 +433,65 @@ namespace DMSA.Models.Odoo.Abstract
                 stage_id = 0,
             }
             );
+
+            defaultSettings.Add(new OdooConnection()
+            {
+                Id = 48,
+                CompanyId = 1,
+                Name = "Macronegocios (Local)",
+                Host = "http://192.168.204.32:8069/",
+                DbName = "qa.macronegocios",
+                Username = "admin",
+                Password = CryptoHelper.Encrypt("demo"),
+                Active = false,
+                HostDump = "https://manager.dmujeres.ec:5001",
+                HostDumpApiKey = "t.0.0.r.1381",
+                DumpService = "/resources/tmp/android/sqlite/",
+                DbLimitDefault = 300,
+                IsProduction = false,
+                IsTestMode = true,
+                DataToleranceDays = 365,
+                sale_channel_default = 8,
+                res_center_default = 49,
+                prefix_db = "loca_",
+                email_domain = "macronegocios.ec",
+                preload_email_domain = true,
+                PasswordFront = "Y0.dM3c",
+                subclasificacion_gasto_default = 147,
+                project_id = 2,
+                stage_id = 0,
+            }
+          );
+
+            defaultSettings.Add(new OdooConnection()
+            {
+                Id = 49,
+                CompanyId = 1,
+                Name = "DMujeres (Local)",
+                Host = "http://192.168.204.32:8069/",
+                DbName = "qa.demujeres",
+                Username = "admin",
+                Password = CryptoHelper.Encrypt("demo"),
+                Active = false,
+                HostDump = "https://manager.dmujeres.ec:5001",
+                HostDumpApiKey = "t.0.0.r.1381",
+                DumpService = "/resources/tmp/android/sqlite/",
+                DbLimitDefault = 300,
+                IsProduction = false,
+                IsTestMode = true,
+                DataToleranceDays = 365,
+                sale_channel_default = 8,
+                res_center_default = 49,
+                prefix_db = "loca_",
+                email_domain = "macronegocios.ec",
+                preload_email_domain = true,
+                PasswordFront = "Y0.dM3c",
+                subclasificacion_gasto_default = 147,
+                project_id = 2,
+                stage_id = 0,
+            }
+            );
+
 
             return defaultSettings;
         }

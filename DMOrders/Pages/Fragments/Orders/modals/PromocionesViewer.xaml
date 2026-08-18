@@ -121,7 +121,7 @@
         </Border>
 
         <!-- Controles inferiores -->
-        <HorizontalStackLayout Spacing="10" VerticalOptions="Center" Margin="5,5,5,5">
+        <HorizontalStackLayout x:Name="PanelSeleccionArticulos" Spacing="10" VerticalOptions="Center" Margin="5,5,5,5">
             <Button Text="Aplicar" 
                     BackgroundColor="#4CAF50" 
                     TextColor="White" 
@@ -171,8 +171,8 @@
             <Label Text="-" WidthRequest="60" FontAttributes="Bold" FontSize="11" />
         </HorizontalStackLayout>-->
         
-        <Grid>
-            <Border x:Name="BorderDiscount" StrokeThickness="1" StrokeLineCap="Flat" HeightRequest="200" IsVisible="False">            
+        <Grid HorizontalOptions="Fill">
+            <Border x:Name="BorderDiscount" StrokeThickness="1" StrokeLineCap="Flat" HeightRequest="200" IsVisible="False" HorizontalOptions="Fill">            
                 <CollectionView x:Name="DiscountDetails"
                     EmptyView="No hay datos para mostrar..."
                     ItemsSource="{Binding promoDiscounts}"
@@ -180,43 +180,48 @@
                     HorizontalOptions="Fill">
                     <CollectionView.HeaderTemplate>
                         <DataTemplate>
-                            <HorizontalStackLayout BackgroundColor="#DDDDDD" Padding="10,4,10,4">
-                                <Label Text="Nº" WidthRequest="40" FontAttributes="Bold" FontSize="11" />
-                                <Label Text="CODIGO" WidthRequest="100" FontAttributes="Bold" FontSize="11" />
-                                <!--<Label Text="DESCRIP." WidthRequest="350" FontAttributes="Bold" FontSize="11" />-->
-                                <!--<Label Text="-" WidthRequest="60" FontAttributes="Bold" FontSize="11" />-->
-                                <!--<Label Text="-" WidthRequest="60" FontAttributes="Bold" FontSize="11" />-->                            
-                                <Label Text="DESC.MAX." WidthRequest="70" HorizontalTextAlignment="Start" FontAttributes="Bold" FontSize="11"/>
-                                <Label Text="DESC.APL." WidthRequest="70" HorizontalTextAlignment="Start" FontAttributes="Bold" FontSize="11"/>
-                                <Label Text="" WidthRequest="50"/>
-                            </HorizontalStackLayout>
+                            <Grid ColumnDefinitions="45,*,90,90,*" BackgroundColor="#DDDDDD" Padding="10,4" HorizontalOptions="Fill">
+                                <Label Grid.Column="0" Text="Nº" FontAttributes="Bold" FontSize="11" VerticalTextAlignment="Center" />
+                                <Label Grid.Column="1" Text="CÓDIGO" FontAttributes="Bold" FontSize="11" VerticalTextAlignment="Center" />
+                                <Label Grid.Column="2" Text="DESC.MAX." HorizontalTextAlignment="Center" FontAttributes="Bold" FontSize="11" VerticalTextAlignment="Center"/>
+                                <Label Grid.Column="3" Text="DESC.APL." HorizontalTextAlignment="Center" FontAttributes="Bold" FontSize="11" VerticalTextAlignment="Center"/>
+                                <Label Grid.Column="4" Text="ACCIÓN" HorizontalTextAlignment="Center" FontAttributes="Bold" FontSize="11" VerticalTextAlignment="Center"/>
+                            </Grid>
                         </DataTemplate>
                     </CollectionView.HeaderTemplate>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <HorizontalStackLayout Padding="10" Margin="8,0,8,0">
-                                <Label Text="{Binding id}" WidthRequest="40" VerticalTextAlignment="Center" FontSize="10"/>
-                                <Label Text="{Binding code}" WidthRequest="100" VerticalTextAlignment="Center" FontSize="10"/>
-                                <!--<Label Text="{Binding name}" WidthRequest="250" VerticalTextAlignment="Center" FontSize="10"/>-->
-                                <!--<Label Text="{Binding uom_display}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="10"/>-->
-                                <!--<Label Text="{Binding qty_available}" WidthRequest="60" VerticalTextAlignment="Center" FontSize="10"/>-->
-                                <Label Text="{Binding discount_base,StringFormat='{0}%'}" WidthRequest="70" VerticalTextAlignment="Center" FontSize="10"/>
-                                <Entry Text="{Binding discount, Mode=TwoWay}" MaxLength="3" Keyboard="Numeric" WidthRequest="70" Placeholder="0"></Entry>
-                                <Button Text="" 
-                                        BackgroundColor="LimeGreen" 
-                                        TextColor="White" 
-                                        HeightRequest="30"
-                                        WidthRequest="30"
-                                        Padding="0"
+                            <Grid ColumnDefinitions="45,*,90,90,*" Padding="10,6" ColumnSpacing="8" HorizontalOptions="Fill">
+                                <Label Grid.Column="0" Text="{Binding id}" VerticalTextAlignment="Center" FontSize="11"/>
+                                <Label Grid.Column="1" Text="{Binding code}" VerticalTextAlignment="Center" FontSize="11" LineBreakMode="TailTruncation"/>
+                                <Label Grid.Column="2" Text="{Binding discount_base,StringFormat='{0}%'}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" FontSize="11"/>
+                                <Entry Grid.Column="3"
+                                       Text="{Binding discount, Mode=TwoWay}"
+                                       MaxLength="3"
+                                       Keyboard="Numeric"
+                                       HorizontalTextAlignment="Center"
+                                       Placeholder="0"
+                                       VerticalOptions="Center"
+                                       FontSize="11"/>
+                                <Button Grid.Column="4"
+                                        Text="APLICAR"
+                                        ContentLayout="Left, 8"
+                                        BackgroundColor="LimeGreen"
+                                        TextColor="White"
+                                        FontAttributes="Bold"
+                                        FontSize="11"
+                                        HeightRequest="36"
+                                        HorizontalOptions="Fill"
+                                        Padding="12,0"
                                         Clicked="Disc_Entry_Completed">
                                     <Button.ImageSource>
-                                        <FontImageSource 
-                                        Size="13"
-                                        FontFamily="FontAwesome5Solid"
-                                        Glyph="&#xf00c;" />
-                                    </Button.ImageSource>                                
-                                </Button>                            
-                            </HorizontalStackLayout>
+                                        <FontImageSource
+                                            Size="14"
+                                            FontFamily="FontAwesome5Solid"
+                                            Glyph="&#xf00c;" />
+                                    </Button.ImageSource>
+                                </Button>
+                            </Grid>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>            

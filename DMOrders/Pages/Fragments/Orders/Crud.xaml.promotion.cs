@@ -1,4 +1,4 @@
-using CommunityToolkit.Maui;
+﻿using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
@@ -278,12 +278,22 @@ namespace DMOrders.Pages.Fragments.Orders
         ///
         /// ERROR: cierre de app o NRE intermitente en WinUI.
         ///
-        /// DESPUÉS: no hace PopModal (lo hace el caller); null-safe; PrepareDiscount
-        /// envuelto en try para no bloquear la apertura del modal.
+        /// DESPUÉS: PopModal en Aplicar/Salir; loading se oculta antes del modal; null-safe;
+        /// PrepareDiscount envuelto en try para no bloquear la apertura del modal.
         /// </summary>
-        private async Task<List<string>> ApplyPromo(sale_order saleOrder)
+        private sealed class ApplyPromoOutcome
+        {
+            public List<string> PromotionNames { get; init; } = new();
+            /// <summary>Null si no hubo modal interactivo. 0=Salir, 1=Aplicar, 2=Aplicar y continuar.</summary>
+            public int? ModalActionResult { get; init; }
+            /// <summary>True si se abrió el modal de promociones (regalo/NxN/descuento manual).</summary>
+            public bool InteractiveModalShown { get; init; }
+        }
+
+        private async Task<ApplyPromoOutcome> ApplyPromo(sale_order saleOrder)
         {
             List<string> resultData = new List<string>();
+            int? modalActionResult = null;
 
             await EvalPromotions(saleOrder);
 
@@ -294,7 +304,7 @@ namespace DMOrders.Pages.Fragments.Orders
             {
                 await UITools.HideLoadingPopup();
                 await Toast.Make("No hay promociones aplicables").Show();
-                return new List<string>();
+                return new ApplyPromoOutcome();
             }
 
             foreach (var promoResult in AppliedPromotionResults)
@@ -345,7 +355,7 @@ namespace DMOrders.Pages.Fragments.Orders
             if (!ShowPromoPopup)
             {
                 await UITools.HideLoadingPopup();
-                return new List<string>();
+                return new ApplyPromoOutcome();
             }
 
             bool ShowPromoPopupLevel2 = false;
@@ -362,48 +372,34 @@ namespace DMOrders.Pages.Fragments.Orders
             //Se guardan las promociones que no son manuales
             await SavePromotions(true, false);
 
-            // Grid con data lista → quitar "Calculando promociones..." (no esperar al ShowPopup).
-            bool gridHasData =
-                (view.ItemsDataBenefitsRules?.Count ?? 0) > 0
-                || (view.ItemsDataBenefits?.Count ?? 0) > 0
-                || (AppliedPromotionResults?.Count ?? 0) > 0;
-
-            if (gridHasData)
-                await UITools.HideLoadingPopup();
-
             //if (!ShowPromoPopupLevel2) return new List<string>();
 
             var popup = new Popup
             {
                 Content = view,
-                BackgroundColor = Colors.Black.WithAlpha(0.4f), // fondo semi-transparente
+                BackgroundColor = Colors.Black.WithAlpha(0.4f),
                 CanBeDismissedByTappingOutsideOfPopup = false,
                 Padding = new Thickness(0),
                 Margin = new Thickness(0)
             };
-
-            view.ClosePopupAction = (promo) =>
-            {
-                _ = ClosePromoPopupSafeAsync(promo);
-            };
-
-            // Si el grid ya se pintó / abrió, asegurar que el loading no quede encima.
-            void OnPromoViewLoaded(object sender, EventArgs e)
-            {
-                view.Loaded -= OnPromoViewLoaded;
-                _ = UITools.HideLoadingPopup();
-            }
-            view.Loaded += OnPromoViewLoaded;
 
             var hostPage = Application.Current?.Windows?.FirstOrDefault()?.Page;
             if (hostPage == null)
             {
                 await UITools.HideLoadingPopup();
                 Debug.WriteLine("ApplyPromo: no hay Page para mostrar el popup de promociones.");
-                return resultData;
+                return new ApplyPromoOutcome
+                {
+                    PromotionNames = resultData,
+                    InteractiveModalShown = true
+                };
             }
 
-            // Por si aún seguía visible (sin data en colecciones pero igual se abre modal).
+            view.ClosePopupAction = (promo) =>
+            {
+                _ = PopupExtensions.ClosePopupAsync(hostPage, promo);
+            };
+
             await UITools.HideLoadingPopup();
             await Task.Yield();
 
@@ -426,6 +422,8 @@ namespace DMOrders.Pages.Fragments.Orders
 
             if (result?.Result is PromoResultPopup selected)
             {
+                modalActionResult = selected.ActionResult;
+
                 if (selected.ActionResult == 1 || selected.ActionResult == 2) //Aplicar - Aplicar y continuar
                 {
                     var toRemove = OrderLines
@@ -514,33 +512,25 @@ namespace DMOrders.Pages.Fragments.Orders
                     await Toast.Make("Promociones manuales no aplicadas.").Show();
                 }
 
-                // ANTES: PopModal aquí + PopModal en ButtonSave_Clicked.finally → crash WinUI
-                //        ("Object reference" / UnhandledException / Debugger.Break).
-                // DESPUÉS: el caller (ButtonSave) es el único que cierra el CRUD.
+                if (selected.ActionResult == 1 || selected.ActionResult == 0)
+                {
+                    try
+                    {
+                        await Navigation.PopModalAsync(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"ApplyPromo PopModalAsync: {ex}");
+                    }
+                }
             }
 
-            return resultData;
-        }
-
-        /// <summary>
-        /// Cierra el popup de promos de forma segura.
-        /// ANTES: ClosePopupAction llamaba ClosePopupAsync sin await → excepciones no observadas.
-        /// DESPUÉS: Task fire-and-forget con try/catch y Page null-check.
-        /// </summary>
-        private static async Task ClosePromoPopupSafeAsync(PromoResultPopup promo)
-        {
-            try
+            return new ApplyPromoOutcome
             {
-                var page = Application.Current?.Windows?.FirstOrDefault()?.Page;
-                if (page == null)
-                    return;
-
-                await PopupExtensions.ClosePopupAsync(page, promo);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"ClosePromoPopupSafeAsync: {ex}");
-            }
+                PromotionNames = resultData,
+                ModalActionResult = modalActionResult,
+                InteractiveModalShown = true
+            };
         }
     }
 }

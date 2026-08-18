@@ -91,6 +91,7 @@ namespace DMSA.Sync.Core.Update.Pusher
             var dto = new
             {
                 version = 1,
+                app_version = ResolveAppVersion(),
                 timestamp = DateTime.UtcNow,
                 data = new SaleOrderDTO
                 {
@@ -102,6 +103,17 @@ namespace DMSA.Sync.Core.Update.Pusher
             return JObject.FromObject(dto);
         }
 
+        /// <summary>
+        /// Versión del APK en sesión. Si no hay (apps viejas / default 0.0.0), usa 1.0.56.
+        /// </summary>
+        private static string ResolveAppVersion()
+        {
+            var version = Constants.Session?.AppVersion;
+            if (string.IsNullOrWhiteSpace(version) || version == "0.0.0")
+                return "1.0.56";
+
+            return version;
+        }
 
         public void RemoveGiftLines(ref sale_order sale_Order)
         {

@@ -15,6 +15,14 @@ public partial class PromocionesViewer
     /// </summary>
     private const bool ManualGiftsSeparateLinePerPromo = true;
 
+    /// <summary>
+    /// Regalos automáticos (bonificación auto y NxN): una línea por (product_id, promo_id, rule_id).
+    /// Con false vuelven a fusionarse en una sola línea por producto, que perdía cantidades
+    /// (la segunda promo hacía qty++ en vez de aportar sus propios regalos) y dejaba
+    /// origin_gift_line_ids_offline con el total_allowed_gifts de la primera promo.
+    /// </summary>
+    private const bool AutoGiftsSeparateLinePerPromo = true;
+
     private int GlobalTotalManualGiftsAllowed = 0;
     private int GlobalTotalManualGiftsApplied = 0;
     public int GlobalTotalManualGiftsForRemove = 0;
