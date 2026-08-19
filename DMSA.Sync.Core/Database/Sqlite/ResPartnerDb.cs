@@ -441,6 +441,73 @@ namespace DMSA.Sync.Core.Database.Sqlite
             return await Database.Table<res_partner>().Where(i => i.id == id).FirstOrDefaultAsync();
         }
 
+        // ANTES: no existía; saldos solo se guardaban con search_read (InsertBatchAsync completo).
+        // DESPUÉS (Cobranzas Fase 2): contar partners locales para paginar web_read.
+        public async Task<int> GetPartnerCountAsync()
+        {
+            await Init();
+            return await Database.Table<res_partner>().CountAsync();
+        }
+
+        // ANTES: no existía.
+        // DESPUÉS: obtiene IDs paginados de res_partner para llamar web_read por lotes.
+        public async Task<int[]> GetPartnerIdsPageAsync(int pageIndex, int pageSize)
+        {
+            await Init();
+
+            var offset = Math.Max(0, pageIndex * pageSize);
+            var items = await Database.Table<res_partner>()
+                .OrderBy(x => x.id)
+                .Skip(offset)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return items.Select(x => x.id).ToArray();
+        }
+
+        // ANTES: no existía; OR REPLACE del search_read podía dejar saldos incorrectos.
+        // DESPUÉS: UPDATE parcial solo de columnas de saldo (no toca nombre, vat, etc.).
+        // REVERTIR: no llamar si EnableResPartnerCobranzasSaldosWebRead = false en ServerPuller.
+        public async Task<int> UpdateSaldosBatchAsync(IEnumerable<res_partner_saldos_read> items)
+        {
+            await Init();
+
+            if (items == null)
+            {
+                return 0;
+            }
+
+            var saldos = items.ToList();
+            if (saldos.Count == 0)
+            {
+                return 0;
+            }
+
+            int updated = 0;
+            await Database.RunInTransactionAsync(tran =>
+            {
+                foreach (var item in saldos)
+                {
+                    updated += tran.Execute(
+                        @"UPDATE res_partner SET
+                            saldo_vencido = ?,
+                            saldo_por_vencer = ?,
+                            saldo_a_favor = ?,
+                            saldo_total = ?,
+                            saldo_ch_posfechado = ?
+                          WHERE id = ?",
+                        item.saldo_vencido,
+                        item.saldo_por_vencer,
+                        item.saldo_a_favor,
+                        item.saldo_total,
+                        item.saldo_ch_posfechado,
+                        item.id);
+                }
+            });
+
+            return updated;
+        }
+
         public async Task RemoveOldDataAsync()
         {
             await Init();

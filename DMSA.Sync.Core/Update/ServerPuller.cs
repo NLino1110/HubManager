@@ -47,6 +47,10 @@ namespace DMSA.Sync.Core.Update
 
         int maxIndexExceeded { get; set; }
 
+        // REVERTIR Cobranzas Fase 2 (web_read saldos): poner en false.
+        // Con false queda solo Fase 1 (search_read) como antes de este cambio.
+        private const bool EnableResPartnerCobranzasSaldosWebRead = true;
+
         public AppSession appSession => Constants.Session;
 
         private string DbNameSqlite { get; set; }

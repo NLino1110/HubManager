@@ -372,7 +372,13 @@ public partial class UpdateData : ContentPage
 
         if (chkGroup5.IsChecked)
         {
-            await serverPuller.OnlineSyncResPartnerFull(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Clientes"); });
+            // ANTES: OnlineSyncResPartnerFull (mismo proceso de Órdenes, filtro write_date).
+            // DESPUÉS: OnlineSyncResPartnerCobranzasAll
+            //   Fase 1: search_read (datos maestros)
+            //   Fase 2: web_read (saldos) — revertir con EnableResPartnerCobranzasSaldosWebRead = false
+            await serverPuller.OnlineSyncResPartnerCobranzasAll(
+                async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Clientes (datos)"); },
+                async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Clientes (saldos)"); });
         }
 
         if (chkGroup6.IsChecked)

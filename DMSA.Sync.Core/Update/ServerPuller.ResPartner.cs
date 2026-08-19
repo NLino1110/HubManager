@@ -249,5 +249,120 @@ namespace DMSA.Sync.Core.Update
 
             return true;
         }
+
+        // ANTES (Cobranzas usaba el mismo de Órdenes): OnlineSyncResPartnerFull
+        //   search_count/search_read con write_date >= última sync.
+        //   No actualizaba saldos si el partner no se había escrito.
+        // DESPUÉS (solo Cobranzas): OnlineSyncResPartnerCobranzasAll
+        //   Fase 1: search_count/search_read de todos los res.partner, sin write_date.
+        //   Fase 2: web_read por IDs + UPDATE parcial de saldos en res_partner.
+        //   Órdenes sigue usando OnlineSyncResPartnerFull; no se toca.
+        // REVERTIR Fase 2: EnableResPartnerCobranzasSaldosWebRead = false en ServerPuller.cs
+        public async Task<bool> OnlineSyncResPartnerCobranzasAll(
+            Func<int, int, Task>? onProgress = null,
+            Func<int, int, Task>? onSaldosProgress = null)
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            var database = new ResPartnerDb(Constants.Session.odooConnection.DbNameSqlite);
+            var hubmanager = new HubResPartner(appSession);
+            var resultCount = await hubmanager.GetCountAll();
+
+            Debug.WriteLine("OnlineSyncResPartnerCobranzasAll count: " + resultCount.result);
+
+            if (resultCount.result == 0)
+            {
+                return false;
+            }
+
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
+
+            // --- Fase 1: datos maestros del partner (search_read) ---
+            for (int indice = 0; indice <= totalPages; indice++)
+            {
+                var responseAll = await hubmanager.GetAll(limit, indice);
+
+                if (responseAll != null && responseAll.result != null && responseAll.result.Length > 0)
+                {
+                    await database.InsertBatchAsync(responseAll.result);
+                }
+
+                Console.WriteLine("ResPartnerCobranzasAll Fase1 Página:" + indice + " de " + totalPages);
+
+                if (onProgress != null)
+                    await onProgress(indice, totalPages);
+
+                if (indice >= maxIndexExceeded)
+                {
+                    Console.WriteLine("Página " + indice + ": Se terminará el proceso Fase 1.");
+                    break;
+                }
+            }
+
+            // --- Fase 2: saldos correctos vía web_read (revertible) ---
+            if (EnableResPartnerCobranzasSaldosWebRead)
+            {
+                await RefreshResPartnerSaldosWebReadAsync(
+                    database,
+                    hubmanager,
+                    onSaldosProgress ?? onProgress);
+            }
+
+            stopwatch.Stop();
+
+            Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+                stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
+            return true;
+        }
+
+        // ANTES: no existía; saldos quedaban con los valores de search_read.
+        // DESPUÉS: lee IDs de SQLite, web_read por lotes, UPDATE parcial de saldos.
+        // Lotes grandes = menos HTTP (web_read solo trae 5 campos + id).
+        private async Task RefreshResPartnerSaldosWebReadAsync(
+            ResPartnerDb database,
+            HubResPartner hubmanager,
+            Func<int, int, Task>? onProgress)
+        {
+            int totalPartners = await database.GetPartnerCountAsync();
+
+            Debug.WriteLine("RefreshResPartnerSaldosWebRead count local: " + totalPartners);
+
+            if (totalPartners == 0)
+            {
+                return;
+            }
+
+            int saldosBatchSize = Math.Max(limit, 200);
+            int totalSaldosPages = (int)Math.Ceiling((double)totalPartners / saldosBatchSize);
+
+            for (int pageIndex = 0; pageIndex < totalSaldosPages; pageIndex++)
+            {
+                var ids = await database.GetPartnerIdsPageAsync(pageIndex, saldosBatchSize);
+
+                if (ids.Length == 0)
+                {
+                    continue;
+                }
+
+                var responseSaldos = await hubmanager.WebReadSaldos(ids);
+
+                if (responseSaldos != null && responseSaldos.result != null && responseSaldos.result.Length > 0)
+                {
+                    await database.UpdateSaldosBatchAsync(responseSaldos.result);
+                }
+
+                Console.WriteLine("ResPartnerCobranzasAll Fase2 Saldos:" + (pageIndex + 1) + " de " + totalSaldosPages);
+
+                if (onProgress != null)
+                    await onProgress(pageIndex + 1, totalSaldosPages);
+
+                if (pageIndex >= maxIndexExceeded)
+                {
+                    Console.WriteLine("Página saldos " + pageIndex + ": Se terminará el proceso Fase 2.");
+                    break;
+                }
+            }
+        }
     }
 }

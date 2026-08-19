@@ -2,6 +2,7 @@
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Security;
+using RestSharp;
 
 namespace ApiManager
 {
@@ -86,6 +87,29 @@ namespace ApiManager
             return await GetCount(args, _custom_args);            
         }
 
+        // Cobranzas: count de res.partner sin write_date (proceso aparte de Órdenes).
+        public async Task<ApiResponseOdooRpc?> GetCountAll()
+        {
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] { };
+            return await GetCount(args, _custom_args);
+        }
+
+        // Cobranzas: search_read paginado de todos los res.partner, sin filtro write_date.
+        public async Task<ApiResponseOdooRpcT<res_partner[]>?> GetAll(int limit, int index)
+        {
+            var kwargs = new
+            {
+                limit = limit,
+                offset = (index * limit),
+                fields = fields_array
+            };
+
+            object[] args = new object[] { };
+            object[] _custom_args = new object[] { };
+            return await SearchRead<ApiResponseOdooRpcT<res_partner[]>>(args, _custom_args, kwargs, true);
+        }
+
         public async Task<ApiResponseOdooRpc?> GetCountBySeller(int year, int month, int day, int seller)
         {
             object[] args = new object[] { };
@@ -160,6 +184,39 @@ namespace ApiManager
                 new object[] { "adic_comercial_id", "=", seller },
             };
             return await SearchRead<ApiResponseOdooRpcT<res_partner[]>>(args, _custom_args, kwargs, true);
+        }
+
+        // ANTES: saldos venían en search_read (a menudo incorrectos, ej. saldo_total=0).
+        // DESPUÉS (Cobranzas Fase 2): web_read con context tipo_partner=customer y specification de saldos.
+        // REVERTIR: no llamar WebReadSaldos; desactivar EnableResPartnerCobranzasSaldosWebRead en ServerPuller.
+        public async Task<ApiResponseOdooRpcT<res_partner_saldos_read[]>?> WebReadSaldos(int[] ids)
+        {
+            if (ids == null || ids.Length == 0)
+            {
+                return null;
+            }
+
+            object[] args = new object[] { ids };
+            var kwargs = new
+            {
+                context = new { tipo_partner = "customer" },
+                specification = new
+                {
+                    saldo_a_favor = new { },
+                    saldo_ch_posfechado = new { },
+                    saldo_por_vencer = new { },
+                    saldo_total = new { },
+                    saldo_vencido = new { }
+                }
+            };
+
+            return await CallMethod<ApiResponseOdooRpcT<res_partner_saldos_read[]>>(
+                EndPointApi,
+                Method.Post,
+                args,
+                kwargs,
+                _modelname,
+                "web_read");
         }
     }
 }
