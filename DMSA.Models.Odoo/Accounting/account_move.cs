@@ -1,4 +1,4 @@
-﻿using DMSA.Models.Odoo.Base;
+using DMSA.Models.Odoo.Base;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SQLite;
@@ -39,6 +39,21 @@ namespace DMSA.Models.Odoo.Accounting
         public decimal amount_total_signed { get; set; }
         public decimal amount_total { get; set; }
         public decimal amount_tax { get; set; }
+
+        [JsonProperty("pf_promised_amount")]
+        [Column("pf_promised_amount")]
+        public decimal pf_promised_amount { get; set; }
+
+        [JsonIgnore]
+        public bool HasPostdatedCheckAmount => pf_promised_amount > 0;
+
+        [JsonProperty("is_nota_debito")]
+        [Column("is_nota_debito")]
+        public bool is_nota_debito { get; set; }
+
+        [JsonIgnore]
+        public string document_reference_label =>
+            AccountMoveDocumentDisplay.GetDocumentReferenceLabel(docnum_mask, move_type, is_nota_debito);
 
         [JsonIgnore]
         public decimal amount_residual_virtual { get; set; }

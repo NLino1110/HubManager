@@ -92,7 +92,10 @@
                             <DataTrigger TargetType="Button" Binding="{Binding Item.payment_status, Source={x:Reference Root}}" Value="PENDIENTE">
                                 <Setter Property="IsVisible" Value="True"/>
                             </DataTrigger>
-                            <DataTrigger TargetType="Button" Binding="{Binding Item.payment_status, Source={x:Reference Root}}" Value="ERROR">
+                            <DataTrigger TargetType="Button" Binding="{Binding Item.payment_status, Source={x:Reference Root}}" Value="EN PROCESO">
+                                <Setter Property="IsVisible" Value="True"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Button" Binding="{Binding Item.payment_status, Source={x:Reference Root}}" Value="ENVIANDO">
                                 <Setter Property="IsVisible" Value="True"/>
                             </DataTrigger>
                         </Button.Triggers>
@@ -158,7 +161,7 @@
             <ui:IndicatorLabelUI
                 Grid.Row="2"                
                 Grid.Column="1"
-                Text="{Binding Item.payment_status, Source={x:Reference Root}}"
+                Text="{Binding Item.payment_status_display, Source={x:Reference Root}}"
                 TextColor="White"
                 TextBackgroundColor="DarkSeaGreen"
                 VerticalOptions="Center">
@@ -172,6 +175,26 @@
                                  Binding="{Binding Item.payment_status, Source={x:Reference Root}}"
                                  Value="ERROR">
                         <Setter Property="TextBackgroundColor" Value="OrangeRed"/>
+                    </DataTrigger>
+                    <DataTrigger TargetType="ui:IndicatorLabelUI"
+                                 Binding="{Binding Item.payment_status, Source={x:Reference Root}}"
+                                 Value="APLICADO">
+                        <Setter Property="TextBackgroundColor" Value="#1565C0"/>
+                    </DataTrigger>
+                    <DataTrigger TargetType="ui:IndicatorLabelUI"
+                                 Binding="{Binding Item.payment_status, Source={x:Reference Root}}"
+                                 Value="CANCELADO">
+                        <Setter Property="TextBackgroundColor" Value="Gray"/>
+                    </DataTrigger>
+                    <DataTrigger TargetType="ui:IndicatorLabelUI"
+                                 Binding="{Binding Item.payment_status, Source={x:Reference Root}}"
+                                 Value="EN PROCESO">
+                        <Setter Property="TextBackgroundColor" Value="DodgerBlue"/>
+                    </DataTrigger>
+                    <DataTrigger TargetType="ui:IndicatorLabelUI"
+                                 Binding="{Binding Item.payment_status, Source={x:Reference Root}}"
+                                 Value="ENVIANDO">
+                        <Setter Property="TextBackgroundColor" Value="DodgerBlue"/>
                     </DataTrigger>
                 </ui:IndicatorLabelUI.Triggers>
             </ui:IndicatorLabelUI>
@@ -220,7 +243,8 @@
                     </Button.ImageSource>
                 </Button>
 
-                <Button Text="EDITAR"                    
+                <Button Text="EDITAR"
+                    IsVisible="False"
                     Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditCommand}"
                     CommandParameter="{Binding .}"
                     BackgroundColor="LimeGreen"
@@ -232,6 +256,14 @@
                     HorizontalOptions="Center"
                     Margin="1"
                     ContentLayout="Top,0">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding Item.payment_status, Source={x:Reference Root}}" Value="PENDIENTE">
+                            <Setter Property="IsVisible" Value="True"/>
+                        </DataTrigger>
+                        <DataTrigger TargetType="Button" Binding="{Binding Item.payment_status, Source={x:Reference Root}}" Value="ERROR">
+                            <Setter Property="IsVisible" Value="True"/>
+                        </DataTrigger>
+                    </Button.Triggers>
                     <Button.ImageSource>
                         <FontImageSource
                             FontFamily="FontAwesome5Solid"
@@ -241,7 +273,8 @@
                     </Button.ImageSource>
                 </Button>
 
-                <Button Text="ENVIAR"                    
+                <Button Text="ENVIAR"
+                    IsVisible="False"
                     Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EnviarCobroCommand}"
                     CommandParameter="{Binding .}"
                         BackgroundColor="DeepSkyBlue"
@@ -253,6 +286,17 @@
                         HorizontalOptions="Center"
                         Margin="1"
                         ContentLayout="Top,0">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding Item.payment_status, Source={x:Reference Root}}" Value="PENDIENTE">
+                            <Setter Property="IsVisible" Value="True"/>
+                        </DataTrigger>
+                        <DataTrigger TargetType="Button" Binding="{Binding Item.payment_status, Source={x:Reference Root}}" Value="EN PROCESO">
+                            <Setter Property="IsVisible" Value="True"/>
+                        </DataTrigger>
+                        <DataTrigger TargetType="Button" Binding="{Binding Item.payment_status, Source={x:Reference Root}}" Value="ENVIANDO">
+                            <Setter Property="IsVisible" Value="True"/>
+                        </DataTrigger>
+                    </Button.Triggers>
                     <Button.ImageSource>
                         <FontImageSource
                             FontFamily="FontAwesome5Solid"

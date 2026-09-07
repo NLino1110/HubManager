@@ -121,7 +121,8 @@
                     x:Name="AddCobro"
                     CornerRadius="5"
                     BackgroundColor="DodgerBlue"
-                    HorizontalOptions="Center"
+                    HorizontalOptions="End"
+                    VerticalOptions="Center"
                     Text="AGREGAR"                    
                     Grid.Column="1"
                     Grid.Row="0"                    
@@ -139,14 +140,19 @@
                     </Button.ImageSource>
                 </Button>
 
-                <HorizontalStackLayout Grid.Row="0" Grid.Column="2" >
+                <HorizontalStackLayout
+                    Grid.Row="0"
+                    Grid.Column="2"
+                    Spacing="10"
+                    HorizontalOptions="End"
+                    VerticalOptions="Center">
                 <Button                    
                     CornerRadius="5"
-                    
                     x:Name="btnCustomerAccounts"                    
                     Text="Ver saldos" 
                     BackgroundColor="LimeGreen"                     
                     Margin="0,8,0,8"
+                    Padding="12,6"
                     HorizontalOptions="Center">
                     <Button.Behaviors>
                         <bh:SafeTapBehavior Command="{Binding VerSaldosCommand}" />
@@ -166,6 +172,8 @@
                     Text="" 
                     BackgroundColor="DeepSkyBlue"                     
                     Margin="0,8,0,8"
+                    Padding="12,6"
+                    WidthRequest="48"
                     HorizontalOptions="Center">
                     <Button.Behaviors>
                             <bh:SafeTapBehavior Command="{Binding DownloadDataCommand}" />

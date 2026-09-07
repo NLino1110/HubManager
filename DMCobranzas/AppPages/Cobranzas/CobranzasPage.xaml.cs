@@ -33,8 +33,6 @@ public partial class CobranzasPage : ContentPage
         }
     }
 
-    private bool isFirtAppears = true;
-
     public bool isWindows { get; set; } = false;
 
     public ObservableCollection<MultipleCobrosInvoiceGroup> _items { get; set; }
@@ -93,21 +91,14 @@ public partial class CobranzasPage : ContentPage
 
         //dateIni.Date = DateTime.Today.AddMonths(-1);
         dateIni.Date = DateTime.Today;
+        dateEnd.Date = DateTime.Today;
         BindingContext = this;
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
-
-        if (isFirtAppears)
-        {
-            isFirtAppears = false;
-        }
-        else
-        {
-            
-        }
+        LoadDataByDispatcher();
     }
 
     private async void btnBuscar_Clicked(object sender, EventArgs e)
@@ -155,15 +146,11 @@ public partial class CobranzasPage : ContentPage
 
         try
         {
-            if(SelectorCmp.SelectedItem ==null)
-            {
+            if (SelectorCmp.SelectedItem == null)
                 return;
-            }
 
             _items.Clear();
 
-            _items = new ObservableCollection<MultipleCobrosInvoiceGroup>();
-            
             DateTime dateEndField = dateEnd.Date.Value.AddHours(23).AddMinutes(59).AddSeconds(59);
 
             var SelCompany = (res_company) SelectorCmp.SelectedItem;
@@ -186,37 +173,37 @@ public partial class CobranzasPage : ContentPage
                  x.partner_name.Contains(text_search) &&
                  x.create_uid == App.Session.CurrentUserFront.uid);
 
-            //Se ordena desde la fecha mas actual
             ls_items = ls_items.OrderByDescending(c => c.create_date).ToList();
 
-            // Variable para almacenar la fecha actual
             DateTime currentFecha = DateTime.MinValue;
             List<MultipleCobrosInvoice> registrosGrupo = new List<MultipleCobrosInvoice>();
 
             foreach (var _paymentHeaderItem in ls_items)
             {
 
-                if(_paymentHeaderItem.payment_status == CobrosEstados.ENVIANDO)
+                if (CobrosEstados.IsEnProceso(_paymentHeaderItem.payment_status))
                 {
-                    // Obtén la fecha y hora actual
                     DateTime fechaActual = DateTime.Now;
-                    TimeSpan diferenciaDeTiempo = fechaActual - _paymentHeaderItem.create_date;
+                    TimeSpan diferenciaDeTiempo = fechaActual - _paymentHeaderItem.write_date;
 
-                    if (diferenciaDeTiempo.TotalMinutes > 5)
+                    if (_paymentHeaderItem.write_date == default || diferenciaDeTiempo.TotalMinutes > 5)
                     {
                         _paymentHeaderItem.payment_status = CobrosEstados.PENDIENTE;
-                        await Toast.Make("Cobro " + _paymentHeaderItem.receipt_name + " se regreso a estado PENDIENTE por inactividad.").Show();
+                        await database.UpdateAsync(_paymentHeaderItem);
+                        await DisplayAlertAsync(
+                            "AtenciÃ³n",
+                            $"Cobro {_paymentHeaderItem.receipt_name} se regresÃ³ a estado PENDIENTE por inactividad.",
+                            "Aceptar");
                     }
                 }
 
-                DateTime fecha = _paymentHeaderItem.create_date; // Convertir la cadena de fecha a DateTime
+                DateTime fecha = _paymentHeaderItem.create_date;
 
-                if (fecha.Date != currentFecha.Date) // Si la fecha cambia
+                if (fecha.Date != currentFecha.Date)
                 {
-                    // Ejecutar la función que recibe los registros de la fecha anterior
                     await ProcessItemsGroup(registrosGrupo, _items, SelCompany);
 
-                    currentFecha = fecha.Date; // Actualizar la fecha actual
+                    currentFecha = fecha.Date;
                     registrosGrupo = new List<MultipleCobrosInvoice>();
                 }
 
@@ -225,22 +212,25 @@ public partial class CobranzasPage : ContentPage
 
             await ProcessItemsGroup(registrosGrupo, _items, SelCompany);
 
+            OnPropertyChanged(nameof(_items));
+            collectionView.ItemsSource = null;
             collectionView.ItemsSource = _items;
-            
         }
         catch (Exception ex)
         {
             Debug.WriteLine("Error: " + ex.Message);
-        }        
-
-        IsLoading = false;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 
     private bool PermitirCerrar(MultipleCobrosInvoiceGroup group)
     {
         foreach (var itemgroup in group)
         {
-            if (itemgroup.payment_status == CobrosEstados.PENDIENTE || itemgroup.payment_status == CobrosEstados.ENVIANDO)
+            if (itemgroup.payment_status == CobrosEstados.PENDIENTE || CobrosEstados.IsEnProceso(itemgroup.payment_status))
                 return false;
         }
 
@@ -255,18 +245,18 @@ public partial class CobranzasPage : ContentPage
 
         if (!resultCerrar)
         {
-            await DisplayAlertAsync("Cierre no permitido", "Aún existen cobros sin procesar, por favor envíelos antes de cerrar el día.", "Cerrar");
+            await DisplayAlertAsync("Cierre no permitido", "A\u00FAn existen cobros sin procesar, por favor env\u00EDelos antes de cerrar el d\u00EDa.", "Cerrar");
             return;
         }
 
         Debug.WriteLine("CerrarDia");
         string idCierre = itemgroup.GroupData;
 
-        string numdeposito = await DisplayPromptAsync(itemgroup.GroupData, "# Depósito", "GUARDAR", "CANCELAR", "########", 10, Keyboard.Numeric); //, cobCarteraDet.VALORXAPLICAR);
+        string numdeposito = await DisplayPromptAsync(itemgroup.GroupData, "# Dep\u00F3sito", "GUARDAR", "CANCELAR", "########", 10, Keyboard.Numeric); //, cobCarteraDet.VALORXAPLICAR);
 
         if (numdeposito == null || numdeposito == "" || numdeposito.Length <= 3)
         {
-            await Toast.Make("Número de depósito para cierre no válido.").Show();
+            await Toast.Make("N\u00FAmero de dep\u00F3sito para cierre no v\u00E1lido.").Show();
             return;
         }
 
@@ -300,7 +290,7 @@ public partial class CobranzasPage : ContentPage
 
             for (int i = 0; i < itemsCobros.Count(); i++)
             {                
-                if (itemsCobros[i].payment_status == CobrosEstados.PENDIENTE || itemsCobros[i].payment_status == CobrosEstados.ENVIANDO)
+                if (itemsCobros[i].payment_status == CobrosEstados.PENDIENTE || CobrosEstados.IsEnProceso(itemsCobros[i].payment_status))
                 {                    
                     await UITools.HideLoadingPopup();
 
@@ -377,9 +367,20 @@ public partial class CobranzasPage : ContentPage
     private async void EditItem(object obj)
     {
         Debug.WriteLine("EditItem");
+        var invoice = (MultipleCobrosInvoice)obj;
+
+        if (!CobrosEstados.CanEdit(invoice.payment_status))
+        {
+            await DisplayAlertAsync(
+                "Atenci\u00F3n",
+                $"Solo se puede editar cobros en estado PENDIENTE o ERROR. Estado actual: {invoice.payment_status}.",
+                "Aceptar");
+            return;
+        }
+
         AccountPaymentView objPage = new AccountPaymentView();        
         objPage.Disappearing += NewPayment_Disappearing;
-        objPage.Sel_MultipleCobrosInvoice = (MultipleCobrosInvoice)obj;
+        objPage.Sel_MultipleCobrosInvoice = invoice;
         objPage.editionMode = true;
         await Navigation.PushAsync(objPage, false);
     }
@@ -435,19 +436,28 @@ public partial class CobranzasPage : ContentPage
 
     private async void EnviarCobro(object obj)
     {
-        bool answer = await DisplayAlertAsync("Envío de cobro", "Está seguro que desea enviar este cobro?", "Confirmar", "Cancelar");
+        var _multipleCobrosInvoice = (MultipleCobrosInvoice)obj;
+
+        if (!CobrosEstados.CanSync(_multipleCobrosInvoice.payment_status))
+        {
+            await DisplayAlertAsync(
+                "AtenciÃ³n",
+                $"Solo se puede sincronizar cobros en estado PENDIENTE o EN PROCESO. Estado actual: {CobrosEstados.GetDisplayStatus(_multipleCobrosInvoice.payment_status)}.",
+                "Aceptar");
+            return;
+        }
+
+        bool answer = await DisplayAlertAsync("Env\u00EDo de cobro", "Est\u00E1 seguro que desea enviar este cobro?", "Confirmar", "Cancelar");
         
         if (!answer)
         {
             return;
         }
 
-        var _multipleCobrosInvoice = (MultipleCobrosInvoice)obj;
-
         if (_multipleCobrosInvoice.center_id != App.Session.res_center.id)
         {
             _multipleCobrosInvoice.center_id = App.Session.res_center.id;
-            Debug.WriteLine("Diferencia entre res_center, dato será reemplazado");
+            Debug.WriteLine("Diferencia entre res_center, dato ser\u00E1 reemplazado");
         }
 
         await UITools.ShowLoadingPopup(this);
@@ -456,7 +466,7 @@ public partial class CobranzasPage : ContentPage
 
         if (result.result != null && result.result.Count > 0 && result.error == null)
         {
-            await Toast.Make("Envío de cobro correcto").Show();
+            await Toast.Make("Env\u00EDo de cobro correcto").Show();
         }
         else
         {
@@ -467,7 +477,7 @@ public partial class CobranzasPage : ContentPage
                 error_message = ParseTool.CleanServerMessage_v1(error_message, true);
             }
 
-            await Toast.Make("Envío de cobro erroneo:" + error_message).Show();
+            await Toast.Make("Env\u00EDo de cobro erroneo:" + error_message).Show();
         }
 
         await LoadData();
@@ -478,7 +488,7 @@ public partial class CobranzasPage : ContentPage
     {
         MultipleCobrosInvoice accountPaymentHeader = (MultipleCobrosInvoice)obj;
 
-        bool answer = await DisplayAlertAsync("Reversar cobro", "Está seguro que desea reversar este cobro? " + accountPaymentHeader.receipt_name, "Reversar", "Cancelar");
+        bool answer = await DisplayAlertAsync("Reversar cobro", "Est\u00E1 seguro que desea reversar este cobro? " + accountPaymentHeader.receipt_name, "Reversar", "Cancelar");
         
         if (!answer)
         {
@@ -569,7 +579,10 @@ public partial class CobranzasPage : ContentPage
 
         if (cierres != null)
         {
-            await Toast.Make("Ya se ha cerrado el día, no podrá ingresar más cobros hasta iniciar un nuevo período.").Show();
+            await DisplayAlertAsync(
+                "Atenci\u00F3n",
+                "Ya se ha cerrado el d\u00EDa, no podr\u00E1 ingresar m\u00E1s cobros hasta iniciar un nuevo per\u00EDodo.",
+                "Aceptar");
             return;
         }
 

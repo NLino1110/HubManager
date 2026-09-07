@@ -1,5 +1,6 @@
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Extensions;
+using DMCobranzas.Settings.helpers;
 using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.DebitCollection;
 using DMSA.Models.Odoo.Native;
@@ -87,7 +88,7 @@ public partial class AccountPaymentView : ContentPage
 
         Dispatcher.Dispatch(async () =>
         {
-            var leave = await DisplayAlert("Atención", "Los cambios que haya realizado no se guardarán. ¿Desea continuar?", "Si", "No");
+            var leave = await DisplayAlert("AtenciÃ³n", "Los cambios que haya realizado no se guardarÃ¡n. Â¿Desea continuar?", "Si", "No");
 
             if (leave)
             {
@@ -118,12 +119,34 @@ public partial class AccountPaymentView : ContentPage
         timer.Start();
     }
 
+    private async Task<bool> EnsureReceiptIsEditableAsync(string actionDescription)
+    {
+        if (!editionMode || Sel_MultipleCobrosInvoice == null)
+            return true;
+
+        if (CobrosEstados.CanEdit(Sel_MultipleCobrosInvoice.payment_status))
+            return true;
+
+        await DisplayAlertAsync(
+            "AtenciÃ³n",
+            $"Solo se puede {actionDescription} cuando el cobro estÃ¡ en estado PENDIENTE o ERROR. Estado actual: {Sel_MultipleCobrosInvoice.payment_status}.",
+            "Aceptar");
+        return false;
+    }
+
     private async void btnAddAccountPayment_Clicked(object sender, EventArgs e)
     {
+        if (!await EnsureReceiptIsEditableAsync("modificar el cobro"))
+            return;
+
         if(Sel_Res_Partner == null)
         {
-            await Toast.Make("Cliente no seleccionado.").Show();
+            await DisplayAlertAsync(
+            "ConfirmaciÃ³n requerida",
+            "Es necesario seleccionar un cliente para generar cobros.",
+            "Aceptar");
             return;
+      
         }
 
         AccountPaymentCrud obj = new AccountPaymentCrud(Sel_Res_Partner);
@@ -138,6 +161,9 @@ public partial class AccountPaymentView : ContentPage
     private async void EditItem(object objParam)
     {
         Debug.WriteLine("EditItem");
+
+        if (!await EnsureReceiptIsEditableAsync("editar formas de cobro"))
+            return;
 
         AccountPaymentCrud obj = new AccountPaymentCrud(Sel_Res_Partner);
         obj.isNewData = false;
@@ -154,7 +180,11 @@ public partial class AccountPaymentView : ContentPage
     private async void DeleteItem(object objParam)
     {
         Debug.WriteLine("DeleteItem");
-        bool answer = await DisplayAlert("Eliminar", "Está seguro que desea eliminar este abono?", "Eliminar", "Cancelar");
+
+        if (!await EnsureReceiptIsEditableAsync("eliminar formas de cobro"))
+            return;
+
+        bool answer = await DisplayAlert("Eliminar", "EstÃ¡ seguro que desea eliminar este abono?", "Eliminar", "Cancelar");
         
         if (answer)
         {
@@ -170,7 +200,7 @@ public partial class AccountPaymentView : ContentPage
 
     public static T FindClosestObject<T>(List<T> objects, T targetObject)
     {
-        // Lista de propiedades públicas del tipo de objeto
+        // Lista de propiedades pÃºblicas del tipo de objeto
         var properties = typeof(T).GetProperties();
 
         // Calcular la distancia entre cada objeto y el objeto objetivo
@@ -192,7 +222,7 @@ public partial class AccountPaymentView : ContentPage
             return new { Object = obj, Distance = distance };
         });
 
-        // Obtener el objeto más cercano o null si no se encontró ninguno
+        // Obtener el objeto mÃ¡s cercano o null si no se encontrÃ³ ninguno
         var closestObject = distances.OrderByDescending(d => d.Distance).FirstOrDefault();
 
         if (closestObject != null && closestObject.Distance > 0)
@@ -211,7 +241,7 @@ public partial class AccountPaymentView : ContentPage
         }
         else
         {
-            return 0; // Devuelve el valor original si no es un número válido
+            return 0; // Devuelve el valor original si no es un nÃºmero vÃ¡lido
         }
     }
 
@@ -274,6 +304,17 @@ public partial class AccountPaymentView : ContentPage
 
     private async Task LoadData()
     {
+        if (editionMode && isFirstLoad && Sel_MultipleCobrosInvoice != null
+            && !CobrosEstados.CanEdit(Sel_MultipleCobrosInvoice.payment_status))
+        {
+            await DisplayAlertAsync(
+                "AtenciÃ³n",
+                $"Este cobro no se puede editar porque no estÃ¡ en estado PENDIENTE o ERROR. Estado actual: {Sel_MultipleCobrosInvoice.payment_status}.",
+                "Aceptar");
+            await Navigation.PopAsync();
+            return;
+        }
+
         if ((accountPayments == null || accountPayments.Length == 0) && editionMode && isFirstLoad)
         {
             if (Sel_Res_Partner == null)
@@ -300,7 +341,7 @@ public partial class AccountPaymentView : ContentPage
 
             if (Sel_MultipleCobrosInvoice != null)
             {
-                //Si entra en modo edición se bloquea
+                //Si entra en modo ediciÃ³n se bloquea
                 GridPartner.IsEnabled = false;
                 var accountPaymentDb = new MultipleCobrosInvoiceLineDb(App.Session.odooConnection.DbNameSqlite);
                 var ls_accountPayments = await accountPaymentDb.GetItemsAsync(x=>x.MultipleCobrosInvoiceId == Sel_MultipleCobrosInvoice.id);
@@ -341,7 +382,7 @@ public partial class AccountPaymentView : ContentPage
 
     private async void btnClose_Clicked(object sender, EventArgs e)
     {
-        bool answer = await DisplayAlert("Atención", "Los cambios que haya realizado no se guardarán. ¿Desea continuar?", "Si", "No");
+        bool answer = await DisplayAlert("AtenciÃ³n", "Los cambios que haya realizado no se guardarÃ¡n. Â¿Desea continuar?", "Si", "No");
         
         if (!answer)
         {
@@ -353,6 +394,19 @@ public partial class AccountPaymentView : ContentPage
     private async void btnSave_Clicked(object sender, EventArgs e)
     {
         Debug.WriteLine("Guardando ...");
+
+        if (!await EnsureReceiptIsEditableAsync("guardar cambios"))
+            return;
+
+        if (accountPayments == null || accountPayments.Length == 0 || totalPagado <= 0)
+        {
+            await DisplayAlertAsync(
+                "AtenciÃ³n",
+                "No hay cobros en la lista. Debe agregar al menos un cobro antes de guardar.",
+                "Aceptar");
+            return;
+        }
+
         var database = new MultipleCobrosInvoiceDb(App.Session.odooConnection.DbNameSqlite);
         DateTime fechaActual = DateTime.Now;
 
@@ -390,6 +444,14 @@ public partial class AccountPaymentView : ContentPage
             multipleCobrosInvoice.CERRADO = "N";
             multipleCobrosInvoice.user_name = App.Session.CurrentUserFront.nombres;
             multipleCobrosInvoice.state = "draft";
+
+            if (editionMode)
+            {
+                multipleCobrosInvoice.external_guid = Sel_MultipleCobrosInvoice.external_guid;
+                if (string.IsNullOrWhiteSpace(multipleCobrosInvoice.external_guid))
+                    multipleCobrosInvoice.external_guid = Guid.NewGuid().ToString("N");
+            }
+
             List<MultipleCobrosInvoiceLine> _accountPayment = new List<MultipleCobrosInvoiceLine>();
       
             _accountPayment = accountPayments.ToList();
@@ -437,7 +499,7 @@ public partial class AccountPaymentView : ContentPage
                     }
                     else
                     {
-                        //Mostrar mensaje, no se agregó la línea porque probablemente no tenia valor asignado el documento
+                        //Mostrar mensaje, no se agregÃ³ la lÃ­nea porque probablemente no tenia valor asignado el documento
                     }
                 }
             }
@@ -447,12 +509,12 @@ public partial class AccountPaymentView : ContentPage
 
             if(Sel_Res_Partner == null)
             {
-                await Toast.Make("No se ha seleccionado cliente para la creación del cobro.").Show();
+                await Toast.Make("No se ha seleccionado cliente para la creaciÃ³n del cobro.").Show();
                 return;
             }
 
             var multipleCobrosInvoice = new MultipleCobrosInvoice();
-            //TODO: Asignación de los datos del pago nuevo
+            //TODO: AsignaciÃ³n de los datos del pago nuevo
 
             //accountPaymentHeader.company_id = Sel_Res_Partner.company_id;
             multipleCobrosInvoice.company_id = Sel_Company_Id.id;
@@ -474,7 +536,7 @@ public partial class AccountPaymentView : ContentPage
             multipleCobrosInvoice.CERRADO = "N";
             multipleCobrosInvoice.user_name = App.Session.CurrentUserFront.nombres;
             multipleCobrosInvoice.state = "draft";
-            multipleCobrosInvoice.note = "DESDE APLICACIÓN MÓVIL";
+            multipleCobrosInvoice.note = "DESDE APLICACIÃ“N MÃ“VIL";
             multipleCobrosInvoice.external_create_uid = App.Session.CurrentUserFront.uid;
             multipleCobrosInvoice.external_guid = Guid.NewGuid().ToString("N");
 
@@ -540,12 +602,15 @@ public partial class AccountPaymentView : ContentPage
     {
         if (Sel_Res_Partner == null)
         {
-            await Toast.Make("Cliente no seleccionado.").Show();
+            await DisplayAlertAsync(
+                "ConfirmaciÃ³n requerida",
+                "Es necesario seleccionar un cliente para mostrar saldos.",
+                "Aceptar");
             return;
         }
 
         var returnResultPopup = new PopupSelectInvoice(popupSizeConstants);
-        returnResultPopup.LoadAuto = true;
+        returnResultPopup.LoadAuto = false;
         returnResultPopup.ShowTextSearch = false;
         returnResultPopup.ShowToolBox = false;
         returnResultPopup.partner = Sel_Res_Partner;        
@@ -573,17 +638,23 @@ public partial class AccountPaymentView : ContentPage
         if (Sel_Res_Partner == null)
             return;
 
-        bool answer = await DisplayAlertAsync("Atención", "Obtener actualizaciones de facturas. ¿Desea continuar?", "Si", "No");
+        bool answer = await DisplayAlertAsync(
+            "AtenciÃ³n",
+            AccountMoveDocumentDisplay.PartnerSyncConfirmMessage,
+            "Si",
+            "No");
 
         if (!answer)
         {
             return;
         }
 
+        await UITools.ShowLoadingPopup(this);
+        await UITools.SetNotifyLoadingPopup(AccountMoveDocumentDisplay.PartnerSyncProgressMessage);
+
         try
         {
             var serverPuller = new ServerPuller();
-            //await serverPuller.OnlineSyncAccountMove(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Facturas"); });
             await serverPuller.OnlineSyncAccountMoveByResPartner(Sel_Res_Partner.id);
 
             var databaseAccountMove = new AccountMoveDb(App.Session.odooConnection.DbNameSqlite);
@@ -593,24 +664,6 @@ public partial class AccountPaymentView : ContentPage
                 foreach (var item in listCustomer)
                 {
                     await serverPuller.OnlineSyncAccountMoveLineByMove(item.id);
-
-                    //int[] linesIds = Array.Empty<int>();
-
-                    //if (!string.IsNullOrWhiteSpace(item._invoice_line_ids))
-                    //{
-                    //    try
-                    //    {
-                    //        linesIds = JsonConvert.DeserializeObject<int[]>(item._invoice_line_ids)
-                    //                   ?? Array.Empty<int>();
-
-                    //        await serverPuller.OnlineSyncAccountMoveLineByIds(linesIds);
-
-                    //    }
-                    //    catch (JsonException)
-                    //    {
-                    //        linesIds = Array.Empty<int>();
-                    //    }
-                    //}
                 }
             }
 
@@ -619,6 +672,10 @@ public partial class AccountPaymentView : ContentPage
         catch (Exception ex)
         {
             await Toast.Make("Error:" + ex.Message).Show();
-        }        
+        }
+        finally
+        {
+            await UITools.HideLoadingPopup();
+        }
     }
 }

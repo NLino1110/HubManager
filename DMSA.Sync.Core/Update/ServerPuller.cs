@@ -51,6 +51,9 @@ namespace DMSA.Sync.Core.Update
         // Con false queda solo Fase 1 (search_read) como antes de este cambio.
         private const bool EnableResPartnerCobranzasSaldosWebRead = true;
 
+        // REVERTIR filtro Desde/Hasta por invoice_date en actualización masiva: poner en true.
+        public const bool EnableInvoiceDateRangeSync = false;
+
         public AppSession appSession => Constants.Session;
 
         private string DbNameSqlite { get; set; }

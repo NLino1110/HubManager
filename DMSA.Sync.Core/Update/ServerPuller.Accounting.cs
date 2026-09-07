@@ -1,4 +1,4 @@
-﻿using ApiManager;
+using ApiManager;
 using ApiManagerOdoo.Accounting;
 using CommunityToolkit.Maui.Core;
 using DMSA.Models.Odoo.Accounting;
@@ -341,26 +341,88 @@ namespace DMSA.Sync.Core.Update
         //    }
         //}
 
-        [UpdateAction("Actualizar Facturas")]
-        public async Task<bool> OnlineSyncAccountMove(Func<int, int, Task>? onProgress = null)
+        [UpdateAction(
+            "Actualizar documentos (facturas, notas de débito)",
+            "Descarga cabeceras de facturas y notas de débito.")]
+        public async Task<bool> OnlineSyncAccountMove(
+            Func<int, int, Task>? onProgress = null,
+            DateTime? invoiceDateFrom = null,
+            DateTime? invoiceDateTo = null)
         {
             DateTime dateTimeIni = DateTime.Now;
 
             var database = new AccountMoveDb(Constants.Session.odooConnection.DbNameSqlite);
+            HubAccountMove hubmanager = new HubAccountMove(Constants.Session);
+
+            bool useInvoiceDateRange = EnableInvoiceDateRangeSync
+                && invoiceDateFrom.HasValue
+                && invoiceDateTo.HasValue;
+
+            if (useInvoiceDateRange)
+            {
+                var dateFrom = invoiceDateFrom!.Value.Date;
+                var dateTo = invoiceDateTo!.Value.Date;
+
+                var headerCount = await hubmanager.GetHeaderCountByInvoiceDateRange(dateFrom, dateTo);
+                Debug.WriteLine(headerCount?.result);
+                Debug.WriteLine($"AccountMove sync modo: rango invoice_date {dateFrom:yyyy-MM-dd} .. {dateTo:yyyy-MM-dd}");
+
+                if (headerCount == null || headerCount.result == 0)
+                    return false;
+
+                int headerPages = (int)Math.Ceiling((double)headerCount.result / limit);
+
+                for (int indice = 0; indice <= headerPages; indice++)
+                {
+                    var responseAll = await hubmanager.GetAccountMovesByInvoiceDateRange(dateFrom, dateTo, limit, indice);
+
+                    if (responseAll?.result != null && responseAll.result.Length > 0)
+                    {
+                        responseAll.result = FixAccountMove(responseAll.result);
+                        await database.InsertBatchAsync(responseAll.result);
+                    }
+
+                    Debug.WriteLine("AccountMove Página:" + indice + "/" + headerPages);
+
+                    if (onProgress != null)
+                        await onProgress(indice + 1, headerPages);
+
+                    if (indice >= maxIndexExceeded)
+                    {
+                        Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
+                        break;
+                    }
+                }
+
+                TimeSpan spanRange = (DateTime.Now - dateTimeIni);
+                Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+                    spanRange.Days, spanRange.Hours, spanRange.Minutes, spanRange.Seconds));
+
+                database.MarkAccountMoveSyncCompletedToday();
+                return true;
+            }
+
             DateTime? lastDate = await database.GetLastWriteDateAsync(sync_date_since_lower);
+
+            bool firstSyncOfDay = database.IsFirstAccountMoveSyncOfDay();
 
             //if (lastDate.HasValue)
             //{
             //    lastDate = lastDate.Value.AddMonths(-4);
             //}
 
-            HubAccountMove hubmanager = new HubAccountMove(Constants.Session);
-            var resultCount = await hubmanager.GetHeaderCount(lastDate.Value.Year, lastDate.Value.Month, lastDate.Value.Day);
+            var resultCount = await hubmanager.GetHeaderCount(
+                lastDate.Value.Year,
+                lastDate.Value.Month,
+                lastDate.Value.Day,
+                firstSyncOfDay);
 
             Debug.WriteLine(resultCount.result);
+            Debug.WriteLine($"AccountMove sync modo: {(firstSyncOfDay ? "write_date <= (1ra del día)" : "write_date >= (incremental)")}");
 
             if (resultCount.result == 0)
             {
+                database.MarkAccountMoveSyncCompletedToday();
                 return false;
             }
 
@@ -369,7 +431,7 @@ namespace DMSA.Sync.Core.Update
 
             for (int indice = 0; indice <= totalPages; indice++)
             {
-                var responseAll = await hubmanager.GetAccountMoves(lastDate.Value, limit, indice);
+                var responseAll = await hubmanager.GetAccountMoves(lastDate.Value, limit, indice, firstSyncOfDay);
 
                 if (responseAll.result != null && responseAll.result.Length > 0)
                 {
@@ -393,6 +455,8 @@ namespace DMSA.Sync.Core.Update
 
             Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
                 span.Days, span.Hours, span.Minutes, span.Seconds));
+
+            database.MarkAccountMoveSyncCompletedToday();
 
             return true;
         }
@@ -558,8 +622,13 @@ namespace DMSA.Sync.Core.Update
             return true;        
         }
 
-        [UpdateAction("Actualizar Detalles de Facturas")]
-        public async Task<bool> OnlineSyncAccountMoveLine(Func<int, int, Task>? onProgress = null)
+        [UpdateAction(
+            "Actualizar detalles de documentos (facturas, notas de débito)",
+            "Descarga líneas de facturas y notas de débito.")]
+        public async Task<bool> OnlineSyncAccountMoveLine(
+            Func<int, int, Task>? onProgress = null,
+            DateTime? invoiceDateFrom = null,
+            DateTime? invoiceDateTo = null)
         {
             DateTime dateTimeIni = DateTime.Now;
             var databaseDet = new AccountMoveLineDb(Constants.Session.odooConnection.DbNameSqlite);
@@ -567,6 +636,45 @@ namespace DMSA.Sync.Core.Update
             Debug.WriteLine("Iniciando proceso:" + " " + DateTime.Now.ToString());
 
             HubAccountMoveLine hubmanager = new HubAccountMoveLine(Constants.Session);
+
+            bool useInvoiceDateRange = EnableInvoiceDateRangeSync
+                && invoiceDateFrom.HasValue
+                && invoiceDateTo.HasValue;
+
+            if (useInvoiceDateRange)
+            {
+                var dateFrom = invoiceDateFrom!.Value.Date;
+                var dateTo = invoiceDateTo!.Value.Date;
+
+                var lineCount = await hubmanager.GetDetailCountByInvoiceDateRange(dateFrom, dateTo);
+                Debug.WriteLine(lineCount?.result);
+                Debug.WriteLine($"AccountMoveLine sync modo: rango invoice_date {dateFrom:yyyy-MM-dd} .. {dateTo:yyyy-MM-dd}");
+
+                if (lineCount == null || lineCount.result == 0)
+                    return false;
+
+                int linePages = (int)Math.Ceiling((double)lineCount.result / limit);
+
+                for (int indice = 0; indice <= linePages; indice++)
+                {
+                    var responseAll = await hubmanager.GetAccountMoveLinesByInvoiceDateRange(dateFrom, dateTo, limit, indice);
+
+                    if (responseAll?.result != null && responseAll.result.Length > 0)
+                        await databaseDet.InsertBatchAsync(responseAll.result);
+
+                    Debug.WriteLine("AccountMoveLine Página:" + indice + "/" + linePages);
+
+                    if (onProgress != null)
+                        await onProgress(indice + 1, linePages);
+                }
+
+                TimeSpan spanRange = (DateTime.Now - dateTimeIni);
+                Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+                    spanRange.Days, spanRange.Hours, spanRange.Minutes, spanRange.Seconds));
+
+                return true;
+            }
+
             DateTime? lastDate = await databaseDet.GetLastWriteDateAsync(sync_date_since_lower);
 
             //if (lastDate.HasValue)
@@ -771,30 +879,18 @@ namespace DMSA.Sync.Core.Update
                 {                    
                     foreach (var headerItem in responseAll.result)
                     {
-                        var foundHeader = await database.GetItemAsync(x=>x.external_guid == headerItem.external_guid);
+                        if (string.IsNullOrWhiteSpace(headerItem.external_guid))
+                            continue;
+
+                        var foundHeader = await database.GetItemAsync(x => x.external_guid == headerItem.external_guid);
                         if (foundHeader != null)
                         {
                             Debug.WriteLine("Registro ya existe en la base de datos!");
                             Debug.WriteLine(foundHeader.external_guid);
                             Debug.WriteLine(foundHeader.receipt_name);
 
-                            if(headerItem.state != foundHeader.state || headerItem.state_applied != foundHeader.state_applied)
-                            {
-                                foundHeader.state = headerItem.state;
-                                foundHeader.state_applied = headerItem.state_applied;
-
-                                if(foundHeader.state == "cancel")
-                                {
-                                    foundHeader.payment_status = CobrosEstados.CANCELADO;
-                                }
-
-                                //if (foundHeader.state == "done")
-                                //{
-                                //    foundHeader.payment_status = CobrosEstados.APLICADO;
-                                //}
-
+                            if (ApplyOdooPaymentHeaderState(foundHeader, headerItem))
                                 await database.UpdateAsync(foundHeader);
-                            }
 
                             continue;
                         }
@@ -855,6 +951,43 @@ namespace DMSA.Sync.Core.Update
                 span.Days, span.Hours, span.Minutes, span.Seconds));
 
             return true;
+        }
+
+        private static bool ApplyOdooPaymentHeaderState(MultipleCobrosInvoice local, MultipleCobrosInvoice fromOdoo)
+        {
+            bool changed = false;
+
+            if (!string.Equals(local.state, fromOdoo.state, StringComparison.Ordinal))
+            {
+                local.state = fromOdoo.state;
+                changed = true;
+            }
+
+            if (!string.Equals(local.state_applied, fromOdoo.state_applied, StringComparison.Ordinal))
+            {
+                local.state_applied = fromOdoo.state_applied;
+                changed = true;
+            }
+
+            string? mappedPaymentStatus = MapPaymentStatusFromOdooState(fromOdoo.state);
+            if (mappedPaymentStatus != null &&
+                !string.Equals(local.payment_status, mappedPaymentStatus, StringComparison.Ordinal))
+            {
+                local.payment_status = mappedPaymentStatus;
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        private static string? MapPaymentStatusFromOdooState(string? odooState)
+        {
+            return odooState switch
+            {
+                "cancel" => CobrosEstados.CANCELADO,
+                "done" => CobrosEstados.APLICADO,
+                _ => null
+            };
         }
 
     }

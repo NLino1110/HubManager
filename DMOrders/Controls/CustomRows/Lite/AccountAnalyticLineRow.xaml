@@ -113,19 +113,20 @@
             Text="{Binding duration, Converter={StaticResource HourConverter}, StringFormat='{0:hh\\:mm}'}" />
         
         <HorizontalStackLayout
+            x:Name="actionsLayout"
             Grid.Column="8"
             Spacing="4"
-            WidthRequest="64"
             HorizontalOptions="Center"
             VerticalOptions="Center">
             
             <Button
+                x:Name="btnEditLine"
                 HeightRequest="28"
                 WidthRequest="28"
                 BackgroundColor="DodgerBlue"
                 CornerRadius="4"
                 Padding="0"
-                Margin="2,0"
+                Margin="0"
                 Command="{Binding EditCommand, Source={RelativeSource AncestorType={x:Type ContentView}}}"
                 CommandParameter="{Binding .}">
                 <Button.ImageSource>
@@ -138,12 +139,13 @@
             </Button>
             
             <Button
+                x:Name="btnDeleteLine"
                 HeightRequest="28"
                 WidthRequest="28"
                 BackgroundColor="OrangeRed"
                 CornerRadius="4"
                 Padding="0"
-                Margin="2,0"
+                Margin="0"
                 Command="{Binding DeleteCommand, Source={RelativeSource AncestorType={x:Type ContentView}}}"
                 CommandParameter="{Binding .}">
                 <Button.ImageSource>
@@ -154,6 +156,16 @@
                         Size="12"/>
                 </Button.ImageSource>
             </Button>
+
+            <Label
+                x:Name="lblSyncedIndicator"
+                Text="&#xf00c;"
+                FontFamily="FontAwesome5Solid"
+                FontSize="14"
+                TextColor="LimeGreen"
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                IsVisible="False" />
         </HorizontalStackLayout>
     </Grid>
 </ContentView>

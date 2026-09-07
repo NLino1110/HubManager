@@ -176,7 +176,6 @@ namespace DMOrders.Pages.Fragments.Orders
             {
                 IsLoading = true;
 
-                // Llama paginado (NO vuelvas a traer todo)
                 var (items, total) = await _db.GetPagedAsync(
                     filters.getDocNumber(),
                     filters.getSelectedPartner(),
@@ -191,35 +190,16 @@ namespace DMOrders.Pages.Fragments.Orders
 
                 TotalItems = total;
 
-                // Evita recrear la OC (menos churn de UI)
                 if (ItemsData == null)
                     ItemsData = new ObservableCollection<sale_order>();
                 else
                     ItemsData.Clear();
 
                 foreach (var it in items)
-                {
-                    //ResPartnerDb resPartnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
-                    //var partnerItem = await resPartnerDb.GetItemsAsync(it._company_id, it._partner_id);
-                    
-                    //if (partnerItem != null)
-                    //{
-                    //    it.partner_display_name = partnerItem?.name ?? "-";
-                    //    it.partner_display_address = partnerItem?.street ?? "";
-                    //    it.partner_display_status = partnerItem?.active == true ? "Activo" : "Inactivo";                        
-                    //}
-                    //else
-                    //{
-                    //    Debug.WriteLine($"Error cargando partner: No encontrado");
-                    //}
-
                     ItemsData.Add(it);
-                }
-
             }
             catch (OperationCanceledException ecx)
             {
-                // ignorar: una nueva carga comenzó
                 Debug.WriteLine(ecx);
             }
             catch (Exception ex)
@@ -232,7 +212,6 @@ namespace DMOrders.Pages.Fragments.Orders
                 IsLoading = false;
                 _loadLock.Release();
                 stopwatch.Stop();
-                //Debug.WriteLine($"[CatalogViewerModel] Carga en {stopwatch.ElapsedMilliseconds} ms | TotalItems: {TotalItems}, Page: {Page}, PageSize: {PageSize}, Filtro: {filters.getCode() ?? filters.getName() ?? "sin filtro"}");
             }
         }
 

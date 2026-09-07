@@ -7,6 +7,18 @@ namespace DMSA.Sync.Core.Controls.Popups
 {
     public class PopupSelectPartnerCreditData : PopupSelectBase<res_partner>
     {
+        const int MinSearchLength = 2;
+
+        const string LegendDefault =
+            "Escriba al menos 2 caracteres del nombre o código del cliente en el campo de búsqueda y pulse Buscar.";
+
+        const string EmptyViewInitial =
+            "No hay clientes listados todavía. Use el campo de búsqueda superior e ingrese al menos 2 caracteres para encontrar clientes.";
+
+        const string SearchRequiredTitle = "Búsqueda requerida";
+        const string SearchRequiredMessage =
+            "Debe ingresar al menos 2 caracteres en el campo de búsqueda para continuar.";
+
         public res_company Company { get; set; }
         public int DetailMode { get; set; } = 0;
         ObservableCollection<res_partner> resultItemsSearch { get; set; }
@@ -23,14 +35,10 @@ namespace DMSA.Sync.Core.Controls.Popups
 
         async Task<int> LoadData()
         {
-            if (TextForSearch.Length < 2)
-            {
-                return 0;
-            }
-
             await SetWorkingStatus();
             ResPartnerDb partnerBankDb = new ResPartnerDb(Constants.Session.odooConnection.DbNameSqlite);
-            resultItemsSearch = new ObservableCollection<res_partner>(await partnerBankDb.GetItemsBySearchAsync(Company.id, TextForSearch.ToUpper(), 50));
+            resultItemsSearch = new ObservableCollection<res_partner>(
+                await partnerBankDb.GetItemsBySearchAsync(Company.id, TextForSearch.ToUpper(), 50));
             _collectionViewSearch.ItemsSource = resultItemsSearch;            
             await SetDoneStatus();
 
@@ -41,11 +49,48 @@ namespace DMSA.Sync.Core.Controls.Popups
         {
             SetTitle("Clientes");
             SetSubtitle(Company.name);
-            SetGridTitles("Datos de Cliente");            
+            SetGridTitles("Datos de Cliente");
+            SetGridLegend(LegendDefault);
+            SearchEntry.Placeholder = "Nombre o código del cliente...";
+
+            var btnSearch = new Button
+            {
+                Text = "Buscar",
+                BackgroundColor = Colors.SeaGreen,
+                TextColor = Colors.White,
+                FontAttributes = FontAttributes.Bold,
+                Margin = new Thickness(5, 5, 5, 5),
+                ImageSource = new FontImageSource
+                {
+                    FontFamily = "FontAwesome5Solid",
+                    Color = Colors.White,
+                    Size = 18,
+                    Glyph = "\uf002"
+                }
+            };
+            btnSearch.Clicked += (_, _) => RunSearch();
+
+            ContentCustomToolBox = new ContentView
+            {
+                Content = btnSearch
+            };
         }
 
         async void _searchBar_BeginSearch(object sender, EventArgs e)
         {
+            await TrySearchAsync();
+        }
+
+        async Task TrySearchAsync()
+        {
+            SyncTextForSearchFromEntry();
+
+            if (TextForSearch.Length < MinSearchLength)
+            {
+                await ShowPopupAlertAsync(SearchRequiredTitle, SearchRequiredMessage);
+                return;
+            }
+
             await LoadData();
         }
 
@@ -56,7 +101,7 @@ namespace DMSA.Sync.Core.Controls.Popups
                 BackgroundColor = Colors.WhiteSmoke,
                 HorizontalOptions = LayoutOptions.Fill,
                 SelectionMode = SelectionMode.Single,
-                EmptyView = "No hay datos para mostrar...",
+                EmptyView = EmptyViewInitial,
                 ItemsLayout = new GridItemsLayout(1, ItemsLayoutOrientation.Vertical)
             };
 

@@ -1,5 +1,7 @@
 ﻿using DMSA.Models.Odoo.Tareas;
+using DMSA.Sync.Core.Database.Sqlite.tareas;
 using SQLite;
+using System.Linq;
 
 namespace DMSA.Sync.Core.Database.Sqlite.Sales
 {
@@ -10,10 +12,142 @@ namespace DMSA.Sync.Core.Database.Sqlite.Sales
 
         }
 
+        protected override async Task OnAfterInit()
+        {
+            await EnsureColumnAsync("sync_status", "TEXT");
+            await EnsureColumnAsync("sync_message", "TEXT");
+            await EnsureColumnAsync("last_sync_attempt", "TEXT");
+            await EnsureColumnAsync("sync_ok_count", "INTEGER NOT NULL DEFAULT 0");
+            await EnsureColumnAsync("sync_total_count", "INTEGER NOT NULL DEFAULT 0");
+            await RepairSyncStatusAsync();
+        }
+
+        private async Task EnsureColumnAsync(string columnName, string columnTypeSql)
+        {
+            var cols = await Database.QueryAsync<SqliteColumnInfo>(
+                "PRAGMA table_info(project_task)");
+
+            if (cols != null && cols.Any(c =>
+                    string.Equals(c.name, columnName, StringComparison.OrdinalIgnoreCase)))
+                return;
+
+            await Database.ExecuteAsync(
+                $"ALTER TABLE project_task ADD COLUMN {columnName} {columnTypeSql}");
+        }
+
+        private async Task RepairSyncStatusAsync()
+        {
+            var tasks = await Database.Table<ProjectTask>().ToListAsync();
+            var lineDb = new AccountAnalyticLineDb(DatabaseFilename);
+
+            foreach (var task in tasks)
+            {
+                var lines = await lineDb.GetItemsAsync(task);
+                if (lines == null || lines.Count == 0)
+                {
+                    if (task.is_synchronized && task.id_sync <= 0)
+                    {
+                        task.is_synchronized = false;
+                        task.sync_status = ProjectTaskSyncStatus.Pending;
+                        task.sync_message = "Cabecera sin ID en el ERP.";
+                        await Database.UpdateAsync(task);
+                    }
+                    else if (string.IsNullOrWhiteSpace(task.sync_status))
+                    {
+                        task.sync_status = task.is_synchronized
+                            ? ProjectTaskSyncStatus.Complete
+                            : ProjectTaskSyncStatus.Pending;
+                        await Database.UpdateAsync(task);
+                    }
+                    continue;
+                }
+
+                int ok = ProjectTaskSyncValidation.CountEffectivelySyncedLines(lines, task.id_sync);
+                int total = lines.Count;
+                bool changed = false;
+                bool brokenLinkage = ProjectTaskSyncValidation.HasBrokenLineLinkage(lines, task.id_sync);
+                bool needsHeaderRelink = ProjectTaskSyncValidation.NeedsHeaderRelink(task, lines);
+
+                if (task.is_synchronized && ok < total)
+                {
+                    task.is_synchronized = false;
+                    task.sync_status = ProjectTaskSyncStatus.Partial;
+                    task.sync_ok_count = ok;
+                    task.sync_total_count = total;
+                    task.sync_message = brokenLinkage || needsHeaderRelink
+                        ? "Detectado envío incompleto o sin vínculo ERP. Use Reprocesar pendientes."
+                        : "Detectado envío incompleto. Use Reprocesar pendientes.";
+                    changed = true;
+                }
+                else if (ok == total && needsHeaderRelink)
+                {
+                    task.sync_status = ProjectTaskSyncStatus.Partial;
+                    task.sync_ok_count = ok;
+                    task.sync_total_count = total;
+                    task.is_synchronized = false;
+                    task.sync_message = "La cabecera no tiene ID en el ERP. Use Reprocesar pendientes.";
+                    changed = true;
+                }
+                else if (ok == total)
+                {
+                    task.sync_status = ProjectTaskSyncStatus.Complete;
+                    task.sync_ok_count = ok;
+                    task.sync_total_count = total;
+                    task.is_synchronized = true;
+                    changed = true;
+                }
+                else if (ok > 0 && ok < total)
+                {
+                    task.sync_status = ProjectTaskSyncStatus.Partial;
+                    task.sync_ok_count = ok;
+                    task.sync_total_count = total;
+                    task.is_synchronized = false;
+                    if (string.IsNullOrWhiteSpace(task.sync_message))
+                        task.sync_message = "Hay detalles pendientes por sincronizar.";
+                    changed = true;
+                }
+                else if (string.IsNullOrWhiteSpace(task.sync_status))
+                {
+                    task.sync_status = task.is_synchronized
+                        ? ProjectTaskSyncStatus.Complete
+                        : ProjectTaskSyncStatus.Pending;
+                    task.sync_ok_count = ok;
+                    task.sync_total_count = total;
+                    changed = true;
+                }
+
+                if (changed)
+                    await Database.UpdateAsync(task);
+            }
+        }
+
+        private sealed class SqliteColumnInfo
+        {
+            public int cid { get; set; }
+            public string name { get; set; }
+            public string type { get; set; }
+            public int notnull { get; set; }
+            public string dflt_value { get; set; }
+            public int pk { get; set; }
+        }
+
         public async Task<List<ProjectTask>> GetItemsAsync()
         {
             await Init();
             return await Database.Table<ProjectTask>().ToListAsync();
+        }
+
+        public async Task<List<ProjectTask>> GetItemsPendingSyncAsync(int company_id)
+        {
+            await Init();
+            return await Database.Table<ProjectTask>()
+                .Where(x => x.company_id == company_id
+                    && (x.sync_status == ProjectTaskSyncStatus.Partial
+                        || x.sync_status == ProjectTaskSyncStatus.Pending
+                        || x.sync_status == ProjectTaskSyncStatus.Error
+                        || !x.is_synchronized
+                        || (x.id_sync <= 0 && x.sync_total_count > 0)))
+                .ToListAsync();
         }
 
         public async Task<List<ProjectTask>> GetItemsAsync(int company_id, bool sync_status)

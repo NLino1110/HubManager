@@ -364,3 +364,10 @@ FodyWeavers.xsd
 /WebMobileManager/WebMobileManager.Web/wwwroot/data/sqlite/webmobilemanager.db3
 /WebMobileManager/WebMobileManager.Web/wwwroot/uploads/images
 /WebMobileManager/WebMobileManager.Web/wwwroot/uploads/zips
+
+# Cursor IDE
+.cursor/
+
+# Android keystores (no subir secretos)
+*.keystore
+**/keystores/

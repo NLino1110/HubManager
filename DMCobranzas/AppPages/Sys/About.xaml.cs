@@ -67,6 +67,6 @@ public partial class About : ContentPage
 
         lblUpdated.Text = sb.ToString();
 
-        lblAppVersion.Text = "Versión " + App.Session.AppVersion;
+        lblAppVersion.Text = "VersiÃ³n " + App.Session.AppVersion;
     }
 }

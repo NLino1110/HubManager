@@ -1,4 +1,5 @@
-﻿using DMSA.Models.Odoo.Base;
+using DMSA.Models.Odoo.Accounting;
+using DMSA.Models.Odoo.Base;
 using DMSA.Models.Odoo.Native;
 using Newtonsoft.Json;
 using SQLite;
@@ -95,8 +96,62 @@ namespace DMSA.Models.Odoo.DebitCollection
         public string docnum_mask { get; set; }
 
         [JsonIgnore]
+        [Column("is_nota_debito")]
+        public bool is_nota_debito { get; set; }
+
+        [JsonIgnore]
+        [Ignore]
+        public string document_reference_label =>
+            AccountMoveDocumentDisplay.GetDocumentReferenceLabel(docnum_mask, is_nota_debito);
+
+        private decimal _pf_promised_amount;
+
+        [JsonIgnore]
+        [Ignore]
+        public decimal pf_promised_amount
+        {
+            get => _pf_promised_amount;
+            set
+            {
+                if (_pf_promised_amount == value)
+                    return;
+
+                _pf_promised_amount = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasPostdatedCheckAmount));
+                OnPropertyChanged(nameof(MaxApplicableAmount));
+                OnPropertyChanged(nameof(IsFullyCoveredByPostdatedCheck));
+                OnPropertyChanged(nameof(CanApplyPayment));
+            }
+        }
+
+        [JsonIgnore]
+        [Ignore]
+        public bool HasPostdatedCheckAmount => pf_promised_amount > 0;
+
+        /// <summary>Monto máximo aplicable en este cobro: saldo menos cheque posfechado ya comprometido.</summary>
+        [JsonIgnore]
+        [Ignore]
+        public decimal MaxApplicableAmount => Math.Max(0, amount_residual - pf_promised_amount);
+
+        /// <summary>El cheque posfechado cubre todo el saldo pendiente.</summary>
+        [JsonIgnore]
+        [Ignore]
+        public bool IsFullyCoveredByPostdatedCheck =>
+            pf_promised_amount > 0 && pf_promised_amount >= amount_residual;
+
+        [JsonIgnore]
+        [Ignore]
+        public bool CanApplyPayment => MaxApplicableAmount > 0;
+
+        [JsonIgnore]
         [Ignore]
         public bool EventsOn { get; set; } = false;
+
+        /// <summary>Último valor aplicado confirmado; usado para detectar liberación manual a 0.</summary>
+        [JsonIgnore]
+        [Ignore]
+        public decimal LastAppliedAmount { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)

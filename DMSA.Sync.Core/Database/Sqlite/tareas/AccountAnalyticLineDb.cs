@@ -16,6 +16,18 @@ namespace DMSA.Sync.Core.Database.Sqlite.tareas
             return await Database.Table<AccountAnalyticLine>().Where(x => x.project_id == parent.project_id_ && x.task_id == parent.id).ToListAsync();
         }
 
+        public async Task<List<AccountAnalyticLine>> GetPendingItemsAsync(ProjectTask parent)
+        {
+            await Init();
+            var items = await Database.Table<AccountAnalyticLine>()
+                .Where(x => x.project_id == parent.project_id_ && x.task_id == parent.id)
+                .ToListAsync();
+
+            return items
+                .Where(x => ProjectTaskSyncValidation.IsLinePendingSync(x, parent.id_sync))
+                .ToList();
+        }
+
         public async Task<List<AccountAnalyticLine>> GetItemsAsync(int company_id, bool sync_status)
         {
             await Init();

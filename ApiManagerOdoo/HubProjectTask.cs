@@ -178,23 +178,34 @@ namespace ApiManager
                 }
             }
 
-            // Quitar propiedades internas o flags que no deben enviarse
-            JObjectExtensions.RemoveProperty(newJObject, "create_user");
-            JObjectExtensions.RemoveProperty(newJObject, "display_username");
-            JObjectExtensions.RemoveProperty(newJObject, "is_synchronized");
-            JObjectExtensions.RemoveProperty(newJObject, "date_synchronized");
-            JObjectExtensions.RemoveProperty(newJObject, "parent_id");
-            JObjectExtensions.RemoveProperty(newJObject, "project_id");
-            JObjectExtensions.RemoveProperty(newJObject, "stage_id");
-            JObjectExtensions.RemoveProperty(newJObject, "stage_id_");
-            JObjectExtensions.RemoveProperty(newJObject, "user_id");
-            JObjectExtensions.RemoveProperty(newJObject, "id_sync");
+            // Quitar propiedades internas, de sync local y UI (no existen en project.task de Odoo)
+            string[] localOnlyProps =
+            {
+                "create_user",
+                "display_username",
+                "is_synchronized",
+                "date_synchronized",
+                "id_sync",
+                "sync_status",
+                "sync_message",
+                "last_sync_attempt",
+                "sync_ok_count",
+                "sync_total_count",
+                "IsFullySynced",
+                "HasPendingDetails",
+                "state_view",
+                "res_company_display",
+                "motivo_display",
+                "res_partner_display",
+                "parent_id",
+                "project_id",
+                "stage_id",
+                "stage_id_",
+                "user_id",
+            };
 
-            // Eliminar propiedades de la UI / computadas que no existen en el modelo Odoo
-            JObjectExtensions.RemoveProperty(newJObject, "state_view");
-            JObjectExtensions.RemoveProperty(newJObject, "res_company_display");
-            JObjectExtensions.RemoveProperty(newJObject, "motivo_display");
-            JObjectExtensions.RemoveProperty(newJObject, "res_partner_display");
+            foreach (var prop in localOnlyProps)
+                JObjectExtensions.RemoveProperty(newJObject, prop);
 
             // Renombrar campos internos si existen
             JObjectExtensions.RenameProperty(newJObject, "_partner_id", "partner_id");

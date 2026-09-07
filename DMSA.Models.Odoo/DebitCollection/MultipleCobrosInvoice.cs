@@ -107,6 +107,10 @@ namespace DMSA.Models.Odoo.DebitCollection
         public int external_create_uid { get; set; }
         public string external_guid { get; set; }
         public string payment_status { get; set; }
+
+        [JsonIgnore]
+        [Ignore]
+        public string payment_status_display => CobrosEstados.GetDisplayStatus(payment_status);
         public string device_app_version { get; set; }
         public string device_idiom { get; set; }
         public string device_model { get; set; }

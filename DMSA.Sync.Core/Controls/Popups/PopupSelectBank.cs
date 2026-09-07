@@ -9,6 +9,18 @@ namespace DMSA.Sync.Core.Controls.Popups
 {
     public class PopupSelectBank : PopupSelectBase<ResBank>
     {
+        const int MinSearchLength = 2;
+
+        const string LegendDefault =
+            "Escriba al menos 2 caracteres del nombre del banco en el campo de búsqueda y pulse Buscar.";
+
+        const string EmptyViewInitial =
+            "No hay bancos listados todavía. Use el campo de búsqueda superior e ingrese al menos 2 caracteres para encontrar bancos.";
+
+        const string SearchRequiredTitle = "Búsqueda requerida";
+        const string SearchRequiredMessage =
+            "Debe ingresar al menos 2 caracteres en el campo de búsqueda para continuar.";
+
         public res_company Company { get; set; }
         public int DetailMode { get; set; } = 0;
         ObservableCollection<ResBank> resultItemsSearch { get; set; }
@@ -26,29 +38,13 @@ namespace DMSA.Sync.Core.Controls.Popups
 
         async Task<int> LoadData()
         {
-            if (TextForSearch.Length < 2)
-            {
-                return 0;
-            }
-
             await SetWorkingStatus();
             var dbItemsDb = new BankDb(Constants.Session.odooConnection.DbNameSqlite);
-            //resultItemsSearch = new ObservableCollection<ResBank>(await dbItemsDb.GetItemsAsync(data => data.name.Contains(TextForSearch, StringComparison.OrdinalIgnoreCase)));
-            
-            var search = $"%{TextForSearch}%";
 
             TextForSearch = TextForSearch.ToUpper();
-            //var items = await dbItemsDb.QueryAsync(
-            //    "SELECT * FROM ResBank WHERE name LIKE ? COLLATE NOCASE",
-            //    new object[] { search }
-            //);
-
             var items = await dbItemsDb.SearchByColumnAsync("name", TextForSearch, 25);
 
-            //var items = await dbItemsDb.GetItemsBySearchAsync(Constants.Session.res_Company.id, TextForSearch, 25);
-            
             resultItemsSearch = new ObservableCollection<ResBank>(items);
-
             _collectionViewSearch.ItemsSource = resultItemsSearch;            
             await SetDoneStatus();
             return 1;
@@ -58,11 +54,48 @@ namespace DMSA.Sync.Core.Controls.Popups
         {
             SetTitle("Bancos");
             SetSubtitle(Company.name);
-            SetGridTitles("Datos de Bancos");            
+            SetGridTitles("Datos de Bancos");
+            SetGridLegend(LegendDefault);
+            SearchEntry.Placeholder = "Nombre del banco...";
+
+            var btnSearch = new Button
+            {
+                Text = "Buscar",
+                BackgroundColor = Colors.SeaGreen,
+                TextColor = Colors.White,
+                FontAttributes = FontAttributes.Bold,
+                Margin = new Thickness(5, 5, 5, 5),
+                ImageSource = new FontImageSource
+                {
+                    FontFamily = "FontAwesome5Solid",
+                    Color = Colors.White,
+                    Size = 18,
+                    Glyph = "\uf002"
+                }
+            };
+            btnSearch.Clicked += (_, _) => RunSearch();
+
+            ContentCustomToolBox = new ContentView
+            {
+                Content = btnSearch
+            };
         }
 
         async void _searchBar_BeginSearch(object sender, EventArgs e)
         {
+            await TrySearchAsync();
+        }
+
+        async Task TrySearchAsync()
+        {
+            SyncTextForSearchFromEntry();
+
+            if (TextForSearch.Length < MinSearchLength)
+            {
+                await ShowPopupAlertAsync(SearchRequiredTitle, SearchRequiredMessage);
+                return;
+            }
+
             await LoadData();
         }
         
@@ -73,7 +106,7 @@ namespace DMSA.Sync.Core.Controls.Popups
                 BackgroundColor = Colors.WhiteSmoke,
                 HorizontalOptions = LayoutOptions.Fill,
                 SelectionMode = SelectionMode.Single,
-                EmptyView = "No hay datos para mostrar...",
+                EmptyView = EmptyViewInitial,
                 ItemsLayout = new GridItemsLayout(4, ItemsLayoutOrientation.Vertical)
             };
                         

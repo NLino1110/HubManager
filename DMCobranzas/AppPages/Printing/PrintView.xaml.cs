@@ -17,12 +17,12 @@ public class TextProcessor
     {
         var processedLines = new List<string>();
 
-        // Dividir el texto original en líneas
+        // Dividir el texto original en lï¿½neas
         var lines = texto.Split('\n');
 
         foreach (var line in lines)
         {
-            // Si la línea contiene "Cliente:" y es mayor a 25 caracteres, procesarla
+            // Si la lï¿½nea contiene "Cliente:" y es mayor a 25 caracteres, procesarla
             if (line.Contains("Cliente:") && line.Length > 35)
             {
                 var words = line.Split(' ');
@@ -38,7 +38,7 @@ public class TextProcessor
             }
             else
             {
-                // Si la línea no necesita procesamiento especial, añadirla directamente
+                // Si la lï¿½nea no necesita procesamiento especial, aï¿½adirla directamente
                 processedLines.Add(line);
             }
         }
@@ -334,7 +334,7 @@ public partial class PrintView : ContentPage
             lineasCount = lineas.Length;
         }
 
-        // Establecer un tamaño más grande para el lienzo según la longitud del texto
+        // Establecer un tamaï¿½o mÃ¡s grande para el lienzo segï¿½n la longitud del texto
         //var textPaint = new SKPaint
         //{
         //    TextSize = 24,
@@ -342,8 +342,8 @@ public partial class PrintView : ContentPage
         //    Color = SKColors.Black
         //};
 
-        var canvasWidth = 620; // Ajusta según sea necesario
-        var canvasHeight = multiploLinea * lineasCount;//1000; // Ajusta según sea necesario
+        var canvasWidth = 620; // Ajusta segï¿½n sea necesario
+        var canvasHeight = multiploLinea * lineasCount;//1000; // Ajusta segï¿½n sea necesario
 
         // Crear un lienzo de SkiaSharp con fondo blanco
         using (var surface = SKSurface.Create(new SKImageInfo((int)canvasWidth, (int)canvasHeight, SKColorType.Bgra8888, SKAlphaType.Premul)))
@@ -412,7 +412,7 @@ public partial class PrintView : ContentPage
                 //SKTypeface consolasTypeface = SKTypeface.FromFamilyName("Consolas", SKFontStyleWeight.Normal, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright);
                 //SKTypeface consolasTypeface = SKTypeface.FromFamilyName(fontPath);
 
-                // Configurar el tipo y tamaño de la fuente
+                // Configurar el tipo y tamaï¿½o de la fuente
                 var paint = new SKPaint
                 {
                     TextSize = 24,
@@ -423,9 +423,9 @@ public partial class PrintView : ContentPage
 
                 var font = new SKFont(consolasTypeface, 24);
 
-                // Dividir el texto en líneas y dibujar cada línea en el lienzo
+                // Dividir el texto en lï¿½neas y dibujar cada lï¿½nea en el lienzo
                 //var lineas = texto.Split('\n');
-                var yPos = 50 + logoHeight; // Ajustar según sea necesario
+                var yPos = 50 + logoHeight; // Ajustar segï¿½n sea necesario
 
                 int spaceLines = 10;
 
@@ -439,7 +439,7 @@ public partial class PrintView : ContentPage
                     if (lineaVal.Contains("\r") || lineaVal.Contains("\n"))
                         lineaVal = lineaVal.Replace("\r", "").Replace("\n", "");
 
-                    // Crear un SKTextBlob para manejar saltos de línea y formato
+                    // Crear un SKTextBlob para manejar saltos de lï¿½nea y formato
                     using (var textBlob = SKTextBlob.Create(lineaVal, font))
                     {
                         // Dibujar el SKTextBlob en el lienzo
@@ -448,7 +448,7 @@ public partial class PrintView : ContentPage
                     }
                 }
 
-                // Tomar la instantánea como SKImage
+                // Tomar la instantï¿½nea como SKImage
                 var skImage = surface.Snapshot();
 
                 // Convertir SKImage a SKBitmap

@@ -800,6 +800,21 @@ public partial class Crud : ContentPage, IBackButtonHandler
         }
     }
 
+    /// <summary>
+    /// Arma order_line desde la UI (incluye regalos y datos de promo) para el envío/reintento.
+    /// </summary>
+    private void AttachOrderLinesForSend()
+    {
+        var orderLinesList = OrderLines.ToList();
+        CurrentSaleOrder.order_line = new List<OrderLineWrapper>();
+        CurrentSaleOrder._center_id = App.Session.odooConnection.res_center_default;
+
+        foreach (var orderLine in orderLinesList)
+        {
+            CurrentSaleOrder.order_line.Add(new OrderLineWrapper(orderLine));
+        }
+    }
+
     private async void ButtonSync_Clicked(object sender, EventArgs e)
     {
         var leave = await DisplayAlertAsync("Enviar", "¿Desea enviar esta orden al ERP? Los cambios realizados serán almacenados.", "Si", "No");
@@ -822,15 +837,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
         await UITools.SetNotifyLoadingPopup("Preparando orden...");
 
         SaleOrders serverPusher = new SaleOrders();
-
-        var orderLinesList = OrderLines.ToList();
-        CurrentSaleOrder.order_line = new List<OrderLineWrapper>();
-        CurrentSaleOrder._center_id = App.Session.odooConnection.res_center_default;
-
-        foreach (var orderLine in orderLinesList)
-        {
-            CurrentSaleOrder.order_line.Add(new OrderLineWrapper(orderLine));
-        }
+        AttachOrderLinesForSend();
 
         await UITools.SetNotifyLoadingPopup("Sincronizando orden...");
         var sendResult = await serverPusher.SendSaleOrder(CurrentSaleOrder);
@@ -891,6 +898,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
             await UITools.ShowLoadingPopup(this);
             await UITools.SetNotifyLoadingPopup("Reintentando envío...");
+            AttachOrderLinesForSend();
             var retryResult = await serverPusher.SendSaleOrder(CurrentSaleOrder);
             await UITools.HideLoadingPopup();
 
@@ -961,6 +969,7 @@ public partial class Crud : ContentPage, IBackButtonHandler
 
             await UITools.ShowLoadingPopup(this);
             await UITools.SetNotifyLoadingPopup("Validando y reintentando envío...");
+            AttachOrderLinesForSend();
             var retryResult = await serverPusher.RetrySendAfterValidation(CurrentSaleOrder);
             await UITools.HideLoadingPopup();
 

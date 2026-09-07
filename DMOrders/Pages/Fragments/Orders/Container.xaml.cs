@@ -16,36 +16,9 @@ public partial class Container : ContentView
         }
     }
 
-    //protected override void OnSizeAllocated(double width, double height)
-    //{
-    //    base.OnSizeAllocated(width, height);
-
-    //    //if(dataCustomers != null)
-    //    //{
-    //    //    dataCustomers.HeightRequest = height - 100;        
-    //    //}        
-    //}
-
     private void OnSearchButtonClicked(object? sender, EventArgs e)
     {
         dataOrders.LoadData(filterOrders);
-        
-        //var label = new Label { Text = "Resultado de la búsqueda" };
-        //var stackLayout = new StackLayout
-        //{
-        //    Children = { label }
-        //};
-
-        //Customers customers = new Customers();
-
-        //ScrollViewContent.Content = customers;
-
-        // Desactivar el botón btnNew
-        //pagingFragment.DisableNewButton();
-
-        // Ejecutar lógica de PagingFragment si es necesario
-        //pagingFragment.ExecuteSearch();
-
     }
 
     public void ReloadData()

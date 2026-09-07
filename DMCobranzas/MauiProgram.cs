@@ -4,6 +4,7 @@ using DMCobranzas.Services;
 using DMSA.Models.Security;
 using DMSA.Sync.Core.Services;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using System.Text;
 
 namespace DMCobranzas
@@ -61,7 +62,33 @@ namespace DMCobranzas
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
+
+            RegisterGlobalExceptionHandlers();
+
             return builder.Build();
+        }
+
+        private static void RegisterGlobalExceptionHandlers()
+        {
+            AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+            {
+                var ex = args.ExceptionObject as Exception;
+                Debug.WriteLine($"[UnhandledException] IsTerminating={args.IsTerminating} {ex?.Message}\n{ex?.StackTrace}");
+            };
+
+            TaskScheduler.UnobservedTaskException += (_, args) =>
+            {
+                Debug.WriteLine($"[UnobservedTaskException] {args.Exception?.Message}\n{args.Exception?.StackTrace}");
+                args.SetObserved();
+            };
+
+#if ANDROID
+            Android.Runtime.AndroidEnvironment.UnhandledExceptionRaiser += (_, args) =>
+            {
+                Debug.WriteLine($"[AndroidUnhandledException] {args.Exception?.Message}\n{args.Exception?.StackTrace}");
+                args.Handled = true;
+            };
+#endif
         }
     }
 }

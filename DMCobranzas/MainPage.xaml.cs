@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Alerts;
 using DMCobranzas.Settings.helpers;
 using DMSA.Models.Odoo.DebitCollection;
 using DMSA.Sync.Core.Controls.Popups;
@@ -50,9 +50,7 @@ public partial class MainPage : ContentPage
         MultipleCobrosInvoiceDb _accountPaymentHeaderDb = new MultipleCobrosInvoiceDb(App.Session.odooConnection.DbNameSqlite);
         var resultItems = await _accountPaymentHeaderDb.GetItemsAsync(i => i.user_id == App.Session.CurrentUserFront.uid &&
             i.create_date < today &&
-            (i.payment_status == CobrosEstados.ENVIANDO ||
-            i.payment_status == CobrosEstados.ERROR ||
-            i.payment_status == CobrosEstados.PENDIENTE));
+            i.payment_status == CobrosEstados.PENDIENTE);
 
         if(resultItems.Count > 0)
         {

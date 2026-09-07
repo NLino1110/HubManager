@@ -134,24 +134,24 @@ namespace DMSA.Sync.Core.Update
                 if (responseAll != null && responseAll.result != null && responseAll.result.Length > 0)
                 {
                     await database.InsertBatchAsync(responseAll.result);
-                }
 
-                //obtenemos los campos child_ids para los contactos asociados
-                for(int i = 0; i < responseAll.result.Length; i++)
-                {
-                    var item = responseAll.result[i];
-                    
-                    if(string.IsNullOrEmpty(item.childs_ids_json) || item.childs_ids_json.Equals("[]"))
-                        continue;
-
-                    var _childs_ids = JsonConvert.DeserializeObject<int[]>(item.childs_ids_json);
-
-                    if (_childs_ids != null && _childs_ids.Length > 0)
+                    //obtenemos los campos child_ids para los contactos asociados
+                    for (int i = 0; i < responseAll.result.Length; i++)
                     {
-                        var responseChild = await hubmanager.GetByIds(limit, 0, _childs_ids);
-                        if (responseChild != null && responseChild.result != null && responseChild.result.Length > 0)
+                        var item = responseAll.result[i];
+
+                        if (string.IsNullOrEmpty(item.childs_ids_json) || item.childs_ids_json.Equals("[]"))
+                            continue;
+
+                        var _childs_ids = JsonConvert.DeserializeObject<int[]>(item.childs_ids_json);
+
+                        if (_childs_ids != null && _childs_ids.Length > 0)
                         {
-                            await database.InsertBatchAsync(responseChild.result);
+                            var responseChild = await hubmanager.GetByIds(limit, 0, _childs_ids);
+                            if (responseChild != null && responseChild.result != null && responseChild.result.Length > 0)
+                            {
+                                await database.InsertBatchAsync(responseChild.result);
+                            }
                         }
                     }
                 }

@@ -16,8 +16,12 @@ namespace DMOrders.Converters
             return up switch
             {
                 "ACTIVO" => "Activo",
+                "PENDIENTE" => "Pendiente",
+                "PARCIAL" => "Parcial",
+                "COMPLETA" => "Completa",
+                "ERROR" => "Error",
                 "SINCRONIZADO" or "SINCRONIZADA" => "Sincronizada",
-               
+                _ when up.StartsWith("PARCIAL (") => s,
                 _ => CapitalizeFirstLetter(s)
             };
         }

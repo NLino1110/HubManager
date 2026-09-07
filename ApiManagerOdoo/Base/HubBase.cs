@@ -56,16 +56,35 @@ namespace ApiManagerOdoo.Base
 
             if (string.IsNullOrEmpty(_username) || string.IsNullOrEmpty(_password) || string.IsNullOrEmpty(_db))
             {
-                throw new InvalidOperationException("Username, password or database name is not set.");
+                var missing = new List<string>();
+                if (string.IsNullOrEmpty(_db))
+                    missing.Add("base de datos");
+                if (string.IsNullOrEmpty(_username))
+                    missing.Add("usuario técnico");
+                if (string.IsNullOrEmpty(_password))
+                    missing.Add("contraseña técnica");
+
+                throw new InvalidOperationException(
+                    "Configuración de conexión incompleta para sincronización.\n" +
+                    $"Falta: {string.Join(", ", missing)}\n\n" +
+                    BuildLoginContextForUser());
             }
 
-            if (!await LoginAsync())
+            var loginResult = await LoginAsync();
+            if (!loginResult.Success)
             {
-                throw new UnauthorizedAccessException("Login failed. Please check your credentials.");
+                Debug.WriteLine($"[RequireLogin] {loginResult.FailureKind}: {loginResult.DebugDetail}");
+
+                throw loginResult.FailureKind switch
+                {
+                    LoginFailureKind.Network or LoginFailureKind.Server
+                        => new HttpRequestException(loginResult.UserMessage),
+                    _ => new UnauthorizedAccessException(loginResult.UserMessage)
+                };
             }
         }
 
-        public async Task<bool> LoginAsync()
+        public async Task<LoginAsyncResult> LoginAsync()
         {
             var loginRequest = new RestRequest("/web/session/authenticate", Method.Post);
             loginRequest.AddHeader("Content-Type", "application/json");
@@ -83,12 +102,50 @@ namespace ApiManagerOdoo.Base
             };
 
             loginRequest.AddJsonBody(loginBody);
-            var response = await _client.ExecuteAsync(loginRequest);
+
+            RestResponse response;
+            try
+            {
+                response = await _client.ExecuteAsync(loginRequest);
+            }
+            catch (Exception ex)
+            {
+                var debug = $"Excepción de red: {ex.Message}";
+                Debug.WriteLine("[LoginAsync] " + debug);
+                return LoginAsyncResult.Fail(
+                    LoginFailureKind.Network,
+                    BuildUserMessage(
+                        "No se pudo conectar con el servidor para autenticación.",
+                        "Revise red/Wi‑Fi e intente de nuevo."),
+                    debug);
+            }
+
+            if (response.ResponseStatus == ResponseStatus.TimedOut ||
+                response.ResponseStatus == ResponseStatus.Error)
+            {
+                var transportDetail = response.ErrorMessage ?? response.ResponseStatus.ToString();
+                var debug = $"Transporte: {transportDetail}";
+                Debug.WriteLine("[LoginAsync] Login fallido: " + debug);
+                return LoginAsyncResult.Fail(
+                    LoginFailureKind.Network,
+                    BuildUserMessage(
+                        "No se pudo conectar con el servidor para autenticación.",
+                        transportDetail),
+                    debug);
+            }
 
             if (!response.IsSuccessful)
             {
-                Console.WriteLine("Login fallido: " + response.Content);
-                return false;
+                var serverDetail = ExtractServerFailureDetail(response);
+                var debug = $"HTTP {(int)response.StatusCode} {response.StatusCode}: {TruncateForLog(response.Content)}";
+                Debug.WriteLine("[LoginAsync] Login fallido: " + debug);
+
+                var kind = ClassifyHttpFailure(response.StatusCode, response.Content);
+                var title = kind == LoginFailureKind.Credentials
+                    ? "El servidor rechazó las credenciales del usuario técnico de la conexión."
+                    : "El servidor respondió con un error durante la autenticación.";
+
+                return LoginAsyncResult.Fail(kind, BuildUserMessage(title, serverDetail), debug);
             }
 
             var sessionId = _cookieContainer
@@ -98,12 +155,154 @@ namespace ApiManagerOdoo.Base
 
             if (string.IsNullOrEmpty(sessionId))
             {
-                Console.WriteLine("❌ No se recibió session_id");
-                return false;
+                var odooDetail = TryExtractOdooErrorMessage(response.Content)
+                    ?? "Odoo no devolvió session_id (sesión no iniciada).";
+                var debug = $"Sin session_id. Respuesta: {TruncateForLog(response.Content)}";
+                Debug.WriteLine("[LoginAsync] " + debug);
+
+                var kind = ClassifyMissingSession(response.Content);
+                var title = kind == LoginFailureKind.Credentials
+                    ? "Credenciales del usuario técnico de la conexión incorrectas o rechazadas."
+                    : "No se pudo iniciar sesión en el servidor (sin session_id).";
+
+                return LoginAsyncResult.Fail(kind, BuildUserMessage(title, odooDetail), debug);
             }
 
-            Console.WriteLine("✅ Login exitoso. Session ID: " + sessionId);
-            return true;
+            Debug.WriteLine("Login exitoso. Session ID: " + sessionId);
+            return LoginAsyncResult.Ok();
+        }
+
+        private string BuildLoginContextForUser()
+        {
+            return $"Servidor: {_baseUrl ?? "(vacío)"}\n" +
+                   $"Base: {_db ?? "(vacía)"}\n" +
+                   $"Usuario técnico: {_username ?? "(vacío)"}";
+        }
+
+        private string BuildUserMessage(string title, string detail)
+        {
+            var message = title + "\n\n" + BuildLoginContextForUser();
+            if (!string.IsNullOrWhiteSpace(detail))
+                message += "\n\nDetalle: " + detail.Trim();
+            return message;
+        }
+
+        private static string TruncateForLog(string? content, int maxLength = 500)
+        {
+            if (string.IsNullOrWhiteSpace(content))
+                return "(sin contenido)";
+
+            content = content.Trim();
+            return content.Length <= maxLength ? content : content[..maxLength] + "...";
+        }
+
+        private static LoginFailureKind ClassifyHttpFailure(HttpStatusCode statusCode, string? content)
+        {
+            if (statusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
+                return LoginFailureKind.Credentials;
+
+            if ((int)statusCode >= 500)
+                return LoginFailureKind.Server;
+
+            if (!string.IsNullOrWhiteSpace(content) &&
+                IsOdooAuthErrorContent(content, out _))
+                return LoginFailureKind.Credentials;
+
+            return LoginFailureKind.Server;
+        }
+
+        private static LoginFailureKind ClassifyMissingSession(string? content)
+        {
+            if (IsOdooAuthErrorContent(content, out _))
+                return LoginFailureKind.Credentials;
+
+            return LoginFailureKind.MissingSession;
+        }
+
+        private string ExtractServerFailureDetail(RestResponse response)
+        {
+            if (!string.IsNullOrWhiteSpace(response.Content))
+            {
+                if (IsOdooError(response.Content, out string odooError, out bool isHtml) && !string.IsNullOrWhiteSpace(odooError))
+                {
+                    return isHtml
+                        ? odooError
+                        : SimplifyOdooErrorMessage(odooError);
+                }
+
+                var odooAuth = TryExtractOdooErrorMessage(response.Content);
+                if (!string.IsNullOrWhiteSpace(odooAuth))
+                    return odooAuth;
+            }
+
+            if (!string.IsNullOrWhiteSpace(response.ErrorMessage))
+                return response.ErrorMessage;
+
+            return $"HTTP {(int)response.StatusCode} {response.StatusCode}";
+        }
+
+        private static string? TryExtractOdooErrorMessage(string? content)
+        {
+            if (string.IsNullOrWhiteSpace(content))
+                return null;
+
+            try
+            {
+                var json = JObject.Parse(content);
+                var errorNode = json["error"];
+                if (errorNode != null)
+                {
+                    var dataMessage = errorNode["data"]?["message"]?.ToString();
+                    var message = errorNode["message"]?.ToString();
+                    if (!string.IsNullOrWhiteSpace(dataMessage))
+                        return dataMessage.Trim();
+                    if (!string.IsNullOrWhiteSpace(message))
+                        return message.Trim();
+                }
+
+                var resultToken = json["result"];
+                if (resultToken?.Type == JTokenType.Boolean && resultToken.Value<bool>() == false)
+                    return "Odoo rechazó el login (credenciales incorrectas).";
+
+                if (resultToken?["uid"]?.Type == JTokenType.Integer && resultToken["uid"]!.Value<int>() == 0)
+                    return "Usuario o contraseña incorrectos.";
+            }
+            catch (JsonException)
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+        private static bool IsOdooAuthErrorContent(string? content, out string detail)
+        {
+            detail = TryExtractOdooErrorMessage(content) ?? string.Empty;
+            if (!string.IsNullOrWhiteSpace(detail))
+                return true;
+
+            if (string.IsNullOrWhiteSpace(content))
+                return false;
+
+            return content.Contains("Access Denied", StringComparison.OrdinalIgnoreCase)
+                || content.Contains("AccessDenied", StringComparison.OrdinalIgnoreCase)
+                || content.Contains("Wrong login", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string SimplifyOdooErrorMessage(string odooError)
+        {
+            const string detailsPrefix = "Details: ";
+            var idx = odooError.IndexOf(detailsPrefix, StringComparison.OrdinalIgnoreCase);
+            if (idx >= 0)
+            {
+                var detailPart = odooError[(idx + detailsPrefix.Length)..];
+                var lineBreak = detailPart.IndexOf('\n');
+                if (lineBreak > 0)
+                    return detailPart[..lineBreak].Trim();
+                return detailPart.Trim();
+            }
+
+            return odooError.Trim();
         }
 
         public void Dispose()

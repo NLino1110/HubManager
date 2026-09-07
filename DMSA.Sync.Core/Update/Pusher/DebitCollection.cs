@@ -1,6 +1,7 @@
 ﻿using ApiManager;
 using ApiManagerOdoo.Accounting;
 using DMSA.Models.Odoo.Accounting;
+using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.DebitCollection;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
@@ -16,9 +17,9 @@ namespace DMSA.Sync.Core.Update.Pusher
     {
         static public async Task<ApiResponseOdooRpcT<List<OdooRpcResultInt>>?> SendPayment(MultipleCobrosInvoice multipleCobrosInvoice, bool autosend)
         {
-            string sync_mode = "manual";
-            if(autosend)
-                sync_mode = "automatic";
+            // Cobros creados en un día distinto al envío se marcan como automáticos (prefijo AUT).
+            bool effectiveAutosend = autosend || multipleCobrosInvoice.create_date.Date != DateTime.Today;
+            string sync_mode = effectiveAutosend ? "automatic" : "manual";
 
             ApiResponseOdooRpcT<List<OdooRpcResultInt>> resultTask = new ApiResponseOdooRpcT<List<OdooRpcResultInt>>()
             {
@@ -30,15 +31,30 @@ namespace DMSA.Sync.Core.Update.Pusher
 
             var multipleCobrosInvoiceDB = new MultipleCobrosInvoiceDb(Constants.Session.odooConnection.DbNameSqlite);
 
-            if (multipleCobrosInvoice.payment_status == CobrosEstados.PENDIENTE)
+            if (!CobrosEstados.CanSync(multipleCobrosInvoice.payment_status))
             {
-                string fechaActual = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0, 10);
-                
-                //string newGuid = Guid.NewGuid().ToString("N");
-                //multipleCobrosInvoice.external_guid = newGuid;
-                multipleCobrosInvoice.payment_status = CobrosEstados.ENVIANDO;
-                string new_recipe_name = await multipleCobrosInvoiceDB.BuildRecipeName(multipleCobrosInvoice);
-                multipleCobrosInvoice.receipt_name = new_recipe_name;
+                resultTask.error = new Error
+                {
+                    message = "Estado no permitido",
+                    data = new Data
+                    {
+                        message = $"Solo se puede sincronizar cobros en estado PENDIENTE o EN PROCESO. Estado actual: {multipleCobrosInvoice.payment_status}."
+                    }
+                };
+                return resultTask;
+            }
+
+            if (multipleCobrosInvoice.payment_status == CobrosEstados.PENDIENTE
+                || CobrosEstados.IsEnProceso(multipleCobrosInvoice.payment_status))
+            {
+                if (multipleCobrosInvoice.payment_status == CobrosEstados.PENDIENTE)
+                {
+                    string new_recipe_name = await multipleCobrosInvoiceDB.BuildRecipeName(multipleCobrosInvoice);
+                    multipleCobrosInvoice.receipt_name = new_recipe_name;
+                }
+
+                multipleCobrosInvoice.payment_status = CobrosEstados.EN_PROCESO;
+                multipleCobrosInvoice.write_date = DateTime.Now;
                 await multipleCobrosInvoiceDB.UpdateAsync(multipleCobrosInvoice);
             }
 
@@ -202,7 +218,7 @@ namespace DMSA.Sync.Core.Update.Pusher
                     multipleCobrosInvoice.payment_status = CobrosEstados.PROCESADO;
                     multipleCobrosInvoice.write_date = DateTime.Now;
 
-                    if(autosend)
+                    if(effectiveAutosend)
                     {
                         if(!multipleCobrosInvoice.receipt_name.StartsWith("AUT"))
                         {

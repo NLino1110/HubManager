@@ -1,10 +1,20 @@
+using DMCobranzas;
+using DMCobranzas.Converters;
 using DMSA.Models.Odoo.DebitCollection;
+using System.ComponentModel;
+using System.Globalization;
 using System.Windows.Input;
 
 namespace DMCobranzas.Controls.CustomRows;
 
 public partial class MultipleCobrosInvoiceLineAiRow : ContentView
 {
+    private static readonly DecimalToStringConverter AmountConverter = new();
+
+    private MultipleCobrosInvoiceLineAi? _subscribedItem;
+    private bool _isEntryFocused;
+    private bool _suppressEntrySync;
+
     public static readonly BindableProperty ValueChangedCommandProperty =
     BindableProperty.Create(
         nameof(ValueChangedCommand),
@@ -23,7 +33,8 @@ public partial class MultipleCobrosInvoiceLineAiRow : ContentView
             nameof(dataItem),
             typeof(MultipleCobrosInvoiceLineAi),
             typeof(MultipleCobrosInvoiceLineAiRow),
-            null);
+            null,
+            propertyChanged: OnDataItemChanged);
 
     public MultipleCobrosInvoiceLineAi dataItem
     {
@@ -49,106 +60,145 @@ public partial class MultipleCobrosInvoiceLineAiRow : ContentView
         set => SetValue(ActionCommandProperty, value);
     }
 
+    public static readonly BindableProperty ApplyAmountCommandProperty =
+        BindableProperty.Create(nameof(ApplyAmountCommand), typeof(ICommand), typeof(MultipleCobrosInvoiceLineAiRow), null);
+
+    public ICommand ApplyAmountCommand
+    {
+        get => (ICommand)GetValue(ApplyAmountCommandProperty);
+        set => SetValue(ApplyAmountCommandProperty, value);
+    }
+
     public MultipleCobrosInvoiceLineAiRow()
-	{
-		InitializeComponent();
+    {
+        InitializeComponent();
 
         ClearValueCommand = new Command(ClearValue);
         ActionCommand = new Command(ActionButton);
     }
 
-    private void ClearValue(object obj)
+    private static void OnDataItemChanged(BindableObject bindable, object oldValue, object newValue)
     {
-        entryPagoImporte.Text = "0.00";
+        ((MultipleCobrosInvoiceLineAiRow)bindable).AttachToDataItem(
+            oldValue as MultipleCobrosInvoiceLineAi,
+            newValue as MultipleCobrosInvoiceLineAi);
     }
 
-    private CancellationTokenSource _cts;
+    private void AttachToDataItem(MultipleCobrosInvoiceLineAi? oldItem, MultipleCobrosInvoiceLineAi? newItem)
+    {
+        if (oldItem != null)
+            oldItem.PropertyChanged -= OnDataItemPropertyChanged;
+
+        _subscribedItem = newItem;
+
+        if (newItem != null)
+            newItem.PropertyChanged += OnDataItemPropertyChanged;
+
+        SyncEntryFromModel();
+    }
+
+    private void OnDataItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(MultipleCobrosInvoiceLineAi.amount_asigned))
+            SyncEntryFromModel();
+    }
+
+    private CultureInfo AmountCulture =>
+        App.Session?.ApplicationCultureInfo ?? CultureInfo.CurrentCulture;
+
+    private void SyncEntryFromModel()
+    {
+        if (_isEntryFocused || _suppressEntrySync || _subscribedItem == null)
+            return;
+
+        entryPagoImporte.Text = FormatAmount(_subscribedItem.amount_asigned);
+    }
+
+    private string FormatAmount(decimal value) =>
+        (string)AmountConverter.Convert(value, typeof(string), null, AmountCulture)!;
+
+    private decimal ParseEntryText(string? text) =>
+        (decimal)AmountConverter.ConvertBack(text, typeof(decimal), null, AmountCulture)!;
+
+    private void CommitEntryToModel(bool formatDisplay)
+    {
+        var item = dataItem;
+        if (item == null)
+            return;
+
+        var parsed = ParseEntryText(entryPagoImporte.Text);
+
+        _suppressEntrySync = true;
+        try
+        {
+            item.amount_asigned = parsed;
+        }
+        finally
+        {
+            _suppressEntrySync = false;
+        }
+
+        if (formatDisplay)
+            entryPagoImporte.Text = FormatAmount(parsed);
+    }
+
+    private void EntryPagoImporte_Focused(object? sender, FocusEventArgs e)
+    {
+        _isEntryFocused = true;
+    }
+
+    private void EntryPagoImporte_Unfocused(object? sender, FocusEventArgs e)
+    {
+        _isEntryFocused = false;
+        CommitEntryToModel(formatDisplay: true);
+    }
+
+    private void ClearValue(object obj)
+    {
+        var item = dataItem ?? obj as MultipleCobrosInvoiceLineAi;
+        if (item == null || !item.CanApplyPayment)
+            return;
+
+        _suppressEntrySync = true;
+        try
+        {
+            item.amount_asigned = 0;
+        }
+        finally
+        {
+            _suppressEntrySync = false;
+        }
+
+        entryPagoImporte.Text = FormatAmount(0m);
+
+        if (ValueChangedCommand?.CanExecute(item) == true)
+            ValueChangedCommand.Execute(item);
+    }
 
     private void ActionButton(object obj)
     {
         try
         {
-            
-            if (ValueChangedCommand?.CanExecute(obj) == true)
+            var item = dataItem ?? obj as MultipleCobrosInvoiceLineAi;
+            if (item == null)
+                return;
+
+            CommitEntryToModel(formatDisplay: true);
+
+            if (ApplyAmountCommand?.CanExecute(item) == true)
             {
-                ValueChangedCommand.Execute(obj);
+                ApplyAmountCommand.Execute(item);
+                SyncEntryFromModel();
+                return;
             }
+
+            if (ValueChangedCommand?.CanExecute(item) == true)
+                ValueChangedCommand.Execute(item);
+
+            SyncEntryFromModel();
         }
         catch (TaskCanceledException)
         {
         }
     }
-
-    private async void Old_EntryPagoImporte_TextChanged(object sender, TextChangedEventArgs e)
-    {
-        try
-        {
-            var currentItem = dataItem; // snapshot REAL
-
-            if (currentItem == null) return;
-            if (!currentItem.EventsOn) return;
-
-            _cts?.Cancel();
-            _cts = new CancellationTokenSource();
-            var token = _cts.Token;
-
-            try
-            {
-                await Task.Delay(400, token);
-
-                if (token.IsCancellationRequested)
-                    return;
-
-                //  VALIDACIÓN CRÍTICA (AQUÍ ESTÁ LA SOLUCIÓN)
-                if (currentItem != dataItem) return;        // item cambió (recycling)
-                if (!currentItem.EventsOn) return;          // se desactivó mientras tanto
-                if (BindingContext != currentItem) return;  // seguridad extra
-
-                if (ValueChangedCommand?.CanExecute(currentItem) == true)
-                {
-                    ValueChangedCommand.Execute(currentItem);
-                }
-            }
-            catch (TaskCanceledException)
-            {
-            }
-        }
-        catch
-        {
-        }
-    }
-
-    //////private async void EntryPagoImporte_TextChanged(object sender, TextChangedEventArgs e)
-    //////{
-    //////    try
-    //////    {
-    //////        if (dataItem == null) return;
-    //////        if (!dataItem.EventsOn) return;
-
-    //////        _cts?.Cancel();
-    //////        _cts = new CancellationTokenSource();
-    //////        var token = _cts.Token;
-
-    //////        try
-    //////        {                
-    //////            await Task.Delay(400, token);
-
-    //////            if (token.IsCancellationRequested)
-    //////                return;
-
-    //////            if (ValueChangedCommand?.CanExecute(dataItem) == true)
-    //////            {
-    //////                ValueChangedCommand.Execute(dataItem);
-    //////            }
-    //////        }
-    //////        catch (TaskCanceledException)
-    //////        {
-    //////            // esperado, no hacer nada
-    //////        }
-    //////    }
-    //////    catch
-    //////    {
-    //////        // opcional log
-    //////    }
-    //////}
 }

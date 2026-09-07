@@ -29,45 +29,51 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 		<Configurations>Debug;Release</Configurations>
+		<AndroidSigningKeyStore>keystores\dmorders-upload.keystore</AndroidSigningKeyStore>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-android|AnyCPU'">
 	  <Optimize>True</Optimize>
 	  <AndroidStoreUncompressedFileExtensions></AndroidStoreUncompressedFileExtensions>
-	  <ApplicationVersion>57</ApplicationVersion>
+	  <ApplicationVersion>59</ApplicationVersion>
 	  <AndroidPackageFormat>aab</AndroidPackageFormat>
 	  <AndroidUseAapt2>True</AndroidUseAapt2>
 	  <AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
-		<RunAOTCompilation>False</RunAOTCompilation>	  
+		<RunAOTCompilation>False</RunAOTCompilation>
+		<AndroidKeyStore>True</AndroidKeyStore>
+		<AndroidSigningKeyAlias>upload</AndroidSigningKeyAlias>
+		<AndroidSigningStorePass>2macronegociosorders022</AndroidSigningStorePass>
+		<AndroidSigningKeyPass>2macronegociosorders022</AndroidSigningKeyPass>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-ios|AnyCPU'">
 	  <Optimize>True</Optimize>
-	  <ApplicationVersion>57</ApplicationVersion>
+	  <ApplicationVersion>59</ApplicationVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-maccatalyst|AnyCPU'">
 	  <Optimize>True</Optimize>
-	  <ApplicationVersion>57</ApplicationVersion>
+	  <ApplicationVersion>59</ApplicationVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-windows10.0.19041.0|AnyCPU'">
 	  <Optimize>True</Optimize>
-	  <ApplicationVersion>57</ApplicationVersion>
+	  <ApplicationVersion>59</ApplicationVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-android|AnyCPU'">
 	  <AndroidStoreUncompressedFileExtensions></AndroidStoreUncompressedFileExtensions>
-	  <ApplicationVersion>57</ApplicationVersion>
+	  <ApplicationVersion>59</ApplicationVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-ios|AnyCPU'">
-	  <ApplicationVersion>57</ApplicationVersion>
+	  <ApplicationVersion>59</ApplicationVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-maccatalyst|AnyCPU'">
-	  <ApplicationVersion>57</ApplicationVersion>
+	  <ApplicationVersion>59</ApplicationVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-windows10.0.19041.0|AnyCPU'">
-	  <ApplicationVersion>57</ApplicationVersion>
+	  <ApplicationVersion>59</ApplicationVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="$(TargetFramework.Contains('-android'))">
 		<AndroidSupportedAbis>armeabi-v7a;x86;arm64-v8a;x86_64</AndroidSupportedAbis>
 		<AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
+		<TargetPlatformVersion>36.0</TargetPlatformVersion>
 	</PropertyGroup>
 
 	<!--<PropertyGroup Condition="$(TargetFramework.Contains('-android'))">

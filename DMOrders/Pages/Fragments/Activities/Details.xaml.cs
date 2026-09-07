@@ -2,17 +2,13 @@ using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Extensions;
 using DMOrders.Controls;
 using DMOrders.Controls.Tools;
-using DMOrders.Services.Database.Sqlite;
 using DMOrders.Shared;
 using DMSA.Models.Odoo.Tareas;
 using DMSA.Sync.Core.Database.Sqlite.Sales;
 using DMSA.Sync.Core.Database.Sqlite.tareas;
 using DMSA.Sync.Core.Update.Pusher;
 using Microsoft.Maui.Controls;
-using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace DMOrders.Pages.Fragments.Activities;
@@ -23,41 +19,6 @@ public partial class Details : ContentPage, IBackButtonHandler
     public ProjectTask CurrentProjectTask { get; set; }
     public ICommand EditCommand { get; set; }
     public ICommand DeleteCommand { get; set; }
-    private async void EditItem(object obj)
-    {
-        Debug.WriteLine("EditItem");
-
-        // Bloquear edición si la tarea está sincronizada
-        if (CurrentProjectTask != null && CurrentProjectTask.is_synchronized)
-        {
-            Debug.WriteLine("[Details] Edit blocked: task is synchronized");
-            await DisplayAlertAsync("Atención", "No se puede editar una actividad sincronizada.", "Aceptar");
-            return;
-        }
-
-        var ItemForEdit = (AccountAnalyticLine)obj;
-        PopupSizeConstants popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
-
-        var returnResultPopup = new PopupAccountAnalyticLine(popupSizeConstants, CurrentProjectTask, ItemForEdit);
-        returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;
-        var result = await this.ShowPopupAsync(returnResultPopup);
-
-        if (result != null)
-        {
-
-        }
-        else
-        {
-            // stackAccountInfo.IsVisible = false;
-        }
-
-        await ((DetailsViewModel)BindingContext).PublicLoadActivities();
-    }
-
-    private void ViewObj_Disappearing(object? sender, EventArgs e)
-    {
-        Debug.WriteLine("ViewObj_Disappearing");
-    }
 
     public Details(ProjectTask _CurrentActivityHeader)
     {
@@ -71,69 +32,129 @@ public partial class Details : ContentPage, IBackButtonHandler
         }
 
         BindingContext = new DetailsViewModel(CurrentProjectTask);
+        ConfigureCommandsAndFooter();
+    }
 
-        // Si la tarea ya está sincronizada, desactivar comandos y ocultar botones del footer
-        if (CurrentProjectTask != null && CurrentProjectTask.is_synchronized)
+    private void ConfigureCommandsAndFooter()
+    {
+        if (IsTaskFullySynced())
         {
-            Debug.WriteLine("[Details] Task is synchronized -> read-only view");
-
             EditCommand = null;
             DeleteCommand = null;
-
-            HideFooterButtons();
         }
         else
         {
             EditCommand = new Command(EditItem);
-
-            // Inicializar DeleteCommand para que AccountAnalyticLineRow pueda ejecutarlo (restaurado)
             DeleteCommand = new Command(async (obj) => await DeleteItemAsync(obj));
         }
+
+        ApplyFooterState();
+        UpdateSyncMessageLabel();
     }
 
-    void HideFooterButtons()
-    {
-        try
-        {
-            if (Content is Grid rootGrid)
-            {
-                // Buscar la vista que está en la fila 3 (footer)
-                var footer = rootGrid.Children.FirstOrDefault(ch =>
-                    ch is Microsoft.Maui.Controls.View v && Microsoft.Maui.Controls.Grid.GetRow(v) == 3);
+    private bool IsTaskFullySynced() =>
+        CurrentProjectTask?.IsFullySynced == true;
 
-                if (footer is Layout layout)
-                {
-                    foreach (var child in layout.Children)
-                    {
-                        if (child is Button btn)
-                        {
-                            // Ocultar botones relevantes por texto
-                            var text = (btn.Text ?? string.Empty).Trim().ToLowerInvariant();
-                            if (text == "nuevo" || text == "enviar" || text == "guardar")
-                            {
-                                btn.IsVisible = false;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
+    private bool CanReprocess()
+    {
+        if (CurrentProjectTask == null)
+            return false;
+
+        if (CurrentProjectTask.HasPendingDetails)
+            return true;
+
+        return string.Equals(CurrentProjectTask.sync_status, ProjectTaskSyncStatus.Partial, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(CurrentProjectTask.sync_status, ProjectTaskSyncStatus.Error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void ApplyFooterState()
+    {
+        bool fullySynced = IsTaskFullySynced();
+        bool canReprocess = CanReprocess();
+
+        if (btnNuevo != null)
+            btnNuevo.IsVisible = !fullySynced;
+
+        if (btnEnviar != null)
+            btnEnviar.IsVisible = !fullySynced && !canReprocess;
+
+        if (btnReprocesar != null)
+            btnReprocesar.IsVisible = !fullySynced && canReprocess;
+    }
+
+    private void UpdateSyncMessageLabel()
+    {
+        if (lblSyncMessage == null || CurrentProjectTask == null)
+            return;
+
+        var message = CurrentProjectTask.sync_message?.Trim();
+        if (string.IsNullOrWhiteSpace(message))
         {
-            Debug.WriteLine($"HideFooterButtons error: {ex}");
+            lblSyncMessage.IsVisible = false;
+            lblSyncMessage.Text = string.Empty;
+            return;
         }
+
+        lblSyncMessage.Text = message;
+        lblSyncMessage.IsVisible = true;
+    }
+
+    private async Task ReloadCurrentTaskAsync()
+    {
+        var dbName = App.Session?.odooConnection?.DbNameSqlite;
+        if (CurrentProjectTask == null || string.IsNullOrWhiteSpace(dbName))
+            return;
+
+        var projectDb = new ProjectTaskDb(dbName);
+        var refreshed = await projectDb.GetItem(CurrentProjectTask.id);
+        if (refreshed == null)
+            return;
+
+        CurrentProjectTask = refreshed;
+        ConfigureCommandsAndFooter();
+    }
+
+    private async void EditItem(object obj)
+    {
+        if (CurrentProjectTask != null && IsTaskFullySynced())
+        {
+            await DisplayAlertAsync("Atenciï¿½n", "No se puede editar una actividad sincronizada.", "Aceptar");
+            return;
+        }
+
+        var ItemForEdit = obj as AccountAnalyticLine;
+        if (ItemForEdit == null)
+            return;
+
+        if (ItemForEdit.is_synchronized
+            && ProjectTaskSyncValidation.IsLineEffectivelySynced(ItemForEdit, CurrentProjectTask?.id_sync ?? 0))
+        {
+            await DisplayAlertAsync(
+                "Atenciï¿½n",
+                "No se puede editar un detalle que ya fue sincronizado con el ERP.",
+                "Aceptar");
+            return;
+        }
+
+        PopupSizeConstants popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
+
+        var returnResultPopup = new PopupAccountAnalyticLine(popupSizeConstants, CurrentProjectTask, ItemForEdit);
+        returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;
+        await this.ShowPopupAsync(returnResultPopup);
+
+        await ((DetailsViewModel)BindingContext).PublicLoadActivities();
     }
 
     public async Task<bool> OnBackButtonPressedAsync()
     {
-        bool result = await DisplayAlertAsync("Confirmación", "Minimizar la aplicación, ¿Desea continuar?", "Sí", "No");
+        bool result = await DisplayAlertAsync("Confirmaciï¿½n", "Minimizar la aplicaciï¿½n, ï¿½Desea continuar?", "Sï¿½", "No");
         if (result)
         {
 #if ANDROID
             Platform.CurrentActivity?.MoveTaskToBack(true);
 #endif
         }
-        return !result; // true => lo manejo yo y no cierro la app; false => dejar cerrar
+        return !result;
     }
 
     protected override bool OnBackButtonPressed()
@@ -146,11 +167,6 @@ public partial class Details : ContentPage, IBackButtonHandler
         return true;
     }
 
-    protected override void OnDisappearing()
-    {
-        base.OnDisappearing();
-    }
-
     private async void ButtonClose_Clicked(object sender, EventArgs e)
     {
         SendBackButtonPressed();
@@ -158,39 +174,75 @@ public partial class Details : ContentPage, IBackButtonHandler
 
     private async void ButtonNew_Clicked(object sender, EventArgs e)
     {
-        // Bloquear creación si la tarea ya fue sincronizada
-        if (CurrentProjectTask != null && CurrentProjectTask.is_synchronized)
+        if (CurrentProjectTask != null && IsTaskFullySynced())
         {
-            Debug.WriteLine("[Details] New blocked: task is synchronized");
-            await DisplayAlertAsync("Atención", "No puede agregar nuevas actividades a una tarea sincronizada.", "Aceptar");
+            await DisplayAlertAsync("Atenciï¿½n", "No puede agregar nuevas actividades a una tarea sincronizada.", "Aceptar");
             return;
         }
 
         PopupSizeConstants popupSizeConstants = new PopupSizeConstants(DeviceDisplay.Current);
-
         var returnResultPopup = new PopupAccountAnalyticLine(popupSizeConstants, CurrentProjectTask, null);
         returnResultPopup.CanBeDismissedByTappingOutsideOfPopup = false;
 
-        var result = await this.ShowPopupAsync(returnResultPopup);
+        await this.ShowPopupAsync(returnResultPopup);
 
         await ((DetailsViewModel)BindingContext).PublicLoadActivities();
     }
 
     private async void ButtonSave_Clicked(object sender, EventArgs e)
     {
-        //Save data
         await Toast.Make("Datos almacenados").Show();
         await Navigation.PopModalAsync();
     }
 
     private async void ButtonSync_Clicked(object sender, EventArgs e)
     {
-        var leave = await DisplayAlertAsync("Enviar", "¿Desea enviar esta actividad al ERP?", "Si", "No");
+        await ExecuteSendAsync(allowAutoRetry: true, confirmTitle: "Enviar", confirmMessage: "ï¿½Desea enviar esta actividad al ERP?");
+    }
 
-        if (!leave)
+    private async void ButtonReprocess_Clicked(object sender, EventArgs e)
+    {
+        await ExecuteSendAsync(allowAutoRetry: false, confirmTitle: "Reprocesar", confirmMessage: "ï¿½Desea reprocesar los detalles pendientes?");
+    }
+
+    private async Task ExecuteSendAsync(bool allowAutoRetry, string confirmTitle, string confirmMessage)
+    {
+        var dbName = App.Session?.odooConnection?.DbNameSqlite;
+        if (CurrentProjectTask == null || string.IsNullOrWhiteSpace(dbName))
         {
+            await DisplayAlertAsync(
+                "Atenciï¿½n",
+                "Es necesario agregar actividades para realizar el envï¿½o al ERP debido a que actualmente se encuentra vacï¿½o.",
+                "Aceptar");
             return;
         }
+
+        var accountAnalyticLineDb = new AccountAnalyticLineDb(dbName);
+        var activityLines = await accountAnalyticLineDb.GetItemsAsync(CurrentProjectTask);
+        if (activityLines == null || activityLines.Count == 0)
+        {
+            await DisplayAlertAsync(
+                "Atenciï¿½n",
+                "Es necesario agregar actividades para realizar el envï¿½o al ERP debido a que actualmente se encuentra vacï¿½o.",
+                "Aceptar");
+            return;
+        }
+
+        if (!allowAutoRetry)
+        {
+            var pending = await accountAnalyticLineDb.GetPendingItemsAsync(CurrentProjectTask);
+            var needsHeaderRelink = ProjectTaskSyncValidation.NeedsHeaderRelink(CurrentProjectTask, activityLines);
+
+            if ((pending == null || pending.Count == 0) && !needsHeaderRelink)
+            {
+                await DisplayAlertAsync("Atenciï¿½n", "No hay detalles pendientes por reprocesar.", "Aceptar");
+                return;
+            }
+        }
+
+        var leave = await DisplayAlertAsync(confirmTitle, confirmMessage, "Sï¿½", "No");
+        if (!leave)
+            return;
 
         var serverPusher = new SaleOrders();
         bool popupShown = false;
@@ -200,7 +252,7 @@ public partial class Details : ContentPage, IBackButtonHandler
             try
             {
                 await UITools.ShowLoadingPopup(this);
-                await UITools.SetNotifyLoadingPopup("Enviando tarea...");
+                await UITools.SetNotifyLoadingPopup(allowAutoRetry ? "Enviando actividad..." : "Reprocesando pendientes...");
                 popupShown = true;
             }
             catch (Exception exPopup)
@@ -208,130 +260,80 @@ public partial class Details : ContentPage, IBackButtonHandler
                 Debug.WriteLine("[Details] No se pudo mostrar popup: " + exPopup);
             }
 
-            if(CurrentProjectTask.project_id_ != App.Session.odooConnection.project_id)
-            {
-                CurrentProjectTask.project_id_ = App.Session.odooConnection.project_id;
-            }
+            ProjectTaskSendResult sendResult = allowAutoRetry
+                ? await serverPusher.SendProjectTask(CurrentProjectTask, allowAutoRetry: true)
+                : await serverPusher.ReprocessPendingProjectTask(CurrentProjectTask);
 
-            // Enviar tarea al servidor (ServerPusher puede crear/actualizar id_sync internamente)
-            await serverPusher.SendProjectTask(CurrentProjectTask);
+            await ReloadCurrentTaskAsync();
 
-            // Marcar como sincronizada en la instancia local
-            if (CurrentProjectTask != null)
-            {
-                CurrentProjectTask.is_synchronized = true;
-                CurrentProjectTask.date_synchronized = DateTime.Now;
-
-                // Desactivar comandos tras sincronizar y notificar
-                EditCommand = null;
-                DeleteCommand = null;
-
-                // Ocultar botones del footer ahora que está sincronizada
-                HideFooterButtons();
-            }
-
-            // Persistir el cambio en la BD usada por la UI
-            try
-            {
-                var dbName = App.Session?.odooConnection?.DbNameSqlite;
-                if (!string.IsNullOrWhiteSpace(dbName))
-                {
-                    var projectDb = new ProjectTaskDb(dbName);
-                    await projectDb.UpdateAsync(CurrentProjectTask);
-                }
-                else
-                {
-                    Debug.WriteLine("[Details] App.Session.odooConnection.DbNameSqlite es nulo o vacío; no se actualiza BD local.");
-                }
-            }
-            catch (Exception dbEx)
-            {
-                Debug.WriteLine("[Details] Error actualizando ProjectTaskDb: " + dbEx);
-            }
-
-            // Forzar recarga del ViewModel de detalles
-            try
-            {
-                if (BindingContext is DetailsViewModel vm)
-                    await vm.PublicLoadActivities();
-            }
-            catch (Exception vmEx)
-            {
-                Debug.WriteLine("[Details] Error recargando ViewModel: " + vmEx);
-            }
-
-            // Notificar a otros componentes que la tarea fue sincronizada
-            try
-            {
-                //MessagingCenter.Send(this, "ProjectTaskSynced", CurrentProjectTask?.id ?? 0);
-            }
-            catch (Exception msgEx)
-            {
-                Debug.WriteLine("[Details] MessagingCenter.Send falló: " + msgEx);
-            }
+            if (BindingContext is DetailsViewModel vm)
+                await vm.PublicLoadActivities();
 
             if (popupShown)
             {
                 try { await UITools.HideLoadingPopup(); } catch { }
             }
 
-            // Navegar atrás en hilo UI
-            Dispatcher.Dispatch(async () =>
+            string alertTitle = sendResult.Ok ? "Envï¿½o completado" : "Atenciï¿½n";
+            await DisplayAlertAsync(alertTitle, sendResult.Message, "Aceptar");
+
+            if (sendResult.Ok)
             {
-                try { await Navigation.PopModalAsync(); } catch (Exception navEx) { Debug.WriteLine("[Details] PopModalAsync failed: " + navEx); }
-            });
+                Dispatcher.Dispatch(async () =>
+                {
+                    try { await Navigation.PopModalAsync(); } catch (Exception navEx) { Debug.WriteLine("[Details] PopModalAsync failed: " + navEx); }
+                });
+            }
         }
         catch (Exception ex)
         {
             Debug.WriteLine("[Details] Error al sincronizar tarea: " + ex);
             try { if (popupShown) await UITools.HideLoadingPopup(); } catch { }
-            await Toast.Make("Error al enviar tarea: " + ex.Message).Show();
+
+            await DisplayAlertAsync("Atenciï¿½n", "Error al enviar tarea: " + ex.Message, "Cerrar");
         }
     }
 
     private async Task DeleteItemAsync(object obj)
     {
         if (obj == null)
-        {
-            Debug.WriteLine("[Activities.Details] parametro null");
             return;
-        }
 
-        Debug.WriteLine("[Activities.Details] DeleteItemAsync invoked");
-
-        // Bloquear eliminación si la tarea padre está sincronizada
-        if (CurrentProjectTask != null && CurrentProjectTask.is_synchronized)
+        if (CurrentProjectTask != null && IsTaskFullySynced())
         {
-            Debug.WriteLine("[Activities.Details] Delete blocked: task is synchronized");
             await Toast.Make("No puede eliminar actividades de una tarea sincronizada").Show();
             return;
         }
 
         try
         {
-            
             var analytic = obj as AccountAnalyticLine;
+            if (analytic == null)
+                return;
 
-            bool confirm = await DisplayAlertAsync("Confirmación", "¿Desea eliminar esta actividad?", "Sí", "No");
+            if (analytic.is_synchronized
+                && ProjectTaskSyncValidation.IsLineEffectivelySynced(analytic, CurrentProjectTask?.id_sync ?? 0))
+            {
+                await DisplayAlertAsync(
+                    "Atenciï¿½n",
+                    "No se puede eliminar un detalle que ya fue sincronizado con el ERP.",
+                    "Aceptar");
+                return;
+            }
+
+            bool confirm = await DisplayAlertAsync("Confirmaciï¿½n", "ï¿½Desea eliminar esta actividad?", "Sï¿½", "No");
             if (!confirm) return;
-            
+
             var db = new AccountAnalyticLineDb(App.Session?.odooConnection?.DbNameSqlite);
             int deleted = await db.DeleteAsync(analytic);
-            Debug.WriteLine($"[Activities.Details] DeleteAsync returned={deleted} for id={analytic.id}");
 
             if (deleted <= 0)
-            {
                 deleted = await db.DeleteByIdAsync(analytic.id);
-                Debug.WriteLine($"[Activities.Details] DeleteByIdAsync returned={deleted} for id={analytic.id}");
-            }
 
-            // Recargar desde la DB para asegurar consistencia
             if (BindingContext is DetailsViewModel vm)
-            {
                 await vm.PublicLoadActivities();
-            }
 
-            await Toast.Make(deleted > 0 ? "Actividad eliminada" : "No se encontró registro para eliminar").Show();
+            await Toast.Make(deleted > 0 ? "Actividad eliminada" : "No se encontrï¿½ registro para eliminar").Show();
         }
         catch (Exception ex)
         {

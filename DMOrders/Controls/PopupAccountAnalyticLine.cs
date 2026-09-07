@@ -705,29 +705,23 @@ namespace DMOrders.Controls
             //    return;
             //}
 
+
+            if (_pickerPlanningReason.SelectedItem == null)
+            {
+                await App.Current.MainPage.DisplayAlertAsync(
+                    "Atención",
+                    "Es necesario seleccionar un motivo para continuar con el registro.",
+                    "Aceptar");
+                return;
+            }
+
             if (_inputReview.Text == null || _inputReview.Text == "")
             {
-                //await App.Current.MainPage.DisplayAlert("Review requerido", "Llene el campo de observaciones", "Cerrar");
-                //await ServicesExposer.DialogService.ConfirmAsync("Review requerido", "Llene el campo de observaciones", "Ok");
-
-                //var messageView = new VerticalStackLayout
-                //{
-                //    Margin = new Thickness(15),
-                //    Children =
-                //    {
-                //        new Label
-                //        {
-                //            Text = "Llene el campo de observaciones",
-                //            FontSize = 15,
-                //            FontAttributes = FontAttributes.None,
-                //            HorizontalOptions = LayoutOptions.Center
-                //        }
-                //    }
-                //};
-
                 _inputReview.Focus();
-                //await ServicesExposer.DialogService.DisplayViewAsync("Review requerido", messageView);
-                await Toast.Make("Llene el campo de observaciones").Show();                
+                await App.Current.MainPage.DisplayAlertAsync(
+                    "Atención",
+                    "Es necesario agregar información en observaciones para continuar con el registro.",
+                    "Aceptar");
                 return;
             }
 
@@ -741,7 +735,11 @@ namespace DMOrders.Controls
 
             if(hour_start >= hour_end)
             {                
-                await Toast.Make("La hora final debe ser mayor a la hora de inicio").Show();
+
+                await App.Current.MainPage.DisplayAlertAsync(
+                  "Atención",
+                  "La hora final debe ser mayor a la hora de inicio.",
+                  "Aceptar");
                 return;
             }
 
@@ -763,9 +761,10 @@ namespace DMOrders.Controls
                     analyticLine = new AccountAnalyticLine();
                 }
 
-                bool answer = await App.Current.MainPage.DisplayAlert(title_save,
-                        message_save,
-                        "Continuar", "Cerrar");
+                bool answer = await App.Current.MainPage.DisplayAlertAsync(
+                 title_save,
+                 message_save,
+              "Continuar", "Cerrar");
 
                 if (!answer)
                 {
@@ -800,12 +799,20 @@ namespace DMOrders.Controls
                     await accountAnalyticLineDb.UpdateAsync(analyticLine);
                 }
 
-                await Toast.Make("Actividad guardada correctamente " + analyticLine.id.ToString()).Show();
+                await App.Current.MainPage.DisplayAlertAsync(
+                "Exito",
+                "Se registro correctamente la actividad n°" + analyticLine.id.ToString(),
+                "Aceptar");
+
             }
             catch (Exception ex)
             {
-                await Toast.Make("Error al guardar actividad: " + ex.Message).Show();
-               }
+                await App.Current.MainPage.DisplayAlertAsync(
+                "Atención",
+                "Error al guardar actividad: " + ex.Message,
+                "Cerrar");
+
+            }
 
             await CloseAsync(analyticLine);
         }

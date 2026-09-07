@@ -203,5 +203,16 @@ namespace ApiManagerOdoo.Accounting
             object[] args = new object[] { newJObject };
             return await Create<ApiResponseOdooRpcT<int>>(args, kwargs);
         }
+
+        public async Task<ApiResponseOdooRpcT<bool>?> WriteTaskId(int erpLineId, int erpTaskId)
+        {
+            var kwargs = new { };
+            object[] args = new object[]
+            {
+                new[] { erpLineId },
+                new { task_id = erpTaskId }
+            };
+            return await Write<ApiResponseOdooRpcT<bool>>(args, kwargs, "account.analytic.line");
+        }
     }
 }

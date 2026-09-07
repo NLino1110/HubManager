@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Maui.Core.Platform;
+using CommunityToolkit.Maui.Core.Platform;
 using System.Diagnostics;
 using System.Windows.Input;
 using System.ComponentModel;
@@ -18,6 +18,7 @@ namespace DMSA.Sync.Core.Controls.Popups
 
         //private SearchBar _searchBar { get; set; }
         private Entry _searchBar { get; set; }
+        private Border _searchBarBorder { get; set; }
 
         public StackLayout _stackLayoutTop;
         public Label _labelOverTitle;
@@ -35,6 +36,7 @@ namespace DMSA.Sync.Core.Controls.Popups
         public ScrollView _scrollView;
         public CollectionView _collectionViewSearch;
         HeaderLikeTable contentViewHeader;
+        private Label _labelGridLegend;
 
         public Color _colorTop = Colors.GhostWhite;
         public Color _colorBody = Colors.GhostWhite;
@@ -62,6 +64,24 @@ namespace DMSA.Sync.Core.Controls.Popups
         public string Subtitle { get; set; }
         public static string DataField {  get; set; } = "id, name";
         public string TextForSearch { get; set; }
+
+        protected Entry SearchEntry => _searchBar;
+
+        protected void SyncTextForSearchFromEntry()
+        {
+            if (_searchBar != null)
+                TextForSearch = (_searchBar.Text ?? string.Empty).Trim();
+        }
+
+        protected void RunSearch() =>
+            _searchBar_BeginSearchBase(_searchBar, EventArgs.Empty);
+
+        protected async Task ShowPopupAlertAsync(string title, string message)
+        {
+            var page = Application.Current?.Windows?.FirstOrDefault()?.Page;
+            if (page != null)
+                await page.DisplayAlertAsync(title, message, "Aceptar");
+        }
 
         //public bool ShowTextSearch { get; set; } = true;
 
@@ -143,6 +163,7 @@ namespace DMSA.Sync.Core.Controls.Popups
             {                
                 RowDefinitions =
                 {
+                    new RowDefinition { Height = GridLength.Auto },
                     new RowDefinition { Height = GridLength.Auto },
                     new RowDefinition { Height = GridLength.Auto },
                     new RowDefinition { Height = GridLength.Auto },
@@ -240,6 +261,22 @@ namespace DMSA.Sync.Core.Controls.Popups
         public void SetGridTitles(string Titles)
         {
             contentViewHeader.Columns = Titles;
+        }
+
+        public void SetGridLegend(string legend)
+        {
+            if (_labelGridLegend == null)
+                return;
+
+            if (string.IsNullOrWhiteSpace(legend))
+            {
+                _labelGridLegend.IsVisible = false;
+                _labelGridLegend.Text = string.Empty;
+                return;
+            }
+
+            _labelGridLegend.Text = legend;
+            _labelGridLegend.IsVisible = true;
         }
 
         public virtual void SetDataFields(string Fields)
@@ -502,7 +539,7 @@ namespace DMSA.Sync.Core.Controls.Popups
             //Botón de cerrar en pantalla pequeña
             //flexTop.Children.Add(_btnCloseSmall);
 
-            Border border = new Border
+            _searchBarBorder = new Border
             {
                 Stroke = Color.FromArgb("#C49B33"),
                 //Background = Color.FromArgb("#2B0B98"),
@@ -515,22 +552,23 @@ namespace DMSA.Sync.Core.Controls.Popups
                 {
                     CornerRadius = new CornerRadius(5, 5, 5, 5)
                 },
-                Content = _searchBar
+                Content = _searchBar,
+                IsVisible = ShowTextSearch
             };
                         
-            FlexLayout.SetOrder(border, 3);
+            FlexLayout.SetOrder(_searchBarBorder, 3);
             
             bool isWindows = DeviceInfo.Current.Platform == DevicePlatform.WinUI;
 
             if (isWindows)
             {
                 flexTop.Margin = new Thickness(0, 25, 0, 0);
-                FlexLayout.SetGrow(border, 1);
-                FlexLayout.SetAlignSelf(border, FlexAlignSelf.Center);
+                FlexLayout.SetGrow(_searchBarBorder, 1);
+                FlexLayout.SetAlignSelf(_searchBarBorder, FlexAlignSelf.Center);
             }
             
-            FlexLayout.SetShrink(border, 0);
-            flexTop.Children.Add(border);
+            FlexLayout.SetShrink(_searchBarBorder, 0);
+            flexTop.Children.Add(_searchBarBorder);
 
             /************************************/
             flexTop.Children.Add(_stackLayoutToolBox1);
@@ -680,7 +718,7 @@ namespace DMSA.Sync.Core.Controls.Popups
             };
 
             gridContent.Children.Add(_stackLayoutBottom);
-            Grid.SetRow(_stackLayoutBottom, 6);
+            Grid.SetRow(_stackLayoutBottom, 7);
             Grid.SetColumn(_stackLayoutBottom, 0);
             Grid.SetColumnSpan(_stackLayoutBottom, 3);
         }
@@ -841,14 +879,29 @@ namespace DMSA.Sync.Core.Controls.Popups
             Grid.SetColumn(contentViewHeader, 0);
             Grid.SetColumnSpan(contentViewHeader, 2);
 
+            _labelGridLegend = new Label
+            {
+                FontSize = 11,
+                FontAttributes = FontAttributes.Bold,
+                TextColor = Colors.DimGray,
+                Margin = new Thickness(10, 0, 10, 4),
+                IsVisible = false,
+                LineBreakMode = LineBreakMode.WordWrap
+            };
+
+            gridContent.Children.Add(_labelGridLegend);
+            Grid.SetRow(_labelGridLegend, 3);
+            Grid.SetColumn(_labelGridLegend, 0);
+            Grid.SetColumnSpan(_labelGridLegend, 3);
+
             gridContent.Children.Add(_scrollView);
-            Grid.SetRow(_scrollView, 3);
+            Grid.SetRow(_scrollView, 4);
             Grid.SetColumn(_scrollView, 0);
             Grid.SetColumnSpan(_scrollView, 3);
             //Grid.SetRowSpan(_scrollView, 3);
 
             gridContent.Children.Add(_layoutLoading);
-            Grid.SetRow(_layoutLoading, 3);
+            Grid.SetRow(_layoutLoading, 4);
             Grid.SetColumn(_layoutLoading, 0);
             Grid.SetColumnSpan(_layoutLoading, 2);
             //Grid.SetRowSpan(_layoutLoading, 3);
@@ -908,6 +961,8 @@ namespace DMSA.Sync.Core.Controls.Popups
                 case "ShowTextSearch":
                     {
                         _searchBar.IsVisible = ShowTextSearch;
+                        if (_searchBarBorder != null)
+                            _searchBarBorder.IsVisible = ShowTextSearch;
                     }
                     break;
                 case "ShowToolBox":

@@ -61,7 +61,7 @@ public partial class CreditNoteRequestGroupView : ContentPage
 
         Dispatcher.Dispatch(async () =>
         {
-            var leave = await DisplayAlertAsync("Atención", "Los cambios que haya realizado no se guardarán. ¿Desea continuar?", "Si", "No");
+            var leave = await DisplayAlertAsync("Atenci\u00F3n", "Los cambios que haya realizado no se guardar\u00E1n. \u00BFDesea continuar?", "Si", "No");
 
             if (leave)
             {
@@ -137,7 +137,7 @@ public partial class CreditNoteRequestGroupView : ContentPage
     private async void DeleteItem(object objParam)
     {
         Debug.WriteLine("DeleteItem");
-        bool answer = await DisplayAlertAsync("Eliminar", "Está seguro que desea eliminar este item?", "Eliminar", "Cancelar");
+        bool answer = await DisplayAlertAsync("Eliminar", "Est\u00E1 seguro que desea eliminar este item?", "Eliminar", "Cancelar");
         
         if (answer)
         {
@@ -151,10 +151,10 @@ public partial class CreditNoteRequestGroupView : ContentPage
         }
     }
 
-    // Función para buscar el objeto más parecido en una lista
+    // Funcion para buscar el objeto mas parecido en una lista
     public static T FindClosestObject<T>(List<T> objects, T targetObject)
     {
-        // Lista de propiedades públicas del tipo de objeto
+        // Lista de propiedades publicas del tipo de objeto
         var properties = typeof(T).GetProperties();
 
         // Calcular la distancia entre cada objeto y el objeto objetivo
@@ -176,7 +176,7 @@ public partial class CreditNoteRequestGroupView : ContentPage
             return new { Object = obj, Distance = distance };
         });
 
-        // Obtener el objeto más cercano o null si no se encontró ninguno
+        // Obtener el objeto mas cercano o null si no se encontro ninguno
         var closestObject = distances.OrderByDescending(d => d.Distance).FirstOrDefault();
 
         if (closestObject != null && closestObject.Distance > 0)
@@ -343,7 +343,7 @@ public partial class CreditNoteRequestGroupView : ContentPage
 
     private async void btnClose_Clicked(object sender, EventArgs e)
     {
-        bool answer = await DisplayAlertAsync("Atención", "Los cambios que haya realizado no se guardarán. ¿Desea continuar?", "Si", "No");
+        bool answer = await DisplayAlertAsync("Atenci\u00F3n", "Los cambios que haya realizado no se guardar\u00E1n. \u00BFDesea continuar?", "Si", "No");
         
         if (!answer)
         {
@@ -421,7 +421,7 @@ public partial class CreditNoteRequestGroupView : ContentPage
         {
             if (Sel_Res_Partner == null)
             {
-                await Toast.Make("No se ha seleccionado cliente para la creación del NC.").Show();
+                await Toast.Make("No se ha seleccionado cliente para la creaci\u00F3n del NC.").Show();
                 return;
             }
 

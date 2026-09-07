@@ -51,7 +51,7 @@ public partial class NotasCreditoPage : ContentPage
             _searchText = value;
             OnPropertyChanged();
 
-            // aquí puedes ejecutar búsqueda si quieres
+            // aquÃ¯Â¿Â½ puedes ejecutar bÃ¯Â¿Â½squeda si quieres
             //PerformSearch();
         }
     }
@@ -142,7 +142,7 @@ public partial class NotasCreditoPage : ContentPage
             {
                 if (_accountMoveItem.request_status == DMSA.Models.MoveStatus.ENVIANDO)
                 {
-                    // Obtén la fecha y hora actual
+                    // ObtÃ¯Â¿Â½n la fecha y hora actual
                     DateTime fechaActual = DateTime.Now;
                     TimeSpan diferenciaDeTiempo = fechaActual - _accountMoveItem.create_datetime;
 
@@ -157,7 +157,7 @@ public partial class NotasCreditoPage : ContentPage
 
                 if (fecha.Date != currentFecha.Date) // Si la fecha cambia
                 {
-                    // Ejecutar la función que recibe los registros de la fecha anterior
+                    // Ejecutar la funciÃ¯Â¿Â½n que recibe los registros de la fecha anterior
                     await ProcessItemsGroupMoveSendHeader(registrosGrupo, _items, Sel_Company_Id);
 
                     currentFecha = fecha.Date; // Actualizar la fecha actual
@@ -220,7 +220,7 @@ public partial class NotasCreditoPage : ContentPage
 
         int countMoves = movesItems.Count;
 
-        bool answer = await DisplayAlertAsync("Eliminar solicitud", $"Está seguro que desea eliminar esta solicitud? {countMoves} Nota(s) de Crédito", "Confirmar", "Cancelar");
+        bool answer = await DisplayAlertAsync("Eliminar solicitud", $"EstÃ¡ seguro que desea eliminar esta solicitud? {countMoves} Nota(s) de CrÃ©dito", "Confirmar", "Cancelar");
         //Debug.WriteLine("Answer: " + answer);
         if (!answer)
         {
@@ -241,7 +241,7 @@ public partial class NotasCreditoPage : ContentPage
 
         int countMoves = movesItems.Count;
 
-        bool answer = await DisplayAlertAsync("Envío de solicitud", $"Está seguro que desea enviar esta solicitud? {countMoves} Nota(s) de Crédito", "Confirmar", "Cancelar");
+        bool answer = await DisplayAlertAsync("EnvÃ­o de solicitud", $"EstÃ¡ seguro que desea enviar esta solicitud? {countMoves} Nota(s) de CrÃ©dito", "Confirmar", "Cancelar");
         //Debug.WriteLine("Answer: " + answer);
         if (!answer)
         {
@@ -257,7 +257,7 @@ public partial class NotasCreditoPage : ContentPage
         //    await UITools.HideLoadingPopup();
             
         //    await DisplayAlert("Riesgo de sobregiro",
-        //        "Al parecer se han ingresado valores inadecuados para las devoluciones, modifíquelos y vuelva a intentar.",
+        //        "Al parecer se han ingresado valores inadecuados para las devoluciones, modifï¿½quelos y vuelva a intentar.",
         //        "Cancelar");
 
         //    Debug.WriteLine(resultCheck.error.message);
@@ -269,7 +269,7 @@ public partial class NotasCreditoPage : ContentPage
 
         if (result != null && result.result!= null && result.result.Count > 0)
         {
-            await Toast.Make("Envío de solicitud(es) correcto").Show();
+            await Toast.Make("EnvÃ­o de solicitud(es) correcto").Show();
         }
         else
         {
@@ -280,7 +280,7 @@ public partial class NotasCreditoPage : ContentPage
                 error_message = ParseTool.CleanServerMessage_v1(error_message, true);
             }
 
-            await Toast.Make("Envío de solicitud(es) erroneo: " + error_message).Show();
+            await Toast.Make("EnvÃ­o de solicitud(es) erroneo: " + error_message).Show();
         }
 
         await UITools.HideLoadingPopup();

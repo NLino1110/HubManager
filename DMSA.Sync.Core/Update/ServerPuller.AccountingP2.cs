@@ -19,7 +19,9 @@ namespace DMSA.Sync.Core.Update
 {
     public partial class ServerPuller
     {
-        [UpdateAction("Actualizar Facturas Por Cliente")]
+        [UpdateAction(
+            "Actualizar documentos por cliente (facturas, notas de débito)",
+            "Descarga facturas y notas de débito del cliente seleccionado.")]
         public async Task<bool> OnlineSyncAccountMoveByResPartner(int res_partner, Func<int, int, Task>? onProgress = null)
         {
             DateTime dateTimeIni = DateTime.Now;

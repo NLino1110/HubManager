@@ -10,6 +10,7 @@
     <ContentView.Resources>
         <ResourceDictionary>
             <converters:DateToDaysConverter x:Key="DateToDaysConverter" />
+            <converters:DecimalGreaterThanZeroConverter x:Key="DecimalGreaterThanZeroConverter" />
         </ResourceDictionary>
     </ContentView.Resources>
     <Border
@@ -42,7 +43,7 @@
 
                 <HorizontalStackLayout Spacing="3">
                 <Label
-                    Text="{Binding docnum_mask, StringFormat='FAC # {0}'}"
+                    Text="{Binding document_reference_label}"
                     FontAttributes="Bold"
                     FontSize="14"
                     TextColor="Black" />
@@ -80,12 +81,11 @@
                     TextColor="Red" />
 
                 <Label
-                    Text="{Binding mcl_check_id, 
-                    StringFormat='CH-POSF: ${0}', 
-                    TargetNullValue='CH-POSF: -'}"
+                    Text="{Binding pf_promised_amount, StringFormat='CH. POSF.: $ {0:N2}'}"
                     FontSize="12"
                     FontAttributes="Bold"
-                    TextColor="MediumSeaGreen" />
+                    TextColor="DarkOrange"
+                    IsVisible="{Binding pf_promised_amount, Converter={StaticResource DecimalGreaterThanZeroConverter}}" />
 
             </StackLayout>
         </Grid>

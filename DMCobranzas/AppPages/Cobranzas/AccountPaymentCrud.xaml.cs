@@ -1,4 +1,4 @@
-﻿using ApiManagerOdoo.Accounting;
+using ApiManagerOdoo.Accounting;
 using BeebTech.Controls.UI;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Extensions;
@@ -152,14 +152,22 @@ public partial class AccountPaymentCrud : ContentPage
 
     private async void OnExpandedChanged(object sender, CommunityToolkit.Maui.Core.ExpandedChangedEventArgs e)
     {
+        var arrow = sender == ExpanderCol0 ? ArrowIconTop : ArrowIcon;
+
         if (e.IsExpanded)
         {
-            await ArrowIcon.RotateTo(0, 200, Easing.CubicIn);
+            await arrow.RotateTo(0, 200, Easing.CubicIn);
         }
         else
         {
-            await ArrowIcon.RotateTo(180, 200, Easing.CubicOut);            
+            await arrow.RotateTo(180, 200, Easing.CubicOut);
         }
+    }
+
+    private void CollapseHeaderExpanders()
+    {
+        ExpanderCol0.IsExpanded = false;
+        ExpanderCol1.IsExpanded = false;
     }
 
     protected override bool OnBackButtonPressed()
@@ -809,6 +817,80 @@ public partial class AccountPaymentCrud : ContentPage
         return "";
     }
 
+    private static void SyncLastAppliedAmounts(IEnumerable<MultipleCobrosInvoiceLineAi> lines)
+    {
+        foreach (var line in lines)
+            line.LastAppliedAmount = line.amount_asigned;
+    }
+
+    private static account_move_line? PickPaymentTermLine(IEnumerable<account_move_line> lines)
+    {
+        var paymentTerm = lines
+            .Where(x => x.display_type == "payment_term")
+            .OrderByDescending(x => x.write_date)
+            .FirstOrDefault();
+
+        if (paymentTerm != null)
+            return paymentTerm;
+
+        return lines
+            .Where(x => string.IsNullOrEmpty(x.display_type) && x._product_id == 0)
+            .OrderByDescending(x => x.price_total)
+            .FirstOrDefault();
+    }
+
+    private async Task<Dictionary<int, account_move_line>> BuildPaymentTermMapAsync(
+        AccountMoveLineDb accountMoveLineDb,
+        IReadOnlyList<int> moveIds)
+    {
+        var paymentTerms = await accountMoveLineDb.GetItemsAsync(
+            x => moveIds.Contains(x._move_id) && x.display_type == "payment_term");
+
+        var map = paymentTerms
+            .GroupBy(x => x._move_id)
+            .ToDictionary(
+                g => g.Key,
+                g => g.OrderByDescending(x => x.write_date).First());
+
+        var missingMoveIds = moveIds.Where(id => !map.ContainsKey(id)).ToList();
+
+        foreach (var moveId in missingMoveIds.ToList())
+        {
+            var localLines = await accountMoveLineDb.GetItemsByParentAsync(moveId);
+            var term = PickPaymentTermLine(localLines);
+            if (term != null)
+            {
+                map[moveId] = term;
+                missingMoveIds.Remove(moveId);
+            }
+        }
+
+        if (missingMoveIds.Count > 0)
+        {
+            var hubLine = new HubAccountMoveLine(App.Session);
+            foreach (var moveId in missingMoveIds)
+            {
+                try
+                {
+                    var response = await hubLine.GetAccountMoveLinesByMove(moveId);
+                    if (response?.result == null || response.result.Length == 0)
+                        continue;
+
+                    await accountMoveLineDb.InsertBatchAsync(response.result);
+                    var term = PickPaymentTermLine(response.result);
+                    if (term != null)
+                        map[moveId] = term;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"BuildPaymentTermMap move {moveId}: {ex.Message}");
+                }
+            }
+        }
+
+        return map;
+    }
+
     private async Task LoadPaymentLinesForNew()
     {
         IsLoadingDocs = true;
@@ -816,27 +898,12 @@ public partial class AccountPaymentCrud : ContentPage
         AccountMoveDb accountMoveDb = new AccountMoveDb(App.Session.odooConnection.DbNameSqlite);
         AccountMoveLineDb accountMoveLineDb = new AccountMoveLineDb(App.Session.odooConnection.DbNameSqlite);
 
-        var accMovesByCustomer = await accountMoveDb.GetItemsByPartnerAndCompany(_res_partner, Sel_Company_Id);
-
-        accMovesByCustomer = accMovesByCustomer.OrderBy(x => x.invoice_date).ToList();
+        var accMovesByCustomer = await accountMoveDb.GetItemsWithBalanceByPartnerAsync(
+            Sel_Company_Id.id,
+            _res_partner.id);
 
         var moveIds = accMovesByCustomer.Select(x => x.id).ToList();
-
-        var paymentTerms = await accountMoveLineDb.GetItemsAsync(
-            x => moveIds.Contains(x._move_id) && x.display_type == "payment_term");
-
-        //var paymentTermMap = paymentTerms.ToDictionary(x => x._move_id);
-
-        //var paymentTermMap = paymentTerms
-        //    .GroupBy(x => x._move_id)
-        //    .ToDictionary(g => g.Key, g => g.First());
-
-        var paymentTermMap = paymentTerms
-            .GroupBy(x => x._move_id)
-            .ToDictionary(
-                g => g.Key,
-                g => g.OrderByDescending(x => x.write_date).First()
-            );       
+        var paymentTermMap = await BuildPaymentTermMapAsync(accountMoveLineDb, moveIds);
 
         List<MultipleCobrosInvoiceLineAi> multipleCobrosInvoiceLinesAiAux = new(accMovesByCustomer.Count);
 
@@ -885,22 +952,32 @@ public partial class AccountPaymentCrud : ContentPage
                 invoice_id = accountMoveItem.id,
                 invoice_name = accountMoveItem.name,
                 docnum_mask = accountMoveItem.docnum_mask,
+                is_nota_debito = accountMoveItem.is_nota_debito,
                 invoice_date = accountMoveItem.invoice_date,
                 invoice_date_due = accountMoveItem.invoice_date_due,
                 amount_total = accountMoveItem.amount_total,
                 amount_residual = accountMoveItem.amount_residual,
+                pf_promised_amount = accountMoveItem.pf_promised_amount,
                 seller = SellerName
             };
 
-            residualAmount += cobrosInvoiceLineAiAux.amount_residual;
+            decimal maxApplicable = cobrosInvoiceLineAiAux.MaxApplicableAmount;
+            if (maxApplicable <= 0)
+            {
+                cobrosInvoiceLineAiAux.amount_asigned = 0;
+                multipleCobrosInvoiceLinesAiAux.Add(cobrosInvoiceLineAiAux);
+                continue;
+            }
+
+            residualAmount += maxApplicable;
 
             totalResidualPayment = totalPayment - totalApplied;
 
             if (totalResidualPayment > 0)
             {
-                totalInvoicePayment = totalResidualPayment < cobrosInvoiceLineAiAux.amount_residual
+                totalInvoicePayment = totalResidualPayment < maxApplicable
                     ? totalResidualPayment
-                    : cobrosInvoiceLineAiAux.amount_residual;
+                    : maxApplicable;
 
                 cobrosInvoiceLineAiAux.amount_asigned = totalInvoicePayment;
                 totalApplied += totalInvoicePayment;
@@ -921,6 +998,8 @@ public partial class AccountPaymentCrud : ContentPage
         {
             multipleCobrosInvoiceLineAi.Add(item);
         }
+
+        SyncLastAppliedAmounts(multipleCobrosInvoiceLineAi);
 
         OnPropertyChanged(nameof(detailsCount));
 
@@ -1134,22 +1213,17 @@ public partial class AccountPaymentCrud : ContentPage
         //collectionView.IsEnabled = false;
 
         List<MultipleCobrosInvoiceLineAi> accountPaymentLinesMem = new List<MultipleCobrosInvoiceLineAi>();
+        AccountMoveDb accountMoveDb = new AccountMoveDb(App.Session.odooConnection.DbNameSqlite);
 
         foreach (var line in multipleCobrosInvoiceLine.lines)
         {
-            //MultipleCobrosInvoiceLineAi itemN = new MultipleCobrosInvoiceLineAi();
-            //itemN.id = line.id;
-            //itemN.parent_payment_id = line.parent_payment_id;
-            //itemN.invoice_name = line.invoice_line_id_name;
-            //itemN.amount_asigned = line.reconcile_amount;
-            //itemN.invoice_line_id = line.invoice_line_id;
-            //itemN.invoice_line_id_name = line.invoice_line_id_name;
-            //itemN.invoice_date = line.invoice_date;
-            //itemN.amount_residual = line.amount_residual;
-            //itemN.invoice_amount_residual = line.amount_residual;
-            //itemN.seller = "----";
-            //itemN.seller = await GetSellerNameByInvoice(line.invoice_line_id);
-            //accountPaymentLinesMem.Add(itemN);
+            var accountMoveItem = await accountMoveDb.GetItemAsync(x => x.id == line.invoice_id);
+            if (accountMoveItem != null)
+            {
+                line.pf_promised_amount = accountMoveItem.pf_promised_amount;
+                line.is_nota_debito = accountMoveItem.is_nota_debito;
+            }
+
             accountPaymentLinesMem.Add(line);
         }
 
@@ -1162,6 +1236,8 @@ public partial class AccountPaymentCrud : ContentPage
             multipleCobrosInvoiceLineAi.Add(item);
         }
 
+        SyncLastAppliedAmounts(multipleCobrosInvoiceLineAi);
+
         OnPropertyChanged(nameof(detailsCount));
         OnPropertyChanged(nameof(totalAssigned));
 
@@ -1172,68 +1248,105 @@ public partial class AccountPaymentCrud : ContentPage
 
     private async void btnLoadDocs_Clicked(object sender, EventArgs e)
     {
+        CollapseHeaderExpanders();
+        totalPayment = ToDecimal(txtMonto.Text);
         await LoadPaymentLinesForNew();
     }
 
-    private async Task<List<account_move>> EvalLinesRequired()
+    private async Task<bool> TryValidateAssignmentsBeforeSaveAsync()
     {
-        AccountMoveDb accountMoveDb = new AccountMoveDb(App.Session.odooConnection.DbNameSqlite);
-        AccountMoveLineDb accountMoveLineDb = new AccountMoveLineDb(App.Session.odooConnection.DbNameSqlite);
+        if (multipleCobrosInvoiceLineAi == null || totalAssigned <= 0)
+            return true;
 
-        var accMovesByCustomer = await accountMoveDb.GetItemsByPartnerAndCompany(_res_partner, Sel_Company_Id);
-
-        var moveIds = accMovesByCustomer.Select(x => x.id).ToList();
-
-        var paymentTerms = await accountMoveLineDb.GetItemsAsync(
-            x => moveIds.Contains(x._move_id) && x.display_type == "payment_term");
-
-        var paymentTermMap = paymentTerms.ToDictionary(x => x._move_id);
-
-        List<MultipleCobrosInvoiceLineAi> multipleCobrosInvoiceLinesAiAux = new(accMovesByCustomer.Count);        
-        List<account_move> foundCompatible = new List<account_move>();
-        
-        foreach (var accountMoveItem in accMovesByCustomer)
-        {
-            if (!paymentTermMap.TryGetValue(accountMoveItem.id, out var itemPaymentTerm))
-                continue;
-
-            foundCompatible.Add(accountMoveItem);            
-        }
-
-        var totalFound = foundCompatible
-            .Where(x => !multipleCobrosInvoiceLineAi
-            .Any(y => y.invoice_id == x.id && y.amount_asigned > 0))
+        var exceedsSaldo = multipleCobrosInvoiceLineAi
+            .Where(x => x.amount_asigned > 0 && x.amount_asigned > x.MaxApplicableAmount)
             .ToList();
 
-        return totalFound;
+        if (exceedsSaldo.Count > 0)
+        {
+            var details = string.Join(
+                "\n",
+                exceedsSaldo.Select(x =>
+                    x.HasPostdatedCheckAmount
+                        ? $"- {x.document_reference_label}: aplicado ${x.amount_asigned:N2}, máximo ${x.MaxApplicableAmount:N2} (saldo ${x.amount_residual:N2} − CH. POSF. ${x.pf_promised_amount:N2})"
+                        : $"- {x.document_reference_label}: aplicado ${x.amount_asigned:N2}, saldo ${x.amount_residual:N2}"));
+
+            await DisplayAlertAsync(
+                "Atención",
+                $"Las siguientes aplicaciones superan el saldo disponible del documento:\n\n{details}",
+                "Aceptar");
+            return false;
+        }
+
+        if (totalAssigned > totalPayment)
+        {
+            await DisplayAlertAsync(
+                "Atención",
+                $"El total aplicado (${totalAssigned:N2}) supera el monto del cobro (${totalPayment:N2}).",
+                "Aceptar");
+            return false;
+        }
+
+        return true;
     }
 
     private async void btnSave_Clicked(object sender, EventArgs e)
     {
-        double totalPagadoDbl = 0;
-
-        if (!double.TryParse(txtMonto.Text, out totalPagadoDbl) || totalPagadoDbl == 0)
+        if (!double.TryParse(txtMonto.Text, out double totalPagadoDbl) || totalPagadoDbl == 0)
         {
-            await Toast.Make("No se han ingresado valores correctos, no se puede guardar.").Show();
+            await DisplayAlertAsync(
+                "Atención",
+                "Actualmente no ha ingresado un monto por cobrar. No se puede continuar con el registro.",
+                "Aceptar");
             return;
         }
 
-        if(detailsCount > 0 && totalAssigned < totalPayment)
+        totalPayment = ToDecimal(txtMonto.Text);
+        bool saveAsAnticipo = false;
+
+        if (detailsCount == 0)
         {
-            var linesNotAssigned = await EvalLinesRequired();
-            if (linesNotAssigned.Count > 0)
-            {
-                await Toast.Make("No se puede guardar hasta asignar a todo el valor seleccionado").Show();
+            saveAsAnticipo = await DisplayAlertAsync(
+                "Anticipo de cliente",
+                "No se han aplicado valores a sus facturas. ¿Desea generar el recibo como anticipo?",
+                "Aceptar",
+                "Cancelar");
+            if (!saveAsAnticipo)
                 return;
+        }
+        else if (totalAssigned == 0)
+        {
+            saveAsAnticipo = await DisplayAlertAsync(
+                "Anticipo de cliente",
+                "¿Desea generar el valor como anticipo ya que no cuenta con valores asignados a sus facturas?",
+                "Aceptar",
+                "Cancelar");
+            if (!saveAsAnticipo)
+                return;
+        }
+        else
+        {
+            if (!await TryValidateAssignmentsBeforeSaveAsync())
+                return;
+
+            if (totalAssigned < totalPayment)
+            {
+                decimal diferencia = totalPayment - totalAssigned;
+                bool acceptPartialAnticipo = await DisplayAlertAsync(
+                    "Anticipo de cliente",
+                    $"Se aplicaron ${totalAssigned:N2} de ${totalPayment:N2}. ¿Desea guardar el saldo restante (${diferencia:N2}) como anticipo?",
+                    "Aceptar",
+                    "Cancelar");
+                if (!acceptPartialAnticipo)
+                    return;
             }
         }
 
-        //if (detailsCount == 0 && totalAssigned < totalPayment)
-        //{            
-        //    await Toast.Make("No se puede guardar hasta asignar a todo el valor seleccionado").Show();            
-        //    return;
-        //}
+        await PerformSaveAsync(saveAsAnticipo);
+    }
 
+    private async Task PerformSaveAsync(bool asAnticipo)
+    {
         if (multipleCobrosInvoiceLine == null)
         {
             multipleCobrosInvoiceLine = new MultipleCobrosInvoiceLine();
@@ -1252,7 +1365,10 @@ public partial class AccountPaymentCrud : ContentPage
         {
             if (pickerDiario.SelectedItem == null)
             {
-                await Toast.Make("No se ha seleccionado el diario, no se puede guardar.").Show();
+                await DisplayAlertAsync(
+                    "Atención",
+                    "No se ha seleccionado el diario, no se puede guardar.",
+                    "Aceptar");
                 return;
             }
 
@@ -1308,28 +1424,19 @@ public partial class AccountPaymentCrud : ContentPage
                 }
                 else
                 {
-                    await Toast.Make("Los pagos con tarjeta de crédito requieren Bin y Lote.").Show();
+                    await DisplayAlertAsync(
+                        "Atención",
+                        "Los pagos con tarjeta de crédito requieren Bin y Lote.",
+                        "Aceptar");
                     return;
                 }
 
-                //Se quitará
-                ////if (txtBinTc.Text != null && txtBinTc.Text.Trim() != "" &&
-                ////    txtAuthTc.Text != null && txtAuthTc.Text.Trim() != "" &&
-                ////    txtLoteTc.Text != null && txtLoteTc.Text.Trim() != "")
-                ////{
-                ////    multipleCobrosInvoiceLine.CardBinText = txtBinTc.Text;
-                ////    multipleCobrosInvoiceLine.CardVoucher = txtAuthTc.Text;
-                ////    multipleCobrosInvoiceLine.LoteVoucher = txtLoteTc.Text;
-                ////}
-                ////else
-                ////{
-                ////    await Toast.Make("Los pagos con tarjeta de crédito requieren Bin, Voucher y Lote.").Show();
-                ////    return;
-                ////}
-
                 if(txtBinTc.Text.Trim().Length < 6)
                 {
-                    await Toast.Make("Ingrese al menos 6 dígitos para el BIN.").Show();
+                    await DisplayAlertAsync(
+                        "Atención",
+                        "Ingrese al menos 6 dígitos para el BIN.",
+                        "Aceptar");
                     return;
                 }
 
@@ -1360,7 +1467,10 @@ public partial class AccountPaymentCrud : ContentPage
             {
                 if (pickerFechaCheque.Date <= DateTime.Today)
                 {
-                    await Toast.Make("La fecha del cheque debe ser mayor a la fecha actual.").Show();
+                    await DisplayAlertAsync(
+                        "Atención",
+                        "La fecha del cheque debe ser mayor a la fecha actual.",
+                        "Aceptar");
                     return;
                 }
             }
@@ -1368,24 +1478,33 @@ public partial class AccountPaymentCrud : ContentPage
        
         txtMonto.Text = ParseTool.StringValueFix(txtMonto.Text);
 
-        multipleCobrosInvoiceLine.Amount = (decimal)ParseTool.StringToDouble(txtMonto.Text); //.ToString(App.Session.ApplicationCultureInfo);
-        multipleCobrosInvoiceLine.Diferencia = 0;
+        multipleCobrosInvoiceLine.Amount = (decimal)ParseTool.StringToDouble(txtMonto.Text);
+
+        decimal assignedTotal = 0;
+        if (!asAnticipo && multipleCobrosInvoiceLineAi != null)
+            assignedTotal = multipleCobrosInvoiceLineAi.Sum(x => x.amount_asigned);
+
+        multipleCobrosInvoiceLine.MontoAplicadoTotal = assignedTotal;
+        multipleCobrosInvoiceLine.Diferencia = asAnticipo
+            ? multipleCobrosInvoiceLine.Amount
+            : Math.Max(0, (multipleCobrosInvoiceLine.Amount ?? 0) - assignedTotal);
 
         List<MultipleCobrosInvoiceLineAi> linesL = new List<MultipleCobrosInvoiceLineAi>();
-        if (multipleCobrosInvoiceLineAi != null)
+        if (!asAnticipo && multipleCobrosInvoiceLineAi != null)
         {
             foreach (var item in multipleCobrosInvoiceLineAi)
             {
                 if (item.amount_asigned > 0)
-                {                    
                     linesL.Add(item);
-                }                
             }
         }
 
+        if (asAnticipo && string.IsNullOrWhiteSpace(multipleCobrosInvoiceLine.Resumen))
+            multipleCobrosInvoiceLine.Resumen = "ANTICIPO DE CLIENTE";
+
         multipleCobrosInvoiceLine.lines = linesL.ToArray();
 
-        Debug.WriteLine("Guardar Datos");
+        Debug.WriteLine(asAnticipo ? "Guardar anticipo" : "Guardar Datos");
         saveData = true;
         await Navigation.PopAsync();
     }
@@ -1573,7 +1692,86 @@ public partial class AccountPaymentCrud : ContentPage
         return 0m;
     }
 
+    private void ReEnableLineEvents()
+    {
+        Dispatcher.Dispatch(() =>
+        {
+            foreach (var current in multipleCobrosInvoiceLineAi)
+                current.EventsOn = true;
+        });
+    }
+
+    private static decimal SumAssignedBefore(IList<MultipleCobrosInvoiceLineAi> lines, int beforeIndex)
+    {
+        decimal sum = 0m;
+        for (int i = 0; i < beforeIndex; i++)
+            sum += lines[i].amount_asigned;
+        return sum;
+    }
+
+    private static void AssignToFollowingRows(
+        IList<MultipleCobrosInvoiceLineAi> lines,
+        int startIndex,
+        decimal amount,
+        bool resetFollowingFirst)
+    {
+        if (resetFollowingFirst)
+        {
+            for (int i = startIndex + 1; i < lines.Count; i++)
+            {
+                if (lines[i].CanApplyPayment)
+                    lines[i].amount_asigned = 0;
+            }
+        }
+
+        decimal montoRestante = amount;
+        if (montoRestante < 0)
+            montoRestante = 0;
+
+        for (int i = startIndex + 1; i < lines.Count; i++)
+        {
+            var current = lines[i];
+            decimal maxApplicable = current.MaxApplicableAmount;
+            if (maxApplicable <= 0)
+                continue;
+
+            if (montoRestante <= 0)
+            {
+                if (resetFollowingFirst)
+                    current.amount_asigned = 0;
+                continue;
+            }
+
+            decimal availableOnRow = resetFollowingFirst
+                ? maxApplicable
+                : Math.Max(0, maxApplicable - current.amount_asigned);
+
+            if (availableOnRow <= 0)
+                continue;
+
+            decimal toAssign = Math.Min(montoRestante, availableOnRow);
+
+            if (resetFollowingFirst)
+                current.amount_asigned = toAssign;
+            else
+                current.amount_asigned += toAssign;
+
+            montoRestante -= toAssign;
+            Debug.WriteLine($"Item {i}: asignado {current.amount_asigned}, restante {montoRestante}");
+        }
+    }
+
+    public ICommand OnApplyAmountCommand => new Command<object>(async item =>
+    {
+        await HandleAmountChangeAsync(item, applyHeaderMonto: true);
+    });
+
     public ICommand OnValueChangedCommand => new Command<object>(async item =>
+    {
+        await HandleAmountChangeAsync(item, applyHeaderMonto: false);
+    });
+
+    private async Task HandleAmountChangeAsync(object item, bool applyHeaderMonto)
     {
         if (IsLoadingDocs || item == null)
             return;
@@ -1591,62 +1789,113 @@ public partial class AccountPaymentCrud : ContentPage
 
         try
         {
+            if (changedItem.IsFullyCoveredByPostdatedCheck)
+            {
+                if (applyHeaderMonto)
+                {
+                    await DisplayAlertAsync(
+                        "Atención",
+                        "No es posible aplicar valor a este comprobante porque el cheque posfechado cubre todo el saldo pendiente.",
+                        "Aceptar");
+                }
+
+                ReEnableLineEvents();
+                return;
+            }
+
             totalPayment = ToDecimal(txtMonto.Text);
 
             int startIndex = multipleCobrosInvoiceLineAi.IndexOf(changedItem);
             if (startIndex < 0)
                 return;
 
-            decimal acumuladoAnterior = 0m;
-
-            for (int i = 0; i < startIndex; i++)
-                acumuladoAnterior += multipleCobrosInvoiceLineAi[i].amount_asigned;
+            decimal acumuladoAnterior = SumAssignedBefore(multipleCobrosInvoiceLineAi, startIndex);
 
             decimal montoDisponible = totalPayment - acumuladoAnterior;
 
             if (montoDisponible < 0)
                 montoDisponible = 0;
-            
-            decimal maxPermitido = Math.Min(montoDisponible, changedItem.amount_residual);
+
+            decimal maxApplicableOnRow = changedItem.MaxApplicableAmount;
+
+            if (applyHeaderMonto)
+            {
+                decimal totalAssigned = multipleCobrosInvoiceLineAi.Sum(x => x.amount_asigned);
+                decimal sobrante = totalPayment - totalAssigned;
+
+                if (sobrante < 0)
+                    sobrante = 0;
+
+                changedItem.amount_asigned = Math.Min(
+                    changedItem.amount_asigned + sobrante,
+                    maxApplicableOnRow);
+
+                SyncLastAppliedAmounts(multipleCobrosInvoiceLineAi);
+                OnPropertyChanged(nameof(totalAssigned));
+
+                Dispatcher.Dispatch(() =>
+                {
+                    foreach (var current in multipleCobrosInvoiceLineAi)
+                        current.EventsOn = true;
+                });
+                return;
+            }
+
+            decimal previousAmount = changedItem.LastAppliedAmount;
+            bool userClearedAssignment = changedItem.amount_asigned == 0 ; /*&& previousAmount > 0 se comenta porque siempre debe preguntar la reasignacion*/
+
+
+            decimal maxPermitido = Math.Min(montoDisponible, maxApplicableOnRow);
 
             if (changedItem.amount_asigned > maxPermitido)
-            {                
-                changedItem.amount_asigned = maxPermitido;
-                
-                await Toast.Make($"El valor excede el máximo permitido ({maxPermitido:0.##})").Show();
-            }
-
-            decimal montoRestante = totalPayment - acumuladoAnterior - changedItem.amount_asigned;
-
-            if (montoRestante < 0)
-                montoRestante = 0;
-            
-            for (int i = startIndex + 1; i < multipleCobrosInvoiceLineAi.Count; i++)
             {
-                var current = multipleCobrosInvoiceLineAi[i];
+                changedItem.amount_asigned = maxPermitido;
 
-                if (montoRestante <= 0)
-                {
-                    current.amount_asigned = 0;
-                    continue;
-                }
-
-                decimal saldo = current.amount_residual;
-
-                if (montoRestante >= saldo)
-                {
-                    current.amount_asigned = saldo;
-                    montoRestante -= saldo;
-                }
-                else
-                {
-                    current.amount_asigned = montoRestante;
-                    montoRestante = 0;
-                }
-
-                Debug.WriteLine($"Item {i}: asignado {current.amount_asigned}, restante {montoRestante}");
+                await DisplayAlertAsync(
+                    "Atención",
+                    changedItem.HasPostdatedCheckAmount
+                        ? $"El valor excede el máximo permitido ({maxPermitido:N2}). Saldo disponible después del cheque posfechado ({changedItem.pf_promised_amount:N2})."
+                        : $"El valor excede el máximo permitido ({maxPermitido:N2}).",
+                    "Aceptar");
             }
 
+            if (userClearedAssignment)
+            {
+                bool acceptRedistribution = await DisplayAlertAsync(
+                    "Distribución automática",
+                    "Se realizará una distribución automática del valor liberado hacia la siguiente factura más antigua pendiente. ¿Desea continuar?",
+                    "Aceptar",
+                    "No aceptar");
+
+                if (!acceptRedistribution)
+                {
+                    changedItem.LastAppliedAmount = changedItem.amount_asigned;
+                    OnPropertyChanged(nameof(totalAssigned));
+                    Dispatcher.Dispatch(() =>
+                    {
+                        foreach (var current in multipleCobrosInvoiceLineAi)
+                            current.EventsOn = true;
+                    });
+                    return;
+                }
+
+                AssignToFollowingRows(
+                    multipleCobrosInvoiceLineAi,
+                    startIndex,
+                    previousAmount,
+                    resetFollowingFirst: false);
+            }
+            else
+            {
+                decimal montoRestante = totalPayment - acumuladoAnterior - changedItem.amount_asigned;
+                AssignToFollowingRows(
+                    multipleCobrosInvoiceLineAi,
+                    startIndex,
+                    montoRestante,
+                    resetFollowingFirst: true);
+            }
+
+            SyncLastAppliedAmounts(multipleCobrosInvoiceLineAi);
             OnPropertyChanged(nameof(totalAssigned));
 
             Dispatcher.Dispatch(() =>
@@ -1658,7 +1907,7 @@ public partial class AccountPaymentCrud : ContentPage
         finally
         {
         }
-    });
+    }
 
     private void btnChangeAmount_Clicked(object sender, EventArgs e)
     {

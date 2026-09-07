@@ -1,24 +1,37 @@
-﻿using DMSA.Models.Odoo.Accounting;
+using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.Native;
 using DMSA.Sync.Core.Controls.CustomRows.Lite;
 using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Windows.Input;
 
 namespace DMSA.Sync.Core.Controls.Popups
 {
     public class PopupSelectInvoice : PopupSelectBase<account_move>
     {
-        public res_company Company { get; set; }        
+        const int LastInvoicesLimit = 20;
+
+        const string LegendDefault =
+            "Se muestran facturas y notas de débito con saldo pendiente. " +
+            "Seleccione una opción para consultar la información.";
+
+        const string LegendLast20 =
+            "20 documentos con saldo pendiente más antiguos (facturas y notas de débito), " +
+            "ordenados por fecha de factura (antigua → reciente).";
+
+        const string LegendGeneral =
+            "Todos los documentos con saldo pendiente (facturas y notas de débito), " +
+            "ordenados por fecha de factura (antigua → reciente).";
+
+        public res_company Company { get; set; }
         public res_partner partner { get; set; }
         ObservableCollection<account_move> resultItemsSearch { get; set; }
         public bool LoadAuto { get; set; } = false;
-        //public ICommand CommandSelectListItem { get; set; }
+
         public PopupSelectInvoice(PopupSizeConstants popupSizeConstants) : base(popupSizeConstants, true)
-        {            
-            DataField = "id, docnum_mask, name, invoice_date, payment_state, amount_residual, amount_total";            
+        {
+            DataField = "id, docnum_mask, name, invoice_date, payment_state, amount_residual, amount_total";
             _LaunchSearchEvent += _searchBar_BeginSearch;
             _OnAppearing += _onAppearingCustom;
             resultItemsSearch = new ObservableCollection<account_move>();
@@ -27,97 +40,151 @@ namespace DMSA.Sync.Core.Controls.Popups
             _collectionViewSearch.MinimumHeightRequest = 400;
         }
 
-        async Task<int> LoadData()
+        static string ResolveDbName()
         {
-            if (TextForSearch.Length < 2)
-            {
-                return 0;
-            }
+            var session = Constants.Session;
+            if (session?.odooConnection?.DbNameSqlite == null)
+                throw new InvalidOperationException("No hay sesión activa o base de datos local configurada.");
 
-            await SetWorkingStatus();
-            var database = new AccountMoveDb(Constants.Session.odooConnection.DbNameSqlite);
-            var result = await database.GetItemsAsync(Company.id, partner.id, TextForSearch, 25);
-            resultItemsSearch = new ObservableCollection<account_move>(result);
-            _collectionViewSearch.ItemsSource = resultItemsSearch;
-            await SetDoneStatus();
-            return 1;
+            return session.odooConnection.DbNameSqlite;
         }
 
-        async Task<int> LoadDataLast20()
+        async Task LoadData()
         {
-            await SetWorkingStatus();
+            if ((TextForSearch ?? string.Empty).Trim().Length < 2)
+                return;
 
-            ResPartnerDb resPartnerDb = new ResPartnerDb(Constants.Session.odooConnection.DbNameSqlite);
+            await LoadInvoicesAsync(
+                LegendDefault,
+                async database =>
+                {
+                    var result = await database.GetItemsAsync(Company.id, partner.id, TextForSearch, 25);
+                    await EnrichForBalanceViewAsync(result);
+                    return result;
+                });
+        }
+
+        /// <summary>
+        /// Solo SQLite local: sin login ni llamadas a Odoo (Ver saldos es consulta offline).
+        /// </summary>
+        async Task EnrichForBalanceViewAsync(List<account_move> items)
+        {
+            if (items == null || items.Count == 0)
+                return;
+
+            PrepareItemsForDisplay(items);
+
+            var dbName = ResolveDbName();
+            var accountMoveDb = new AccountMoveDb(dbName);
+            await accountMoveDb.EnrichPostdatedAmountsAsync(items);
+
+            ResPartnerDb resPartnerDb = new ResPartnerDb(dbName);
             var res_Partner = await resPartnerDb.GetItemsAsync(x => x.is_salesman);
-            var partnerMap = res_Partner.ToDictionary(x => x.id, x => x.name);
+            var partnerMap = res_Partner
+                .GroupBy(x => x.id)
+                .ToDictionary(g => g.Key, g => g.First().name ?? string.Empty);
 
-            var database = new AccountMoveDb(Constants.Session.odooConnection.DbNameSqlite);
-            var result = await database.GetItemsAsync(Company.id, partner.id, "", 25);
-
-            if(result.Any())
+            foreach (var accountMoveItem in items)
             {
-                //YA NO USAR EL MONTO RESIDUAL
-                //////var itemsToUpdate = result
-                //////    .Where(i => i.amount_residual_virtual == 0 && i.amount_residual > 0)
-                //////    .ToList();         
+                accountMoveItem.l10n_ec_authorization_number = partnerMap.TryGetValue(
+                    accountMoveItem._partner_sale_id, out var name)
+                    ? name
+                    : string.Empty;
+            }
+        }
 
-                foreach (var accountMoveItem in result)
-                {
-                    var SellerName = partnerMap.ContainsKey(accountMoveItem._partner_sale_id) ? partnerMap[accountMoveItem._partner_sale_id] : "";
-                    accountMoveItem.l10n_ec_authorization_number = SellerName;
-                }
-
-                var itemsToUpdate = result
-                   .Where(i => i.amount_residual > 0)
-                   .ToList();
-
-                foreach (var item in itemsToUpdate)
-                {
+        static void PrepareItemsForDisplay(List<account_move> items)
+        {
+            foreach (var item in items)
+            {
+                if (item.amount_residual_virtual == 0 && item.amount_residual != 0)
                     item.amount_residual_virtual = item.amount_residual;
-                }
+            }
+        }
 
-                if (itemsToUpdate.Count > 0)
-                {
-                    foreach (var item in itemsToUpdate)
-                        await database.UpdateAsync(item);                    
-                }
+        async Task LoadInvoicesAsync(string legend, Func<AccountMoveDb, Task<List<account_move>>> fetchItemsAsync)
+        {
+            if (Company == null || partner == null)
+            {
+                await ShowPopupAlertAsync(
+                    "Datos incompletos",
+                    "No se ha definido la compañía o el cliente para consultar saldos.");
+                return;
             }
 
-            resultItemsSearch = new ObservableCollection<account_move>(result);
-            _collectionViewSearch.ItemsSource = resultItemsSearch;
-            await SetDoneStatus();
-            return 1;
+            var working = false;
+            try
+            {
+                var dbName = ResolveDbName();
+                await SetWorkingStatus();
+                working = true;
+                SetGridLegend(legend);
+
+                var database = new AccountMoveDb(dbName);
+                var result = await fetchItemsAsync(database);
+
+                resultItemsSearch = new ObservableCollection<account_move>(result ?? new List<account_move>());
+                _collectionViewSearch.ItemsSource = resultItemsSearch;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"PopupSelectInvoice LoadInvoicesAsync: {ex}");
+                await ShowPopupAlertAsync(
+                    "Error al cargar",
+                    "No se pudieron obtener los documentos. Se mostrarán los datos locales disponibles si existen.");
+            }
+            finally
+            {
+                if (working)
+                    await SetDoneStatus();
+            }
         }
 
-        async Task<int> LoadDataForView()
-        {
-            await SetWorkingStatus();
-            var database = new AccountMoveDb(Constants.Session.odooConnection.DbNameSqlite);
-            //var result = await database.GetItemsAsync(Company.id, partner.id, TextForSearch, 25);
-            var result = await database.GetItemsByPartnerForPaymentAsync(partner);
-            resultItemsSearch = new ObservableCollection<account_move>(result);
-            _collectionViewSearch.ItemsSource = resultItemsSearch;
-            await SetDoneStatus();
+        Task LoadDataLast20() =>
+            LoadInvoicesAsync(
+                LegendLast20,
+                async database =>
+                {
+                    var result = await database.GetItemsWithBalanceByPartnerForBalanceViewAsync(
+                        Company.id,
+                        partner.id,
+                        LastInvoicesLimit);
 
-            return 1;
-        }
+
+                    await EnrichForBalanceViewAsync(result);
+                    return result;
+                });
+
+        Task LoadDataGeneralWithBalance() =>
+            LoadInvoicesAsync(
+                LegendGeneral,
+                async database =>
+                {
+                    var result = await database.GetItemsWithBalanceByPartnerForBalanceViewAsync(
+                        Company.id,
+                        partner.id);
+                    await EnrichForBalanceViewAsync(result);
+                    return result;
+                });
+
+        Task LoadDataForView() => LoadDataGeneralWithBalance();
 
         async void _onAppearingCustom(object sender, EventArgs e)
         {
-            SetTitle(Company.name);
-            SetSubtitle(partner.name);
-            SetGridTitles("Facturas");
+            SetTitle(Company?.name ?? "Documentos");
+            SetSubtitle(partner?.name ?? string.Empty);
+            SetGridTitles("Documentos");
+            SetGridLegend(LegendDefault);
 
-            if(LoadAuto)
+            if (LoadAuto)
                 await LoadDataForView();
 
-            //Custom control 
             Button _btnLoadLastInvoices = new Button
             {
                 Text = "Últimas 20",
                 BackgroundColor = Colors.SeaGreen,
                 HorizontalOptions = LayoutOptions.Start,
-                Margin = new Thickness(5),
+                Margin = new Thickness(5, 5, 2, 5),
                 ImageSource = new FontImageSource
                 {
                     FontFamily = "FontAwesome5Solid",
@@ -127,8 +194,24 @@ namespace DMSA.Sync.Core.Controls.Popups
                     Glyph = "\uf0ae"
                 }
             };
-
             _btnLoadLastInvoices.Clicked += OnBtnLoadLast_Clicked;
+
+            Button _btnLoadGeneral = new Button
+            {
+                Text = "Detalle general",
+                BackgroundColor = Colors.SteelBlue,
+                HorizontalOptions = LayoutOptions.Start,
+                Margin = new Thickness(2, 5, 5, 5),
+                ImageSource = new FontImageSource
+                {
+                    FontFamily = "FontAwesome5Solid",
+                    Color = Colors.White,
+                    Size = 20,
+                    FontAutoScalingEnabled = true,
+                    Glyph = "\uf03a"
+                }
+            };
+            _btnLoadGeneral.Clicked += OnBtnLoadGeneral_Clicked;
 
             var _stackLayoutToolBox = new StackLayout
             {
@@ -139,8 +222,9 @@ namespace DMSA.Sync.Core.Controls.Popups
             };
 
             _stackLayoutToolBox.Children.Add(_btnLoadLastInvoices);
+            _stackLayoutToolBox.Children.Add(_btnLoadGeneral);
 
-            ContentCustomToolBox = new Microsoft.Maui.Controls.ContentView()
+            ContentCustomToolBox = new ContentView
             {
                 Content = _stackLayoutToolBox
             };
@@ -150,22 +234,15 @@ namespace DMSA.Sync.Core.Controls.Popups
         {
             await LoadData();
         }
-        
-        //private async void SelectListItem(object objItem)
-        //{            
-        //    if (objItem is account_move Item)
-        //    {
-        //        await CloseAsync(Item);
-        //    }
-        //    else
-        //    {
-        //        Debug.WriteLine("Error de objeto");
-        //    }
-        //}        
 
         private async void OnBtnLoadLast_Clicked(object sender, EventArgs e)
         {
             await LoadDataLast20();
+        }
+
+        private async void OnBtnLoadGeneral_Clicked(object sender, EventArgs e)
+        {
+            await LoadDataGeneralWithBalance();
         }
 
         public override CollectionView builCollectionViewCustom()
@@ -175,8 +252,7 @@ namespace DMSA.Sync.Core.Controls.Popups
                 BackgroundColor = Colors.WhiteSmoke,
                 HorizontalOptions = LayoutOptions.Fill,
                 SelectionMode = SelectionMode.Single,
-                EmptyView = "No hay datos para mostrar...",
-                //ItemsLayout = new GridItemsLayout(4, ItemsLayoutOrientation.Vertical)
+                EmptyView = "Seleccione \"Últimas 20\" o \"Detalle general\" para visualizar facturas y notas de débito.",
             };
 
             collectionView.ItemTemplate = new DataTemplate(() =>

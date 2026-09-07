@@ -1,4 +1,4 @@
-﻿using ApiManagerOdoo.Base;
+using ApiManagerOdoo.Base;
 using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Security;
@@ -32,6 +32,8 @@ namespace ApiManagerOdoo.Accounting
             "refund_invoice_ids",
             "docnum_mask",
             "partner_sale_id",
+            "pf_promised_amount",
+            "is_nota_debito",
             "create_date",
             "write_date",
             //"printer_id"
@@ -43,24 +45,65 @@ namespace ApiManagerOdoo.Accounting
             _modelname = "account.move";
         }
 
-        public async Task<ApiResponseOdooRpc?> GetHeaderCount(int year, int month, int day)
+        private static object[] BuildHeaderDomain(int year, int month, int day, bool firstSyncOfDay)
         {
-            //string _EndPointApi = "/api/account.move";
-            //string domains = $"domain=[('invoice_date','>=','{apiRequestOdoo_V1.dateIni.ToString("yyyy-MM-dd")}')]";
+            string writeDate = $"{year}-{month:00}-{day:00} 00:00:00";
+            string writeOp = firstSyncOfDay ? "<=" : ">=";
 
-            object[] args = new object[] { };
-
-            object[] _custom_args = new object[] {
-                new object[] { "write_date", ">=", $"{year}-{month:00}-{day:00} 00:00:00" },
+            return new object[] {
+                new object[] { "write_date", writeOp, writeDate },
                 new object[] { "state", "=", "posted" },
-                new object[] { "move_type", "=", "out_invoice" },
                 new object[] { "invoice_date", "!=", false },
-            };
+            }
+            .Concat(AccountMoveDocumentDisplay.BuildSyncMoveTypeDomain())
+            .ToArray();
+        }
+
+        private static object[] BuildHeaderDomainByInvoiceDateRange(DateTime dateFrom, DateTime dateTo)
+        {
+            return new object[] {
+                new object[] { "invoice_date", ">=", dateFrom.ToString("yyyy-MM-dd") },
+                new object[] { "invoice_date", "<=", dateTo.ToString("yyyy-MM-dd") },
+                new object[] { "state", "=", "posted" },
+                new object[] { "invoice_date", "!=", false },
+            }
+            .Concat(AccountMoveDocumentDisplay.BuildSyncMoveTypeDomain())
+            .ToArray();
+        }
+
+        public async Task<ApiResponseOdooRpc?> GetHeaderCountByInvoiceDateRange(DateTime dateFrom, DateTime dateTo)
+        {
+            object[] args = new object[] { };
+            object[] _custom_args = BuildHeaderDomainByInvoiceDateRange(dateFrom.Date, dateTo.Date);
             return await GetCount(args, _custom_args);
         }
 
-        public async Task<ApiResponseOdooRpcT<account_move[]>?> GetAccountMoves(DateTime dateIni, int limit, int index)
-        {            
+        public async Task<ApiResponseOdooRpcT<account_move[]>?> GetAccountMovesByInvoiceDateRange(
+            DateTime dateFrom, DateTime dateTo, int limit, int index)
+        {
+            var kwargs = new
+            {
+                limit,
+                offset = index * limit,
+                fields = fields_array,
+                order = "invoice_date asc, id asc"
+            };
+
+            object[] args = new object[] { };
+            object[] _custom_args = BuildHeaderDomainByInvoiceDateRange(dateFrom.Date, dateTo.Date);
+            return await SearchRead<ApiResponseOdooRpcT<account_move[]>>(args, _custom_args, kwargs, true);
+        }
+
+        public async Task<ApiResponseOdooRpc?> GetHeaderCount(int year, int month, int day, bool firstSyncOfDay = true)
+        {
+            object[] args = new object[] { };
+            object[] _custom_args = BuildHeaderDomain(year, month, day, firstSyncOfDay);
+            return await GetCount(args, _custom_args);
+        }
+
+        public async Task<ApiResponseOdooRpcT<account_move[]>?> GetAccountMoves(
+            DateTime dateIni, int limit, int index, bool firstSyncOfDay = true)
+        {
             var kwargs = new
             {
                 limit,
@@ -70,13 +113,8 @@ namespace ApiManagerOdoo.Accounting
             };
 
             object[] args = new object[] { };
-            object[] _custom_args = new object[] {
-                //new object[] { "write_date", ">=", dateIni.ToString("yyyy-MM-dd") },
-                new object[] { "write_date", ">=", $"{dateIni.Year}-{dateIni.Month:00}-{dateIni.Day:00} 00:00:00" },
-                new object[] { "state", "=", "posted" },
-                new object[] { "move_type", "=", "out_invoice" },
-                new object[] { "invoice_date", "!=", false },
-            };
+            object[] _custom_args = BuildHeaderDomain(
+                dateIni.Year, dateIni.Month, dateIni.Day, firstSyncOfDay);
             return await SearchRead<ApiResponseOdooRpcT<account_move[]>>(args, _custom_args, kwargs, true);
         }
 
@@ -205,6 +243,7 @@ namespace ApiManagerOdoo.Accounting
             return await SearchRead<ApiResponseOdooRpcT<account_move[]>>(args, _custom_args, kwargs, true);
         }
 
+        // Sync por cliente y masiva: out_invoice, out_refund, advance.
         public async Task<ApiResponseOdooRpc?> GetCountByResPartner(int res_partner)
         {            
 
@@ -212,10 +251,11 @@ namespace ApiManagerOdoo.Accounting
 
             object[] _custom_args = new object[] {
                  new object[] { "partner_id", "=", res_partner },
-                //new object[] { "state", "=", "posted" },
-                //new object[] { "move_type", "=", "out_invoice" },
-                //new object[] { "invoice_date", "!=", false },
-            };
+                new object[] { "state", "=", "posted" },
+                new object[] { "invoice_date", "!=", false },
+            }
+            .Concat(AccountMoveDocumentDisplay.BuildSyncMoveTypeDomain())
+            .ToArray();
             return await GetCount(args, _custom_args);
         }
 
@@ -233,9 +273,10 @@ namespace ApiManagerOdoo.Accounting
             object[] _custom_args = new object[] {                
                 new object[] { "partner_id", "=", res_partner },
                 new object[] { "state", "=", "posted" },
-                new object[] { "move_type", "=", "out_invoice" },
                 new object[] { "invoice_date", "!=", false },
-            };
+            }
+            .Concat(AccountMoveDocumentDisplay.BuildSyncMoveTypeDomain())
+            .ToArray();
             return await SearchRead<ApiResponseOdooRpcT<account_move[]>>(args, _custom_args, kwargs, true);
         }
 

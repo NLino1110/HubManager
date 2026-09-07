@@ -67,6 +67,9 @@ public partial class ActivityRow : ContentView
     {
         if (string.IsNullOrEmpty(e?.PropertyName) ||
             e.PropertyName.Equals("is_synchronized", StringComparison.OrdinalIgnoreCase) ||
+            e.PropertyName.Equals("sync_status", StringComparison.OrdinalIgnoreCase) ||
+            e.PropertyName.Equals("sync_ok_count", StringComparison.OrdinalIgnoreCase) ||
+            e.PropertyName.Equals("sync_total_count", StringComparison.OrdinalIgnoreCase) ||
             e.PropertyName.Equals("state", StringComparison.OrdinalIgnoreCase) ||
             e.PropertyName.Equals("state_view", StringComparison.OrdinalIgnoreCase))
         {
@@ -148,13 +151,27 @@ public partial class ActivityRow : ContentView
         switch (display.ToUpperInvariant())
         {
             case "ACTIVO":
+            case "PENDIENTE":
                 labelState.TextColor = Colors.Green;
                 break;
-            case "SINCRONIZADA":
-            case "SINCRONIZADO":
-                labelState.TextColor = Colors.DodgerBlue;
-                break;
             default:
+                if (display.StartsWith("Parcial", StringComparison.OrdinalIgnoreCase))
+                {
+                    labelState.TextColor = Colors.DarkOrange;
+                    break;
+                }
+                if (string.Equals(display, "Error", StringComparison.OrdinalIgnoreCase))
+                {
+                    labelState.TextColor = Colors.IndianRed;
+                    break;
+                }
+                if (string.Equals(display, "Completa", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(display, "Sincronizada", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(display, "Sincronizado", StringComparison.OrdinalIgnoreCase))
+                {
+                    labelState.TextColor = Colors.DodgerBlue;
+                    break;
+                }
                 labelState.TextColor = Colors.DarkGray;
                 break;
         }

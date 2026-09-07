@@ -23,11 +23,11 @@ public partial class FlyoutMenuPage : ContentPage
             txtName.Text = "" + App.Session.CurrentUserFront.nombres;
             txtEnvironment.Text = "Desarrollo";
 
-            string version_data = "VersiÛn " + App.Session.AppVersion;
+            string version_data = "Versi√≥n " + App.Session.AppVersion;
 
             if(App.Session.odooConnection.IsProduction)
             {
-                txtEnvironment.Text = "ProducciÛn";
+                txtEnvironment.Text = "Producci√≥n";
             }
 
             FlyoutPageItem[] flyoutPageItem = (FlyoutPageItem[])collectionView.ItemsSource;
@@ -35,7 +35,7 @@ public partial class FlyoutMenuPage : ContentPage
 
             ls_flyoutPageItems.Add(new FlyoutPageItem()
             {
-                Title = "Cerrar SesiÛn",
+                Title = "Cerrar sesi√≥n",
                 FontFamily = "FontAwesome5Solid",
                 IconSource = "\uf2f5",
                 ExecuteMode = ExecuteModeEnum.Function,
@@ -55,7 +55,7 @@ public partial class FlyoutMenuPage : ContentPage
             {               
                 ls_flyoutPageItems.Add(new FlyoutPageItem()
                 {
-                    Title = "Prueba de ImpresiÛn",
+                    Title = "Prueba de Impresi√≥n",
                     FontFamily = "FontAwesome5Solid",
                     IconSource = "\uf02f",
                     ExecuteMode = ExecuteModeEnum.Page,
@@ -64,7 +64,7 @@ public partial class FlyoutMenuPage : ContentPage
 
                 //ls_flyoutPageItems.Add(new FlyoutPageItem()
                 //{
-                //    Title = "ConfiguraciÛn",
+                //    Title = "Configuraci√≥n",
                 //    FontFamily = "FontAwesome5Solid",
                 //    IconSource = "#",
                 //    TargetType = typeof(SettingsPage)
@@ -78,7 +78,7 @@ public partial class FlyoutMenuPage : ContentPage
 
     public async void TryLogout(object sender, EventArgs e)
     {
-        bool answer = await DisplayAlertAsync("Salir", "Est· seguro que desea cerrar la sesiÛn?", "Si", "No");
+        bool answer = await DisplayAlertAsync("Salir", "Est√° seguro que desea cerrar la sesi√≥n?", "Si", "No");
         //Debug.WriteLine("Answer: " + answer);
         if(answer)
         { 
@@ -88,7 +88,7 @@ public partial class FlyoutMenuPage : ContentPage
 
     public async Task TryLogout()
     {
-        bool answer = await DisplayAlertAsync("Salir", "Est· seguro que desea cerrar la sesiÛn?", "Si", "No");
+        bool answer = await DisplayAlertAsync("Salir", "Est√° seguro que desea cerrar la sesi√≥n?", "Si", "No");
         //Debug.WriteLine("Answer: " + answer);
         if (answer)
         {

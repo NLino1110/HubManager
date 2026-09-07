@@ -136,7 +136,7 @@ public partial class MainPageTab : ContentPage
 
         SaleOrders serverPusher = new SaleOrders();
         var (syncedOrders, failedOrders) = await serverPusher.SendAllSaleOrders();
-        await serverPusher.SendAllProjectTask();
+        var activityResults = await serverPusher.SendAllProjectTask(allowAutoRetry: true);
 
         await UITools.SetNotifyLoadingPopup("Ejecutando extracci\u00f3n de datos...");
 
@@ -147,32 +147,51 @@ public partial class MainPageTab : ContentPage
 
         // Refrescar lista para mostrar erp_name sin cerrar sesi\u00f3n
         tabOrders?.ReloadData();
+        tabActivities?.ReloadData();
         SelectTab("orders");
 
-        string summary;
-        if ((syncedOrders == null || syncedOrders.Count == 0)
-            && (failedOrders == null || failedOrders.Count == 0))
+        var parts = new List<string>();
+        if (syncedOrders != null && syncedOrders.Count > 0)
         {
-            summary = "No hab\u00eda pedidos pendientes por sincronizar.";
+            parts.Add($"Pedidos sincronizados ({syncedOrders.Count}):\n"
+                      + string.Join("\n", syncedOrders));
         }
-        else
+
+        if (failedOrders != null && failedOrders.Count > 0)
         {
-            var parts = new List<string>();
-            if (syncedOrders != null && syncedOrders.Count > 0)
+            parts.Add($"Pedidos con error ({failedOrders.Count}):\n"
+                      + string.Join("\n", failedOrders.Select(f =>
+                          $"- {f.OrderLabel}: {f.ErrorMessage.Split('\n')[0]}")));
+        }
+
+        if (activityResults != null && activityResults.Count > 0)
+        {
+            var okActivities = activityResults.Where(r => r.Ok).ToList();
+            var partialActivities = activityResults.Where(r => r.IsPartial).ToList();
+            var failedActivities = activityResults.Where(r => r.HeaderFailed || (!r.Ok && !r.IsPartial)).ToList();
+
+            if (okActivities.Count > 0)
             {
-                parts.Add($"Pedidos sincronizados ({syncedOrders.Count}):\n"
-                          + string.Join("\n", syncedOrders));
+                parts.Add($"Actividades completas ({okActivities.Count}):\n"
+                          + string.Join("\n", okActivities.Select(r => $"- {r.TaskLabel}")));
             }
 
-            if (failedOrders != null && failedOrders.Count > 0)
+            if (partialActivities.Count > 0)
             {
-                parts.Add($"Pedidos con error ({failedOrders.Count}):\n"
-                          + string.Join("\n", failedOrders.Select(f =>
-                              $"- {f.OrderLabel}: {f.ErrorMessage.Split('\n')[0]}")));
+                parts.Add($"Actividades parciales ({partialActivities.Count}):\n"
+                          + string.Join("\n", partialActivities.Select(r => $"- {r.TaskLabel}: {r.Message.Split('.')[0]}")));
             }
 
-            summary = string.Join("\n\n", parts);
+            if (failedActivities.Count > 0)
+            {
+                parts.Add($"Actividades con error ({failedActivities.Count}):\n"
+                          + string.Join("\n", failedActivities.Select(r => $"- {r.TaskLabel}: {r.Message.Split('\n')[0]}")));
+            }
         }
+
+        string summary = parts.Count == 0
+            ? "No hab\u00eda pedidos ni actividades pendientes por sincronizar."
+            : string.Join("\n\n", parts);
 
         await DisplayAlertAsync("Env\u00edo de datos", summary, "Aceptar");
 

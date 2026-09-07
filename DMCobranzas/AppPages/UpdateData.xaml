@@ -37,6 +37,32 @@
 
                     <BoxView HeightRequest="1" Margin="10,5" Color="LightGray" HorizontalOptions="Fill" />
 
+                    <Border
+                        x:Name="brInvoiceDateInfo"
+                        IsVisible="False"
+                        Margin="10,8,10,4"
+                        Padding="10"
+                        BackgroundColor="#E65100"
+                        Stroke="#BF360C"
+                        StrokeThickness="1">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="6"/>
+                        </Border.StrokeShape>
+                        <Label
+                            Text="Desde y Hasta filtran cabeceras y detalles de facturas. 1ra actualización del día: 5 meses. Siguientes: solo hoy (editable). Cliente completo: Cobros y Notas de Crédito."
+                            TextColor="White"
+                            FontSize="12"
+                            LineBreakMode="WordWrap"/>
+                    </Border>
+
+                    <Grid x:Name="grInvoiceDatePickers" IsVisible="False" Margin="10,4,10,0" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Desde:" VerticalOptions="Center" FontAttributes="Bold" TextColor="#E65100"/>
+                        <DatePicker Grid.Row="0" Grid.Column="1" x:Name="dpInvoiceDateFrom" HorizontalOptions="Fill"/>
+
+                        <Label Grid.Row="1" Grid.Column="0" Text="Hasta:" VerticalOptions="Center" FontAttributes="Bold" TextColor="#E65100"/>
+                        <DatePicker Grid.Row="1" Grid.Column="1" x:Name="dpInvoiceDateTo" HorizontalOptions="Fill"/>
+                    </Grid>
+
                     <Label Text="01/01/2023 00:00:00"
                        x:Name="lblUpdated"
                        HorizontalOptions="Center"
@@ -72,8 +98,8 @@
                     </StackLayout>
 
                     <VerticalStackLayout Margin="20">
-                        <controls:CheckBoxEx x:Name="chkGroup1" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Actualizar Facturas (Cabeceras)"></controls:CheckBoxEx>
-                        <controls:CheckBoxEx x:Name="chkGroup2" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Actualizar Facturas (Detalles)"></controls:CheckBoxEx>
+                        <controls:CheckBoxEx x:Name="chkGroup1" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Documentos - Cabeceras (facturas, notas de débito)"></controls:CheckBoxEx>
+                        <controls:CheckBoxEx x:Name="chkGroup2" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Documentos - Detalles (facturas, notas de débito)"></controls:CheckBoxEx>
                         <controls:CheckBoxEx x:Name="chkGroup3" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Actualizar Parámetros (Cuentas, bancos, módulos, etc.)"></controls:CheckBoxEx>
                         <controls:CheckBoxEx x:Name="chkGroup4" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Datos de usuario (Cobros, Notas de Crédito)"></controls:CheckBoxEx>
                         <controls:CheckBoxEx x:Name="chkGroup5" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Clientes (completo, todos los partners / saldos)"></controls:CheckBoxEx>

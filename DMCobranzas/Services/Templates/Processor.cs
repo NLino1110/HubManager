@@ -1,4 +1,4 @@
-﻿using DMCobranzas.Models.Specials;
+using DMCobranzas.Models.Specials;
 using DMSA.Models.Odoo.Abstract;
 using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.DebitCollection;
@@ -58,6 +58,29 @@ namespace DMCobranzas.Services.Templates
         private string Money(decimal value)
         {
             return $"${value:N2}";
+        }
+
+        private static string FormatDocumentNumber(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value) || value == "-")
+                return "-";
+
+            return $"N\u00B0 {value.Trim()}";
+        }
+
+        private static string FormatSummaryDetailLine(string label, string documentNumber)
+        {
+            return $"{label}  -  {FormatDocumentNumber(documentNumber)}";
+        }
+
+        private static string GetBankName(
+            MultipleCobrosInvoiceLine line,
+            Dictionary<int, ResBank> banks)
+        {
+            if (line.BankId != null && banks != null && banks.TryGetValue((int)line.BankId, out var bank))
+                return bank?.name ?? "-";
+
+            return "-";
         }
 
         public async Task<(byte[], string, string)> Template_MultipleCobrosInvoiceGroup(List<MultipleCobrosInvoice> itemsGroup)
@@ -124,13 +147,7 @@ namespace DMCobranzas.Services.Templates
                     Type = g.Key,
                     TotalRecords = g.Count(),
                     TotalAmount = g.Sum(p => (decimal)p.Amount),
-                    Lines = g.Select(p => new MultipleCobrosInvoiceLine
-                    {
-                        Id = p.Id,
-                        BankId = p.BankId,
-                        PaymentDate = p.PaymentDate,
-                        Amount = p.Amount
-                    }).ToArray()
+                    Lines = g.ToArray()
                 })
                 .ToList();
 
@@ -163,16 +180,31 @@ namespace DMCobranzas.Services.Templates
             foreach (var item in cobrosSummary)
             {
                 var name_group = TipoEmision.data.Where(x => x.code == item.Type).FirstOrDefault().name;
-                r.Columns(name_group, item.TotalRecords.ToString());
+                r.Columns(name_group, $"Cant. {item.TotalRecords}");
 
-                if(item.Type == "transfer")
+                if (item.Type is "transfer" or "deposito" or "check" or "check_day")
                 {
-                    foreach(var line in item.Lines)
+                    foreach (var line in item.Lines)
                     {
-                        string bank_name = (line.BankId != null && banks != null && banks.TryGetValue((int)line.BankId, out var bank)) ? bank?.name ?? "" : "";
-                        string right = string.IsNullOrEmpty(line.Circular) ? "-" : line.Circular;
-                        r.Columns(bank_name, "Tr#" + right);
-                        //r.Columns(bank_name, $"{line.Amount:0.00}");
+                        switch (item.Type)
+                        {
+                            case "transfer":
+                                r.Line(FormatSummaryDetailLine(
+                                    GetBankName(line, banks),
+                                    string.IsNullOrWhiteSpace(line.Circular) ? "-" : line.Circular.Trim()));
+                                break;
+                            case "deposito":
+                                r.Line(FormatSummaryDetailLine(
+                                    string.IsNullOrWhiteSpace(line.journal_name) ? "-" : line.journal_name.Trim(),
+                                    string.IsNullOrWhiteSpace(line.Circular) ? "-" : line.Circular.Trim()));
+                                break;
+                            case "check":
+                            case "check_day":
+                                r.Line(FormatSummaryDetailLine(
+                                    GetBankName(line, banks),
+                                    string.IsNullOrWhiteSpace(line.NumberCheckText) ? "-" : line.NumberCheckText.Trim()));
+                                break;
+                        }
                     }
                 }
 
@@ -198,6 +230,26 @@ namespace DMCobranzas.Services.Templates
             r.Cut();
 
             return (r.Build(), r.BuildPreviewHtml(), r.BuildPreview());
+        }
+
+        private static async Task<bool> ResolveIsNotaDebitoAsync(
+            MultipleCobrosInvoiceLineAi ai,
+            AccountMoveDb accountMoveDb,
+            Dictionary<int, bool> cache)
+        {
+            if (ai.is_nota_debito)
+                return true;
+
+            if (ai.invoice_id <= 0)
+                return false;
+
+            if (cache.TryGetValue(ai.invoice_id, out var cached))
+                return cached;
+
+            var move = await accountMoveDb.GetItemAsync(x => x.id == ai.invoice_id);
+            bool value = move?.is_nota_debito ?? false;
+            cache[ai.invoice_id] = value;
+            return value;
         }
 
         public async Task<(byte[] bytes, string preview, string plain)> Template_MultipleCobrosInvoice(MultipleCobrosInvoice invoice)
@@ -227,15 +279,32 @@ namespace DMCobranzas.Services.Templates
 
             var banks = (await bankDb.GetItemsAsync(x => x.id > 0)).ToDictionary(b => b.id);
 
-            decimal totalAmount = 0;
-            decimal totalAmountApplied = 0;
-            decimal totalAmountCancell = 0;
-            decimal totalPending = 0;
-            decimal totalAnticipo = 0;
-            decimal totalFp = 0;
+            /*
+             * Ticket recibo individual — saldos congelados al registrar el cobro.
+             *
+             * Fuente: multiple_cobros_invoice_line_ai (amount_residual, amount_asigned).
+             * No usa account_move ni partner.saldo_total: un recibo posterior sobre la
+             * misma factura no altera lo impreso en tickets anteriores.
+             *
+             * | Campo            | Cálculo                                                          |
+             * |------------------|------------------------------------------------------------------|
+             * | TOTAL F/P        | Σ Amount de formas de pago (total cobrado en el recibo)          |
+             * | Canc.            | amount_asigned por factura en este recibo                        |
+             * | Saldo            | amount_residual (registro) − Σ amount_asigned del doc/recibo   |
+             * | TOTAL CANC.      | Σ amount_asigned (total aplicado a documentos)                   |
+             * | ANTICIPO         | TOTAL F/P − TOTAL CANC. (si > 0)                                 |
+             * | TOT. FACT. PEND. | Σ saldos de facturas pendientes del cliente;                    |
+             * |                  | las del recibo usan snapshot, las demás amount_residual actual  |
+             *
+             * Estado en ticket: done/APLICADO se muestra como PROCESADO.
+             */
 
-            totalAmount = (decimal) invoice.amount;
-            totalPending = partner.saldo_total;
+            decimal totalAmountApplied = 0;
+            decimal totalCollected = lines.Sum(l => l.Amount ?? 0m);
+            if (totalCollected <= 0 && invoice.amount > 0)
+                totalCollected = (decimal)invoice.amount;
+
+            var notaDebitoCache = new Dictionary<int, bool>();
 
             foreach (var line in lines)
             {
@@ -243,61 +312,81 @@ namespace DMCobranzas.Services.Templates
                 var apl = await aiDb.GetItemsAsync(x => x.multiple_cobros_invoice_line_id == line.Id);
 
                 line.lines = apl.ToArray();
-                totalAmountCancell += (decimal) line.Amount;
 
                 foreach (var ai in apl)
                 {
                     totalAmountApplied += ai.amount_asigned;
-                    totalFp += ai.amount_asigned;
+
+                    bool isNotaDebito = await ResolveIsNotaDebitoAsync(ai, accountMoveDb, notaDebitoCache);
 
                     var found = accountMoveSummaries
                         .FirstOrDefault(x => x.docnum_mask == ai.docnum_mask);
 
                     if (found == null)
                     {
-                        decimal residual = 0;
-
-                        //ESTA LOGICA NO ES CORRECTA SEGUN USUARIO
-                        ////var move = (await accountMoveDb
-                        ////    .GetItemsAsync(x => x.docnum_mask == ai.docnum_mask))
-                        ////    .FirstOrDefault();
-
-                        ////if (move != null)
-                        ////{
-                        ////    //residual = move.amount_residual_virtual;
-                        ////    residual = move.amount_residual - ai.amount_asigned;
-                        ////}
-                        //==========================================
-
-                        residual = ai.amount_residual - ai.amount_asigned;                        
-
                         accountMoveSummaries.Add(new AccountMoveSummary
                         {
                             docnum_mask = ai.docnum_mask,
-                            total_amount_residual = residual,
+                            is_nota_debito = isNotaDebito,
+                            total_amount_residual = ai.amount_residual - ai.amount_asigned,
                             total_amount_reconciled = ai.amount_asigned,
                             invoice_date = ai.invoice_date
                         });
                     }
                     else
                     {
+                        found.is_nota_debito = found.is_nota_debito || isNotaDebito;
                         found.total_amount_reconciled += ai.amount_asigned;
                         found.total_amount_residual -= ai.amount_asigned;
                     }
                 }
             }
 
-            totalAnticipo = totalAmount - totalAmountApplied;
-
             accountMoveSummaries = accountMoveSummaries
                 .OrderBy(x => x.docnum_mask)
                 .ToList();
 
+            decimal anticipoAmount = totalCollected - totalAmountApplied;
+            if (anticipoAmount < 0)
+                anticipoAmount = 0;
+
+            var receiptSaldoByDoc = accountMoveSummaries.ToDictionary(
+                x => x.docnum_mask,
+                x => x.total_amount_residual);
+
+            var pendingInvoices = await accountMoveDb.GetItemsWithBalanceByPartnerAsync(
+                invoice.company_id,
+                invoice.partner_id);
+
+            decimal totFactPend = 0;
+            var countedDocs = new HashSet<string>();
+
+            foreach (var move in pendingInvoices)
+            {
+                if (string.IsNullOrWhiteSpace(move.docnum_mask))
+                    continue;
+
+                if (receiptSaldoByDoc.TryGetValue(move.docnum_mask, out var receiptSaldo))
+                    totFactPend += receiptSaldo;
+                else
+                    totFactPend += move.amount_residual;
+
+                countedDocs.Add(move.docnum_mask);
+            }
+
+            // Facturas solo en este recibo con saldo snapshot > 0 y aún no contadas.
             foreach (var doc in accountMoveSummaries)
             {
-                //totalPending += doc.total_amount_residual;
-                totalPending -= doc.total_amount_reconciled;
-            }                
+                if (!countedDocs.Contains(doc.docnum_mask) && doc.total_amount_residual > 0)
+                    totFactPend += doc.total_amount_residual;
+            }
+
+            string ticketEstado = invoice.payment_status;
+            if (string.Equals(invoice.state, "done", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(ticketEstado, CobrosEstados.APLICADO, StringComparison.Ordinal))
+            {
+                ticketEstado = CobrosEstados.PROCESADO;
+            }
 
             var empresa = App.Session.CurrentUserFront.empresas
                 .FirstOrDefault(x => x.id == invoice.company_id);
@@ -316,7 +405,7 @@ namespace DMCobranzas.Services.Templates
             r.Left();
             //r.Small();
             r.Line($"Cliente: {invoice.partner_name}");
-            r.Line($"Estado: {invoice.payment_status}");
+            r.Line($"Estado: {ticketEstado}");
             //r.ResetStyle();
 
             r.Separator();
@@ -370,28 +459,42 @@ namespace DMCobranzas.Services.Templates
             }
 
             r.Separator();
-            r.Columns("TOTAL F/P:", Money(totalFp));
+            r.Columns("TOTAL F/P:", Money(totalCollected));
 
             /*
-             * DOCUMENTOS
+             * DOCUMENTOS — saldos del snapshot registrado en este recibo.
              */
 
             r.Separator();
             r.Center().Line("DOCUMENTOS");
             r.Left();
 
-            foreach (var doc in accountMoveSummaries)
+            if (accountMoveSummaries.Count == 0 && anticipoAmount > 0)
             {
-                r.Line($"FAC # {doc.docnum_mask}");
-                r.Line($" Canc.: {Money(doc.total_amount_reconciled)}");
-                r.Line($" Saldo: {Money(doc.total_amount_residual)}");
+                string anticipoLabel = lines
+                    .Select(l => l.Resumen)
+                    .FirstOrDefault(r => !string.IsNullOrWhiteSpace(r))
+                    ?? "ANTICIPO DE CLIENTE";
+
+                r.Line(anticipoLabel);
+            }
+            else
+            {
+                foreach (var doc in accountMoveSummaries)
+                {
+                    r.Line(doc.document_reference_label);
+                    r.Line($" Canc.: {Money(doc.total_amount_reconciled)}");
+                    r.Line($" Saldo: {Money(doc.total_amount_residual)}");
+                }
             }
 
             r.Separator();
-                        
-            r.Columns("TOTAL CANC:", Money(totalAmountCancell));
-            r.Separator();            
-            r.Columns("TOT. FACT. PEND.:", Money(totalPending - totalAnticipo));            
+
+            r.Columns("TOTAL CANC:", Money(totalAmountApplied));
+            if (anticipoAmount > 0)
+                r.Columns("ANTICIPO:", Money(anticipoAmount));
+            r.Separator();
+            r.Columns("TOT. FACT. PEND.:", Money(totFactPend));            
 
             r.Separator();
 

@@ -66,6 +66,21 @@ namespace DMSA.Models.Odoo.Tareas
         [JsonIgnore]
         public int id_sync { get; set; }
 
+        [JsonIgnore]
+        public string sync_status { get; set; } = ProjectTaskSyncStatus.Pending;
+
+        [JsonIgnore]
+        public string sync_message { get; set; } = string.Empty;
+
+        [JsonIgnore]
+        public DateTime last_sync_attempt { get; set; }
+
+        [JsonIgnore]
+        public int sync_ok_count { get; set; }
+
+        [JsonIgnore]
+        public int sync_total_count { get; set; }
+
         // Propiedad que sí se serializa como "state"
         [JsonProperty("state")]
         public string? state { get; set; }
@@ -74,14 +89,32 @@ namespace DMSA.Models.Odoo.Tareas
         [Ignore]
         [JsonIgnore]
         public string? state_view =>
-                (state, is_synchronized) switch
+                (state, is_synchronized, sync_status) switch
                 {
-                    ("draft", true) => "SINCRONIZADO",
-                    ("draft", false) => "ACTIVO",
-                    ("sent", _) => "SINCRONIZADO",
-                    ("done", _) => "TERMINADO",
-                    ("cancel", _) => "CANCELADO",
+                    (_, _, ProjectTaskSyncStatus.Complete) => "COMPLETA",
+                    (_, _, ProjectTaskSyncStatus.Partial) => sync_total_count > 0
+                        ? $"PARCIAL ({sync_ok_count}/{sync_total_count})"
+                        : "PARCIAL",
+                    (_, _, ProjectTaskSyncStatus.Error) => "ERROR",
+                    (_, _, ProjectTaskSyncStatus.Pending) => "PENDIENTE",
+                    ("draft", true, _) => "SINCRONIZADO",
+                    ("draft", false, _) => "ACTIVO",
+                    ("sent", _, _) => "SINCRONIZADO",
+                    ("done", _, _) => "TERMINADO",
+                    ("cancel", _, _) => "CANCELADO",
                     _ => state
                 };
+
+        [Ignore]
+        [JsonIgnore]
+        public bool IsFullySynced =>
+            string.Equals(sync_status, ProjectTaskSyncStatus.Complete, StringComparison.OrdinalIgnoreCase);
+
+        [Ignore]
+        [JsonIgnore]
+        public bool HasPendingDetails =>
+            string.Equals(sync_status, ProjectTaskSyncStatus.Partial, StringComparison.OrdinalIgnoreCase)
+            || (sync_total_count > 0 && sync_ok_count < sync_total_count)
+            || (sync_total_count > 0 && id_sync <= 0);
     }
 }

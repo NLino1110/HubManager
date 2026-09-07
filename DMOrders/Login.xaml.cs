@@ -47,6 +47,17 @@ public partial class Login : ContentPage
     private bool _executed;
     private const int LONG_PRESS_MS = 1500;
 
+    /// <summary>
+    /// true: bloquea login mientras prepara conexión, evita race al cambiar conexión
+    ///       y restaura la conexión guardada con Recordarme.
+    /// false: comportamiento anterior (revertir fix).
+    /// </summary>
+    private const bool UseConnectionSessionFixes = true;
+
+    private int _connectionChangeVersion;
+    private bool _isConnectionLoading;
+    private const string BtnTryLoginDefaultText = "Iniciar sesión";
+
     public Login()
     {
         InitializeComponent();
@@ -108,6 +119,165 @@ public partial class Login : ContentPage
         await patchRunner.RootPatchExecuter(this);
     }
 
+    private void SetConnectionLoading(bool loading)
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            _isConnectionLoading = loading;
+
+            if (!UseConnectionSessionFixes)
+            {
+                BtnTryLogin.IsEnabled = true;
+                BtnTryLogin.Text = BtnTryLoginDefaultText;
+                return;
+            }
+
+            BtnTryLogin.IsEnabled = !loading;
+            ddCompany.IsEnabled = !loading;
+            BtnTryLogin.Text = loading ? "Preparando conexión..." : BtnTryLoginDefaultText;
+        });
+    }
+
+    private static void ApplyConnectionToSession(OdooConnection connection)
+    {
+        App.Session.odooConnection = connection;
+        App.Session.CurrentUser = new User
+        {
+            username = connection.Username,
+            password = connection.Password,
+            databasename = connection.DbName,
+        };
+        DMSA.Sync.Core.Constants.Session = App.Session;
+    }
+
+    private int? GetPreferredConnectionId()
+    {
+        if (!UseConnectionSessionFixes)
+            return null;
+
+        if (App.Session?.odooConnection?.Id > 0)
+            return App.Session.odooConnection.Id;
+
+        if (!Preferences.Get("is_rememberme", false))
+            return null;
+
+        var appSession = Preferences.Get("App.Session", string.Empty);
+        if (string.IsNullOrEmpty(appSession))
+            return null;
+
+        try
+        {
+            var loaded = JsonConvert.DeserializeObject<AppSession>(appSession);
+            return loaded?.odooConnection?.Id;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private async Task LoadAgenciesForConnectionAsync(OdooConnection connection)
+    {
+        ddAgency.ItemsSource = null;
+
+        CompanyDb companyDb = new CompanyDb(connection.DbNameSqlite);
+        SelCompany = (await companyDb.GetItemsAsync())
+            .Where(x => x.id == connection.CompanyId)
+            .FirstOrDefault();
+
+        if (SelCompany == null)
+        {
+            await Toast.Make("Error: No se encontró la empresa asociada a la conexión.").Show();
+            return;
+        }
+
+        var storesDb = new ResCenterDb(connection.DbNameSqlite);
+        var storesItems = (await Task.Run(async () => await storesDb.GetItemsAsync()))
+            .Where(s => s.company_id == SelCompany.id && s.type_center == "M")
+            .ToArray();
+
+        ddAgency.ItemsSource = storesItems;
+        ddAgency.ItemDisplayBinding = new Binding("name");
+        ddAgency.SelectedItem = storesItems.FirstOrDefault();
+    }
+
+    private async Task OnCompanyConnectionChangedAsync(object sender, object selectedItem)
+    {
+        if (selectedItem is not OdooConnection connection)
+            return;
+
+        if (!UseConnectionSessionFixes)
+        {
+            await OnCompanyConnectionChangedLegacyAsync(connection);
+            return;
+        }
+
+        var version = ++_connectionChangeVersion;
+        SetConnectionLoading(true);
+
+        try
+        {
+            SelConnection = connection;
+            ApplyConnectionToSession(connection);
+
+            Debug.WriteLine($"[Conexión] Name={connection.Name}, DbName={connection.DbName}, Sqlite={connection.DbNameSqlite}");
+
+            PatchRunner patchRunner = new PatchRunner();
+            await patchRunner.PatchExecuter(connection, this);
+            if (version != _connectionChangeVersion)
+                return;
+
+            LoadEnvironment();
+
+            var pullResult = await new ServerPuller().Pull();
+            if (version != _connectionChangeVersion)
+                return;
+
+            if (!pullResult)
+                await Toast.Make("Datos base incorrectos.").Show();
+            else
+                await Toast.Make("Datos base correctos.").Show();
+
+            await LoadAgenciesForConnectionAsync(connection);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error preparando conexión: {ex}");
+            await Toast.Make("Error al preparar la conexión.").Show();
+        }
+        finally
+        {
+            if (version == _connectionChangeVersion)
+                SetConnectionLoading(false);
+        }
+    }
+
+    private async Task OnCompanyConnectionChangedLegacyAsync(OdooConnection connection)
+    {
+        SelConnection = connection;
+        App.Session.odooConnection = connection;
+        App.Session.CurrentUser = new User
+        {
+            username = connection.Username,
+            password = connection.Password,
+            databasename = connection.DbName,
+        };
+
+        PatchRunner patchRunner = new PatchRunner();
+        await patchRunner.PatchExecuter(connection, this);
+
+        LoadEnvironment();
+
+        var pullResult = await new ServerPuller().Pull();
+
+        if (!pullResult)
+            await Toast.Make("Datos base incorrectos.").Show();
+        else
+            await Toast.Make("Datos base correctos.").Show();
+
+        await LoadAgenciesForConnectionAsync(connection);
+    }
+
     public async Task SetupLogin()
     {
         await AppTools.GlobalSettingInit(App.Session);
@@ -122,51 +292,7 @@ public partial class Login : ContentPage
             if (ddCompany.SelectedItem == null)
                 return;
 
-            SelConnection = (OdooConnection)ddCompany.SelectedItem;
-            App.Session.odooConnection = SelConnection;
-            App.Session.CurrentUser = new User
-            {
-                username = App.Session.odooConnection.Username,
-                password = App.Session.odooConnection.Password,
-                databasename = App.Session.odooConnection.DbName,
-            };
-            
-            PatchRunner patchRunner = new PatchRunner();
-            await patchRunner.PatchExecuter(SelConnection, this);
-
-            LoadEnvironment();
-
-            var serverPuller = new ServerPuller();
-            var pullResult = await serverPuller.Pull();
-
-            if (!pullResult)
-            {
-                await Toast.Make("Datos base incorrectos.").Show();
-            }
-            else
-            {
-                await Toast.Make("Datos base correctos.").Show();
-            }
-
-            ddAgency.ItemsSource = null;
-
-            CompanyDb companyDb = new CompanyDb(App.Session.odooConnection.DbNameSqlite);
-            SelCompany = (await companyDb.GetItemsAsync()).Where(x => x.id == SelConnection.CompanyId).FirstOrDefault();            
-
-            if (SelCompany == null)
-            {
-                await Toast.Make("Error: No se encontró la empresa asociada a la conexión.").Show();
-                return;
-            }
-
-            var storesDb = new ResCenterDb(App.Session.odooConnection.DbNameSqlite);
-
-            var storesItems = (await Task.Run(async () => await storesDb.GetItemsAsync()))
-                              .Where(s => s.company_id == SelCompany.id && s.type_center == "M")
-                              .ToArray();
-            ddAgency.ItemsSource = storesItems;
-            ddAgency.ItemDisplayBinding = new Binding("name");
-            ddAgency.SelectedItem = storesItems.FirstOrDefault();            
+            await OnCompanyConnectionChangedAsync(s, ddCompany.SelectedItem);
         };
 
         await LoadSettingsFromDb();
@@ -455,9 +581,28 @@ public partial class Login : ContentPage
         IEnumerable<OdooConnection> filtered = await connectionsDb.GetItemsAsync(c => c.Active);
         OdooConnectionItems = new ObservableCollection<OdooConnection>(filtered.ToList());
         ddCompany.ItemsSource = OdooConnectionItems;
-        ddCompany.ItemDisplayBinding = new Binding("Name");        
+        ddCompany.ItemDisplayBinding = new Binding("Name");
 
-        ddCompany.SelectedItem = OdooConnectionItems.FirstOrDefault();
+        OdooConnection selectedConnection;
+
+        if (UseConnectionSessionFixes)
+        {
+            var preferredId = GetPreferredConnectionId();
+            selectedConnection = preferredId.HasValue
+                ? OdooConnectionItems.FirstOrDefault(c => c.Id == preferredId.Value)
+                : null;
+            selectedConnection ??= OdooConnectionItems.FirstOrDefault();
+
+            Debug.WriteLine(preferredId.HasValue
+                ? $"Conexión preferida (Recordarme/sesión): Id={preferredId.Value}, Name={selectedConnection?.Name}"
+                : "Conexión preferida: primera activa");
+        }
+        else
+        {
+            selectedConnection = OdooConnectionItems.FirstOrDefault();
+        }
+
+        ddCompany.SelectedItem = selectedConnection;
         Debug.WriteLine("Conexiones cargadas!!");
     }
         
@@ -516,6 +661,12 @@ public partial class Login : ContentPage
 
     private async void OnLoginClicked(object sender, EventArgs e)
     {
+        if (UseConnectionSessionFixes && _isConnectionLoading)
+        {
+            await Toast.Make("Espere, preparando conexión...").Show();
+            return;
+        }
+
         if (string.IsNullOrEmpty(txtUser.Text.Trim()) || string.IsNullOrEmpty(txtPassword.Text.Trim()))
         {
             await Toast.Make($"Debe ingresar sus credenciales").Show();
@@ -893,6 +1044,8 @@ public partial class Login : ContentPage
             }
 
             App.Session = LoadedSession;
+            if (UseConnectionSessionFixes)
+                DMSA.Sync.Core.Constants.Session = App.Session;
             App.Current.MainPage = new MainPageTab();
         }
         catch

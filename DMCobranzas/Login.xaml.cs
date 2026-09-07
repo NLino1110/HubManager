@@ -22,6 +22,7 @@ using Newtonsoft.Json;
 using System.Buffers;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Threading;
 using System.Timers;
 
 namespace DMCobranzas;
@@ -43,6 +44,8 @@ public partial class Login : ContentPage
     private CancellationTokenSource _longPressCts;
     private bool _executed;
     private const int LONG_PRESS_MS = 1500;
+    private int _connectionSetupVersion;
+    private bool _connectionSetupRunning;
     public Login()
     {
         InitializeComponent();
@@ -89,61 +92,12 @@ public partial class Login : ContentPage
         //ddCompany.ItemDisplayBinding = new Binding(nameof(OdooConnection.Name));
         ddCompany.ItemDisplayBinding = new Binding("Name");
 
-        ddCompany.SelectedItemChanged += async (s, e) =>
+        ddCompany.SelectedItemChanged += (s, e) =>
         {
-            if (ddCompany.SelectedItem == null)
+            if (ddCompany.SelectedItem is not OdooConnection connection)
                 return;
 
-            SelConnection = (OdooConnection)ddCompany.SelectedItem;
-            App.Session.odooConnection = SelConnection;
-            App.Session.CurrentUser = new User
-            {
-                username = App.Session.odooConnection.Username,
-                password = App.Session.odooConnection.Password,
-                databasename = App.Session.odooConnection.DbName,
-            };
-
-            PatchRunner patchRunner = new PatchRunner();
-            await patchRunner.PatchExecuter(SelConnection, this);
-            LoadEnvironment();
-
-            CompanyDb companyDb = new CompanyDb(App.Session.odooConnection.DbNameSqlite);
-            SelCompany = (await companyDb.GetItemsAsync()).Where(x => x.id == SelConnection.CompanyId).FirstOrDefault();
-
-            if (SelCompany == null)
-            {
-                await Toast.Make("Error: No se encontró la empresa asociada a la conexión.").Show();
-                var serverPuller = new ServerPuller();
-                var pullResult = await serverPuller.Pull();
-
-                if (!pullResult)
-                {
-                    await Toast.Make("Datos incorrectos.").Show();
-                    return;
-                }
-                else
-                {
-                    SelCompany = (await companyDb.GetItemsAsync()).Where(x => x.id == SelConnection.CompanyId).FirstOrDefault();
-                    if (SelCompany == null)
-                    {
-                        Debug.WriteLine("SelCompany aun es null");
-                        return;
-                    }
-
-                    await serverPuller.GetFullResCenterLine(true);
-                    await Toast.Make("Datos correctos.").Show();                    
-                }
-            }
-
-            var storesDb = new ResCenterDb(App.Session.odooConnection.DbNameSqlite);
-
-            var storesItems = (await Task.Run(async () => await storesDb.GetItemsAsync()))
-                              .Where(s => s.company_id == SelCompany.id && s.type_center == "M")
-                              .ToArray();
-            ddAgency.ItemsSource = storesItems;
-            ddAgency.ItemDisplayBinding = new Binding("name");
-            ddAgency.SelectedItem = storesItems.FirstOrDefault();
-                        
+            _ = OnConnectionSelectedAsync(connection);
         };
 
         await LoadSettingsFromDb();
@@ -163,6 +117,90 @@ public partial class Login : ContentPage
         }
         
         Application.Current.UserAppTheme = AppTheme.Light;
+    }
+
+    void SetConnectionSetupBusy(bool busy)
+    {
+        _connectionSetupRunning = busy;
+        ddCompany.IsEnabled = !busy;
+        BtnTryLogin.IsEnabled = !busy;
+        BtnTryLogin.Text = busy ? "Preparando conexión..." : "Iniciar sesión";
+    }
+
+    async Task OnConnectionSelectedAsync(OdooConnection connection)
+    {
+        var setupVersion = Interlocked.Increment(ref _connectionSetupVersion);
+
+        await MainThread.InvokeOnMainThreadAsync(() => SetConnectionSetupBusy(true));
+
+        try
+        {
+            SelConnection = connection;
+            App.Session.odooConnection = SelConnection;
+            App.Session.CurrentUser = new User
+            {
+                username = App.Session.odooConnection.Username,
+                password = App.Session.odooConnection.Password,
+                databasename = App.Session.odooConnection.DbName,
+            };
+
+            PatchRunner patchRunner = new PatchRunner();
+            await patchRunner.PatchExecuter(SelConnection, this);
+            await MainThread.InvokeOnMainThreadAsync(LoadEnvironment);
+
+            CompanyDb companyDb = new CompanyDb(App.Session.odooConnection.DbNameSqlite);
+            SelCompany = (await companyDb.GetItemsAsync())
+                .Where(x => x.id == SelConnection.CompanyId)
+                .FirstOrDefault();
+
+            if (SelCompany == null)
+            {
+                await Toast.Make("Error: No se encontró la empresa asociada a la conexión.").Show();
+                var serverPuller = new ServerPuller();
+                var pullResult = await serverPuller.Pull();
+
+                if (!pullResult)
+                {
+                    await Toast.Make("Datos incorrectos.").Show();
+                    return;
+                }
+
+                SelCompany = (await companyDb.GetItemsAsync())
+                    .Where(x => x.id == SelConnection.CompanyId)
+                    .FirstOrDefault();
+
+                if (SelCompany == null)
+                {
+                    Debug.WriteLine("SelCompany aun es null");
+                    return;
+                }
+
+                await serverPuller.GetFullResCenterLine(true);
+                await Toast.Make("Datos correctos.").Show();
+            }
+
+            var storesDb = new ResCenterDb(App.Session.odooConnection.DbNameSqlite);
+            var storesItems = (await Task.Run(async () => await storesDb.GetItemsAsync()))
+                .Where(s => s.company_id == SelCompany.id && s.type_center == "M")
+                .ToArray();
+
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                ddAgency.ItemsSource = storesItems;
+                ddAgency.ItemDisplayBinding = new Binding("name");
+                ddAgency.SelectedItem = storesItems.FirstOrDefault();
+            });
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"OnConnectionSelectedAsync: {ex}");
+            await Toast.Make("Error al preparar la conexión seleccionada.").Show();
+        }
+        finally
+        {
+            if (setupVersion == _connectionSetupVersion)
+                await MainThread.InvokeOnMainThreadAsync(() => SetConnectionSetupBusy(false));
+        }
     }
 
     private void LoadEnvironment()
@@ -491,6 +529,12 @@ public partial class Login : ContentPage
 
     private async void OnLoginClicked(object sender, EventArgs e)
     {
+        if (_connectionSetupRunning)
+        {
+            await Toast.Make("Espere a que termine de cargar la conexión seleccionada.").Show();
+            return;
+        }
+
         bool forwardLogin = false;
 
         if(string.IsNullOrEmpty( txtUser.Text.Trim() ) || string.IsNullOrEmpty( txtPassword.Text.Trim() ))

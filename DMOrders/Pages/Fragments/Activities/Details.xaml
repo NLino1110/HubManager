@@ -18,7 +18,7 @@
         <BackButtonBehavior IsEnabled="{StaticResource IsBackButtonEnabled}" IsVisible="{StaticResource IsBackButtonEnabled}"/>
     </Shell.BackButtonBehavior>
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto">
+    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
         <!-- Top title bar -->
         <Grid Grid.Row="0"
           BackgroundColor="WhiteSmoke"
@@ -97,7 +97,15 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <HorizontalStackLayout Grid.Row="3" HorizontalOptions="Center" Margin="0,0,0,10" Spacing="10">
+        <Label Grid.Row="3"
+               x:Name="lblSyncMessage"
+               Margin="10,4"
+               FontSize="12"
+               TextColor="DarkOrange"
+               LineBreakMode="WordWrap"
+               IsVisible="False" />
+
+        <HorizontalStackLayout Grid.Row="4" HorizontalOptions="Center" Margin="0,0,0,10" Spacing="10">
             <Button Text="" Clicked="ButtonClose_Clicked" BackgroundColor="Gray" TextColor="White" HeightRequest="43" WidthRequest="43" Padding="0" IsVisible="False">
                 <Button.ImageSource>
                     <FontImageSource 
@@ -107,7 +115,7 @@
                         />
                 </Button.ImageSource>
             </Button>
-            <Button Text="Nuevo" Clicked="ButtonNew_Clicked" BackgroundColor="Green" TextColor="White" HeightRequest="43" WidthRequest="120" Padding="0">
+            <Button x:Name="btnNuevo" Text="Nuevo" Clicked="ButtonNew_Clicked" BackgroundColor="Green" TextColor="White" HeightRequest="43" WidthRequest="120" Padding="0">
                 <Button.ImageSource>
                     <FontImageSource 
                         Size="25"
@@ -123,12 +131,28 @@
                         Glyph="&#xf0c7;" />
                 </Button.ImageSource>
             </Button>
-            <Button Text="Enviar" Clicked="ButtonSync_Clicked" BackgroundColor="DeepSkyBlue" TextColor="White" HeightRequest="43" WidthRequest="120" Padding="0">
+            <Button x:Name="btnEnviar" Text="Enviar" Clicked="ButtonSync_Clicked" BackgroundColor="DeepSkyBlue" TextColor="White" HeightRequest="43" WidthRequest="120" Padding="0">
                 <Button.ImageSource>
                     <FontImageSource 
                         Size="20"
                         FontFamily="FontAwesome5Solid"
                         Glyph="&#xf1d8;" />
+                </Button.ImageSource>
+            </Button>
+            <Button x:Name="btnReprocesar"
+                    Text="Reprocesar"
+                    Clicked="ButtonReprocess_Clicked"
+                    BackgroundColor="DarkOrange"
+                    TextColor="White"
+                    HeightRequest="43"
+                    WidthRequest="140"
+                    Padding="0"
+                    IsVisible="False">
+                <Button.ImageSource>
+                    <FontImageSource
+                        Size="18"
+                        FontFamily="FontAwesome5Solid"
+                        Glyph="&#xf2f1;" />
                 </Button.ImageSource>
             </Button>
         </HorizontalStackLayout>

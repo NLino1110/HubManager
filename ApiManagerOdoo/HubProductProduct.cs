@@ -102,9 +102,11 @@ namespace ApiManager
 
         public async Task<ApiResponseOdooRpc?> GetCountOnlyImageUrl(DateTime? dateTime)
         {
+            var filterDate = (dateTime ?? DateTime.Now).AddDays(-7);
+
             object[] args = new object[] { };
             object[] _custom_args = new object[] {
-                new object[] { "write_date", ">", dateTime?.ToString("yyyy-MM-dd") },                
+                new object[] { "write_date", ">=", filterDate.ToString("yyyy-MM-dd") },
                 new object[] { "image_url", "!=", false }
             };
             return await GetCount(args, _custom_args);
@@ -204,6 +206,8 @@ namespace ApiManager
 
         public async Task<ApiResponseOdooRpcT<product_product_preview[]>?> GetByWriteOnlyImageUrl(int limit, int index, DateTime dateIni)
         {
+            var filterDate = dateIni.AddDays(-7);
+
             string[] img_fields_array = new[] {
                 "id",
                 "product_tmpl_id",
@@ -223,7 +227,7 @@ namespace ApiManager
 
             object[] args = new object[] { };
             object[] _custom_args = new object[] {
-                new object[] {"write_date", ">", dateIni.ToString("yyyy-MM-dd HH:mm:ss") },                
+                new object[] {"write_date", ">=", filterDate.ToString("yyyy-MM-dd 00:00:00") },
                 new object[] { "image_url", "!=", false }
             };
             return await SearchRead<ApiResponseOdooRpcT<product_product_preview[]>>(args, _custom_args, kwargs, true);

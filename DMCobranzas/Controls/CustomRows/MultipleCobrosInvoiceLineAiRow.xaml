@@ -8,7 +8,7 @@
     <ContentView.Resources>
         <ResourceDictionary>
             <converters:DateToDaysConverter x:Key="DateToDaysConverter" />
-            <converters:DecimalToStringConverter x:Key="DecimalToStringConverter"/>
+            <converters:DecimalGreaterThanZeroConverter x:Key="DecimalGreaterThanZeroConverter" />
         </ResourceDictionary>
     </ContentView.Resources>
 
@@ -31,7 +31,7 @@
                   ColumnDefinitions="Auto,Auto,*">
                
 
-                <Label Text="{Binding docnum_mask}"
+                <Label Text="{Binding document_reference_label}"
                        Grid.Column="1"
                        FontSize="11"
                        FontAttributes="Bold"
@@ -67,14 +67,25 @@
                    FontAttributes="Bold"
                    TextColor="Black"
                    Margin="0,0,10,0"/>
-                
-                <Label Grid.Row="3"
-                       Grid.ColumnSpan="3"
-                       Grid.Column="1"
-                       Text="{Binding amount_residual, StringFormat='SALDO: $ {0:N2}'}"
-                       FontSize="12"
-                       FontAttributes="Bold"
-                       TextColor="Red"/>
+
+                <StackLayout Grid.Row="3"
+                             Grid.Column="1"
+                             Grid.ColumnSpan="2"
+                             Orientation="Horizontal"
+                             Spacing="8">
+                    <Label Text="{Binding amount_residual, StringFormat='SALDO: $ {0:N2}'}"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="Red"
+                           VerticalOptions="Center"/>
+
+                    <Label Text="{Binding pf_promised_amount, StringFormat='CH. POSF.: $ {0:N2}'}"
+                           FontSize="11"
+                           FontAttributes="Bold"
+                           TextColor="DarkOrange"
+                           VerticalOptions="Center"
+                           IsVisible="{Binding pf_promised_amount, Converter={StaticResource DecimalGreaterThanZeroConverter}}"/>
+                </StackLayout>
             </Grid>
 
             <!-- ========= -->
@@ -82,13 +93,15 @@
             <!-- ========= -->
             <Entry Grid.Column="1"
                    x:Name="entryPagoImporte"
-                   Text="{Binding amount_asigned, Mode=TwoWay}"
+                   IsEnabled="{Binding CanApplyPayment}"
                    WidthRequest="75"
                    HeightRequest="40"
                    Keyboard="Numeric"
                    HorizontalTextAlignment="End"
                    VerticalOptions="Center"
-                   Placeholder="0"                   
+                   Placeholder="0"
+                   Focused="EntryPagoImporte_Focused"
+                   Unfocused="EntryPagoImporte_Unfocused"
                    />
 
             <!-- ========= -->
@@ -99,6 +112,7 @@
                 HeightRequest="40"
                 CornerRadius="20"
                 BackgroundColor="LimeGreen"
+                IsEnabled="{Binding CanApplyPayment}"
                 Command="{Binding ActionCommand, Source={x:Reference Name=ThisRow}}"
                 CommandParameter="{Binding .}"
                 Padding="0"
@@ -115,6 +129,7 @@
                     HeightRequest="40"
                     CornerRadius="20"
                     BackgroundColor="OrangeRed"
+                    IsEnabled="{Binding CanApplyPayment}"
                     Command="{Binding ClearValueCommand, Source={x:Reference Name=ThisRow}}"
                     CommandParameter="{Binding .}"
                     Padding="0"

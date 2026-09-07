@@ -2,9 +2,11 @@ using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using DMCobranzas.Controls;
 using DMCobranzas.Settings.helpers;
+using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Security;
 using DMSA.Sync.Core.Controls;
 using DMSA.Sync.Core.Database.Sqlite;
+using DMSA.Sync.Core.Database.Sqlite.Payments;
 using DMSA.Sync.Core.Update;
 using DMSA.Sync.Core.Update.Cloud;
 using RestSharp;
@@ -23,6 +25,78 @@ public partial class UpdateData : ContentPage
         InitializeComponent();
         lblUpdated.Text = "Ult. Actualización: " + App.Session.CurrentUserFront.log_fec_sincro.ToString("dd/MM/yyyy HH:mm:ss");        
         serverPuller = new DMSA.Sync.Core.Update.ServerPuller();
+        ConfigureInvoiceDateRangeUi();
+    }
+
+    /// <summary>
+    /// Filtro Desde/Hasta por invoice_date. REVERTIR: EnableInvoiceDateRangeSync = true en ServerPuller.
+    /// </summary>
+    private void ConfigureInvoiceDateRangeUi()
+    {
+        bool enabled = ServerPuller.EnableInvoiceDateRangeSync;
+        brInvoiceDateInfo.IsVisible = enabled;
+        grInvoiceDatePickers.IsVisible = enabled;
+
+        if (enabled)
+            InitializeInvoiceDatePickers();
+    }
+
+    private void InitializeInvoiceDatePickers()
+    {
+        ApplyDefaultInvoiceDateFrom();
+    }
+
+    private void ApplyDefaultInvoiceDateFrom()
+    {
+        var today = DateTime.Today;
+        dpInvoiceDateTo.Date = today;
+        dpInvoiceDateTo.MaximumDate = today;
+
+        if (App.Session?.odooConnection == null)
+        {
+            dpInvoiceDateFrom.Date = today.AddMonths(-5);
+            return;
+        }
+
+        var database = new AccountMoveDb(App.Session.odooConnection.DbNameSqlite);
+        bool firstSyncOfDay = database.IsFirstAccountMoveSyncOfDay();
+
+        // 1ra del día: periodo amplio (5 meses). Siguientes: solo lo del día (parcial), editable.
+        dpInvoiceDateFrom.Date = firstSyncOfDay
+            ? today.AddMonths(-5)
+            : today;
+    }
+
+    private static DateTime GetPickerDate(DatePicker picker)
+    {
+        return (picker.Date ?? DateTime.Today).Date;
+    }
+
+    private bool TryGetInvoiceSyncDateRange(out DateTime dateFrom, out DateTime dateTo)
+    {
+        dateFrom = GetPickerDate(dpInvoiceDateFrom);
+        dateTo = GetPickerDate(dpInvoiceDateTo);
+        return true;
+    }
+
+    private async Task<bool> ValidateInvoiceSyncDateRangeAsync()
+    {
+        if (!chkGroup1.IsChecked && !chkGroup2.IsChecked)
+            return true;
+
+        var dateFrom = GetPickerDate(dpInvoiceDateFrom);
+        var dateTo = GetPickerDate(dpInvoiceDateTo);
+
+        if (dateFrom > dateTo)
+        {
+            await DisplayAlertAsync(
+                "Fechas invalidas",
+                "La fecha Desde no puede ser mayor que la fecha Hasta.",
+                "Aceptar");
+            return false;
+        }
+
+        return true;
     }
 
     private async Task<bool> ServerOnlineStatus_Odoo()
@@ -36,6 +110,9 @@ public partial class UpdateData : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
+
+        if (ServerPuller.EnableInvoiceDateRangeSync)
+            ApplyDefaultInvoiceDateFrom();
 
         IDispatcherTimer timer;
 
@@ -233,41 +310,110 @@ public partial class UpdateData : ContentPage
             return;
         }
 
+        if (ServerPuller.EnableInvoiceDateRangeSync && !await ValidateInvoiceSyncDateRangeAsync())
+        {
+            return;
+        }
+
         DateTime dtInitialize = DateTime.Now;
         lblUpdatedInfo.Text = "Iniciada: " + dtInitialize;
 
         CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-
-        string fechaActualizaTablet = "2021-01-01 00:00:00";
-        AppSession _appSession = App.Session;
-
-        DateTime dateTimeIni = DateTime.Now;
-
-        string text = "Iniciando actualización...";
         ToastDuration duration = ToastDuration.Short;
         double fontSize = 14;
-        var toast = Toast.Make(text, duration, fontSize);
-        await toast.Show(cancellationTokenSource.Token);
-        ProgressBarPage progressBarPage = new ProgressBarPage();        
-        await Navigation.PushModalAsync(progressBarPage, true);
-        bool launchSalesUpdate = true;
-        progressBarPage.SetTotalPercent(0.10);
 
+        var toast = Toast.Make("Iniciando actualización...", duration, fontSize);
+        await toast.Show(cancellationTokenSource.Token);
+
+        bool retry;
+        do
+        {
+            retry = false;
+            var progressBarPage = new ProgressBarPage();
+            await Navigation.PushModalAsync(progressBarPage, true);
+            progressBarPage.SetTotalPercent(0.10);
+
+            try
+            {
+                var outcome = await ExecuteUpdateAsync(progressBarPage, dtInitialize, cancellationTokenSource, duration, fontSize);
+
+                if (outcome == UpdateOutcome.Success)
+                {
+                    await progressBarPage.DisplayAlertAsync("Actualización", "Actualización terminada", "Aceptar");
+                    if (ServerPuller.EnableInvoiceDateRangeSync)
+                        ApplyDefaultInvoiceDateFrom();
+                }
+                else
+                {
+                    string message = outcome == UpdateOutcome.ServerOffline
+                        ? "El servidor de datos no está disponible."
+                        : "No se pudo completar la actualización.";
+
+                    retry = await progressBarPage.DisplayAlertAsync(
+                        "Error de actualización",
+                        message,
+                        "Reintentar",
+                        "Cancelar");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[LaunchUpdate] {ex.Message}\n{ex.StackTrace}");
+                try
+                {
+                    await Toast.Make("Error en actualización: " + ex.Message, duration, fontSize).Show(cancellationTokenSource.Token);
+                    retry = await progressBarPage.DisplayAlertAsync(
+                        "Error de actualización",
+                        ex.Message,
+                        "Reintentar",
+                        "Cancelar");
+                }
+                catch (Exception alertEx)
+                {
+                    Debug.WriteLine($"[LaunchUpdate] Error al mostrar alerta: {alertEx.Message}");
+                }
+            }
+            finally
+            {
+                try
+                {
+                    await Navigation.PopModalAsync();
+                }
+                catch (Exception popEx)
+                {
+                    Debug.WriteLine($"[LaunchUpdate] Error al cerrar modal: {popEx.Message}");
+                }
+            }
+        } while (retry);
+    }
+
+    private enum UpdateOutcome
+    {
+        Success,
+        ServerOffline
+    }
+
+    private async Task<UpdateOutcome> ExecuteUpdateAsync(
+        ProgressBarPage progressBarPage,
+        DateTime dtInitialize,
+        CancellationTokenSource cancellationTokenSource,
+        ToastDuration duration,
+        double fontSize)
+    {
         if (await ServerOnlineStatus_Odoo())
         {
             BoxViewServerStatusOdoo.Color = Colors.LawnGreen;
             lblServerStatusOdoo.Text = "Servidor Odoo";
         }
         else
-        {            
-            toast = Toast.Make("Servidor Odoo no disponible", duration, fontSize);
+        {
+            var toast = Toast.Make("Servidor Odoo no disponible", duration, fontSize);
             await toast.Show(cancellationTokenSource.Token);
 
             BoxViewServerStatusOdoo.Color = Colors.SaddleBrown;
             lblServerStatusOdoo.Text = "Servidor Odoo (x)";
 
-            await progressBarPage.DisplayAlertAsync("Error de actualización", "El servidor de datos no está disponible.", "Aceptar");
-            await Navigation.PopModalAsync();           
+            return UpdateOutcome.ServerOffline;
         }
 
         var pipeline = new Pipeline();
@@ -285,9 +431,7 @@ public partial class UpdateData : ContentPage
                 progressBarPage.SetTitle("Iniciando actualización rápida...");
                 progressBarPage.SetTotalPercent(0.2);
 
-                //if (await pipeline.DownloadSqliteZipCustomMode2(true, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Archivos"); }))
-                //if (await pipeline.DownloadSqliteZipCustomMode2(App.Session.odooConnection.DbNameSqlite, true))
-                if(await pipeline.DownloadSqliteZip(
+                if (await pipeline.DownloadSqliteZip(
                     packFound,
                     true,
                     async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Archivos"); }))
@@ -309,7 +453,16 @@ public partial class UpdateData : ContentPage
 
         progressBarPage.SetTitle("Actualización en línea...");
 
-        await LaunchOnlineUpdate(progressBarPage);
+        DateTime? invoiceDateFrom = null;
+        DateTime? invoiceDateTo = null;
+        if (ServerPuller.EnableInvoiceDateRangeSync
+            && TryGetInvoiceSyncDateRange(out DateTime from, out DateTime to))
+        {
+            invoiceDateFrom = from;
+            invoiceDateTo = to;
+        }
+
+        await LaunchOnlineUpdate(progressBarPage, invoiceDateFrom, invoiceDateTo);
 
         progressBarPage.SetTotalPercent(1);
         progressBarPage.SetTitle("Finalizado...");
@@ -320,13 +473,16 @@ public partial class UpdateData : ContentPage
             " (" + String.Format("{0} días, {1} horas, {2} minutos, {3} segundos)",
             span.Days, span.Hours, span.Minutes, span.Seconds);
 
-        await progressBarPage.DisplayAlertAsync("Actualización", "Actualización terminada", "Aceptar");        
-        
-        await Navigation.PopModalAsync();
+        return UpdateOutcome.Success;
     }
 
-    private async Task LaunchOnlineUpdate(ProgressBarPage progressBarPage)
+    private async Task LaunchOnlineUpdate(
+        ProgressBarPage progressBarPage,
+        DateTime? invoiceDateFrom = null,
+        DateTime? invoiceDateTo = null)
     {
+        try
+        {
         CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         string text = "Actualización en linea";
         ToastDuration duration = ToastDuration.Short;
@@ -336,14 +492,26 @@ public partial class UpdateData : ContentPage
                 
         if (chkGroup1.IsChecked)
         {
-            await UpdateProgressState(progressBarPage, 0, 0, "Actualización Facturas");
-            await serverPuller.OnlineSyncAccountMove(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Facturas"); });                     
+            await UpdateProgressState(progressBarPage, 0, 0, "Actualización " + AccountMoveDocumentDisplay.BulkSyncHeadersProgressLabel);
+            await serverPuller.OnlineSyncAccountMove(
+                async (current, total) =>
+                {
+                    await UpdateProgressState(progressBarPage, current, total, AccountMoveDocumentDisplay.BulkSyncHeadersProgressLabel);
+                },
+                invoiceDateFrom,
+                invoiceDateTo);
             progressBarPage.SetTotalPercent(0.80);
         }
 
         if(chkGroup2.IsChecked)
         {
-            await serverPuller.OnlineSyncAccountMoveLine(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Det. Facturas"); });
+            await serverPuller.OnlineSyncAccountMoveLine(
+                async (current, total) =>
+                {
+                    await UpdateProgressState(progressBarPage, current, total, AccountMoveDocumentDisplay.BulkSyncDetailsProgressLabel);
+                },
+                invoiceDateFrom,
+                invoiceDateTo);
         }
 
         if (chkGroup3.IsChecked)
@@ -427,6 +595,12 @@ public partial class UpdateData : ContentPage
                 //if (!await pipeline.ExistAttachRecord())
                 //    await pipeline.InsertAttachRecordCustom(attachData);
             }
+        }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[LaunchOnlineUpdate] {ex.Message}\n{ex.StackTrace}");
+            throw;
         }
     }
 
