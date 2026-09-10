@@ -210,12 +210,12 @@
 					<FlexLayout Wrap="Wrap" JustifyContent="Start" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3">
 						<Button x:Name="btnAddAllItems" Text="Agregar" Clicked="btnLoadItems_Clicked"
 								BackgroundColor="MediumSeaGreen" Margin="0,0,2,0"
-                                CornerRadius="2"
+                                CornerRadius="5"
                                 FontSize="12">
 							<Button.ImageSource>
 								<FontImageSource FontFamily="FontAwesome5Solid"
 									Color="White"
-									Size="20"
+									Size="15"
 									FontAutoScalingEnabled="True"                                                         
 									Glyph="&#xf59d;" />
 							</Button.ImageSource>
@@ -223,12 +223,12 @@
 						
 						<Button x:Name="btnLoadItems" 
                                 Text="" Clicked="btnLoadItems_Clicked" IsVisible="false"
-                                CornerRadius="2"
+                                CornerRadius="5"
                                 FontSize="12">
 							<Button.ImageSource>
 								<FontImageSource FontFamily="FontAwesome5Solid"
 													Color="White"
-													Size="20"                                                 
+													Size="15"                                                 
                                                  FontAutoScalingEnabled="False"                                                         
 													Glyph="&#xf00e;" />
 							</Button.ImageSource>
@@ -236,12 +236,12 @@
                             <Button x:Name="btnBackAllItems" 
 								Text="Todo" Clicked="btnLoadItemsAndBack_Clicked"
 								BackgroundColor="OrangeRed" Margin="0,0,2,0"
-                                CornerRadius="2"
+                                CornerRadius="5"
                                     FontSize="12">
                                 <Button.ImageSource>
                                     <FontImageSource FontFamily="FontAwesome5Solid"
 										Color="White"
-										Size="20"
+										Size="15"
 										FontAutoScalingEnabled="True"
 										Glyph="&#xf0ae;" />
                                 </Button.ImageSource>
@@ -250,11 +250,11 @@
                             <Button x:Name="btnClearItems" 
                                 Text="Quitar" Clicked="btnClearItems_Clicked"
 								BackgroundColor="PaleVioletRed" Margin="0,0,2,0"
-                                CornerRadius="2">
+                                CornerRadius="5">
 							<Button.ImageSource>
 								<FontImageSource FontFamily="FontAwesome5Solid"
 													Color="White"
-													Size="20"
+													Size="15"
 													FontAutoScalingEnabled="True"                                                         
 													Glyph="&#xf056;" />
 							</Button.ImageSource>
@@ -290,11 +290,11 @@
 			</VerticalStackLayout>
 
             <Grid BackgroundColor="Gray" Padding="10" ColumnDefinitions="Auto,*,Auto">
-                <Label Grid.Column="0" Text="Facturas de Nota de crédito" TextColor="White" />
+                <Label Grid.Column="0" Text="Detalles Nota de crédito" TextColor="White" />
                 <Label
                     Grid.Column="2"
                     x:Name="lblSummary"
-                    Text="{Binding detailsCount,StringFormat='Total registros {0}'}"
+                    Text="{Binding detailsCount,StringFormat='Total registros: {0}'}"
                     TextColor="White"
                     FontAttributes="Bold"
                     FontSize="12"

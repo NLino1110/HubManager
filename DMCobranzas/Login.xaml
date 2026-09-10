@@ -67,18 +67,37 @@
                         <!-- Selección de Compañía/Agencia -->
                         <VerticalStackLayout x:Name="CompanySelector" IsVisible="False" Spacing="10">                            
                             <beebtech:DropdownField x:Name="ddAgency" Title="Agencia"/>
-                            <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
+                            <Grid x:Name="AgencyActionsGrid"
+                                  HorizontalOptions="Fill"
+                                  MaximumWidthRequest="520"
+                                  ColumnSpacing="10"
+                                  RowSpacing="10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
                                 <Button x:Name="btnAccess"
+                                        Grid.Row="0"
+                                        Grid.Column="0"
+                                        Grid.ColumnSpan="2"
                                         Text="Ingresar"
                                         Clicked="btnAccess_Clicked"
-                                        WidthRequest="250"
+                                        HorizontalOptions="Fill"
                                         BackgroundColor="IndianRed"
                                         TextColor="White"
                                         FontAttributes="Bold"/>
                                 <Button x:Name="btnBack"
+                                        Grid.Row="1"
+                                        Grid.Column="0"
+                                        Grid.ColumnSpan="2"
                                         Text="Regresar"
                                         Clicked="btnBack_Clicked"
-                                        WidthRequest="250"
+                                        HorizontalOptions="Fill"
                                         BackgroundColor="BlueViolet"
                                         TextColor="White"
                                         FontAttributes="Bold">
@@ -90,7 +109,38 @@
                                             Glyph="&#xf060;" />
                                     </Button.ImageSource>
                                 </Button>
-                            </HorizontalStackLayout>
+
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup>
+                                        <VisualState x:Name="AgencyActionsNarrow">
+                                            <VisualState.StateTriggers>
+                                                <AdaptiveTrigger MinWindowWidth="0"/>
+                                            </VisualState.StateTriggers>
+                                            <VisualState.Setters>
+                                                <Setter TargetName="btnAccess" Property="Grid.Row" Value="0"/>
+                                                <Setter TargetName="btnAccess" Property="Grid.Column" Value="0"/>
+                                                <Setter TargetName="btnAccess" Property="Grid.ColumnSpan" Value="2"/>
+                                                <Setter TargetName="btnBack" Property="Grid.Row" Value="1"/>
+                                                <Setter TargetName="btnBack" Property="Grid.Column" Value="0"/>
+                                                <Setter TargetName="btnBack" Property="Grid.ColumnSpan" Value="2"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="AgencyActionsWide">
+                                            <VisualState.StateTriggers>
+                                                <AdaptiveTrigger MinWindowWidth="720"/>
+                                            </VisualState.StateTriggers>
+                                            <VisualState.Setters>
+                                                <Setter TargetName="btnAccess" Property="Grid.Row" Value="0"/>
+                                                <Setter TargetName="btnAccess" Property="Grid.Column" Value="0"/>
+                                                <Setter TargetName="btnAccess" Property="Grid.ColumnSpan" Value="1"/>
+                                                <Setter TargetName="btnBack" Property="Grid.Row" Value="0"/>
+                                                <Setter TargetName="btnBack" Property="Grid.Column" Value="1"/>
+                                                <Setter TargetName="btnBack" Property="Grid.ColumnSpan" Value="1"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                            </Grid>
                         </VerticalStackLayout>
 
                         <!-- Login -->
@@ -159,6 +209,20 @@
                                Text="Version 0.1"
                                FontSize="12"
                                HorizontalOptions="Center"
+                               TextColor="Gray"/>
+
+                        <Label x:Name="lblLastSync"
+                               Text="Ult. sincronizacion: -"
+                               FontSize="11"
+                               HorizontalOptions="Center"
+                               FontAttributes="Bold"
+                               TextColor="Gray"/>
+
+                        <Label x:Name="lblAppUpdateDate"
+                               Text="Actualizacion APK: -"
+                               FontSize="11"
+                               HorizontalOptions="Center"
+                               FontAttributes="Bold"
                                TextColor="Gray"/>
 
                         <Label x:Name="txtEnvironment"

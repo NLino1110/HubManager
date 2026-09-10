@@ -1,4 +1,3 @@
-using CommunityToolkit.Maui.Alerts;
 using DMSA.Models.Odoo.Accounting;
 using System.Diagnostics;
 using System.Windows.Input;
@@ -58,26 +57,7 @@ public partial class CreditNoteRequestDetailRow : ContentView
 
         entryCantidad.TextChanged += EntryCantidad_TextChanged;
         entryCantidad.Focused += EntryCantidad_Focused;
-        //BindingContext = this;
     }
-
-    //private async void EntryCantidad_TextChanged(object sender, TextChangedEventArgs e)
-    //{
-    //    if (DataItem == null)
-    //        return;
-
-    //    if (!decimal.TryParse(e.NewTextValue, out decimal value))
-    //        value = 0;
-
-    //    if (value > DataItem.quantity_available)
-    //    {
-    //        value = DataItem.quantity_available;
-    //        entryCantidad.Text = value.ToString();
-    //        await Toast.Make("La cantidad no puede exceder la disponible.").Show();
-    //    }
-
-    //    DataItem.quantity = value;
-    //}
 
     private async void EntryCantidad_TextChanged(object sender, TextChangedEventArgs e)
     {
@@ -89,13 +69,26 @@ public partial class CreditNoteRequestDetailRow : ContentView
 
         if (value > DataItem.quantity_available)
         {
-            await Toast.Make("La cantidad no puede exceder la disponible.").Show();
-
-            DataItem.quantity = DataItem.quantity_available;
+            value = DataItem.quantity_available;
+            entryCantidad.Text = value.ToString("0.##");
+            await ShowAlertAsync(
+                "Atención",
+                "La cantidad ingresada no puede ser mayor a la disponible.");
+            DataItem.quantity = value;
             return;
         }
 
         DataItem.quantity = value;
+    }
+
+    private static Page? GetHostPage()
+        => Application.Current?.Windows?.FirstOrDefault()?.Page;
+
+    private static async Task ShowAlertAsync(string title, string message)
+    {
+        var page = GetHostPage();
+        if (page != null)
+            await page.DisplayAlertAsync(title, message, "Aceptar");
     }
 
     private void EntryCantidad_Focused(object sender, FocusEventArgs e)

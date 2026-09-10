@@ -59,27 +59,39 @@ namespace ApiManagerOdoo.Accounting
             .ToArray();
         }
 
-        private static object[] BuildHeaderDomainByInvoiceDateRange(DateTime dateFrom, DateTime dateTo)
+        private static object[] BuildHeaderDomainByInvoiceDateRange(DateTime dateFrom, DateTime dateTo, int[] partnerIds)
         {
-            return new object[] {
+            var domain = new object[] {
                 new object[] { "invoice_date", ">=", dateFrom.ToString("yyyy-MM-dd") },
                 new object[] { "invoice_date", "<=", dateTo.ToString("yyyy-MM-dd") },
                 new object[] { "state", "=", "posted" },
                 new object[] { "invoice_date", "!=", false },
             }
-            .Concat(AccountMoveDocumentDisplay.BuildSyncMoveTypeDomain())
-            .ToArray();
+            .Concat(AccountMoveDocumentDisplay.BuildSyncMoveTypeDomain());
+
+            // Solo documentos de clientes ya descargados en res_partner (SQLite local).
+            if (partnerIds != null && partnerIds.Length > 0)
+            {
+                domain = domain.Concat(new object[]
+                {
+                    new object[] { "partner_id", "in", partnerIds }
+                });
+            }
+
+            return domain.ToArray();
         }
 
-        public async Task<ApiResponseOdooRpc?> GetHeaderCountByInvoiceDateRange(DateTime dateFrom, DateTime dateTo)
+        // partnerIds: IDs de res_partner local; filtra account.move por cartera del comercial.
+        public async Task<ApiResponseOdooRpc?> GetHeaderCountByInvoiceDateRange(
+            DateTime dateFrom, DateTime dateTo, int[] partnerIds)
         {
             object[] args = new object[] { };
-            object[] _custom_args = BuildHeaderDomainByInvoiceDateRange(dateFrom.Date, dateTo.Date);
+            object[] _custom_args = BuildHeaderDomainByInvoiceDateRange(dateFrom.Date, dateTo.Date, partnerIds);
             return await GetCount(args, _custom_args);
         }
 
         public async Task<ApiResponseOdooRpcT<account_move[]>?> GetAccountMovesByInvoiceDateRange(
-            DateTime dateFrom, DateTime dateTo, int limit, int index)
+            DateTime dateFrom, DateTime dateTo, int limit, int index, int[] partnerIds)
         {
             var kwargs = new
             {
@@ -90,7 +102,7 @@ namespace ApiManagerOdoo.Accounting
             };
 
             object[] args = new object[] { };
-            object[] _custom_args = BuildHeaderDomainByInvoiceDateRange(dateFrom.Date, dateTo.Date);
+            object[] _custom_args = BuildHeaderDomainByInvoiceDateRange(dateFrom.Date, dateTo.Date, partnerIds);
             return await SearchRead<ApiResponseOdooRpcT<account_move[]>>(args, _custom_args, kwargs, true);
         }
 

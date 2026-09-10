@@ -77,5 +77,35 @@ namespace DMCobranzas.Services
 
             return deviceID;
         }
+
+        /// <summary>
+        /// Fecha en que se instaló o actualizó el APK en el dispositivo.
+        /// </summary>
+        static public DateTime? GetAppInstallOrUpdateDate()
+        {
+            try
+            {
+#if ANDROID
+                var context = Android.App.Application.Context;
+                var packageInfo = context.PackageManager.GetPackageInfo(context.PackageName, (Android.Content.PM.PackageInfoFlags)0);
+                long millis = packageInfo.LastUpdateTime;
+                if (millis <= 0)
+                    millis = packageInfo.FirstInstallTime;
+
+                if (millis > 0)
+                    return DateTimeOffset.FromUnixTimeMilliseconds(millis).LocalDateTime;
+#elif WINDOWS
+                var path = Environment.ProcessPath;
+                if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                    return File.GetLastWriteTime(path);
+#endif
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GetAppInstallOrUpdateDate: {ex.Message}");
+            }
+
+            return null;
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Sales;
 using SQLite;
+using System.Linq;
 
 namespace DMSA.Sync.Core.Database.Sqlite
 {
@@ -463,6 +464,72 @@ namespace DMSA.Sync.Core.Database.Sqlite
                 .ToListAsync();
 
             return items.Select(x => x.id).ToArray();
+        }
+
+        // IDs de res_partner locales (cartera ya sincronizada del comercial).
+        public async Task<int[]> GetAllPartnerIdsAsync()
+        {
+            await Init();
+
+            var items = await Database.Table<res_partner>()
+                .OrderBy(x => x.id)
+                .ToListAsync();
+
+            return items.Select(x => x.id).ToArray();
+        }
+
+        // Misma lógica de cartera que la UI (comercial principal o secundario).
+        public async Task<int[]> GetAllPartnerIdsByAdicComercialAsync(int commercialPartnerId)
+        {
+            await Init();
+
+            if (commercialPartnerId <= 0)
+                return Array.Empty<int>();
+
+            var idStr = commercialPartnerId.ToString();
+            var exactStr = $"[{idStr}]";
+            var middleStr = $",{idStr},";
+            var startStr = $"[{idStr},";
+            var endStr = $",{idStr}]";
+
+            var items = await Database.Table<res_partner>()
+                .Where(x =>
+                    x.is_salesman == false &&
+                    (
+                        x._adic_comercial_id == commercialPartnerId ||
+                        (
+                            x.adic_comercial_secundarios_ids_json != null &&
+                            (
+                                x.adic_comercial_secundarios_ids_json == exactStr ||
+                                x.adic_comercial_secundarios_ids_json.Contains(middleStr) ||
+                                x.adic_comercial_secundarios_ids_json.Contains(startStr) ||
+                                x.adic_comercial_secundarios_ids_json.Contains(endStr)
+                            )
+                        )
+                    ))
+                .OrderBy(x => x.id)
+                .ToListAsync();
+
+            return items.Select(x => x.id).ToArray();
+        }
+
+        // IDs de res_partner que aún no están en SQLite local.
+        public async Task<int[]> FilterMissingPartnerIdsAsync(IEnumerable<int> partnerIds)
+        {
+            await Init();
+
+            var requested = partnerIds?
+                .Where(id => id > 0)
+                .Distinct()
+                .ToArray() ?? Array.Empty<int>();
+
+            if (requested.Length == 0)
+                return Array.Empty<int>();
+
+            var existing = new HashSet<int>(
+                (await Database.Table<res_partner>().ToListAsync()).Select(x => x.id));
+
+            return requested.Where(id => !existing.Contains(id)).ToArray();
         }
 
         // ANTES: no existía; OR REPLACE del search_read podía dejar saldos incorrectos.

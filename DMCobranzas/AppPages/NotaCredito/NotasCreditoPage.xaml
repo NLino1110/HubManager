@@ -28,7 +28,7 @@
                     <DatePicker x:Name="dateEnd" HorizontalOptions="FillAndExpand"/>
                 </StackLayout>
                 <StackLayout Orientation="Horizontal" Margin="10">
-                    <Button CornerRadius="2" 
+                    <Button CornerRadius="4" 
                         BackgroundColor="DodgerBlue" 
                         Text="Buscar" 
                         Margin="2" 
@@ -43,7 +43,7 @@
                         </Button.ImageSource>
                     </Button>
 
-                    <Button CornerRadius="2" x:Name="btnNewGroup"
+                    <Button CornerRadius="4" x:Name="btnNewGroup"
                         Text="Nueva Solicitud" 
                         Margin="2" 
                         Clicked="btnNewGroup_Clicked"

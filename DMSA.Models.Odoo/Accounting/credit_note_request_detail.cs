@@ -1,4 +1,4 @@
-﻿using DMSA.Models.Odoo.Base;
+using DMSA.Models.Odoo.Base;
 using Newtonsoft.Json;
 using SQLite;
 using System.ComponentModel;
@@ -59,6 +59,7 @@ namespace DMSA.Models.Odoo.Accounting
 
                 _quantity = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(quantity_by_uom));
             }
         }
 
@@ -96,8 +97,41 @@ namespace DMSA.Models.Odoo.Accounting
         [JsonIgnore]
         public DateTime? invoice_date { get; set; }
 
+        [Ignore]
+        [JsonIgnore]
+        public string? invoice_header { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
+        public string? uom_display_name { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
+        public decimal uom_factor { get; set; } = 1m;
+
+        [Ignore]
+        [JsonIgnore]
+        public decimal quantity_available_by_uom { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
+        public bool show_uom_conversion => uom_factor > 1m;
+
+        [Ignore]
+        [JsonIgnore]
+        public decimal quantity_by_uom => quantity * uom_factor;
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+        public void NotifyUomDisplayChanged()
+        {
+            OnPropertyChanged(nameof(uom_display_name));
+            OnPropertyChanged(nameof(uom_factor));
+            OnPropertyChanged(nameof(quantity_available_by_uom));
+            OnPropertyChanged(nameof(show_uom_conversion));
+            OnPropertyChanged(nameof(quantity_by_uom));
+        }
     }
 }

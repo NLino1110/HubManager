@@ -109,6 +109,8 @@ public partial class Login : ContentPage
         Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Substring(0, 10));
         
         lblAppVersion.Text = "Versión " + App.Session.AppVersion;
+        await RefreshLastSyncLabelAsync();
+        RefreshAppUpdateDateLabel();
 
         if (App.Session.useOfflineMode)
         {
@@ -199,7 +201,10 @@ public partial class Login : ContentPage
         finally
         {
             if (setupVersion == _connectionSetupVersion)
+            {
+                await RefreshLastSyncLabelAsync();
                 await MainThread.InvokeOnMainThreadAsync(() => SetConnectionSetupBusy(false));
+            }
         }
     }
 
@@ -562,8 +567,16 @@ public partial class Login : ContentPage
 
         if(forwardLogin)
         {
-            ShowCompanySelector();
+            await ShowCompanySelectorAsync();
         }
+    }
+
+    private async Task ShowCompanySelectorAsync()
+    {
+        LoginSelector.IsVisible = false;
+        CompanySelector.IsVisible = true;
+        await RefreshLastSyncLabelAsync();
+        RefreshAppUpdateDateLabel();
     }
 
     private void ShowCompanySelector()
@@ -635,7 +648,10 @@ public partial class Login : ContentPage
             {                
                 if (App.Session.useOfflineMode)
                 {
-                    ShowCompanySelector();
+                    LoginSelector.IsVisible = false;
+                    CompanySelector.IsVisible = true;
+                    await RefreshLastSyncLabelAsync();
+                    RefreshAppUpdateDateLabel();
 
                     userFound = userList.Where(
                         u => u.username == txtUser.Text &&
@@ -665,7 +681,7 @@ public partial class Login : ContentPage
                     return;
                 }
 
-                ShowCompanySelector();
+                await ShowCompanySelectorAsync();
             }
             else
             {
@@ -916,6 +932,7 @@ public partial class Login : ContentPage
             chkRememberme.IsChecked = rememberMe;
             txtUser.Text = LoadedSession.CurrentUserFront?.username ?? string.Empty;
             txtPassword.Text = LoadedSession.CurrentUserFront != null ? CryptoHelper.Decrypt(LoadedSession.CurrentUserFront.password) : string.Empty;
+            _ = RefreshLastSyncLabelAsync(LoadedSession);
 
             if (!autologin)
             {
@@ -984,8 +1001,45 @@ public partial class Login : ContentPage
         }
         else
         {
-            // Esto ocurre cada vez que vuelvas a la página
             Console.WriteLine("La página ya apareció antes.");
+            _ = RefreshLastSyncLabelAsync();
+            RefreshAppUpdateDateLabel();
+        }
+    }
+
+    private async Task RefreshLastSyncLabelAsync(AppSession session = null)
+    {
+        try
+        {
+            var usernameHint = (txtUser?.Text ?? string.Empty).Trim();
+            var syncDate = await SyncStatusLabels.ResolveLastSyncDateAsync(
+                session,
+                usernameHint,
+                SelConnection ?? App.Session?.odooConnection);
+
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                lblLastSync.Text = SyncStatusLabels.FormatLoginLastSyncText(syncDate);
+            });
+        }
+        catch
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                lblLastSync.Text = "Ult. sincronizacion: -";
+            });
+        }
+    }
+
+    private void RefreshAppUpdateDateLabel()
+    {
+        try
+        {
+            lblAppUpdateDate.Text = SyncStatusLabels.FormatAppUpdateText();
+        }
+        catch
+        {
+            lblAppUpdateDate.Text = "Actualizacion APK: -";
         }
     }
 

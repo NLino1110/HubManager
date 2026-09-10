@@ -113,6 +113,14 @@
                 FontSize="15"
                 x:Name="txtUpdated"
                 HorizontalOptions="Start" />
+
+                <Label
+                Text="Actualizacion APK: -"
+                SemanticProperties.HeadingLevel="Level2"
+                SemanticProperties.Description=""
+                FontSize="15"
+                x:Name="txtAppUpdateDate"
+                HorizontalOptions="Start" />
                 
                 <Label
                 Text="Ult. Actualización NC:"

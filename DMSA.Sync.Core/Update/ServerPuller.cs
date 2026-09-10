@@ -47,12 +47,22 @@ namespace DMSA.Sync.Core.Update
 
         int maxIndexExceeded { get; set; }
 
+        /// <summary>
+        /// Captura si la 1ra sync del día (cabeceras) ocurrió en esta sesión,
+        /// para que el detalle use la misma fecha aunque ya se haya marcado el día.
+        /// </summary>
+        bool? _accountDocumentFirstSyncOfDay { get; set; }
+
         // REVERTIR Cobranzas Fase 2 (web_read saldos): poner en false.
         // Con false queda solo Fase 1 (search_read) como antes de este cambio.
         private const bool EnableResPartnerCobranzasSaldosWebRead = true;
 
-        // REVERTIR filtro Desde/Hasta por invoice_date en actualización masiva: poner en true.
-        public const bool EnableInvoiceDateRangeSync = false;
+        // Filtro Desde/Hasta por invoice_date en actualización masiva (Grupos 1 y 2).
+        public const bool EnableInvoiceDateRangeSync = true;
+
+        // Actualización rápida por ZIP en 1ra sync (paquete SQLite global con todos los res_partner).
+        // Cobranzas: false → solo sync en línea filtrada por comercial. true → comportamiento legacy.
+        public const bool EnablePipelineZipBootstrapSync = false;
 
         public AppSession appSession => Constants.Session;
 

@@ -1,6 +1,7 @@
-﻿<resources>
+<resources>
 	<style name="MainTheme" parent="MainTheme.Base" />
-	<style name="MainTheme.Base" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+	<style name="MainTheme.Base" parent="Theme.MaterialComponents.Light.NoActionBar">
+		<item name="android:forceDarkAllowed">false</item>
 		<item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body1</item>
 		<item name="colorPrimary">@color/colorPrimary</item>
 		<item name="colorPrimaryVariant">@color/colorPrimaryDark</item>

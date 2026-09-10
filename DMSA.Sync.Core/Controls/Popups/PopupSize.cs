@@ -1,4 +1,4 @@
-﻿using Microsoft.Maui.Devices;
+using Microsoft.Maui.Devices;
 
 namespace DMSA.Sync.Core.Controls.Popups;
 
@@ -26,8 +26,20 @@ public class PopupSizeConstants
         }
 
         
-        Medium = new(0.7 * (deviceDisplay.MainDisplayInfo.Width / deviceDisplay.MainDisplayInfo.Density), 0.6 * (deviceDisplay.MainDisplayInfo.Height / deviceDisplay.MainDisplayInfo.Density));
-        Large = new(0.9 * (deviceDisplay.MainDisplayInfo.Width / deviceDisplay.MainDisplayInfo.Density), 0.8 * (deviceDisplay.MainDisplayInfo.Height / deviceDisplay.MainDisplayInfo.Density));
+        var width = deviceDisplay.MainDisplayInfo.Width / deviceDisplay.MainDisplayInfo.Density;
+        var height = deviceDisplay.MainDisplayInfo.Height / deviceDisplay.MainDisplayInfo.Density;
+
+        if (DeviceInfo.Current.Idiom == DeviceIdiom.Phone
+            || DeviceInfo.Current.Platform == DevicePlatform.Android
+            || DeviceInfo.Current.Platform == DevicePlatform.iOS)
+        {
+            Medium = new(Math.Max(width - 12, 280), height * 0.88);
+            Large = new(Math.Max(width - 8, 300), height * 0.92);
+            return;
+        }
+
+        Medium = new(0.7 * width, 0.6 * height);
+        Large = new(0.9 * width, 0.8 * height);
         
         //#if WINDOWS
         //        Microsoft.Maui.Handlers.WindowHandler.Mapper.AppendToMapping(nameof(IWindow), (handler, view) =>

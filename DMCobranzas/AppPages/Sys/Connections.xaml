@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <TabbedPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"                        
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
             xmlns:controlsUI="clr-namespace:BeebTech.Maui.Controls.UI;assembly=BeebTech.Maui.Controls"
-            x:Class="DMCobranzas.AppPages.Sys.Connections"            
+            x:Class="DMCobranzas.AppPages.Sys.Connections"
             Title="Configuración"
             BarBackgroundColor="White"
             BarTextColor="Black"
@@ -13,296 +13,225 @@
             xmlns:android="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;assembly=Microsoft.Maui.Controls"
             android:TabbedPage.IsSmoothScrollEnabled="false"
             android:TabbedPage.IsSwipePagingEnabled="false">
+
     <ContentPage Title="Conexiones">
-        <ContentPage.Content>
-            <Grid RowDefinitions="Auto,*,Auto" Padding="10">
-                <toolkit:Expander 
-                    x:Name="ExpanderCol0" Grid.Row="0" Grid.Column="0"
-                    IsExpanded="True" 
-                    VerticalOptions="FillAndExpand">
-                    <toolkit:Expander.Header>
-                        <StackLayout Orientation="Horizontal">
-                            <Label Text="Datos"></Label>
-                            <Image WidthRequest="18"
-                                   HeightRequest="18"
-                                   VerticalOptions="Center">
-                                <Image.Source>
-                                    <FontImageSource FontFamily="FontAwesome5Solid"
-                                         Glyph="&#xf0d7;"
-                                         Color="Black"
-                                         Size="25" />
-                                </Image.Source>
-                                <Image.Triggers>
-                                    <DataTrigger TargetType="Image"
-                                         Binding="{Binding Source={x:Reference ExpanderCol0}, Path=IsExpanded}"
-                                         Value="True">
-                                        <Setter Property="Rotation" Value="0" />
-                                    </DataTrigger>
-                                    <DataTrigger TargetType="Image"
-                                            Binding="{Binding Source={x:Reference ExpanderCol0}, Path=IsExpanded}"
-                                            Value="False">
-                                        <Setter Property="Rotation" Value="-180" />
-                                    </DataTrigger>
-                                </Image.Triggers>
-                            </Image>
-                        </StackLayout>
-                    </toolkit:Expander.Header>                    
-                    <StackLayout Spacing="10">
-                            <Grid ColumnSpacing="10" RowSpacing="10" Padding="10">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*"></RowDefinition>
-                                    <RowDefinition Height="*"></RowDefinition>
-                                    <RowDefinition Height="*"></RowDefinition>
-                                    <RowDefinition Height="*"></RowDefinition>
-                                    <RowDefinition Height="*"></RowDefinition>
-                                    <RowDefinition Height="*"></RowDefinition>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
+        <Grid RowDefinitions="*,Auto,Auto" RowSpacing="6" Padding="8">
 
-                            <!-- Columna 1 -->
-                            <controlsUI:TitledEntryLight Title="Nombre" Text="{Binding SelectedConnection.Name}" Grid.Row="0" Grid.Column="0"></controlsUI:TitledEntryLight>
-                            <controlsUI:TitledEntryLight Title="Host" Text="{Binding SelectedConnection.Host}" Grid.Row="1" Grid.Column="0"></controlsUI:TitledEntryLight>
-                            <controlsUI:TitledEntryLight Title="Host Dump" Text="{Binding SelectedConnection.HostDump}" Grid.Row="2" Grid.Column="0"></controlsUI:TitledEntryLight>
-                            <controlsUI:TitledEntryLight Title="Host Dump ApiKey" Text="{Binding SelectedConnection.HostDumpApiKey}" Grid.Row="3" Grid.Column="0" IsPassword="True" AllowPasswordMode="True"></controlsUI:TitledEntryLight>
-                            <controlsUI:TitledEntryLight Title="Dump Service" Text="{Binding SelectedConnection.DumpService}" Grid.Row="4" Grid.Column="0"></controlsUI:TitledEntryLight>
+            <ScrollView Grid.Row="0">
+                <VerticalStackLayout Spacing="8">
 
-                            <HorizontalStackLayout Grid.Row="5" Grid.Column="0" HorizontalOptions="Fill" Spacing="5">
-                                <controlsUI:TitledEntryLight Title="Prefix" Text="{Binding SelectedConnection.prefix_db}" MinimumWidthRequest="100"/>
-                                <controlsUI:TitledEntryLight Title="Database Name" Text="{Binding SelectedConnection.DbName}" MinimumWidthRequest="300"/>
-                            </HorizontalStackLayout>
-                            <!-- Columna 2 -->
-                                <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="15">
-                                <controlsUI:TitledEntryLight Title="DB Limit Default" Text="{Binding SelectedConnection.DbLimitDefault}"/>
-                                <controlsUI:TitledEntryLight Title="Tolerancy Days" Text="{Binding SelectedConnection.DataToleranceDays}"/>
-                                </HorizontalStackLayout>
-
-                                <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="15">
-                                <controlsUI:TitledEntryLight Title="Company Id" Text="{Binding SelectedConnection.CompanyId}" />
-                                <controlsUI:TitledEntryLight Title="Sale Channel" Text="{Binding SelectedConnection.sale_channel_default}"/>
-                                <controlsUI:TitledEntryLight Title="Center Id" Text="{Binding SelectedConnection.res_center_default}"/>
-                                </HorizontalStackLayout>
-
-                                <HorizontalStackLayout Grid.Row="2" Grid.Column="1" Spacing="15">
-                                <controlsUI:TitledEntryLight Title="Project Id"  Text="{Binding SelectedConnection.project_id}" />
-                                <controlsUI:TitledEntryLight Title="Project Stage Id" Text="{Binding SelectedConnection.stage_id}" />
-                                </HorizontalStackLayout>
-
-                            <controlsUI:TitledEntryLight Title="Username" Text="{Binding SelectedConnection.Username}" Grid.Row="3" Grid.Column="1"/>
-                            <HorizontalStackLayout Grid.Row="4" Grid.Column="1">
-                                <controlsUI:TitledEntryLight 
-                                    x:Name="EntryPasswordDb"
-                                    Title="Password" 
-                                    IsPassword="True" 
-                                    AllowPasswordMode="True" 
-                                    Text="{Binding SelectedConnection.Password,Mode=TwoWay}" WidthRequest="300"/>
-
-                                <Button Clicked="btnEncrypt_Clicked" 
-                                        BackgroundColor="BlueViolet"
-                                        VerticalOptions="Start">
-                                    <Button.ImageSource>
+                    <toolkit:Expander x:Name="ExpanderCol0" IsExpanded="True">
+                        <toolkit:Expander.Header>
+                            <HorizontalStackLayout Spacing="6">
+                                <Label Text="Datos" FontAttributes="Bold" VerticalOptions="Center"/>
+                                <Image WidthRequest="16" HeightRequest="16" VerticalOptions="Center">
+                                    <Image.Source>
                                         <FontImageSource FontFamily="FontAwesome5Solid"
-                                            Color="White"
-                                            Size="20"
-                                            FontAutoScalingEnabled="True"
-                                            Glyph="&#xf0e7;" />
-                                    </Button.ImageSource>
-                                </Button>
-
-                                <Button Clicked="btnDecrypt_Clicked" 
-                                        BackgroundColor="BlueViolet"
-                                        VerticalOptions="Start">
-                                    <Button.ImageSource>
-                                        <FontImageSource FontFamily="FontAwesome5Solid"
-                                        Color="White"
-                                        Size="20"
-                                        FontAutoScalingEnabled="True"
-                                        Glyph="&#xf0e7;" />
-                                    </Button.ImageSource>
-                                </Button>
-
-
+                                                         Glyph="&#xf0d7;"
+                                                         Color="Black"
+                                                         Size="16" />
+                                    </Image.Source>
+                                    <Image.Triggers>
+                                        <DataTrigger TargetType="Image"
+                                                     Binding="{Binding Source={x:Reference ExpanderCol0}, Path=IsExpanded}"
+                                                     Value="True">
+                                            <Setter Property="Rotation" Value="0" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Image"
+                                                     Binding="{Binding Source={x:Reference ExpanderCol0}, Path=IsExpanded}"
+                                                     Value="False">
+                                            <Setter Property="Rotation" Value="-180" />
+                                        </DataTrigger>
+                                    </Image.Triggers>
+                                </Image>
                             </HorizontalStackLayout>
-                            
+                        </toolkit:Expander.Header>
+
+                        <VerticalStackLayout Spacing="8" Padding="4,0,4,4">
+                            <controlsUI:TitledEntryLight Title="Nombre" Text="{Binding SelectedConnection.Name}"/>
+                            <controlsUI:TitledEntryLight Title="Host" Text="{Binding SelectedConnection.Host}"/>
+                            <controlsUI:TitledEntryLight Title="Host Dump" Text="{Binding SelectedConnection.HostDump}"/>
+                            <controlsUI:TitledEntryLight Title="Host Dump ApiKey" Text="{Binding SelectedConnection.HostDumpApiKey}" IsPassword="True" AllowPasswordMode="True"/>
+                            <controlsUI:TitledEntryLight Title="Dump Service" Text="{Binding SelectedConnection.DumpService}"/>
+
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                <controlsUI:TitledEntryLight Grid.Column="0" Title="Prefix" Text="{Binding SelectedConnection.prefix_db}"/>
+                                <controlsUI:TitledEntryLight Grid.Column="1" Title="Database Name" Text="{Binding SelectedConnection.DbName}"/>
                             </Grid>
 
-                            <StackLayout Orientation="Horizontal" Spacing="10">
-                                <Label Text="Active" VerticalOptions="Center"/>
-                                <Switch IsToggled="{Binding SelectedConnection.Active}" />
-                                <Label Text="Production" VerticalOptions="Center"/>
-                                <Switch IsToggled="{Binding SelectedConnection.IsProduction}" />
-                                <Label Text="Test Mode" VerticalOptions="Center"/>
-                                <Switch IsToggled="{Binding SelectedConnection.IsTestMode}" />
-                                <Label Text="Load Email" VerticalOptions="Center"/>
-                                <Switch IsToggled="{Binding SelectedConnection.preload_email_domain}" />
-                            </StackLayout>
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                <controlsUI:TitledEntryLight Grid.Column="0" Title="DB Limit Default" Text="{Binding SelectedConnection.DbLimitDefault}"/>
+                                <controlsUI:TitledEntryLight Grid.Column="1" Title="Tolerancy Days" Text="{Binding SelectedConnection.DataToleranceDays}"/>
+                            </Grid>
 
-                            <StackLayout Orientation="Horizontal" Spacing="10">
-                                <Button Text="Cerrar" Padding="10,0,10,0" Clicked="btnClose_Clicked" BackgroundColor="BlueViolet">
+                            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="6">
+                                <controlsUI:TitledEntryLight Grid.Column="0" Title="Company Id" Text="{Binding SelectedConnection.CompanyId}"/>
+                                <controlsUI:TitledEntryLight Grid.Column="1" Title="Sale Channel" Text="{Binding SelectedConnection.sale_channel_default}"/>
+                                <controlsUI:TitledEntryLight Grid.Column="2" Title="Center Id" Text="{Binding SelectedConnection.res_center_default}"/>
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                <controlsUI:TitledEntryLight Grid.Column="0" Title="Project Id" Text="{Binding SelectedConnection.project_id}"/>
+                                <controlsUI:TitledEntryLight Grid.Column="1" Title="Project Stage Id" Text="{Binding SelectedConnection.stage_id}"/>
+                            </Grid>
+
+                            <controlsUI:TitledEntryLight Title="Username" Text="{Binding SelectedConnection.Username}"/>
+
+                            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="6">
+                                <controlsUI:TitledEntryLight Grid.Column="0"
+                                    x:Name="EntryPasswordDb"
+                                    Title="Password"
+                                    IsPassword="True"
+                                    AllowPasswordMode="True"
+                                    Text="{Binding SelectedConnection.Password, Mode=TwoWay}"/>
+                                <Button Grid.Column="1" Clicked="btnEncrypt_Clicked" BackgroundColor="BlueViolet" HeightRequest="44" WidthRequest="44" VerticalOptions="End">
                                     <Button.ImageSource>
-                                        <FontImageSource FontFamily="FontAwesome5Solid"
-					                Color="White"
-					                Size="20"
-					                FontAutoScalingEnabled="True"
-					                Glyph="&#xf060;" />
+                                        <FontImageSource FontFamily="FontAwesome5Solid" Color="White" Size="18" Glyph="&#xf0e7;" />
                                     </Button.ImageSource>
                                 </Button>
-                                <Button Text="Save" Command="{Binding SaveCommand}" BackgroundColor="DodgerBlue" />
-                                <Button Text="New" Command="{Binding NewCommand}" BackgroundColor="CadetBlue" />
-                                <Button Text="Delete" Command="{Binding DeleteCommand}" BackgroundColor="Red"/>
-                            </StackLayout>
-                        </StackLayout>
-                        
+                                <Button Grid.Column="2" Clicked="btnDecrypt_Clicked" BackgroundColor="BlueViolet" HeightRequest="44" WidthRequest="44" VerticalOptions="End">
+                                    <Button.ImageSource>
+                                        <FontImageSource FontFamily="FontAwesome5Solid" Color="White" Size="18" Glyph="&#xf0e7;" />
+                                    </Button.ImageSource>
+                                </Button>
+                            </Grid>
+
+                            <FlexLayout Wrap="Wrap" Direction="Row" JustifyContent="Start" AlignItems="Center">
+                                <HorizontalStackLayout Margin="0,0,12,6">
+                                    <Label Text="Active" VerticalOptions="Center" FontSize="12"/>
+                                    <Switch IsToggled="{Binding SelectedConnection.Active}" />
+                                </HorizontalStackLayout>
+                                <HorizontalStackLayout Margin="0,0,12,6">
+                                    <Label Text="Production" VerticalOptions="Center" FontSize="12"/>
+                                    <Switch IsToggled="{Binding SelectedConnection.IsProduction}" />
+                                </HorizontalStackLayout>
+                                <HorizontalStackLayout Margin="0,0,12,6">
+                                    <Label Text="Test Mode" VerticalOptions="Center" FontSize="12"/>
+                                    <Switch IsToggled="{Binding SelectedConnection.IsTestMode}" />
+                                </HorizontalStackLayout>
+                                <HorizontalStackLayout Margin="0,0,12,6">
+                                    <Label Text="Load Email" VerticalOptions="Center" FontSize="12"/>
+                                    <Switch IsToggled="{Binding SelectedConnection.preload_email_domain}" />
+                                </HorizontalStackLayout>
+                            </FlexLayout>
+                        </VerticalStackLayout>
                     </toolkit:Expander>
 
-                    <!-- LISTADO -->
-                <CollectionView Grid.Row="1" ItemsSource="{Binding ConnectionsItems}" SelectionMode="Single"
-                            SelectedItem="{Binding SelectedConnection, Mode=TwoWay}">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <Frame BackgroundColor="Transparent" BorderColor="Gray" CornerRadius="5" Padding="5" Margin="5" InputTransparent="True" HasShadow="False">
-                                <StackLayout>
-                                    <Label Text="{Binding Name}" FontAttributes="Bold"/>
-                                    <Label Text="{Binding Host}" FontSize="Small"/>
-                                    <Label Text="{Binding DbName}" FontSize="Small"/>
-                                </StackLayout>
-                            </Frame>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                    <Label Text="Conexiones guardadas" FontAttributes="Bold" FontSize="13" Margin="4,4,4,0"/>
+                    <CollectionView ItemsSource="{Binding ConnectionsItems}"
+                                    SelectionMode="Single"
+                                    SelectedItem="{Binding SelectedConnection, Mode=TwoWay}"
+                                    HeightRequest="180">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame BackgroundColor="Transparent" BorderColor="Gray" CornerRadius="5" Padding="8" Margin="2,4" InputTransparent="True" HasShadow="False">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="{Binding Name}" FontAttributes="Bold" LineBreakMode="TailTruncation"/>
+                                        <Label Text="{Binding Host}" FontSize="12" LineBreakMode="TailTruncation"/>
+                                        <Label Text="{Binding DbName}" FontSize="12" TextColor="Gray" LineBreakMode="TailTruncation"/>
+                                    </VerticalStackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
 
-                <!-- INFO -->
-                <Label Grid.Row="2" Text="{Binding StatusMessage}" HorizontalOptions="Center" VerticalOptions="Center" TextColor="Red"/>
-            </Grid>
-        </ContentPage.Content>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <FlexLayout Grid.Row="1"
+                        Wrap="Wrap"
+                        Direction="Row"
+                        JustifyContent="End"
+                        AlignItems="Center">
+                <Button Text="Cerrar" Padding="12,0" Margin="4,2" Clicked="btnClose_Clicked" BackgroundColor="BlueViolet">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FontAwesome5Solid" Color="White" Size="16" Glyph="&#xf060;" />
+                    </Button.ImageSource>
+                </Button>
+                <Button Text="Save" Command="{Binding SaveCommand}" BackgroundColor="DodgerBlue" Padding="12,0" Margin="4,2"/>
+                <Button Text="New" Command="{Binding NewCommand}" BackgroundColor="CadetBlue" Padding="12,0" Margin="4,2"/>
+                <Button Text="Delete" Command="{Binding DeleteCommand}" BackgroundColor="Red" Padding="12,0" Margin="4,2"/>
+            </FlexLayout>
+
+            <Label Grid.Row="2"
+                   Text="{Binding StatusMessage}"
+                   HorizontalOptions="Center"
+                   FontSize="12"
+                   LineBreakMode="WordWrap"
+                   TextColor="Red"/>
+        </Grid>
     </ContentPage>
+
     <ContentPage Title="Modo Offline">
-        <VerticalStackLayout Padding="20" Spacing="20" VerticalOptions="Center">
-
-            <Label Text="Usar modo offline" FontSize="Medium" />
-            <Switch IsToggled="{Binding IsOfflineMode}" />
-
-            <Label Text="Cuando está activado, la aplicación trabajará sin conexión a servidor." 
-                   FontSize="Small" TextColor="Gray"/>
-
-            <!--<material:TextField x:Name="lblDbPath"
-                    Title="Path"
-                    BorderThickness="0.4"
-                Icon="{FontImageSource FontFamily=FontAwesome5Solid, Glyph='&#xf7d9;'}" />-->
-
-            <controlsUI:TitledEntryLight x:Name="lblDbPath" Title="Path" Grid.Row="0" Grid.Column="0"></controlsUI:TitledEntryLight>
-
-            <Button Text="Rehacer configuración" 
-                Padding="5" 
-                Clicked="btnRebuildSettings_Clicked" 
-                BackgroundColor="BlueViolet"
-                TextColor="White"
-                IsVisible="True">
-                <Button.ImageSource>
-                    <FontImageSource FontFamily="FontAwesome5Solid"
-            Color="White"
-            Size="20"
-            FontAutoScalingEnabled="True"
-            Glyph="&#xe05e;" />
-                </Button.ImageSource>
-            </Button>
-
-            
-        </VerticalStackLayout>
+        <ScrollView>
+            <VerticalStackLayout Padding="16" Spacing="16" VerticalOptions="Start">
+                <Label Text="Usar modo offline" FontSize="Medium" />
+                <Switch IsToggled="{Binding IsOfflineMode}" />
+                <Label Text="Cuando está activado, la aplicación trabajará sin conexión a servidor."
+                       FontSize="Small" TextColor="Gray" LineBreakMode="WordWrap"/>
+                <controlsUI:TitledEntryLight x:Name="lblDbPath" Title="Path"/>
+                <Button Text="Rehacer configuración"
+                        Padding="10,8"
+                        Clicked="btnRebuildSettings_Clicked"
+                        BackgroundColor="BlueViolet"
+                        TextColor="White"
+                        HorizontalOptions="Start">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FontAwesome5Solid" Color="White" Size="18" Glyph="&#xe05e;" />
+                    </Button.ImageSource>
+                </Button>
+            </VerticalStackLayout>
+        </ScrollView>
     </ContentPage>
+
     <ContentPage Title="Base de datos">
-        <Grid RowDefinitions="Auto,Auto,*">
-            <HorizontalStackLayout Grid.Row="0" Padding="10" VerticalOptions="Center">
-                <Picker x:Name="pickerDb" Grid.Row="1"
-                        Title="Seleccione Base de datos..."
-                        ItemsSource="{Binding dbStructItems}" 
-                        ItemDisplayBinding="{Binding Name}"
-                        SelectedIndexChanged="DbPicker_SelectedIndexChanged"/>
-            </HorizontalStackLayout>
-            <HorizontalStackLayout Grid.Row="1" Spacing="5">
-                <Button Text="Actualizar" 
-                    Padding="10,0,10,0" 
-                    Clicked="btnDBTask_Reload" 
-                    BackgroundColor="LimeGreen"
-                    TextColor="White"
-                    IsVisible="True">
-                    <Button.ImageSource>
-                        <FontImageSource FontFamily="FontAwesome5Solid"
-                        Color="White"
-                        Size="20"
-                        FontAutoScalingEnabled="True"
-                        Glyph="&#xf021;" />
-                    </Button.ImageSource>
-                </Button>
-                <Button Text="Compact" 
-                    Padding="10,0,10,0" 
-                    Clicked="btnDBTask_Compact" 
-                    BackgroundColor="BlueViolet"
-                    TextColor="White"
-                    IsVisible="True">
-                    <Button.ImageSource>
-                        <FontImageSource FontFamily="FontAwesome5Solid"
-                            Color="White"
-                            Size="20"
-                            FontAutoScalingEnabled="True"
-                            Glyph="&#xf71e;" />
-                    </Button.ImageSource>
-                </Button>
+        <Grid RowDefinitions="Auto,Auto,*" RowSpacing="6" Padding="8">
+            <Picker x:Name="pickerDb"
+                    Grid.Row="0"
+                    Title="Seleccione Base de datos..."
+                    ItemsSource="{Binding dbStructItems}"
+                    ItemDisplayBinding="{Binding Name}"
+                    SelectedIndexChanged="DbPicker_SelectedIndexChanged"/>
 
-                <Button Text="Enviar" 
-                    Padding="10,0,10,0" 
-                    Clicked="btnUploadDB_Clicked" 
-                    BackgroundColor="MediumVioletRed"
-                    TextColor="White"
-                    IsVisible="True">
-                    <Button.ImageSource>
-                        <FontImageSource FontFamily="FontAwesome5Solid"
-            Color="White"
-            Size="20"
-            FontAutoScalingEnabled="True"
-            Glyph="&#xf093;" />
-                    </Button.ImageSource>
-                </Button>
-
-                <Button Text="Restaurar" 
-                    Padding="10,0,10,0" 
-                    Clicked="btnDownloadDb_Clicked" 
-                    BackgroundColor="Orange"
-                    TextColor="White"
-                    IsVisible="True">
-                    <Button.ImageSource>
-                        <FontImageSource FontFamily="FontAwesome5Solid"
-                        Color="White"
-                        Size="20"
-                        FontAutoScalingEnabled="True"
-                        Glyph="&#xf019;" />
-                    </Button.ImageSource>
-                </Button>
-                
-            </HorizontalStackLayout>
+            <ScrollView Grid.Row="1" Orientation="Horizontal">
+                <HorizontalStackLayout Spacing="6">
+                    <Button Text="Actualizar" Padding="10,0" Clicked="btnDBTask_Reload" BackgroundColor="LimeGreen" TextColor="White">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid" Color="White" Size="16" Glyph="&#xf021;" />
+                        </Button.ImageSource>
+                    </Button>
+                    <Button Text="Compact" Padding="10,0" Clicked="btnDBTask_Compact" BackgroundColor="BlueViolet" TextColor="White">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid" Color="White" Size="16" Glyph="&#xf71e;" />
+                        </Button.ImageSource>
+                    </Button>
+                    <Button Text="Enviar" Padding="10,0" Clicked="btnUploadDB_Clicked" BackgroundColor="MediumVioletRed" TextColor="White">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid" Color="White" Size="16" Glyph="&#xf093;" />
+                        </Button.ImageSource>
+                    </Button>
+                    <Button Text="Restaurar" Padding="10,0" Clicked="btnDownloadDb_Clicked" BackgroundColor="Orange" TextColor="White">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid" Color="White" Size="16" Glyph="&#xf019;" />
+                        </Button.ImageSource>
+                    </Button>
+                </HorizontalStackLayout>
+            </ScrollView>
 
             <CollectionView Grid.Row="2" ItemsSource="{Binding Tables}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border>
-                            <Grid Padding="10" ColumnDefinitions="*,Auto">
-                                <Label Text="{Binding .}" VerticalOptions="Center"/>
-                                <Button 
-                        BackgroundColor="Red"
-                        TextColor="White"
-                        Text="Eliminar"
-                        Grid.Column="1"
-                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteTableCommand}"
-                        CommandParameter="{Binding .}" />
+                        <Border Margin="0,2">
+                            <Grid Padding="8" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <Label Text="{Binding .}" VerticalOptions="Center" LineBreakMode="MiddleTruncation"/>
+                                <Button BackgroundColor="Red" TextColor="White" Text="Eliminar" Grid.Column="1"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteTableCommand}"
+                                        CommandParameter="{Binding .}" />
                             </Grid>
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-            
         </Grid>
-        
     </ContentPage>
 </TabbedPage>

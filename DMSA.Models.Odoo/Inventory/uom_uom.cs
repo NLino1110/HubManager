@@ -1,16 +1,29 @@
-using System;
-using System.ComponentModel.DataAnnotations;
+using DMSA.Models.Odoo.Base;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SQLite;
 
 namespace DMSA.Models.Odoo.Inventory
 {
     [Table("uom_uom")]
-    public class uom_uom
+    public class uom_uom : OdooEntity
     {
         [PrimaryKey]
         [Column("id")]
+        [JsonProperty("id")]
         public int id { get; set; }
+
+        [Ignore]
+        [JsonProperty("category_id")]
+        public JToken category_id { get; set; }
+
+        [Column("category_id")]
+        [JsonIgnore]
+        public int category_id_
+        {
+            get => GetId(category_id);
+            set => category_id = SetId(category_id, value);
+        }
         [Column("name")]
         public string? name { get; set; }
 

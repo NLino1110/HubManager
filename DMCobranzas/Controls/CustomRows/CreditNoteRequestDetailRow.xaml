@@ -1,136 +1,152 @@
 <?xml version="1.0" encoding="utf-8" ?>
+<!-- NC Cobranzas: fila compacta. Revertir desde git: CreditNoteRequestDetailRow.xaml -->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="DMCobranzas.Controls.CustomRows.CreditNoteRequestDetailRow"             
+             x:Class="DMCobranzas.Controls.CustomRows.CreditNoteRequestDetailRow"
              x:Name="root">
-    <Border
-         StrokeThickness="0.3"  
-         Padding="5,0,5,0"
-         Margin="0"
-         BackgroundColor="Transparent"        
-         MinimumHeightRequest="60">
+    <Border StrokeThickness="0.3"
+            Padding="4,3"
+            Margin="0,1"
+            BackgroundColor="Transparent">
 
-        <Grid
-            ColumnSpacing="4"
-            RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
-            ColumnDefinitions="*,*,Auto,Auto"
-            VerticalOptions="Center">
+        <Grid ColumnDefinitions="*,68,46"
+              ColumnSpacing="4">
 
-            <Label
-                Grid.Row="0"
-                Grid.Column="0"
-                Grid.ColumnSpan="7"
-                FontAttributes="Bold"
-                FontSize="13"
-                Text="{Binding DataItem.display_name, Source={x:Reference root}}" />
-            
-            <Label
-                Grid.Row="1"
-                Grid.Column="0"
-                Grid.ColumnSpan="3"
-                FontAttributes="Bold"
-                TextColor="LightSlateGray"
-                FontSize="12"
-                Text="{Binding DataItem.docnum_mask, Source={x:Reference root}}" />
+            <!-- Columna 1: todo el detalle apilado -->
+            <VerticalStackLayout Grid.Column="0"
+                                 Spacing="1"
+                                 VerticalOptions="Start">
 
-            <Label
-                Grid.Row="2"
-                Grid.Column="0"
-                Grid.ColumnSpan="3"
-                FontAttributes="Bold"
-                TextColor="LightSlateGray"
-                FontSize="12"
-                Text="{Binding DataItem.invoice_date, Source={x:Reference root}, StringFormat='FECHA: {0:dd/MM/yyyy}'}" />
+                <HorizontalStackLayout Spacing="10">
+                    <Label FontSize="11"
+                           TextColor="DimGray"
+                           LineBreakMode="NoWrap">
+                        <Label.Text>
+                            <Binding Path="DataItem.invoice_date"
+                                     Source="{x:Reference root}"
+                                     StringFormat="FECHA: {0:dd/MM/yyyy}" />
+                        </Label.Text>
+                    </Label>
+                    <Label FontSize="11"
+                           TextColor="DimGray"
+                           LineBreakMode="NoWrap">
+                        <Label.Text>
+                            <Binding Path="DataItem.docnum_mask"
+                                     Source="{x:Reference root}"
+                                     StringFormat="Nº {0}" />
+                        </Label.Text>
+                    </Label>
+                </HorizontalStackLayout>
 
-            <Label
-    Grid.Row="3"
-    Grid.Column="0"
-    Grid.ColumnSpan="2"
-    FontSize="11"
-    FontAttributes="Bold"
-    TextColor="Black"
-    Text="{Binding DataItem.price_total,
-           Source={x:Reference root},
-           StringFormat='PRECIO FACTURADO: ${0}'}" />
-            
-            <Label
-                Grid.Row="4"
-                Grid.Column="0"
-                FontSize="10"
-                FontAttributes="Bold"
-                TextColor="Green"
-                Text="{Binding DataItem.discount_percentage,
-                       Source={x:Reference root},
-                       StringFormat='% DESC. {0}'}" />
-            
-                  
+                <Label FontSize="12"
+                       FontAttributes="Bold"
+                       LineBreakMode="WordWrap"
+                       MaxLines="3"
+                       Text="{Binding DataItem.display_name, Source={x:Reference root}}" />
 
-            <Label
-                Grid.Row="5"
-                Grid.Column="0"
-                Grid.ColumnSpan="3"
-                FontSize="11"
-                FontAttributes="Bold"
-                TextColor="Black"
-                Text="{Binding DataItem.quantity_available,
-               Source={x:Reference root},
-               StringFormat='CANT. DISP.: {0}'}" />
+                <HorizontalStackLayout Spacing="12">
+                    <Label FontSize="11"
+                           FontAttributes="Bold"
+                           LineBreakMode="NoWrap"
+                           Text="{Binding DataItem.price_total, Source={x:Reference root}, StringFormat='PRECIO: ${0:0.##}'}" />
+                    <Label FontSize="11"
+                           FontAttributes="Bold"
+                           TextColor="Green"
+                           LineBreakMode="NoWrap"
+                           Text="{Binding DataItem.discount_percentage, Source={x:Reference root}, StringFormat='% DESC: {0:0.##}'}" />
+                </HorizontalStackLayout>
 
-            <VerticalStackLayout Grid.Row="2"
-                Grid.Column="2"
-                Grid.RowSpan="4" 
-                Spacing="2" 
-                VerticalOptions="Center"
-                Padding="0,0,0,5">
-                <Entry
-                    x:Name="entryCantidad"                  
-                    Keyboard="Numeric"
-                    VerticalOptions="FillAndExpand"
-                    HorizontalTextAlignment="End"
-                    Text="{Binding DataItem.quantity,
-                           Source={x:Reference root},
-                           Mode=TwoWay}" />
-                <Label Text="Cant. devuelta" 
-                       HorizontalTextAlignment="End" Style="{StaticResource EntryHintLabelStyle}" />
+                <HorizontalStackLayout Spacing="16">
+                    <HorizontalStackLayout Spacing="4">
+                        <Label Text="Cant.Disp:"
+                               FontSize="10"
+                               TextColor="Gray"
+                               VerticalOptions="Center" />
+                        <Label FontSize="11"
+                               FontAttributes="Bold"
+                               VerticalOptions="Center"
+                               Text="{Binding DataItem.quantity_available, Source={x:Reference root}, StringFormat='{0:0.##}'}" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="4">
+                        <Label Text="Cant.xU.M:"
+                               FontSize="10"
+                               TextColor="Gray"
+                               VerticalOptions="Center" />
+                        <Label FontSize="11"
+                               FontAttributes="Bold"
+                               VerticalOptions="Center"
+                               Text="{Binding DataItem.quantity_available_by_uom, Source={x:Reference root}, StringFormat='{0:0.##}'}" />
+                    </HorizontalStackLayout>
+                </HorizontalStackLayout>
+
+                <Label FontSize="10"
+                       TextColor="Gray"
+                       LineBreakMode="TailTruncation"
+                       MaxLines="2">
+                    <Label.Text>
+                        <Binding Path="DataItem.uom_display_name"
+                                 Source="{x:Reference root}"
+                                 StringFormat="U.M.: {0}" />
+                    </Label.Text>
+                </Label>
             </VerticalStackLayout>
 
-            <HorizontalStackLayout  
-                Grid.Row="2"
-                 Grid.Column="5"
-                 Grid.RowSpan="4"
-                 Spacing="2"
-                 Margin="3">
-                <Button               
-                    WidthRequest="50"
-                    VerticalOptions="Fill"
-                    CornerRadius="5"
-                    BackgroundColor="Orange"
-                    Clicked="Button_Clicked">                    
-                    <Button.ImageSource>
-                        <FontImageSource
-                            FontFamily="FontAwesome5Solid"
-                            Glyph="&#xf55a;"
-                            Color="White"
-                            Size="15"/>
-                    </Button.ImageSource>
-                </Button>
+            <!-- Devolver -->
+            <VerticalStackLayout Grid.Column="1"
+                                 Spacing="1"
+                                 VerticalOptions="Center">
+                <Label Text="Devolver"
+                       FontSize="9"
+                       TextColor="Gray"
+                       HorizontalTextAlignment="Center"
+                       LineBreakMode="NoWrap" />
+                <Entry x:Name="entryCantidad"
+                       Keyboard="Numeric"
+                       FontSize="12"
+                       HeightRequest="32"
+                       HorizontalTextAlignment="Center"
+                       Text="{Binding DataItem.quantity, Source={x:Reference root}, Mode=TwoWay}" />
+                <Label FontSize="12"
+                       FontAttributes="Bold"
+                       TextColor="#444444"
+                       HorizontalTextAlignment="Center"
+                       LineBreakMode="TailTruncation"
+                       MaxLines="2"
+                       IsVisible="{Binding DataItem.show_uom_conversion, Source={x:Reference root}}">
+                    <Label.Text>
+                        <Binding Path="DataItem.quantity_by_uom"
+                                 Source="{x:Reference root}"
+                                 StringFormat="= {0:0.##}" />
+                    </Label.Text>
+                </Label>
+            </VerticalStackLayout>
 
-                <Button
-                    WidthRequest="50"
-                    VerticalOptions="Fill"
-                    CornerRadius="5"
-                    BackgroundColor="Red"
-                    Command="{Binding DeleteCommand,Source={x:Reference root}}"
-                    CommandParameter="{Binding BindingContext, Source={x:Reference root}}">
+            <!-- Botones -->
+            <VerticalStackLayout Grid.Column="2"
+                                 Spacing="3"
+                                 VerticalOptions="Center">
+                <Button WidthRequest="40"
+                        HeightRequest="32"
+                        CornerRadius="4"
+                        BackgroundColor="Orange"
+                        Padding="0"
+                        Clicked="Button_Clicked">
                     <Button.ImageSource>
-                        <FontImageSource
-                            FontFamily="FontAwesome5Solid"
-                            Glyph="&#xf2ed;"
-                            Color="White"
-                            Size="15"/>
+                        <FontImageSource FontFamily="FontAwesome5Solid" Glyph="&#xf55a;" Color="White" Size="13"/>
                     </Button.ImageSource>
                 </Button>
-            </HorizontalStackLayout> 
+                <Button WidthRequest="40"
+                        HeightRequest="32"
+                        CornerRadius="4"
+                        BackgroundColor="Red"
+                        Padding="0"
+                        Command="{Binding DeleteCommand, Source={x:Reference root}}"
+                        CommandParameter="{Binding BindingContext, Source={x:Reference root}}">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FontAwesome5Solid" Glyph="&#xf2ed;" Color="White" Size="13"/>
+                    </Button.ImageSource>
+                </Button>
+            </VerticalStackLayout>
         </Grid>
     </Border>
 </ContentView>

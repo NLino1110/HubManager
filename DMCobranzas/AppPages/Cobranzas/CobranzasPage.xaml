@@ -28,7 +28,7 @@
                 </StackLayout>
 
                 <StackLayout Orientation="Horizontal" Margin="10">
-                    <Button CornerRadius="2" Text="Buscar" BackgroundColor="DodgerBlue" HeightRequest="35" Clicked="btnBuscar_Clicked">
+                    <Button CornerRadius="4" Text="Buscar" BackgroundColor="DodgerBlue" HeightRequest="35" Clicked="btnBuscar_Clicked">
                         <Button.ImageSource>
                             <FontImageSource FontFamily="FontAwesome5Solid"
                                              Glyph="&#xf002;"
@@ -37,7 +37,7 @@
                         </Button.ImageSource>
                     </Button>
 
-                    <Button CornerRadius="2" Text="Nuevo Cobro" BackgroundColor="DodgerBlue" HeightRequest="35" Margin="5"
+                    <Button CornerRadius="4" Text="Nuevo Cobro" BackgroundColor="DodgerBlue" HeightRequest="35" Margin="5"
                             Clicked="NewPayment">
                         <Button.ImageSource>
                             <FontImageSource FontFamily="FontAwesome5Solid"

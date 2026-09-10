@@ -280,6 +280,48 @@ namespace DMSA.Sync.Core.Database.Sqlite.Payments
         {
             await Init();
             return await Database.Table<account_move>().Where(i => i.name == name_doc).FirstOrDefaultAsync();
-        }    
+        }
+
+        // IDs de account_move local en rango invoice_date (cabeceras ya sincronizadas).
+        public async Task<int[]> GetIdsByInvoiceDateRangeAsync(DateTime dateFrom, DateTime dateTo)
+        {
+            await Init();
+
+            var from = dateFrom.Date;
+            var to = dateTo.Date;
+
+            var items = await Database.Table<account_move>()
+                .Where(x => x.invoice_date >= from && x.invoice_date <= to)
+                .OrderBy(x => x.id)
+                .ToListAsync();
+
+            return items.Select(x => x.id).ToArray();
+        }
+
+        // Distinct partner_sale_id en account_move (vendedores referenciados en facturas).
+        public async Task<int[]> GetDistinctPartnerSaleIdsAsync(
+            DateTime? invoiceDateFrom = null,
+            DateTime? invoiceDateTo = null)
+        {
+            await Init();
+
+            var items = await Database.Table<account_move>().ToListAsync();
+
+            if (invoiceDateFrom.HasValue && invoiceDateTo.HasValue)
+            {
+                var from = invoiceDateFrom.Value.Date;
+                var to = invoiceDateTo.Value.Date;
+                items = items
+                    .Where(x => x.invoice_date >= from && x.invoice_date <= to)
+                    .ToList();
+            }
+
+            return items
+                .Where(x => x._partner_sale_id > 0)
+                .Select(x => x._partner_sale_id)
+                .Distinct()
+                .OrderBy(x => x)
+                .ToArray();
+        }
     }
 }

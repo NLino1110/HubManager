@@ -7,6 +7,7 @@ using DMSA.Sync.Core.Database.Sqlite;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Linq;
 
 namespace DMSA.Sync.Core.Update
 {
@@ -254,7 +255,8 @@ namespace DMSA.Sync.Core.Update
         //   search_count/search_read con write_date >= última sync.
         //   No actualizaba saldos si el partner no se había escrito.
         // DESPUÉS (solo Cobranzas): OnlineSyncResPartnerCobranzasAll
-        //   Fase 1: search_count/search_read de todos los res.partner, sin write_date.
+        //   Fase 1: search_count/search_read de res.partner filtrados por adic_comercial_id
+        //     o adic_comercial_secundarios_ids (= partner_id de sesión), sin write_date.
         //   Fase 2: web_read por IDs + UPDATE parcial de saldos en res_partner.
         //   Órdenes sigue usando OnlineSyncResPartnerFull; no se toca.
         // REVERTIR Fase 2: EnableResPartnerCobranzasSaldosWebRead = false en ServerPuller.cs
@@ -266,9 +268,21 @@ namespace DMSA.Sync.Core.Update
 
             var database = new ResPartnerDb(Constants.Session.odooConnection.DbNameSqlite);
             var hubmanager = new HubResPartner(appSession);
-            var resultCount = await hubmanager.GetCountAll();
 
-            Debug.WriteLine("OnlineSyncResPartnerCobranzasAll count: " + resultCount.result);
+            // partner_id se obtiene al autenticarse (Login → CurrentUserFront.partner_id).
+            // Solo se sincronizan clientes asignados a ese comercial (principal o secundario).
+            int partner_id = Constants.Session.CurrentUserFront.partner_id;
+
+            if (partner_id <= 0)
+            {
+                Debug.WriteLine("OnlineSyncResPartnerCobranzasAll: partner_id inválido en sesión, se omite sync de clientes.");
+                return false;
+            }
+
+            // ANTES: hubmanager.GetCountAll() — count de todos los partners.
+            var resultCount = await hubmanager.GetCountAllByAdicComercial(partner_id);
+
+            Debug.WriteLine("OnlineSyncResPartnerCobranzasAll count: " + resultCount.result + " (partner_id=" + partner_id + ")");
 
             if (resultCount.result == 0)
             {
@@ -276,15 +290,19 @@ namespace DMSA.Sync.Core.Update
             }
 
             int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
+            var downloadedPartnerIds = new List<int>();
 
-            // --- Fase 1: datos maestros del partner (search_read) ---
+            // --- Fase 1: datos maestros del partner (search_read filtrado por comercial) ---
             for (int indice = 0; indice <= totalPages; indice++)
             {
-                var responseAll = await hubmanager.GetAll(limit, indice);
+                // ANTES: hubmanager.GetAll(limit, indice) — traía todos los partners.
+                // DESPUÉS: GetAllByAdicComercial — solo cartera del comercial logueado.
+                var responseAll = await hubmanager.GetAllByAdicComercial(limit, indice, partner_id);
 
                 if (responseAll != null && responseAll.result != null && responseAll.result.Length > 0)
                 {
                     await database.InsertBatchAsync(responseAll.result);
+                    downloadedPartnerIds.AddRange(responseAll.result.Select(p => p.id));
                 }
 
                 Console.WriteLine("ResPartnerCobranzasAll Fase1 Página:" + indice + " de " + totalPages);
@@ -302,9 +320,12 @@ namespace DMSA.Sync.Core.Update
             // --- Fase 2: saldos correctos vía web_read (revertible) ---
             if (EnableResPartnerCobranzasSaldosWebRead)
             {
+                // ANTES: web_read sobre todos los res_partner locales (incluía cartera antigua).
+                // DESPUÉS: solo IDs descargados en Fase 1 (cartera del comercial logueado).
                 await RefreshResPartnerSaldosWebReadAsync(
                     database,
                     hubmanager,
+                    downloadedPartnerIds.Distinct().ToArray(),
                     onSaldosProgress ?? onProgress);
             }
 
@@ -316,29 +337,33 @@ namespace DMSA.Sync.Core.Update
             return true;
         }
 
-        // ANTES: no existía; saldos quedaban con los valores de search_read.
-        // DESPUÉS: lee IDs de SQLite, web_read por lotes, UPDATE parcial de saldos.
-        // Lotes grandes = menos HTTP (web_read solo trae 5 campos + id).
+        // ANTES: paginaba todos los res_partner de SQLite (GetPartnerIdsPageAsync).
+        // DESPUÉS: partnerIds = IDs descargados en Fase 1; web_read solo para esa cartera.
         private async Task RefreshResPartnerSaldosWebReadAsync(
             ResPartnerDb database,
             HubResPartner hubmanager,
+            int[] partnerIds,
             Func<int, int, Task>? onProgress)
         {
-            int totalPartners = await database.GetPartnerCountAsync();
-
-            Debug.WriteLine("RefreshResPartnerSaldosWebRead count local: " + totalPartners);
-
-            if (totalPartners == 0)
+            if (partnerIds == null || partnerIds.Length == 0)
             {
+                Debug.WriteLine("RefreshResPartnerSaldosWebRead: sin IDs de partners descargados.");
                 return;
             }
+
+            int totalPartners = partnerIds.Length;
+
+            Debug.WriteLine("RefreshResPartnerSaldosWebRead count descargados: " + totalPartners);
 
             int saldosBatchSize = Math.Max(limit, 200);
             int totalSaldosPages = (int)Math.Ceiling((double)totalPartners / saldosBatchSize);
 
             for (int pageIndex = 0; pageIndex < totalSaldosPages; pageIndex++)
             {
-                var ids = await database.GetPartnerIdsPageAsync(pageIndex, saldosBatchSize);
+                var ids = partnerIds
+                    .Skip(pageIndex * saldosBatchSize)
+                    .Take(saldosBatchSize)
+                    .ToArray();
 
                 if (ids.Length == 0)
                 {

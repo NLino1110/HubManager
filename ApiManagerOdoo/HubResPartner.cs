@@ -88,6 +88,7 @@ namespace ApiManager
         }
 
         // Cobranzas: count de res.partner sin write_date (proceso aparte de Órdenes).
+        // Sin filtro comercial; se mantiene por si otro flujo lo necesita.
         public async Task<ApiResponseOdooRpc?> GetCountAll()
         {
             object[] args = new object[] { };
@@ -96,6 +97,7 @@ namespace ApiManager
         }
 
         // Cobranzas: search_read paginado de todos los res.partner, sin filtro write_date.
+        // Sin filtro comercial; se mantiene por si otro flujo lo necesita.
         public async Task<ApiResponseOdooRpcT<res_partner[]>?> GetAll(int limit, int index)
         {
             var kwargs = new
@@ -109,6 +111,41 @@ namespace ApiManager
             object[] _custom_args = new object[] { };
             return await SearchRead<ApiResponseOdooRpcT<res_partner[]>>(args, _custom_args, kwargs, true);
         }
+
+        // ANTES: OnlineSyncResPartnerCobranzasAll usaba GetCountAll() sin filtro (todos los partners).
+        // DESPUÉS: variantes filtradas por comercial logueado (partner_id de sesión al iniciar sesión).
+        //   Dominio Odoo: ["|", ["adic_comercial_id","=",partnerId], ["adic_comercial_secundarios_ids","=",partnerId]]
+        //   GetCountAll / GetAll originales no se modifican.
+        public async Task<ApiResponseOdooRpc?> GetCountAllByAdicComercial(int partnerId)
+        {
+            object[] args = new object[] { };
+            object[] _custom_args = BuildAdicComercialDomain(partnerId);
+            return await GetCount(args, _custom_args);
+        }
+
+        // Pareja paginada de GetCountAllByAdicComercial (mismo filtro comercial).
+        public async Task<ApiResponseOdooRpcT<res_partner[]>?> GetAllByAdicComercial(int limit, int index, int partnerId)
+        {
+            var kwargs = new
+            {
+                limit = limit,
+                offset = (index * limit),
+                fields = fields_array
+            };
+
+            object[] args = new object[] { };
+            object[] _custom_args = BuildAdicComercialDomain(partnerId);
+            return await SearchRead<ApiResponseOdooRpcT<res_partner[]>>(args, _custom_args, kwargs, true);
+        }
+
+        // Dominio OR plano (GetCount/SearchRead ya envuelven _custom_args en args[[...]]).
+        // Resultado esperado: args[["|",["adic_comercial_id","=",id],["adic_comercial_secundarios_ids","=",id]]]
+        private static object[] BuildAdicComercialDomain(int partnerId) => new object[]
+        {
+            "|",
+            new object[] { "adic_comercial_id", "=", partnerId },
+            new object[] { "adic_comercial_secundarios_ids", "=", partnerId }
+        };
 
         public async Task<ApiResponseOdooRpc?> GetCountBySeller(int year, int month, int day, int seller)
         {

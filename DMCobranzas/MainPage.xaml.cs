@@ -1,4 +1,5 @@
 using CommunityToolkit.Maui.Alerts;
+using DMCobranzas.Services;
 using DMCobranzas.Settings.helpers;
 using DMSA.Models.Odoo.DebitCollection;
 using DMSA.Sync.Core.Controls.Popups;
@@ -25,8 +26,37 @@ public partial class MainPage : ContentPage
             this.popupSizeConstants = popupSizeConstants;
         }
 
-        LoadSession();
+        Appearing += MainPage_Appearing;
         SetupPermissions();
+    }
+
+    private async void MainPage_Appearing(object sender, EventArgs e)
+    {
+        await RefreshStatusLabelsAsync();
+    }
+
+    private async Task RefreshStatusLabelsAsync()
+    {
+        if (App.Session?.CurrentUserFront == null)
+            return;
+
+        txtUser.Text = "Usuario: " + App.Session.CurrentUserFront.username;
+        txtName.Text = "Nombre: " + App.Session.CurrentUserFront.nombres;
+
+        var syncDate = await SyncStatusLabels.ResolveLastSyncDateAsync();
+        if (syncDate.Year > 2000)
+        {
+            txtUpdated.Text = SyncStatusLabels.FormatHomeLastSyncText(syncDate);
+            App.Session.CurrentUserFront.log_fec_sincro = syncDate;
+        }
+        else if (App.Session.CurrentUserFront.log_fec_sincro.Year > 2000)
+        {
+            txtUpdated.Text = SyncStatusLabels.FormatHomeLastSyncText(App.Session.CurrentUserFront.log_fec_sincro);
+        }
+
+        txtUpdatedNC.Text = "Ult. Actualización NC: " + App.Session.CurrentUserFront.log_fec_sincro_nc.ToString("dd/MM/yyyy HH:mm:ss");
+        txtLastAccess.Text = "Ult. Acceso: " + App.Session.CurrentUserFront.log_fec_acceso.ToString("dd/MM/yyyy HH:mm:ss");
+        txtAppUpdateDate.Text = SyncStatusLabels.FormatAppUpdateText();
     }
 
     private async void SetupPermissions()
@@ -36,14 +66,7 @@ public partial class MainPage : ContentPage
 
     private async void LoadSession()
     {
-        if (App.Session != null)
-        {
-            txtUser.Text = "Usuario: " + App.Session.CurrentUserFront.username;
-            txtName.Text = "Nombre: " + App.Session.CurrentUserFront.nombres;
-            txtUpdated.Text = "Ult. Actualización: " + App.Session.CurrentUserFront.log_fec_sincro.ToString("dd/MM/yyyy HH:mm:ss");
-            txtUpdatedNC.Text = "Ult. Actualización NC: " + App.Session.CurrentUserFront.log_fec_sincro_nc.ToString("dd/MM/yyyy HH:mm:ss");
-            txtLastAccess.Text = "Ult. Acceso: " + App.Session.CurrentUserFront.log_fec_acceso.ToString("dd/MM/yyyy HH:mm:ss");
-        }
+        await RefreshStatusLabelsAsync();
 
         var today = DateTime.Today;
 

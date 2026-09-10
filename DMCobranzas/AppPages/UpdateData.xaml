@@ -4,44 +4,47 @@
              x:Class="DMCobranzas.AppPages.UpdateData"
              xmlns:controls="clr-namespace:BeebTech.Maui.Controls;assembly=BeebTech.Maui.Controls"
              Title="Actualización de datos">
-    <VerticalStackLayout>
-        <VerticalStackLayout>
-            <Border Padding="10" Margin="10,5,10,10">
-                <StackLayout>
-                    <HorizontalStackLayout>
+
+    <Grid RowDefinitions="*,Auto" RowSpacing="0">
+
+        <ScrollView Grid.Row="0">
+            <Border Padding="10" Margin="10,5,10,6">
+                <VerticalStackLayout Spacing="6">
+
+                    <HorizontalStackLayout Spacing="8">
                         <Button x:Name="btnBack"
                             BackgroundColor="Gray"
-                            TextColor="White"                            
-                            CornerRadius="30"                
-                            HeightRequest="55"
-                            WidthRequest="55"
-                                 VerticalOptions="Center"
+                            TextColor="White"
+                            CornerRadius="30"
+                            HeightRequest="48"
+                            WidthRequest="48"
+                            VerticalOptions="Center"
                             Clicked="btnBack_Clicked"
                             Padding="0"
-                                IsVisible="False">
+                            IsVisible="False">
                             <Button.ImageSource>
                                 <FontImageSource
-                                    Size="20"
+                                    Size="18"
                                     FontFamily="FontAwesome5Solid"
                                     FontAutoScalingEnabled="True"
                                     Glyph="&#xf060;" />
                             </Button.ImageSource>
                         </Button>
                         <Label Text="Seleccione los datos que desea actualizar"
-                   FontSize="14"
-                   FontAttributes="Bold" 
-                    HorizontalOptions="Center"
+                               FontSize="14"
+                               FontAttributes="Bold"
                                VerticalOptions="Center"
-                    Margin="10,10,10,10"/>
+                               LineBreakMode="WordWrap"
+                               HorizontalOptions="FillAndExpand"/>
                     </HorizontalStackLayout>
 
-                    <BoxView HeightRequest="1" Margin="10,5" Color="LightGray" HorizontalOptions="Fill" />
+                    <BoxView HeightRequest="1" Margin="0,2" Color="LightGray" HorizontalOptions="Fill" />
 
                     <Border
                         x:Name="brInvoiceDateInfo"
                         IsVisible="False"
-                        Margin="10,8,10,4"
-                        Padding="10"
+                        Margin="0,2,0,0"
+                        Padding="8,6"
                         BackgroundColor="#E65100"
                         Stroke="#BF360C"
                         StrokeThickness="1">
@@ -49,117 +52,139 @@
                             <RoundRectangle CornerRadius="6"/>
                         </Border.StrokeShape>
                         <Label
-                            Text="Desde y Hasta filtran cabeceras y detalles de facturas. 1ra actualización del día: 5 meses. Siguientes: solo hoy (editable). Cliente completo: Cobros y Notas de Crédito."
+                            Text="Desde/Hasta filtran facturas. 1ra del día: 6 meses hasta hoy. Resto: solo hoy."
                             TextColor="White"
-                            FontSize="12"
+                            FontSize="11"
                             LineBreakMode="WordWrap"/>
                     </Border>
 
-                    <Grid x:Name="grInvoiceDatePickers" IsVisible="False" Margin="10,4,10,0" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
-                        <Label Grid.Row="0" Grid.Column="0" Text="Desde:" VerticalOptions="Center" FontAttributes="Bold" TextColor="#E65100"/>
-                        <DatePicker Grid.Row="0" Grid.Column="1" x:Name="dpInvoiceDateFrom" HorizontalOptions="Fill"/>
+                    <Grid
+                        x:Name="grInvoiceDatePickers"
+                        IsVisible="False"
+                        Margin="0,2,0,0"
+                        ColumnDefinitions="Auto,*,Auto,*"
+                        ColumnSpacing="6"
+                        RowDefinitions="Auto">
 
-                        <Label Grid.Row="1" Grid.Column="0" Text="Hasta:" VerticalOptions="Center" FontAttributes="Bold" TextColor="#E65100"/>
-                        <DatePicker Grid.Row="1" Grid.Column="1" x:Name="dpInvoiceDateTo" HorizontalOptions="Fill"/>
+                        <Label Grid.Column="0"
+                               Text="Desde:"
+                               VerticalOptions="Center"
+                               FontAttributes="Bold"
+                               FontSize="13"
+                               TextColor="#E65100"/>
+                        <DatePicker Grid.Column="1"
+                                    x:Name="dpInvoiceDateFrom"
+                                    HorizontalOptions="Fill"
+                                    FontSize="13"/>
+
+                        <Label Grid.Column="2"
+                               Text="Hasta:"
+                               VerticalOptions="Center"
+                               FontAttributes="Bold"
+                               FontSize="13"
+                               TextColor="#E65100"/>
+                        <DatePicker Grid.Column="3"
+                                    x:Name="dpInvoiceDateTo"
+                                    HorizontalOptions="Fill"
+                                    FontSize="13"/>
                     </Grid>
 
-                    <Label Text="01/01/2023 00:00:00"
-                       x:Name="lblUpdated"
-                       HorizontalOptions="Center"
-                       Margin="10,10,10,10"/>
-                    <Label
-                    Text="-"
-                    VerticalOptions="Center"
-                    x:Name="lblUpdatedInfo"
-                    HorizontalOptions="Center"
-                    Margin="10,10,10,10"/>
-                    <HorizontalStackLayout Padding="5" VerticalOptions="Center" HorizontalOptions="Center">
-                        <StackLayout Orientation="Horizontal" Spacing="3" Padding="5">
-                            <Border WidthRequest="20" HeightRequest="20" BackgroundColor="DimGray" Stroke="DimGray" StrokeThickness="1" Padding="0">
-                                <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="10"/>
-                                </Border.StrokeShape>
-                                <Grid Margin="3">
-                                    <BoxView x:Name="BoxViewServerStatusOdoo" Color="SaddleBrown" CornerRadius="15"/>
-                                </Grid>
-                            </Border>
-                            <Label x:Name="lblServerStatusOdoo" Text="Servidor Odoo" TextColor="DimGray" VerticalOptions="Center" />
-                        </StackLayout>
+                    <VerticalStackLayout Spacing="2" Margin="0,4,0,0">
+                        <Label Text="01/01/2023 00:00:00"
+                               x:Name="lblUpdated"
+                               HorizontalOptions="Center"
+                               FontSize="12"
+                               Margin="0"/>
+                        <Label Text="-"
+                               x:Name="lblUpdatedInfo"
+                               HorizontalOptions="Center"
+                               FontSize="11"
+                               TextColor="Gray"
+                               LineBreakMode="WordWrap"
+                               Margin="0"/>
+                    </VerticalStackLayout>
+
+                    <HorizontalStackLayout Spacing="6" HorizontalOptions="Center" Margin="0,2,0,0">
+                        <Border WidthRequest="18" HeightRequest="18" BackgroundColor="DimGray" Stroke="DimGray" StrokeThickness="1" Padding="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="9"/>
+                            </Border.StrokeShape>
+                            <Grid Margin="2">
+                                <BoxView x:Name="BoxViewServerStatusOdoo" Color="SaddleBrown" CornerRadius="8"/>
+                            </Grid>
+                        </Border>
+                        <Label x:Name="lblServerStatusOdoo"
+                               Text="Servidor Odoo"
+                               TextColor="DimGray"
+                               FontSize="12"
+                               VerticalOptions="Center" />
                     </HorizontalStackLayout>
+
                     <StackLayout Margin="25,0,0,0" IsVisible="False">
                         <Label Text="Mi conexión de red" FontAttributes="Bold"/>
                         <Label Text="Por favor, si se encuentra conectado a una red que está fuera de la red de Macronegocios, seleccione red externa." FontSize="12" TextColor="DimGray" />
                         <StackLayout RadioButtonGroup.GroupName="networks" Orientation="Horizontal">
-                            <RadioButton Value="RedInterna" Content="Red Interna" IsChecked="True" CheckedChanged="OnNetworkCheckedChanged">
-                            </RadioButton>
-                            <RadioButton Value="RedExterna" Content="Red Externa" CheckedChanged="OnNetworkCheckedChanged">
-                            </RadioButton>
+                            <RadioButton Value="RedInterna" Content="Red Interna" IsChecked="True" CheckedChanged="OnNetworkCheckedChanged"/>
+                            <RadioButton Value="RedExterna" Content="Red Externa" CheckedChanged="OnNetworkCheckedChanged"/>
                         </StackLayout>
                     </StackLayout>
 
-                    <VerticalStackLayout Margin="20">
-                        <controls:CheckBoxEx x:Name="chkGroup1" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Documentos - Cabeceras (facturas, notas de débito)"></controls:CheckBoxEx>
-                        <controls:CheckBoxEx x:Name="chkGroup2" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Documentos - Detalles (facturas, notas de débito)"></controls:CheckBoxEx>
-                        <controls:CheckBoxEx x:Name="chkGroup3" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Actualizar Parámetros (Cuentas, bancos, módulos, etc.)"></controls:CheckBoxEx>
-                        <controls:CheckBoxEx x:Name="chkGroup4" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Datos de usuario (Cobros, Notas de Crédito)"></controls:CheckBoxEx>
-                        <controls:CheckBoxEx x:Name="chkGroup5" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Clientes (completo, todos los partners / saldos)"></controls:CheckBoxEx>
-                        <controls:CheckBoxEx x:Name="chkGroup6" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Otros"></controls:CheckBoxEx>
+                    <VerticalStackLayout Spacing="2" Margin="8,8,8,4">
+                        <controls:CheckBoxEx x:Name="chkGroup4" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="1. Datos de usuario (Cobros, Notas de Crédito)"/>
+                        <controls:CheckBoxEx x:Name="chkGroup5" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="2. Clientes (completo, todos los partners / saldos)"/>
+                        <controls:CheckBoxEx x:Name="chkGroup6" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="3. Otros"/>
+                        <controls:CheckBoxEx x:Name="chkGroup3" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="4. Actualizar Parámetros (Cuentas, bancos, módulos, etc.)"/>
+                        <controls:CheckBoxEx x:Name="chkGroup1" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="5. Documentos - Cabeceras (facturas, notas de débito)"/>
+                        <controls:CheckBoxEx x:Name="chkGroup2" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="6. Documentos - Detalles (facturas, notas de débito)"/>
                     </VerticalStackLayout>
-                </StackLayout>
-            </Border>            
-                
-            <HorizontalStackLayout HorizontalOptions="End" IsVisible="True" Padding="0,0,15,0">
-                <Button
-                BackgroundColor="SeaGreen"
-                x:Name="btnUpdate"
-                Text="Actualizar"
-                SemanticProperties.Hint="Actualizar"
-                Clicked="LaunchUpdate"
-                HorizontalOptions="Center" Margin="5">
-                    <Button.ImageSource>
-                        <FontImageSource FontFamily="FontAwesome5Solid"
-                                    Color="White"
-                                    Size="20"
-                                    FontAutoScalingEnabled="True"                                                         
-                                    Glyph="&#xf019;" />
-                    </Button.ImageSource>
-                </Button>
 
-                <Button Grid.Column="2"
-                        BackgroundColor="HotPink"
-                    x:Name="BtnUploadSync"
-                    Text="Enviar"
-                    SemanticProperties.Hint="Actualizar"
-                    Clicked="UploadData"
-                    HorizontalOptions="Center"
-                        Margin="5">
-                    <Button.ImageSource>
-                        <FontImageSource FontFamily="FontAwesome5Solid"
-                                    Color="White"
-                                    Size="20"
-                                    FontAutoScalingEnabled="True"                                                         
-                                    Glyph="&#xf382;" />
-                    </Button.ImageSource>
-                </Button>
+                </VerticalStackLayout>
+            </Border>
+        </ScrollView>
 
-                <!--<Button Grid.Column="2"
-                        BackgroundColor="Firebrick"
-                        x:Name="BtnDownloadSync"
-                        Text="Obtener Factura"
+        <Border Grid.Row="1"
+                Padding="10,8"
+                Margin="10,0,10,8"
+                BackgroundColor="#F5F5F5"
+                Stroke="#DDDDDD"
+                StrokeThickness="1">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="8"/>
+            </Border.StrokeShape>
+            <HorizontalStackLayout HorizontalOptions="End" Spacing="8">
+                <Button BackgroundColor="SeaGreen"
+                        x:Name="btnUpdate"
+                        Text="Actualizar"
                         SemanticProperties.Hint="Actualizar"
-                        Clicked="UploadData"
-                        HorizontalOptions="Center"
-                        Margin="5"
-                        IsVisible="False">
+                        Clicked="LaunchUpdate"
+                        HeightRequest="44"
+                        Padding="14,0">
                     <Button.ImageSource>
                         <FontImageSource FontFamily="FontAwesome5Solid"
-                            Color="White"
-                            Size="20"
-                            FontAutoScalingEnabled="True"
-                            Glyph="&#xf382;" />
+                                         Color="White"
+                                         Size="18"
+                                         FontAutoScalingEnabled="True"
+                                         Glyph="&#xf019;" />
                     </Button.ImageSource>
-                </Button>-->
-            </HorizontalStackLayout>                
-        </VerticalStackLayout>
-    </VerticalStackLayout>
+                </Button>
+
+                <Button BackgroundColor="HotPink"
+                        x:Name="BtnUploadSync"
+                        Text="Enviar"
+                        SemanticProperties.Hint="Enviar datos"
+                        Clicked="UploadData"
+                        HeightRequest="44"
+                        Padding="14,0">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FontAwesome5Solid"
+                                         Color="White"
+                                         Size="18"
+                                         FontAutoScalingEnabled="True"
+                                         Glyph="&#xf382;" />
+                    </Button.ImageSource>
+                </Button>
+            </HorizontalStackLayout>
+        </Border>
+
+    </Grid>
 </ContentPage>

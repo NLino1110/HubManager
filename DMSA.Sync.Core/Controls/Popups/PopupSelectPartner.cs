@@ -55,28 +55,7 @@ namespace DMSA.Sync.Core.Controls.Popups
             SetGridTitles("Datos de Cliente");
             SetGridLegend(LegendDefault);
             SearchEntry.Placeholder = "Nombre o código del cliente...";
-
-            var btnSearch = new Button
-            {
-                Text = "Buscar",
-                BackgroundColor = Colors.SeaGreen,
-                TextColor = Colors.White,
-                FontAttributes = FontAttributes.Bold,
-                Margin = new Thickness(5, 5, 5, 5),
-                ImageSource = new FontImageSource
-                {
-                    FontFamily = "FontAwesome5Solid",
-                    Color = Colors.White,
-                    Size = 18,
-                    Glyph = "\uf002"
-                }
-            };
-            btnSearch.Clicked += (_, _) => RunSearch();
-
-            ContentCustomToolBox = new ContentView
-            {
-                Content = btnSearch
-            };
+            ContentCustomToolBox = WrapSearchButton(RunSearch);
         }
 
         async void _searchBar_BeginSearch(object sender, EventArgs e)

@@ -1,4 +1,4 @@
-﻿using DMSA.Models.Odoo.Inventory;
+using DMSA.Models.Odoo.Inventory;
 
 namespace DMSA.Sync.Core.Database.Sqlite
 {
@@ -7,6 +7,18 @@ namespace DMSA.Sync.Core.Database.Sqlite
         public UomUomDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
 
+        }
+
+        protected override async Task OnAfterInit()
+        {
+            try
+            {
+                await Database.ExecuteAsync("ALTER TABLE uom_uom ADD COLUMN category_id INTEGER");
+            }
+            catch
+            {
+                // Columna ya existe.
+            }
         }
 
         public async Task<List<uom_uom>> GetItemsAsync()

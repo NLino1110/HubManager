@@ -63,11 +63,12 @@
 		<AndroidPackageFormat>aab</AndroidPackageFormat>
 		<AndroidUseAapt2>True</AndroidUseAapt2>
 		<AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
-		<AndroidKeyStore>True</AndroidKeyStore>
-		<AndroidSigningKeyStore>keystores\dmcollection-upload.keystore</AndroidSigningKeyStore>
-		<AndroidSigningKeyAlias>upload</AndroidSigningKeyAlias>
-		<AndroidSigningStorePass>2macronegocioscollection022</AndroidSigningStorePass>
-		<AndroidSigningKeyPass>2macronegocioscollection022</AndroidSigningKeyPass>
+		<!-- Play Store: descomentar el bloque siguiente para firmar Release (AAB) con el keystore de subida. -->
+		<!--<AndroidKeyStore>True</AndroidKeyStore>-->
+		<!--<AndroidSigningKeyStore>keystores\dmcollection-upload.keystore</AndroidSigningKeyStore>-->
+		<!--<AndroidSigningKeyAlias>upload</AndroidSigningKeyAlias>-->
+		<!--<AndroidSigningStorePass>2macronegocioscollection022</AndroidSigningStorePass>-->
+		<!--<AndroidSigningKeyPass>2macronegocioscollection022</AndroidSigningKeyPass>-->
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-ios|AnyCPU'">

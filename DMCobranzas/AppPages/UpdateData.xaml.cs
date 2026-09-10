@@ -1,6 +1,7 @@
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using DMCobranzas.Controls;
+using DMCobranzas.Services;
 using DMCobranzas.Settings.helpers;
 using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Security;
@@ -23,13 +24,30 @@ public partial class UpdateData : ContentPage
     public UpdateData()
     {
         InitializeComponent();
-        lblUpdated.Text = "Ult. Actualización: " + App.Session.CurrentUserFront.log_fec_sincro.ToString("dd/MM/yyyy HH:mm:ss");        
         serverPuller = new DMSA.Sync.Core.Update.ServerPuller();
         ConfigureInvoiceDateRangeUi();
+        Appearing += UpdateData_Appearing;
+    }
+
+    private async void UpdateData_Appearing(object sender, EventArgs e)
+    {
+        await RefreshSyncStatusLabelsAsync();
+    }
+
+    private async Task RefreshSyncStatusLabelsAsync()
+    {
+        if (App.Session?.CurrentUserFront == null)
+            return;
+
+        var syncDate = await SyncStatusLabels.ResolveLastSyncDateAsync();
+        if (syncDate.Year > 2000)
+            lblUpdated.Text = SyncStatusLabels.FormatHomeLastSyncText(syncDate);
+        else if (App.Session.CurrentUserFront.log_fec_sincro.Year > 2000)
+            lblUpdated.Text = SyncStatusLabels.FormatHomeLastSyncText(App.Session.CurrentUserFront.log_fec_sincro);
     }
 
     /// <summary>
-    /// Filtro Desde/Hasta por invoice_date. REVERTIR: EnableInvoiceDateRangeSync = true en ServerPuller.
+    /// Filtro Desde/Hasta por invoice_date. Desactivar: EnableInvoiceDateRangeSync = false en ServerPuller.
     /// </summary>
     private void ConfigureInvoiceDateRangeUi()
     {
@@ -54,16 +72,16 @@ public partial class UpdateData : ContentPage
 
         if (App.Session?.odooConnection == null)
         {
-            dpInvoiceDateFrom.Date = today.AddMonths(-5);
+            dpInvoiceDateFrom.Date = today.AddMonths(-6);
             return;
         }
 
         var database = new AccountMoveDb(App.Session.odooConnection.DbNameSqlite);
         bool firstSyncOfDay = database.IsFirstAccountMoveSyncOfDay();
 
-        // 1ra del día: periodo amplio (5 meses). Siguientes: solo lo del día (parcial), editable.
+        // 1ra del día: Desde = hace 6 meses, Hasta = hoy. Siguientes: solo el día actual.
         dpInvoiceDateFrom.Date = firstSyncOfDay
-            ? today.AddMonths(-5)
+            ? today.AddMonths(-6)
             : today;
     }
 
@@ -421,7 +439,9 @@ public partial class UpdateData : ContentPage
         bool packageReady = await pipeline.ExistAttachRecord();
         bool isValidData = await pipeline.IsValidData();
 
-        if (!packageReady && !isValidData)
+        if (ServerPuller.EnablePipelineZipBootstrapSync
+            && !packageReady
+            && !isValidData)
         {
             var packFound = await pipeline.NewestZipPack();
 
@@ -489,49 +509,16 @@ public partial class UpdateData : ContentPage
         double fontSize = 14;
         var toast = Toast.Make(text, duration, fontSize);
         await toast.Show(cancellationTokenSource.Token);
-                
-        if (chkGroup1.IsChecked)
-        {
-            await UpdateProgressState(progressBarPage, 0, 0, "Actualización " + AccountMoveDocumentDisplay.BulkSyncHeadersProgressLabel);
-            await serverPuller.OnlineSyncAccountMove(
-                async (current, total) =>
-                {
-                    await UpdateProgressState(progressBarPage, current, total, AccountMoveDocumentDisplay.BulkSyncHeadersProgressLabel);
-                },
-                invoiceDateFrom,
-                invoiceDateTo);
-            progressBarPage.SetTotalPercent(0.80);
-        }
 
-        if(chkGroup2.IsChecked)
-        {
-            await serverPuller.OnlineSyncAccountMoveLine(
-                async (current, total) =>
-                {
-                    await UpdateProgressState(progressBarPage, current, total, AccountMoveDocumentDisplay.BulkSyncDetailsProgressLabel);
-                },
-                invoiceDateFrom,
-                invoiceDateTo);
-        }
+        // Orden fijo de sincronización:
+        // 1) Datos de usuario  2) Clientes  3) Otros  4) Parámetros  5) Cabecera  6) Detalle
 
-        if (chkGroup3.IsChecked)
+        if (chkGroup4.IsChecked || chkGroup3.IsChecked)
         {
             await serverPuller.OnlineSyncUsers();
-            await serverPuller.OnlineSyncProductProductNoImage(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Productos"); });            
-            await serverPuller.OnlineSyncJournal(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Asientos"); });
-            await serverPuller.OnlineSyncBank(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Bancos"); });
-            await serverPuller.OnlineSyncCompany(false);
-            await serverPuller.OnlineCreditNotesRelated(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Credito Data"); });
-
-            await serverPuller.GetTarjetas(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Tarjetas"); });
-            await serverPuller.GetTarjetasTipoPago(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Tipos de Pago"); });
-            await serverPuller.GetTarjetasPlazosBanco(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Plazos Banco"); });            
-
-            await serverPuller.GetCities(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Ciudades"); });
-            await serverPuller.GetFullResCenterLine(true, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Centros de Recursos"); });
         }
 
-        if(chkGroup4.IsChecked)
+        if (chkGroup4.IsChecked)
         {
             await serverPuller.GetReceiptReceiptsLine(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Recibos Lines"); });
             await serverPuller.OnlineAccountTaxes(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Impuestos"); });
@@ -553,6 +540,47 @@ public partial class UpdateData : ContentPage
         {
             await serverPuller.OnlineSyncAccountPaymentDaily(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Pagos Diarios"); });
             await serverPuller.DownloadAccountMoveRefund(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Reembolsos NC"); });
+            await serverPuller.OnlineSyncUomUom(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Unidades de medida"); });
+        }
+
+        if (chkGroup3.IsChecked)
+        {
+            await serverPuller.OnlineSyncProductProductNoImage(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Productos"); });
+            await serverPuller.OnlineSyncJournal(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Asientos"); });
+            await serverPuller.OnlineSyncBank(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Bancos"); });
+            await serverPuller.OnlineSyncCompany(false);
+            await serverPuller.OnlineCreditNotesRelated(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Credito Data"); });
+
+            await serverPuller.GetTarjetas(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Tarjetas"); });
+            await serverPuller.GetTarjetasTipoPago(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Tipos de Pago"); });
+            await serverPuller.GetTarjetasPlazosBanco(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Plazos Banco"); });
+
+            await serverPuller.GetCities(async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Ciudades"); });
+            await serverPuller.GetFullResCenterLine(true, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Centros de Recursos"); });
+        }
+
+        if (chkGroup1.IsChecked)
+        {
+            await UpdateProgressState(progressBarPage, 0, 0, "Actualización " + AccountMoveDocumentDisplay.BulkSyncHeadersProgressLabel);
+            await serverPuller.OnlineSyncAccountMove(
+                async (current, total) =>
+                {
+                    await UpdateProgressState(progressBarPage, current, total, AccountMoveDocumentDisplay.BulkSyncHeadersProgressLabel);
+                },
+                invoiceDateFrom,
+                invoiceDateTo);
+            progressBarPage.SetTotalPercent(0.80);
+        }
+
+        if (chkGroup2.IsChecked)
+        {
+            await serverPuller.OnlineSyncAccountMoveLine(
+                async (current, total) =>
+                {
+                    await UpdateProgressState(progressBarPage, current, total, AccountMoveDocumentDisplay.BulkSyncDetailsProgressLabel);
+                },
+                invoiceDateFrom,
+                invoiceDateTo);
         }
 
         progressBarPage.SetTotalPercent(1);
@@ -576,6 +604,11 @@ public partial class UpdateData : ContentPage
 
                     App.Session.CurrentUserFront.log_fec_sincro = foundUser.log_fec_sincro;
                     App.Session.CurrentUserFront.log_fec_sincro_nc = foundUser.log_fec_sincro_nc;
+
+                    SyncStatusLabels.PersistLastSyncDate(
+                        foundUser.log_fec_sincro,
+                        App.Session.odooConnection);
+                    await RefreshSyncStatusLabelsAsync();
 
                     await database.UpdateAsync(foundUser);
                 }

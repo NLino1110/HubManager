@@ -1,4 +1,4 @@
-﻿using DMCobranzas.Services;
+using DMCobranzas.Services;
 using DMSA.Models.Security;
 using DMSA.Sync.Core.Services;
 
@@ -13,6 +13,7 @@ namespace DMCobranzas
 
         public App()
         {
+            UserAppTheme = AppTheme.Light;
             InitializeComponent();
             MainPage = new AppShell();
         }

@@ -1,4 +1,4 @@
-﻿using ApiManagerOdoo.Inventory;
+using ApiManagerOdoo.Inventory;
 using DMSA.Sync.Core.Database.Sqlite;
 using System.Diagnostics;
 
@@ -85,6 +85,53 @@ namespace DMSA.Sync.Core.Update
                 if (indice >= maxIndexExceeded)
                 {
                     Debug.WriteLine("Página " + indice + ": Se terminará el proceso.");
+                    break;
+                }
+            }
+
+            stopwatch.Stop();
+
+            Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
+                stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
+
+            return true;
+        }
+
+        public async Task<bool> OnlineSyncUomUom(Func<int, int, Task>? onProgress = null)
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            var hubmanager = new ApiManager.HubUomUom(Constants.Session);
+            var resultCount = await hubmanager.GetCountAll();
+
+            Debug.WriteLine("OnlineSyncUomUom count: " + resultCount.result);
+
+            if (resultCount.result == 0)
+            {
+                return false;
+            }
+
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
+            var database = new UomUomDb(Constants.Session.odooConnection.DbNameSqlite);
+            await database.Truncate();
+
+            for (int indice = 0; indice < totalPages; indice++)
+            {
+                var responseAll = await hubmanager.GetAll(limit, indice);
+
+                if (responseAll?.result != null && responseAll.result.Length > 0)
+                {
+                    await database.InsertBatchAsync(responseAll.result);
+                }
+
+                Debug.WriteLine("UomUom Página:" + (indice + 1) + " de " + totalPages);
+
+                if (onProgress != null)
+                    await onProgress(indice + 1, totalPages);
+
+                if (indice >= maxIndexExceeded)
+                {
+                    Debug.WriteLine("Página " + indice + ": Se terminará el proceso UomUom.");
                     break;
                 }
             }

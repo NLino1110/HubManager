@@ -1,5 +1,6 @@
 using CommunityToolkit.Maui.Core.Platform;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows.Input;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -32,6 +33,10 @@ namespace DMSA.Sync.Core.Controls.Popups
         public Button _btnSave;
         public Button _btnCancel;
         public Button _btnClose;
+        private Button _btnBack;
+        private StackLayout _stackLayoutLabels;
+        private VerticalStackLayout _compactTopBar;
+        private VerticalStackLayout _compactSearchSection;
 
         public ScrollView _scrollView;
         public CollectionView _collectionViewSearch;
@@ -134,6 +139,17 @@ namespace DMSA.Sync.Core.Controls.Popups
         {
             get => (ContentView)GetValue(ContentCustomToolBoxProperty);
             set => SetValue(ContentCustomToolBoxProperty, value);
+        }
+
+        public static readonly BindableProperty ContentToolBox1Property =
+            BindableProperty.Create(nameof(ContentToolBox1),
+                typeof(ContentView),
+                typeof(PopupSelectBase<T>));
+
+        public ContentView ContentToolBox1
+        {
+            get => (ContentView)GetValue(ContentToolBox1Property);
+            set => SetValue(ContentToolBox1Property, value);
         }
 
         public PopupSelectBase(PopupSizeConstants popupSizeConstants)
@@ -380,6 +396,195 @@ namespace DMSA.Sync.Core.Controls.Popups
             timer.Start();
         }
 
+        protected static bool UseCompactPopupTopLayout()
+        {
+            return DeviceInfo.Current.Idiom == DeviceIdiom.Phone;
+        }
+
+        private View BuildCompactTopBar()
+        {
+            _searchBar.MinimumWidthRequest = 0;
+            _searchBarBorder.HorizontalOptions = LayoutOptions.Fill;
+            _searchBarBorder.VerticalOptions = LayoutOptions.Start;
+            _searchBarBorder.Margin = new Thickness(0);
+
+            _btnBack.WidthRequest = 44;
+            _btnBack.HeightRequest = 44;
+            _btnBack.Padding = new Thickness(8);
+            _btnBack.BackgroundColor = Colors.Transparent;
+
+            _stackLayoutLabels.Margin = new Thickness(0);
+            _labelTitle.FontSize = 15;
+            _labelOverTitle.FontSize = 12;
+
+            var headerRow = new Grid
+            {
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = GridLength.Auto },
+                    new ColumnDefinition { Width = GridLength.Star },
+                },
+                ColumnSpacing = 6,
+            };
+            headerRow.Add(_btnBack, 0, 0);
+            headerRow.Add(_stackLayoutLabels, 1, 0);
+
+            _stackLayoutToolBox1.HorizontalOptions = LayoutOptions.Fill;
+            _stackLayoutToolBox2.HorizontalOptions = LayoutOptions.Fill;
+            _stackLayoutToolBox1.Margin = new Thickness(0);
+            _stackLayoutToolBox2.Margin = new Thickness(0);
+
+            _compactSearchSection = new VerticalStackLayout
+            {
+                Spacing = 6,
+                HorizontalOptions = LayoutOptions.Fill,
+                VerticalOptions = LayoutOptions.Start,
+            };
+            _compactSearchSection.Children.Add(_searchBarBorder);
+
+            _compactTopBar = new VerticalStackLayout
+            {
+                Spacing = 8,
+                Padding = new Thickness(10, 12, 10, 8),
+                BackgroundColor = _colorTop,
+            };
+
+            _compactTopBar.Children.Add(headerRow);
+            _compactTopBar.Children.Add(_compactSearchSection);
+            return _compactTopBar;
+        }
+
+        protected Button CreateSearchButton(Action onSearch)
+        {
+            var btnSearch = new Button
+            {
+                Text = "Buscar",
+                BackgroundColor = Colors.SeaGreen,
+                TextColor = Colors.White,
+                FontAttributes = FontAttributes.Bold,
+                Margin = new Thickness(0),
+                MinimumHeightRequest = 44,
+                HorizontalOptions = LayoutOptions.Fill,
+                ImageSource = new FontImageSource
+                {
+                    FontFamily = "FontAwesome5Solid",
+                    Color = Colors.White,
+                    Size = 18,
+                    Glyph = "\uf002"
+                }
+            };
+            btnSearch.Clicked += (_, _) => onSearch();
+            return btnSearch;
+        }
+
+        protected ContentView WrapSearchButton(Action onSearch) =>
+            new ContentView
+            {
+                HorizontalOptions = LayoutOptions.Fill,
+                VerticalOptions = LayoutOptions.Start,
+                Content = CreateSearchButton(onSearch)
+            };
+
+        private void ApplyMobileToolbarContent()
+        {
+            if (UseCompactPopupTopLayout() && _compactSearchSection != null && _compactTopBar != null)
+            {
+                while (_compactSearchSection.Children.Count > 1)
+                    _compactSearchSection.Children.RemoveAt(_compactSearchSection.Children.Count - 1);
+
+                while (_compactTopBar.Children.Count > 2)
+                    _compactTopBar.Children.RemoveAt(_compactTopBar.Children.Count - 1);
+
+                if (ContentCustomToolBox != null)
+                {
+                    StyleMobileSearchToolBox(ContentCustomToolBox);
+                    _compactSearchSection.Children.Add(ContentCustomToolBox);
+                }
+
+                if (ContentToolBox1 != null)
+                {
+                    StyleMobileActionToolBox(ContentToolBox1);
+                    _compactTopBar.Children.Add(ContentToolBox1);
+                }
+
+                return;
+            }
+
+            _stackLayoutToolBox2.Children.Clear();
+            if (ContentCustomToolBox != null)
+                _stackLayoutToolBox2.Children.Add(ContentCustomToolBox);
+
+            _stackLayoutToolBox1.Children.Clear();
+            if (ContentToolBox1 != null)
+                _stackLayoutToolBox1.Children.Add(ContentToolBox1);
+
+            _stackLayoutToolBox1.IsVisible = _stackLayoutToolBox1.Children.Count > 0;
+            _stackLayoutToolBox2.IsVisible = _stackLayoutToolBox2.Children.Count > 0;
+        }
+
+        private static void StyleMobileSearchToolBox(ContentView contentView)
+        {
+            contentView.HorizontalOptions = LayoutOptions.Fill;
+            contentView.VerticalOptions = LayoutOptions.Start;
+            contentView.MinimumHeightRequest = 44;
+            contentView.MaximumHeightRequest = 44;
+
+            if (contentView.Content is Button searchButton)
+                ConfigureMobileSearchButton(searchButton);
+        }
+
+        private static void StyleMobileActionToolBox(ContentView contentView)
+        {
+            contentView.HorizontalOptions = LayoutOptions.Fill;
+            contentView.VerticalOptions = LayoutOptions.Start;
+
+            if (contentView.Content is StackLayout horizontal &&
+                horizontal.Orientation == StackOrientation.Horizontal)
+            {
+                var buttons = horizontal.Children.OfType<Button>().ToList();
+                if (buttons.Count != 2)
+                    return;
+
+                horizontal.Children.Clear();
+                horizontal.Spacing = 0;
+
+                var grid = new Grid
+                {
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition(GridLength.Star),
+                        new ColumnDefinition(GridLength.Star),
+                    },
+                    ColumnSpacing = 8,
+                    HorizontalOptions = LayoutOptions.Fill,
+                };
+
+                ConfigureMobileActionButton(buttons[0]);
+                ConfigureMobileActionButton(buttons[1]);
+                grid.Add(buttons[0], 0, 0);
+                grid.Add(buttons[1], 1, 0);
+                horizontal.Children.Add(grid);
+            }
+        }
+
+        private static void ConfigureMobileSearchButton(Button btn)
+        {
+            btn.HorizontalOptions = LayoutOptions.Fill;
+            btn.VerticalOptions = LayoutOptions.Start;
+            btn.MinimumHeightRequest = 44;
+            btn.Margin = new Thickness(0);
+        }
+
+        private static void ConfigureMobileActionButton(Button btn)
+        {
+            btn.HorizontalOptions = LayoutOptions.Fill;
+            btn.MinimumHeightRequest = 44;
+            btn.Margin = new Thickness(0);
+            btn.Padding = new Thickness(6, 8);
+            btn.FontSize = 11;
+            btn.LineBreakMode = LineBreakMode.WordWrap;
+        }
+
         private void BuildTop(Grid gridContent)
         {
             var flexTop = new FlexLayout
@@ -478,7 +683,7 @@ namespace DMSA.Sync.Core.Controls.Popups
                 VerticalOptions = LayoutOptions.Start,                
             };
 
-            Button _btnBack = new Button
+            _btnBack = new Button
             {
                 //Text = "Regresar",
                 BackgroundColor = Colors.WhiteSmoke,
@@ -504,40 +709,22 @@ namespace DMSA.Sync.Core.Controls.Popups
 
             var _stackLayoutButtonTop = new StackLayout
             {
-                Margin = new Thickness(2,0,2,0),
+                Margin = new Thickness(2, 0, 2, 0),
                 Orientation = StackOrientation.Vertical,
                 HorizontalOptions = LayoutOptions.Start,
                 VerticalOptions = LayoutOptions.Center,
-                //MinimumHeightRequest = 35,
-                BackgroundColor = Colors.Red
             };
 
-            _stackLayoutButtonTop.Children.Add(_btnBack);
-            
-            //FlexLayout.SetGrow(_stackLayoutButtonTop, 1);
-            FlexLayout.SetOrder(_stackLayoutButtonTop, 1);
-            //FlexLayout.SetAlignSelf(_btnBack, FlexAlignSelf.Center);
-            flexTop.Children.Add(_stackLayoutButtonTop);
-            
-            var _stackLayoutLabels = new StackLayout
+            _stackLayoutLabels = new StackLayout
             {
                 Margin = new Thickness(2, 0, 2, 0),
                 Orientation = StackOrientation.Vertical,
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Center,
-                //MinimumHeightRequest = 40,
-                //BackgroundColor = Colors.Blue
             };
 
-            //FlexLayout.SetGrow(_stackLayoutLabels, 1);
             _stackLayoutLabels.Children.Add(_labelTitle);
-            _stackLayoutLabels.Children.Add(_labelOverTitle);            
-
-            flexTop.Children.Add(_stackLayoutLabels);
-            //FlexLayout.SetGrow(_stackLayoutLabels, 1);
-            FlexLayout.SetOrder(_stackLayoutLabels, 1);
-            //Botón de cerrar en pantalla pequeña
-            //flexTop.Children.Add(_btnCloseSmall);
+            _stackLayoutLabels.Children.Add(_labelOverTitle);
 
             _searchBarBorder = new Border
             {
@@ -556,39 +743,45 @@ namespace DMSA.Sync.Core.Controls.Popups
                 IsVisible = ShowTextSearch
             };
                         
-            FlexLayout.SetOrder(_searchBarBorder, 3);
-            
-            bool isWindows = DeviceInfo.Current.Platform == DevicePlatform.WinUI;
+            var compactTop = UseCompactPopupTopLayout();
+            View topBarContent;
 
-            if (isWindows)
+            if (compactTop)
             {
-                flexTop.Margin = new Thickness(0, 25, 0, 0);
-                FlexLayout.SetGrow(_searchBarBorder, 1);
-                FlexLayout.SetAlignSelf(_searchBarBorder, FlexAlignSelf.Center);
-            }
-            
-            FlexLayout.SetShrink(_searchBarBorder, 0);
-            flexTop.Children.Add(_searchBarBorder);
-
-            /************************************/
-            flexTop.Children.Add(_stackLayoutToolBox1);
-            FlexLayout.SetOrder(_stackLayoutToolBox1, 3);
-
-            flexTop.Children.Add(_stackLayoutToolBox2);
-            FlexLayout.SetOrder(_stackLayoutToolBox2, 4);
-            /************************************/
-
-            //flexTop.Children.Add(_btnClose);
-            var orientation = DeviceDisplay.MainDisplayInfo.Orientation;
-            if (orientation == DisplayOrientation.Portrait)
-            {
-                //FlexLayout.SetOrder(_btnClose, 2);
-                _btnClose.IsVisible = false;
+                topBarContent = BuildCompactTopBar();
             }
             else
             {
-                FlexLayout.SetOrder(_btnClose, 5);
-                _btnClose.IsVisible = true;
+                _stackLayoutButtonTop.Children.Add(_btnBack);
+                FlexLayout.SetOrder(_stackLayoutButtonTop, 1);
+                flexTop.Children.Add(_stackLayoutButtonTop);
+
+                flexTop.Children.Add(_stackLayoutLabels);
+                FlexLayout.SetOrder(_stackLayoutLabels, 1);
+
+                FlexLayout.SetOrder(_searchBarBorder, 3);
+
+                bool isWindows = DeviceInfo.Current.Platform == DevicePlatform.WinUI;
+                if (isWindows)
+                {
+                    flexTop.Margin = new Thickness(0, 25, 0, 0);
+                    FlexLayout.SetGrow(_searchBarBorder, 1);
+                    FlexLayout.SetAlignSelf(_searchBarBorder, FlexAlignSelf.Center);
+                }
+
+                FlexLayout.SetShrink(_searchBarBorder, 0);
+                flexTop.Children.Add(_searchBarBorder);
+                flexTop.Children.Add(_stackLayoutToolBox1);
+                FlexLayout.SetOrder(_stackLayoutToolBox1, 3);
+                flexTop.Children.Add(_stackLayoutToolBox2);
+                FlexLayout.SetOrder(_stackLayoutToolBox2, 4);
+
+                var orientation = DeviceDisplay.MainDisplayInfo.Orientation;
+                _btnClose.IsVisible = orientation != DisplayOrientation.Portrait;
+                if (_btnClose.IsVisible)
+                    FlexLayout.SetOrder(_btnClose, 5);
+
+                topBarContent = flexTop;
             }
 
             var stackLayoutTopInner = new StackLayout
@@ -598,19 +791,18 @@ namespace DMSA.Sync.Core.Controls.Popups
 
             var borderBottom = new BoxView
             {
-                //BackgroundColor = Colors.SlateGray, // Color del borde
-                HeightRequest = 1, // Grosor del borde
+                HeightRequest = 1,
                 HorizontalOptions = LayoutOptions.Fill,
                 Color = new Microsoft.Maui.Graphics.Color(100, 100, 100, 50)
             };
 
-            stackLayoutTopInner.Children.Add(flexTop);
+            stackLayoutTopInner.Children.Add(topBarContent);
 
             _stackLayoutTop = new StackLayout
             {
                 Children = { stackLayoutTopInner, borderBottom },
-                Margin = new Thickness(0, 0, 0, 0),
-                BackgroundColor = Colors.Khaki,
+                Margin = new Thickness(0),
+                BackgroundColor = _colorTop,
             };
 
             gridContent.Children.Add(_stackLayoutTop);
@@ -873,9 +1065,11 @@ namespace DMSA.Sync.Core.Controls.Popups
             //Label lblInfo = new Label() { Text = "Cabecera" };
             contentViewHeader = new HeaderLikeTable();
             contentViewHeader.Columns = "-";
+            if (UseCompactPopupTopLayout())
+                contentViewHeader.Margin = new Thickness(0, 2, 0, 0);
 
             gridContent.Children.Add(contentViewHeader);
-            Grid.SetRow(contentViewHeader, 2);
+            Grid.SetRow(contentViewHeader, UseCompactPopupTopLayout() ? 1 : 2);
             Grid.SetColumn(contentViewHeader, 0);
             Grid.SetColumnSpan(contentViewHeader, 2);
 
@@ -971,9 +1165,8 @@ namespace DMSA.Sync.Core.Controls.Popups
                     }
                     break;
                 case "ContentCustomToolBox":
-                    {
-                        _stackLayoutToolBox2.Children.Add(ContentCustomToolBox);
-                    }
+                case "ContentToolBox1":
+                    ApplyMobileToolbarContent();
                     break;
             }
         }

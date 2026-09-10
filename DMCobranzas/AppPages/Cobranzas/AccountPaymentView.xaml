@@ -50,143 +50,106 @@
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
                                 
-                <Grid Margin="3" 
-                            Grid.Row="0" 
-                            Grid.Column="0" 
-                            Grid.ColumnSpan="1"
+                <Grid Margin="3"
+                      Grid.Row="0"
+                      Grid.Column="0"
                       x:Name="GridPartner">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-                    
                     <Entry x:Name="txtCliente"
                            Placeholder="Seleccione un cliente..."
                            PlaceholderColor="SlateGray"
-                           HorizontalOptions="FillAndExpand" 
+                           HorizontalOptions="FillAndExpand"
                            IsReadOnly="True"
                            MinimumWidthRequest="190"
-                           FontAttributes="Bold"
-                           Grid.ColumnSpan="3">
-                        <!--<Entry.GestureRecognizers>
-                            <TapGestureRecognizer
-                            Tapped="OnEntryTapped" 
-                            NumberOfTapsRequired="1" />
-                        </Entry.GestureRecognizers>-->
+                           FontAttributes="Bold">
                         <Entry.Behaviors>
                             <bh:SafeTapBehavior Command="{Binding SeleccionarClienteCommand}" />
                         </Entry.Behaviors>
                     </Entry>
+                </Grid>
 
-                    <Button 
-                         Grid.Column="1"
-                         CornerRadius="5"
-                         Text=""
-                         BackgroundColor="Transparent"                            
-                         Clicked="HandleReturnResultPopupButtonClicked"                         
-                         WidthRequest="2"                         
-                         HeightRequest="2"
-                         Margin="3"
-                         Padding="5">
+                <HorizontalStackLayout x:Name="StackActions"
+                                       Grid.Row="0"
+                                       Grid.Column="1"
+                                       Grid.ColumnSpan="2"
+                                       Spacing="4"
+                                       VerticalOptions="Center"
+                                       Margin="5,3,3,3">
+                    <Button Style="{StaticResource IconSearchButtonStyle}"
+                            Text=""
+                            Clicked="HandleReturnResultPopupButtonClicked">
                         <Button.ImageSource>
                             <FontImageSource FontFamily="FontAwesome5Solid"
-								Color="DimGray"
-								Size="12"
-								FontAutoScalingEnabled="True"                                                         
-								Glyph="&#xf002;" />
+                                             Color="White"
+                                             Size="12"
+                                             FontAutoScalingEnabled="True"
+                                             Glyph="&#xf002;" />
                         </Button.ImageSource>
                     </Button>
-                    
-                    <Button
-                        Grid.Column="2"                        
-                        WidthRequest="20"                        
-                        HeightRequest="20"
-                        CornerRadius="5"
-                        Margin="0,0,5,0"
-                        x:Name="btnRemoveCustomer" 						
-                        Clicked="btnRemoveCustomer_Clicked"                        
-						BackgroundColor="Transparent">
+
+                    <Button x:Name="btnRemoveCustomer"
+                            Style="{StaticResource IconClearButtonStyle}"
+                            Clicked="btnRemoveCustomer_Clicked">
                         <Button.ImageSource>
                             <FontImageSource FontFamily="FontAwesome5Solid"
-											Color="DimGray"
-											Size="12"
-											FontAutoScalingEnabled="True"                                                         
-											Glyph="&#xf00d;" />
+                                             Color="White"
+                                             Size="12"
+                                             FontAutoScalingEnabled="True"
+                                             Glyph="&#xf00d;" />
                         </Button.ImageSource>
-                    </Button>                    
-                </Grid>
-                
-                <Button
-                    x:Name="AddCobro"
-                    CornerRadius="5"
-                    BackgroundColor="DodgerBlue"
-                    HorizontalOptions="End"
-                    VerticalOptions="Center"
-                    Text="AGREGAR"                    
-                    Grid.Column="1"
-                    Grid.Row="0"                    
-                    FontAttributes="Bold"                     
-                    Margin="0,8,0,8">
-                    <Button.Behaviors>
-                        <bh:SafeTapBehavior Command="{Binding AddCobroCommand}" />
-                    </Button.Behaviors>
-                    <Button.ImageSource>
-                        <FontImageSource FontFamily="FontAwesome5Solid"
-                                         Color="White"
-                                         Size="20"
-                                         FontAutoScalingEnabled="True"                                         
-                                         Glyph="&#xf067;" />
-                    </Button.ImageSource>
-                </Button>
+                    </Button>
 
-                <HorizontalStackLayout
-                    Grid.Row="0"
-                    Grid.Column="2"
-                    Spacing="10"
-                    HorizontalOptions="End"
-                    VerticalOptions="Center">
-                <Button                    
-                    CornerRadius="5"
-                    x:Name="btnCustomerAccounts"                    
-                    Text="Ver saldos" 
-                    BackgroundColor="LimeGreen"                     
-                    Margin="0,8,0,8"
-                    Padding="12,6"
-                    HorizontalOptions="Center">
-                    <Button.Behaviors>
-                        <bh:SafeTapBehavior Command="{Binding VerSaldosCommand}" />
-                    </Button.Behaviors>
-                    <Button.ImageSource>
-                        <FontImageSource FontFamily="FontAwesome5Solid"
-                                         Color="White"
-                                         Size="20"
-                                         FontAutoScalingEnabled="True" 
-                                         Glyph="&#xf4c0;" />
-                    </Button.ImageSource>
-                </Button>
+                    <Button x:Name="AddCobro"
+                            CornerRadius="5"
+                            BackgroundColor="DodgerBlue"
+                            Text="AGREGAR"
+                            FontAttributes="Bold"
+                            Padding="8,4">
+                        <Button.Behaviors>
+                            <bh:SafeTapBehavior Command="{Binding AddCobroCommand}" />
+                        </Button.Behaviors>
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid"
+                                             Color="White"
+                                             Size="20"
+                                             FontAutoScalingEnabled="True"
+                                             Glyph="&#xf067;" />
+                        </Button.ImageSource>
+                    </Button>
 
-                <Button                    
-                    CornerRadius="5"                    
-                    x:Name="btnDownloadData"                    
-                    Text="" 
-                    BackgroundColor="DeepSkyBlue"                     
-                    Margin="0,8,0,8"
-                    Padding="12,6"
-                    WidthRequest="48"
-                    HorizontalOptions="Center">
-                    <Button.Behaviors>
+                    <Button x:Name="btnCustomerAccounts"
+                            CornerRadius="5"
+                            Text="Saldos"
+                            BackgroundColor="LimeGreen"
+                            Padding="12,6">
+                        <Button.Behaviors>
+                            <bh:SafeTapBehavior Command="{Binding VerSaldosCommand}" />
+                        </Button.Behaviors>
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid"
+                                             Color="White"
+                                             Size="20"
+                                             FontAutoScalingEnabled="True"
+                                             Glyph="&#xf4c0;" />
+                        </Button.ImageSource>
+                    </Button>
+
+                    <Button x:Name="btnDownloadData"
+                            CornerRadius="5"
+                            Text=""
+                            BackgroundColor="DeepSkyBlue"
+                            Padding="12,6"
+                            WidthRequest="48">
+                        <Button.Behaviors>
                             <bh:SafeTapBehavior Command="{Binding DownloadDataCommand}" />
-                    </Button.Behaviors>
-                    <Button.ImageSource>
-                        <FontImageSource FontFamily="FontAwesome5Solid"
-                         Color="White"
-                         Size="20"
-                         FontAutoScalingEnabled="True"                                                         
-                         Glyph="&#xf019;" />
-                    </Button.ImageSource>
-                </Button>
-
+                        </Button.Behaviors>
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FontAwesome5Solid"
+                                             Color="White"
+                                             Size="20"
+                                             FontAutoScalingEnabled="True"
+                                             Glyph="&#xf019;" />
+                        </Button.ImageSource>
+                    </Button>
                 </HorizontalStackLayout>
 
 
@@ -249,21 +212,13 @@
                                 <AdaptiveTrigger MinWindowWidth="0" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter TargetName="AddCobro"
-                            Property="Grid.Row"
-                            Value="1" />
-                                <Setter TargetName="AddCobro"
-                            Property="Grid.Column"
-                            Value="0" />
-
-                                <Setter TargetName="btnCustomerAccounts"
-                            Property="Grid.Row"
-                            Value="1" />
-                                <Setter TargetName="btnCustomerAccounts"
-                            Property="Grid.Column"
-                            Value="1" />
-
-                                <Setter TargetName="GridPartner" Property="Grid.ColumnSpan" Value="2"/>
+                                <Setter TargetName="GridPartner" Property="Grid.Row" Value="0" />
+                                <Setter TargetName="GridPartner" Property="Grid.Column" Value="0" />
+                                <Setter TargetName="GridPartner" Property="Grid.ColumnSpan" Value="3" />
+                                <Setter TargetName="StackActions" Property="Grid.Row" Value="1" />
+                                <Setter TargetName="StackActions" Property="Grid.Column" Value="0" />
+                                <Setter TargetName="StackActions" Property="Grid.ColumnSpan" Value="3" />
+                                <Setter TargetName="StackActions" Property="HorizontalOptions" Value="Center" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -273,21 +228,13 @@
                                 <AdaptiveTrigger MinWindowWidth="720" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter TargetName="AddCobro"
-                            Property="Grid.Row"
-                            Value="0" />
-                                <Setter TargetName="AddCobro"
-                            Property="Grid.Column"
-                            Value="1" />
-
-                                <Setter TargetName="btnCustomerAccounts"
-                            Property="Grid.Row"
-                            Value="0" />
-                                <Setter TargetName="btnCustomerAccounts"
-                            Property="Grid.Column"
-                            Value="2" />
-                                
-                                <Setter TargetName="GridPartner" Property="Grid.ColumnSpan" Value="1"/>
+                                <Setter TargetName="GridPartner" Property="Grid.Row" Value="0" />
+                                <Setter TargetName="GridPartner" Property="Grid.Column" Value="0" />
+                                <Setter TargetName="GridPartner" Property="Grid.ColumnSpan" Value="1" />
+                                <Setter TargetName="StackActions" Property="Grid.Row" Value="0" />
+                                <Setter TargetName="StackActions" Property="Grid.Column" Value="1" />
+                                <Setter TargetName="StackActions" Property="Grid.ColumnSpan" Value="2" />
+                                <Setter TargetName="StackActions" Property="HorizontalOptions" Value="End" />
                             </VisualState.Setters>
                         </VisualState>
 

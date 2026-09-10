@@ -38,38 +38,58 @@ namespace ApiManagerOdoo.Accounting
             _modelname = "account.move.line";
         }
 
-        public async Task<ApiResponseOdooRpc?> GetDetailCount(DateTime dateIni)
+        static object[] BuildLineWriteDateDomain(DateTime dateIni, bool firstSyncOfDay)
         {
-            object[] args = new object[] { };            
-            object[] _custom_args = new object[] {
-                new object[] { "write_date", ">=", $"{dateIni.Year}-{dateIni.Month:00}-{dateIni.Day:00} 00:00:00" },
+            string writeDate = $"{dateIni.Year}-{dateIni.Month:00}-{dateIni.Day:00} 00:00:00";
+            string writeOp = firstSyncOfDay ? "<=" : ">=";
+
+            return new object[] {
+                new object[] { "write_date", writeOp, writeDate },
                 new object[] { "invoice_date", "!=", false },
             }
             .Concat(AccountMoveDocumentDisplay.BuildSyncMoveTypeDomain("move_id.move_type"))
             .ToArray();
-            return await GetCount(args, _custom_args);
         }
 
-        public async Task<ApiResponseOdooRpc?> GetDetailCountByInvoiceDateRange(DateTime dateFrom, DateTime dateTo)
+        public async Task<ApiResponseOdooRpc?> GetDetailCount(DateTime dateIni, bool firstSyncOfDay = true)
         {
             object[] args = new object[] { };
-            object[] _custom_args = BuildLineDomainByInvoiceDateRange(dateFrom.Date, dateTo.Date);
+            object[] _custom_args = BuildLineWriteDateDomain(dateIni, firstSyncOfDay);
             return await GetCount(args, _custom_args);
         }
 
-        private static object[] BuildLineDomainByInvoiceDateRange(DateTime dateFrom, DateTime dateTo)
+        public async Task<ApiResponseOdooRpc?> GetDetailCountByInvoiceDateRange(
+            DateTime dateFrom, DateTime dateTo, int[] moveIds)
         {
-            return new object[] {
+            object[] args = new object[] { };
+            object[] _custom_args = BuildLineDomainByInvoiceDateRange(dateFrom.Date, dateTo.Date, moveIds);
+            return await GetCount(args, _custom_args);
+        }
+
+        // moveIds: IDs de account_move local; filtra líneas por move_id IN + rango invoice_date del move.
+        private static object[] BuildLineDomainByInvoiceDateRange(
+            DateTime dateFrom, DateTime dateTo, int[] moveIds)
+        {
+            var domain = new object[] {
                 new object[] { "move_id.invoice_date", ">=", dateFrom.ToString("yyyy-MM-dd") },
                 new object[] { "move_id.invoice_date", "<=", dateTo.ToString("yyyy-MM-dd") },
                 new object[] { "move_id.invoice_date", "!=", false },
             }
-            .Concat(AccountMoveDocumentDisplay.BuildSyncMoveTypeDomain("move_id.move_type"))
-            .ToArray();
+            .Concat(AccountMoveDocumentDisplay.BuildSyncMoveTypeDomain("move_id.move_type"));
+
+            if (moveIds != null && moveIds.Length > 0)
+            {
+                domain = domain.Concat(new object[]
+                {
+                    new object[] { "move_id", "in", moveIds }
+                });
+            }
+
+            return domain.ToArray();
         }
 
         public async Task<ApiResponseOdooRpcT<account_move_line[]>?> GetAccountMoveLinesByInvoiceDateRange(
-            DateTime dateFrom, DateTime dateTo, int limit, int index)
+            DateTime dateFrom, DateTime dateTo, int limit, int index, int[] moveIds)
         {
             var kwargs = new
             {
@@ -80,7 +100,7 @@ namespace ApiManagerOdoo.Accounting
             };
 
             object[] args = new object[] { };
-            object[] _custom_args = BuildLineDomainByInvoiceDateRange(dateFrom.Date, dateTo.Date);
+            object[] _custom_args = BuildLineDomainByInvoiceDateRange(dateFrom.Date, dateTo.Date, moveIds);
             return await SearchRead<ApiResponseOdooRpcT<account_move_line[]>>(args, _custom_args, kwargs, true);
         }
         
@@ -102,7 +122,11 @@ namespace ApiManagerOdoo.Accounting
 
         }
 
-        public async Task<ApiResponseOdooRpcT<account_move_line[]>?> GetAccountMoveLines(DateTime dateIni, int limit, int index)
+        public async Task<ApiResponseOdooRpcT<account_move_line[]>?> GetAccountMoveLines(
+            DateTime dateIni,
+            int limit,
+            int index,
+            bool firstSyncOfDay = true)
         {
             var kwargs = new
             {
@@ -113,12 +137,7 @@ namespace ApiManagerOdoo.Accounting
             };
 
             object[] args = new object[] { };
-            object[] _custom_args = new object[] {
-                new object[] { "write_date", ">=", $"{dateIni.Year}-{dateIni.Month:00}-{dateIni.Day:00} 00:00:00" },
-                new object[] { "invoice_date", "!=", false },
-            }
-            .Concat(AccountMoveDocumentDisplay.BuildSyncMoveTypeDomain("move_id.move_type"))
-            .ToArray();
+            object[] _custom_args = BuildLineWriteDateDomain(dateIni, firstSyncOfDay);
 
             return await SearchRead<ApiResponseOdooRpcT<account_move_line[]>>(args, _custom_args, kwargs);
 

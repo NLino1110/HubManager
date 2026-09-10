@@ -11,10 +11,11 @@ namespace DMSA.Sync.Core.Controls.Popups
     public class PopupSelectInvoice : PopupSelectBase<account_move>
     {
         const int LastInvoicesLimit = 20;
+        const int MinSearchLength = 2;
 
         const string LegendDefault =
-            "Se muestran facturas y notas de débito con saldo pendiente. " +
-            "Seleccione una opción para consultar la información.";
+            "Escriba al menos 2 caracteres del número o referencia del documento y pulse Buscar, " +
+            "o use Últimas 20 / Detalle general.";
 
         const string LegendLast20 =
             "20 documentos con saldo pendiente más antiguos (facturas y notas de débito), " +
@@ -23,6 +24,14 @@ namespace DMSA.Sync.Core.Controls.Popups
         const string LegendGeneral =
             "Todos los documentos con saldo pendiente (facturas y notas de débito), " +
             "ordenados por fecha de factura (antigua → reciente).";
+
+        const string EmptyViewInitial =
+            "No hay documentos listados todavía. Escriba al menos 2 caracteres y pulse Buscar, " +
+            "o seleccione Últimas 20 / Detalle general.";
+
+        const string SearchRequiredTitle = "Búsqueda requerida";
+        const string SearchRequiredMessage =
+            "Debe ingresar al menos 2 caracteres en el campo de búsqueda para continuar.";
 
         public res_company Company { get; set; }
         public res_partner partner { get; set; }
@@ -37,7 +46,7 @@ namespace DMSA.Sync.Core.Controls.Popups
             resultItemsSearch = new ObservableCollection<account_move>();
             Padding = new Thickness(0);
             Margin = new Thickness(0);
-            _collectionViewSearch.MinimumHeightRequest = 400;
+            _collectionViewSearch.MinimumHeightRequest = UseCompactPopupTopLayout() ? 220 : 400;
         }
 
         static string ResolveDbName()
@@ -51,7 +60,7 @@ namespace DMSA.Sync.Core.Controls.Popups
 
         async Task LoadData()
         {
-            if ((TextForSearch ?? string.Empty).Trim().Length < 2)
+            if ((TextForSearch ?? string.Empty).Trim().Length < MinSearchLength)
                 return;
 
             await LoadInvoicesAsync(
@@ -64,12 +73,9 @@ namespace DMSA.Sync.Core.Controls.Popups
                 });
         }
 
-        /// <summary>
-        /// Solo SQLite local: sin login ni llamadas a Odoo (Ver saldos es consulta offline).
-        /// </summary>
         async Task EnrichForBalanceViewAsync(List<account_move> items)
         {
-            if (items == null || items.Count == 0)
+            if (items == null || items.count == 0)
                 return;
 
             PrepareItemsForDisplay(items);
@@ -93,190 +99,3 @@ namespace DMSA.Sync.Core.Controls.Popups
             }
         }
 
-        static void PrepareItemsForDisplay(List<account_move> items)
-        {
-            foreach (var item in items)
-            {
-                if (item.amount_residual_virtual == 0 && item.amount_residual != 0)
-                    item.amount_residual_virtual = item.amount_residual;
-            }
-        }
-
-        async Task LoadInvoicesAsync(string legend, Func<AccountMoveDb, Task<List<account_move>>> fetchItemsAsync)
-        {
-            if (Company == null || partner == null)
-            {
-                await ShowPopupAlertAsync(
-                    "Datos incompletos",
-                    "No se ha definido la compañía o el cliente para consultar saldos.");
-                return;
-            }
-
-            var working = false;
-            try
-            {
-                var dbName = ResolveDbName();
-                await SetWorkingStatus();
-                working = true;
-                SetGridLegend(legend);
-
-                var database = new AccountMoveDb(dbName);
-                var result = await fetchItemsAsync(database);
-
-                resultItemsSearch = new ObservableCollection<account_move>(result ?? new List<account_move>());
-                _collectionViewSearch.ItemsSource = resultItemsSearch;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"PopupSelectInvoice LoadInvoicesAsync: {ex}");
-                await ShowPopupAlertAsync(
-                    "Error al cargar",
-                    "No se pudieron obtener los documentos. Se mostrarán los datos locales disponibles si existen.");
-            }
-            finally
-            {
-                if (working)
-                    await SetDoneStatus();
-            }
-        }
-
-        Task LoadDataLast20() =>
-            LoadInvoicesAsync(
-                LegendLast20,
-                async database =>
-                {
-                    var result = await database.GetItemsWithBalanceByPartnerForBalanceViewAsync(
-                        Company.id,
-                        partner.id,
-                        LastInvoicesLimit);
-
-
-                    await EnrichForBalanceViewAsync(result);
-                    return result;
-                });
-
-        Task LoadDataGeneralWithBalance() =>
-            LoadInvoicesAsync(
-                LegendGeneral,
-                async database =>
-                {
-                    var result = await database.GetItemsWithBalanceByPartnerForBalanceViewAsync(
-                        Company.id,
-                        partner.id);
-                    await EnrichForBalanceViewAsync(result);
-                    return result;
-                });
-
-        Task LoadDataForView() => LoadDataGeneralWithBalance();
-
-        async void _onAppearingCustom(object sender, EventArgs e)
-        {
-            SetTitle(Company?.name ?? "Documentos");
-            SetSubtitle(partner?.name ?? string.Empty);
-            SetGridTitles("Documentos");
-            SetGridLegend(LegendDefault);
-
-            if (LoadAuto)
-                await LoadDataForView();
-
-            Button _btnLoadLastInvoices = new Button
-            {
-                Text = "Últimas 20",
-                BackgroundColor = Colors.SeaGreen,
-                HorizontalOptions = LayoutOptions.Start,
-                Margin = new Thickness(5, 5, 2, 5),
-                ImageSource = new FontImageSource
-                {
-                    FontFamily = "FontAwesome5Solid",
-                    Color = Colors.White,
-                    Size = 20,
-                    FontAutoScalingEnabled = true,
-                    Glyph = "\uf0ae"
-                }
-            };
-            _btnLoadLastInvoices.Clicked += OnBtnLoadLast_Clicked;
-
-            Button _btnLoadGeneral = new Button
-            {
-                Text = "Detalle general",
-                BackgroundColor = Colors.SteelBlue,
-                HorizontalOptions = LayoutOptions.Start,
-                Margin = new Thickness(2, 5, 5, 5),
-                ImageSource = new FontImageSource
-                {
-                    FontFamily = "FontAwesome5Solid",
-                    Color = Colors.White,
-                    Size = 20,
-                    FontAutoScalingEnabled = true,
-                    Glyph = "\uf03a"
-                }
-            };
-            _btnLoadGeneral.Clicked += OnBtnLoadGeneral_Clicked;
-
-            var _stackLayoutToolBox = new StackLayout
-            {
-                Orientation = StackOrientation.Horizontal,
-                VerticalOptions = LayoutOptions.Start,
-                Margin = new Thickness(2, 0, 0, 0),
-                BackgroundColor = Colors.GhostWhite
-            };
-
-            _stackLayoutToolBox.Children.Add(_btnLoadLastInvoices);
-            _stackLayoutToolBox.Children.Add(_btnLoadGeneral);
-
-            ContentCustomToolBox = new ContentView
-            {
-                Content = _stackLayoutToolBox
-            };
-        }
-
-        async void _searchBar_BeginSearch(object sender, EventArgs e)
-        {
-            await LoadData();
-        }
-
-        private async void OnBtnLoadLast_Clicked(object sender, EventArgs e)
-        {
-            await LoadDataLast20();
-        }
-
-        private async void OnBtnLoadGeneral_Clicked(object sender, EventArgs e)
-        {
-            await LoadDataGeneralWithBalance();
-        }
-
-        public override CollectionView builCollectionViewCustom()
-        {
-            var collectionView = new CollectionView
-            {
-                BackgroundColor = Colors.WhiteSmoke,
-                HorizontalOptions = LayoutOptions.Fill,
-                SelectionMode = SelectionMode.Single,
-                EmptyView = "Seleccione \"Últimas 20\" o \"Detalle general\" para visualizar facturas y notas de débito.",
-            };
-
-            collectionView.ItemTemplate = new DataTemplate(() =>
-            {
-                var row = new AccountMoveRow();
-                row.ActionCommand = CommandSelectListItem;
-
-                row.BindingContextChanged += (s, e) =>
-                {
-                    if (row.BindingContext != null)
-                    {
-                        var selectedItemBinding = new Binding
-                        {
-                            Path = "SelectedItem",
-                            Source = collectionView,
-                            Mode = BindingMode.TwoWay
-                        };
-                    }
-                };
-
-                return row;
-            });
-
-            return collectionView;
-        }
-    }
-}

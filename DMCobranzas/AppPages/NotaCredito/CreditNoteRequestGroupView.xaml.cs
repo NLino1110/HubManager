@@ -75,6 +75,7 @@ public partial class CreditNoteRequestGroupView : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
+        ApplyClientSelectionLock();
 
         IDispatcherTimer timer;
 
@@ -96,7 +97,10 @@ public partial class CreditNoteRequestGroupView : ContentPage
     {
         if (Sel_Res_Partner == null)
         {
-            await Toast.Make("Cliente no seleccionado.").Show();
+            await DisplayAlertAsync(
+                "Atención",
+                "Por favor, seleccione un cliente antes de agregar",
+                "Aceptar");
             return;
         }
 
@@ -287,37 +291,18 @@ public partial class CreditNoteRequestGroupView : ContentPage
 
             if (Sel_CreditNoteRequestGroup != null)
             {
-                GridPartner.IsEnabled = false;
-
                 CreditNoteRequestDb accountPaymentDb = new CreditNoteRequestDb(App.Session.odooConnection.DbNameSqlite);
                 var ls_accountPayments = await accountPaymentDb.GetByParent(Sel_CreditNoteRequestGroup.id);
                 creditNoteRequests = ls_accountPayments.ToArray();
 
                 CreditNoteRequestDetailDb accountPaymentLines = new CreditNoteRequestDetailDb(App.Session.odooConnection.DbNameSqlite);
 
-                var typeNcDb = new TypeNcDb(App.Session.odooConnection.DbNameSqlite);
-                var typeParentDb = new TypeParentNcDb(App.Session.odooConnection.DbNameSqlite);
-
-                var typeNcs = (await typeNcDb.GetItemsAsync(x=>x.id > 0)).ToArray();
-                var typeParents = (await typeParentDb.GetItemsAsync(x => x.id > 0)).ToArray();
-
                 foreach (var creditNoteReqItem in creditNoteRequests)
                 {
-                    var display_parent_nc = typeParents.Where(tp => tp.id == creditNoteReqItem.parent_nc_id).FirstOrDefault();
-                    var display_type_nc = typeNcs.Where(tp => tp.id == creditNoteReqItem.type_module_id).FirstOrDefault();
-
-                    if (display_type_nc != null)
-                        creditNoteReqItem.display_parent_nc = display_parent_nc.name;
-
-                    if(display_type_nc != null)
-                        creditNoteReqItem.display_type_module = display_type_nc.name;
-
                     var apl = await accountPaymentLines.GetItemsAsync(creditNoteReqItem);
 
                     if (apl.Count() > 0)
-                    {
                         creditNoteReqItem.lines = apl.ToArray();
-                    }
                 }
             }            
         }
@@ -335,10 +320,46 @@ public partial class CreditNoteRequestGroupView : ContentPage
 
         isFirstLoad = false;
 
-        if (creditNoteRequests!=null)
-            collectionView.ItemsSource = creditNoteRequests;
+        await EnrichCreditNoteDisplayNamesAsync();
 
+        if (creditNoteRequests != null)
+        {
+            collectionView.ItemsSource = null;
+            collectionView.ItemsSource = creditNoteRequests;
+        }
+
+        ApplyClientSelectionLock();
         await SummaryData();
+    }
+
+    private async Task EnrichCreditNoteDisplayNamesAsync()
+    {
+        if (creditNoteRequests == null || creditNoteRequests.Length == 0)
+            return;
+
+        var typeNcDb = new TypeNcDb(App.Session.odooConnection.DbNameSqlite);
+        var typeParentDb = new TypeParentNcDb(App.Session.odooConnection.DbNameSqlite);
+
+        var typeNcs = (await typeNcDb.GetItemsAsync(x => x.id > 0)).ToDictionary(x => x.id);
+        var typeParents = (await typeParentDb.GetItemsAsync(x => x.id > 0)).ToDictionary(x => x.id);
+
+        foreach (var item in creditNoteRequests)
+        {
+            if (typeParents.TryGetValue(item.parent_nc_id, out var parent))
+                item.display_parent_nc = parent.name;
+
+            if (typeNcs.TryGetValue(item.type_module_id, out var typeModule))
+                item.display_type_module = typeModule.name;
+        }
+    }
+
+    private void ApplyClientSelectionLock()
+    {
+        bool lockClient = editionMode;
+        GridPartner.IsEnabled = !lockClient;
+        btnCustomerSearch.IsEnabled = !lockClient;
+        btnRemoveCustomer.IsEnabled = !lockClient;
+        BtnAddNew.IsEnabled = true;
     }
 
     private async void btnClose_Clicked(object sender, EventArgs e)
@@ -353,7 +374,25 @@ public partial class CreditNoteRequestGroupView : ContentPage
     }
 
     private async void btnSave_Clicked(object sender, EventArgs e)
-    {        
+    {
+        if (Sel_Res_Partner == null)
+        {
+            await DisplayAlertAsync(
+                "Atención",
+                "Por favor, seleccione un cliente antes de guardar",
+                "Aceptar");
+            return;
+        }
+
+        if (creditNoteRequests == null || creditNoteRequests.Length == 0)
+        {
+            await DisplayAlertAsync(
+                "Atención",
+                "Debe agregar al menos una nota de crédito antes de guardar",
+                "Aceptar");
+            return;
+        }
+
         CreditNoteRequestGroupDb database = new CreditNoteRequestGroupDb(App.Session.odooConnection.DbNameSqlite);
         DateTime fechaActual = DateTime.Now;
 
@@ -419,12 +458,6 @@ public partial class CreditNoteRequestGroupView : ContentPage
         }
         else
         {
-            if (Sel_Res_Partner == null)
-            {
-                await Toast.Make("No se ha seleccionado cliente para la creaci\u00F3n del NC.").Show();
-                return;
-            }
-
             CreditNoteRequestGroup accountPaymentHeader = new CreditNoteRequestGroup();
             
             accountPaymentHeader.company_id = Sel_Company_Id.id;
