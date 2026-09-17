@@ -181,14 +181,47 @@ class SaleOrderExtend(models.Model):
 
         return origin_ids, rule_value
 
+    def _coerce_id_list(self, value):
+        """
+        Normaliza IDs de promo/regla: None, False, '', '[]', [], [0, None] → [].
+        Acepta listas, tuplas o JSON string (p. ej. promotion_ids_json).
+        """
+        if value is None or value is False:
+            return []
+        if isinstance(value, str):
+            value = value.strip()
+            if not value or value == "[]":
+                return []
+            parsed = self._safe_json_load(value)
+            if isinstance(parsed, list):
+                return [x for x in parsed if x]
+            return [parsed] if parsed else []
+        if isinstance(value, (list, tuple)):
+            return [x for x in value if x]
+        return [value] if value else []
+
+    def _get_line_promo_rule_ids(self, vals):
+        """
+        promotion_ids / rule_ids directos de la línea (sin fallback offline).
+        Cubre null, vacío, [] y campos *_json.
+        """
+        promo_ids = self._coerce_id_list(vals.get("promotion_ids"))
+        if not promo_ids:
+            promo_ids = self._coerce_id_list(vals.get("promotion_ids_json"))
+        rule_ids = self._coerce_id_list(vals.get("rule_ids"))
+        if not rule_ids:
+            rule_ids = self._coerce_id_list(vals.get("rule_ids_json"))
+        return promo_ids, rule_ids
+
     def _resolve_promo_rule_ids(self, vals, parsed=None):
         """
         Obtiene (promo_ids, rule_ids) de la línea.
         Si vienen vacíos (caso típico NxN), usa origin_gift_line_ids_offline
         y/o promotionRules.
         """
-        rule_ids = list(vals.get("rule_ids") or [])
-        promo_ids = list(vals.get("promotion_ids") or [])
+        promo_ids, rule_ids = self._get_line_promo_rule_ids(vals)
+        promo_ids = list(promo_ids)
+        rule_ids = list(rule_ids)
 
         if rule_ids and promo_ids:
             return promo_ids, rule_ids
@@ -290,10 +323,10 @@ class SaleOrderExtend(models.Model):
     # =========================================================================
     def _process_discount_lines(self, order_lines, existing_lines_map, wizard_lines_map):
         """
-        Cada línea con discount > 0 se asocia a SÍ MISMA.
+        Líneas con descuento o con promo/regla confirmada se asocian a SÍ MISMA.
+        Incluye discount=0 si promotion_ids/rule_ids traen IDs (no null, no '', no []).
         No usa origin_gift_line_ids_offline (evita tomar el último origen del JSON
         cuando hay 2+ productos con la misma promo).
-        Funciona igual con 2, 5 o 100 líneas.
         """
         for line in order_lines:
             if not isinstance(line, list) or len(line) < 3:
@@ -304,7 +337,11 @@ class SaleOrderExtend(models.Model):
                 continue
 
             discount = vals.get("discount") or 0
-            if not discount > 0:
+            promo_ids, rule_ids = self._get_line_promo_rule_ids(vals)
+            has_promo_relation = bool(promo_ids and rule_ids)
+
+            # null / '' / [] sin descuento → línea normal, ignorar
+            if not has_promo_relation and not discount > 0:
                 continue
 
             print("INIT _process_discount_lines")
@@ -320,9 +357,6 @@ class SaleOrderExtend(models.Model):
                 continue
 
             origin_id = found_line.id
-
-            rule_ids = vals.get("rule_ids") or []
-            promo_ids = vals.get("promotion_ids") or []
 
             for idx, rule_id in enumerate(rule_ids):
                 promo_id = (
