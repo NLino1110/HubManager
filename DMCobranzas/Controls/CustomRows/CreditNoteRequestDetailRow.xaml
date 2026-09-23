@@ -19,6 +19,7 @@
 
                 <HorizontalStackLayout Spacing="10">
                     <Label FontSize="11"
+                             FontAttributes="Bold"
                            TextColor="DimGray"
                            LineBreakMode="NoWrap">
                         <Label.Text>
@@ -28,6 +29,7 @@
                         </Label.Text>
                     </Label>
                     <Label FontSize="11"
+                             FontAttributes="Bold"
                            TextColor="DimGray"
                            LineBreakMode="NoWrap">
                         <Label.Text>
@@ -48,7 +50,7 @@
                     <Label FontSize="11"
                            FontAttributes="Bold"
                            LineBreakMode="NoWrap"
-                           Text="{Binding DataItem.price_total, Source={x:Reference root}, StringFormat='PRECIO: ${0:0.##}'}" />
+                           Text="{Binding DataItem.display_price_ex_vat, Source={x:Reference root}, StringFormat='PRECIO: ${0:0.####}'}" />
                     <Label FontSize="11"
                            FontAttributes="Bold"
                            TextColor="Green"
@@ -68,7 +70,7 @@
                                Text="{Binding DataItem.quantity_available, Source={x:Reference root}, StringFormat='{0:0.##}'}" />
                     </HorizontalStackLayout>
                     <HorizontalStackLayout Spacing="4">
-                        <Label Text="Cant.xU.M:"
+                        <Label Text="Cant. Disp. xU.M:"
                                FontSize="10"
                                TextColor="Gray"
                                VerticalOptions="Center" />

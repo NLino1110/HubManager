@@ -1,4 +1,4 @@
-﻿using ApiManager;
+using ApiManager;
 using ApiManagerOdoo.Accounting;
 using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.General.Responses;
@@ -8,6 +8,7 @@ using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Tools;
 using DMSA.Sync.Core.Database.Sqlite.DebitCollection;
 using DMSA.Sync.Core.Database.Sqlite.Payments;
+using DMSA.Sync.Core.Helpers;
 using Newtonsoft.Json;
 using System.Diagnostics;
 
@@ -406,16 +407,30 @@ namespace DMSA.Sync.Core.Update.Pusher
                 if (linesItems.Count > 0)
                 {
                     List<object> listLines = new List<object>();
-                    
-                    int sequence = 1;
+                    var linesForOdoo = new List<credit_note_request_detail>();
 
                     foreach (var line in linesItems)
                     {
+                        var lineForOdoo = JsonConvert.DeserializeObject<credit_note_request_detail>(
+                            JsonConvert.SerializeObject(line));
+                        // JsonIgnore pierde cierre e inventario; sin esto Odoo recibe product_uom_id de ventas.
+                        CreditNoteUomDisplayHelper.CopyPersistedLocalFields(line, lineForOdoo);
+                        linesForOdoo.Add(lineForOdoo);
+                    }
+
+                    await CreditNoteUomDisplayHelper.PrepareLinesForOdooSendAsync(
+                        linesForOdoo,
+                        Constants.Session.odooConnection.DbNameSqlite,
+                        CreditNoteRequestItem.partner_id);
+
+                    int sequence = 1;
+                    foreach (var lineForOdoo in linesForOdoo)
+                    {
                         int[] tax_ids = Array.Empty<int>();
 
-                        if (!string.IsNullOrWhiteSpace(line.tax_ids_json))
+                        if (!string.IsNullOrWhiteSpace(lineForOdoo.tax_ids_json))
                         {
-                            tax_ids = line.tax_ids_json
+                            tax_ids = lineForOdoo.tax_ids_json
                                 .Trim('[', ']')
                                 .Split(',', StringSplitOptions.RemoveEmptyEntries)
                                 .Select(x => int.TryParse(x, out var n) ? n : 0)
@@ -423,20 +438,20 @@ namespace DMSA.Sync.Core.Update.Pusher
                                 .ToArray();
                         }
 
-                        line.tax_ids = tax_ids;
+                        lineForOdoo.tax_ids = tax_ids;
 
                         listLines.Add(new List<object>
                         {
                             0,
                             0,
-                            line
+                            lineForOdoo
                         });
                         sequence++;
                     }
 
                     CreditNoteRequestItem.invoice_line_ids = listLines;
                     CreditNoteRequestItem.accountMovesProducts = listLines;
-                    CreditNoteRequestItem.lines = linesItems.ToArray();
+                    CreditNoteRequestItem.lines = linesForOdoo.ToArray();
                 }
                 else
                 {

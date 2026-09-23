@@ -181,47 +181,14 @@ class SaleOrderExtend(models.Model):
 
         return origin_ids, rule_value
 
-    def _coerce_id_list(self, value):
-        """
-        Normaliza IDs de promo/regla: None, False, '', '[]', [], [0, None] → [].
-        Acepta listas, tuplas o JSON string (p. ej. promotion_ids_json).
-        """
-        if value is None or value is False:
-            return []
-        if isinstance(value, str):
-            value = value.strip()
-            if not value or value == "[]":
-                return []
-            parsed = self._safe_json_load(value)
-            if isinstance(parsed, list):
-                return [x for x in parsed if x]
-            return [parsed] if parsed else []
-        if isinstance(value, (list, tuple)):
-            return [x for x in value if x]
-        return [value] if value else []
-
-    def _get_line_promo_rule_ids(self, vals):
-        """
-        promotion_ids / rule_ids directos de la línea (sin fallback offline).
-        Cubre null, vacío, [] y campos *_json.
-        """
-        promo_ids = self._coerce_id_list(vals.get("promotion_ids"))
-        if not promo_ids:
-            promo_ids = self._coerce_id_list(vals.get("promotion_ids_json"))
-        rule_ids = self._coerce_id_list(vals.get("rule_ids"))
-        if not rule_ids:
-            rule_ids = self._coerce_id_list(vals.get("rule_ids_json"))
-        return promo_ids, rule_ids
-
     def _resolve_promo_rule_ids(self, vals, parsed=None):
         """
         Obtiene (promo_ids, rule_ids) de la línea.
         Si vienen vacíos (caso típico NxN), usa origin_gift_line_ids_offline
         y/o promotionRules.
         """
-        promo_ids, rule_ids = self._get_line_promo_rule_ids(vals)
-        promo_ids = list(promo_ids)
-        rule_ids = list(rule_ids)
+        rule_ids = list(vals.get("rule_ids") or [])
+        promo_ids = list(vals.get("promotion_ids") or [])
 
         if rule_ids and promo_ids:
             return promo_ids, rule_ids
@@ -323,10 +290,11 @@ class SaleOrderExtend(models.Model):
     # =========================================================================
     def _process_discount_lines(self, order_lines, existing_lines_map, wizard_lines_map):
         """
-        Líneas con descuento o con promo/regla confirmada se asocian a SÍ MISMA.
-        Incluye discount=0 si promotion_ids/rule_ids traen IDs (no null, no '', no []).
-        No usa origin_gift_line_ids_offline (evita tomar el último origen del JSON
-        cuando hay 2+ productos con la misma promo).
+        Padres (no regalo) con promo tipo 6 (descuento %).
+        - discount > 0: aplica el % indicado.
+        - discount = 0 con promotion_ids/rule_ids directos: persiste la relación.
+        Solo IDs directos de la línea (null, '', [] ignorados).
+        No usa origin_gift_line_ids_offline ni _resolve (evita mezclar regalos/bonif).
         """
         for line in order_lines:
             if not isinstance(line, list) or len(line) < 3:
@@ -337,10 +305,11 @@ class SaleOrderExtend(models.Model):
                 continue
 
             discount = vals.get("discount") or 0
-            promo_ids, rule_ids = self._get_line_promo_rule_ids(vals)
+            promo_ids = list(vals.get("promotion_ids") or [])
+            rule_ids = list(vals.get("rule_ids") or [])
             has_promo_relation = bool(promo_ids and rule_ids)
 
-            # null / '' / [] sin descuento → línea normal, ignorar
+            # null / [] sin descuento → línea normal; 0% con IDs tipo 6 → persiste relación
             if not has_promo_relation and not discount > 0:
                 continue
 
@@ -365,6 +334,11 @@ class SaleOrderExtend(models.Model):
                 )
                 if not promo_id or not rule_id:
                     print("_process_discount_lines --- promo/rule NO ENCONTRADOS")
+                    continue
+
+                promo = self.env["promotion.benefit"].browse(promo_id)
+                if not promo or promo.promotion_type_id.id != 6:
+                    print("_process_discount_lines --- SKIP no tipo 6:", promo_id)
                     continue
 
                 self._upsert_wizard_line(

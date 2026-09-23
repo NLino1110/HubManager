@@ -134,8 +134,26 @@
                         <controls:CheckBoxEx x:Name="chkGroup5" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="2. Clientes (completo, todos los partners / saldos)"/>
                         <controls:CheckBoxEx x:Name="chkGroup6" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="3. Otros"/>
                         <controls:CheckBoxEx x:Name="chkGroup3" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="4. Actualizar Parámetros (Cuentas, bancos, módulos, etc.)"/>
-                        <controls:CheckBoxEx x:Name="chkGroup1" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="5. Documentos - Cabeceras (facturas, notas de débito)"/>
-                        <controls:CheckBoxEx x:Name="chkGroup2" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="6. Documentos - Detalles (facturas, notas de débito)"/>
+                        <controls:CheckBoxEx x:Name="chkGroup1" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="5. Documentos - Cabeceras (facturas, notas de credito, notas de débito)"/>
+                        <controls:CheckBoxEx x:Name="chkGroup2" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="6. Documentos - Detalles (facturas,  notas de credito, notas de débito)"/>
+                        <controls:CheckBoxEx x:Name="chkZipBenchmarkHeader"
+                                             IsVisible="False"
+                                             CheckBoxColor="#1565C0"
+                                             TextColor="Black"
+                                             IsChecked="False"
+                                             LabelText="Prueba GZIP cabecera (benchmark: descarga + descomprimir + SQLite)"/>
+                        <controls:CheckBoxEx x:Name="chkZipBenchmarkDetail"
+                                             IsVisible="False"
+                                             CheckBoxColor="#1565C0"
+                                             TextColor="Black"
+                                             IsChecked="False"
+                                             LabelText="Prueba GZIP detalle (benchmark: descarga + descomprimir + SQLite)"/>
+                        <controls:CheckBoxEx x:Name="chkForceFirstSyncOfDay"
+                                             IsVisible="False"
+                                             CheckBoxColor="#1565C0"
+                                             TextColor="Black"
+                                             IsChecked="False"
+                                             LabelText="Forzar 1ra sync del día (ZIP admin, no borra facturas)"/>
                     </VerticalStackLayout>
 
                 </VerticalStackLayout>

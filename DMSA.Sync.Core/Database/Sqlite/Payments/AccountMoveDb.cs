@@ -1,6 +1,7 @@
 using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.Native;
 using SQLite;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -52,6 +53,12 @@ namespace DMSA.Sync.Core.Database.Sqlite.Payments
         public void MarkAccountMoveSyncCompletedToday()
         {
             Preferences.Set(AccountMoveSyncDayKey, DateTime.Now.ToString("yyyy-MM-dd"));
+        }
+
+        /// <summary>Pruebas: quita el candado de “ya syncé hoy” para poder reintentar el ZIP.</summary>
+        public void ClearAccountMoveSyncDay()
+        {
+            Preferences.Remove(AccountMoveSyncDayKey);
         }
 
         private sealed class SqliteColumnInfo
@@ -142,27 +149,34 @@ namespace DMSA.Sync.Core.Database.Sqlite.Payments
         {
             await Init();
 
+            List<account_move> items;
+
             if (!Search.Equals(string.Empty) && Search != "")
             {
-                return await Database.Table<account_move>().Where(x =>
+                items = await Database.Table<account_move>().Where(x =>
                     x._company_id == company_id &&
                     x._partner_id == res_partner_id &&
-                    x.move_type == "out_invoice" &&
+                    (x.move_type == "out_invoice" || x.move_type == "out_refund") &&
                     (x.name.Contains(Search) || x.docnum_mask.Contains(Search))
                 ).
                 OrderByDescending(o => o.invoice_date).
-                Take(limit).ToListAsync();
+                ToListAsync();
             }
             else
             {
-                return await Database.Table<account_move>().Where(x =>
+                items = await Database.Table<account_move>().Where(x =>
                     x._company_id == company_id &&
                     x._partner_id == res_partner_id &&
-                    x.move_type == "out_invoice"
+                    (x.move_type == "out_invoice" || x.move_type == "out_refund")
                 ).
                 OrderByDescending(o => o.invoice_date).
-                Take(limit).ToListAsync();
+                ToListAsync();
             }
+
+            return items
+                .Where(AccountMoveDocumentDisplay.HasOpenBalanceForBalanceView)
+                .Take(limit)
+                .ToList();
         }
 
         public async Task<List<account_move>> GetItemsAsync(account_move_line[] lines, int company_id, int partner_id, int limit)
@@ -280,6 +294,23 @@ namespace DMSA.Sync.Core.Database.Sqlite.Payments
         {
             await Init();
             return await Database.Table<account_move>().Where(i => i.name == name_doc).FirstOrDefaultAsync();
+        }
+
+        // Reintento cabecera: MAX(invoice_date) local (orden Odoo invoice_date asc, id asc).
+        public async Task<DateTime?> GetMaxInvoiceDateOrNullAsync()
+        {
+            await Init();
+
+            try
+            {
+                return await Database.ExecuteScalarAsync<DateTime?>(
+                    "SELECT MAX(invoice_date) FROM account_move");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"GetMaxInvoiceDateOrNullAsync: {ex.Message}");
+                return null;
+            }
         }
 
         // IDs de account_move local en rango invoice_date (cabeceras ya sincronizadas).

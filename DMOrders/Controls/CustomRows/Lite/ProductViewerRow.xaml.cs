@@ -61,7 +61,7 @@ public partial class ProductViewerRow : ContentView
     }
 
     // -------------------------
-    // IMAGE LOADING (MISMA LÓGICA)
+    // IMAGE LOADING (MISMA Lï¿½GICA)
     // -------------------------
     private void LoadImageAsync(product_product item)
     {
@@ -76,13 +76,12 @@ public partial class ProductViewerRow : ContentView
                 var Base64Source = await productProductPreviewDb.GetBase65_1920(item);
 
                 if (!string.IsNullOrWhiteSpace(Base64Source) && !Base64Source.Equals("false"))
-                {                    
+                {
                     var bytes = Convert.FromBase64String(Base64Source);
-                    var stream = new MemoryStream(bytes);
 
                     MainThread.BeginInvokeOnMainThread(() =>
                     {
-                        ProductImage.Source = ImageSource.FromStream(() => stream);
+                        ProductImage.Source = ImageSource.FromStream(() => new MemoryStream(bytes));
                         FinishImageLoad();
                     });
                 }

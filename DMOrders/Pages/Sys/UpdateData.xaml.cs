@@ -2,6 +2,7 @@ using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Extensions;
 using DMOrders.Controls.Alerts;
+using DMOrders.Services;
 using DMOrders.Services.Helpers;
 using DMOrders.Services.Update;
 using DMSA.Models.Security;
@@ -21,7 +22,6 @@ public partial class UpdateData : ContentPage
     public UpdateData()
     {
         InitializeComponent();
-        lblUpdated.Text = "Ult. Actualización: " + App.Session.CurrentUserFront.log_fec_sincro.ToString("dd/MM/yyyy HH:mm:ss");        
 
         if (!App.Session.odooConnection.IsProduction)
         {
@@ -40,9 +40,10 @@ public partial class UpdateData : ContentPage
         return isOnline;
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
+        await RefreshSyncStatusLabelsAsync();
 
         IDispatcherTimer timer;
 
@@ -65,6 +66,18 @@ public partial class UpdateData : ContentPage
             timer.Stop();
         };
         timer.Start();
+    }
+
+    private async Task RefreshSyncStatusLabelsAsync()
+    {
+        if (App.Session?.CurrentUserFront == null)
+            return;
+
+        var syncDate = await SyncStatusLabels.ResolveLastSyncDateAsync();
+        if (syncDate.Year > 2000)
+            lblUpdated.Text = SyncStatusLabels.FormatHomeLastSyncText(syncDate);
+        else if (App.Session.CurrentUserFront.log_fec_sincro.Year > 2000)
+            lblUpdated.Text = SyncStatusLabels.FormatHomeLastSyncText(App.Session.CurrentUserFront.log_fec_sincro);
     }
 
     void OnNetworkCheckedChanged(object sender, CheckedChangedEventArgs e)
@@ -233,7 +246,10 @@ public partial class UpdateData : ContentPage
 
         var launchManager = new LaunchManager();
         await launchManager.PersistSyncDateAfterManualUpdateAsync();
-        lblUpdated.Text = "Ult. Actualización: " + App.Session.CurrentUserFront.log_fec_sincro.ToString("dd/MM/yyyy HH:mm:ss");
+        SyncStatusLabels.PersistLastSyncDate(
+            App.Session.CurrentUserFront.log_fec_sincro,
+            App.Session.odooConnection);
+        await RefreshSyncStatusLabelsAsync();
 
         progressBarPage.SetTotalPercent(1);
         progressBarPage.SetTitle("Finalizado...");

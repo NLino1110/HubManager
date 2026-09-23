@@ -13,12 +13,12 @@
 	</style>
 
 	<!-- SPLASH -->
-	<style name="Maui.SplashTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+	<style name="Maui.SplashTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
 		<item name="android:windowBackground">@drawable/maui_splash</item>
 	</style>
 
 	<!-- TEMA PRINCIPAL -->
-	<style name="MainTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+	<style name="MainTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
 
 		<!-- Animaciones OFF -->
 		<item name="android:windowAnimationStyle">@style/NoAnim</item>

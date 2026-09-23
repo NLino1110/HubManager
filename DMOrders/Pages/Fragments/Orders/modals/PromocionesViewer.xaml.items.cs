@@ -41,18 +41,70 @@ public partial class PromocionesViewer
         return null;
     }
 
-    private async Task ApplyPendingDiscountsAsync()
+    /// <summary>
+    /// Confirma todas las promos tipo 6 (las del botón verde APLICAR), no solo la fila visible.
+    /// Incluye % = 0: igual graba la relación promo/regla para no perder IDs al Aplicar de abajo.
+    /// </summary>
+    private async Task<bool> ApplyPendingDiscountsAsync()
     {
-        if (promoDiscounts == null || promoDiscounts.Count == 0 || SaleOrder == null)
-            return;
+        if (SaleOrder == null)
+            return true;
 
-        foreach (var ruleMatch in promoDiscounts.Where(r => r != null && r.IsDiscount && r.discount > 0))
+        var discountEntries = EnumerateManualDiscountRules();
+        if (discountEntries.Count == 0)
+            return true;
+
+        foreach (var (benefit, ruleMatch) in discountEntries)
         {
+            selectedPromoEvalItem = benefit;
+
             if (!await ValidateDiscountRuleAsync(ruleMatch))
-                continue;
+                return false;
 
             await ApplyDiscountRule(SaleOrder, ruleMatch);
         }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Reglas de descuento con botón verde: promo tipo 6 de todo el modal.
+    /// </summary>
+    private List<(PromotionEvalItem Benefit, PromoRuleMatch Rule)> EnumerateManualDiscountRules()
+    {
+        var result = new List<(PromotionEvalItem, PromoRuleMatch)>();
+        var seen = new HashSet<int>();
+        var sources = _itemsFullPromos ?? ItemsData;
+
+        if (sources == null)
+            return result;
+
+        foreach (var promoResult in sources)
+        {
+            if (promoResult?.Items == null)
+                continue;
+
+            foreach (var item in promoResult.Items)
+            {
+                if (item?.Promotion == null
+                    || item.Promotion._promotion_type_id != 6
+                    || item.RuleSet == null)
+                    continue;
+
+                foreach (var rule in item.RuleSet)
+                {
+                    if (rule == null || !rule.IsDiscount)
+                        continue;
+
+                    if (!seen.Add(rule.id))
+                        continue;
+
+                    result.Add((item, rule));
+                }
+            }
+        }
+
+        return result;
     }
 
     private async Task<bool> ValidateDiscountRuleAsync(PromoRuleMatch rule)
@@ -83,7 +135,12 @@ public partial class PromocionesViewer
                 maxProductTarget = ruleMatch.ProductTmplIdMaxQty;
             }
 
-            int[] listIdsProd = JsonConvert.DeserializeObject<int[]>(ruleMatch.ProductTmplIds);
+            int[] listIdsProd = string.IsNullOrWhiteSpace(ruleMatch.ProductTmplIds)
+                ? Array.Empty<int>()
+                : (JsonConvert.DeserializeObject<int[]>(ruleMatch.ProductTmplIds) ?? Array.Empty<int>());
+
+            if (listIdsProd.Length == 0)
+                return;
 
             bool existedBefore = listIdsProd.Contains(maxProductTarget);
 
@@ -109,7 +166,6 @@ public partial class PromocionesViewer
 
             foreach (var productTarget in listIdsProd)
             {
-                double discountPercentage = ruleMatch.discount;
                 var linesToDiscount = DMSA.Models.Odoo.Promotions.Tools.ResolveDiscountTargetLines(
                     saleOrder.order_line,
                     productTarget,
@@ -126,17 +182,12 @@ public partial class PromocionesViewer
 
                 foreach (var lineToDiscount in linesToDiscount)
                 {
-                    decimal virtual_price_no_tax = lineToDiscount.virtual_price_no_tax;
+                    double discountPercentage = ruleMatch.discount;
+                    // % 0: igual se graba la relación. Si la línea ya tenía %, se conserva.
+                    if (discountPercentage == 0 && lineToDiscount.discount > 0)
+                        discountPercentage = (double)lineToDiscount.discount;
 
-                    decimal discountAmount = (virtual_price_no_tax * lineToDiscount.product_uom_qty_real) * (decimal)(discountPercentage / 100);
-                    lineToDiscount.discount = (decimal)discountPercentage;
-                    lineToDiscount.amount_discount = discountAmount;
-
-                    lineToDiscount.price_subtotal = (virtual_price_no_tax * lineToDiscount.product_uom_qty_real) - discountAmount;
-                    lineToDiscount.price_tax = (lineToDiscount.price_subtotal * lineToDiscount.virtual_iva_percentage) / 100;
-                    lineToDiscount.price_total = lineToDiscount.price_subtotal + lineToDiscount.price_tax;
-
-                    lineToDiscount.virtual_line_subtotal = virtual_price_no_tax * lineToDiscount.product_uom_qty_real;
+                    ruleItem.discount = (int)discountPercentage;
 
                     DMSA.Models.Odoo.Promotions.Tools.SetPromotionData(
                         lineToDiscount, new List<PromoRuleItem> { ruleItem });
@@ -144,8 +195,21 @@ public partial class PromocionesViewer
                     lineToDiscount.origin_gift_line_ids_offline = JsonConvert.SerializeObject(
                         ruleMatch.ProductSequenceApplyList ?? new List<OriginPromoOrderLine>());
 
+                    if (ruleMatch.discount > 0 || lineToDiscount.discount <= 0)
+                    {
+                        decimal virtual_price_no_tax = lineToDiscount.virtual_price_no_tax;
+                        decimal discountAmount = (virtual_price_no_tax * lineToDiscount.product_uom_qty_real) * (decimal)(discountPercentage / 100);
+                        lineToDiscount.discount = (decimal)discountPercentage;
+                        lineToDiscount.amount_discount = discountAmount;
+
+                        lineToDiscount.price_subtotal = (virtual_price_no_tax * lineToDiscount.product_uom_qty_real) - discountAmount;
+                        lineToDiscount.price_tax = (lineToDiscount.price_subtotal * lineToDiscount.virtual_iva_percentage) / 100;
+                        lineToDiscount.price_total = lineToDiscount.price_subtotal + lineToDiscount.price_tax;
+                        lineToDiscount.virtual_line_subtotal = virtual_price_no_tax * lineToDiscount.product_uom_qty_real;
+                    }
+
                     Debug.WriteLine(
-                        $"Descuento aplicado: {discountPercentage}% (${discountAmount:N2}) " +
+                        $"Descuento aplicado: {discountPercentage}% " +
                         $"product_id={lineToDiscount.product_id} seq={lineToDiscount.sequence} tmpl={productTarget}");
                 }
             }

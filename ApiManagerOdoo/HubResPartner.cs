@@ -1,8 +1,9 @@
-﻿using ApiManagerOdoo.Base;
+using ApiManagerOdoo.Base;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Security;
 using RestSharp;
+using System.Linq;
 
 namespace ApiManager
 {
@@ -72,6 +73,12 @@ namespace ApiManager
                 "type"
         };
 
+        // Solo OnlineSyncResPartnerCobranzasAll (GetAll / GetAllByAdicComercial). Órdenes usa fields_array.
+        private static readonly string[] CobranzasExtraPartnerFields = new[] { "client_permanently_closing" };
+
+        private string[] CobranzasFieldsArray() =>
+            fields_array.Concat(CobranzasExtraPartnerFields).ToArray();
+
         public HubResPartner(AppSession _setAppSession) : base(_setAppSession)
         {            
             EndPointApi = "/web/dataset/call_kw";
@@ -104,7 +111,7 @@ namespace ApiManager
             {
                 limit = limit,
                 offset = (index * limit),
-                fields = fields_array
+                fields = CobranzasFieldsArray()
             };
 
             object[] args = new object[] { };
@@ -114,7 +121,11 @@ namespace ApiManager
 
         // ANTES: OnlineSyncResPartnerCobranzasAll usaba GetCountAll() sin filtro (todos los partners).
         // DESPUÉS: variantes filtradas por comercial logueado (partner_id de sesión al iniciar sesión).
-        //   Dominio Odoo: ["|", ["adic_comercial_id","=",partnerId], ["adic_comercial_secundarios_ids","=",partnerId]]
+        //   Dominio Odoo actual:
+        //     ["|", ["adic_comercial_id","=",partnerId], ["adic_comercial_secundarios_ids","=",partnerId]]
+        //   OPCIONAL (evaluado, no activo): anteponer ["misc_estado","=","activo"] al dominio en
+        //     BuildAdicComercialDomain para no descargar clientes comercialmente inactivos.
+        //     Dominio con filtro: misc_estado=activo AND (comercial principal OR secundario).
         //   GetCountAll / GetAll originales no se modifican.
         public async Task<ApiResponseOdooRpc?> GetCountAllByAdicComercial(int partnerId)
         {
@@ -130,7 +141,7 @@ namespace ApiManager
             {
                 limit = limit,
                 offset = (index * limit),
-                fields = fields_array
+                fields = CobranzasFieldsArray()
             };
 
             object[] args = new object[] { };
@@ -140,6 +151,7 @@ namespace ApiManager
 
         // Dominio OR plano (GetCount/SearchRead ya envuelven _custom_args en args[[...]]).
         // Resultado esperado: args[["|",["adic_comercial_id","=",id],["adic_comercial_secundarios_ids","=",id]]]
+        // Para excluir inactivos: agregar al inicio new object[] { "misc_estado", "=", "activo" } (AND implícito).
         private static object[] BuildAdicComercialDomain(int partnerId) => new object[]
         {
             "|",

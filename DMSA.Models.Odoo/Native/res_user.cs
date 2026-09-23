@@ -1,4 +1,4 @@
-﻿using CobranzasDMSA_Odoo.Models;
+using CobranzasDMSA_Odoo.Models;
 using DMSA.Models.Odoo.Base;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -29,6 +29,13 @@ namespace DMSA.Models.Odoo.Native
         [Ignore]
         public JToken sale_team_id { get; set; }
 
+        /// <summary>Campo Odoo "Mobile App" (Administrador Apps Móviles = 218).</summary>
+        [Ignore]
+        public JToken mobile_app_id { get; set; }
+
+        [Ignore]
+        public JToken groups_id { get; set; }
+
 
         [JsonIgnore]
         public int _company_id
@@ -51,6 +58,16 @@ namespace DMSA.Models.Odoo.Native
             get => GetId(sale_team_id);
             set => sale_team_id = SetId(sale_team_id, value);
         }
+
+        [JsonIgnore]
+        public int _mobile_app_id
+        {
+            get => GetId(mobile_app_id);
+            set => mobile_app_id = SetId(mobile_app_id, value);
+        }
+
+        [JsonIgnore]
+        public int[] GroupsIds => GetIds(groups_id);
 
         [Column("create_date")]
         public DateTime? create_date { get; set; }

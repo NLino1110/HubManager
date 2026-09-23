@@ -4,6 +4,7 @@ using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.Input;
 using DMOrders.Controls.Tools;
 using DMOrders.Pages.Sys;
+using DMOrders.Services;
 using DMOrders.Services.Helpers;
 using DMOrders.Services.PatchManager;
 using DMOrders.Services.Update;
@@ -248,7 +249,10 @@ public partial class Login : ContentPage
         finally
         {
             if (version == _connectionChangeVersion)
+            {
                 SetConnectionLoading(false);
+                await RefreshLastSyncLabelAsync();
+            }
         }
     }
 
@@ -276,6 +280,7 @@ public partial class Login : ContentPage
             await Toast.Make("Datos base correctos.").Show();
 
         await LoadAgenciesForConnectionAsync(connection);
+        await RefreshLastSyncLabelAsync();
     }
 
     public async Task SetupLogin()
@@ -1059,68 +1064,15 @@ public partial class Login : ContentPage
     {
         try
         {
-            var syncDate = DateTime.MinValue;
-
-            // 1) Sesión en memoria (solo si la fecha es válida)
-            var source = session ?? App.Session;
-            if (source?.CurrentUserFront != null && source.CurrentUserFront.log_fec_sincro.Year > 2000)
-                syncDate = source.CurrentUserFront.log_fec_sincro;
-
-            // 2) Preference dedicada (sobrevive ClearSession / login online)
-            if (syncDate.Year <= 2000)
-            {
-                var raw = Preferences.Get("last_log_fec_sincro", string.Empty);
-                if (!string.IsNullOrEmpty(raw) && DateTime.TryParse(raw, out var prefDate) && prefDate.Year > 2000)
-                    syncDate = prefDate;
-            }
-
-            // 3) Sesión guardada (Recordarme)
-            if (syncDate.Year <= 2000)
-            {
-                var appSession = Preferences.Get("App.Session", string.Empty);
-                if (!string.IsNullOrEmpty(appSession))
-                {
-                    var loaded = JsonConvert.DeserializeObject<AppSession>(appSession);
-                    if (loaded?.CurrentUserFront != null && loaded.CurrentUserFront.log_fec_sincro.Year > 2000)
-                        syncDate = loaded.CurrentUserFront.log_fec_sincro;
-                }
-            }
-
-            // 4) SQLite local
-            if (syncDate.Year <= 2000 && App.Session?.odooConnection != null
-                && !string.IsNullOrWhiteSpace(App.Session.odooConnection.DbNameSqlite))
-            {
-                var userDb = new UserAccessDb(App.Session.odooConnection.DbNameSqlite);
-                user_access found = null;
-
-                if (source?.CurrentUserFront?.uid > 0)
-                    found = await userDb.GetItemAsync(source.CurrentUserFront.uid);
-
-                if (found == null && !string.IsNullOrWhiteSpace(txtUser?.Text))
-                {
-                    var userName = txtUser.Text.Trim();
-                    var users = await userDb.GetItemsAsync();
-                    found = users?.FirstOrDefault(u => u.username == userName);
-                }
-
-                if (found == null)
-                {
-                    var users = await userDb.GetItemsAsync();
-                    found = users?
-                        .Where(u => u.log_fec_sincro.Year > 2000)
-                        .OrderByDescending(u => u.log_fec_sincro)
-                        .FirstOrDefault();
-                }
-
-                if (found != null && found.log_fec_sincro.Year > 2000)
-                    syncDate = found.log_fec_sincro;
-            }
+            var usernameHint = (txtUser?.Text ?? string.Empty).Trim();
+            var syncDate = await SyncStatusLabels.ResolveLastSyncDateAsync(
+                session,
+                usernameHint,
+                SelConnection ?? App.Session?.odooConnection);
 
             MainThread.BeginInvokeOnMainThread(() =>
             {
-                lblLastSync.Text = syncDate.Year > 2000
-                    ? "Ult. sincronizacion: " + syncDate.ToString("dd/MM/yyyy HH:mm")
-                    : "Ult. sincronizacion: -";
+                lblLastSync.Text = SyncStatusLabels.FormatLoginLastSyncText(syncDate);
             });
         }
         catch
@@ -1136,10 +1088,7 @@ public partial class Login : ContentPage
     {
         try
         {
-            var updateDate = AppTools.GetAppInstallOrUpdateDate();
-            lblAppUpdateDate.Text = updateDate.HasValue && updateDate.Value.Year > 2000
-                ? "Actualizacion APK: " + updateDate.Value.ToString("dd/MM/yyyy HH:mm")
-                : "Actualizacion APK: -";
+            lblAppUpdateDate.Text = SyncStatusLabels.FormatAppUpdateText();
         }
         catch
         {

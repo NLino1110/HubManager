@@ -132,12 +132,11 @@ public partial class Info : ContentView
             Debug.WriteLine("ImageString to Bytes");
             byte[] imageBytes = Convert.FromBase64String(Base64Source);
             Debug.WriteLine("Create Stream");
-            var stream = new MemoryStream(imageBytes);
 
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 Debug.WriteLine("Put Image from ImageSource");
-                productImage.Source = ImageSource.FromStream(() => stream);
+                productImage.Source = ImageSource.FromStream(() => new MemoryStream(imageBytes));
                 Debug.WriteLine("Done.");                
                 productImage.IsVisible = true;
             });

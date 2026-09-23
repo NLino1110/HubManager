@@ -1,4 +1,4 @@
-﻿using DMSA.Models.Odoo.Base;
+using DMSA.Models.Odoo.Base;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SQLite;
@@ -13,6 +13,10 @@ namespace DMSA.Models.Odoo.Accounting
         public string name { get; set; }        
         public decimal quantity { get; set; }
         public decimal quantity_available { get; set; }
+
+        [Column("quantity_available_base")]
+        public decimal quantity_available_base { get; set; }
+
         public decimal price_unit { get; set; }
         public decimal price_subtotal { get; set; }
         public decimal discount { get; set; }
@@ -51,6 +55,15 @@ namespace DMSA.Models.Odoo.Accounting
         {
             get => GetId(product_uom_id);
             set => product_uom_id = SetId(product_uom_id, value);
+        }
+
+        [Ignore]
+        public JToken analitica_id { get; set; }
+
+        public int _analitica_id
+        {
+            get => GetId(analitica_id);
+            set => analitica_id = SetId(analitica_id, value);
         }
 
         [Ignore]

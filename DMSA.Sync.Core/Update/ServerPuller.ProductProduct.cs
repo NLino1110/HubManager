@@ -386,13 +386,7 @@ namespace DMSA.Sync.Core.Update
 
                             try
                             {
-                                string sizeImg = "_1024";
-
-                                var nameExt = Path.GetExtension(item.image_url);
-
-                                var final_url = item.image_url.Replace(nameExt, sizeImg + nameExt);
-
-                                var imageBytes = await httpClient.GetByteArrayAsync(final_url);
+                                var imageBytes = await DownloadProductImageBytesAsync(httpClient, item.image_url);
 
                                 item.image_1920 = Convert.ToBase64String(imageBytes);
 
@@ -544,6 +538,49 @@ namespace DMSA.Sync.Core.Update
                 stopwatch.Elapsed.Days, stopwatch.Elapsed.Hours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
 
             return true;
+        }
+
+        /// <summary>
+        /// Descarga imagen de producto priorizando variante _1024 (tier Odoo/CDN) y, si no existe,
+        /// usa la URL original. Orígenes como api.dmujeres.ec/images/ no tienen variantes _1024.
+        /// </summary>
+        private static async Task<byte[]> DownloadProductImageBytesAsync(HttpClient httpClient, string imageUrl)
+        {
+            if (ShouldTrySizedImageVariant(imageUrl))
+            {
+                const string sizeSuffix = "_1024";
+                var nameExt = Path.GetExtension(imageUrl);
+                var baseName = imageUrl[..^nameExt.Length];
+                var sizedUrl = baseName + sizeSuffix + nameExt;
+
+                try
+                {
+                    return await httpClient.GetByteArrayAsync(sizedUrl);
+                }
+                catch (HttpRequestException ex)
+                {
+                    Debug.WriteLine($"Imagen _1024 no disponible: {sizedUrl} - {ex.Message}");
+                }
+            }
+
+            return await httpClient.GetByteArrayAsync(imageUrl);
+        }
+
+        private static bool ShouldTrySizedImageVariant(string imageUrl)
+        {
+            if (string.IsNullOrEmpty(imageUrl))
+                return false;
+
+            // Un solo archivo por id; no genera 36047_1024.jpeg
+            if (imageUrl.Contains("api.dmujeres.ec/images/", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            var nameExt = Path.GetExtension(imageUrl);
+            if (string.IsNullOrEmpty(nameExt))
+                return false;
+
+            var baseName = imageUrl[..^nameExt.Length];
+            return !baseName.EndsWith("_1024", StringComparison.OrdinalIgnoreCase);
         }
 
         public async Task<bool> ProductMarca(Func<int, int, Task>? onProgress = null)

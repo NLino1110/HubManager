@@ -7,37 +7,8 @@ namespace ApiManagerOdoo.Accounting
 {
     public class HubAccountMove : HubBase
     {  
-        string[] fields_array = {
-            "id",
-            "name",
-            "partner_id",
-            "invoice_date",
-            "invoice_date_due",
-            "payment_state",
-            "state",
-            "move_type",
-            "journal_id",
-            "amount_residual",
-            "amount_untaxed_signed",
-            "amount_total_signed",
-            "amount_total",
-            "amount_tax",
-            "l10n_latam_document_type_id",
-            "invoice_user_id",
-            "company_id",
-            "team_id",
-            "invoice_line_ids",
-            "reversed_entry_id",
-            "ref",
-            "refund_invoice_ids",
-            "docnum_mask",
-            "partner_sale_id",
-            "pf_promised_amount",
-            "is_nota_debito",
-            "create_date",
-            "write_date",
-            //"printer_id"
-        };
+        // Misma lista que el ZIP Odoo (AccountDocumentSyncFields.Header).
+        string[] fields_array => AccountDocumentSyncFields.Header;
         public HubAccountMove(AppSession _setAppSession) : base(_setAppSession)
         {
             EndPointApi = "/connect/get_account_move";
@@ -69,7 +40,7 @@ namespace ApiManagerOdoo.Accounting
             }
             .Concat(AccountMoveDocumentDisplay.BuildSyncMoveTypeDomain());
 
-            // Solo documentos de clientes ya descargados en res_partner (SQLite local).
+            // Vendedor: partner_id IN cartera local. Admin: partnerIds vacío → sin este filtro.
             if (partnerIds != null && partnerIds.Length > 0)
             {
                 domain = domain.Concat(new object[]

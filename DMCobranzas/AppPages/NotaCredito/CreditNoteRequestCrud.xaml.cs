@@ -4,8 +4,8 @@ using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Mvvm.Input;
 using DMCobranzas.Models.UI;
-using DMCobranzas.Services;
 using DMCobranzas.Settings.helpers;
+using DMSA.Sync.Core.Helpers;
 using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.Native;
 using DMSA.Sync.Core;
@@ -17,6 +17,7 @@ using Microsoft.Maui.Controls.Shapes;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
+using Newtonsoft.Json;
 
 namespace DMCobranzas.AppPages.NotaCredito;
 
@@ -30,6 +31,12 @@ public partial class CreditNoteRequestCrud : ContentPage
     private res_company default_res_company { get; set; }
     public res_company[] Empresas { get; set; }
     public res_partner _res_partner { get; set; }
+
+    public bool ShowClientPermanentlyClosingBanner =>
+        _res_partner?.client_permanently_closing == true;
+
+    private bool ClientPermanentlyClosingForUom =>
+        _res_partner?.client_permanently_closing == true;
     public TypeParentNc[] typeParentNcList { get; set; }
     public TypeNc[] accountTypeModules { get; set; }
     public bool isWindows { get; set; } = false;
@@ -256,6 +263,7 @@ public partial class CreditNoteRequestCrud : ContentPage
             var resPartner = (res_partner)result;
             txtCliente.Text = resPartner.id.ToString() + " - " + resPartner.name;
             _res_partner = resPartner;
+            await RefreshPartnerFromLocalDbAsync();
         }
     }
 
@@ -456,6 +464,8 @@ public partial class CreditNoteRequestCrud : ContentPage
 
     async Task PrepareForm()
     {
+        await RefreshPartnerFromLocalDbAsync();
+
         if (App.Session.CurrentUserFront.empresas != null)
         {
             Debug.WriteLine("Empresas:");
@@ -660,13 +670,35 @@ public partial class CreditNoteRequestCrud : ContentPage
             lineItem.invoice_header = CreditNoteUomDisplayHelper.BuildInvoiceHeader(docnum_mask, invoice_date);
         }
 
-        await CreditNoteUomDisplayHelper.EnrichLinesAsync(linesForAdd, App.Session.odooConnection.DbNameSqlite);
+        await CreditNoteUomDisplayHelper.EnrichLinesPricingFromInvoiceAsync(
+            linesForAdd,
+            App.Session.odooConnection.DbNameSqlite);
+
+        await CreditNoteUomDisplayHelper.EnrichLinesAsync(
+            linesForAdd,
+            App.Session.odooConnection.DbNameSqlite,
+            ClientPermanentlyClosingForUom);
+
+        CreditNoteUomDisplayHelper.SyncQuantityInvoicedFromAvailable(linesForAdd);
 
         _creditNoteReqDetails_items = new ObservableCollection<credit_note_request_detail>(linesForAdd);
         collectionView.ItemsSource = _creditNoteReqDetails_items;
         IsLoadingDocs = false;
         //OnPropertyChanged(nameof(IsLoadingDocs));
         OnPropertyChanged(nameof(detailsCount));
+    }
+
+    private async Task RefreshPartnerFromLocalDbAsync()
+    {
+        if (_res_partner == null || _res_partner.id <= 0)
+            return;
+
+        var partnerDb = new ResPartnerDb(App.Session.odooConnection.DbNameSqlite);
+        var freshPartner = await partnerDb.GetItem(_res_partner.id);
+        if (freshPartner != null)
+            _res_partner = freshPartner;
+
+        OnPropertyChanged(nameof(ShowClientPermanentlyClosingBanner));
     }
 
     private async void pickerModulos_SelectedIndexChanged(object sender, EventArgs e)
@@ -841,44 +873,22 @@ public partial class CreditNoteRequestCrud : ContentPage
 
             creditNoteRequestDetail_Send.price_total = item.price_total;
             creditNoteRequestDetail_Send.price_subtotal = item.price_subtotal;
-            creditNoteRequestDetail_Send.quantity_invoiced = item.quantity;
-            creditNoteRequestDetail_Send.original_quantity = item.quantity;
+            creditNoteRequestDetail_Send.quantity_available_base = item.quantity_available_base;
+            creditNoteRequestDetail_Send.quantity_available_invoice = item.quantity_available;
             creditNoteRequestDetail_Send.quantity_available = item.quantity_available;
+            creditNoteRequestDetail_Send.quantity_invoiced = item.quantity_available;
+            creditNoteRequestDetail_Send.original_quantity = item.quantity_available;
             creditNoteRequestDetail_Send.docnum_mask = _accountMoveSelected.docnum_mask;
             creditNoteRequestDetail_Send.invoice_date = _accountMoveSelected.invoice_date;
+            creditNoteRequestDetail_Send.invoice_line_uom_id = item._product_uom_id;
             creditNoteRequestDetail_Send.product_uom_id = item._product_uom_id;
             creditNoteRequestDetail_Send.discount_balance = item.discount_balance;
+            creditNoteRequestDetail_Send.discount = item.discount;
             creditNoteRequestDetail_Send.discount_percentage = item.discount;
-
-            int analitica_id = 0;
-            int[] analytics = Array.Empty<int>();
-
-            if (!string.IsNullOrWhiteSpace(item.analytic_line_ids_json))
-            {
-                analytics = item.analytic_line_ids_json
-                    .Trim('[', ']')
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => int.TryParse(x, out var n) ? n : 0)
-                    .Where(n => n != 0)
-                    .ToArray();
-            }
-
-            if (analytics != null && analytics.Length > 0)
-            {
-                analitica_id = analytics[0];
-            }
-
-            creditNoteRequestDetail_Send.analitica_id = analitica_id;
+            creditNoteRequestDetail_Send.analitica_id = item._analitica_id;
             creditNoteRequestDetail_Send.tax_ids_json = item.tax_ids_json;
 
-            if (withQuantity)
-            {
-                creditNoteRequestDetail_Send.quantity = item.quantity_available;
-            }
-            else
-            {
-                creditNoteRequestDetail_Send.quantity = 0;
-            }
+            creditNoteRequestDetail_Send.quantity = 0;
 
             creditNoteRequestDetail_Send.account_id = item._account_id;
             creditNoteRequestDetail_Send.product_id = item._product_id;
@@ -886,6 +896,12 @@ public partial class CreditNoteRequestCrud : ContentPage
             creditNoteRequestDetail_Send.currency_id = 2;
             creditNoteRequestDetail_Send.move_id = item._move_id;
             creditNoteRequestDetail_Send.line_id = item.id;
+            creditNoteRequestDetail_Send.display_type = string.IsNullOrWhiteSpace(item.display_type)
+                ? "product"
+                : item.display_type;
+            creditNoteRequestDetail_Send.partner_id = _res_partner?.id ?? _accountMoveSelected._partner_id;
+            creditNoteRequestDetail_Send.amount_currency = item.price_subtotal;
+            creditNoteRequestDetail_Send.disc_amount = item.discount_balance;
 
             creditNoteRequestDetail_Send.display_name = products.FirstOrDefault(x => x.id == item._product_id)?.display_name;
             creditNoteRequestDetail_Send.invoice_header = CreditNoteUomDisplayHelper.BuildInvoiceHeader(
@@ -895,7 +911,18 @@ public partial class CreditNoteRequestCrud : ContentPage
             result_send.Add(creditNoteRequestDetail_Send);
         }
 
-        await CreditNoteUomDisplayHelper.EnrichLinesAsync(result_send, App.Session.odooConnection.DbNameSqlite);
+        await CreditNoteUomDisplayHelper.EnrichLinesAsync(
+            result_send,
+            App.Session.odooConnection.DbNameSqlite,
+            ClientPermanentlyClosingForUom);
+
+        CreditNoteUomDisplayHelper.SyncQuantityInvoicedFromAvailable(result_send);
+
+        if (withQuantity)
+        {
+            foreach (var line in result_send)
+                line.quantity = line.quantity_available;
+        }
 
         _creditNoteReqDetails_items = new ObservableCollection<credit_note_request_detail>(result_send);
         collectionView.ItemsSource = _creditNoteReqDetails_items;
@@ -1016,44 +1043,22 @@ public partial class CreditNoteRequestCrud : ContentPage
 
             creditNoteRequestDetail_Send.price_total = item.price_total;
             creditNoteRequestDetail_Send.price_subtotal = item.price_subtotal;
-            creditNoteRequestDetail_Send.quantity_invoiced = item.quantity;
-            creditNoteRequestDetail_Send.original_quantity = item.quantity;
+            creditNoteRequestDetail_Send.quantity_available_base = item.quantity_available_base;
+            creditNoteRequestDetail_Send.quantity_available_invoice = item.quantity_available;
             creditNoteRequestDetail_Send.quantity_available = item.quantity_available;
+            creditNoteRequestDetail_Send.quantity_invoiced = item.quantity_available;
+            creditNoteRequestDetail_Send.original_quantity = item.quantity_available;
             creditNoteRequestDetail_Send.docnum_mask = docnum_mask;
             creditNoteRequestDetail_Send.invoice_date = invoice_date;
+            creditNoteRequestDetail_Send.invoice_line_uom_id = item._product_uom_id;
             creditNoteRequestDetail_Send.product_uom_id = item._product_uom_id;
             creditNoteRequestDetail_Send.discount_balance = item.discount_balance;
+            creditNoteRequestDetail_Send.discount = item.discount;
             creditNoteRequestDetail_Send.discount_percentage = item.discount;
-
-            int analitica_id = 0;
-            int[] analytics = Array.Empty<int>();
-
-            if (!string.IsNullOrWhiteSpace(item.analytic_line_ids_json))
-            {
-                analytics = item.analytic_line_ids_json
-                    .Trim('[', ']')
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => int.TryParse(x, out var n) ? n : 0)
-                    .Where(n => n != 0)
-                    .ToArray();
-            }
-
-            if (analytics != null && analytics.Length > 0)
-            {
-                analitica_id = analytics[0];
-            }
-
-            creditNoteRequestDetail_Send.analitica_id = analitica_id;
+            creditNoteRequestDetail_Send.analitica_id = item._analitica_id;
             creditNoteRequestDetail_Send.tax_ids_json = item.tax_ids_json;
 
-            if (withQuantity)
-            {
-                creditNoteRequestDetail_Send.quantity = item.quantity_available;
-            }
-            else
-            {
-                creditNoteRequestDetail_Send.quantity = 0;
-            }
+            creditNoteRequestDetail_Send.quantity = 0;
 
             creditNoteRequestDetail_Send.account_id = item._account_id;
             creditNoteRequestDetail_Send.product_id = item._product_id;
@@ -1061,6 +1066,12 @@ public partial class CreditNoteRequestCrud : ContentPage
             creditNoteRequestDetail_Send.currency_id = 2;
             creditNoteRequestDetail_Send.move_id = item._move_id;
             creditNoteRequestDetail_Send.line_id = item.id;
+            creditNoteRequestDetail_Send.display_type = string.IsNullOrWhiteSpace(item.display_type)
+                ? "product"
+                : item.display_type;
+            creditNoteRequestDetail_Send.partner_id = _res_partner?.id ?? 0;
+            creditNoteRequestDetail_Send.amount_currency = item.price_subtotal;
+            creditNoteRequestDetail_Send.disc_amount = item.discount_balance;
             creditNoteRequestDetail_Send.display_name = product_display_name;
             creditNoteRequestDetail_Send.invoice_header = CreditNoteUomDisplayHelper.BuildInvoiceHeader(
                 creditNoteRequestDetail_Send.docnum_mask,
@@ -1068,7 +1079,13 @@ public partial class CreditNoteRequestCrud : ContentPage
 
             await CreditNoteUomDisplayHelper.EnrichLinesAsync(
                 new[] { creditNoteRequestDetail_Send },
-                App.Session.odooConnection.DbNameSqlite);
+                App.Session.odooConnection.DbNameSqlite,
+                ClientPermanentlyClosingForUom);
+
+            CreditNoteUomDisplayHelper.SyncQuantityInvoicedFromAvailable(new[] { creditNoteRequestDetail_Send });
+
+            if (withQuantity)
+                creditNoteRequestDetail_Send.quantity = creditNoteRequestDetail_Send.quantity_available;
 
             _creditNoteReqDetails_items.Add(creditNoteRequestDetail_Send);
         }
@@ -1197,14 +1214,19 @@ public partial class CreditNoteRequestCrud : ContentPage
 
         foreach (var itemDet in _creditNoteReqDetails_items)
         {
-            decimal quantity_for_return = 0;
-            quantity_for_return = itemDet.quantity;
+            if (itemDet.quantity <= 0)
+                continue;
 
-            if (quantity_for_return > 0)
-            {
-                _account_move_line_send_list.Add(itemDet);
-                rowItem++;
-            }
+            await CreditNoteUomDisplayHelper.PrepareLineForLocalStorageAsync(
+                itemDet,
+                App.Session.odooConnection.DbNameSqlite,
+                ClientPermanentlyClosingForUom);
+
+            var lineForStorage = JsonConvert.DeserializeObject<credit_note_request_detail>(
+                JsonConvert.SerializeObject(itemDet));
+            CreditNoteUomDisplayHelper.CopyPersistedLocalFields(itemDet, lineForStorage);
+            _account_move_line_send_list.Add(lineForStorage);
+            rowItem++;
         }
 
         if (rowItem == 0)

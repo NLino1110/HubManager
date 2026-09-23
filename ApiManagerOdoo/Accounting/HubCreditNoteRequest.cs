@@ -1,4 +1,4 @@
-﻿using ApiManagerOdoo.Base;
+using ApiManagerOdoo.Base;
 using DMSA.Models.General.Requests;
 using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.DebitCollection;
@@ -129,7 +129,19 @@ namespace ApiManagerOdoo.Accounting
                             var kwargs_item = new { };
                                 object[] args_item = new object[] {
                                 new object[] { item.id },
-                                new { quantity = qty_item }
+                                new
+                                {
+                                    quantity = line_prod.quantity,
+                                    quantity_invoiced = line_prod.quantity_invoiced,
+                                    original_quantity = line_prod.original_quantity,
+                                    product_uom_id = line_prod.product_uom_id,
+                                    price_unit = line_prod.price_unit,
+                                    price_return = line_prod.price_return,
+                                    price_subtotal = line_prod.price_subtotal,
+                                    price_total = line_prod.price_total,
+                                    siv_price_unit = line_prod.siv_price_unit,
+                                    siv_price_return = line_prod.siv_price_return,
+                                }
                             };
 
                             var writeDetails = await CallMethod<ApiResponseOdooRpcT<bool>>(EndPointApi,

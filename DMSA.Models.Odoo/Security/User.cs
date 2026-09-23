@@ -1,4 +1,4 @@
-﻿//using SQLite;
+//using SQLite;
 //using CobranzasDMSA_Odoo.Models;
 using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Tools;
@@ -59,6 +59,14 @@ namespace DMSA.Models.Security
 
         [NotMapped]
         public DateTime log_fec_sincro_nc { get; set; }
+
+        /// <summary>
+        /// Mobile App = Administrador Apps Móviles (sel_groups_218 = 218 en Odoo).
+        /// En SQLite is_mobile_app_admin es 0/1, no el 218.
+        /// Sin filtro por comercial en sync de partners; no ejecuta SyncMissingPartnerSaleIds.
+        /// </summary>
+        [NotMapped]
+        public bool IsMobileAppAdmin { get; set; }
 
         //[NotMapped]
         //[PrimaryKey, AutoIncrement]

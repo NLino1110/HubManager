@@ -1,0 +1,1 @@
+Respaldo del layout vertical anterior. Para revertir, restaurar este contenido en CreditNoteRequestDetailRow.xaml desde git o copiando manualmente.

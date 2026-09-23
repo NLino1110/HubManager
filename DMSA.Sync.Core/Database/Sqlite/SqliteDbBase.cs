@@ -1,4 +1,4 @@
-﻿using SQLite;
+using SQLite;
 using System.Linq.Expressions;
 using System.Reflection;
 using static System.Runtime.InteropServices.Marshalling.IIUnknownCacheStrategy;
@@ -101,6 +101,29 @@ namespace DMSA.Sync.Core.Database.Sqlite
         {
             Init().Wait(); // inicializa la base si no está lista
             return Database.GetConnection().Table<T>().ToList().FirstOrDefault(predicate);
+        }
+
+        /// <summary>
+        /// MAX(write_date) o null si la tabla está vacía. Usado en reintento de detalle.
+        /// </summary>
+        public async Task<DateTime?> GetMaxWriteDateOrNullAsync()
+        {
+            await Init();
+
+            var tableAttr = typeof(T).GetCustomAttributes(typeof(TableAttribute), true)
+                .FirstOrDefault() as TableAttribute;
+            string tableName = tableAttr?.Name ?? typeof(T).Name;
+
+            try
+            {
+                return await Database.ExecuteScalarAsync<DateTime?>(
+                    $"SELECT MAX(write_date) FROM {tableName}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error obteniendo MAX(write_date) de {tableName}: {ex.Message}");
+                return null;
+            }
         }
 
         public async Task<DateTime> GetLastWriteDateAsync(DateTime? defaultDate = null)

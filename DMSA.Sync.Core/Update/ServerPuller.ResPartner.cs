@@ -257,6 +257,10 @@ namespace DMSA.Sync.Core.Update
         // DESPUÉS (solo Cobranzas): OnlineSyncResPartnerCobranzasAll
         //   Fase 1: search_count/search_read de res.partner filtrados por adic_comercial_id
         //     o adic_comercial_secundarios_ids (= partner_id de sesión), sin write_date.
+        //     Incluye activos e inactivos (misc_estado). Para omitir inactivos en Odoo, ver
+        //     BuildAdicComercialDomain en HubResPartner (filtro misc_estado=activo, no activo hoy).
+        //   Mobile App Admin (218): GetCountAll/GetAll sin filtro comercial (todos los partners).
+        //   Page size admin: ResolveCobranzasSyncPageSize() → 2000 (pruebas de peso); vendedor → 1000.
         //   Fase 2: web_read por IDs + UPDATE parcial de saldos en res_partner.
         //   Órdenes sigue usando OnlineSyncResPartnerFull; no se toca.
         // REVERTIR Fase 2: EnableResPartnerCobranzasSaldosWebRead = false en ServerPuller.cs
@@ -265,43 +269,53 @@ namespace DMSA.Sync.Core.Update
             Func<int, int, Task>? onSaldosProgress = null)
         {
             var stopwatch = Stopwatch.StartNew();
+            int pageLimit = ResolveCobranzasSyncPageSize();
 
             var database = new ResPartnerDb(Constants.Session.odooConnection.DbNameSqlite);
             var hubmanager = new HubResPartner(appSession);
 
+            bool isMobileAppAdmin = IsCurrentUserMobileAppAdmin();
+
             // partner_id se obtiene al autenticarse (Login → CurrentUserFront.partner_id).
-            // Solo se sincronizan clientes asignados a ese comercial (principal o secundario).
+            // Vendedor: solo cartera (adic_comercial principal o secundario).
             int partner_id = Constants.Session.CurrentUserFront.partner_id;
 
-            if (partner_id <= 0)
+            if (!isMobileAppAdmin && partner_id <= 0)
             {
                 Debug.WriteLine("OnlineSyncResPartnerCobranzasAll: partner_id inválido en sesión, se omite sync de clientes.");
                 return false;
             }
 
             // ANTES: hubmanager.GetCountAll() — count de todos los partners.
-            var resultCount = await hubmanager.GetCountAllByAdicComercial(partner_id);
+            // Admin Mobile App (218): GetCountAll sin filtro comercial.
+            var resultCount = isMobileAppAdmin
+                ? await hubmanager.GetCountAll()
+                : await hubmanager.GetCountAllByAdicComercial(partner_id);
 
-            Debug.WriteLine("OnlineSyncResPartnerCobranzasAll count: " + resultCount.result + " (partner_id=" + partner_id + ")");
+            Debug.WriteLine(isMobileAppAdmin
+                ? "OnlineSyncResPartnerCobranzasAll count: " + resultCount.result + " (modo admin Mobile App, sin filtro comercial)"
+                : "OnlineSyncResPartnerCobranzasAll count: " + resultCount.result + " (partner_id=" + partner_id + ")");
 
             if (resultCount.result == 0)
             {
                 return false;
             }
 
-            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / pageLimit);
             var downloadedPartnerIds = new List<int>();
 
             // --- Fase 1: datos maestros del partner (search_read filtrado por comercial) ---
             for (int indice = 0; indice <= totalPages; indice++)
             {
                 // ANTES: hubmanager.GetAll(limit, indice) — traía todos los partners.
-                // DESPUÉS: GetAllByAdicComercial — solo cartera del comercial logueado.
-                var responseAll = await hubmanager.GetAllByAdicComercial(limit, indice, partner_id);
+                // Vendedor: GetAllByAdicComercial. Admin Mobile App: GetAll (todos los partners).
+                var responseAll = isMobileAppAdmin
+                    ? await hubmanager.GetAll(pageLimit, indice)
+                    : await hubmanager.GetAllByAdicComercial(pageLimit, indice, partner_id);
 
                 if (responseAll != null && responseAll.result != null && responseAll.result.Length > 0)
                 {
-                    await database.InsertBatchAsync(responseAll.result);
+                    await database.InsertBatchFromCobranzasSyncAsync(responseAll.result);
                     downloadedPartnerIds.AddRange(responseAll.result.Select(p => p.id));
                 }
 
@@ -355,7 +369,7 @@ namespace DMSA.Sync.Core.Update
 
             Debug.WriteLine("RefreshResPartnerSaldosWebRead count descargados: " + totalPartners);
 
-            int saldosBatchSize = Math.Max(limit, 200);
+            int saldosBatchSize = ResolveCobranzasSyncPageSize();
             int totalSaldosPages = (int)Math.Ceiling((double)totalPartners / saldosBatchSize);
 
             for (int pageIndex = 0; pageIndex < totalSaldosPages; pageIndex++)

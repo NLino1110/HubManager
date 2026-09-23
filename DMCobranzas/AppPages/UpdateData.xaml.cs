@@ -21,11 +21,27 @@ public partial class UpdateData : ContentPage
 
     private bool useExternalNetworkForCache = false;
 
+    /// <summary>
+    /// Reintento de cabecera/detalle: solo si el fallo fue en esos grupos.
+    /// Header: invoice_date >= MAX local. Detail: write_date >= MAX local.
+    /// Si falló cabecera y luego pasa a detalle, detalle usa el Desde/Hasta del UI (no el cursor de cabecera).
+    /// </summary>
+    private enum DocumentSyncResumeKind
+    {
+        None,
+        Header,
+        Detail
+    }
+
+    private DocumentSyncResumeKind _documentSyncResumeOnRetry = DocumentSyncResumeKind.None;
+
     public UpdateData()
     {
         InitializeComponent();
         serverPuller = new DMSA.Sync.Core.Update.ServerPuller();
         ConfigureInvoiceDateRangeUi();
+        ConfigureZipBenchmarkUi();
+        ConfigureForceFirstSyncOfDayUi();
         Appearing += UpdateData_Appearing;
     }
 
@@ -59,6 +75,39 @@ public partial class UpdateData : ContentPage
             InitializeInvoiceDatePickers();
     }
 
+    /// <summary>
+    /// Checkboxes benchmark ZIP cabecera/detalle. Banderilla: EnableAccountMoveLineZipBenchmarkSync en ServerPuller.
+    /// </summary>
+    private void ConfigureZipBenchmarkUi()
+    {
+        bool enabled = ServerPuller.EnableAccountMoveLineZipBenchmarkSync;
+        chkZipBenchmarkHeader.IsVisible = enabled;
+        chkZipBenchmarkDetail.IsVisible = enabled;
+    }
+
+    /// <summary>
+    /// Pruebas: banderilla EnableForceFirstSyncOfDayUi. Sirve para repetir la baja
+    /// del ZIP Odoo (cabecera + detalle) el mismo día. Oculto si la banderilla es false.
+    /// </summary>
+    private void ConfigureForceFirstSyncOfDayUi()
+    {
+        chkForceFirstSyncOfDay.IsVisible = ServerPuller.EnableForceFirstSyncOfDayUi;
+    }
+
+    private void ApplyForceFirstSyncOfDayIfChecked()
+    {
+        if (!ServerPuller.EnableForceFirstSyncOfDayUi
+            || !chkForceFirstSyncOfDay.IsChecked
+            || App.Session?.odooConnection == null)
+            return;
+
+        var database = new AccountMoveDb(App.Session.odooConnection.DbNameSqlite);
+        database.ClearAccountMoveSyncDay();
+        serverPuller.ResetAdminDocumentPackDayState();
+        ApplyDefaultInvoiceDateFrom();
+        Debug.WriteLine("[UpdateData] Forzar 1ra del día: se borró account_move_sync_day_*");
+    }
+
     private void InitializeInvoiceDatePickers()
     {
         ApplyDefaultInvoiceDateFrom();
@@ -78,11 +127,16 @@ public partial class UpdateData : ContentPage
 
         var database = new AccountMoveDb(App.Session.odooConnection.DbNameSqlite);
         bool firstSyncOfDay = database.IsFirstAccountMoveSyncOfDay();
+        bool isAdmin = App.Session.CurrentUserFront?.IsMobileAppAdmin == true;
 
-        // 1ra del día: Desde = hace 6 meses, Hasta = hoy. Siguientes: solo el día actual.
-        dpInvoiceDateFrom.Date = firstSyncOfDay
-            ? today.AddMonths(-6)
-            : today;
+        // Admin 1ra del día: Desde = hace 1 año, Hasta = hoy (mismo recorte del ZIP/cron).
+        // Vendedor 1ra del día: Desde = hace 6 meses. Resto del día: solo hoy.
+        if (!firstSyncOfDay)
+            dpInvoiceDateFrom.Date = today;
+        else if (isAdmin)
+            dpInvoiceDateFrom.Date = today.AddYears(-1);
+        else
+            dpInvoiceDateFrom.Date = today.AddMonths(-6);
     }
 
     private static DateTime GetPickerDate(DatePicker picker)
@@ -99,7 +153,12 @@ public partial class UpdateData : ContentPage
 
     private async Task<bool> ValidateInvoiceSyncDateRangeAsync()
     {
-        if (!chkGroup1.IsChecked && !chkGroup2.IsChecked)
+        bool needsDateRange = chkGroup1.IsChecked
+            || chkGroup2.IsChecked
+            || (ServerPuller.EnableAccountMoveLineZipBenchmarkSync
+                && (chkZipBenchmarkHeader.IsChecked || chkZipBenchmarkDetail.IsChecked));
+
+        if (!needsDateRange)
             return true;
 
         var dateFrom = GetPickerDate(dpInvoiceDateFrom);
@@ -343,6 +402,8 @@ public partial class UpdateData : ContentPage
         var toast = Toast.Make("Iniciando actualización...", duration, fontSize);
         await toast.Show(cancellationTokenSource.Token);
 
+        _documentSyncResumeOnRetry = DocumentSyncResumeKind.None;
+
         bool retry;
         do
         {
@@ -357,6 +418,7 @@ public partial class UpdateData : ContentPage
 
                 if (outcome == UpdateOutcome.Success)
                 {
+                    _documentSyncResumeOnRetry = DocumentSyncResumeKind.None;
                     await progressBarPage.DisplayAlertAsync("Actualización", "Actualización terminada", "Aceptar");
                     if (ServerPuller.EnableInvoiceDateRangeSync)
                         ApplyDefaultInvoiceDateFrom();
@@ -473,6 +535,8 @@ public partial class UpdateData : ContentPage
 
         progressBarPage.SetTitle("Actualización en línea...");
 
+        ApplyForceFirstSyncOfDayIfChecked();
+
         DateTime? invoiceDateFrom = null;
         DateTime? invoiceDateTo = null;
         if (ServerPuller.EnableInvoiceDateRangeSync
@@ -559,28 +623,107 @@ public partial class UpdateData : ContentPage
             await serverPuller.GetFullResCenterLine(true, async (current, total) => { await UpdateProgressState(progressBarPage, current, total, "Centros de Recursos"); });
         }
 
-        if (chkGroup1.IsChecked)
+        if (ServerPuller.EnableAccountMoveLineZipBenchmarkSync && chkZipBenchmarkHeader.IsChecked)
         {
-            await UpdateProgressState(progressBarPage, 0, 0, "Actualización " + AccountMoveDocumentDisplay.BulkSyncHeadersProgressLabel);
-            await serverPuller.OnlineSyncAccountMove(
-                async (current, total) =>
+            if (!invoiceDateFrom.HasValue || !invoiceDateTo.HasValue)
+            {
+                await Toast.Make("Seleccione rango Desde/Hasta para la prueba ZIP.", duration, fontSize)
+                    .Show(cancellationTokenSource.Token);
+            }
+            else
+            {
+                progressBarPage.SetTitle("Benchmark ZIP cabecera...");
+                var benchmarkResult = await AccountDocumentZipBenchmark.RunHeaderAsync(
+                    App.Session,
+                    invoiceDateFrom.Value,
+                    invoiceDateTo.Value,
+                    async (stage, current, total) =>
+                    {
+                        await UpdateProgressState(progressBarPage, current, total, stage);
+                    });
+
+                lblUpdatedInfo.Text += benchmarkResult.FormatSummary();
+
+                if (!benchmarkResult.Success)
                 {
-                    await UpdateProgressState(progressBarPage, current, total, AccountMoveDocumentDisplay.BulkSyncHeadersProgressLabel);
-                },
-                invoiceDateFrom,
-                invoiceDateTo);
-            progressBarPage.SetTotalPercent(0.80);
+                    await Toast.Make("Benchmark ZIP cabecera: " + benchmarkResult.Message, duration, fontSize)
+                        .Show(cancellationTokenSource.Token);
+                }
+            }
+        }
+        else if (chkGroup1.IsChecked && _documentSyncResumeOnRetry != DocumentSyncResumeKind.Detail)
+        {
+            // Admin 218, 1ra del día: OnlineSyncAccountMove intenta ZIP del cron; si no hay, HTTP.
+            // Reintento detalle: no vuelve a bajar toda la cabecera (ya terminó).
+            bool resumeHeader = _documentSyncResumeOnRetry == DocumentSyncResumeKind.Header;
+            try
+            {
+                await UpdateProgressState(progressBarPage, 0, 0, "Actualización " + AccountMoveDocumentDisplay.BulkSyncHeadersProgressLabel);
+                await serverPuller.OnlineSyncAccountMove(
+                    async (current, total) =>
+                    {
+                        await UpdateProgressState(progressBarPage, current, total, AccountMoveDocumentDisplay.BulkSyncHeadersProgressLabel);
+                    },
+                    invoiceDateFrom,
+                    invoiceDateTo,
+                    resumeFromLastInvoiceDate: resumeHeader);
+                progressBarPage.SetTotalPercent(0.80);
+            }
+            catch (Exception)
+            {
+                _documentSyncResumeOnRetry = DocumentSyncResumeKind.Header;
+                throw;
+            }
         }
 
-        if (chkGroup2.IsChecked)
+        if (ServerPuller.EnableAccountMoveLineZipBenchmarkSync && chkZipBenchmarkDetail.IsChecked)
         {
-            await serverPuller.OnlineSyncAccountMoveLine(
-                async (current, total) =>
+            if (!invoiceDateFrom.HasValue || !invoiceDateTo.HasValue)
+            {
+                await Toast.Make("Seleccione rango Desde/Hasta para la prueba ZIP.", duration, fontSize)
+                    .Show(cancellationTokenSource.Token);
+            }
+            else
+            {
+                progressBarPage.SetTitle("Benchmark ZIP detalle...");
+                var benchmarkResult = await AccountDocumentZipBenchmark.RunDetailAsync(
+                    App.Session,
+                    invoiceDateFrom.Value,
+                    invoiceDateTo.Value,
+                    async (stage, current, total) =>
+                    {
+                        await UpdateProgressState(progressBarPage, current, total, stage);
+                    });
+
+                lblUpdatedInfo.Text += benchmarkResult.FormatSummary();
+
+                if (!benchmarkResult.Success)
                 {
-                    await UpdateProgressState(progressBarPage, current, total, AccountMoveDocumentDisplay.BulkSyncDetailsProgressLabel);
-                },
-                invoiceDateFrom,
-                invoiceDateTo);
+                    await Toast.Make("Benchmark ZIP detalle: " + benchmarkResult.Message, duration, fontSize)
+                        .Show(cancellationTokenSource.Token);
+                }
+            }
+        }
+        else if (chkGroup2.IsChecked)
+        {
+            // Si el fallo fue cabecera y ya se recuperó: detalle usa Desde/Hasta original (no MAX invoice_date).
+            bool resumeDetail = _documentSyncResumeOnRetry == DocumentSyncResumeKind.Detail;
+            try
+            {
+                await serverPuller.OnlineSyncAccountMoveLine(
+                    async (current, total) =>
+                    {
+                        await UpdateProgressState(progressBarPage, current, total, AccountMoveDocumentDisplay.BulkSyncDetailsProgressLabel);
+                    },
+                    invoiceDateFrom,
+                    invoiceDateTo,
+                    resumeFromLastWriteDate: resumeDetail);
+            }
+            catch (Exception)
+            {
+                _documentSyncResumeOnRetry = DocumentSyncResumeKind.Detail;
+                throw;
+            }
         }
 
         progressBarPage.SetTotalPercent(1);

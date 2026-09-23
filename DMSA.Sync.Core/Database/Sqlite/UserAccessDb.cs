@@ -1,4 +1,4 @@
-﻿using DMSA.Models.Odoo.Security;
+using DMSA.Models.Odoo.Security;
 
 namespace DMSA.Sync.Core.Database.Sqlite
 {
@@ -7,6 +7,19 @@ namespace DMSA.Sync.Core.Database.Sqlite
         public UserAccessDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
 
+        }
+
+        protected override async Task OnAfterInit()
+        {
+            try
+            {
+                await Database.ExecuteAsync(
+                    "ALTER TABLE user_access ADD COLUMN is_mobile_app_admin INTEGER NOT NULL DEFAULT 0");
+            }
+            catch
+            {
+                // Columna ya existe en tablets con BD previa.
+            }
         }
 
         public async Task<List<user_access>> GetItemsAsync()

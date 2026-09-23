@@ -238,6 +238,19 @@ namespace DMSA.Models.Odoo.Native
         [Column("sale_available")]
         public bool sale_available { get; set; }
 
+        /// <summary>
+        /// Cierre permanente de cliente (Cobranzas). SQLite: 1 = true, 0 = false o vacío en Odoo.
+        /// </summary>
+        [Column("client_permanently_closing")]
+        [JsonIgnore]
+        public bool client_permanently_closing { get; set; }
+
+        [JsonProperty("client_permanently_closing")]
+        private bool? ClientPermanentlyClosingOdoo
+        {
+            set => client_permanently_closing = value == true;
+        }
+
         [Ignore]
         public JToken child_ids { get; set; } 
         

@@ -955,5 +955,32 @@ namespace ApiManagerOdoo.Base
 
             return response.RawBytes;
         }
+
+        /// <summary>
+        /// Descarga HTTP a disco (ZIP grande). No carga el archivo entero en RAM.
+        /// </summary>
+        public async Task DownloadToFileAsync(string url, string destPath)
+        {
+            await RequireLogin();
+
+            var request = new RestRequest(url, Method.Get)
+            {
+                Timeout = TimeSpan.FromHours(3)
+            };
+
+            await using var stream = await _client.DownloadStreamAsync(request);
+            if (stream == null)
+                throw new Exception("Error descargando archivo: stream vacío");
+
+            var destDir = Path.GetDirectoryName(destPath);
+            if (!string.IsNullOrEmpty(destDir))
+                Directory.CreateDirectory(destDir);
+
+            await using var output = File.Create(destPath);
+            await stream.CopyToAsync(output);
+
+            if (output.Length == 0)
+                throw new Exception("La respuesta no contiene datos binarios");
+        }
     }
 }

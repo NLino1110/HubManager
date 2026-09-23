@@ -56,6 +56,13 @@ namespace DMSA.Models.Odoo.Accounting
             AccountMoveDocumentDisplay.GetDocumentReferenceLabel(docnum_mask, move_type, is_nota_debito);
 
         [JsonIgnore]
+        public string balance_amount_text =>
+            AccountMoveDocumentDisplay.FormatBalanceAmountText(
+                move_type,
+                amount_residual,
+                amount_residual_virtual);
+
+        [JsonIgnore]
         public decimal amount_residual_virtual { get; set; }
 
         //public int _partner_id { get; set; }

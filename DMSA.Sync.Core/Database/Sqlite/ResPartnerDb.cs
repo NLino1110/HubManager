@@ -1,4 +1,4 @@
-﻿using DMSA.Models.Odoo.Native;
+using DMSA.Models.Odoo.Native;
 using DMSA.Models.Odoo.Sales;
 using SQLite;
 using System.Linq;
@@ -16,12 +16,104 @@ namespace DMSA.Sync.Core.Database.Sqlite
 
         protected override async Task OnAfterInit()
         {
+            await EnsureColumnAsync("client_permanently_closing", "INTEGER NOT NULL DEFAULT 0");
+
             await Database.RunInTransactionAsync(tran =>
             {
                 tran.Execute("CREATE INDEX IF NOT EXISTS idx_res_partner__id ON res_partner(id)");
                 tran.Execute("CREATE INDEX IF NOT EXISTS idx_res_partner__name ON res_partner(name)");
                 tran.Execute("CREATE INDEX IF NOT EXISTS idx_res_partner__type ON res_partner(_type)");
             });
+        }
+
+        private async Task EnsureColumnAsync(string columnName, string columnTypeSql)
+        {
+            var cols = await Database.QueryAsync<SqliteColumnInfo>(
+                "PRAGMA table_info(res_partner)");
+
+            if (cols != null && cols.Any(c =>
+                    string.Equals(c.name, columnName, StringComparison.OrdinalIgnoreCase)))
+                return;
+
+            await Database.ExecuteAsync(
+                $"ALTER TABLE res_partner ADD COLUMN {columnName} {columnTypeSql}");
+        }
+
+        private sealed class SqliteColumnInfo
+        {
+            public int cid { get; set; }
+            public string name { get; set; }
+            public string type { get; set; }
+            public int notnull { get; set; }
+            public string dflt_value { get; set; }
+            public int pk { get; set; }
+        }
+
+        /// <summary>
+        /// Órdenes y otros syncs no piden client_permanently_closing a Odoo; no sobrescribir el valor de Cobranzas.
+        /// </summary>
+        public new async Task<int> InsertBatchAsync(IEnumerable<res_partner> items)
+        {
+            await Init();
+
+            var list = items?.ToList() ?? new List<res_partner>();
+            if (list.Count == 0)
+            {
+                return 0;
+            }
+
+            // No usar int[] en ids.Contains(x.id): en .NET 10 / C# 14 sqlite-net genera
+            // SQL inválido (... IN op_implicit(...)) → "no such table: op_implicit".
+            var closingById = await GetClientPermanentlyClosingByIdsAsync(
+                list.Select(x => x.id).Distinct().ToList());
+
+            foreach (var item in list)
+            {
+                if (closingById.TryGetValue(item.id, out var prevClosing))
+                {
+                    item.client_permanently_closing = prevClosing;
+                }
+            }
+
+            return await base.InsertBatchAsync(list);
+        }
+
+        /// <summary>
+        /// OnlineSyncResPartnerCobranzasAll: persiste client_permanently_closing desde search_read.
+        /// </summary>
+        public async Task<int> InsertBatchFromCobranzasSyncAsync(IEnumerable<res_partner> items)
+        {
+            await Init();
+            return await base.InsertBatchAsync(items);
+        }
+
+        private async Task<Dictionary<int, bool>> GetClientPermanentlyClosingByIdsAsync(IReadOnlyList<int> ids)
+        {
+            if (ids == null || ids.Count == 0)
+            {
+                return new Dictionary<int, bool>();
+            }
+
+            var args = new object[ids.Count];
+            var placeholders = new string[ids.Count];
+            for (int i = 0; i < ids.Count; i++)
+            {
+                args[i] = ids[i];
+                placeholders[i] = "?";
+            }
+
+            var sql =
+                "SELECT id, client_permanently_closing FROM res_partner WHERE id IN (" +
+                string.Join(",", placeholders) + ")";
+
+            var rows = await Database.QueryAsync<ResPartnerClosingRow>(sql, args);
+            return rows.ToDictionary(r => r.id, r => r.client_permanently_closing);
+        }
+
+        private sealed class ResPartnerClosingRow
+        {
+            public int id { get; set; }
+            public bool client_permanently_closing { get; set; }
         }
 
         public async Task PreloadInfoData()

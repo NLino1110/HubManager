@@ -29,7 +29,7 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 		<Configurations>Debug;Release</Configurations>
-		<AndroidSigningKeyStore>keystores\dmorders-upload.keystore</AndroidSigningKeyStore>
+		<!--<AndroidSigningKeyStore>keystores\dmorders-upload.keystore</AndroidSigningKeyStore>-->
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-android|AnyCPU'">
 	  <Optimize>True</Optimize>
@@ -39,10 +39,12 @@
 	  <AndroidUseAapt2>True</AndroidUseAapt2>
 	  <AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
 		<RunAOTCompilation>False</RunAOTCompilation>
-		<AndroidKeyStore>True</AndroidKeyStore>
-		<AndroidSigningKeyAlias>upload</AndroidSigningKeyAlias>
-		<AndroidSigningStorePass>2macronegociosorders022</AndroidSigningStorePass>
-		<AndroidSigningKeyPass>2macronegociosorders022</AndroidSigningKeyPass>
+		<!-- Play Store: descomentar el bloque siguiente para firmar Release (AAB) con el keystore de subida. -->
+		<!--<AndroidKeyStore>True</AndroidKeyStore>-->
+		<!--<AndroidSigningKeyStore>keystores\dmorders-upload.keystore</AndroidSigningKeyStore>-->
+		<!--<AndroidSigningKeyAlias>upload</AndroidSigningKeyAlias>-->
+		<!--<AndroidSigningStorePass>2macronegociosorders022</AndroidSigningStorePass>-->
+		<!--<AndroidSigningKeyPass>2macronegociosorders022</AndroidSigningKeyPass>-->
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-ios|AnyCPU'">
 	  <Optimize>True</Optimize>

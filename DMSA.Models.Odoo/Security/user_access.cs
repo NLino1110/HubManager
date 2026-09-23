@@ -1,4 +1,4 @@
-﻿using SQLite;
+using SQLite;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -29,5 +29,11 @@ namespace DMSA.Models.Odoo.Security
         public string token_type { get; set; }
         public string access_token { get; set; }
         public string databasename { get; set; }
+
+        /// <summary>
+        /// Cache local del rol Mobile App. Solo 0 o 1 (nunca el id 218 de Odoo).
+        /// 0 = no es admin; 1 = sí es Administrador Apps Móviles.
+        /// </summary>
+        public int is_mobile_app_admin { get; set; }
     }
 }

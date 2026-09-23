@@ -1,4 +1,4 @@
-﻿using ApiManagerOdoo.Base;
+using ApiManagerOdoo.Base;
 using DMSA.Models.General;
 using DMSA.Models.General.Responses;
 using DMSA.Models.Odoo.General.Responses;
@@ -20,7 +20,7 @@ namespace ApiManager
                 "company_id", 
                 "partner_id", 
                 "company_ids", 
-                "sale_team_id"
+                "sale_team_id",
         };
         
         public HubUser(AppSession _setAppSession) : base(_setAppSession)
@@ -46,6 +46,7 @@ namespace ApiManager
         //    return null;
         //}
 
+        // Login Cobranzas: datos básicos del usuario (nombre, etc.). Rol admin: WebReadMobileAppAdminRole.
         public async Task<ApiResponseOdooRpcT<res_user[]>?> GetById(int id)
         {
             int limit = 100;
@@ -65,6 +66,31 @@ namespace ApiManager
                     },
             };
             return await SearchRead<ApiResponseOdooRpcT<res_user[]>>(args, _custom_args, kwargs);
+        }
+
+        // Login Cobranzas: IsMobileAppAdmin vía web_read sel_groups_218 (Mobile App = Administrador 218).
+        // mobile_app_id en search_read no viene poblado; no reutilizar GetById para el rol.
+        public async Task<ApiResponseOdooRpcT<res_user_mobile_app_read[]>?> WebReadMobileAppAdminRole(int userId)
+        {
+            if (userId <= 0)
+                return null;
+
+            object[] args = new object[] { new[] { userId } };
+            var kwargs = new
+            {
+                specification = new
+                {
+                    sel_groups_218 = new { }
+                }
+            };
+
+            return await CallMethod<ApiResponseOdooRpcT<res_user_mobile_app_read[]>>(
+                EndPointApi,
+                Method.Post,
+                args,
+                kwargs,
+                _modelname,
+                "web_read");
         }
 
         public async Task<ApiResponseOdooRpcT<res_user[]>?> GetItems()

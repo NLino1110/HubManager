@@ -1,4 +1,4 @@
-﻿using ApiManagerOdoo.Base;
+using ApiManagerOdoo.Base;
 using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.General.Responses;
 using DMSA.Models.Odoo.Tools;
@@ -12,7 +12,12 @@ namespace ApiManagerOdoo.Accounting
     {
         string[] fields_array = new[] {
                 "id",
-                "name",
+                "request_name",
+                "company_id",
+                "partner_id",
+                "partner_name",
+                "request_status",
+                "return_amount",
                 "create_date",
                 "write_date"
                 };

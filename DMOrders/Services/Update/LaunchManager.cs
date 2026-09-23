@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using DMOrders.Controls.Tools;
+using DMOrders.Services;
 using DMSA.Models.Odoo.Security;
 using DMSA.Models.Security;
 using DMSA.Sync.Core;
@@ -269,7 +270,7 @@ namespace DMOrders.Services.Update
             App.Session.CurrentUserFront.log_fec_sincro = user.log_fec_sincro;
 
             await userDb.UpdateAsync(user);
-            Preferences.Set("last_log_fec_sincro", serverDate.ToString("o"));
+            SyncStatusLabels.PersistLastSyncDate(serverDate, App.Session.odooConnection);
             PersistSessionPreferences();
         }
 

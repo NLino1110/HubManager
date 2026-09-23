@@ -342,18 +342,30 @@ namespace DMSA.Sync.Core.Update
         //    }
         //}
 
+        // Page size: ResolveCobranzasSyncPageSize() — vendedor 1000, admin Mobile App 2000 (pruebas de peso).
+        // resumeFromLastInvoiceDate: solo reintento si falló cabecera. invoice_date >= MAX local, Hasta se mantiene.
         [UpdateAction(
             "Actualizar documentos (facturas, notas de débito)",
             "Descarga cabeceras de facturas y notas de débito.")]
         public async Task<bool> OnlineSyncAccountMove(
             Func<int, int, Task>? onProgress = null,
             DateTime? invoiceDateFrom = null,
-            DateTime? invoiceDateTo = null)
+            DateTime? invoiceDateTo = null,
+            bool resumeFromLastInvoiceDate = false)
         {
             DateTime dateTimeIni = DateTime.Now;
+            int pageLimit = ResolveCobranzasSyncPageSize();
 
             var database = new AccountMoveDb(Constants.Session.odooConnection.DbNameSqlite);
             HubAccountMove hubmanager = new HubAccountMove(Constants.Session);
+
+            // Admin 218, 1ra del día: ZIP del cron (último año). Si no hay pack → HTTP.
+            if (!resumeFromLastInvoiceDate
+                && await TryImportAdminDocumentPackZipAsync(database, onProgress))
+            {
+                database.MarkAccountMoveSyncCompletedToday();
+                return true;
+            }
 
             bool useInvoiceDateRange = EnableInvoiceDateRangeSync
                 && invoiceDateFrom.HasValue
@@ -364,30 +376,53 @@ namespace DMSA.Sync.Core.Update
                 var dateFrom = invoiceDateFrom!.Value.Date;
                 var dateTo = invoiceDateTo!.Value.Date;
 
-                // ANTES: count/search_read solo por rango invoice_date (todos los partners).
-                // DESPUÉS: filtra partner_id IN ids de res_partner local (cartera del comercial).
-                var partnerDb = new ResPartnerDb(Constants.Session.odooConnection.DbNameSqlite);
-                int commercialPartnerId = Constants.Session.CurrentUserFront.partner_id;
-                int[] partnerIds = await partnerDb.GetAllPartnerIdsByAdicComercialAsync(commercialPartnerId);
-
-                if (partnerIds.Length == 0)
+                // Reintento cabecera: sigue desde MAX(invoice_date) local (orden invoice_date asc).
+                // El Hasta del UI no cambia. Detalle posterior usa el Desde/Hasta original (no este cursor).
+                if (resumeFromLastInvoiceDate)
                 {
-                    Debug.WriteLine("AccountMove sync: sin partners del comercial en res_partner local, se omite rango invoice_date.");
-                    return false;
+                    var maxInvoiceDate = await database.GetMaxInvoiceDateOrNullAsync();
+                    if (maxInvoiceDate.HasValue && maxInvoiceDate.Value.Date > dateFrom)
+                    {
+                        dateFrom = maxInvoiceDate.Value.Date;
+                        if (dateFrom > dateTo)
+                            dateFrom = dateTo;
+                    }
+
+                    Debug.WriteLine($"AccountMove sync reintento: invoice_date >= {dateFrom:yyyy-MM-dd} .. {dateTo:yyyy-MM-dd}");
+                }
+
+                // Vendedor: partner_id IN cartera local (res_partner del comercial).
+                // Admin Mobile App (218): sin filtro partner_id (solo rango invoice_date + dominio documentos).
+                int[] partnerIds = Array.Empty<int>();
+                bool isMobileAppAdmin = IsCurrentUserMobileAppAdmin();
+
+                if (!isMobileAppAdmin)
+                {
+                    var partnerDb = new ResPartnerDb(Constants.Session.odooConnection.DbNameSqlite);
+                    int commercialPartnerId = Constants.Session.CurrentUserFront.partner_id;
+                    partnerIds = await partnerDb.GetAllPartnerIdsByAdicComercialAsync(commercialPartnerId);
+
+                    if (partnerIds.Length == 0)
+                    {
+                        Debug.WriteLine("AccountMove sync: sin partners del comercial en res_partner local, se omite rango invoice_date.");
+                        return false;
+                    }
                 }
 
                 var headerCount = await hubmanager.GetHeaderCountByInvoiceDateRange(dateFrom, dateTo, partnerIds);
                 Debug.WriteLine(headerCount?.result);
-                Debug.WriteLine($"AccountMove sync modo: rango invoice_date {dateFrom:yyyy-MM-dd} .. {dateTo:yyyy-MM-dd}, partners={partnerIds.Length}");
+                Debug.WriteLine(isMobileAppAdmin
+                    ? $"AccountMove sync modo: rango invoice_date {dateFrom:yyyy-MM-dd} .. {dateTo:yyyy-MM-dd}, admin sin filtro comercial"
+                    : $"AccountMove sync modo: rango invoice_date {dateFrom:yyyy-MM-dd} .. {dateTo:yyyy-MM-dd}, partners={partnerIds.Length}");
 
                 if (headerCount == null || headerCount.result == 0)
                     return false;
 
-                int headerPages = (int)Math.Ceiling((double)headerCount.result / limit);
+                int headerPages = (int)Math.Ceiling((double)headerCount.result / pageLimit);
 
                 for (int indice = 0; indice <= headerPages; indice++)
                 {
-                    var responseAll = await hubmanager.GetAccountMovesByInvoiceDateRange(dateFrom, dateTo, limit, indice, partnerIds);
+                    var responseAll = await hubmanager.GetAccountMovesByInvoiceDateRange(dateFrom, dateTo, pageLimit, indice, partnerIds);
 
                     if (responseAll?.result != null && responseAll.result.Length > 0)
                     {
@@ -416,6 +451,9 @@ namespace DMSA.Sync.Core.Update
             }
 
             bool firstSyncOfDay = database.IsFirstAccountMoveSyncOfDay();
+            if (resumeFromLastInvoiceDate)
+                firstSyncOfDay = false;
+
             _accountDocumentFirstSyncOfDay = firstSyncOfDay;
 
             DateTime lastDate = firstSyncOfDay
@@ -437,12 +475,11 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
 
-            //int limit = Constants.Session.odooConnection.DbLimitDefault;
-            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / pageLimit);
 
             for (int indice = 0; indice <= totalPages; indice++)
             {
-                var responseAll = await hubmanager.GetAccountMoves(lastDate, limit, indice, firstSyncOfDay);
+                var responseAll = await hubmanager.GetAccountMoves(lastDate, pageLimit, indice, firstSyncOfDay);
 
                 if (responseAll.result != null && responseAll.result.Length > 0)
                 {
@@ -472,6 +509,41 @@ namespace DMSA.Sync.Core.Update
             return true;
         }
 
+
+        /// <summary>
+        /// Admin 218 + 1ra sync del día: consume ZIP Odoo. Idempotente en la sesión.
+        /// Vendedor / reintento / pack ausente → false (sigue search_read).
+        /// </summary>
+        async Task<bool> TryImportAdminDocumentPackZipAsync(
+            AccountMoveDb database,
+            Func<int, int, Task>? onProgress)
+        {
+            if (!EnableAdminDocumentPackZipSync)
+                return false;
+
+            if (!IsCurrentUserMobileAppAdmin())
+                return false;
+
+            if (_adminDocumentPackImported)
+                return true;
+
+            bool firstSyncOfDay = _accountDocumentFirstSyncOfDay ?? database.IsFirstAccountMoveSyncOfDay();
+            if (!firstSyncOfDay)
+                return false;
+
+            _accountDocumentFirstSyncOfDay = true;
+
+            var imported = await AdminDocumentPackZipSync.TryImportAsync(Constants.Session, onProgress);
+            if (!imported.Success)
+            {
+                Debug.WriteLine("[AccountMove] ZIP admin no usado: " + imported.Message);
+                return false;
+            }
+
+            _adminDocumentPackImported = true;
+            Debug.WriteLine("[AccountMove] ZIP admin importado: " + imported.Message);
+            return true;
+        }
 
         private account_move[] FixAccountMove(account_move[] account_Moves)
         {
@@ -636,17 +708,29 @@ namespace DMSA.Sync.Core.Update
         [UpdateAction(
             "Actualizar detalles de documentos (facturas, notas de débito)",
             "Descarga líneas de facturas y notas de débito.")]
+        // resumeFromLastWriteDate: solo reintento si falló detalle. write_date >= MAX local; rango invoice_date del UI se mantiene.
         public async Task<bool> OnlineSyncAccountMoveLine(
             Func<int, int, Task>? onProgress = null,
             DateTime? invoiceDateFrom = null,
-            DateTime? invoiceDateTo = null)
+            DateTime? invoiceDateTo = null,
+            bool resumeFromLastWriteDate = false)
         {
             DateTime dateTimeIni = DateTime.Now;
+            int pageLimit = ResolveCobranzasSyncPageSize();
             var databaseDet = new AccountMoveLineDb(Constants.Session.odooConnection.DbNameSqlite);
 
             Debug.WriteLine("Iniciando proceso:" + " " + DateTime.Now.ToString());
 
             HubAccountMoveLine hubmanager = new HubAccountMoveLine(Constants.Session);
+
+            // Si cabecera ya importó el ZIP en esta sesión, el detalle ya está en SQLite.
+            if (!resumeFromLastWriteDate
+                && await TryImportAdminDocumentPackZipAsync(
+                    new AccountMoveDb(Constants.Session.odooConnection.DbNameSqlite),
+                    onProgress))
+            {
+                return true;
+            }
 
             bool useInvoiceDateRange = EnableInvoiceDateRangeSync
                 && invoiceDateFrom.HasValue
@@ -657,29 +741,45 @@ namespace DMSA.Sync.Core.Update
                 var dateFrom = invoiceDateFrom!.Value.Date;
                 var dateTo = invoiceDateTo!.Value.Date;
 
-                // ANTES: count/search_read solo por move_id.invoice_date (sin acotar a cabeceras locales).
-                // DESPUÉS: move_id IN ids de account_move local (mismo rango Desde/Hasta) + filtro invoice_date.
-                var moveDb = new AccountMoveDb(Constants.Session.odooConnection.DbNameSqlite);
-                int[] moveIds = await moveDb.GetIdsByInvoiceDateRangeAsync(dateFrom, dateTo);
+                // Vendedor: move_id IN cabeceras locales del rango (cartera del comercial).
+                // Admin Mobile App (218): sin move_id IN; solo rango move_id.invoice_date + dominio documentos.
+                int[] moveIds = Array.Empty<int>();
+                bool isMobileAppAdmin = IsCurrentUserMobileAppAdmin();
 
-                if (moveIds.Length == 0)
+                if (!isMobileAppAdmin)
                 {
-                    Debug.WriteLine("AccountMoveLine sync: sin account_move local en rango, se omite detalle.");
-                    return false;
+                    var moveDb = new AccountMoveDb(Constants.Session.odooConnection.DbNameSqlite);
+                    moveIds = await moveDb.GetIdsByInvoiceDateRangeAsync(dateFrom, dateTo);
+
+                    if (moveIds.Length == 0)
+                    {
+                        Debug.WriteLine("AccountMoveLine sync: sin account_move local en rango, se omite detalle.");
+                        return false;
+                    }
                 }
 
-                var lineCount = await hubmanager.GetDetailCountByInvoiceDateRange(dateFrom, dateTo, moveIds);
+                DateTime? writeDateFrom = null;
+                if (resumeFromLastWriteDate)
+                {
+                    writeDateFrom = await databaseDet.GetMaxWriteDateOrNullAsync();
+                    if (writeDateFrom.HasValue)
+                        Debug.WriteLine($"AccountMoveLine sync reintento: write_date >= {writeDateFrom:yyyy-MM-dd HH:mm:ss}, invoice_date {dateFrom:yyyy-MM-dd} .. {dateTo:yyyy-MM-dd}");
+                }
+
+                var lineCount = await hubmanager.GetDetailCountByInvoiceDateRange(dateFrom, dateTo, moveIds, writeDateFrom);
                 Debug.WriteLine(lineCount?.result);
-                Debug.WriteLine($"AccountMoveLine sync modo: rango invoice_date {dateFrom:yyyy-MM-dd} .. {dateTo:yyyy-MM-dd}, moves={moveIds.Length}");
+                Debug.WriteLine(isMobileAppAdmin
+                    ? $"AccountMoveLine sync modo: rango invoice_date {dateFrom:yyyy-MM-dd} .. {dateTo:yyyy-MM-dd}, admin sin filtro comercial"
+                    : $"AccountMoveLine sync modo: rango invoice_date {dateFrom:yyyy-MM-dd} .. {dateTo:yyyy-MM-dd}, moves={moveIds.Length}");
 
                 if (lineCount == null || lineCount.result == 0)
                     return false;
 
-                int linePages = (int)Math.Ceiling((double)lineCount.result / limit);
+                int linePages = (int)Math.Ceiling((double)lineCount.result / pageLimit);
 
                 for (int indice = 0; indice <= linePages; indice++)
                 {
-                    var responseAll = await hubmanager.GetAccountMoveLinesByInvoiceDateRange(dateFrom, dateTo, limit, indice, moveIds);
+                    var responseAll = await hubmanager.GetAccountMoveLinesByInvoiceDateRange(dateFrom, dateTo, pageLimit, indice, moveIds, writeDateFrom);
 
                     if (responseAll?.result != null && responseAll.result.Length > 0)
                         await databaseDet.InsertBatchAsync(responseAll.result);
@@ -694,12 +794,16 @@ namespace DMSA.Sync.Core.Update
                 Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
                     spanRange.Days, spanRange.Hours, spanRange.Minutes, spanRange.Seconds));
 
-                await SyncMissingPartnerSaleIdsFromAccountMoveAsync(dateFrom, dateTo);
+                if (!IsCurrentUserMobileAppAdmin())
+                    await SyncMissingPartnerSaleIdsFromAccountMoveAsync(dateFrom, dateTo);
+
                 return true;
             }
 
             var syncStateDb = new AccountMoveDb(Constants.Session.odooConnection.DbNameSqlite);
             bool firstSyncOfDay = _accountDocumentFirstSyncOfDay ?? syncStateDb.IsFirstAccountMoveSyncOfDay();
+            if (resumeFromLastWriteDate)
+                firstSyncOfDay = false;
 
             DateTime lastDate = firstSyncOfDay
                 ? DateTime.Now.Date
@@ -715,11 +819,11 @@ namespace DMSA.Sync.Core.Update
                 return false;
             }
                         
-            int totalPages = (int)Math.Ceiling((double)resultCount.result / limit);
+            int totalPages = (int)Math.Ceiling((double)resultCount.result / pageLimit);
 
             for (int indice = 0; indice <= totalPages; indice++)
             {
-                var responseAll = await hubmanager.GetAccountMoveLines(lastDate, limit, indice, firstSyncOfDay);
+                var responseAll = await hubmanager.GetAccountMoveLines(lastDate, pageLimit, indice, firstSyncOfDay);
 
                 if (responseAll.result != null && responseAll.result.Length > 0)
                 {
@@ -737,11 +841,14 @@ namespace DMSA.Sync.Core.Update
             Debug.WriteLine(String.Format("Lapso transcurrido: {0} days, {1} hours, {2} minutes, {3} seconds",
                 span.Days, span.Hours, span.Minutes, span.Seconds));
 
-            await SyncMissingPartnerSaleIdsFromAccountMoveAsync(null, null);
+            if (!IsCurrentUserMobileAppAdmin())
+                await SyncMissingPartnerSaleIdsFromAccountMoveAsync(null, null);
+
             return true;
         }
 
-        // Tras sync de detalle: partner_sale_id distintos en account_move → res.partner faltantes en local.
+        // Tras sync de detalle (solo vendedores): partner_sale_id en account_move → res.partner faltantes.
+        // Admin Mobile App (218): no aplica; ve todo sin lógica por comercial/vendedor en facturas.
         private async Task SyncMissingPartnerSaleIdsFromAccountMoveAsync(
             DateTime? invoiceDateFrom,
             DateTime? invoiceDateTo)

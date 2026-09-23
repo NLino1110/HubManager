@@ -1,5 +1,6 @@
-﻿using DMSA.Models.Odoo.Accounting;
+using DMSA.Models.Odoo.Accounting;
 using DMSA.Models.Odoo.Native;
+using System.Linq;
 
 namespace DMSA.Sync.Core.Database.Sqlite.Payments
 {
@@ -12,6 +13,9 @@ namespace DMSA.Sync.Core.Database.Sqlite.Payments
 
         protected override async Task OnAfterInit()
         {
+            await EnsureColumnAsync("_analitica_id", "INTEGER NOT NULL DEFAULT 0");
+            await EnsureColumnAsync("quantity_available_base", "REAL NOT NULL DEFAULT 0");
+
             await Database.RunInTransactionAsync(tran =>
             {
 
@@ -172,6 +176,29 @@ namespace DMSA.Sync.Core.Database.Sqlite.Payments
             await Init();
             await Database.InsertAllAsync(items, "OR REPLACE");
             return 0;
+        }
+
+        private async Task EnsureColumnAsync(string columnName, string columnTypeSql)
+        {
+            var cols = await Database.QueryAsync<SqliteColumnInfo>(
+                "PRAGMA table_info(account_move_line)");
+
+            if (cols != null && cols.Any(c =>
+                    string.Equals(c.name, columnName, StringComparison.OrdinalIgnoreCase)))
+                return;
+
+            await Database.ExecuteAsync(
+                $"ALTER TABLE account_move_line ADD COLUMN {columnName} {columnTypeSql}");
+        }
+
+        private sealed class SqliteColumnInfo
+        {
+            public int cid { get; set; }
+            public string name { get; set; }
+            public string type { get; set; }
+            public int notnull { get; set; }
+            public string dflt_value { get; set; }
+            public int pk { get; set; }
         }
     }
 }

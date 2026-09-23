@@ -6,6 +6,7 @@
              xmlns:localsys="clr-namespace:DMCobranzas.AppPages.Sys"
              xmlns:printing="clr-namespace:DMCobranzas.AppPages.Printing"
              xmlns:nc="clr-namespace:DMCobranzas.AppPages.NotaCredito"
+             xmlns:rep="clr-namespace:DMCobranzas.AppPages.Reporteria"
              xmlns:localmain="clr-namespace:DMCobranzas"
              x:Name="ThisPage"
              Title="FlyoutMenuPage">
@@ -154,6 +155,11 @@
                                               FontFamily="FontAwesome5Solid"
                                               ExecuteMode="Page"
                                       TargetType="{x:Type nc:NotasCreditoPage}" />
+                        <local:FlyoutPageItem Title="Reporteria"
+                            IconSource="&#xf570;"
+                                    FontFamily="FontAwesome5Solid"
+                                    ExecuteMode="Page"
+                            TargetType="{x:Type rep:ReporteriaPage}" />    
                         <local:FlyoutPageItem Title="Actualización"
                                       IconSource="&#xf7c0;"
                                               FontFamily="FontAwesome5Solid"

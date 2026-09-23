@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DMCobranzas.AppPages.Reporteria.ReporteriaPage"
+             Title="Reportería">
+    <Grid RowDefinitions="Auto,*">
+        <StackLayout Grid.Row="0" Margin="4">
+            <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10,0,0,0">
+                <Label Text="F. desde:" WidthRequest="70" VerticalTextAlignment="Center" TextColor="DodgerBlue"/>
+                <DatePicker x:Name="dateIni" HorizontalOptions="FillAndExpand"/>
+            </StackLayout>
+            <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10,0,0,0">
+                <Label Text="F. hasta:" WidthRequest="70" VerticalTextAlignment="Center" TextColor="DodgerBlue"/>
+                <DatePicker x:Name="dateEnd" HorizontalOptions="FillAndExpand"/>
+            </StackLayout>
+            <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10,0,0,0">
+                <Label Text="Tipo:" WidthRequest="70" VerticalTextAlignment="Center" TextColor="DodgerBlue"/>
+                <Picker x:Name="pickerTipo"
+                        Title="Seleccione tipo"
+                        ItemDisplayBinding="{Binding DisplayName}"
+                        HorizontalOptions="FillAndExpand"/>
+            </StackLayout>
+            <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" Margin="10,0,0,0">
+                <Label Text="Estado:" WidthRequest="70" VerticalTextAlignment="Center" TextColor="DodgerBlue"/>
+                <Picker x:Name="pickerEstado"
+                        Title="Seleccione estado"
+                        ItemDisplayBinding="{Binding DisplayName}"
+                        HorizontalOptions="FillAndExpand"/>
+            </StackLayout>
+            <StackLayout Orientation="Horizontal" Margin="10">
+                <Button CornerRadius="4"
+                        x:Name="btnImportar"
+                        BackgroundColor="SeaGreen"
+                        Text="Importar"
+                        Margin="2"
+                        Clicked="btnImportar_Clicked"
+                        HeightRequest="35"
+                        Padding="10,0,10,0">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FontAwesome5Solid"
+                                         Color="White"
+                                         Size="14"
+                                         FontAutoScalingEnabled="True"
+                                         Glyph="&#xf56f;" />
+                    </Button.ImageSource>
+                </Button>
+            </StackLayout>
+        </StackLayout>
+
+        <Grid Grid.Row="1"
+              BackgroundColor="#80000000"
+              IsVisible="{Binding IsLoading}"
+              ZIndex="999">
+            <ActivityIndicator IsRunning="{Binding IsLoading}"
+                               Color="MediumVioletRed"
+                               WidthRequest="100"
+                               HeightRequest="100"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+        </Grid>
+    </Grid>
+</ContentPage>

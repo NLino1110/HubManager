@@ -2,182 +2,181 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="DMOrders.Pages.Sys.UpdateData"
-             xmlns:controls="clr-namespace:BeebTech.Maui.Controls;assembly=BeebTech.Maui.Controls"             
-             xmlns:controls2="clr-namespace:BeebTech.Maui.Controls.Controls;assembly=BeebTech.Maui.Controls"             
+             xmlns:controls="clr-namespace:BeebTech.Maui.Controls;assembly=BeebTech.Maui.Controls"
+             xmlns:controls2="clr-namespace:BeebTech.Maui.Controls.Controls;assembly=BeebTech.Maui.Controls"
              Title="Actualización de datos">
-    <VerticalStackLayout>
-        <VerticalStackLayout>
-                <Border Padding="10" Margin="10,5,10,10">
-                    <StackLayout>
-                    <HorizontalStackLayout>
+    <Grid RowDefinitions="*,Auto" RowSpacing="4">
+        <ScrollView Grid.Row="0">
+            <Border Padding="10" Margin="10,5,10,5">
+                <StackLayout Spacing="4">
+                    <HorizontalStackLayout Spacing="8">
                         <Button x:Name="btnBack"
-                            BackgroundColor="Gray"
-                            TextColor="White"                            
-                            CornerRadius="30"                
-                            HeightRequest="55"
-                            WidthRequest="55"
-                                 VerticalOptions="Center"
-                            Clicked="btnBack_Clicked"
-                            Padding="0">
+                                BackgroundColor="Gray"
+                                TextColor="White"
+                                CornerRadius="30"
+                                HeightRequest="55"
+                                WidthRequest="55"
+                                VerticalOptions="Start"
+                                Clicked="btnBack_Clicked"
+                                Padding="0">
                             <Button.ImageSource>
-                                <FontImageSource
-                                    Size="20"
-                                    FontFamily="FontAwesome5Solid"
-                                    FontAutoScalingEnabled="True"
-                                    Glyph="&#xf060;" />
+                                <FontImageSource Size="20"
+                                                 FontFamily="FontAwesome5Solid"
+                                                 FontAutoScalingEnabled="True"
+                                                 Glyph="&#xf060;" />
                             </Button.ImageSource>
                         </Button>
                         <Label Text="Seleccione los datos que desea actualizar"
                                FontSize="14"
-                               FontAttributes="Bold" 
-                               HorizontalOptions="Center"
+                               FontAttributes="Bold"
+                               HorizontalOptions="FillAndExpand"
                                VerticalOptions="Center"
-                               Margin="10,10,10,10"/>
+                               LineBreakMode="WordWrap"
+                               HorizontalTextAlignment="Center"
+                               Margin="0,10,10,10" />
                     </HorizontalStackLayout>
 
                     <BoxView HeightRequest="1" Margin="10,5" Color="LightGray" HorizontalOptions="Fill" />
-                        
-                        <Label Text="01/01/2023 00:00:00"
+
+                    <Label Text="01/01/2023 00:00:00"
                            x:Name="lblUpdated"
                            HorizontalOptions="Center"
-                           Margin="10,10,10,10"/>
-                        <Label
-                Text="-"
-                VerticalOptions="Center"
-                x:Name="lblUpdatedInfo"
-                HorizontalOptions="Center"
-                        Margin="10,10,10,10"/>
-                        <HorizontalStackLayout Padding="5" VerticalOptions="Center" HorizontalOptions="Center">
-                            <StackLayout Orientation="Horizontal" Spacing="3" Padding="5">
-                                <Border WidthRequest="20" HeightRequest="20" BackgroundColor="DimGray" Stroke="DimGray" StrokeThickness="1" Padding="0">
-                                    <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="10"/>
-                                    </Border.StrokeShape>
-                                    <Grid Margin="3">
-                                        <BoxView x:Name="BoxViewServerStatusOdoo" Color="SaddleBrown" CornerRadius="15"/>
-                                    </Grid>
-                                </Border>
+                           Margin="10,5" />
+                    <Label Text="-"
+                           VerticalOptions="Center"
+                           x:Name="lblUpdatedInfo"
+                           HorizontalOptions="Center"
+                           LineBreakMode="WordWrap"
+                           HorizontalTextAlignment="Center"
+                           Margin="10,5" />
+                    <HorizontalStackLayout Padding="5" VerticalOptions="Center" HorizontalOptions="Center">
+                        <StackLayout Orientation="Horizontal" Spacing="3" Padding="5">
+                            <Border WidthRequest="20" HeightRequest="20" BackgroundColor="DimGray" Stroke="DimGray" StrokeThickness="1" Padding="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="10" />
+                                </Border.StrokeShape>
+                                <Grid Margin="3">
+                                    <BoxView x:Name="BoxViewServerStatusOdoo" Color="SaddleBrown" CornerRadius="15" />
+                                </Grid>
+                            </Border>
                             <Label x:Name="lblServerStatusOdoo" Text="Servidor Odoo" TextColor="DimGray" VerticalOptions="Center" />
-                        </StackLayout>                           
-                        </HorizontalStackLayout>
-                        <StackLayout Margin="25,0,0,0" IsVisible="False">
-                            <Label Text="Mi conexión de red" FontAttributes="Bold"/>
-                            <Label Text="Por favor, si se encuentra conectado a una red que está fuera de la red de Macronegocios, seleccione red externa." FontSize="12" TextColor="DimGray" />
-                            <StackLayout RadioButtonGroup.GroupName="networks" Orientation="Horizontal">
-                                <RadioButton Value="RedInterna" Content="Red Interna" IsChecked="True" CheckedChanged="OnNetworkCheckedChanged">
-                                </RadioButton>
-                                <RadioButton Value="RedExterna" Content="Red Externa" CheckedChanged="OnNetworkCheckedChanged">
-                                </RadioButton>
-                            </StackLayout>
                         </StackLayout>
-                    <VerticalStackLayout Margin="20">
+                    </HorizontalStackLayout>
+
+                    <StackLayout Margin="25,0,0,0" IsVisible="False">
+                        <Label Text="Mi conexión de red" FontAttributes="Bold" />
+                        <Label Text="Por favor, si se encuentra conectado a una red que está fuera de la red de Macronegocios, seleccione red externa."
+                               FontSize="12"
+                               TextColor="DimGray"
+                               LineBreakMode="WordWrap" />
+                        <StackLayout RadioButtonGroup.GroupName="networks" Orientation="Horizontal">
+                            <RadioButton Value="RedInterna" Content="Red Interna" IsChecked="True" CheckedChanged="OnNetworkCheckedChanged" />
+                            <RadioButton Value="RedExterna" Content="Red Externa" CheckedChanged="OnNetworkCheckedChanged" />
+                        </StackLayout>
+                    </StackLayout>
+
+                    <VerticalStackLayout Margin="20,8,20,8" Spacing="2">
                         <Border Margin="0" Padding="15,0,0,0">
                             <HorizontalStackLayout Spacing="25">
-                                <controls:CheckBoxEx x:Name="chkGroup1" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Promociones"></controls:CheckBoxEx>
-                                <controls:CheckBoxEx x:Name="chkRemovePromo" CheckBoxColor="OrangeRed" TextColor="Black" IsChecked="True" LabelText="Eliminar datos existentes" IsVisible="False"></controls:CheckBoxEx>
+                                <controls:CheckBoxEx x:Name="chkGroup1" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Promociones" />
+                                <controls:CheckBoxEx x:Name="chkRemovePromo" CheckBoxColor="OrangeRed" TextColor="Black" IsChecked="True" LabelText="Eliminar datos existentes" IsVisible="False" />
                             </HorizontalStackLayout>
                         </Border>
-                        <controls:CheckBoxEx x:Name="chkGroup2" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Marcas, categorías ..."></controls:CheckBoxEx>                        
-                        <controls:CheckBoxEx x:Name="chkGroup3" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Clientes"></controls:CheckBoxEx>
-                        <controls:CheckBoxEx x:Name="chkGroup7" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Productos"></controls:CheckBoxEx>
-                        <controls:CheckBoxEx x:Name="chkGroup8" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="False" LabelText="Imágenes de productos"></controls:CheckBoxEx>
-                        <controls:CheckBoxEx x:Name="chkGroup4" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Precios"></controls:CheckBoxEx>
-                        <controls:CheckBoxEx x:Name="chkGroup5" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Stock"></controls:CheckBoxEx>
-                        <controls:CheckBoxEx x:Name="chkGroup6" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Pedidos (Estados)"></controls:CheckBoxEx>
+                        <controls:CheckBoxEx x:Name="chkGroup2" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Marcas, categorías ..." />
+                        <controls:CheckBoxEx x:Name="chkGroup3" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Clientes" />
+                        <controls:CheckBoxEx x:Name="chkGroup7" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Productos" />
+                        <controls:CheckBoxEx x:Name="chkGroup8" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="False" LabelText="Imágenes de productos" />
+                        <controls:CheckBoxEx x:Name="chkGroup4" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Precios" />
+                        <controls:CheckBoxEx x:Name="chkGroup5" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Stock" />
+                        <controls:CheckBoxEx x:Name="chkGroup6" CheckBoxColor="#D32F2F" TextColor="Black" IsChecked="True" LabelText="Pedidos (Estados)" />
                     </VerticalStackLayout>
                 </StackLayout>
-                </Border>
+            </Border>
+        </ScrollView>
 
-                <HorizontalStackLayout HorizontalOptions="End" IsVisible="True">
-                    <Button
-                        BackgroundColor="SeaGreen"
-                        x:Name="btnUpdate"
-                        Text="Actualizar datos"
-                        SemanticProperties.Hint="Actualizar"
-                        Clicked="LaunchUpdate"
-                        HorizontalOptions="Center" Margin="5">
-                        <Button.ImageSource>
-                        <FontImageSource                            
-                            Size="18"
-                            FontFamily="FontAwesome5Solid"
-                            Glyph="&#xf021;" />
-                    </Button.ImageSource>
-                    </Button>
+        <FlexLayout Grid.Row="1"
+                    Wrap="Wrap"
+                    Direction="Row"
+                    JustifyContent="End"
+                    AlignItems="Center"
+                    Padding="8,4">
+            <Button BackgroundColor="SeaGreen"
+                    x:Name="btnUpdate"
+                    Text="Actualizar datos"
+                    SemanticProperties.Hint="Actualizar"
+                    Clicked="LaunchUpdate"
+                    Margin="4,2">
+                <Button.ImageSource>
+                    <FontImageSource Size="18"
+                                     FontFamily="FontAwesome5Solid"
+                                     Glyph="&#xf021;" />
+                </Button.ImageSource>
+            </Button>
 
-                <Button 
-                    x:Name="BtnCatalog"
-                    Text="Catálogo"                    
+            <Button x:Name="BtnCatalog"
+                    Text="Catálogo"
                     Clicked="LaunchUpdateCatalog"
-                    HorizontalOptions="Center"
-                    BackgroundColor="Orange" Margin="5">
-                    <Button.ImageSource>
-                        <FontImageSource                            
-                            Size="18"
-                            FontFamily="FontAwesome5Solid"
-                            Glyph="&#xf03e;" />
-                    </Button.ImageSource>
-                </Button>
+                    BackgroundColor="Orange"
+                    Margin="4,2">
+                <Button.ImageSource>
+                    <FontImageSource Size="18"
+                                     FontFamily="FontAwesome5Solid"
+                                     Glyph="&#xf03e;" />
+                </Button.ImageSource>
+            </Button>
 
-                <Button 
-                        BackgroundColor="CadetBlue"
-                        x:Name="BtnUploadSync"
-                        Text="Enviar datos"
-                        SemanticProperties.Hint="Actualizar"
-                        Clicked="UploadData"
-                        HorizontalOptions="Center" Margin="5">
-                        <Button.ImageSource>
-                        <FontImageSource                            
-                            Size="18"
-                            FontFamily="FontAwesome5Solid"
-                            Glyph="&#xf519;" />
-                    </Button.ImageSource>
-                    </Button>
+            <Button BackgroundColor="CadetBlue"
+                    x:Name="BtnUploadSync"
+                    Text="Enviar datos"
+                    SemanticProperties.Hint="Actualizar"
+                    Clicked="UploadData"
+                    Margin="4,2">
+                <Button.ImageSource>
+                    <FontImageSource Size="18"
+                                     FontFamily="FontAwesome5Solid"
+                                     Glyph="&#xf519;" />
+                </Button.ImageSource>
+            </Button>
 
-                    <Button 
-                        x:Name="BtnDeleteTables"
-                        Text="Eliminar datos"
-                        SemanticProperties.Hint="Actualizar"
-                        Clicked="DeleteTables"
-                        HorizontalOptions="Center"
-                        BackgroundColor="Red" IsVisible="False" Margin="5">
-                        <Button.ImageSource>
-                        <FontImageSource                            
-                            Size="18"
-                            FontFamily="FontAwesome5Solid"
-                            Glyph="&#xf519;" />
-                    </Button.ImageSource>
-                    </Button>
+            <Button x:Name="BtnDeleteTables"
+                    Text="Eliminar datos"
+                    SemanticProperties.Hint="Actualizar"
+                    Clicked="DeleteTables"
+                    BackgroundColor="Red"
+                    IsVisible="False"
+                    Margin="4,2">
+                <Button.ImageSource>
+                    <FontImageSource Size="18"
+                                     FontFamily="FontAwesome5Solid"
+                                     Glyph="&#xf519;" />
+                </Button.ImageSource>
+            </Button>
 
-                <Button
-                    x:Name="BtnUploadPipeline"
-                    Text="Crear Pipeline"                    
+            <Button x:Name="BtnUploadPipeline"
+                    Text="Crear Pipeline"
                     Clicked="btnUploadPipeline_Clicked"
-                    HorizontalOptions="Center"
-                    BackgroundColor="LawnGreen" 
-                        IsVisible="False" Margin="5">
-                                    <Button.ImageSource>
-                                        <FontImageSource                            
-                        Size="18"
-                        FontFamily="FontAwesome5Solid"
-                        Glyph="&#xf359;" />
-                    </Button.ImageSource>
-                </Button>
+                    BackgroundColor="LawnGreen"
+                    IsVisible="False"
+                    Margin="4,2">
+                <Button.ImageSource>
+                    <FontImageSource Size="18"
+                                     FontFamily="FontAwesome5Solid"
+                                     Glyph="&#xf359;" />
+                </Button.ImageSource>
+            </Button>
 
-                <Button 
-                    x:Name="BtnDownloadFromFile"
-                    Text="Desde Pipeline"                    
+            <Button x:Name="BtnDownloadFromFile"
+                    Text="Desde Pipeline"
                     Clicked="btnFromPipeline_Clicked"
-                    HorizontalOptions="Center"
-                    BackgroundColor="Firebrick" 
-                        IsVisible="False" Margin="5">
-                    <Button.ImageSource>
-                        <FontImageSource                            
-                            Size="18"
-                            FontFamily="FontAwesome5Solid"
-                            Glyph="&#xf359;" />
-                    </Button.ImageSource>
-                </Button>                
-            </HorizontalStackLayout>
-        </VerticalStackLayout>        
-    </VerticalStackLayout>
+                    BackgroundColor="Firebrick"
+                    IsVisible="False"
+                    Margin="4,2">
+                <Button.ImageSource>
+                    <FontImageSource Size="18"
+                                     FontFamily="FontAwesome5Solid"
+                                     Glyph="&#xf359;" />
+                </Button.ImageSource>
+            </Button>
+        </FlexLayout>
+    </Grid>
 </ContentPage>

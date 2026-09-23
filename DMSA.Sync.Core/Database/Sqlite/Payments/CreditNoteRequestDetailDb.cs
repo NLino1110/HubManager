@@ -1,4 +1,5 @@
-﻿using DMSA.Models.Odoo.Accounting;
+using DMSA.Models.Odoo.Accounting;
+using System.Linq;
 
 namespace DMSA.Sync.Core.Database.Sqlite.Payments
 {
@@ -7,6 +8,41 @@ namespace DMSA.Sync.Core.Database.Sqlite.Payments
         public CreditNoteRequestDetailDb(string _DatabaseFilename) : base(_DatabaseFilename)
         {
 
+        }
+
+        protected override async Task OnAfterInit()
+        {
+            await EnsureColumnAsync("client_permanently_closing", "INTEGER NOT NULL DEFAULT 0");
+            await EnsureColumnAsync("_uom_id", "INTEGER NOT NULL DEFAULT 0");
+            await EnsureColumnAsync("invoice_line_uom_id", "INTEGER NOT NULL DEFAULT 0");
+            await EnsureColumnAsync("quantity_available_invoice", "REAL NOT NULL DEFAULT 0");
+            await EnsureColumnAsync("quantity_available_base", "REAL NOT NULL DEFAULT 0");
+            await EnsureColumnAsync("quantity_available_by_uom", "REAL NOT NULL DEFAULT 0");
+            await EnsureColumnAsync("discount", "REAL NOT NULL DEFAULT 0");
+            await EnsureColumnAsync("analitica_id", "INTEGER NOT NULL DEFAULT 0");
+        }
+
+        private async Task EnsureColumnAsync(string columnName, string columnTypeSql)
+        {
+            var cols = await Database.QueryAsync<SqliteColumnInfo>(
+                "PRAGMA table_info(credit_note_request_detail)");
+
+            if (cols != null && cols.Any(c =>
+                    string.Equals(c.name, columnName, StringComparison.OrdinalIgnoreCase)))
+                return;
+
+            await Database.ExecuteAsync(
+                $"ALTER TABLE credit_note_request_detail ADD COLUMN {columnName} {columnTypeSql}");
+        }
+
+        private sealed class SqliteColumnInfo
+        {
+            public int cid { get; set; }
+            public string name { get; set; }
+            public string type { get; set; }
+            public int notnull { get; set; }
+            public string dflt_value { get; set; }
+            public int pk { get; set; }
         }
 
         public async Task<List<credit_note_request_detail>> GetItemsAsync(credit_note_request parent)

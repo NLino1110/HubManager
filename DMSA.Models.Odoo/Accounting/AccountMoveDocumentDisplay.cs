@@ -6,6 +6,8 @@ namespace DMSA.Models.Odoo.Accounting
         public const string DebitNotePrefix = "NDBI #";
         public const string CreditNotePrefix = "NCRE #";
         public const string AdvancePrefix = "ANT #";
+        public const string BalanceOwedLabel = "SALDO:";
+        public const string BalanceInFavorLabel = "SALDO A FAVOR:";
 
         /// <summary>
         /// Tipos de account.move que bajan sync masiva y sync por cliente.
@@ -44,7 +46,8 @@ namespace DMSA.Models.Odoo.Accounting
             IsCreditLikeMoveType(moveType) || IsAdvanceMoveType(moveType);
 
         /// <summary>
-        /// out_invoice: saldo &gt; 0. out_refund / advance: saldo &lt; 0.
+        /// out_invoice / NDBI: saldo &gt; 0.
+        /// out_refund / advance: saldo distinto de cero (Odoo puede persistir amount_residual positivo o negativo).
         /// </summary>
         public static bool HasOpenBalanceForBalanceView(string? moveType, decimal amountResidual)
         {
@@ -55,7 +58,7 @@ namespace DMSA.Models.Odoo.Accounting
                 return amountResidual > 0;
 
             if (IsNegativeBalanceDocument(moveType))
-                return amountResidual < 0;
+                return Math.Abs(amountResidual) > 0;
 
             return false;
         }
@@ -69,17 +72,19 @@ namespace DMSA.Models.Odoo.Accounting
         /// </summary>
         public static object[] BuildSyncMoveTypeDomain(string moveTypeField = "move_type")
         {
-            // var amountResidualField = moveTypeField == "move_type"
-            //     ? "amount_residual"
-            //     : "move_id.amount_residual";
+             var amountResidualField = moveTypeField == "move_type"
+                 ? "amount_residual_signed"
+                 : "move_id.amount_residual";
 
             return new object[]
             {
-                // "|", "|",
+                 //"|",
+                 "|",
+
                 new object[] { moveTypeField, "=", "out_invoice" },
-                // "&",
-                // new object[] { moveTypeField, "=", "out_refund" },
-                // new object[] { amountResidualField, "<", 0 },
+                 "&",
+                 new object[] { moveTypeField, "=", "out_refund" },
+                 new object[] { amountResidualField, "<", 0 },
                 // "&",
                 // new object[] { moveTypeField, "=", "advance" },
                 // new object[] { amountResidualField, "<", 0 },
@@ -109,6 +114,30 @@ namespace DMSA.Models.Odoo.Accounting
                 return $"{DebitNotePrefix}{docnumMask.Trim()}";
 
             return $"{InvoicePrefix}{docnumMask.Trim()}";
+        }
+
+        public static string GetBalanceAmountLabel(string? moveType) =>
+            IsCreditLikeMoveType(moveType) ? BalanceInFavorLabel : BalanceOwedLabel;
+
+        public static decimal GetBalanceAmountForDisplay(
+            string? moveType,
+            decimal amountResidual,
+            decimal amountResidualVirtual = 0)
+        {
+            if (IsCreditLikeMoveType(moveType))
+                return Math.Abs(amountResidual);
+
+            return amountResidualVirtual != 0 ? amountResidualVirtual : amountResidual;
+        }
+
+        public static string FormatBalanceAmountText(
+            string? moveType,
+            decimal amountResidual,
+            decimal amountResidualVirtual = 0)
+        {
+            var label = GetBalanceAmountLabel(moveType);
+            var value = GetBalanceAmountForDisplay(moveType, amountResidual, amountResidualVirtual);
+            return $"{label} ${value}";
         }
     }
 }

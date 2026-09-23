@@ -75,7 +75,7 @@
                 </StackLayout>               
 
                 <Label
-                    Text="{Binding amount_residual_virtual, StringFormat='SALDO: ${0}'}"
+                    Text="{Binding balance_amount_text}"
                     FontSize="12"
                     FontAttributes="Bold"
                     TextColor="Red" />

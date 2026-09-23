@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.Input;
 using DMCobranzas.AppPages;
@@ -378,6 +378,7 @@ public partial class Login : ContentPage
         resultUser.log_fec_acceso = resultValidacion.data[0].datetime;
         
         App.Session.CurrentUserFront = resultUser;
+        DMSA.Sync.Core.Constants.Session = App.Session;
         
         user_access itemInsert = new user_access();
         itemInsert.name = resultUser.nombres;
@@ -389,7 +390,8 @@ public partial class Login : ContentPage
         itemInsert.token_type = resultUser.token_type;
         itemInsert.access_token = resultUser.access_token;
         itemInsert.databasename = resultUser.databasename;
-        itemInsert.log_fec_acceso = resultUser.log_fec_acceso;        
+        itemInsert.log_fec_acceso = resultUser.log_fec_acceso;
+        itemInsert.is_mobile_app_admin = MobileAppUserRole.ToLocalFlag(resultUser.IsMobileAppAdmin);
 
         itemInsert.companies = Newtonsoft.Json.JsonConvert.SerializeObject(resultValidacion.data[0].companies);
 
@@ -495,6 +497,7 @@ public partial class Login : ContentPage
         resultUser.log_fec_acceso = userFound.log_fec_acceso;
         resultUser.log_fec_sincro = userFound.log_fec_sincro;
         resultUser.log_fec_sincro_nc = userFound.log_fec_sincro_nc;
+        resultUser.IsMobileAppAdmin = MobileAppUserRole.FromLocalFlag(userFound.is_mobile_app_admin);
         
         App.Session.CurrentUserFront = resultUser;
         App.Session.CurrentUserFront.empresas = _empresas;
@@ -516,6 +519,7 @@ public partial class Login : ContentPage
         itemInsert.log_fec_acceso = DateTime.Now;
         itemInsert.log_fec_sincro = userFound.log_fec_sincro;
         itemInsert.log_fec_sincro_nc = userFound.log_fec_sincro_nc;
+        itemInsert.is_mobile_app_admin = MobileAppUserRole.ToLocalFlag(resultUser.IsMobileAppAdmin);
 
         itemInsert.companies = Newtonsoft.Json.JsonConvert.SerializeObject(_empresas);
 
@@ -641,7 +645,8 @@ public partial class Login : ContentPage
                     token_type = userFound.token_type,
                     access_token = userFound.access_token,
                     databasename = userFound.databasename ?? App.Session.odooConnection.DbName,
-                    log_fec_acceso = userFound.log_fec_acceso
+                    log_fec_acceso = userFound.log_fec_acceso,
+                    IsMobileAppAdmin = MobileAppUserRole.FromLocalFlag(userFound.is_mobile_app_admin)
                 };                
             }
             else
@@ -748,7 +753,8 @@ public partial class Login : ContentPage
                     token_type = userFound.token_type,
                     access_token = userFound.access_token,
                     databasename = userFound.databasename ?? App.Session.odooConnection.DbName,
-                    log_fec_acceso = userFound.log_fec_acceso
+                    log_fec_acceso = userFound.log_fec_acceso,
+                    IsMobileAppAdmin = MobileAppUserRole.FromLocalFlag(userFound.is_mobile_app_admin)
                 };
 
                 if (!(await SetDataSessionOffLine(resultUser, userFound, currentDate)))
@@ -798,8 +804,13 @@ public partial class Login : ContentPage
                     };
 
                     var partner = await hubUser.GetById(resultUser.uid);
-                    if (partner != null)
+                    if (partner?.result != null && partner.result.Length > 0)
                         resultUser.nombres = partner.result[0].name;
+
+                    // Rol admin: web_read sel_groups_218 (Mobile App = Administrador Apps Móviles).
+                    var mobileAppRole = await hubUser.WebReadMobileAppAdminRole(resultUser.uid);
+                    if (mobileAppRole?.result != null && mobileAppRole.result.Length > 0)
+                        resultUser.IsMobileAppAdmin = MobileAppUserRole.IsAdministradorAppsMoviles(mobileAppRole.result[0]);
 
                     await SetDataSessionOnLine(resultUser, currentDate);
                 }

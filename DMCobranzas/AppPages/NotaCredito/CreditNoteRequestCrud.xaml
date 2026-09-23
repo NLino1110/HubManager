@@ -28,6 +28,17 @@
 	<ContentPage.Content>        
             <StackLayout HorizontalOptions="Fill" VerticalOptions="Fill">            
                 <VerticalStackLayout Spacing="12">
+                <Border IsVisible="{Binding ShowClientPermanentlyClosingBanner}"
+                        BackgroundColor="#FFF3CD"
+                        Stroke="#856404"
+                        StrokeThickness="1"
+                        Padding="10,8"
+                        Margin="15,8,15,0">
+                    <Label TextColor="#856404"
+                           FontSize="12"
+                           LineBreakMode="WordWrap"
+                           Text="Este cliente tiene activo el cierre de operaciones. Las devoluciones se registran por la unidad de medida de inventario configurada en el producto, no por la unidad de medida de la factura." />
+                </Border>
 				<Grid Margin="15,10,15,2" HorizontalOptions="FillAndExpand">
 					<Grid.RowDefinitions>
 						<RowDefinition Height="Auto"/>
